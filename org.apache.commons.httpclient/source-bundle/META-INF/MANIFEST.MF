@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-Name: %bundleName
+Bundle-Vendor: %bundleProvider
+Bundle-ManifestVersion: 2
+Bundle-Localization: plugin
+Bundle-SymbolicName: org.apache.commons.httpclient.source
+Bundle-Version: 3.0.1.qualifier
+Eclipse-SourceBundle: org.apache.commons.httpclient;version="3.0.1.qualifier"
+

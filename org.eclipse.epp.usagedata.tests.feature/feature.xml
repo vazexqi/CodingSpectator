@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.epp.usagedata.tests.feature"
+      label="Usagedata Unit Tests"
+      version="1.3.0.qualifier"
+      provider-name="Eclipse.org">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import plugin="org.junit4" version="4.3.1" match="equivalent"/>
+      <import plugin="javax.servlet"/>
+      <import plugin="org.eclipse.equinox.http.jetty"/>
+      <import plugin="org.eclipse.osgi.services"/>
+      <import plugin="org.eclipse.epp.usagedata.recording" version="1.3.0" match="compatible"/>
+      <import plugin="org.eclipse.epp.usagedata.ui" version="1.3.0" match="compatible"/>
+      <import plugin="org.eclipse.epp.usagedata.gathering" version="1.3.0" match="compatible"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.recording.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.ui.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.gathering.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

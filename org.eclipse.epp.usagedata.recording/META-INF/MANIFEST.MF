@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name.0
+Bundle-SymbolicName: org.eclipse.epp.usagedata.recording;singleton:=true
+Bundle-Version: 1.3.0.qualifier
+Bundle-Activator: org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator
+Require-Bundle: org.eclipse.ui;bundle-version="[3.3.0,4.0.0)",
+ org.eclipse.core.runtime;bundle-version="[3.3.0,4.0.0)",
+ org.eclipse.epp.usagedata.gathering;bundle-version="[1.0.0,2.0.0)",
+ org.apache.commons.httpclient;bundle-version="[3.0.1,4.0.0)"
+Eclipse-LazyStart: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.eclipse.epp.usagedata.internal.recording;x-friends:="org.eclipse.epp.usagedata.ui",
+ org.eclipse.epp.usagedata.internal.recording.filtering;x-friends:="org.eclipse.epp.usagedata.ui",
+ org.eclipse.epp.usagedata.internal.recording.settings;x-friends:="org.eclipse.epp.usagedata.ui",
+ org.eclipse.epp.usagedata.internal.recording.uploading;x-friends:="org.eclipse.epp.usagedata.ui"
+Bundle-Vendor: %Bundle-Vendor.0

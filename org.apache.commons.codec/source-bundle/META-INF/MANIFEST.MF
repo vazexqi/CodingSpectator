@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %bundleName
+Bundle-SymbolicName: org.apache.commons.codec.source
+Bundle-Version: 1.3.0.qualifier
+Bundle-Localization: plugin
+Bundle-Vendor: %bundleProvider
+Eclipse-SourceBundle: org.apache.commons.codec;version="1.3.0.qualifier"
+
