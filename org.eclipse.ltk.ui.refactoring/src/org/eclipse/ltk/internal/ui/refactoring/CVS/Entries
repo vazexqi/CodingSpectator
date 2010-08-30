@@ -1,0 +1,52 @@
+/AbstractChangeNode.java/1.12/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/AbstractDescriptor.java/1.9/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/BasicElementLabels.java/1.3/Thu Sep 11 12:01:09 2008//Tv20100526-0800
+/ChangeElementContentProvider.java/1.13/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/ChangeElementLabelProvider.java/1.16/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/ChangeElementTreeViewer.java/1.12/Wed Dec 31 21:13:56 2008//Tv20100526-0800
+/ChangeExceptionHandler.java/1.13/Thu Sep 11 12:01:09 2008//Tv20100526-0800
+/ChangePreviewViewerDescriptor.java/1.8/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/CompositeChangeNode.java/1.7/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/DefaultChangeNode.java/1.3/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/DescriptorManager.java/1.10/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/ErrorWizardPage.java/1.20/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/ExceptionHandler.java/1.9/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/FileStatusContextViewer.java/1.13/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/FinishResult.java/1.6/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/IErrorWizardPage.java/1.3/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/IPreviewWizardPage.java/1.8/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/IRefactoringHelpContextIds.java/1.13/Wed Dec 31 21:13:56 2008//Tv20100526-0800
+/InternalAPI.java/1.8/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/InternalLanguageElementNode.java/1.6/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/InternalTextEditChangeNode.java/1.3/Wed Dec 31 21:13:56 2008//Tv20100526-0800
+/Messages.java/1.5/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/NotCancelableProgressMonitor.java/1.4/Fri May 12 13:00:02 2006//Tv20100526-0800
+/PreviewNode.java/1.8/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/PreviewWizardPage.java/1.44/Mon Feb 16 10:10:16 2009//Tv20100526-0800
+/RefactoringHistoryPreviewPage.java/1.13/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringLocationControl.java/1.4/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringPluginImages.java/1.18/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringPreviewChangeFilter.java/1.3/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringStatusContentProvider.java/1.5/Fri May 12 13:00:02 2006//Tv20100526-0800
+/RefactoringStatusDialog.java/1.16/Mon Jan 25 19:23:57 2010//Tv20100526-0800
+/RefactoringStatusEntryFilter.java/1.3/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringStatusEntryLabelProvider.java/1.7/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringStatusViewer.java/1.17/Thu Jun  4 15:23:16 2009//Tv20100526-0800
+/RefactoringUIMessages.java/1.61/Fri May 21 07:16:51 2010//Tv20100526-0800
+/RefactoringUIMessages.properties/1.105/Tue May 18 09:30:23 2010//Tv20100526-0800
+/RefactoringUIPlugin.java/1.8/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/RefactoringWizardDialog.java/1.15/Thu Sep 11 12:01:09 2008//Tv20100526-0800
+/RefactoringWizardDialog2.java/1.43/Tue Mar 16 10:36:22 2010//Tv20100526-0800
+/StatusContextViewerDescriptor.java/1.8/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/TextEditChangePreviewViewer.java/1.9/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/TextEditGroupNode.java/1.7/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/UIPerformChangeOperation.java/1.15/Mon Dec  1 18:12:35 2008//Tv20100526-0800
+/UIQueryFactory.java/1.7/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/UndoManagerAction.java/1.15/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/ValidationCheckResultQuery.java/1.7/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+/WorkbenchRunnableAdapter.java/1.10/Wed Dec 31 21:13:55 2008//Tv20100526-0800
+D/actions////
+D/history////
+D/model////
+D/scripting////
+D/util////

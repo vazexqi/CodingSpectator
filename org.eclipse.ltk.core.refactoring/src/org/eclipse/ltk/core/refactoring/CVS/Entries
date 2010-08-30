@@ -1,0 +1,46 @@
+/CategorizedTextEditGroup.java/1.6/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/Change.java/1.27/Sun Mar  7 16:20:54 2010//Tv20100526-0800
+/ChangeDescriptor.java/1.5/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/CheckConditionsOperation.java/1.13/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/CompositeChange.java/1.37/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/ContentStamp.java/1.8/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/CreateChangeOperation.java/1.19/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/DocumentChange.java/1.15/Thu Apr 22 12:50:08 2010//Tv20100526-0800
+/FileStatusContext.java/1.11/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/GroupCategory.java/1.7/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/GroupCategorySet.java/1.9/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/IRefactoringCoreStatusCodes.java/1.15/Tue Nov 18 19:36:03 2008//Tv20100526-0800
+/IRefactoringStatusEntryComparator.java/1.6/Wed Dec 31 21:14:14 2008//Tv20100526-0800
+/IResourceMapper.java/1.6/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/IUndoManager.java/1.20/Tue Nov 18 19:36:03 2008//Tv20100526-0800
+/IUndoManagerListener.java/1.10/Wed Dec 31 21:14:14 2008//Tv20100526-0800
+/IValidationCheckResultQuery.java/1.7/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/IValidationCheckResultQueryFactory.java/1.5/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/MultiStateTextFileChange.java/1.13/Fri May 21 07:18:31 2010//Tv20100526-0800
+/NullChange.java/1.11/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/PerformChangeOperation.java/1.21/Thu Jul 30 13:07:27 2009//Tv20100526-0800
+/PerformRefactoringHistoryOperation.java/1.13/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/PerformRefactoringOperation.java/1.13/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/Refactoring.java/1.18/Thu Dec  3 14:12:01 2009//Tv20100526-0800
+/RefactoringChangeDescriptor.java/1.6/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringContribution.java/1.21/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringCore.java/1.23/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringDescriptor.java/1.63/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringDescriptorProxy.java/1.24/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringSessionDescriptor.java/1.16/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringStatus.java/1.17/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringStatusContext.java/1.11/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/RefactoringStatusEntry.java/1.11/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/RefactoringTickProvider.java/1.5/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/TextChange.java/1.33/Wed Dec  3 16:33:05 2008//Tv20100526-0800
+/TextEditBasedChange.java/1.8/Wed Dec 31 21:14:15 2008//Tv20100526-0800
+/TextEditBasedChangeGroup.java/1.7/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/TextEditChangeGroup.java/1.11/Thu Sep 11 11:57:55 2008//Tv20100526-0800
+/TextFileChange.java/1.29/Fri May 21 07:18:31 2010//Tv20100526-0800
+/UndoManagerAdapter.java/1.10/Wed Dec 31 21:14:14 2008//Tv20100526-0800
+/UndoTextFileChange.java/1.24/Wed Apr 21 20:48:18 2010//Tv20100526-0800
+D/history////
+D/model////
+/package.html/1.2/Wed Jun 23 17:54:54 2004//Tv20100526-0800
+D/participants////
+D/resource////
