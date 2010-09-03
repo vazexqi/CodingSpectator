@@ -252,4 +252,9 @@ public abstract class Refactoring extends PlatformObject {
 	public String toString() {
 		return getName();
 	}
+	
+	public RefactoringDescriptor getSimpleRefactoringDescriptor() {
+		throw new UnsupportedOperationException();
+	}
+	
 }

@@ -12,7 +12,6 @@
 package org.eclipse.ltk.ui.refactoring;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -34,7 +33,6 @@ import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
-import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -655,7 +653,12 @@ public abstract class RefactoringWizard extends Wizard {
 	 * 
 	 */
 	public boolean performCancel() {
-		//new RefactoringChangeDescriptor(getRefactoringDescriptor())
+		RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor();
+		System.err.println(refactoringDescriptor.toString());
+//		RefactoringChangeDescriptor refactoringChangeDescriptor= new RefactoringChangeDescriptor(refactoringDescriptor);
+//		System.err.println(refactoringChangeDescriptor.getRefactoringDescriptor());
+
+		/*
 		Class c= getRefactoring().getClass();
 		try {
 			Method m= c.getDeclaredMethod("getRefactoringDescriptor", null);
@@ -665,6 +668,8 @@ public abstract class RefactoringWizard extends Wizard {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		*/
+
 		/*
 		IRunnableContext context= fRunnableContext != null ? fRunnableContext : PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
