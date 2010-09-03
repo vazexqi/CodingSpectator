@@ -12,6 +12,7 @@
 package org.eclipse.ltk.ui.refactoring;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.eclipse.swt.widgets.Shell;
 
@@ -33,7 +34,9 @@ import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.ErrorWizardPage;
@@ -648,15 +651,27 @@ public abstract class RefactoringWizard extends Wizard {
 	 * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#computeUserInputSuccessorPage(IWizardPage
 	 *      , IRunnableContext)
 	 * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#getStartingPage()
+	 * @see org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring#createChange(IProgressMonitor)
 	 * 
 	 */
 	public boolean performCancel() {
+		//new RefactoringChangeDescriptor(getRefactoringDescriptor())
+		Class c= getRefactoring().getClass();
+		try {
+			Method m= c.getDeclaredMethod("getRefactoringDescriptor", null);
+			m.setAccessible(true);
+			RefactoringChangeDescriptor refactoringChangeDescriptor= new RefactoringChangeDescriptor((RefactoringDescriptor)m.invoke(fRefactoring, null));
+			System.err.println(refactoringChangeDescriptor.getRefactoringDescriptor());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		/*
 		IRunnableContext context= fRunnableContext != null ? fRunnableContext : PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
 		Change change= createChange(new CreateChangeOperation(
 				new CheckConditionsOperation(getRefactoring(), CheckConditionsOperation.FINAL_CONDITIONS),
 				RefactoringStatus.FATAL), true, context);
-		
+
 		// Status has been updated since we have passed true
 		RefactoringStatus status= getConditionCheckingStatus();
 
@@ -665,10 +680,8 @@ public abstract class RefactoringWizard extends Wizard {
 			System.err.println("Creating the change has been canceled");
 		}
 
-		// Set change if we don't have fatal errors.
-		if (!status.hasFatalError())
-			System.err.println(fChange.getDescriptor());
-
+		System.err.println(change.getDescriptor());
+		*/
 		if (fChange != null) {
 			fChange.dispose();
 		}
