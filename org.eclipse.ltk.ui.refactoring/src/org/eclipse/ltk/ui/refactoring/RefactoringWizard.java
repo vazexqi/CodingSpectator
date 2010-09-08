@@ -35,7 +35,11 @@ import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
+import org.eclipse.ltk.internal.core.refactoring.history.RefactoringDescriptorProxyAdapter;
+import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySerializer;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.ErrorWizardPage;
 import org.eclipse.ltk.internal.ui.refactoring.ExceptionHandler;
@@ -643,50 +647,25 @@ public abstract class RefactoringWizard extends Wizard {
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 * 
-	 * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#computeUserInputSuccessorPage(IWizardPage
-	 *      , IRunnableContext)
-	 * @see org.eclipse.ltk.ui.refactoring.RefactoringWizard#getStartingPage()
-	 * @see org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring#createChange(IProgressMonitor)
-	 * 
+	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#performHistoryNotification
 	 */
 	public boolean performCancel() {
 		RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor();
+		refactoringDescriptor.setTimeStamp(System.currentTimeMillis());
 		System.err.println(refactoringDescriptor.toString());
-//		RefactoringChangeDescriptor refactoringChangeDescriptor= new RefactoringChangeDescriptor(refactoringDescriptor);
-//		System.err.println(refactoringChangeDescriptor.getRefactoringDescriptor());
 
-		/*
-		Class c= getRefactoring().getClass();
-		try {
-			Method m= c.getDeclaredMethod("getRefactoringDescriptor", null);
-			m.setAccessible(true);
-			RefactoringChangeDescriptor refactoringChangeDescriptor= new RefactoringChangeDescriptor((RefactoringDescriptor)m.invoke(fRefactoring, null));
-			System.err.println(refactoringChangeDescriptor.getRefactoringDescriptor());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
+		// Wrap it into a refactoring descriptor proxy
+		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
-		/*
-		IRunnableContext context= fRunnableContext != null ? fRunnableContext : PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		// Wrap it into a refactoringdecriptorevent using proxy
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CANCELED, proxy);
 
-		Change change= createChange(new CreateChangeOperation(
-				new CheckConditionsOperation(getRefactoring(), CheckConditionsOperation.FINAL_CONDITIONS),
-				RefactoringStatus.FATAL), true, context);
+		// Call RefactoringHistorySerializer to persist
+		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+		serializer.historyNotification(event);
 
-		// Status has been updated since we have passed true
-		RefactoringStatus status= getConditionCheckingStatus();
-
-		// Creating the change has been canceled
-		if (change == null && status == null) {
-			System.err.println("Creating the change has been canceled");
-		}
-
-		System.err.println(change.getDescriptor());
-		*/
 		if (fChange != null) {
 			fChange.dispose();
 		}

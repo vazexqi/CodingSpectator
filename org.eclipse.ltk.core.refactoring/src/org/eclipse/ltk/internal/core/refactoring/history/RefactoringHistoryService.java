@@ -122,6 +122,9 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/** The refactoring history file */
 	public static final String NAME_HISTORY_FILE= "refactorings.history"; //$NON-NLS-1$
 
+	/** The refactoring history canceled folder */
+	public static final String NAME_HISTORY_CANCELED_FOLDER= ".refactorings.canceled";
+	
 	/** The refactoring history folder */
 	public static final String NAME_HISTORY_FOLDER= ".refactorings"; //$NON-NLS-1$
 
@@ -308,6 +311,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/** Maximal number of refactoring managers */
 	private static final int MAX_MANAGERS= 2;
+
 
 	/**
 	 * The refactoring history manager cache (element type:
