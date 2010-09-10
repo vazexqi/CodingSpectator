@@ -572,6 +572,8 @@ public abstract class RefactoringWizard extends Wizard {
 		Shell parent= getContainer().getShell();
 		try {
 			getContainer().run(true, true, new WorkbenchRunnableAdapter(op, ResourcesPlugin.getWorkspace().getRoot()));
+//			RefactoringDescriptor refactoringDescriptor= ((RefactoringChangeDescriptor)op.getChange().getDescriptor()).getRefactoringDescriptor();
+//			addStatusToDescriptor(refactoringDescriptor);
 		} catch (InvocationTargetException e) {
 			Throwable inner= e.getTargetException();
 			if (op.changeExecutionFailed()) {
@@ -643,7 +645,13 @@ public abstract class RefactoringWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		RefactoringWizardPage page= (RefactoringWizardPage)getContainer().getCurrentPage();
-		return page.performFinish();
+		boolean acceptedToPerformFinish= page.performFinish();
+
+		if (acceptedToPerformFinish) {
+			logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED);
+		}
+
+		return acceptedToPerformFinish;
 	}
 
 	/**
@@ -652,24 +660,43 @@ public abstract class RefactoringWizard extends Wizard {
 	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#performHistoryNotification
 	 */
 	public boolean performCancel() {
-		RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor();
-		refactoringDescriptor.setTimeStamp(System.currentTimeMillis());
-		System.err.println(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoringdecriptorevent using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CANCELED, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
+		logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED);
 
 		if (fChange != null) {
 			fChange.dispose();
 		}
 		return super.performCancel();
+	}
+
+	private void addStatusToDescriptor(RefactoringDescriptor refactoringDescriptor) {
+		String comment= refactoringDescriptor.getComment();
+		comment+= ("\n- Status: " + getConditionCheckingStatus());
+		refactoringDescriptor.setComment(comment);
+	}
+
+	private RefactoringDescriptor createRefactoringDescriptor() {
+		RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor();
+		refactoringDescriptor.setTimeStamp(System.currentTimeMillis());
+		addStatusToDescriptor(refactoringDescriptor);
+		System.err.println(refactoringDescriptor.toString());
+		return refactoringDescriptor;
+	}
+
+	private void logRefactoringEvent(int refactoringEventType) {
+		try {
+			RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor();
+
+			// Wrap it into a refactoring descriptor proxy
+			RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
+
+			// Wrap it into a refactoringdecriptorevent using proxy
+			RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
+
+			// Call RefactoringHistorySerializer to persist
+			RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+			serializer.historyNotification(event);
+		} catch (UnsupportedOperationException e) {
+		}
 	}
 
 	//---- Internal API, but public due to Java constraints ------------------------------
