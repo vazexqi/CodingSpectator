@@ -572,8 +572,6 @@ public abstract class RefactoringWizard extends Wizard {
 		Shell parent= getContainer().getShell();
 		try {
 			getContainer().run(true, true, new WorkbenchRunnableAdapter(op, ResourcesPlugin.getWorkspace().getRoot()));
-//			RefactoringDescriptor refactoringDescriptor= ((RefactoringChangeDescriptor)op.getChange().getDescriptor()).getRefactoringDescriptor();
-//			addStatusToDescriptor(refactoringDescriptor);
 		} catch (InvocationTargetException e) {
 			Throwable inner= e.getTargetException();
 			if (op.changeExecutionFailed()) {
