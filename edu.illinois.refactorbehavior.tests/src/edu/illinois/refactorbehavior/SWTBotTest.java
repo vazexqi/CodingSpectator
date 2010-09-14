@@ -1,12 +1,10 @@
 package edu.illinois.refactorbehavior;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
-import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
@@ -32,7 +30,6 @@ public class SWTBotTest {
 		bot.viewByTitle("Welcome").close();
 	}
 
-
 	@Test
 	public void canCreateANewJavaProject() throws Exception {
 		bot.menu("File").menu("New").menu("Project...").click();
@@ -51,7 +48,7 @@ public class SWTBotTest {
 
 	@Test
 	public void canCreateANewJavaClass() throws Exception {
-//		bot.toolbarDropDownButtonWithTooltip("New Java Class").menuItem("Class").click();
+		// bot.toolbarDropDownButtonWithTooltip("New Java Class").menuItem("Class").click();
 		bot.menu("File").menu("New").menu("Class").click();
 
 		bot.shell("New Java Class").activate();
@@ -71,7 +68,8 @@ public class SWTBotTest {
 		Bundle bundle= Platform.getBundle("edu.illinois.refactorbehavior.tests");
 		String contents= FileUtils.read(bundle.getEntry("test-files/" + TEST_NAME + ".java"));
 
-		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_NAME + ".java").toTextEditor();
+		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_NAME + ".java")
+				.toTextEditor();
 		editor.setText(contents);
 		editor.save();
 
@@ -80,17 +78,17 @@ public class SWTBotTest {
 
 	@Test
 	public void shouldExtractMethod() throws Exception {
-
 		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_NAME + ".java").toTextEditor();
 		editor.setFocus();
-//		editor.selectLine(5);
+		// editor.selectLine(5);
 		editor.selectRange(5, 2, 37 - 9);
 		System.out.println(editor.getSelection());
 		System.out.println(editor.cursorPosition());
 		SWTBotMenu extractMethodMenuItem= bot.menu("Refactor").menu("Extract Method...");
-		assertEquals(true, extractMethodMenuItem.isActive());
+		assertTrue(extractMethodMenuItem.isEnabled());
 		extractMethodMenuItem.click();
-//		editor.pressShortcut(Keystrokes.SHIFT, Keystrokes.ALT, KeyStroke.getInstance("M"));
+		// editor.pressShortcut(Keystrokes.SHIFT, Keystrokes.ALT,
+		// KeyStroke.getInstance("M"));
 		bot.shell("Extract Method").activate();
 		bot.textWithLabel("Method name:").setText("m");
 		bot.button("OK").click();

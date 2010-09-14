@@ -168,7 +168,6 @@
 <plugin id="org.eclipse.jface"/>
 <plugin id="org.eclipse.jface.databinding"/>
 <plugin id="org.eclipse.jface.text"/>
-<plugin id="org.eclipse.jgit"/>
 <plugin id="org.eclipse.jsch.core"/>
 <plugin id="org.eclipse.jsch.ui"/>
 <plugin id="org.eclipse.ltk.core.refactoring"/>
