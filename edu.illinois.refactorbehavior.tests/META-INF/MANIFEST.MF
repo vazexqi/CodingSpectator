@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.refactorbehvaior.tests
+Bundle-SymbolicName: edu.illinois.refactorbehavior.tests;singleton:=true
+Bundle-Version: 1.0.0.0
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: University of Illinois
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.swtbot.go
