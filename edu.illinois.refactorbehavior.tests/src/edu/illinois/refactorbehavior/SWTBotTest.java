@@ -1,5 +1,7 @@
 package edu.illinois.refactorbehavior;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -49,7 +51,8 @@ public class SWTBotTest {
 
 	@Test
 	public void canCreateANewJavaClass() throws Exception {
-		bot.toolbarDropDownButtonWithTooltip("New Java Class").menuItem("Class").click();
+//		bot.toolbarDropDownButtonWithTooltip("New Java Class").menuItem("Class").click();
+		bot.menu("File").menu("New").menu("Class").click();
 
 		bot.shell("New Java Class").activate();
 		bot.textWithLabel("Source folder:").setText("MyFirstProject/src");
@@ -84,14 +87,14 @@ public class SWTBotTest {
 		editor.selectRange(5, 2, 37 - 9);
 		System.out.println(editor.getSelection());
 		System.out.println(editor.cursorPosition());
-		SWTBotMenu menu= bot.menu("Refactor");
-		SWTBotMenu menu2= menu.menu("Extract Method...");
-		menu2.click();
+		SWTBotMenu extractMethodMenuItem= bot.menu("Refactor").menu("Extract Method...");
+		assertEquals(true, extractMethodMenuItem.isActive());
+		extractMethodMenuItem.click();
 //		editor.pressShortcut(Keystrokes.SHIFT, Keystrokes.ALT, KeyStroke.getInstance("M"));
 		bot.shell("Extract Method").activate();
 		bot.textWithLabel("Method name:").setText("m");
 		bot.button("OK").click();
-		bot.sleep(20000);
+		bot.sleep(200000);
 		// FIXME: verify that the text is actually placed in the editor
 	}
 
@@ -99,6 +102,5 @@ public class SWTBotTest {
 	public static void sleep() {
 		bot.sleep(2000);
 	}
-
 
 }
