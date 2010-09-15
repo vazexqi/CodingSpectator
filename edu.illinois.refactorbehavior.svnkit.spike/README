@@ -1,0 +1,4 @@
+To run SVNImportTest, you need to either have:
+1) the SVNkit Jar file from <http://www.svnkit.com/org.tmatesoft.svn_1.3.4.standalone.zip>
+or
+2) the SVNkit source code from <http://www.svnkit.com/org.tmatesoft.svn_1.3.4.src.zip>
