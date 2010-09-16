@@ -27,7 +27,6 @@ public class Activator extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public Activator() {
-		System.err.println(org.eclipse.core.runtime.Platform.getConfigurationLocation().getURL());
 	}
 
 	/*
