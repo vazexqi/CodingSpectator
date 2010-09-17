@@ -5,14 +5,17 @@ import static org.junit.Assert.assertTrue;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
+import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 
+@RunWith(SWTBotJunit4ClassRunner.class)
 public class SWTBotTest {
 
 	private static final String PACKAGE_NAME= "edu.illinois.refactorbehavior";
@@ -84,7 +87,9 @@ public class SWTBotTest {
 		editor.selectRange(5, 2, 37 - 9);
 		System.out.println(editor.getSelection());
 		System.out.println(editor.cursorPosition());
-		SWTBotMenu extractMethodMenuItem= bot.menu("Refactor").menu("Extract Method...");
+		SWTBotMenu refactorMenu= bot.menu("Refactor");
+		assertTrue(refactorMenu.isEnabled());
+		SWTBotMenu extractMethodMenuItem= refactorMenu.menu("Extract Method...");
 		assertTrue(extractMethodMenuItem.isEnabled());
 		extractMethodMenuItem.click();
 		// editor.pressShortcut(Keystrokes.SHIFT, Keystrokes.ALT,
