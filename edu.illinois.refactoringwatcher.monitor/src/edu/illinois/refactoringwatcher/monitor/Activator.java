@@ -56,13 +56,4 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public IPreferenceStore getPreferenceStore() {
-		// Create the preference store lazily.
-		if (preferenceStore == null) {
-			preferenceStore= new ScopedPreferenceStore(new ConfigurationScope(), getBundle().getSymbolicName());
-
-		}
-		return preferenceStore;
-	}
-
 }
