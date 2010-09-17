@@ -1,0 +1,28 @@
+package edu.illinois.refactoringwatcher.monitor;
+
+import org.eclipse.osgi.util.NLS;
+
+public class Messages extends NLS {
+	private static final String BUNDLE_NAME= "edu.illinois.refactoringwatcher.monitor.messages"; //$NON-NLS-1$
+
+	public static String Submitter_ltk_bundle_name;
+
+	public static String Submitter_repository_base_url;
+
+	public static String WorkbenchPreferencePage_netidFieldPreferenceKey;
+
+	public static String WorkbenchPreferencePage_netidTextField;
+
+	public static String WorkbenchPreferencePage_title;
+
+	public static String WorkbenchPreferencePage_UUIDFieldPreferenceKey;
+
+	public static String WorkbenchPreferencePage_UUIDTextField;
+	static {
+		// initialize resource bundle
+		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+	}
+
+	private Messages() {
+	}
+}
