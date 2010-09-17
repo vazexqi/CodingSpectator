@@ -55,7 +55,7 @@ public class SWTBotTest {
 		bot.menu("File").menu("New").menu("Class").click();
 
 		bot.shell("New Java Class").activate();
-		bot.textWithLabel("Source folder:").setText("MyFirstProject/src");
+		bot.textWithLabel("Source folder:").setText(PROJECT_NAME + "/src");
 
 		bot.textWithLabel("Package:").setText(PACKAGE_NAME);
 		bot.textWithLabel("Name:").setText(TEST_NAME);
