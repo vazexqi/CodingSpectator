@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.ui,
  org.tmatesoft.svn_1.3.4.eclipse;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: edu.illinois.refactoringwatcher.monitor.prefs,
+Export-Package: edu.illinois.refactoringwatcher.monitor,
+ edu.illinois.refactoringwatcher.monitor.prefs,
  edu.illinois.refactoringwatcher.monitor.submission
 

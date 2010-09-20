@@ -60,6 +60,10 @@ public class Submitter {
 			throw new SubmissionException(e);
 		}
 	}
+	
+	public void delete() {
+		
+	}
 
 	@SuppressWarnings("serial")
 	public static class InitializationException extends Exception {
