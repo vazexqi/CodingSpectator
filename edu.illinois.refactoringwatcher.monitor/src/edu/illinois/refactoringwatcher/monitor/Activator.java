@@ -1,5 +1,6 @@
 package edu.illinois.refactoringwatcher.monitor;
 
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -49,6 +50,14 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	public Status createErrorStatus(String message, Exception e) {
+		return new Status(Status.ERROR, PLUGIN_ID, message, e);
+	}
+
+	public void logAsSevere(Status errorStatus) {
+		getLog().log(errorStatus);
 	}
 
 }

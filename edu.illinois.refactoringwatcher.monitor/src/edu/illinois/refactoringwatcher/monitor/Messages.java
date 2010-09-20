@@ -9,11 +9,19 @@ public class Messages extends NLS {
 
 	public static String Submitter_repository_base_url;
 
+	public static String WorkbenchPreferencePage_FailedToUploadMessage;
+
 	public static String WorkbenchPreferencePage_netidFieldPreferenceKey;
 
 	public static String WorkbenchPreferencePage_netidTextField;
 
+	public static String WorkbenchPreferencePage_PluginName;
+
 	public static String WorkbenchPreferencePage_title;
+
+	public static String WorkbenchPreferencePage_UploadingMessage;
+
+	public static String WorkbenchPreferencePage_UploadNowButtonText;
 
 	public static String WorkbenchPreferencePage_UUIDFieldPreferenceKey;
 

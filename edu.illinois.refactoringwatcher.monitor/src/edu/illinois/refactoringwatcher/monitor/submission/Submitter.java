@@ -60,13 +60,22 @@ public class Submitter {
 			throw new SubmissionException(e);
 		}
 	}
-	
-	public void delete() {
-		
+
+	public void upload() throws InitializationException, SubmissionException {
+		initialize();
+		submit();
 	}
 
 	@SuppressWarnings("serial")
-	public static class InitializationException extends Exception {
+	public static class SubmitterException extends Exception {
+
+		public SubmitterException(SVNException e) {
+			super(e);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class InitializationException extends SubmitterException {
 
 		public InitializationException(SVNException e) {
 			super(e);
@@ -75,7 +84,7 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class SubmissionException extends Exception {
+	public static class SubmissionException extends SubmitterException {
 
 		public SubmissionException(SVNException e) {
 			super(e);
