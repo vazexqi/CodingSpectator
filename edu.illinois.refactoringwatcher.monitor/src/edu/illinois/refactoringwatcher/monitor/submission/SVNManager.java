@@ -11,6 +11,8 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
+import edu.illinois.refactoringwatcher.monitor.Activator;
+
 /**
  * This is the concrete implementation of the {@link Submitter} design contract for an SVN backend.
  * 
@@ -19,6 +21,8 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
  * 
  */
 public class SVNManager {
+
+	private static final String COMMIT_MESSAGE= Activator.PLUGIN_ID;
 
 	private String repositoryBaseURL;
 
@@ -72,4 +76,15 @@ public class SVNManager {
 	private SVNURL getAbsoluteURL(String repositoryOffsetURL) throws SVNException {
 		return SVNURL.parseURIEncoded(repositoryBaseURL + "/" + repositoryOffsetURL);
 	}
+
+	public void doAdd(String pathToAdd) throws SVNException {
+		File pathToAddFile= new File(pathToAdd);
+		cm.getWCClient().doAdd(pathToAddFile, true, false, false, SVNDepth.INFINITY, false, false);
+	}
+
+	public void doCommit(String pathToCommit) throws SVNException {
+		File[] pathToCommitFiles= new File[] { new File(pathToCommit) };
+		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
+	}
+
 }

@@ -1,9 +1,6 @@
 package edu.illinois.refactoringwatcher.monitor;
 
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -20,8 +17,6 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
-
-	private ScopedPreferenceStore preferenceStore;
 
 	/**
 	 * The constructor

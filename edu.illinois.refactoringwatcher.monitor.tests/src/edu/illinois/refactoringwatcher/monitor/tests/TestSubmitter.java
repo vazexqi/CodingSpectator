@@ -13,6 +13,7 @@ import org.junit.Test;
 import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.InitializationException;
+import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmissionException;
 
 /**
  * 
@@ -20,7 +21,7 @@ import edu.illinois.refactoringwatcher.monitor.submission.Submitter.Initializati
  * @author nchen
  * 
  */
-public class TestImport {
+public class TestSubmitter {
 
 	static Submitter submitter;
 
@@ -36,11 +37,17 @@ public class TestImport {
 	}
 
 	@Test
-	public void shouldImport() throws InitializationException {
+	public void shouldInitialize() throws InitializationException {
 		submitter.initialize();
 		// Check that the working directory has been created locally.
-		assertTrue("svn import failed to create a local working directory.", new File(Submitter.watchedDirectory + File.separator + ".svn").exists());
-		// Check that the ltk directory has been created in the repository.
+		assertTrue("Failed to initialize the submitter.", new File(Submitter.watchedDirectory + File.separator + ".svn").exists());
+		// TODO: Check that the ltk directory has been created in the repository.
+	}
+
+	@Test
+	public void shouldSubmit() throws SubmissionException, InitializationException {
+		submitter.initialize();
+		submitter.submit();
 	}
 
 	@Before

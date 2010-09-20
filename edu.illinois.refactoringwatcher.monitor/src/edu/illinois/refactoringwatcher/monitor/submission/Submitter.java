@@ -52,10 +52,28 @@ public class Submitter {
 		}
 	}
 
+	public void submit() throws SubmissionException {
+		try {
+			svnManager.doAdd(watchedDirectory);
+			svnManager.doCommit(watchedDirectory);
+		} catch (SVNException e) {
+			throw new SubmissionException(e);
+		}
+	}
+
 	@SuppressWarnings("serial")
 	public static class InitializationException extends Exception {
 
 		public InitializationException(SVNException e) {
+			super(e);
+		}
+
+	}
+
+	@SuppressWarnings("serial")
+	public static class SubmissionException extends Exception {
+
+		public SubmissionException(SVNException e) {
 			super(e);
 		}
 
