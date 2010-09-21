@@ -7,7 +7,6 @@ import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.idgen.UUIDGenerator;
 
 /**
- * TODO: Get rid of the netid accessors.
  * 
  * @author Mohsen Vakilian
  * @author nchen
@@ -33,22 +32,12 @@ public class PrefsFacade {
 		getPreferenceStore().setValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
 	}
 
-	public static void setNetid(String netid) {
-		getPreferenceStore().setValue(Messages.WorkbenchPreferencePage_netidFieldPreferenceKey, netid);
-
-	}
-
 	private static String getPreferenceValue(String key) {
 		return getPreferenceStore().getString(key);
-	}
-
-	public static String getNetid() {
-		return getPreferenceValue(Messages.WorkbenchPreferencePage_netidFieldPreferenceKey);
 	}
 
 	public static String getUUID() {
 		return getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
 	}
-
 
 }

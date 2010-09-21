@@ -21,10 +21,10 @@ import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmitterException;
 
 /**
- * This is the preference page for the plug-in. It stores two values: a netid(String) and a
- * UUID(String). These values will be used in the URL to the repository to store the recorded data.
+ * This is the preference page for the plug-in. It displays the UUID(String) which will be used in
+ * the URL to the repository to store the recorded data.
  * 
- * A single UUID is assigned to each instance of Eclipse helping us identify which machine the user
+ * A single UUID is assigned to each workspace of Eclipse helping us identify which machine the user
  * is working on in the event that a user programs on multiple machines.
  * 
  * There is an option for the user to force the upload of the data. This is enabled through the
