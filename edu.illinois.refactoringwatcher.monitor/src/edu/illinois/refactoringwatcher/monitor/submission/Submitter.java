@@ -7,14 +7,13 @@ import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationPrompter;
+import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider;
 import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 
 /**
  * 
  * A Submitter is responsible for submitting the recorded refactoring logs. It gathers those logs
  * from a directory, imports it to some repository.
- * 
- * TODO: Replace <code>AuthenticationPrompter</code> by an interface.
  * 
  * @author Mohsen Vakilian
  * @author nchen
@@ -27,6 +26,16 @@ public class Submitter {
 	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_ltk_bundle_name)).toOSString();
 
 	private SVNManager svnManager;
+
+	private AuthenticationProvider authenticationProvider;
+
+	public Submitter() {
+
+	}
+
+	public Submitter(AuthenticationProvider provider) {
+		this.authenticationProvider= provider;
+	}
 
 	private static String getRepositoryOffsetURL(String username) {
 		return joinByURLSeparator(username, PrefsFacade.getUUID());
@@ -47,7 +56,8 @@ public class Submitter {
 	 */
 	public void initialize() throws InitializationException, AuthenticationException {
 		try {
-			AuthenticationInfo authenticationInfo= AuthenticationPrompter.findUsernamePassword();
+			AuthenticationProvider prompter= getAuthenticationPrompter();
+			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
 			if (authenticationInfo == null) {
 				throw new AuthenticationException("No username or password were provided.");
 			}
@@ -60,6 +70,13 @@ public class Submitter {
 			throw new InitializationException(e);
 		}
 
+	}
+
+	private AuthenticationProvider getAuthenticationPrompter() {
+		if (authenticationProvider == null)
+			return new AuthenticationPrompter();
+		else
+			return authenticationProvider;
 	}
 
 	public void submit() throws SubmissionException {

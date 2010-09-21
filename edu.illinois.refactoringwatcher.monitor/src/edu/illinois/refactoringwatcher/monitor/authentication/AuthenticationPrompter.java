@@ -22,13 +22,13 @@ import edu.illinois.refactoringwatcher.monitor.Messages;
  * @author nchen
  * 
  */
-public class AuthenticationPrompter {
+public class AuthenticationPrompter implements AuthenticationProvider {
 
 	/**
 	 * @see org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI.getUsernamePassword(String)
 	 * 
 	 */
-	public static AuthenticationInfo getUsernamePassword(final String location) {
+	private AuthenticationInfo getUsernamePassword(final String location) {
 
 		// Only a final reference can be assigned to inside an anonymous class. This is why they put a single object inside an array.
 		final AuthenticationInfo[] result= new AuthenticationInfo[1];
@@ -51,7 +51,7 @@ public class AuthenticationPrompter {
 	 * 
 	 * @see org.eclipse.equinox.internal.p2.ui.ProvUI.getDefaultParentShell()
 	 */
-	public static Shell getDefaultParentShell() {
+	private static Shell getDefaultParentShell() {
 		return PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 	}
 
@@ -61,7 +61,7 @@ public class AuthenticationPrompter {
 	 * @see org.eclipse.equinox.internal.p2.repository.Credentials.forLocation(URI, boolean,
 	 *      AuthenticationInfo)
 	 */
-	public static AuthenticationInfo getCredentialsForLocation() throws StorageException, IOException {
+	private AuthenticationInfo getCredentialsForLocation() throws StorageException, IOException {
 		UIServices.AuthenticationInfo loginDetails= null;
 		ISecurePreferences securePreferences= null;
 		securePreferences= SecurePreferencesFactory.getDefault();
@@ -102,9 +102,14 @@ public class AuthenticationPrompter {
 		return loginDetails;
 	}
 
-	public static AuthenticationInfo findUsernamePassword() {
+	/* (non-Javadoc)
+	 * @see edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider#findUsernamePassword()
+	 */
+	@Override
+	public AuthenticationInfo findUsernamePassword() {
 		try {
-			AuthenticationInfo authenticationInfo= AuthenticationPrompter.getCredentialsForLocation();
+			AuthenticationPrompter prompter= new AuthenticationPrompter();
+			AuthenticationInfo authenticationInfo= prompter.getCredentialsForLocation();
 			return authenticationInfo;
 		} catch (Exception ex) {
 			Status errorStatus= Activator.getDefault().createErrorStatus(Messages.AuthenticationPrompter_FailureMessage, ex);
