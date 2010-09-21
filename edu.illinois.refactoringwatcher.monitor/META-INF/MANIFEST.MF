@@ -7,7 +7,9 @@ Bundle-Activator: edu.illinois.refactoringwatcher.monitor.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.tmatesoft.svn_1.3.4.eclipse;bundle-version="1.0.0"
+ org.tmatesoft.svn_1.3.4.eclipse;bundle-version="1.0.0",
+ org.eclipse.equinox.p2.core;bundle-version="2.0.0",
+ org.eclipse.equinox.security;bundle-version="1.0.200"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.refactoringwatcher.monitor,

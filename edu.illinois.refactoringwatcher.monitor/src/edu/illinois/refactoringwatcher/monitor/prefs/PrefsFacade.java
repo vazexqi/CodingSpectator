@@ -7,8 +7,11 @@ import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.idgen.UUIDGenerator;
 
 /**
+ * TODO: Get rid of the netid accessors.
+ * 
  * @author Mohsen Vakilian
  * @author nchen
+ * 
  */
 public class PrefsFacade {
 

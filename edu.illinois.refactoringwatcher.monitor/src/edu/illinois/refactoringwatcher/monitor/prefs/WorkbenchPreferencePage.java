@@ -54,12 +54,15 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 	@Override
 	protected void createFieldEditors() {
-		addField(new StringFieldEditor(Messages.WorkbenchPreferencePage_netidFieldPreferenceKey, Messages.WorkbenchPreferencePage_netidTextField, getFieldEditorParent()));
 		StringFieldEditor textfield= new StringFieldEditor(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, Messages.WorkbenchPreferencePage_UUIDTextField,
 				getFieldEditorParent());
 		textfield.setEnabled(false, getFieldEditorParent());
 		addField(textfield);
 
+		createUploadNowButton();
+	}
+
+	private void createUploadNowButton() {
 		Button uploadButton= new Button(getFieldEditorParent(), SWT.PUSH);
 		uploadButton.setText(populateWithPluginName(Messages.WorkbenchPreferencePage_UploadNowButtonText));
 		uploadButton.addSelectionListener(new SelectionAdapter() {
@@ -71,11 +74,11 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 					@Override
 					protected IStatus run(IProgressMonitor monitor) {
 						try {
-							new Submitter("nchen", "nchen").upload(); //$NON-NLS-1$ //$NON-NLS-2$
+							new Submitter().upload();
 						} catch (SubmitterException exception) {
 							populateWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
 							Status errorStatus= Activator.getDefault().createErrorStatus(Messages.WorkbenchPreferencePage_FailedToUploadMessage, exception);
-							Activator.getDefault().logAsSevere(errorStatus);
+							Activator.getDefault().log(errorStatus);
 							return errorStatus;
 						}
 						return Status.OK_STATUS;
@@ -88,4 +91,5 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 		});
 	}
+
 }

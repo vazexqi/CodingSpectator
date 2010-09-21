@@ -52,12 +52,17 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	public Status createInfoStatus(String message) {
+		return new Status(Status.INFO, PLUGIN_ID, message);
+	}
+
 	public Status createErrorStatus(String message, Exception e) {
 		return new Status(Status.ERROR, PLUGIN_ID, message, e);
 	}
 
-	public void logAsSevere(Status errorStatus) {
-		getLog().log(errorStatus);
+	public void log(Status status) {
+		getLog().log(status);
 	}
+
 
 }

@@ -1,15 +1,20 @@
 package edu.illinois.refactoringwatcher.monitor.submission;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
+import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.refactoringwatcher.monitor.Messages;
+import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationPrompter;
 import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 
 /**
  * 
  * A Submitter is responsible for submitting the recorded refactoring logs. It gathers those logs
  * from a directory, imports it to some repository.
+ * 
+ * TODO: Replace <code>AuthenticationPrompter</code> by an interface.
  * 
  * @author Mohsen Vakilian
  * @author nchen
@@ -23,8 +28,8 @@ public class Submitter {
 
 	private SVNManager svnManager;
 
-	private static String getRepositoryOffsetURL() {
-		return joinByURLSeparator(PrefsFacade.getNetid(), PrefsFacade.getUUID());
+	private static String getRepositoryOffsetURL(String username) {
+		return joinByURLSeparator(username, PrefsFacade.getUUID());
 	}
 
 	private static String joinByURLSeparator(String... strings) {
@@ -36,20 +41,25 @@ public class Submitter {
 		return sb.toString();
 	}
 
-	public Submitter(String username, String password) {
-		this.svnManager= new SVNManager(repositoryBaseURL, username, password);
-	}
-
 	/**
+	 * @throws AuthenticationException
 	 * @idempotent
 	 */
-	public void initialize() throws InitializationException {
+	public void initialize() throws InitializationException, AuthenticationException {
 		try {
-			svnManager.doImport(watchedDirectory, getRepositoryOffsetURL());
-			svnManager.doCheckout(watchedDirectory, getRepositoryOffsetURL());
+			AuthenticationInfo authenticationInfo= AuthenticationPrompter.findUsernamePassword();
+			if (authenticationInfo == null) {
+				throw new AuthenticationException("No username or password were provided.");
+			}
+			svnManager= new SVNManager(repositoryBaseURL, authenticationInfo.getUserName(), authenticationInfo.getPassword());
+			svnManager.doImport(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
+			svnManager.doCheckout(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
+		} catch (SVNAuthenticationException e) {
+			throw new AuthenticationException(e);
 		} catch (SVNException e) {
 			throw new InitializationException(e);
 		}
+
 	}
 
 	public void submit() throws SubmissionException {
@@ -61,7 +71,7 @@ public class Submitter {
 		}
 	}
 
-	public void upload() throws InitializationException, SubmissionException {
+	public void upload() throws InitializationException, SubmissionException, AuthenticationException {
 		initialize();
 		submit();
 	}
@@ -72,6 +82,23 @@ public class Submitter {
 		public SubmitterException(SVNException e) {
 			super(e);
 		}
+
+		public SubmitterException(String message) {
+			super(message);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class AuthenticationException extends SubmitterException {
+
+		public AuthenticationException(SVNException e) {
+			super(e);
+		}
+
+		public AuthenticationException(String message) {
+			super(message);
+		}
+
 	}
 
 	@SuppressWarnings("serial")
