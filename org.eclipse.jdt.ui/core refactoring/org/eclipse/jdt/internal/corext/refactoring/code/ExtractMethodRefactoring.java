@@ -91,8 +91,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.ExtractMethodDescriptor;
@@ -125,6 +125,7 @@ import org.eclipse.jdt.internal.corext.util.Messages;
 import org.eclipse.jdt.ui.CodeGeneration;
 import org.eclipse.jdt.ui.JavaElementLabels;
 
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.text.correction.ModifierCorrectionSubProcessor;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
@@ -704,7 +705,7 @@ public class ExtractMethodRefactoring extends Refactoring {
 		return descriptor;
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor() {
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		String project= null;
 		IJavaProject javaProject= fCUnit.getJavaProject();
 		if (javaProject != null)
@@ -729,16 +730,6 @@ public class ExtractMethodRefactoring extends Refactoring {
 		if (fGenerateJavadoc)
 			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
 
-		if (fRoot == null) {
-			fRoot= RefactoringASTParser.parseWithASTProvider(fCUnit, true, new NullProgressMonitor());
-		}
-
-		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
-		ASTNode perform= NodeFinder.perform(fRoot, fSelectionStart, fSelectionLength);
-		System.err.println("===========AST NODE==========");
-		System.err.println(perform.getParent().getParent());
-
-
 		final Map arguments= new HashMap();
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
@@ -749,9 +740,44 @@ public class ExtractMethodRefactoring extends Refactoring {
 		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
 		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		return descriptor;
 	}
 
+	// TODO: Figure out where to move this method.
+	private String getSelection() {
+		try {
+			return fCUnit.getBuffer().getText(fSelectionStart, fSelectionLength);
+		} catch (Exception e) {
+			JavaPlugin.log(e);
+		}
+		return null;
+	}
+
+	// TODO: Figure out where to move this method.
+	private String getCodeSnippet() {
+		ASTNode node= findTargetNode();
+
+		final int THRESHOLD= 3200;
+
+		while (node != null && node.subtreeBytes() < THRESHOLD) {
+			node= node.getParent();
+		}
+
+		return ASTNodes.asFormattedString(node, 4, System.getProperty("line.separator"), fCUnit.getJavaProject().getOptions(true)); //$NON-NLS-1$
+	}
+
+	// TODO: Figure out where to move this method.
+	private ASTNode findTargetNode() {
+		if (fRoot == null) {
+			fRoot= RefactoringASTParser.parseWithASTProvider(fCUnit, true, new NullProgressMonitor());
+		}
+
+		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
+		return NodeFinder.perform(fRoot, fSelectionStart, fSelectionLength);
+	}
 
 	/**
 	 * Returns the signature of the new method.
