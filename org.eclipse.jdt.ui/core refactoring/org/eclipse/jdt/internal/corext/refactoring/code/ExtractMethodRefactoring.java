@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
@@ -75,6 +76,7 @@ import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -708,28 +710,14 @@ public class ExtractMethodRefactoring extends Refactoring {
 		if (javaProject != null)
 			project= javaProject.getElementName();
 
-//		ITypeBinding type= null;
-//		if (fDestination instanceof AbstractTypeDeclaration) {
-//			final AbstractTypeDeclaration decl= (AbstractTypeDeclaration) fDestination;
-//			type= decl.resolveBinding();
-//		} else if (fDestination instanceof AnonymousClassDeclaration) {
-//			final AnonymousClassDeclaration decl= (AnonymousClassDeclaration) fDestination;
-//			type= decl.resolveBinding();
-//		}
-//		IMethodBinding method= null;
-//		final BodyDeclaration enclosing= fAnalyzer.getEnclosingBodyDeclaration();
-//		if (enclosing instanceof MethodDeclaration) {
-//			final MethodDeclaration node= (MethodDeclaration) enclosing;
-//			method= node.resolveBinding();
-//		}
+
 		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
 		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
-//		final String label= method != null ? BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED) : '{' + JavaElementLabels.ELLIPSIS_STRING + '}';
-//		final String header= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(getSignature()), label, BindingLabelProvider.getBindingLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED)});
+
 		final String header= "<MISSING HEADER>";
 		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
 		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
-//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_destination_pattern, BindingLabelProvider.getBindingLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+
 		String visibility= JdtFlags.getVisibilityString(fVisibility);
 		if ("".equals(visibility)) //$NON-NLS-1$
 			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
@@ -740,6 +728,16 @@ public class ExtractMethodRefactoring extends Refactoring {
 			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_replace_occurrences);
 		if (fGenerateJavadoc)
 			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
+
+		if (fRoot == null) {
+			fRoot= RefactoringASTParser.parseWithASTProvider(fCUnit, true, new NullProgressMonitor());
+		}
+
+		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
+		ASTNode perform= NodeFinder.perform(fRoot, fSelectionStart, fSelectionLength);
+		System.err.println("===========AST NODE==========");
+		System.err.println(perform.getParent().getParent());
+
 
 		final Map arguments= new HashMap();
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
