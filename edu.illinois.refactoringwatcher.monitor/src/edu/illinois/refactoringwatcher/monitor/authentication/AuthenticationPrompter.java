@@ -55,16 +55,26 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		return PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 	}
 
+	public void clearSecureStorage() throws IOException {
+		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
+		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
+		ISecurePreferences prefNode= null;
+
+		if (securePreferences.nodeExists(nodeName)) {
+			prefNode= securePreferences.node(nodeName);
+			prefNode.removeNode();
+			prefNode.flush();
+		}
+	}
+
 	/**
 	 * @throws StorageException
 	 * @throws IOException
 	 * @see org.eclipse.equinox.internal.p2.repository.Credentials.forLocation(URI, boolean,
 	 *      AuthenticationInfo)
 	 */
-	private AuthenticationInfo getCredentialsForLocation() throws StorageException, IOException {
-		UIServices.AuthenticationInfo loginDetails= null;
-		ISecurePreferences securePreferences= null;
-		securePreferences= SecurePreferencesFactory.getDefault();
+	private AuthenticationInfo askOrLookupCredentials() throws StorageException, IOException {
+		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
 		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
 		String username= null, password= null;
 		ISecurePreferences prefNode= null;
@@ -79,7 +89,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 				return new UIServices.AuthenticationInfo(username, password, true);
 		}
 
-		loginDetails= getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
+		UIServices.AuthenticationInfo loginDetails= getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
 
 		if (loginDetails == null)
 			return null;
@@ -92,11 +102,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			prefNode.flush();
 		} else {
 			// if persisted earlier - the preference should be removed
-			if (securePreferences.nodeExists(nodeName)) {
-				prefNode= securePreferences.node(nodeName);
-				prefNode.removeNode();
-				prefNode.flush();
-			}
+			clearSecureStorage();
 		}
 
 		return loginDetails;
@@ -108,8 +114,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
 		try {
-			AuthenticationPrompter prompter= new AuthenticationPrompter();
-			AuthenticationInfo authenticationInfo= prompter.getCredentialsForLocation();
+			AuthenticationInfo authenticationInfo= askOrLookupCredentials();
 			return authenticationInfo;
 		} catch (Exception ex) {
 			Status errorStatus= Activator.getDefault().createErrorStatus(Messages.AuthenticationPrompter_FailureMessage, ex);

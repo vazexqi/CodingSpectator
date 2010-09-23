@@ -1,5 +1,7 @@
 package edu.illinois.refactoringwatcher.monitor.submission;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
@@ -50,22 +52,18 @@ public class Submitter {
 		return sb.toString();
 	}
 
-	/**
-	 * @throws AuthenticationException
-	 * @idempotent
-	 */
-	public void initialize() throws InitializationException, AuthenticationException {
+	public void initialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
 		try {
 			AuthenticationProvider prompter= getAuthenticationPrompter();
 			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
 			if (authenticationInfo == null) {
-				throw new AuthenticationException("No username or password were provided.");
+				throw new NoAuthenticationInformationFoundException();
 			}
 			svnManager= new SVNManager(repositoryBaseURL, authenticationInfo.getUserName(), authenticationInfo.getPassword());
 			svnManager.doImport(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
 			svnManager.doCheckout(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
 		} catch (SVNAuthenticationException e) {
-			throw new AuthenticationException(e);
+			throw new FailedAuthenticationException(e);
 		} catch (SVNException e) {
 			throw new InitializationException(e);
 		}
@@ -88,15 +86,37 @@ public class Submitter {
 		}
 	}
 
-	public void upload() throws InitializationException, SubmissionException, AuthenticationException {
-		initialize();
+	public void upload() throws InitializationException, SubmissionException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+		authenticateAndInitialize();
 		submit();
+	}
+
+	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+		while (true) {
+			try {
+				initialize();
+			} catch (NoAuthenticationInformationFoundException noAuthEx) {
+				throw new NoAuthenticationInformationFoundException(noAuthEx);
+			} catch (FailedAuthenticationException authEx) {
+				try {
+					getAuthenticationPrompter().clearSecureStorage();
+				} catch (IOException ioEx) {
+					throw new FailedAuthenticationException(ioEx);
+				}
+				continue;
+			}
+			break;
+		}
 	}
 
 	@SuppressWarnings("serial")
 	public static class SubmitterException extends Exception {
 
-		public SubmitterException(SVNException e) {
+		public SubmitterException() {
+			super();
+		}
+
+		public SubmitterException(Exception e) {
 			super(e);
 		}
 
@@ -106,13 +126,34 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class AuthenticationException extends SubmitterException {
+	public static class FailedAuthenticationException extends SubmitterException {
 
-		public AuthenticationException(SVNException e) {
+		public FailedAuthenticationException() {
+			super();
+		}
+
+		public FailedAuthenticationException(Exception e) {
 			super(e);
 		}
 
-		public AuthenticationException(String message) {
+		public FailedAuthenticationException(String message) {
+			super(message);
+		}
+
+	}
+
+	@SuppressWarnings("serial")
+	public static class NoAuthenticationInformationFoundException extends SubmitterException {
+
+		public NoAuthenticationInformationFoundException() {
+			super();
+		}
+
+		public NoAuthenticationInformationFoundException(Exception e) {
+			super(e);
+		}
+
+		public NoAuthenticationInformationFoundException(String message) {
 			super(message);
 		}
 
@@ -121,7 +162,7 @@ public class Submitter {
 	@SuppressWarnings("serial")
 	public static class InitializationException extends SubmitterException {
 
-		public InitializationException(SVNException e) {
+		public InitializationException(Exception e) {
 			super(e);
 		}
 
@@ -130,7 +171,7 @@ public class Submitter {
 	@SuppressWarnings("serial")
 	public static class SubmissionException extends SubmitterException {
 
-		public SubmissionException(SVNException e) {
+		public SubmissionException(Exception e) {
 			super(e);
 		}
 

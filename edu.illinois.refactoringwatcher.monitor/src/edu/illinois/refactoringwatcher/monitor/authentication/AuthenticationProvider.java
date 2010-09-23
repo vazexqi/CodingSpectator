@@ -1,5 +1,7 @@
 package edu.illinois.refactoringwatcher.monitor.authentication;
 
+import java.io.IOException;
+
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 
 /**
@@ -10,6 +12,8 @@ import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
  * 
  */
 public interface AuthenticationProvider {
+
+	public abstract void clearSecureStorage() throws IOException;
 
 	public abstract AuthenticationInfo findUsernamePassword();
 

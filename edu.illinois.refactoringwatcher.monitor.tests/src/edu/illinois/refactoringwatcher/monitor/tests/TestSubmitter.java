@@ -29,8 +29,9 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
-import edu.illinois.refactoringwatcher.monitor.submission.Submitter.AuthenticationException;
+import edu.illinois.refactoringwatcher.monitor.submission.Submitter.FailedAuthenticationException;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.InitializationException;
+import edu.illinois.refactoringwatcher.monitor.submission.Submitter.NoAuthenticationInformationFoundException;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmissionException;
 
 /**
@@ -49,7 +50,6 @@ import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmissionEx
  * 
  */
 public class TestSubmitter {
-
 
 	private static final String USERNAME= "nchen";
 
@@ -86,7 +86,7 @@ public class TestSubmitter {
 	}
 
 	@Test
-	public void shouldInitialize() throws InitializationException, SVNException, AuthenticationException {
+	public void shouldInitialize() throws InitializationException, SVNException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
 		submitter.initialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
 
 		// Check that the working directory has been created locally.
@@ -99,7 +99,7 @@ public class TestSubmitter {
 	}
 
 	@Test
-	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException, AuthenticationException {
+	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
 		submitter.initialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
 
 		createTempFileLocally();

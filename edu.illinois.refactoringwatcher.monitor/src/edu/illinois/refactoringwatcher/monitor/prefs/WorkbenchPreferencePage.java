@@ -18,6 +18,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
+import edu.illinois.refactoringwatcher.monitor.submission.Submitter.NoAuthenticationInformationFoundException;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmitterException;
 
 /**
@@ -44,11 +45,11 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription(populateWithPluginName(Messages.WorkbenchPreferencePage_title));
+		setDescription(populateMessageWithPluginName(Messages.WorkbenchPreferencePage_title));
 		PrefsFacade.generateUUIDIfDoesNotExist();
 	}
 
-	private String populateWithPluginName(String formattedString) {
+	private String populateMessageWithPluginName(String formattedString) {
 		return MessageFormat.format(formattedString, Messages.WorkbenchPreferencePage_PluginName);
 	}
 
@@ -64,32 +65,63 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 	private void createUploadNowButton() {
 		Button uploadButton= new Button(getFieldEditorParent(), SWT.PUSH);
-		uploadButton.setText(populateWithPluginName(Messages.WorkbenchPreferencePage_UploadNowButtonText));
+		uploadButton.setText(populateMessageWithPluginName(Messages.WorkbenchPreferencePage_UploadNowButtonText));
+
 		uploadButton.addSelectionListener(new SelectionAdapter() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Job job= new Job(MessageFormat.format(Messages.WorkbenchPreferencePage_UploadingMessage, Messages.WorkbenchPreferencePage_PluginName)) {
+				final Submitter submitter= new Submitter();
 
-					@Override
-					protected IStatus run(IProgressMonitor monitor) {
-						try {
-							new Submitter().upload();
-						} catch (SubmitterException exception) {
-							populateWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
-							Status errorStatus= Activator.getDefault().createErrorStatus(Messages.WorkbenchPreferencePage_FailedToUploadMessage, exception);
-							Activator.getDefault().log(errorStatus);
-							return errorStatus;
-						}
-						return Status.OK_STATUS;
-					}
-
-				};
-				job.setPriority(Job.LONG);
-				job.schedule();
+				if (authenticateAndInitialize(submitter)) {
+					submit(submitter);
+				}
 			}
 
 		});
+
+	}
+
+	private IStatus reportUploadFailure(SubmitterException exception) {
+		populateMessageWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
+		Status errorStatus= Activator.getDefault().createErrorStatus(Messages.WorkbenchPreferencePage_FailedToUploadMessage, exception);
+		Activator.getDefault().log(errorStatus);
+		return errorStatus;
+	}
+
+	/**
+	 * 
+	 * @param submitter
+	 * @return if the method completed successfully.
+	 */
+	private boolean authenticateAndInitialize(final Submitter submitter) {
+		try {
+			submitter.authenticateAndInitialize();
+		} catch (NoAuthenticationInformationFoundException noAuthEx) {
+			return false;
+		} catch (SubmitterException subEx) {
+			reportUploadFailure(subEx);
+			return false;
+		}
+		return true;
+	}
+
+	private void submit(final Submitter submitter) {
+		Job job= new Job(MessageFormat.format(Messages.WorkbenchPreferencePage_UploadingMessage, Messages.WorkbenchPreferencePage_PluginName)) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					submitter.submit();
+				} catch (SubmitterException exception) {
+					return reportUploadFailure(exception);
+				}
+				return Status.OK_STATUS;
+			}
+
+		};
+		job.setPriority(Job.LONG);
+		job.schedule();
 	}
 
 }
