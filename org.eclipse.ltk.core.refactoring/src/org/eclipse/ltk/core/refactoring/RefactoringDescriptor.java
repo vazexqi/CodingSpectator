@@ -200,6 +200,7 @@ public abstract class RefactoringDescriptor implements Comparable {
 		fProject= project;
 		fComment= comment;
 		fFlags= flags;
+		setTimeStamp(System.currentTimeMillis());
 	}
 
 	/**
