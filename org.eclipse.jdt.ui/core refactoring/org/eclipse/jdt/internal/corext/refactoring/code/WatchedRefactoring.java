@@ -23,7 +23,8 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * This class serves as the base class for all refactorings that we instrument in JDT. It has a
  * couple of convenience methods for populating the refactoring descriptor.
  * 
- * @author vazexqi
+ * @author Mohsen Vakilian
+ * @author nchen
  * 
  */
 public abstract class WatchedRefactoring extends Refactoring {
