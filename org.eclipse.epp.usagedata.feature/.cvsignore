@@ -1,7 +1,0 @@
-org.eclipse.core.runtime
-org.eclipse.osgi
-org.eclipse.ui.intro.universal
-org.eclipse.update
-org.eclipse.equinox.app
-dev.properties
-config.ini

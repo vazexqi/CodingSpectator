@@ -1,1 +1,0 @@
-select id, what, bundleid, description, from_unixtime(time/1000) as normaltime from usagedata_record where profileid=2 and dayofmonth(from_unixtime(time/1000)) = 27;
