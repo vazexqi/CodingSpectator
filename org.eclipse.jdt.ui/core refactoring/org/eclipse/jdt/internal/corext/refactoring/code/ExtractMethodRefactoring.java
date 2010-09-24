@@ -36,7 +36,6 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -45,7 +44,6 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -89,8 +87,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.ExtractMethodDescriptor;
@@ -131,7 +129,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 /**
  * Extracts a method in a compilation unit based on a text selection range.
  */
-public class ExtractMethodRefactoring extends Refactoring {
+public class ExtractMethodRefactoring extends WatchedRefactoring {
 
 	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 
@@ -143,15 +141,11 @@ public class ExtractMethodRefactoring extends Refactoring {
 
 	private static final String ATTRIBUTE_EXCEPTIONS= "exceptions"; //$NON-NLS-1$
 
-	private ICompilationUnit fCUnit;
+	ICompilationUnit fCUnit;
 
-	private CompilationUnit fRoot;
+	CompilationUnit fRoot;
 
 	private ImportRewrite fImportRewriter;
-
-	private int fSelectionStart;
-
-	private int fSelectionLength;
 
 	private AST fAST;
 
@@ -654,10 +648,7 @@ public class ExtractMethodRefactoring extends Refactoring {
 
 	private ExtractMethodDescriptor getRefactoringDescriptor() {
 		final Map arguments= new HashMap();
-		String project= null;
-		IJavaProject javaProject= fCUnit.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
+		String project= getJavaProjectName();
 		ITypeBinding type= null;
 		if (fDestination instanceof AbstractTypeDeclaration) {
 			final AbstractTypeDeclaration decl= (AbstractTypeDeclaration)fDestination;
@@ -691,45 +682,19 @@ public class ExtractMethodRefactoring extends Refactoring {
 		if (fGenerateJavadoc)
 			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(fVisibility).toString());
-		arguments.put(ATTRIBUTE_DESTINATION, new Integer(fDestinationIndex).toString());
-		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
-		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
-		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
+		populateRefactoringSpecificFields(project, arguments);
 		return descriptor;
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor() {
-		String project= null;
-		IJavaProject javaProject= fCUnit.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		String project= getJavaProjectName();
 
-//		ITypeBinding type= null;
-//		if (fDestination instanceof AbstractTypeDeclaration) {
-//			final AbstractTypeDeclaration decl= (AbstractTypeDeclaration) fDestination;
-//			type= decl.resolveBinding();
-//		} else if (fDestination instanceof AnonymousClassDeclaration) {
-//			final AnonymousClassDeclaration decl= (AnonymousClassDeclaration) fDestination;
-//			type= decl.resolveBinding();
-//		}
-//		IMethodBinding method= null;
-//		final BodyDeclaration enclosing= fAnalyzer.getEnclosingBodyDeclaration();
-//		if (enclosing instanceof MethodDeclaration) {
-//			final MethodDeclaration node= (MethodDeclaration) enclosing;
-//			method= node.resolveBinding();
-//		}
 		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
 		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
-//		final String label= method != null ? BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED) : '{' + JavaElementLabels.ELLIPSIS_STRING + '}';
-//		final String header= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(getSignature()), label, BindingLabelProvider.getBindingLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED)});
-		final String header= "<MISSING HEADER>";
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, ""); //$NON-NLS-1$
 		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
-//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_destination_pattern, BindingLabelProvider.getBindingLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+
 		String visibility= JdtFlags.getVisibilityString(fVisibility);
 		if ("".equals(visibility)) //$NON-NLS-1$
 			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
@@ -741,8 +706,14 @@ public class ExtractMethodRefactoring extends Refactoring {
 		if (fGenerateJavadoc)
 			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
 
-		final Map arguments= new HashMap();
+		final Map arguments= populateInstrumentationData(refactoringStatus);
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
+		populateRefactoringSpecificFields(project, arguments);
+
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, final Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
@@ -751,9 +722,7 @@ public class ExtractMethodRefactoring extends Refactoring {
 		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
 		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
-		return descriptor;
 	}
-
 
 	/**
 	 * Returns the signature of the new method.

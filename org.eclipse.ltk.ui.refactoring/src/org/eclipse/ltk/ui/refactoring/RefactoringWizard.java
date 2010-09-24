@@ -666,23 +666,11 @@ public abstract class RefactoringWizard extends Wizard {
 		return super.performCancel();
 	}
 
-	private void addStatusToDescriptor(RefactoringDescriptor refactoringDescriptor) {
-		String comment= refactoringDescriptor.getComment();
-		comment+= ("\n- Status: " + getConditionCheckingStatus());
-		refactoringDescriptor.setComment(comment);
-	}
-
-	private RefactoringDescriptor createRefactoringDescriptor() {
-		RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor();
-		refactoringDescriptor.setTimeStamp(System.currentTimeMillis());
-		addStatusToDescriptor(refactoringDescriptor);
-		System.err.println(refactoringDescriptor.toString());
-		return refactoringDescriptor;
-	}
 
 	private void logRefactoringEvent(int refactoringEventType) {
 		try {
-			RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor();
+			RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor(getConditionCheckingStatus());
+			System.err.println(refactoringDescriptor.toString());
 
 			// Wrap it into a refactoring descriptor proxy
 			RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
