@@ -576,12 +576,12 @@ public class ExtractConstantRefactoring extends WatchedRefactoring {
 	}
 
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
-		ExtractConstantDescriptor descriptor= createRefactoringDescriptor();
+		ExtractConstantDescriptor descriptor= getRefactoringDescriptor();
 		fChange.setDescriptor(new RefactoringChangeDescriptor(descriptor));
 		return fChange;
 	}
 
-	private ExtractConstantDescriptor createRefactoringDescriptor() {
+	private ExtractConstantDescriptor getRefactoringDescriptor() {
 		String project= getJavaProjectName();
 
 		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;

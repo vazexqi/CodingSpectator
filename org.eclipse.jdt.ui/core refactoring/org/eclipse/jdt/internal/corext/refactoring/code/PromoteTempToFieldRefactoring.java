@@ -554,7 +554,7 @@ public class PromoteTempToFieldRefactoring extends WatchedRefactoring {
 			addFieldDeclaration(rewrite);
 
 			CompilationUnitChange result= new CompilationUnitChange(RefactoringCoreMessages.PromoteTempToFieldRefactoring_name, fCu);
-			result.setDescriptor(new RefactoringChangeDescriptor(createRefactoringDescriptor()));
+			result.setDescriptor(new RefactoringChangeDescriptor(getRefactoringDescriptor()));
 			TextEdit resultingEdits= rewrite.rewriteAST();
 			TextChangeCompatibility.addTextEdit(result, RefactoringCoreMessages.PromoteTempToFieldRefactoring_editName, resultingEdits);
 			return result;
@@ -682,7 +682,7 @@ public class PromoteTempToFieldRefactoring extends WatchedRefactoring {
 	}
 
 
-	private ConvertLocalVariableDescriptor createRefactoringDescriptor() {
+	private ConvertLocalVariableDescriptor getRefactoringDescriptor() {
 		String project= getJavaProjectName();
 
 		final IVariableBinding binding= fTempDeclarationNode.resolveBinding();

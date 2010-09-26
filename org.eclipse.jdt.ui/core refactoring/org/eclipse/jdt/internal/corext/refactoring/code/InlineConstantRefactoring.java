@@ -934,7 +934,7 @@ public class InlineConstantRefactoring extends WatchedRefactoring {
 	public Change createChange(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineConstantRefactoring_preview, 2);
-			final InlineConstantDescriptor descriptor= createRefactoringDescripto();
+			final InlineConstantDescriptor descriptor= getRefactoringDescripto();
 			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.InlineConstantRefactoring_inline, fChanges);
 		} finally {
 			pm.done();
@@ -942,7 +942,7 @@ public class InlineConstantRefactoring extends WatchedRefactoring {
 		}
 	}
 
-	private InlineConstantDescriptor createRefactoringDescripto() {
+	private InlineConstantDescriptor getRefactoringDescripto() {
 		String project= getJavaProjectName();
 		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
 		try {

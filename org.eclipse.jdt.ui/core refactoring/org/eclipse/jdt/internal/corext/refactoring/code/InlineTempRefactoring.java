@@ -274,7 +274,7 @@ public class InlineTempRefactoring extends WatchedRefactoring {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineTempRefactoring_preview, 2);
 
-			final InlineLocalVariableDescriptor descriptor= createRefactoringDescriptor();
+			final InlineLocalVariableDescriptor descriptor= getRefactoringDescriptor();
 
 			CompilationUnitRewrite cuRewrite= new CompilationUnitRewrite(fCu, fASTRoot);
 			inlineTemp(cuRewrite);
@@ -288,7 +288,7 @@ public class InlineTempRefactoring extends WatchedRefactoring {
 		}
 	}
 
-	private InlineLocalVariableDescriptor createRefactoringDescriptor() {
+	private InlineLocalVariableDescriptor getRefactoringDescriptor() {
 		String project= getJavaProjectName();
 
 		final IVariableBinding binding= getVariableDeclaration().resolveBinding();

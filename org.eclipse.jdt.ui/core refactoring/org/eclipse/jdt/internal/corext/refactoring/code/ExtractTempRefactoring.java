@@ -505,7 +505,7 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 		}
 	}
 
-	private final ExtractLocalDescriptor createRefactoringDescriptor() {
+	private final ExtractLocalDescriptor getRefactoringDescriptor() {
 		String project= getJavaProjectName();
 
 		final String description= Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fTempName));
@@ -777,7 +777,7 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 		try {
 			pm.beginTask(RefactoringCoreMessages.ExtractTempRefactoring_checking_preconditions, 1);
 
-			ExtractLocalDescriptor descriptor= createRefactoringDescriptor();
+			ExtractLocalDescriptor descriptor= getRefactoringDescriptor();
 			fChange.setDescriptor(new RefactoringChangeDescriptor(descriptor));
 			return fChange;
 		} finally {
