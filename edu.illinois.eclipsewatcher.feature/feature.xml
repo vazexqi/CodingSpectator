@@ -29,7 +29,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.jdt.ui"
+         id="org.tmatesoft.svn_1.3.4.eclipse"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -50,7 +50,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.tmatesoft.svn_1.3.4.eclipse"
+         id="org.eclipse.jdt.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
