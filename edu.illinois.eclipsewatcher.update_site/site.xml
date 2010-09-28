@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/edu.illinois.eclipsewatcher.feature_1.0.0.201009271905.jar" id="edu.illinois.eclipsewatcher.feature" version="1.0.0.201009271905">
+      <category name="edu.illinois.eclipsewatcher.feature"/>
+   </feature>
+   <category-def name="edu.illinois.eclipsewatcher.feature" label="Eclipse Watcher"/>
+</site>
