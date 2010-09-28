@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/edu.illinois.eclipsewatcher.feature_1.0.0.201009281425.jar" id="edu.illinois.eclipsewatcher.feature" version="1.0.0.201009281425">
-      <category name="edu.illinois.eclipsewatcher.feature"/>
+   <feature url="features/edu.illinois.eclipsewatcher.jdt.patch_1.0.0.jar" id="edu.illinois.eclipsewatcher.jdt.patch" version="1.0.0" patch="true">
+      <category name="Eclipse Patches"/>
    </feature>
-   <category-def name="edu.illinois.eclipsewatcher.feature" label="Eclipse Watcher"/>
+   <feature url="features/edu.illinois.eclipsewatcher.platform.patch_1.0.0.jar" id="edu.illinois.eclipsewatcher.platform.patch" version="1.0.0" patch="true">
+      <category name="Eclipse Patches"/>
+   </feature>
+   <feature url="features/edu.illinois.eclipsewatcher.feature_1.0.0.qualifier.jar" id="edu.illinois.eclipsewatcher.feature" version="1.0.0.qualifier">
+      <category name="Eclipse Watcher"/>
+   </feature>
+   <category-def name="Eclipse Watcher" label="Eclipse Watcher"/>
+   <category-def name="Eclipse Patches" label="Eclipse Patches"/>
 </site>

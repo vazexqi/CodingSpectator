@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.illinois.eclipsewatcher.feature"
-      label="Eclipse Watcher"
-      version="1.0.0.qualifier"
+      id="edu.illinois.eclipsewatcher.platform.patch"
+      label="Patch"
+      version="1.0.0"
       provider-name="University of Illinois">
 
-   <description>
+   <description url="http://www.example.com/description">
       [Enter Feature Description here.]
    </description>
 
-   <copyright>
+   <copyright url="http://www.example.com/copyright">
       [Enter Copyright Description here.]
    </copyright>
 
-   <license>
+   <license url="http://www.example.com/license">
       [Enter License Description here.]
    </license>
 
-   <url>
-      <update label="Eclipse Watcher Update Site" url="http://eclipsewatcher.github.com/updates"/>
-   </url>
+   <requires>
+      <import feature="org.eclipse.platform" version="3.6.1.r361_v20100909-9gF78GrkFqw7GrsZnvz0JWNTeb6fue6896L" patch="true"/>
+   </requires>
 
    <plugin
-         id="edu.illinois.refactoringwatcher.monitor"
+         id="org.eclipse.ltk.core.refactoring"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.tmatesoft.svn_1.3.4.eclipse"
+         id="org.eclipse.ltk.ui.refactoring"
          download-size="0"
          install-size="0"
          version="0.0.0"
