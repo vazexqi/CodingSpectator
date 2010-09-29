@@ -1,6 +1,7 @@
 package edu.illinois.refactoringwatcher.monitor;
 
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -11,7 +12,7 @@ import org.osgi.framework.BundleContext;
  * @author nchen
  * 
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends AbstractUIPlugin implements IStartup {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID= "edu.illinois.refactoringwatcher.monitor"; //$NON-NLS-1$
@@ -29,6 +30,7 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin= this;
@@ -38,6 +40,7 @@ public class Activator extends AbstractUIPlugin {
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin= null;
 		super.stop(context);
@@ -64,5 +67,9 @@ public class Activator extends AbstractUIPlugin {
 		getLog().log(status);
 	}
 
+	@Override
+	public void earlyStartup() {
+		log(createInfoStatus("Started up"));
+	}
 
 }

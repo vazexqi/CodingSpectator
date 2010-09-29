@@ -9,5 +9,11 @@
             name="%page.name">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="edu.illinois.refactoringwatcher.monitor.Activator">
+      </startup>
+   </extension>
 
 </plugin>
