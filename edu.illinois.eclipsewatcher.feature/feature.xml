@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="edu.illinois.eclipsewatcher.feature"
-      label="Eclipse Watcher"
+      label="Eclipse Watcher (required)"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
