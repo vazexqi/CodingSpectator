@@ -22,4 +22,8 @@ public class MockAuthenticationProvider implements AuthenticationProvider {
 	public void clearSecureStorage() throws IOException {
 	}
 
+	@Override
+	public void saveAuthenticationInfo(AuthenticationInfo authenticationInfo) {
+	}
+
 }

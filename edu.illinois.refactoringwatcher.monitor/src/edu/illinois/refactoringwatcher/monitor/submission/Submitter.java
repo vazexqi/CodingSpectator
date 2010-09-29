@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNException;
 
@@ -62,9 +63,14 @@ public class Submitter {
 			svnManager= new SVNManager(repositoryBaseURL, authenticationInfo.getUserName(), authenticationInfo.getPassword());
 			svnManager.doImport(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
 			svnManager.doCheckout(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
+			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);
 		} catch (SVNException e) {
+			throw new InitializationException(e);
+		} catch (StorageException e) {
+			throw new InitializationException(e);
+		} catch (IOException e) {
 			throw new InitializationException(e);
 		}
 

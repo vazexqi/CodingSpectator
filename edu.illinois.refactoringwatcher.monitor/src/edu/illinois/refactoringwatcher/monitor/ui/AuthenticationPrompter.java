@@ -70,6 +70,28 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		}
 	}
 
+	private ISecurePreferences getSecurePreferencesNode() {
+		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
+		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
+		if (securePreferences.nodeExists(nodeName)) {
+			return securePreferences.node(nodeName);
+		} else
+			return null;
+	}
+
+	private boolean securePreferencesNodeExists() {
+		return getSecurePreferencesNode() != null;
+	}
+
+	private ISecurePreferences createOrGetSecurePreferencesNode() {
+		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
+		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
+		if (securePreferencesNodeExists())
+			return getSecurePreferencesNode();
+		else
+			return securePreferences.node(nodeName);
+	}
+
 	/**
 	 * @throws StorageException
 	 * @throws IOException
@@ -77,38 +99,36 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	 *      AuthenticationInfo)
 	 */
 	private AuthenticationInfo askOrLookupCredentials() throws StorageException, IOException {
-		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
-		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
 		String username= null, password= null;
-		ISecurePreferences prefNode= null;
+		ISecurePreferences prefNode= getSecurePreferencesNode();
 
-		if (securePreferences.nodeExists(nodeName)) {
-			prefNode= securePreferences.node(nodeName);
-			if (prefNode != null) {
-				username= prefNode.get(Messages.AuthenticationPrompter_username, null);
-				password= prefNode.get(Messages.AuthenticationPrompter_password, null);
-			}
+		if (securePreferencesNodeExists()) {
+			username= prefNode.get(Messages.AuthenticationPrompter_username, null);
+			password= prefNode.get(Messages.AuthenticationPrompter_password, null);
 			if (username != null && password != null)
 				return new UIServices.AuthenticationInfo(username, password, true);
 		}
 
-		UIServices.AuthenticationInfo loginDetails= getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
+		UIServices.AuthenticationInfo authenticationInfo= getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
 
-		if (loginDetails == null)
+		if (authenticationInfo == null)
 			return null;
 
-		if (loginDetails.saveResult()) {
-			if (prefNode == null)
-				prefNode= securePreferences.node(nodeName);
-			prefNode.put(Messages.AuthenticationPrompter_username, loginDetails.getUserName(), true);
-			prefNode.put(Messages.AuthenticationPrompter_password, loginDetails.getPassword(), true);
+		return authenticationInfo;
+	}
+
+	@Override
+	public void saveAuthenticationInfo(UIServices.AuthenticationInfo authenticationInfo) throws StorageException, IOException {
+		ISecurePreferences prefNode;
+		if (authenticationInfo.saveResult()) {
+			prefNode= createOrGetSecurePreferencesNode();
+			prefNode.put(Messages.AuthenticationPrompter_username, authenticationInfo.getUserName(), true);
+			prefNode.put(Messages.AuthenticationPrompter_password, authenticationInfo.getPassword(), true);
 			prefNode.flush();
 		} else {
 			// if persisted earlier - the preference should be removed
 			clearSecureStorage();
 		}
-
-		return loginDetails;
 	}
 
 	/* (non-Javadoc)
