@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/edu.illinois.eclipsewatcher.feature_1.0.0.qualifier.jar" id="edu.illinois.eclipsewatcher.feature" version="1.0.0.qualifier">
+   <feature url="features/edu.illinois.eclipsewatcher.feature_1.0.0.201009282000.jar" id="edu.illinois.eclipsewatcher.feature" version="1.0.0.201009282000">
       <category name="Eclipse Watcher"/>
    </feature>
    <feature url="features/edu.illinois.eclipsewatcher.jdt.patch_1.0.0.jar" id="edu.illinois.eclipsewatcher.jdt.patch" version="1.0.0" patch="true">
