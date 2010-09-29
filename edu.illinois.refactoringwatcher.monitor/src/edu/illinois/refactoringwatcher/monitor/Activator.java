@@ -5,6 +5,9 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import edu.illinois.refactoringwatcher.monitor.prefs.WorkbenchPreferencePage;
+import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
+
 /**
  * The activator class controls the plug-in life cycle
  * 
@@ -69,7 +72,12 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	public void earlyStartup() {
-		log(createInfoStatus("Started up"));
+		final Submitter submitter= new Submitter();
+
+		if (WorkbenchPreferencePage.authenticateAndInitialize(submitter)) {
+			WorkbenchPreferencePage.submit(submitter);
+		}
+
 	}
 
 }

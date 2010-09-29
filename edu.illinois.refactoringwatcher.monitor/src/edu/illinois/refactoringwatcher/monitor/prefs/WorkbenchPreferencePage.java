@@ -49,7 +49,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 		PrefsFacade.generateUUIDIfDoesNotExist();
 	}
 
-	private String populateMessageWithPluginName(String formattedString) {
+	private static String populateMessageWithPluginName(String formattedString) {
 		return MessageFormat.format(formattedString, Messages.WorkbenchPreferencePage_PluginName);
 	}
 
@@ -82,7 +82,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 	}
 
-	private IStatus reportUploadFailure(SubmitterException exception) {
+	private static IStatus reportUploadFailure(SubmitterException exception) {
 		populateMessageWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
 		Status errorStatus= Activator.getDefault().createErrorStatus(Messages.WorkbenchPreferencePage_FailedToUploadMessage, exception);
 		Activator.getDefault().log(errorStatus);
@@ -94,7 +94,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 	 * @param submitter
 	 * @return if the method completed successfully.
 	 */
-	private boolean authenticateAndInitialize(final Submitter submitter) {
+	public static boolean authenticateAndInitialize(final Submitter submitter) {
 		try {
 			submitter.authenticateAndInitialize();
 		} catch (NoAuthenticationInformationFoundException noAuthEx) {
@@ -106,7 +106,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 		return true;
 	}
 
-	private void submit(final Submitter submitter) {
+	public static void submit(final Submitter submitter) {
 		Job job= new Job(MessageFormat.format(Messages.WorkbenchPreferencePage_UploadingMessage, Messages.WorkbenchPreferencePage_PluginName)) {
 
 			@Override
