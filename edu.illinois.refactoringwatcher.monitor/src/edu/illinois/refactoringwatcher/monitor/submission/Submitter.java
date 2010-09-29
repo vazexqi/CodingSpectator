@@ -8,9 +8,9 @@ import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.refactoringwatcher.monitor.Messages;
-import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationPrompter;
 import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider;
 import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
+import edu.illinois.refactoringwatcher.monitor.ui.AuthenticationPrompter;
 
 /**
  * 

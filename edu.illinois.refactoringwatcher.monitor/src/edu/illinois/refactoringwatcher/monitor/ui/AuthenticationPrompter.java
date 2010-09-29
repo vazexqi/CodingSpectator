@@ -1,4 +1,4 @@
-package edu.illinois.refactoringwatcher.monitor.authentication;
+package edu.illinois.refactoringwatcher.monitor.ui;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -15,6 +15,7 @@ import org.eclipse.ui.PlatformUI;
 
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
+import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider;
 
 /**
  * 
@@ -33,6 +34,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		// Only a final reference can be assigned to inside an anonymous class. This is why they put a single object inside an array.
 		final AuthenticationInfo[] result= new AuthenticationInfo[1];
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+			@Override
 			public void run() {
 				Shell shell= getDefaultParentShell();
 				String message= MessageFormat.format(Messages.AuthenticationPrompter_DialogDescription, location);
@@ -55,6 +57,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		return PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 	}
 
+	@Override
 	public void clearSecureStorage() throws IOException {
 		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
 		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;

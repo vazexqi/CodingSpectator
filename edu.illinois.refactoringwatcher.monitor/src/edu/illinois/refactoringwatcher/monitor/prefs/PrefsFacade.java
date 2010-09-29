@@ -4,7 +4,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
-import edu.illinois.refactoringwatcher.monitor.idgen.UUIDGenerator;
 
 /**
  * 

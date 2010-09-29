@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="edu.illinois.refactoringwatcher.monitor.prefs.WorkbenchPreferencePage"
+            class="edu.illinois.refactoringwatcher.monitor.ui.WorkbenchPreferencePage"
             id="edu.illinois.refactorbehavior.monitor.preferencepage"
             name="%page.name">
       </page>

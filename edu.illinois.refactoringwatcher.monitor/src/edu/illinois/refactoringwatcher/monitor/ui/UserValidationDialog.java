@@ -8,7 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package edu.illinois.refactoringwatcher.monitor.authentication;
+package edu.illinois.refactoringwatcher.monitor.ui;
 
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 

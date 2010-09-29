@@ -1,12 +1,14 @@
 package edu.illinois.refactoringwatcher.monitor;
 
+import java.text.MessageFormat;
+
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import edu.illinois.refactoringwatcher.monitor.prefs.WorkbenchPreferencePage;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
+import edu.illinois.refactoringwatcher.monitor.ui.Uploader;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -74,10 +76,14 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public void earlyStartup() {
 		final Submitter submitter= new Submitter();
 
-		if (WorkbenchPreferencePage.authenticateAndInitialize(submitter)) {
-			WorkbenchPreferencePage.submit(submitter);
+		if (Uploader.authenticateAndInitialize(submitter)) {
+			Uploader.submit(submitter);
 		}
 
+	}
+
+	public static String populateMessageWithPluginName(String formattedString) {
+		return MessageFormat.format(formattedString, Messages.WorkbenchPreferencePage_PluginName);
 	}
 
 }
