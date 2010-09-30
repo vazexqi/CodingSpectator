@@ -29,6 +29,8 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  */
 public abstract class WatchedRefactoring extends Refactoring {
 
+	private static final String DEFAULT_NULL_ASTNODE_CODE_SNIPPET= "EMPTY CODE SNIPPET"; //$NON-NLS-1$
+
 	protected int fSelectionStart;
 
 	protected int fSelectionLength;
@@ -64,6 +66,10 @@ public abstract class WatchedRefactoring extends Refactoring {
 
 	private String getCodeSnippet() {
 		ASTNode node= findTargetNode();
+
+		if (node == null) {
+			return DEFAULT_NULL_ASTNODE_CODE_SNIPPET;
+		}
 
 		final int THRESHOLD= 3200;
 
