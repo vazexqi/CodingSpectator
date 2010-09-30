@@ -34,7 +34,6 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -94,7 +93,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  *    assigned to a parameter again. No need for a separate local (important to be able
  *    to reverse extract method correctly).
  */
-public class InlineMethodRefactoring extends Refactoring {
+public class InlineMethodRefactoring extends WatchedRefactoring {
 
 	private static final String ATTRIBUTE_MODE= "mode"; //$NON-NLS-1$
 
@@ -127,10 +126,6 @@ public class InlineMethodRefactoring extends Refactoring {
 	private Mode fCurrentMode;
 
 	private Mode fInitialMode;
-
-	private int fSelectionStart;
-
-	private int fSelectionLength;
 
 	private InlineMethodRefactoring(ITypeRoot typeRoot, ASTNode node, int offset, int length) {
 		Assert.isNotNull(typeRoot);
@@ -412,12 +407,8 @@ public class InlineMethodRefactoring extends Refactoring {
 		return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.InlineMethodRefactoring_edit_inlineCall, fChangeManager.getAllChanges());
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor() {
-		final Map arguments= new HashMap();
-		String project= null;
-		IJavaProject javaProject= fInitialTypeRoot.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		String project= getJavaProjectName();
 		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
 		final IMethodBinding binding= fSourceProvider.getDeclaration().resolveBinding();
 		final ITypeBinding declaring= binding.getDeclaringClass();
@@ -434,12 +425,22 @@ public class InlineMethodRefactoring extends Refactoring {
 			comment.addSetting(RefactoringCoreMessages.InlineMethodRefactoring_remove_method);
 		if (fCurrentMode == Mode.INLINE_ALL)
 			comment.addSetting(RefactoringCoreMessages.InlineMethodRefactoring_replace_references);
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
 		final InlineMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineMethodDescriptor(project, description, comment.asString(), arguments, flags);
+
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fInitialTypeRoot));
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
 		arguments.put(ATTRIBUTE_DELETE, Boolean.valueOf(fDeleteSource).toString());
 		arguments.put(ATTRIBUTE_MODE, new Integer(fCurrentMode == Mode.INLINE_ALL ? 1 : 0).toString());
-		return descriptor;
+	}
+
+	protected ICompilationUnit getCompilationUnit() {
+		return (ICompilationUnit)fInitialTypeRoot;
 	}
 
 	private static SourceProvider resolveSourceProvider(RefactoringStatus status, ITypeRoot typeRoot, ASTNode invocation) {
