@@ -67,7 +67,7 @@ public abstract class WatchedRefactoring extends Refactoring {
 
 		final int THRESHOLD= 3200;
 
-		while (node != null && node.subtreeBytes() < THRESHOLD) {
+		while (node.getParent() != null && node.subtreeBytes() < THRESHOLD) {
 			node= node.getParent();
 		}
 
