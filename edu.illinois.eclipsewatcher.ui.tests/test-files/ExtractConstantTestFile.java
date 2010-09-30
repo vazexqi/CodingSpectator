@@ -1,4 +1,4 @@
-package edu.illinois.refactorbehavior;
+package edu.illinois.eclipsewatcher;
 
 public class ExtractConstantTestFile {
 

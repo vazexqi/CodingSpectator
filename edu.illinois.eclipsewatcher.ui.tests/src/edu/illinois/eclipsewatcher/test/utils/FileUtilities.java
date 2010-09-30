@@ -1,4 +1,4 @@
-package edu.illinois.refactorbehavior.utils;
+package edu.illinois.eclipsewatcher.test.utils;
 
 import java.io.File;
 

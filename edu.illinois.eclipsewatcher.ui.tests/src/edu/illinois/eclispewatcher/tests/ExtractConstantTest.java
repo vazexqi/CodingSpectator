@@ -1,4 +1,4 @@
-package edu.illinois.refactorbehavior;
+package edu.illinois.eclispewatcher.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,13 +33,10 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 	@Test
 	public void canTypeInTextInAJavaClass() throws Exception {
 
-		Bundle bundle= Platform
-				.getBundle("edu.illinois.refactorbehavior.tests");
-		String contents= FileUtils.read(bundle.getEntry("test-files/"
-				+ TEST_FILE_NAME + ".java"));
+		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
+		String contents= FileUtils.read(bundle.getEntry("test-files/" + TEST_FILE_NAME + ".java"));
 
-		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_FILE_NAME + ".java")
-				.toTextEditor();
+		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_FILE_NAME + ".java").toTextEditor();
 		editor.setText(contents);
 		editor.save();
 	}
@@ -100,10 +97,10 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 
 		SWTBotMenu refactorMenu= bot.menu("Refactor");
 		assertTrue(refactorMenu.isEnabled());
-		
+
 		SWTBotMenu extractConstantMenuItem= refactorMenu.menu("Extract Constant...");
 		assertTrue(extractConstantMenuItem.isEnabled());
-		
+
 		extractConstantMenuItem.click();
 	}
 

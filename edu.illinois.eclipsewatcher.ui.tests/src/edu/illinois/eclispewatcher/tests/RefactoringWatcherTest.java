@@ -1,4 +1,4 @@
-package edu.illinois.refactorbehavior;
+package edu.illinois.eclispewatcher.tests;
 
 
 import java.io.File;
@@ -8,7 +8,7 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import edu.illinois.refactorbehavior.utils.FileUtilities;
+import edu.illinois.eclipsewatcher.test.utils.FileUtilities;
 
 
 /**
@@ -19,20 +19,22 @@ import edu.illinois.refactorbehavior.utils.FileUtilities;
  * 
  */
 public abstract class RefactoringWatcherTest {
+	
+	static final String PLUGIN_NAME= "edu.illinois.eclipsewatcher.ui.tests";
 
-	protected static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
+	static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
 
-	protected static final String CANCELED_REFACTORINGS= ".refactorings.canceled";
+	static final String CANCELED_REFACTORINGS= ".refactorings.canceled";
 
-	protected static final String PERFORMED_REFACTORINGS= ".refactorings.performed";
+	static final String PERFORMED_REFACTORINGS= ".refactorings.performed";
 
-	protected static final String PACKAGE_NAME= "edu.illinois.refactorbehavior";
+	static final String PACKAGE_NAME= "edu.illinois.eclipsewatcher";
 
-	protected static SWTWorkbenchBot bot;
+	static SWTWorkbenchBot bot;
 
-	protected static File performedRefactorings;
+	static File performedRefactorings;
 
-	protected static File canceledRefactorings;
+	static File canceledRefactorings;
 
 	static {
 		performedRefactorings= new File(REFACTORING_HISTORY_LOCATION + System.getProperty("file.separator") + PERFORMED_REFACTORINGS);
