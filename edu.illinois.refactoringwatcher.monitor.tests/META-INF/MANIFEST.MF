@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Watcher Tests
-Bundle-SymbolicName: edu.illinois.refactoringwatcher.monitor.tests
+Bundle-SymbolicName: edu.illinois.refactoringwatcher.monitor.tests;singleton:=true
 Bundle-Version: 1.0.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: edu.illinois.refactoringwatcher.monitor;bundle-version="1.0.0",
@@ -12,3 +12,4 @@ Require-Bundle: edu.illinois.refactoringwatcher.monitor;bundle-version="1.0.0",
  org.eclipse.equinox.p2.core;bundle-version="2.0.0",
  org.eclipse.equinox.security;bundle-version="1.0.200"
 Bundle-Vendor: Univeristy of Illinois
+Bundle-ActivationPolicy: lazy

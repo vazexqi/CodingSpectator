@@ -17,25 +17,30 @@ public class PrefsFacade {
 		return Activator.getDefault().getPreferenceStore();
 	}
 
-	public static void generateUUIDIfDoesNotExist() {
-		IPreferenceStore preferenceStore= getPreferenceStore();
-		String UUID= preferenceStore.getString(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
-		if ("".equals(UUID)) {
-			String newUUID= UUIDGenerator.generateID();
-			preferenceStore.setValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, newUUID);
-			setUUID(newUUID);
-		}
-	}
-
-	public static void setUUID(String uiud) {
-		getPreferenceStore().setValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
-	}
-
 	private static String getPreferenceValue(String key) {
 		return getPreferenceStore().getString(key);
 	}
 
-	public static String getUUID() {
+	private static void setPreferenceValue(String key, String value) {
+		getPreferenceStore().setValue(key, value);
+	}
+
+	private static boolean isUUIDSet() {
+		return !("".equals(getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey)));
+	}
+
+	private static void setUUIDLazily() {
+		if (!isUUIDSet()) {
+			setUUID(UUIDGenerator.generateID());
+		}
+	}
+
+	public static void setUUID(String uiud) {
+		setPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
+	}
+
+	public static String getAndSetUUIDLazily() {
+		setUUIDLazily();
 		return getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
 	}
 

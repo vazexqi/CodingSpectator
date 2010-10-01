@@ -41,7 +41,7 @@ public class Submitter {
 	}
 
 	private static String getRepositoryOffsetURL(String username) {
-		return joinByURLSeparator(username, PrefsFacade.getUUID());
+		return joinByURLSeparator(username, PrefsFacade.getAndSetUUIDLazily());
 	}
 
 	private static String joinByURLSeparator(String... strings) {
@@ -53,7 +53,7 @@ public class Submitter {
 		return sb.toString();
 	}
 
-	public void initialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
 		try {
 			AuthenticationProvider prompter= getAuthenticationPrompter();
 			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
@@ -92,22 +92,17 @@ public class Submitter {
 		}
 	}
 
-	public void upload() throws InitializationException, SubmissionException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
-		authenticateAndInitialize();
-		submit();
-	}
-
-	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+	public void initializeUntilValidCredentials() throws InitializationException {
 		while (true) {
 			try {
-				initialize();
+				authenticateAndInitialize();
 			} catch (NoAuthenticationInformationFoundException noAuthEx) {
-				throw new NoAuthenticationInformationFoundException(noAuthEx);
+				continue;
 			} catch (FailedAuthenticationException authEx) {
 				try {
 					getAuthenticationPrompter().clearSecureStorage();
 				} catch (IOException ioEx) {
-					throw new FailedAuthenticationException(ioEx);
+					throw new InitializationException(ioEx);
 				}
 				continue;
 			}

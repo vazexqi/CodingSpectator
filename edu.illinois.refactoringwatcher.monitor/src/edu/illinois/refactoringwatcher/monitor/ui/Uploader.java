@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
-import edu.illinois.refactoringwatcher.monitor.submission.Submitter.NoAuthenticationInformationFoundException;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmitterException;
 
 /**
@@ -33,11 +32,9 @@ public class Uploader {
 	 * @param submitter
 	 * @return if the method completed successfully.
 	 */
-	public static boolean authenticateAndInitialize(final Submitter submitter) {
+	public static boolean initializeUntilValidCredentials(final Submitter submitter) {
 		try {
-			submitter.authenticateAndInitialize();
-		} catch (NoAuthenticationInformationFoundException noAuthEx) {
-			return false;
+			submitter.initializeUntilValidCredentials();
 		} catch (SubmitterException subEx) {
 			reportUploadFailure(subEx);
 			return false;

@@ -87,7 +87,7 @@ public class TestSubmitter {
 
 	@Test
 	public void shouldInitialize() throws InitializationException, SVNException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
-		submitter.initialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
+		submitter.authenticateAndInitialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
 
 		// Check that the working directory has been created locally.
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.watchedDirectory + File.separator + ".svn").exists());
@@ -100,7 +100,7 @@ public class TestSubmitter {
 
 	@Test
 	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
-		submitter.initialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
+		submitter.authenticateAndInitialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
 
 		createTempFileLocally();
 

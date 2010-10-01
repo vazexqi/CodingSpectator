@@ -59,12 +59,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 
 	@Override
 	public void clearSecureStorage() throws IOException {
-		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
-		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
-		ISecurePreferences prefNode= null;
-
-		if (securePreferences.nodeExists(nodeName)) {
-			prefNode= securePreferences.node(nodeName);
+		if (securePreferencesNodeExists()) {
+			ISecurePreferences prefNode= getSecurePreferencesNode();
 			prefNode.removeNode();
 			prefNode.flush();
 		}
@@ -83,7 +79,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		return getSecurePreferencesNode() != null;
 	}
 
-	private ISecurePreferences createOrGetSecurePreferencesNode() {
+	private ISecurePreferences getSecurePreferencesNodeLazily() {
 		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
 		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
 		if (securePreferencesNodeExists())
@@ -93,38 +89,42 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	}
 
 	/**
-	 * @throws StorageException
-	 * @throws IOException
 	 * @see org.eclipse.equinox.internal.p2.repository.Credentials.forLocation(URI, boolean,
 	 *      AuthenticationInfo)
 	 */
-	private AuthenticationInfo askOrLookupCredentials() throws StorageException, IOException {
-		String username= null, password= null;
-		ISecurePreferences prefNode= getSecurePreferencesNode();
-
+	private AuthenticationInfo askOrLookupCredentials() throws IOException {
 		if (securePreferencesNodeExists()) {
-			username= prefNode.get(Messages.AuthenticationPrompter_username, null);
-			password= prefNode.get(Messages.AuthenticationPrompter_password, null);
-			if (username != null && password != null)
-				return new UIServices.AuthenticationInfo(username, password, true);
+			ISecurePreferences prefNode= getSecurePreferencesNode();
+			String username= null, password= null;
+			try {
+				username= prefNode.get(Messages.AuthenticationPrompter_username, null);
+				password= prefNode.get(Messages.AuthenticationPrompter_password, null);
+				if (username != null && password != null)
+					return new UIServices.AuthenticationInfo(username, password, true);
+				else {
+					clearSecureStorage();
+					return null;
+				}
+			} catch (StorageException e) {
+				clearSecureStorage();
+				return null;
+			}
 		}
 
-		UIServices.AuthenticationInfo authenticationInfo= getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
-
-		if (authenticationInfo == null)
-			return null;
-
-		return authenticationInfo;
+		return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
 	}
 
 	@Override
-	public void saveAuthenticationInfo(UIServices.AuthenticationInfo authenticationInfo) throws StorageException, IOException {
-		ISecurePreferences prefNode;
+	public void saveAuthenticationInfo(UIServices.AuthenticationInfo authenticationInfo) throws IOException {
 		if (authenticationInfo.saveResult()) {
-			prefNode= createOrGetSecurePreferencesNode();
-			prefNode.put(Messages.AuthenticationPrompter_username, authenticationInfo.getUserName(), true);
-			prefNode.put(Messages.AuthenticationPrompter_password, authenticationInfo.getPassword(), true);
-			prefNode.flush();
+			try {
+				ISecurePreferences prefNode= getSecurePreferencesNodeLazily();
+				prefNode.put(Messages.AuthenticationPrompter_username, authenticationInfo.getUserName(), true);
+				prefNode.put(Messages.AuthenticationPrompter_password, authenticationInfo.getPassword(), true);
+				prefNode.flush();
+			} catch (Exception e) {
+				clearSecureStorage();
+			}
 		} else {
 			// if persisted earlier - the preference should be removed
 			clearSecureStorage();
@@ -137,8 +137,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
 		try {
-			AuthenticationInfo authenticationInfo= askOrLookupCredentials();
-			return authenticationInfo;
+			return askOrLookupCredentials();
 		} catch (Exception ex) {
 			Status errorStatus= Activator.getDefault().createErrorStatus(Messages.AuthenticationPrompter_FailureMessage, ex);
 			Activator.getDefault().log(errorStatus);

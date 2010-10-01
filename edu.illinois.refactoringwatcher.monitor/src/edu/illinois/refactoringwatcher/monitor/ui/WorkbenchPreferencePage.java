@@ -12,7 +12,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
-import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
 
 /**
@@ -40,7 +39,6 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		setDescription(Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_title));
-		PrefsFacade.generateUUIDIfDoesNotExist();
 	}
 
 	@Override
@@ -63,7 +61,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 			public void widgetSelected(SelectionEvent e) {
 				final Submitter submitter= new Submitter();
 
-				if (Uploader.authenticateAndInitialize(submitter)) {
+				if (Uploader.initializeUntilValidCredentials(submitter)) {
 					Uploader.submit(submitter);
 				}
 			}

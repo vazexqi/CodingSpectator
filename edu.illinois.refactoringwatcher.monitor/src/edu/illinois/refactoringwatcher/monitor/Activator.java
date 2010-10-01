@@ -76,7 +76,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public void earlyStartup() {
 		final Submitter submitter= new Submitter();
 
-		if (Uploader.authenticateAndInitialize(submitter)) {
+		if (Uploader.initializeUntilValidCredentials(submitter)) {
 			Uploader.submit(submitter);
 		}
 
