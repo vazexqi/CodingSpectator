@@ -30,11 +30,28 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		PROMPT_FOR_REENTRING_AUTHENTICATION_INFO
 	}
 
+	private DialogType dialogType= DialogType.FIRST_PROMPT_FOR_AUTHENTICATION_INFO;
+
+
+	private String getDialogDescription() {
+		String dialogDescription= null;
+		switch (dialogType) {
+			case FIRST_PROMPT_FOR_AUTHENTICATION_INFO:
+				dialogDescription= Messages.AuthenticationPrompter_DialogDescription;
+				break;
+
+			default:
+				dialogDescription= Messages.AuthenticationPrompter_DialogDescriptionForReenteringAuthenticationInfo;
+				break;
+		}
+		return dialogDescription;
+	}
+
 	/**
 	 * @see org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI.getUsernamePassword(String)
 	 * 
 	 */
-	private AuthenticationInfo getUsernamePassword(final String loginDestination, final DialogType dialogType) {
+	private AuthenticationInfo getUsernamePassword(final String loginDestination) {
 
 		// Only a final reference can be assigned to inside an anonymous class. This is why they put a single object inside an array.
 		final AuthenticationInfo[] result= new AuthenticationInfo[1];
@@ -42,18 +59,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			@Override
 			public void run() {
 				Shell shell= getDefaultParentShell();
-
-				String dialogDescription= null;
-				switch (dialogType) {
-					case FIRST_PROMPT_FOR_AUTHENTICATION_INFO:
-						dialogDescription= Messages.AuthenticationPrompter_DialogDescription;
-						break;
-
-					default:
-						dialogDescription= Messages.AuthenticationPrompter_DialogDescription;
-						break;
-				}
-				String message= MessageFormat.format(dialogDescription, loginDestination);
+				String message= MessageFormat.format(getDialogDescription(), loginDestination);
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
 				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, null, message);
 				if (dialog.open() == Window.OK) {
@@ -62,6 +68,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			}
 
 		});
+
+		dialogType= DialogType.PROMPT_FOR_REENTRING_AUTHENTICATION_INFO;
 		return result[0];
 	}
 
@@ -128,7 +136,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			}
 		}
 
-		return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName, DialogType.FIRST_PROMPT_FOR_AUTHENTICATION_INFO);
+		return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
 	}
 
 	@Override

@@ -9,6 +9,8 @@ public class Messages extends NLS {
 
 	public static String AuthenticationPrompter_DialogDescription;
 
+	public static String AuthenticationPrompter_DialogDescriptionForReenteringAuthenticationInfo;
+
 	public static String AuthenticationPrompter_DialogTitle;
 
 	public static String AuthenticationPrompter_FailureMessage;

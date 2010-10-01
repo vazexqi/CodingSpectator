@@ -55,7 +55,7 @@ public class Submitter {
 
 	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
 		try {
-			AuthenticationProvider prompter= getAuthenticationPrompter();
+			AuthenticationProvider prompter= getAuthenticationPrompterLazily();
 			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
 			if (authenticationInfo == null) {
 				throw new NoAuthenticationInformationFoundException();
@@ -76,11 +76,11 @@ public class Submitter {
 
 	}
 
-	private AuthenticationProvider getAuthenticationPrompter() {
-		if (authenticationProvider == null)
-			return new AuthenticationPrompter();
-		else
-			return authenticationProvider;
+	private AuthenticationProvider getAuthenticationPrompterLazily() {
+		if (authenticationProvider == null) {
+			authenticationProvider= new AuthenticationPrompter();
+		}
+		return authenticationProvider;
 	}
 
 	public void submit() throws SubmissionException {
@@ -100,7 +100,7 @@ public class Submitter {
 				continue;
 			} catch (FailedAuthenticationException authEx) {
 				try {
-					getAuthenticationPrompter().clearSecureStorage();
+					getAuthenticationPrompterLazily().clearSecureStorage();
 				} catch (IOException ioEx) {
 					throw new InitializationException(ioEx);
 				}
