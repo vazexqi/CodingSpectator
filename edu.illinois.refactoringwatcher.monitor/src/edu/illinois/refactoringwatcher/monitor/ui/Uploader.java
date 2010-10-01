@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
+import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmitterException;
 
@@ -49,6 +50,7 @@ public class Uploader {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					submitter.submit();
+					PrefsFacade.getInstance().updateLastUploadTime();
 				} catch (SubmitterException exception) {
 					return reportUploadFailure(exception);
 				}

@@ -43,12 +43,16 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 	@Override
 	protected void createFieldEditors() {
-		StringFieldEditor textfield= new StringFieldEditor(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, Messages.WorkbenchPreferencePage_UUIDTextField,
+		addDisabledTextField(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, Messages.WorkbenchPreferencePage_UUIDTextField);
+		addDisabledTextField(Messages.PrefsFacade_LastUploadTimeKey, "Last Upload:");
+		createUploadNowButton();
+	}
+
+	private void addDisabledTextField(String textFieldValue, String textFieldLabel) {
+		StringFieldEditor textfield= new StringFieldEditor(textFieldValue, textFieldLabel,
 				getFieldEditorParent());
 		textfield.setEnabled(false, getFieldEditorParent());
 		addField(textfield);
-
-		createUploadNowButton();
 	}
 
 	private void createUploadNowButton() {

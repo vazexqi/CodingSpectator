@@ -1,6 +1,7 @@
 package edu.illinois.refactoringwatcher.monitor;
 
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.core.runtime.Status;
@@ -84,7 +85,6 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 			if (Uploader.initializeUntilValidCredentials(submitter)) {
 				Uploader.submit(submitter);
 			}
-			PrefsFacade.getInstance().updateLastUploadTime();
 		}
 	}
 
@@ -97,7 +97,12 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	}
 
 	private boolean enoughTimeHasElapsedSinceLastUpload() {
-		return new Date().getTime() - PrefsFacade.getInstance().getLastUploadTime() > UPLOAD_PERIOD_MILLISECONDS;
+		try {
+			return new Date().getTime() - PrefsFacade.getInstance().getLastUploadTime() > UPLOAD_PERIOD_MILLISECONDS;
+		} catch (ParseException e) {
+			createErrorStatus("Cannot parse the date that we stored", e);
+			return true;
+		}
 	}
 
 	public static String populateMessageWithPluginName(String formattedString) {

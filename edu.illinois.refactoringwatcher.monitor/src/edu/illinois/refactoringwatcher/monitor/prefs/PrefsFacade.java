@@ -1,5 +1,7 @@
 package edu.illinois.refactoringwatcher.monitor.prefs;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -28,27 +30,19 @@ public class PrefsFacade {
 		return instance;
 	}
 
-	private static IPreferenceStore getPreferenceStore() {
+	private IPreferenceStore getPreferenceStore() {
 		return Activator.getDefault().getPreferenceStore();
 	}
 
-	private static long getPreferenceLongValue(String key) {
-		return getPreferenceStore().getLong(key);
-	}
-
-	private static String getPreferenceStringValue(String key) {
+	private String getPreferenceStringValue(String key) {
 		return getPreferenceStore().getString(key);
 	}
 
-	private static void setPreferenceValue(String key, long value) {
+	private void setPreferenceValue(String key, String value) {
 		getPreferenceStore().setValue(key, value);
 	}
 
-	private static void setPreferenceValue(String key, String value) {
-		getPreferenceStore().setValue(key, value);
-	}
-
-	private static boolean isUUIDSet() {
+	private boolean isUUIDSet() {
 		return !("".equals(getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey))); //$NON-NLS-1$
 	}
 
@@ -67,12 +61,16 @@ public class PrefsFacade {
 		return getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
 	}
 
-	public synchronized long getLastUploadTime() {
-		return getPreferenceLongValue(Messages.PrefsFacade_LastUploadTimeKey);
+	public synchronized long getLastUploadTime() throws ParseException {
+		return getDateFormat().parse(getPreferenceStringValue(Messages.PrefsFacade_LastUploadTimeKey)).getTime();
 	}
 
 	public synchronized void updateLastUploadTime() {
-		setPreferenceValue(Messages.PrefsFacade_LastUploadTimeKey, new Date().getTime());
+		setPreferenceValue(Messages.PrefsFacade_LastUploadTimeKey, getDateFormat().format(new Date()));
+	}
+
+	private DateFormat getDateFormat() {
+		return DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
 	}
 
 }
