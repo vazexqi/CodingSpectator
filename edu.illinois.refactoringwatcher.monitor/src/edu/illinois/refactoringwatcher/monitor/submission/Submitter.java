@@ -41,7 +41,7 @@ public class Submitter {
 	}
 
 	private static String getRepositoryOffsetURL(String username) {
-		return joinByURLSeparator(username, PrefsFacade.getAndSetUUIDLazily());
+		return joinByURLSeparator(username, PrefsFacade.getInstance().getAndSetUUIDLazily());
 	}
 
 	private static String joinByURLSeparator(String... strings) {
