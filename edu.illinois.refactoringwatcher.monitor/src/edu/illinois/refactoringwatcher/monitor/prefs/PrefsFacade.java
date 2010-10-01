@@ -6,12 +6,25 @@ import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
 
 /**
+ * This class provides the facade to access the preference store. Since this is a shared resource we
+ * need to protect it and we do so using a singleton.
  * 
  * @author Mohsen Vakilian
  * @author nchen
- * 
  */
 public class PrefsFacade {
+
+	// This method of providing a thread safe singleton comes from 
+	// http://www.ibm.com/developerworks/java/library/j-dcl.html
+	private static PrefsFacade instance= new PrefsFacade();
+
+	private PrefsFacade() {
+
+	}
+
+	public static PrefsFacade getInstance() {
+		return instance;
+	}
 
 	private static IPreferenceStore getPreferenceStore() {
 		return Activator.getDefault().getPreferenceStore();
@@ -29,17 +42,17 @@ public class PrefsFacade {
 		return !("".equals(getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey)));
 	}
 
-	private static void setUUIDLazily() {
+	private void setUUIDLazily() {
 		if (!isUUIDSet()) {
 			setUUID(UUIDGenerator.generateID());
 		}
 	}
 
-	public static void setUUID(String uiud) {
+	private synchronized void setUUID(String uiud) {
 		setPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
 	}
 
-	public static String getAndSetUUIDLazily() {
+	public synchronized String getAndSetUUIDLazily() {
 		setUUIDLazily();
 		return getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
 	}
