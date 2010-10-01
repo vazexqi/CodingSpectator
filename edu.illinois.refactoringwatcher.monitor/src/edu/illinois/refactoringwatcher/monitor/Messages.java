@@ -13,25 +13,31 @@ public class Messages extends NLS {
 
 	public static String AuthenticationPrompter_FailureMessage;
 
-	public static String AuthenticationPrompter_password;
+	public static String SecureStorage_PasswordKey;
 
-	public static String AuthenticationPrompter_SecureStorageNodeName;
+	public static String SecureStorage_AuthenticationNodeName;
 
-	public static String AuthenticationPrompter_username;
+	public static String SecureStorage_UsernameKey;
 
-	public static String Submitter_ltk_bundle_name;
+	public static String Submitter_LTKBundleName;
 
-	public static String Submitter_repository_base_url;
+	public static String Submitter_RepositoryBaseURL;
+
+	public static String UserValidationDialog_Password;
+
+	public static String UserValidationDialog_SavePassword;
+
+	public static String UserValidationDialog_Username;
 
 	public static String WorkbenchPreferencePage_FailedToUploadMessage;
 
-	public static String WorkbenchPreferencePage_netidFieldPreferenceKey;
+	public static String WorkbenchPreferencePage_NetidFieldPreferenceKey;
 
-	public static String WorkbenchPreferencePage_netidTextField;
+	public static String WorkbenchPreferencePage_NetidTextField;
 
 	public static String WorkbenchPreferencePage_PluginName;
 
-	public static String WorkbenchPreferencePage_title;
+	public static String WorkbenchPreferencePage_Title;
 
 	public static String WorkbenchPreferencePage_UploadingMessage;
 

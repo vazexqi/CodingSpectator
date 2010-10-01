@@ -38,7 +38,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription(Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_title));
+		setDescription(Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_Title));
 	}
 
 	@Override

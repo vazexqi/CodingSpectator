@@ -82,7 +82,7 @@ public class TestSubmitter {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		// Delete the repository location that we tested
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID);
+		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID);
 		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { url }, "Deleted test import");
 		assertNotSame("The testing directory was not removed at the remote location.", SVNCommitInfo.NULL, deleteInfo);
 	}
@@ -95,7 +95,7 @@ public class TestSubmitter {
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.watchedDirectory + File.separator + ".svn").exists());
 
 		// Check that the directory has been created remotely.
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID);
+		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID);
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
@@ -110,14 +110,14 @@ public class TestSubmitter {
 		submitter.submit();
 
 		// Check that the file has been created remotely.
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID + "/" + FILENAME);
+		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID + "/" + FILENAME);
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
 
 	private void createTempFileLocally() throws CoreException {
 		// Create a file that will be added and committed.
-		IPath LTKdataLocation= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_ltk_bundle_name));
+		IPath LTKdataLocation= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_LTKBundleName));
 		IFileStore fileStore= EFS.getLocalFileSystem().getStore(LTKdataLocation.append(FILENAME));
 		OutputStream outputStream= fileStore.openOutputStream(EFS.ATTRIBUTE_GROUP_READ | EFS.ATTRIBUTE_GROUP_WRITE, new NullProgressMonitor());
 		PrintWriter printWriter= new PrintWriter(outputStream);

@@ -20,6 +20,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
+import edu.illinois.refactoringwatcher.monitor.Messages;
+
 /**
  * A dialog to prompt the user for login information such as user name and password.
  * 
@@ -124,14 +126,14 @@ public class UserValidationDialog extends Dialog {
 		label.setText(message);
 
 		label= new Label(fieldContainer, SWT.NONE);
-		label.setText("&Username:");
+		label.setText(Messages.UserValidationDialog_Username);
 		username= new Text(fieldContainer, SWT.BORDER);
 		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		username.setLayoutData(layoutData);
 		username.setText(getUserName());
 
 		label= new Label(fieldContainer, SWT.NONE);
-		label.setText("&Password:");
+		label.setText(Messages.UserValidationDialog_Password);
 		password= new Text(fieldContainer, SWT.PASSWORD | SWT.BORDER);
 		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		password.setLayoutData(layoutData);
@@ -139,7 +141,7 @@ public class UserValidationDialog extends Dialog {
 
 		saveButton= new Button(fieldContainer, SWT.CHECK);
 		saveButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 2, 1));
-		saveButton.setText("&Save password");
+		saveButton.setText(Messages.UserValidationDialog_SavePassword);
 		saveButton.setSelection(saveResult());
 	}
 

@@ -24,9 +24,9 @@ import edu.illinois.refactoringwatcher.monitor.ui.AuthenticationPrompter;
  */
 public class Submitter {
 
-	private static final String repositoryBaseURL= Messages.Submitter_repository_base_url;
+	private static final String repositoryBaseURL= Messages.Submitter_RepositoryBaseURL;
 
-	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_ltk_bundle_name)).toOSString();
+	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_LTKBundleName)).toOSString();
 
 	private SVNManager svnManager;
 

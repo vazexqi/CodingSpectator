@@ -25,11 +25,16 @@ import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProv
  */
 public class AuthenticationPrompter implements AuthenticationProvider {
 
+	public enum DialogType {
+		FIRST_PROMPT_FOR_AUTHENTICATION_INFO,
+		PROMPT_FOR_REENTRING_AUTHENTICATION_INFO
+	}
+
 	/**
 	 * @see org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI.getUsernamePassword(String)
 	 * 
 	 */
-	private AuthenticationInfo getUsernamePassword(final String location) {
+	private AuthenticationInfo getUsernamePassword(final String loginDestination, final DialogType dialogType) {
 
 		// Only a final reference can be assigned to inside an anonymous class. This is why they put a single object inside an array.
 		final AuthenticationInfo[] result= new AuthenticationInfo[1];
@@ -37,8 +42,20 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			@Override
 			public void run() {
 				Shell shell= getDefaultParentShell();
-				String message= MessageFormat.format(Messages.AuthenticationPrompter_DialogDescription, location);
-				UserValidationDialog dialog= new UserValidationDialog(shell, Messages.AuthenticationPrompter_DialogTitle, null, message);
+
+				String dialogDescription= null;
+				switch (dialogType) {
+					case FIRST_PROMPT_FOR_AUTHENTICATION_INFO:
+						dialogDescription= Messages.AuthenticationPrompter_DialogDescription;
+						break;
+
+					default:
+						dialogDescription= Messages.AuthenticationPrompter_DialogDescription;
+						break;
+				}
+				String message= MessageFormat.format(dialogDescription, loginDestination);
+				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
+				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, null, message);
 				if (dialog.open() == Window.OK) {
 					result[0]= dialog.getResult();
 				}
@@ -68,7 +85,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 
 	private ISecurePreferences getSecurePreferencesNode() {
 		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
-		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
+		String nodeName= Messages.SecureStorage_AuthenticationNodeName;
 		if (securePreferences.nodeExists(nodeName)) {
 			return securePreferences.node(nodeName);
 		} else
@@ -81,7 +98,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 
 	private ISecurePreferences getSecurePreferencesNodeLazily() {
 		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
-		String nodeName= Messages.AuthenticationPrompter_SecureStorageNodeName;
+		String nodeName= Messages.SecureStorage_AuthenticationNodeName;
 		if (securePreferencesNodeExists())
 			return getSecurePreferencesNode();
 		else
@@ -97,8 +114,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			ISecurePreferences prefNode= getSecurePreferencesNode();
 			String username= null, password= null;
 			try {
-				username= prefNode.get(Messages.AuthenticationPrompter_username, null);
-				password= prefNode.get(Messages.AuthenticationPrompter_password, null);
+				username= prefNode.get(Messages.SecureStorage_UsernameKey, null);
+				password= prefNode.get(Messages.SecureStorage_PasswordKey, null);
 				if (username != null && password != null)
 					return new UIServices.AuthenticationInfo(username, password, true);
 				else {
@@ -111,7 +128,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			}
 		}
 
-		return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
+		return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName, DialogType.FIRST_PROMPT_FOR_AUTHENTICATION_INFO);
 	}
 
 	@Override
@@ -119,8 +136,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		if (authenticationInfo.saveResult()) {
 			try {
 				ISecurePreferences prefNode= getSecurePreferencesNodeLazily();
-				prefNode.put(Messages.AuthenticationPrompter_username, authenticationInfo.getUserName(), true);
-				prefNode.put(Messages.AuthenticationPrompter_password, authenticationInfo.getPassword(), true);
+				prefNode.put(Messages.SecureStorage_UsernameKey, authenticationInfo.getUserName(), true);
+				prefNode.put(Messages.SecureStorage_PasswordKey, authenticationInfo.getPassword(), true);
 				prefNode.flush();
 			} catch (Exception e) {
 				clearSecureStorage();
