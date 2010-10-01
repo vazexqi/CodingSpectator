@@ -11,14 +11,18 @@
 package edu.illinois.refactoringwatcher.monitor.ui;
 
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import edu.illinois.refactoringwatcher.monitor.Messages;
 
@@ -37,13 +41,17 @@ public class UserValidationDialog extends Dialog {
 
 	private Button saveButton;
 
-	private String titleMessage;
+	private final String titleMessage;
 
-	private Image titleImage;
+	private final Image titleImage;
 
-	private String message;
+	private final String message;
 
-	private int dialogImageType;
+	private final int dialogImageType;
+
+	public UserValidationDialog(Shell parentShell, String titleMessage, String message, int dialogImageType) {
+		this(null, parentShell, titleMessage, null, message, dialogImageType);
+	}
 
 	/**
 	 * Creates a new validation dialog that prompts the user for login credentials.
@@ -80,12 +88,14 @@ public class UserValidationDialog extends Dialog {
 		this.dialogImageType= dialogImageType;
 	}
 
+	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText(titleMessage);
 		newShell.setImage(titleImage);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite= (Composite)super.createDialogArea(parent);
 
@@ -145,6 +155,7 @@ public class UserValidationDialog extends Dialog {
 		saveButton.setSelection(saveResult());
 	}
 
+	@Override
 	protected void okPressed() {
 		this.result= new AuthenticationInfo(username.getText(), password.getText(), saveButton.getSelection());
 		super.okPressed();

@@ -25,27 +25,7 @@ import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProv
  */
 public class AuthenticationPrompter implements AuthenticationProvider {
 
-	public enum DialogType {
-		FIRST_PROMPT_FOR_AUTHENTICATION_INFO,
-		PROMPT_FOR_REENTRING_AUTHENTICATION_INFO
-	}
-
-	private DialogType dialogType= DialogType.FIRST_PROMPT_FOR_AUTHENTICATION_INFO;
-
-
-	private String getDialogDescription() {
-		String dialogDescription= null;
-		switch (dialogType) {
-			case FIRST_PROMPT_FOR_AUTHENTICATION_INFO:
-				dialogDescription= Messages.AuthenticationPrompter_DialogDescription;
-				break;
-
-			default:
-				dialogDescription= Messages.AuthenticationPrompter_DialogDescriptionForReenteringAuthenticationInfo;
-				break;
-		}
-		return dialogDescription;
-	}
+	DialogState dialogState= new DialogState();
 
 	/**
 	 * @see org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI.getUsernamePassword(String)
@@ -59,17 +39,16 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			@Override
 			public void run() {
 				Shell shell= getDefaultParentShell();
-				String message= MessageFormat.format(getDialogDescription(), loginDestination);
+				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, null, message);
+				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, dialogState.getDialogType());
 				if (dialog.open() == Window.OK) {
 					result[0]= dialog.getResult();
 				}
 			}
 
 		});
-
-		dialogType= DialogType.PROMPT_FOR_REENTRING_AUTHENTICATION_INFO;
+		dialogState.changeState();
 		return result[0];
 	}
 
