@@ -55,7 +55,7 @@ public class TestSubmitter {
 
 	private static final String PASSWORD= "nchen";
 
-	private static final String UUID_FOR_TESTING= "00000000-0000-0000-0000-000000000000";
+//	private static final String UUID_FOR_TESTING= "00000000-0000-0000-0000-000000000000";
 
 	private static final String FILENAME= "foo";
 
@@ -65,10 +65,12 @@ public class TestSubmitter {
 
 	private static SVNCommitClient commitClient;
 
+	private static String UUID;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Set up the submitter to the default repository location
-		PrefsFacade.setUUID(UUID_FOR_TESTING);
+		UUID= PrefsFacade.getInstance().getAndSetUUIDLazily();
 		submitter= new Submitter(new MockAuthenticationProvider());
 
 		//Create a new SVNWCClient directly to be used to verify repository properties
@@ -80,7 +82,7 @@ public class TestSubmitter {
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		// Delete the repository location that we tested
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID_FOR_TESTING);
+		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID);
 		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { url }, "Deleted test import");
 		assertNotSame("The testing directory was not removed at the remote location.", SVNCommitInfo.NULL, deleteInfo);
 	}
@@ -93,7 +95,7 @@ public class TestSubmitter {
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.watchedDirectory + File.separator + ".svn").exists());
 
 		// Check that the directory has been created remotely.
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID_FOR_TESTING);
+		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID);
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
@@ -108,7 +110,7 @@ public class TestSubmitter {
 		submitter.submit();
 
 		// Check that the file has been created remotely.
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID_FOR_TESTING + "/" + FILENAME);
+		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_repository_base_url + "/" + USERNAME + "/" + UUID + "/" + FILENAME);
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
