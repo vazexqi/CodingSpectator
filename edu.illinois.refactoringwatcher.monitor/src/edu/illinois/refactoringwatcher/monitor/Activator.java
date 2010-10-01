@@ -1,12 +1,14 @@
 package edu.illinois.refactoringwatcher.monitor;
 
 import java.text.MessageFormat;
+import java.util.Date;
 
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter;
 import edu.illinois.refactoringwatcher.monitor.ui.Uploader;
 
@@ -18,6 +20,8 @@ import edu.illinois.refactoringwatcher.monitor.ui.Uploader;
  * 
  */
 public class Activator extends AbstractUIPlugin implements IStartup {
+
+	private static final int UPLOAD_PERIOD_MILLISECONDS= 1000 * 60 * 60 * 24 * 1;
 
 	// The plug-in ID
 	public static final String PLUGIN_ID= "edu.illinois.refactoringwatcher.monitor"; //$NON-NLS-1$
@@ -74,13 +78,26 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	public void earlyStartup() {
-		if (System.getenv(Messages.Activator_Testing_Mode) == null) {
+		if (shouldUpload()) {
 			final Submitter submitter= new Submitter();
 
 			if (Uploader.initializeUntilValidCredentials(submitter)) {
 				Uploader.submit(submitter);
 			}
+			PrefsFacade.getInstance().updateLastUploadTime();
 		}
+	}
+
+	private boolean shouldUpload() {
+		return isInTestMode() && enoughTimeHasElapsedSinceLastUpload();
+	}
+
+	private boolean isInTestMode() {
+		return System.getenv(Messages.Activator_Testing_Mode) == null;
+	}
+
+	private boolean enoughTimeHasElapsedSinceLastUpload() {
+		return new Date().getTime() - PrefsFacade.getInstance().getLastUploadTime() > UPLOAD_PERIOD_MILLISECONDS;
 	}
 
 	public static String populateMessageWithPluginName(String formattedString) {

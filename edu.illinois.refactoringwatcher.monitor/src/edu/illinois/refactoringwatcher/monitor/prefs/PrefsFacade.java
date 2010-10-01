@@ -1,5 +1,7 @@
 package edu.illinois.refactoringwatcher.monitor.prefs;
 
+import java.util.Date;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import edu.illinois.refactoringwatcher.monitor.Activator;
@@ -30,8 +32,16 @@ public class PrefsFacade {
 		return Activator.getDefault().getPreferenceStore();
 	}
 
-	private static String getPreferenceValue(String key) {
+	private static long getPreferenceLongValue(String key) {
+		return getPreferenceStore().getLong(key);
+	}
+
+	private static String getPreferenceStringValue(String key) {
 		return getPreferenceStore().getString(key);
+	}
+
+	private static void setPreferenceValue(String key, long value) {
+		getPreferenceStore().setValue(key, value);
 	}
 
 	private static void setPreferenceValue(String key, String value) {
@@ -39,7 +49,7 @@ public class PrefsFacade {
 	}
 
 	private static boolean isUUIDSet() {
-		return !("".equals(getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey)));
+		return !("".equals(getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey))); //$NON-NLS-1$
 	}
 
 	private void setUUIDLazily() {
@@ -54,7 +64,15 @@ public class PrefsFacade {
 
 	public synchronized String getAndSetUUIDLazily() {
 		setUUIDLazily();
-		return getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
+		return getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
+	}
+
+	public synchronized long getLastUploadTime() {
+		return getPreferenceLongValue(Messages.PrefsFacade_LastUploadTimeKey);
+	}
+
+	public synchronized void updateLastUploadTime() {
+		setPreferenceValue(Messages.PrefsFacade_LastUploadTimeKey, new Date().getTime());
 	}
 
 }
