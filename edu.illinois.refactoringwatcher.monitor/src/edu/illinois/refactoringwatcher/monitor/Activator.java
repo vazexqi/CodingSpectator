@@ -74,12 +74,13 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	public void earlyStartup() {
-		final Submitter submitter= new Submitter();
+		if (System.getenv(Messages.Activator_Testing_Mode) == null) {
+			final Submitter submitter= new Submitter();
 
-		if (Uploader.initializeUntilValidCredentials(submitter)) {
-			Uploader.submit(submitter);
+			if (Uploader.initializeUntilValidCredentials(submitter)) {
+				Uploader.submit(submitter);
+			}
 		}
-
 	}
 
 	public static String populateMessageWithPluginName(String formattedString) {
