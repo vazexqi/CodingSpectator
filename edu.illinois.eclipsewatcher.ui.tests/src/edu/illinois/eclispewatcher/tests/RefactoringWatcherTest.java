@@ -4,11 +4,17 @@ package edu.illinois.eclispewatcher.tests;
 import java.io.File;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.junit.AfterClass;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.swt.finder.utils.FileUtils;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.junit.BeforeClass;
-
-import edu.illinois.eclipsewatcher.test.utils.FileUtilities;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -19,7 +25,7 @@ import edu.illinois.eclipsewatcher.test.utils.FileUtilities;
  * 
  */
 public abstract class RefactoringWatcherTest {
-	
+
 	static final String PLUGIN_NAME= "edu.illinois.eclipsewatcher.ui.tests";
 
 	static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
@@ -32,11 +38,11 @@ public abstract class RefactoringWatcherTest {
 
 	static SWTWorkbenchBot bot;
 
-	static File performedRefactorings;
+	protected File performedRefactorings;
 
-	static File canceledRefactorings;
+	protected File canceledRefactorings;
 
-	static {
+	{
 		performedRefactorings= new File(REFACTORING_HISTORY_LOCATION + System.getProperty("file.separator") + PERFORMED_REFACTORINGS);
 		canceledRefactorings= new File(REFACTORING_HISTORY_LOCATION + System.getProperty("file.separator") + CANCELED_REFACTORINGS);
 	}
@@ -44,7 +50,15 @@ public abstract class RefactoringWatcherTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		bot= new SWTWorkbenchBot();
-		bot.viewByTitle("Welcome").close();
+		dismissWelcomeScreenIfPresent();
+	}
+
+	private static void dismissWelcomeScreenIfPresent() {
+		try {
+			bot.viewByTitle("Welcome").close();
+		} catch (WidgetNotFoundException exception) {
+			// The welcome screen might not be shown so just ignore
+		}
 	}
 
 	public void canCreateANewJavaProject() throws Exception {
@@ -58,27 +72,51 @@ public abstract class RefactoringWatcherTest {
 
 		bot.button("Finish").click();
 
-		bot.button("Yes").click();
+		dismissJavaPerspectiveIfPresent();
+	}
+
+	private void dismissJavaPerspectiveIfPresent() {
+		try {
+			bot.button("Yes").click();
+		} catch (WidgetNotFoundException exception) {
+			// The second and subsequent time this is invoked the Java perspective change dialog will not be shown.
+		}
 	}
 
 
 	public void canCreateANewJavaClass() throws Exception {
+		selectCurrentJavaProject();
+
 		bot.menu("File").menu("New").menu("Class").click();
 
 		bot.shell("New Java Class").activate();
-//		bot.textWithLabel("Source folder:").setText(getProjectName() + "/src");
 
 		bot.textWithLabel("Package:").setText(PACKAGE_NAME);
 		bot.textWithLabel("Name:").setText(getTestFileName());
 
 		bot.button("Finish").click();
-
 	}
 
-	@AfterClass
-	public static void cleanRefactoringHistory() {
-		FileUtilities.cleanDirectory(performedRefactorings);
-		FileUtilities.cleanDirectory(canceledRefactorings);
+	private void selectCurrentJavaProject() {
+		SWTBotView packageExplorerView= bot.viewByTitle("Package Explorer");
+		packageExplorerView.show();
+
+		Composite packageExplorerComposite= (Composite)packageExplorerView.getWidget();
+
+		Tree swtTree= (Tree)bot.widget(WidgetMatcherFactory.widgetOfType(Tree.class), packageExplorerComposite);
+		SWTBotTree tree= new SWTBotTree(swtTree);
+
+		tree.select(getProjectName());
+	}
+
+	public void prepareJavaTextInEditor() throws Exception {
+
+		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
+		String contents= FileUtils.read(bundle.getEntry("test-files/" + getTestFileName() + ".java"));
+
+		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileName() + ".java").toTextEditor();
+		editor.setText(contents);
+		editor.save();
 	}
 
 	abstract protected void prepareRefactoring();
@@ -86,6 +124,7 @@ public abstract class RefactoringWatcherTest {
 	abstract String getProjectName();
 
 	abstract String getTestFileName();
+
 
 
 }

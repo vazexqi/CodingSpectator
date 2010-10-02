@@ -11,17 +11,16 @@ import org.junit.runner.RunWith;
 
 import edu.illinois.eclipsewatcher.test.utils.FileUtilities;
 
-
 /**
  * @author Mohsen Vakilian
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class ExtractConstantTest extends RefactoringWatcherTest {
+public class InlineConstantTest extends RefactoringWatcherTest {
 
-	static final String TEST_FILE_NAME= "ExtractConstantTestFile";
+	static final String TEST_FILE_NAME= "InlineConstantTestFile";
 
-	static final String PROJECT_NAME= "MyFirstProject_" + ExtractConstantTest.class;
+	static final String PROJECT_NAME= "MyFirstProject_" + InlineConstantTest.class;
 
 	@Test
 	public void canSetupProject() throws Exception {
@@ -39,7 +38,6 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 	//
 	///////////////////////////////////////////////////////////////////////////
 
-
 	@Test
 	public void currentRefactoringsCapturedShouldBeEmpty() {
 		assertFalse(performedRefactorings.exists());
@@ -50,7 +48,7 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 	public void shouldCaptureCancelledRefactoring() {
 		prepareRefactoring();
 
-		bot.shell("Extract Constant").activate();
+		bot.shell("Inline Constant").activate();
 		bot.button("Cancel").click();
 	}
 
@@ -65,7 +63,7 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 	public void shouldCapturePerformedRefactoring() throws Exception {
 		prepareRefactoring();
 
-		bot.shell("Extract Constant").activate();
+		bot.shell("Inline Constant").activate();
 		bot.button("OK").click();
 	}
 
@@ -73,16 +71,16 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 	// This needs to be interleaved here after the refactoring has been performed.
 	public void currentRefactoringsPerformedShouldBePopulated() {
 		bot.sleep(2000);
-		assertTrue(canceledRefactorings.exists());
 		assertTrue(performedRefactorings.exists());
+		assertTrue(canceledRefactorings.exists());
 	}
 
 	// This is a hack to ensure that refactorings are cleared at the end of each test
 	@Test
 	public void cleanRefactoringHistory() {
 		bot.sleep(2000);
-		FileUtilities.cleanDirectory(performedRefactorings);
 		FileUtilities.cleanDirectory(canceledRefactorings);
+		FileUtilities.cleanDirectory(performedRefactorings);
 	}
 
 	@Override
@@ -91,17 +89,16 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 
 		// Extract Constant Refactoring
 		editor.setFocus();
-		editor.selectRange(5, 27, 34 - 27);
+		editor.selectRange(4, 24, 32 - 24);
 
 		SWTBotMenu refactorMenu= bot.menu("Refactor");
 		assertTrue(refactorMenu.isEnabled());
 
-		SWTBotMenu extractConstantMenuItem= refactorMenu.menu("Extract Constant...");
+		SWTBotMenu extractConstantMenuItem= refactorMenu.menu("Inline...");
 		assertTrue(extractConstantMenuItem.isEnabled());
 
 		extractConstantMenuItem.click();
 	}
-
 
 
 	@Override
@@ -113,7 +110,5 @@ public class ExtractConstantTest extends RefactoringWatcherTest {
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}
-
-
 
 }
