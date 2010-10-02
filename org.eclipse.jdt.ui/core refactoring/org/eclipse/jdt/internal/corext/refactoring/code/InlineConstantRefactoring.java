@@ -934,7 +934,7 @@ public class InlineConstantRefactoring extends WatchedRefactoring {
 	public Change createChange(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineConstantRefactoring_preview, 2);
-			final InlineConstantDescriptor descriptor= getRefactoringDescripto();
+			final InlineConstantDescriptor descriptor= getRefactoringDescriptor();
 			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.InlineConstantRefactoring_inline, fChanges);
 		} finally {
 			pm.done();
@@ -942,7 +942,7 @@ public class InlineConstantRefactoring extends WatchedRefactoring {
 		}
 	}
 
-	private InlineConstantDescriptor getRefactoringDescripto() {
+	private InlineConstantDescriptor getRefactoringDescriptor() {
 		String project= getJavaProjectName();
 		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
 		try {
@@ -976,12 +976,7 @@ public class InlineConstantRefactoring extends WatchedRefactoring {
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		String project= getJavaProjectName();
 		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		try {
-			if (!Flags.isPrivate(fField.getFlags()))
-				flags|= RefactoringDescriptor.MULTI_CHANGE;
-		} catch (JavaModelException exception) {
-			JavaPlugin.log(exception);
-		}
+
 		final String description= Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description_short,
 				JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_DEFAULT));
 		final String header= Messages.format(
