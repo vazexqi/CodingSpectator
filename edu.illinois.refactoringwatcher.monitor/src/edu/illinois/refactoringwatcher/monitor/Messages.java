@@ -23,6 +23,8 @@ public class Messages extends NLS {
 
 	public static String SecureStorage_UsernameKey;
 
+	public static String Submitter_FeatureBundleName;
+
 	public static String Submitter_LTKBundleName;
 
 	public static String Submitter_RepositoryBaseURL;

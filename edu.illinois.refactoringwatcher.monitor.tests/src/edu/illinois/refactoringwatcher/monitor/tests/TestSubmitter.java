@@ -33,6 +33,7 @@ import edu.illinois.refactoringwatcher.monitor.submission.Submitter.FailedAuthen
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.InitializationException;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.NoAuthenticationInformationFoundException;
 import edu.illinois.refactoringwatcher.monitor.submission.Submitter.SubmissionException;
+import edu.illinois.refactoringwatcher.monitor.submission.URLManager;
 
 /**
  * This class tests the submission process: we can import a directory and check it out; we can add
@@ -65,13 +66,18 @@ public class TestSubmitter {
 
 	private static SVNCommitClient commitClient;
 
+	@SuppressWarnings("unused")
 	private static String UUID;
+
+	private static URLManager urlManager;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Set up the submitter to the default repository location
 		UUID= PrefsFacade.getInstance().getAndSetUUIDLazily();
 		submitter= new Submitter(new MockAuthenticationProvider());
+
+		urlManager= new URLManager(Messages.Submitter_RepositoryBaseURL, USERNAME, Submitter.getFeatureVersion());
 
 		//Create a new SVNWCClient directly to be used to verify repository properties
 		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);
@@ -81,9 +87,7 @@ public class TestSubmitter {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		// Delete the repository location that we tested
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID);
-		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { url }, "Deleted test import");
+		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { urlManager.getPersonalRepositorySVNURL() }, "Deleted test import");
 		assertNotSame("The testing directory was not removed at the remote location.", SVNCommitInfo.NULL, deleteInfo);
 	}
 
@@ -95,8 +99,7 @@ public class TestSubmitter {
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.watchedDirectory + File.separator + ".svn").exists());
 
 		// Check that the directory has been created remotely.
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID);
-		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
+		SVNInfo info= workingCopyClient.doInfo(urlManager.getPersonalRepositorySVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
 
@@ -110,7 +113,8 @@ public class TestSubmitter {
 		submitter.submit();
 
 		// Check that the file has been created remotely.
-		SVNURL url= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID + "/" + FILENAME);
+		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalRepositoryURL(), FILENAME));
+//		SVNURL url0= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID + "/" + FILENAME);
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}

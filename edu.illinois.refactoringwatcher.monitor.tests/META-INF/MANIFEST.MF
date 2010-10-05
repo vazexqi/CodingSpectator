@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Watcher Tests
 Bundle-SymbolicName: edu.illinois.refactoringwatcher.monitor.tests;singleton:=true
-Bundle-Version: 1.0.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: edu.illinois.refactoringwatcher.monitor;bundle-version="1.0.0",
  org.junit,

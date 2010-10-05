@@ -10,7 +10,6 @@ import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.refactoringwatcher.monitor.Messages;
 import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider;
-import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
 import edu.illinois.refactoringwatcher.monitor.ui.AuthenticationPrompter;
 
 /**
@@ -23,8 +22,6 @@ import edu.illinois.refactoringwatcher.monitor.ui.AuthenticationPrompter;
  * 
  */
 public class Submitter {
-
-	private static final String repositoryBaseURL= Messages.Submitter_RepositoryBaseURL;
 
 	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_LTKBundleName)).toOSString();
 
@@ -40,17 +37,8 @@ public class Submitter {
 		this.authenticationProvider= provider;
 	}
 
-	private static String getRepositoryOffsetURL(String username) {
-		return joinByURLSeparator(username, PrefsFacade.getInstance().getAndSetUUIDLazily());
-	}
-
-	private static String joinByURLSeparator(String... strings) {
-		StringBuilder sb= new StringBuilder();
-		for (int i= 0; i < strings.length; ++i) {
-			sb.append(strings[i]);
-			sb.append("/"); //$NON-NLS-1$
-		}
-		return sb.toString();
+	public static String getFeatureVersion() {
+		return Platform.getBundle(Messages.Submitter_FeatureBundleName).getVersion().toString();
 	}
 
 	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
@@ -60,9 +48,10 @@ public class Submitter {
 			if (authenticationInfo == null) {
 				throw new NoAuthenticationInformationFoundException();
 			}
-			svnManager= new SVNManager(repositoryBaseURL, authenticationInfo.getUserName(), authenticationInfo.getPassword());
-			svnManager.doImport(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
-			svnManager.doCheckout(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
+			svnManager= new SVNManager(new URLManager(Messages.Submitter_RepositoryBaseURL, authenticationInfo.getUserName(), getFeatureVersion()), authenticationInfo.getUserName(),
+					authenticationInfo.getPassword());
+			svnManager.doImport(watchedDirectory);
+			svnManager.doCheckout(watchedDirectory);
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);
