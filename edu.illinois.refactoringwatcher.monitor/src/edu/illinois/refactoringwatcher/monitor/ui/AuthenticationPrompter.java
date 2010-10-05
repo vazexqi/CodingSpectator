@@ -88,10 +88,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	private ISecurePreferences getSecurePreferencesNodeLazily() {
 		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
 		String nodeName= Messages.SecureStorage_AuthenticationNodeName;
-		if (securePreferencesNodeExists())
-			return getSecurePreferencesNode();
-		else
-			return securePreferences.node(nodeName);
+		return securePreferences.node(nodeName);
 	}
 
 	/**
