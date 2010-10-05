@@ -28,6 +28,7 @@ import java.util.Set;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.osgi.framework.Version;
 import org.xml.sax.InputSource;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -123,10 +124,10 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	public static final String NAME_HISTORY_FILE= "refactorings.history"; //$NON-NLS-1$
 
 	/** The refactoring history canceled folder */
-	public static final String NAME_HISTORY_CANCELED_FOLDER= ".refactorings.canceled";
+	public static final String NAME_HISTORY_CANCELED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsCanceledDirectory;
 
 	/** The refactoring history performed folder */
-	public static final String NAME_HISTORY_PERFORMED_FOLDER= ".refactorings.performed";
+	public static final String NAME_HISTORY_PERFORMED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsPerformedDirectory;
 
 	/** The refactoring history folder */
 	public static final String NAME_HISTORY_FOLDER= ".refactorings"; //$NON-NLS-1$
@@ -139,6 +140,24 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/** The no history constant */
 	private static final NullRefactoringHistory NO_HISTORY= new NullRefactoringHistory();
+
+	// TODO: Grab this number dynamically
+
+	private static Version getFeatureVersion() {
+		return Platform.getBundle(RefactoringCoreMessages.RefactoringHistoryService_FeatureBundleName).getVersion();
+	}
+
+	public static String getRefactoringHistoryCanceledFolder() {
+		return constructHiddenFolder(NAME_HISTORY_CANCELED_FOLDER);
+	}
+
+	public static String getRefactoringHistoryPerformedFolder() {
+		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
+	}
+
+	private static String constructHiddenFolder(String baseName) {
+		return "." + getFeatureVersion() + "_" + baseName; //$NON-NLS-1$ //$NON-NLS-2$
+	}
 
 	/**
 	 * Filters the given array of refactoring proxies and returns the result in the specified

@@ -50,10 +50,10 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 		Assert.isNotNull(event);
 		switch (event.getEventType()) {
 			case RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED:
-				return RefactoringHistoryService.NAME_HISTORY_CANCELED_FOLDER;
+				return RefactoringHistoryService.getRefactoringHistoryCanceledFolder();
 
 			case RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED:
-				return RefactoringHistoryService.NAME_HISTORY_PERFORMED_FOLDER;
+				return RefactoringHistoryService.getRefactoringHistoryPerformedFolder();
 
 			case RefactoringHistoryEvent.ADDED:
 			case RefactoringHistoryEvent.PUSHED:
