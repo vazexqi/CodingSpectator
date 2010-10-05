@@ -33,14 +33,13 @@ public class Uploader {
 	 * @param submitter
 	 * @return if the method completed successfully.
 	 */
-	public static boolean initializeUntilValidCredentials(final Submitter submitter) {
+	public static boolean promptUntilValidCredentialsOrCanceled(final Submitter submitter) {
 		try {
-			submitter.initializeUntilValidCredentials();
+			return submitter.promptUntilValidCredentialsOrCanceled();
 		} catch (SubmitterException subEx) {
 			reportUploadFailure(subEx);
 			return false;
 		}
-		return true;
 	}
 
 	public static void submit(final Submitter submitter) {

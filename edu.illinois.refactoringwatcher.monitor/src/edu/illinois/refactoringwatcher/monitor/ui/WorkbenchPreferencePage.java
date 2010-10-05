@@ -65,7 +65,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 			public void widgetSelected(SelectionEvent e) {
 				final Submitter submitter= new Submitter();
 
-				if (Uploader.initializeUntilValidCredentials(submitter)) {
+				if (Uploader.promptUntilValidCredentialsOrCanceled(submitter)) {
 					Uploader.submit(submitter);
 				}
 			}

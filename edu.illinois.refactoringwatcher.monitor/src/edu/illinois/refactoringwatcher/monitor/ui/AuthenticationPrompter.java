@@ -44,6 +44,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, dialogState.getDialogType());
 				if (dialog.open() == Window.OK) {
 					result[0]= dialog.getResult();
+				} else { // If cancel was invoked
+					result[0]= null;
 				}
 			}
 

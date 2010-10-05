@@ -41,13 +41,14 @@ public class Submitter {
 		return Platform.getBundle(Messages.Submitter_FeatureBundleName).getVersion().toString();
 	}
 
-	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, CanceledDialogException {
 		try {
 			AuthenticationProvider prompter= getAuthenticationPrompterLazily();
 			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
-			if (authenticationInfo == null) {
-				throw new NoAuthenticationInformationFoundException();
-			}
+
+			if (isCanceled(authenticationInfo))
+				throw new CanceledDialogException();
+
 			svnManager= new SVNManager(new URLManager(Messages.Submitter_RepositoryBaseURL, authenticationInfo.getUserName(), getFeatureVersion()), authenticationInfo.getUserName(),
 					authenticationInfo.getPassword());
 			svnManager.doImport(watchedDirectory);
@@ -63,6 +64,10 @@ public class Submitter {
 			throw new InitializationException(e);
 		}
 
+	}
+
+	private boolean isCanceled(AuthenticationInfo authenticationInfo) {
+		return authenticationInfo == null;
 	}
 
 	private AuthenticationProvider getAuthenticationPrompterLazily() {
@@ -81,12 +86,14 @@ public class Submitter {
 		}
 	}
 
-	public void initializeUntilValidCredentials() throws InitializationException {
+	/**
+	 * @return true if it can obtain a valid credential or false if the user has forcibly canceled
+	 * @throws InitializationException
+	 */
+	public boolean promptUntilValidCredentialsOrCanceled() throws InitializationException {
 		while (true) {
 			try {
 				authenticateAndInitialize();
-			} catch (NoAuthenticationInformationFoundException noAuthEx) {
-				continue;
 			} catch (FailedAuthenticationException authEx) {
 				try {
 					getAuthenticationPrompterLazily().clearSecureStorage();
@@ -94,9 +101,12 @@ public class Submitter {
 					throw new InitializationException(ioEx);
 				}
 				continue;
+			} catch (CanceledDialogException e) {
+				return false;
 			}
 			break;
 		}
+		return true;
 	}
 
 	@SuppressWarnings("serial")
@@ -133,17 +143,17 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class NoAuthenticationInformationFoundException extends SubmitterException {
+	public static class CanceledDialogException extends SubmitterException {
 
-		public NoAuthenticationInformationFoundException() {
+		public CanceledDialogException() {
 			super();
 		}
 
-		public NoAuthenticationInformationFoundException(Exception e) {
+		public CanceledDialogException(Exception e) {
 			super(e);
 		}
 
-		public NoAuthenticationInformationFoundException(String message) {
+		public CanceledDialogException(String message) {
 			super(message);
 		}
 

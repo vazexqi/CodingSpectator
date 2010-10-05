@@ -82,7 +82,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 		if (shouldUpload()) {
 			final Submitter submitter= new Submitter();
 
-			if (Uploader.initializeUntilValidCredentials(submitter)) {
+			if (Uploader.promptUntilValidCredentialsOrCanceled(submitter)) {
 				Uploader.submit(submitter);
 			}
 		}
