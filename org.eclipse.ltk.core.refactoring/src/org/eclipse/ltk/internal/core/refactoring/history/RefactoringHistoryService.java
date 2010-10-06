@@ -156,7 +156,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	private static String constructHiddenFolder(String baseName) {
-		return "." + getFeatureVersion() + "_" + baseName; //$NON-NLS-1$ //$NON-NLS-2$
+		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
 	}
 
 	/**
