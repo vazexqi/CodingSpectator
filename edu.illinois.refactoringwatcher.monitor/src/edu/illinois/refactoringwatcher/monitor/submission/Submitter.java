@@ -23,7 +23,8 @@ import edu.illinois.refactoringwatcher.monitor.ui.AuthenticationPrompter;
  */
 public class Submitter {
 
-	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_LTKBundleName)).toOSString();
+	public static final String watchedDirectory= Platform.getStateLocation(
+			Platform.getBundle(Messages.Submitter_LTKBundleName)).toOSString();
 
 	private SVNManager svnManager;
 
@@ -37,11 +38,8 @@ public class Submitter {
 		this.authenticationProvider= provider;
 	}
 
-	public static String getFeatureVersion() {
-		return Platform.getBundle(Messages.Submitter_FeatureBundleName).getVersion().toString();
-	}
-
-	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, CanceledDialogException {
+	public void authenticateAndInitialize() throws InitializationException,
+			FailedAuthenticationException, CanceledDialogException {
 		try {
 			AuthenticationProvider prompter= getAuthenticationPrompterLazily();
 			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
@@ -49,8 +47,7 @@ public class Submitter {
 			if (isCanceled(authenticationInfo))
 				throw new CanceledDialogException();
 
-			svnManager= new SVNManager(new URLManager(Messages.Submitter_RepositoryBaseURL, authenticationInfo.getUserName(), getFeatureVersion()), authenticationInfo.getUserName(),
-					authenticationInfo.getPassword());
+			svnManager= new SVNManager(new URLManager(Messages.Submitter_RepositoryBaseURL, authenticationInfo.getUserName()), authenticationInfo.getUserName(), authenticationInfo.getPassword());
 			svnManager.doImport(watchedDirectory);
 			svnManager.doCheckout(watchedDirectory);
 			prompter.saveAuthenticationInfo(authenticationInfo);
@@ -90,7 +87,8 @@ public class Submitter {
 	 * @return true if it can obtain a valid credential or false if the user has forcibly canceled
 	 * @throws InitializationException
 	 */
-	public boolean promptUntilValidCredentialsOrCanceled() throws InitializationException {
+	public boolean promptUntilValidCredentialsOrCanceled()
+			throws InitializationException {
 		while (true) {
 			try {
 				authenticateAndInitialize();
@@ -126,7 +124,8 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class FailedAuthenticationException extends SubmitterException {
+	public static class FailedAuthenticationException extends
+			SubmitterException {
 
 		public FailedAuthenticationException() {
 			super();

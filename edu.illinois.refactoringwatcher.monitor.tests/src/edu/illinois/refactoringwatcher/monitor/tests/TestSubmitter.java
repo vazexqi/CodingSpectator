@@ -77,7 +77,7 @@ public class TestSubmitter {
 		UUID= PrefsFacade.getInstance().getAndSetUUIDLazily();
 		submitter= new Submitter(new MockAuthenticationProvider());
 
-		urlManager= new URLManager(Messages.Submitter_RepositoryBaseURL, USERNAME, Submitter.getFeatureVersion());
+		urlManager= new URLManager(Messages.Submitter_RepositoryBaseURL, USERNAME);
 
 		//Create a new SVNWCClient directly to be used to verify repository properties
 		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);

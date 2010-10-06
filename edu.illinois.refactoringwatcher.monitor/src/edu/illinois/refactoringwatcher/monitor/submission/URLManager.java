@@ -10,6 +10,7 @@ import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
  * directory.
  * 
  * @author Mohsen Vakilian
+ * @author nchen
  * 
  */
 public class URLManager {
@@ -18,13 +19,10 @@ public class URLManager {
 
 	private final String username;
 
-	private final String featureVersion;
-
-	public URLManager(String repositoryBaseURL, String username, String featureVersion) {
+	public URLManager(String repositoryBaseURL, String username) {
 		super();
 		this.repositoryBaseURL= repositoryBaseURL;
 		this.username= username;
-		this.featureVersion= featureVersion;
 	}
 
 	public SVNURL getSVNURL(String url) throws SVNException {
@@ -36,11 +34,8 @@ public class URLManager {
 	}
 
 	public String getPersonalRepositoryURL() {
-		return joinByURLSeparator(repositoryBaseURL, getRepositoryOffsetURL());
-	}
-
-	private String getRepositoryOffsetURL() {
-		return joinByURLSeparator(username, PrefsFacade.getInstance().getAndSetUUIDLazily(), featureVersion);
+		return joinByURLSeparator(repositoryBaseURL, username, PrefsFacade
+				.getInstance().getAndSetUUIDLazily());
 	}
 
 	public String joinByURLSeparator(final String... strings) {
