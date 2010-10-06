@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="edu.illinois.eclipsewatcher.feature"
-      label="Eclipse Watcher (required)"
+      label="Eclipse Watcher"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
@@ -20,6 +20,22 @@
    <url>
       <update label="Eclipse Watcher Update Site" url="http://eclipsewatcher.github.com/updates"/>
    </url>
+
+   <includes
+         id="edu.illinois.eclipsewatcher.jdt.helios.patch"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.illinois.eclipsewatcher.jdt.heliosSR1.patch"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.illinois.eclipsewatcher.platform.helios.patch"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.illinois.eclipsewatcher.platform.heliosSR1.patch"
+         version="0.0.0"/>
 
    <plugin
          id="edu.illinois.refactoringwatcher.monitor"
