@@ -1,3 +1,4 @@
 *.class
 org.eclipse.jdt.ui/bin/
+screenshots/
 
