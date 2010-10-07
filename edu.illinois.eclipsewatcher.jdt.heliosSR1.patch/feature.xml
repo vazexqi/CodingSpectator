@@ -2,7 +2,7 @@
 <feature
       id="edu.illinois.eclipsewatcher.jdt.heliosSR1.patch"
       label="Patch for JDT Helios SR1"
-      version="1.0.0"
+      version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description url="http://www.example.com/description">

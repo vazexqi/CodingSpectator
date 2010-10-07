@@ -2,7 +2,7 @@
 <feature
       id="edu.illinois.eclipsewatcher.platform.heliosSR1.patch"
       label="Patch for LTK Helios SR1"
-      version="1.0.0"
+      version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description url="http://www.example.com/description">
