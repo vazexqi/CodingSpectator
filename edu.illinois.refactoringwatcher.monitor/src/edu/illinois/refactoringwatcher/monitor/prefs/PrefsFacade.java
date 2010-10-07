@@ -1,43 +1,76 @@
 package edu.illinois.refactoringwatcher.monitor.prefs;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import edu.illinois.refactoringwatcher.monitor.Activator;
 import edu.illinois.refactoringwatcher.monitor.Messages;
-import edu.illinois.refactoringwatcher.monitor.idgen.UUIDGenerator;
 
 /**
+ * This class provides the facade to access the preference store. Since this is a shared resource we
+ * need to protect it and we do so using a singleton.
  * 
  * @author Mohsen Vakilian
  * @author nchen
- * 
  */
 public class PrefsFacade {
 
-	private static IPreferenceStore getPreferenceStore() {
+	// This method of providing a thread safe singleton comes from 
+	// http://www.ibm.com/developerworks/java/library/j-dcl.html
+	private static PrefsFacade instance= new PrefsFacade();
+
+	private PrefsFacade() {
+
+	}
+
+	public static PrefsFacade getInstance() {
+		return instance;
+	}
+
+	private IPreferenceStore getPreferenceStore() {
 		return Activator.getDefault().getPreferenceStore();
 	}
 
-	public static void generateUUIDIfDoesNotExist() {
-		IPreferenceStore preferenceStore= getPreferenceStore();
-		String UUID= preferenceStore.getString(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
-		if ("".equals(UUID)) {
-			String newUUID= UUIDGenerator.generateID();
-			preferenceStore.setValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, newUUID);
-			setUUID(newUUID);
-		}
-	}
-
-	public static void setUUID(String uiud) {
-		getPreferenceStore().setValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
-	}
-
-	private static String getPreferenceValue(String key) {
+	private String getPreferenceStringValue(String key) {
 		return getPreferenceStore().getString(key);
 	}
 
-	public static String getUUID() {
-		return getPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
+	private void setPreferenceValue(String key, String value) {
+		getPreferenceStore().setValue(key, value);
+	}
+
+	private boolean isUUIDSet() {
+		return !("".equals(getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey))); //$NON-NLS-1$
+	}
+
+	private void setUUIDLazily() {
+		if (!isUUIDSet()) {
+			setUUID(UUIDGenerator.generateID());
+		}
+	}
+
+	private synchronized void setUUID(String uiud) {
+		setPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
+	}
+
+	public synchronized String getAndSetUUIDLazily() {
+		setUUIDLazily();
+		return getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
+	}
+
+	public synchronized long getLastUploadTime() throws ParseException {
+		return getDateFormat().parse(getPreferenceStringValue(Messages.PrefsFacade_LastUploadTimeKey)).getTime();
+	}
+
+	public synchronized void updateLastUploadTime() {
+		setPreferenceValue(Messages.PrefsFacade_LastUploadTimeKey, getDateFormat().format(new Date()));
+	}
+
+	private DateFormat getDateFormat() {
+		return DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
 	}
 
 }

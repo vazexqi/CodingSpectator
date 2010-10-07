@@ -50,10 +50,10 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 		Assert.isNotNull(event);
 		switch (event.getEventType()) {
 			case RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED:
-				return RefactoringHistoryService.NAME_HISTORY_CANCELED_FOLDER;
+				return RefactoringHistoryService.getRefactoringHistoryCanceledFolder();
 
 			case RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED:
-				return RefactoringHistoryService.NAME_HISTORY_PERFORMED_FOLDER;
+				return RefactoringHistoryService.getRefactoringHistoryPerformedFolder();
 
 			case RefactoringHistoryEvent.ADDED:
 			case RefactoringHistoryEvent.PUSHED:
@@ -68,7 +68,9 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 		final long stamp= proxy.getTimeStamp();
 		if (stamp >= 0) {
 			final String name= proxy.getProject();
-			final IFileStore store= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(historyFolder);
+
+			IFileStore store= getFileStore(historyFolder);
+
 			if (name != null && !"".equals(name)) { //$NON-NLS-1$
 				final IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(name);
 				if (project.isAccessible()) {
@@ -103,6 +105,15 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 				}
 			}
 		}
+	}
+
+	private IFileStore getFileStore(String historyFolder) {
+		String directorySeparator= "/"; //$NON-NLS-1$
+		String[] directories= historyFolder.split(directorySeparator);
+		IFileStore store= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(directories[0]);
+		for (int i= 1; i < directories.length; i++)
+			store= store.getChild(directories[i]);
+		return store;
 	}
 
 	/**

@@ -4,13 +4,13 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
+import org.eclipse.equinox.security.storage.StorageException;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.refactoringwatcher.monitor.Messages;
-import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationPrompter;
 import edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider;
-import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
+import edu.illinois.refactoringwatcher.monitor.ui.AuthenticationPrompter;
 
 /**
  * 
@@ -23,9 +23,7 @@ import edu.illinois.refactoringwatcher.monitor.prefs.PrefsFacade;
  */
 public class Submitter {
 
-	private static final String repositoryBaseURL= Messages.Submitter_repository_base_url;
-
-	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_ltk_bundle_name)).toOSString();
+	public static final String watchedDirectory= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_LTKBundleName)).toOSString();
 
 	private SVNManager svnManager;
 
@@ -39,42 +37,44 @@ public class Submitter {
 		this.authenticationProvider= provider;
 	}
 
-	private static String getRepositoryOffsetURL(String username) {
-		return joinByURLSeparator(username, PrefsFacade.getUUID());
+	public static String getFeatureVersion() {
+		return Platform.getBundle(Messages.Submitter_FeatureBundleName).getVersion().toString();
 	}
 
-	private static String joinByURLSeparator(String... strings) {
-		StringBuilder sb= new StringBuilder();
-		for (int i= 0; i < strings.length; ++i) {
-			sb.append(strings[i]);
-			sb.append("/"); //$NON-NLS-1$
-		}
-		return sb.toString();
-	}
-
-	public void initialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, CanceledDialogException {
 		try {
-			AuthenticationProvider prompter= getAuthenticationPrompter();
+			AuthenticationProvider prompter= getAuthenticationPrompterLazily();
 			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
-			if (authenticationInfo == null) {
-				throw new NoAuthenticationInformationFoundException();
-			}
-			svnManager= new SVNManager(repositoryBaseURL, authenticationInfo.getUserName(), authenticationInfo.getPassword());
-			svnManager.doImport(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
-			svnManager.doCheckout(watchedDirectory, getRepositoryOffsetURL(authenticationInfo.getUserName()));
+
+			if (isCanceled(authenticationInfo))
+				throw new CanceledDialogException();
+
+			svnManager= new SVNManager(new URLManager(Messages.Submitter_RepositoryBaseURL, authenticationInfo.getUserName(), getFeatureVersion()), authenticationInfo.getUserName(),
+					authenticationInfo.getPassword());
+			svnManager.doImport(watchedDirectory);
+			svnManager.doCheckout(watchedDirectory);
+			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);
 		} catch (SVNException e) {
+			throw new InitializationException(e);
+		} catch (StorageException e) {
+			throw new InitializationException(e);
+		} catch (IOException e) {
 			throw new InitializationException(e);
 		}
 
 	}
 
-	private AuthenticationProvider getAuthenticationPrompter() {
-		if (authenticationProvider == null)
-			return new AuthenticationPrompter();
-		else
-			return authenticationProvider;
+	private boolean isCanceled(AuthenticationInfo authenticationInfo) {
+		return authenticationInfo == null;
+	}
+
+	private AuthenticationProvider getAuthenticationPrompterLazily() {
+		if (authenticationProvider == null) {
+			authenticationProvider= new AuthenticationPrompter();
+		}
+		return authenticationProvider;
 	}
 
 	public void submit() throws SubmissionException {
@@ -86,27 +86,27 @@ public class Submitter {
 		}
 	}
 
-	public void upload() throws InitializationException, SubmissionException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
-		authenticateAndInitialize();
-		submit();
-	}
-
-	public void authenticateAndInitialize() throws InitializationException, FailedAuthenticationException, NoAuthenticationInformationFoundException {
+	/**
+	 * @return true if it can obtain a valid credential or false if the user has forcibly canceled
+	 * @throws InitializationException
+	 */
+	public boolean promptUntilValidCredentialsOrCanceled() throws InitializationException {
 		while (true) {
 			try {
-				initialize();
-			} catch (NoAuthenticationInformationFoundException noAuthEx) {
-				throw new NoAuthenticationInformationFoundException(noAuthEx);
+				authenticateAndInitialize();
 			} catch (FailedAuthenticationException authEx) {
 				try {
-					getAuthenticationPrompter().clearSecureStorage();
+					getAuthenticationPrompterLazily().clearSecureStorage();
 				} catch (IOException ioEx) {
-					throw new FailedAuthenticationException(ioEx);
+					throw new InitializationException(ioEx);
 				}
 				continue;
+			} catch (CanceledDialogException e) {
+				return false;
 			}
 			break;
 		}
+		return true;
 	}
 
 	@SuppressWarnings("serial")
@@ -143,17 +143,17 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class NoAuthenticationInformationFoundException extends SubmitterException {
+	public static class CanceledDialogException extends SubmitterException {
 
-		public NoAuthenticationInformationFoundException() {
+		public CanceledDialogException() {
 			super();
 		}
 
-		public NoAuthenticationInformationFoundException(Exception e) {
+		public CanceledDialogException(Exception e) {
 			super(e);
 		}
 
-		public NoAuthenticationInformationFoundException(String message) {
+		public CanceledDialogException(String message) {
 			super(message);
 		}
 
