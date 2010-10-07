@@ -1,4 +1,4 @@
-package edu.illinois.refactoringwatcher.monitor.idgen;
+package edu.illinois.refactoringwatcher.monitor.prefs;
 
 import java.util.UUID;
 

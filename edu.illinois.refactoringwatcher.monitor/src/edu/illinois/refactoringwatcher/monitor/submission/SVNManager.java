@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -24,25 +23,21 @@ public class SVNManager {
 
 	private static final String COMMIT_MESSAGE= Activator.PLUGIN_ID;
 
-	private String repositoryBaseURL;
+	private final SVNClientManager cm;
 
-	private SVNClientManager cm;
+	private final URLManager urlManager;
 
-	public SVNManager(String repositoryLocation, String username, String password) {
-		this.repositoryBaseURL= repositoryLocation;
-
+	public SVNManager(URLManager urlManager, String username, String password) {
+		this.urlManager= urlManager;
 		setupLibrary();
 		cm= SVNClientManager.newInstance(null, username, password);
 	}
 
-	/**
-	 * @idempotent.
-	 */
-	public void doImport(String directory, String repositoryOffsetURL) throws SVNException {
+	public void doImport(String directory) throws SVNException {
 		if (isWorkingDirectoryValid(directory))
 			return;
 		File file= new File(directory);
-		cm.getCommitClient().doImport(file, getAbsoluteURL(repositoryOffsetURL), "Initial import", null, false, true, SVNDepth.INFINITY);
+		cm.getCommitClient().doImport(file, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
 	}
 
 	public boolean isWorkingDirectoryValid(String directory) {
@@ -64,17 +59,10 @@ public class SVNManager {
 		FSRepositoryFactory.setup();
 	}
 
-	/**
-	 * @idempotent.
-	 */
-	public void doCheckout(String destinationPath, String repositoryOffsetURL) throws SVNException {
+	public void doCheckout(String destinationPath) throws SVNException {
 		File destinationPathFile= new File(destinationPath);
-		cm.getUpdateClient().doCheckout(getAbsoluteURL(repositoryOffsetURL), destinationPathFile, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
+		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), destinationPathFile, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
 				true);
-	}
-
-	private SVNURL getAbsoluteURL(String repositoryOffsetURL) throws SVNException {
-		return SVNURL.parseURIEncoded(repositoryBaseURL + "/" + repositoryOffsetURL);
 	}
 
 	public void doAdd(String pathToAdd) throws SVNException {
