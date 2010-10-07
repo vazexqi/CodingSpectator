@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="edu.illinois.codingspectator.feature"
+      label="Coding Spectator"
+      version="1.0.0.qualifier"
+      provider-name="University of Illinois">
+
+   <description>
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright>
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license>
+      [Enter License Description here.]
+   </license>
+
+   <url>
+      <update label="CodingSpectator Update Site" url="http://codingspectator.github.com/updates"/>
+   </url>
+
+   <includes
+         id="edu.illinois.codingspectator.jdt.helios.patch"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.helios.patch"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.heliosSR1.patch"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.tmatesoft.svn_1.3.4.eclipse"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.monitor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

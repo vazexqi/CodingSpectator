@@ -28,6 +28,7 @@ import java.util.Set;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 import org.xml.sax.InputSource;
 
@@ -141,10 +142,12 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/** The no history constant */
 	private static final NullRefactoringHistory NO_HISTORY= new NullRefactoringHistory();
 
-	// TODO: Grab this number dynamically
-
 	private static Version getFeatureVersion() {
-		return Platform.getBundle(RefactoringCoreMessages.RefactoringHistoryService_FeatureBundleName).getVersion();
+		Bundle bundle= Platform.getBundle(RefactoringCoreMessages.CodingSpectator_FeatureBundleName);
+		if (bundle != null)
+			return bundle.getVersion();
+		else
+			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
 	}
 
 	public static String getRefactoringHistoryCanceledFolder() {
