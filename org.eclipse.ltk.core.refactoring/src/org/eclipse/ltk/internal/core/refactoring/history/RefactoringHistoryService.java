@@ -142,7 +142,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/** The no history constant */
 	private static final NullRefactoringHistory NO_HISTORY= new NullRefactoringHistory();
 
-	private static Version getFeatureVersion() {
+	public static Version getFeatureVersion() {
 		Bundle bundle= Platform.getBundle(RefactoringCoreMessages.CodingSpectator_FeatureBundleName);
 		if (bundle != null)
 			return bundle.getVersion();
