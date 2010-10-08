@@ -103,6 +103,10 @@ import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.text.correction.ModifierCorrectionSubProcessor;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+
+/**
+ * @author nchen - Extended WatchedRefactoring.
+ */
 public class ExtractConstantRefactoring extends WatchedRefactoring {
 
 	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$

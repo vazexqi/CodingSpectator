@@ -1,21 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="edu.illinois.codingspectator.feature"
-      label="CodingSpectator"
-      version="1.0.0.qualifier"
-      provider-name="University of Illinois">
-
-   <description><![CDATA[CodingSpectator collects the user's interactions with Eclipse. Then, it submits the collected to a central server.]]></description>
-
-   <copyright>
-      <![CDATA[University of Illinois/NCSA Open Source License
-Copyright (c) 2008-2010 University of Illinois at Urbana-Champaign.
-All rights
-reserved.]]>
-   </copyright>
-
-   <license>
-      <![CDATA[CodingSpectator Release License
+CodingSpectator Release License
 ===============================
  
 University of Illinois/NCSA Open Source License
@@ -91,41 +74,5 @@ all redistributed under the Eclipse Public License - Version 1.0.
  
 * CodingSpectator depends on a plug-in that contains the binary form of the
 SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed
-under the TMate Open Source License.]]>
-   </license>
+under the TMate Open Source License.
 
-   <url>
-      <update label="CodingSpectator Update Site" url="http://codingspectator.github.com/updates"/>
-   </url>
-
-   <includes
-         id="edu.illinois.codingspectator.jdt.helios.patch"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.illinois.codingspectator.platform.helios.patch"
-         version="0.0.0"/>
-
-   <includes
-         id="edu.illinois.codingspectator.platform.heliosSR1.patch"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.tmatesoft.svn_1.3.4.eclipse"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.monitor"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-</feature>

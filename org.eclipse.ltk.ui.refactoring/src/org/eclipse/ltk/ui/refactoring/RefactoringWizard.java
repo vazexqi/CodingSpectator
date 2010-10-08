@@ -72,6 +72,9 @@ import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
  * Clients may extend this class.
  * </p>
  * 
+ * @author Mohsen Vakilian, nchen - Changed performFinish(), performCancel. Added
+ *         logRefactoringEvent(int).
+ * 
  * @see org.eclipse.ltk.core.refactoring.Refactoring
  * 
  * @since 3.0

@@ -128,6 +128,8 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * Extracts a method in a compilation unit based on a text selection range.
+ * 
+ * @author Mohsen Vakilian, nchen - Extended WatchedRefactoring.
  */
 public class ExtractMethodRefactoring extends WatchedRefactoring {
 

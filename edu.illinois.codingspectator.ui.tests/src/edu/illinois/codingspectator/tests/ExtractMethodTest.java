@@ -1,3 +1,6 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.tests;
 
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
@@ -15,7 +18,7 @@ public class ExtractMethodTest extends RefactoringWatcherTest {
 	@Override
 	public void prepareRefactoring() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

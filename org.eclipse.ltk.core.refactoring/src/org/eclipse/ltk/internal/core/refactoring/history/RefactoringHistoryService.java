@@ -86,6 +86,10 @@ import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter
 /**
  * Default implementation of a refactoring history service.
  * 
+ * @author nchen - Added getFeatureVersion(), getRefactoringHistoryCanceledFolder(),
+ *         getRefactoringHistoryPerformedFolder(), constructHiddenFolder(baseName) to locate the
+ *         folder to store the log files.
+ * 
  * @since 3.2
  */
 public final class RefactoringHistoryService implements IRefactoringHistoryService {

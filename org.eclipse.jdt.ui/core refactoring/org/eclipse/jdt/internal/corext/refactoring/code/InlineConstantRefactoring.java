@@ -124,6 +124,11 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
+/**
+ * 
+ * @author nchen - Extended WatchedRefactoring.
+ * 
+ */
 public class InlineConstantRefactoring extends WatchedRefactoring {
 
 	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$

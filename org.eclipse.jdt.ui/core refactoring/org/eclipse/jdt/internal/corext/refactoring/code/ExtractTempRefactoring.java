@@ -132,6 +132,9 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * Extract Local Variable (from selected expression inside method or initializer).
+ * 
+ * @author nchen - Extended WatchedRefactoring.
+ * 
  */
 public class ExtractTempRefactoring extends WatchedRefactoring {
 

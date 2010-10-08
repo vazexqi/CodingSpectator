@@ -98,6 +98,11 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
+/**
+ * 
+ * @author nchen - Extended WatchedRefactoring.
+ * 
+ */
 public class InlineTempRefactoring extends WatchedRefactoring {
 
 	private ICompilationUnit fCu;

@@ -1,3 +1,6 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.tests;
 
 import static org.junit.Assert.assertFalse;
@@ -10,8 +13,6 @@ import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import edu.illinois.codingspectator.test.utils.FileUtilities;
 
 
 /**

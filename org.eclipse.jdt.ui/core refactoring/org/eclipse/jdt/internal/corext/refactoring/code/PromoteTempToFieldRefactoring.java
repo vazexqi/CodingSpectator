@@ -96,6 +96,11 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
+/**
+ * 
+ * @author nchen - Extended WatchedRefactoring.
+ * 
+ */
 public class PromoteTempToFieldRefactoring extends WatchedRefactoring {
 
 	private static final String ATTRIBUTE_STATIC= "static"; //$NON-NLS-1$

@@ -34,6 +34,9 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * Refactoring history listener which continuously persists the global refactoring history in the
  * different history locations.
  * 
+ * @author Mohsen Vakilian, nchen - Added the support for serializing two new types of events, i.e.
+ *         canceled and all performed refactorings.
+ * 
  * @since 3.2
  */
 public final class RefactoringHistorySerializer implements IRefactoringHistoryListener {

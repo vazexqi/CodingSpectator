@@ -113,6 +113,8 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * constructor.
  * 
  * @author rfuhrer
+ * @author nchen - Extended WatchedRefactoring.
+ * 
  */
 public class IntroduceFactoryRefactoring extends WatchedRefactoring {
 
