@@ -60,6 +60,7 @@ public class Logger {
 		//TODO: Upon integration change the location of the file
 		IPath logFilePath= watchedDirectory.append(featureVersion).append(LOGFILE_NAME);
 		File file= new File(logFilePath.toOSString());
+		file.getParentFile().mkdirs();
 		try {
 			file.createNewFile();
 			logFileWriter= new BufferedWriter(new FileWriter(file, true));
