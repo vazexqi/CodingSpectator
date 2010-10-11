@@ -37,6 +37,8 @@ public class Messages extends NLS {
 
 	public static String WorkbenchPreferencePage_FailedToUploadMessage;
 
+	public static String WorkbenchPreferencePage_LastUploadTextField;
+
 	public static String WorkbenchPreferencePage_NetidFieldPreferenceKey;
 
 	public static String WorkbenchPreferencePage_NetidTextField;

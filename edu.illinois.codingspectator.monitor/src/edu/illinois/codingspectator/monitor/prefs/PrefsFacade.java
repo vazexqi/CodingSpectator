@@ -33,7 +33,7 @@ public class PrefsFacade {
 		return instance;
 	}
 
-	private IPreferenceStore getPreferenceStore() {
+	public IPreferenceStore getPreferenceStore() {
 		return Activator.getDefault().getPreferenceStore();
 	}
 
