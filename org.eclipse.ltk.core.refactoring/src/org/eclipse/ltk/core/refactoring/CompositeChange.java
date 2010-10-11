@@ -466,7 +466,10 @@ public class CompositeChange extends Change {
 			Object[] affectedObjects= change.getAffectedObjects();
 			if (affectedObjects == null)
 				return null;
-			result.addAll(Arrays.asList(affectedObjects));
+			//Stas: to fix, comment out the above check and uncomment the below check
+//			if (affectedObjects != null){
+				result.addAll(Arrays.asList(affectedObjects));
+//			}
 		}
 		return result.toArray();
 	}

@@ -1,5 +1,10 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.codingtracker;
 
+import org.eclipse.ui.IStartup;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -9,6 +14,9 @@ import org.osgi.framework.BundleContext;
  * 
  */
 public class Activator implements BundleActivator {
+
+	// The plug-in ID
+	public static final String PLUGIN_ID= "edu.illinois.codingspectator.codingtracker"; //$NON-NLS-1$
 
 	private static BundleContext context;
 

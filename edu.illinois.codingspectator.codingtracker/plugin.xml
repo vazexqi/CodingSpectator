@@ -3,7 +3,9 @@
 <plugin>
    <extension
          point="org.eclipse.ui.startup">
-      <startup class="edu.illinois.codingspectator.codingtracker.CodeChangeTracker"/>
+      <startup
+            class="edu.illinois.codingspectator.codingtracker.CodeChangeTracker">
+      </startup>
    </extension>
 
 </plugin>

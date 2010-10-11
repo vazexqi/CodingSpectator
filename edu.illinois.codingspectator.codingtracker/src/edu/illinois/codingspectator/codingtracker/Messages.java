@@ -8,6 +8,31 @@ public class Messages extends NLS {
 	public static String Logger_CodeChangesFileName;
 
 	public static String Logger_LTKBundleName;
+
+	public static String Logger_CreateLogFileException;
+
+	public static String Logger_UnrecognizedRefactoringType;
+
+	public static String Logger_FailedToGetRefactoringArguments;
+
+	public static String Logger_AppendLogFileException;
+
+	public static String CodeChangeTracker_FailedToGetActiveWorkbenchWindow;
+
+	public static String CodeChangeTracker_WrongJavaEditorInput;
+
+	public static String Logger_KnownFilesFileName;
+
+	public static String Logger_OpenKnowfilesFileException;
+
+	public static String Logger_WriteKnownfilesFileException;
+
+	public static String Logger_ReadUnknownFileException;
+
+	public static String Logger_CompleteReadUnknownFileException;
+
+	public static String CodeChangeTracker_FailedToVisitResourceDelta;
+	
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
