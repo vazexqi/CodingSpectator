@@ -93,6 +93,11 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  *    assigned to a parameter again. No need for a separate local (important to be able
  *    to reverse extract method correctly).
  */
+/**
+ * 
+ * @author nchen - Extended WatchedRefactoring.
+ * 
+ */
 public class InlineMethodRefactoring extends WatchedRefactoring {
 
 	private static final String ATTRIBUTE_MODE= "mode"; //$NON-NLS-1$

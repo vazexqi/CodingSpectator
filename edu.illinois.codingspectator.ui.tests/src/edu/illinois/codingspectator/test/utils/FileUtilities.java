@@ -1,13 +1,16 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.test.utils;
 
 import java.io.File;
 
 /**
  * 
+ * Simple file utilities for managing the testing area between runs
+ * 
  * @author Mohsen Vakilian
  * @author nchen
- * 
- *         Simple file utilities for managing the testing area between runs
  * 
  */
 public class FileUtilities {
@@ -18,7 +21,7 @@ public class FileUtilities {
 				cleanDirectory(file);
 			}
 		}
-		
+
 		path.delete();
 	}
 }

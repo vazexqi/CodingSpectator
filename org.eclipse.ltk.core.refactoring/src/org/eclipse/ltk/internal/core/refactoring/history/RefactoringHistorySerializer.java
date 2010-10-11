@@ -34,6 +34,9 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * Refactoring history listener which continuously persists the global refactoring history in the
  * different history locations.
  * 
+ * @author Mohsen Vakilian, nchen - Added the support for serializing two new types of events, i.e.
+ *         canceled and all performed refactorings.
+ * 
  * @since 3.2
  */
 public final class RefactoringHistorySerializer implements IRefactoringHistoryListener {
@@ -108,12 +111,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	}
 
 	private IFileStore getFileStore(String historyFolder) {
-		String directorySeparator= "/"; //$NON-NLS-1$
-		String[] directories= historyFolder.split(directorySeparator);
-		IFileStore store= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(directories[0]);
-		for (int i= 1; i < directories.length; i++)
-			store= store.getChild(directories[i]);
-		return store;
+		return EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(historyFolder);
 	}
 
 	/**

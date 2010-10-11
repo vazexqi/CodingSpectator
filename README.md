@@ -9,3 +9,6 @@ Eclipse that could reveal many interesting patterns in the usage of this IDE.
 CodingSpectator saves the captured events locally and uploads them to a
 designated server periodically. It also categorizes the data based on the user
 id and Eclipse workspace id.
+
+CodingSpectator is licensed under the Illinois/NCSA Open Source License. See
+LICENSE.TXT for more details.

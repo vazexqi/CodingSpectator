@@ -3,5 +3,14 @@
    <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010071834.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010071834">
       <category name="CodingSpectator"/>
    </feature>
+   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010081729.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010081729">
+      <category name="CodingSpectator"/>
+   </feature>
+   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010081752.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010081752">
+      <category name="CodingSpectator"/>
+   </feature>
+   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010081756.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010081756">
+      <category name="CodingSpectator"/>
+   </feature>
    <category-def name="CodingSpectator" label="CodingSpectator"/>
 </site>
