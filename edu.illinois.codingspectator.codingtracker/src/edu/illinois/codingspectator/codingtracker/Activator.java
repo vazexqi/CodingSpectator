@@ -3,8 +3,6 @@
  */
 package edu.illinois.codingspectator.codingtracker;
 
-import org.eclipse.ui.IStartup;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -23,7 +21,7 @@ public class Activator implements BundleActivator {
 	static BundleContext getContext() {
 		return context;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)

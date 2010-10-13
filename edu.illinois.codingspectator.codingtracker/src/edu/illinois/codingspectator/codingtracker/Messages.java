@@ -31,8 +31,10 @@ public class Messages extends NLS {
 
 	public static String Logger_CompleteReadUnknownFileException;
 
+	public static String Logger_ConfigurationFolder;
+
 	public static String CodeChangeTracker_FailedToVisitResourceDelta;
-	
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

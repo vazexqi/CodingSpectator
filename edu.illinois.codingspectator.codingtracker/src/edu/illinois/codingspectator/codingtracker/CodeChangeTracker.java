@@ -67,20 +67,20 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 	private volatile boolean isUndoing= false;
 
 	private volatile boolean isRedoing= false;
-	
-	private boolean isPartListenerRegistered = false;
-	
+
+	private boolean isPartListenerRegistered= false;
+
 	private volatile IWorkbenchWindow activeWorkbenchWindow= null;
 
 	private Set<IFile> dirtyFiles= Collections.synchronizedSet(new HashSet<IFile>());
 
-	public static CodeChangeTracker getInstance(){
-		if (trackerInstance == null){
-			trackerInstance = new CodeChangeTracker();
+	public static CodeChangeTracker getInstance() {
+		if (trackerInstance == null) {
+			trackerInstance= new CodeChangeTracker();
 		}
 		return trackerInstance;
 	}
-	
+
 	private CodeChangeTracker() {
 		logger= new Logger();
 	}
@@ -104,24 +104,24 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 				if (activePage != null) {
 					selectionChanged(activePage.getActivePart(), activePage.getSelection());
 					activePage.addPartListener(trackerInstance);
-					isPartListenerRegistered = true;
+					isPartListenerRegistered= true;
 				}
 			}
 		});
-		if (!isPartListenerRegistered){
-			Display.getDefault().asyncExec(new Runnable(){
+		if (!isPartListenerRegistered) {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
 				public void run() {
 					//TODO: Is it too heavy-weight? Did not notice any additional lag even on a slow machine.  
-					while (!isPartListenerRegistered){
+					while (!isPartListenerRegistered) {
 						IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
-						if (activePage != null){
-							activePage.addPartListener(trackerInstance);				
-							isPartListenerRegistered = true;
-						}						
+						if (activePage != null) {
+							activePage.addPartListener(trackerInstance);
+							isPartListenerRegistered= true;
+						}
 					}
-				}				
+				}
 			});
 		}
 	}
@@ -139,10 +139,10 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			}
 			IFile newFile= ((FileEditorInput)editorInput).getFile();
 			//Look only for Java files
-			if (newFile.getFileExtension().equals("java")){  //$NON-NLS-1$
+			if (newFile.getFileExtension().equals("java")) { //$NON-NLS-1$
 				if (!newFile.equals(currentFile)) {
 					currentFile= newFile;
-					currentEditor = editor;
+					currentEditor= editor;
 					//Or, alternatively:
 					//FileBuffers.getTextFileBufferManager().getTextFileBuffer(currentFile.getFullPath(), LocationKind.IFILE);				
 					System.out.println("File:\"" + currentFile.getFullPath().toPortableString() + "\"");
@@ -192,10 +192,10 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 		} else {
 			isRedoing= false;
 		}
-		if (eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.REDONE){
-			if (currentEditor.isDirty()){
+		if (eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.REDONE) {
+			if (currentEditor.isDirty()) {
 				dirtyFiles.add(currentFile);
-			}else{
+			} else {
 				dirtyFiles.remove(currentFile);
 			}
 		}
@@ -282,11 +282,11 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			}
 			for (IFile file : changedJavaFiles) {
 				if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
-					if (isRefactoring || dirtyFiles.contains(file)){  
-						savedJavaFiles.add(file);						
-					}else{
+					if (isRefactoring || dirtyFiles.contains(file)) {
+						savedJavaFiles.add(file);
+					} else {
 						externallyModifiedJavaFiles.add(file);
-					}					
+					}
 				}
 				dirtyFiles.remove(file);
 			}

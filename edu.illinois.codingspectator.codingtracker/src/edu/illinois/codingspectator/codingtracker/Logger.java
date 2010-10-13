@@ -42,6 +42,8 @@ public class Logger {
 
 	private BufferedWriter logFileWriter= null;
 
+	private File logFile= null;
+
 	private File knownFilesFile= null;
 
 	private final Properties knownfiles= new Properties(); //Is thread-safe since SE 6
@@ -50,6 +52,8 @@ public class Logger {
 			Platform.getBundle(Messages.Logger_LTKBundleName));
 
 	private static final String featureVersion= RefactoringHistoryService.getFeatureVersion().toString();
+
+	private static final String CODINGTRACKER_FOLDER= Messages.Logger_ConfigurationFolder;
 
 	private static final String LOGFILE_NAME= Messages.Logger_CodeChangesFileName;
 
@@ -61,7 +65,7 @@ public class Logger {
 
 	//Used symbols: 16, remaining symbols:
 	//g i j k n q v w y z
-	
+
 	private static final String ECLIPSE_SESSION_SYMBOL= "l"; //$NON-NLS-1$
 
 	private static final String FILE_CLOSED_SYMBOL= "c"; //$NON-NLS-1$
@@ -97,10 +101,10 @@ public class Logger {
 
 
 	public Logger() {
-		IPath featureVersionPath= watchedDirectory.append(featureVersion);
-		IPath logFilePath= featureVersionPath.append(LOGFILE_NAME);
-		IPath knownfilesFilePath= featureVersionPath.append(KNOWNFILES_FILE_NAME);
-		File logFile= new File(logFilePath.toOSString());
+		IPath codingtrackerPath= watchedDirectory.append(featureVersion).append(CODINGTRACKER_FOLDER);
+		IPath logFilePath= codingtrackerPath.append(LOGFILE_NAME);
+		IPath knownfilesFilePath= codingtrackerPath.append(KNOWNFILES_FILE_NAME);
+		logFile= new File(logFilePath.toOSString());
 		knownFilesFile= new File(knownfilesFilePath.toOSString());
 		logFile.getParentFile().mkdirs(); //creates directories for knownFilesFile as well
 		try {
@@ -119,7 +123,7 @@ public class Logger {
 		} catch (Exception e) {
 			logExceptionToErrorLog(e, Messages.Logger_OpenKnowfilesFileException);
 		}
-		TextChunk textChunk = new TextChunk(ECLIPSE_SESSION_SYMBOL);
+		TextChunk textChunk= new TextChunk(ECLIPSE_SESSION_SYMBOL);
 		textChunk.append(System.currentTimeMillis());
 		log(textChunk);
 	}
@@ -214,11 +218,11 @@ public class Logger {
 		System.out.println("File closed: " + textChunk); //$NON-NLS-1$
 		log(textChunk);
 	}
-	
-	public void logRefactoringStarted(){
+
+	public void logRefactoringStarted() {
 		TextChunk textChunk= new TextChunk(REFACTORING_STARTED_SYMBOL);
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("Refactoring started: " + textChunk);
+		System.out.println("Refactoring started: " + textChunk); //$NON-NLS-1$
 		log(textChunk);
 	}
 
@@ -347,15 +351,17 @@ public class Logger {
 
 	private synchronized void log(CharSequence text) {
 		try {
+			logFileWriter= new BufferedWriter(new FileWriter(logFile, true));
 			logFileWriter.append(text);
 			logFileWriter.flush();
+			logFileWriter.close();
 		} catch (IOException e) {
 			logExceptionToErrorLog(e, Messages.Logger_AppendLogFileException);
 		}
 	}
 
 	private synchronized void logKnownfiles() {
-		System.out.println("logKnownfiles");
+		System.out.println("logKnownfiles"); //$NON-NLS-1$
 		BufferedWriter knownfilesFileWriter= null;
 		try {
 			knownfilesFileWriter= new BufferedWriter(new FileWriter(knownFilesFile));
