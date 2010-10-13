@@ -3,12 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,15 +22,12 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
@@ -44,12 +36,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 /**
  * 
@@ -57,14 +49,16 @@ import org.eclipse.ui.part.FileEditorInput;
  * 
  */
 @SuppressWarnings("restriction")
-public class CodeChangeTracker implements IStartup, ISelectionListener, ITextListener, IRefactoringExecutionListener,
+public class CodeChangeTracker implements ISelectionListener, ITextListener, IRefactoringExecutionListener,
 											IResourceChangeListener, IPartListener, IOperationHistoryListener {
 
-	private final CodeChangeTracker trackerInstance;
+	private static CodeChangeTracker trackerInstance;
 
 	private final Logger logger;
 
 	private IFile currentFile= null;
+
+	private AbstractDecoratedTextEditor currentEditor= null;
 
 	ISourceViewer listenedViewer= null;
 
@@ -73,24 +67,34 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 	private volatile boolean isUndoing= false;
 
 	private volatile boolean isRedoing= false;
+	
+	private boolean isPartListenerRegistered = false;
+	
+	private volatile IWorkbenchWindow activeWorkbenchWindow= null;
 
-	public CodeChangeTracker() {
+	private Set<IFile> dirtyFiles= Collections.synchronizedSet(new HashSet<IFile>());
+
+	public static CodeChangeTracker getInstance(){
+		if (trackerInstance == null){
+			trackerInstance = new CodeChangeTracker();
+		}
+		return trackerInstance;
+	}
+	
+	private CodeChangeTracker() {
 		logger= new Logger();
-		trackerInstance= this;
 	}
 
-	@Override
-	public void earlyStartup() {
+	public void start() {
 		System.out.println("Early startup");
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(trackerInstance, IResourceChangeEvent.POST_CHANGE);
 		OperationHistoryFactory.getOperationHistory().addOperationHistoryListener(trackerInstance);
 		RefactoringCore.getHistoryService().addExecutionListener(trackerInstance);
-		//TODO: !!!Sometimes it is registered later than the user changes some text. As a result, text change is lost.
 		Display.getDefault().syncExec(new Runnable() {
 
 			@Override
 			public void run() {
-				IWorkbenchWindow activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				if (activeWorkbenchWindow == null) {
 					Exception e= new RuntimeException();
 					Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToGetActiveWorkbenchWindow);
@@ -100,33 +104,56 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 				if (activePage != null) {
 					selectionChanged(activePage.getActivePart(), activePage.getSelection());
 					activePage.addPartListener(trackerInstance);
+					isPartListenerRegistered = true;
 				}
 			}
 		});
+		if (!isPartListenerRegistered){
+			Display.getDefault().asyncExec(new Runnable(){
+
+				@Override
+				public void run() {
+					//TODO: Is it too heavy-weight? Did not notice any additional lag even on a slow machine.  
+					while (!isPartListenerRegistered){
+						IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+						if (activePage != null){
+							activePage.addPartListener(trackerInstance);				
+							isPartListenerRegistered = true;
+						}						
+					}
+				}				
+			});
+		}
 	}
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 //		System.out.println("NOTIFIED!");
-		if (part instanceof JavaEditor) {
-			JavaEditor javaEditor= (JavaEditor)part;
-			IEditorInput editorInput= javaEditor.getEditorInput();
+		if (part instanceof AbstractDecoratedTextEditor) {
+			AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)part;
+			IEditorInput editorInput= editor.getEditorInput();
 			if (!(editorInput instanceof FileEditorInput)) {
 				Exception e= new RuntimeException();
 				Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_WrongJavaEditorInput +
-													javaEditor.getTitle());
+													editor.getTitle());
 			}
 			IFile newFile= ((FileEditorInput)editorInput).getFile();
-			if (!newFile.equals(currentFile)) {
-				currentFile= newFile;
-				System.out.println("File:\"" + currentFile.getFullPath().toPortableString() + "\"");
+			//Look only for Java files
+			if (newFile.getFileExtension().equals("java")){  //$NON-NLS-1$
+				if (!newFile.equals(currentFile)) {
+					currentFile= newFile;
+					currentEditor = editor;
+					//Or, alternatively:
+					//FileBuffers.getTextFileBufferManager().getTextFileBuffer(currentFile.getFullPath(), LocationKind.IFILE);				
+					System.out.println("File:\"" + currentFile.getFullPath().toPortableString() + "\"");
+				}
+				ISourceViewer sourceViewer= editor.getHackedViewer();
+				if (listenedViewer != null) {
+					listenedViewer.removeTextListener(trackerInstance);
+				}
+				listenedViewer= sourceViewer;
+				listenedViewer.addTextListener(trackerInstance);
 			}
-			ISourceViewer sourceViewer= javaEditor.getViewer();
-			if (listenedViewer != null) {
-				listenedViewer.removeTextListener(trackerInstance);
-			}
-			listenedViewer= sourceViewer;
-			listenedViewer.addTextListener(trackerInstance);
 		}
 	}
 
@@ -134,7 +161,7 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 	public void textChanged(TextEvent event) {
 		DocumentEvent documentEvent= event.getDocumentEvent();
 		if (documentEvent != null && !isRefactoring) {
-			//System.out.println("Full text: " + documentEvent.getDocument().get());
+			dirtyFiles.add(currentFile);
 			logger.logTextEvent(event, currentFile, isUndoing, isRedoing);
 		}
 	}
@@ -145,7 +172,7 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 		if (eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
 				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO) {
 			isRefactoring= true;
-			System.out.println("START REFACTORING");
+			logger.logRefactoringStarted();
 		} else {
 			isRefactoring= false;
 			logger.logRefactoringExecutionEvent(event);
@@ -165,13 +192,20 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 		} else {
 			isRedoing= false;
 		}
+		if (eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.REDONE){
+			if (currentEditor.isDirty()){
+				dirtyFiles.add(currentFile);
+			}else{
+				dirtyFiles.remove(currentFile);
+			}
+		}
 		if (eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
 				eventType == OperationHistoryEvent.ABOUT_TO_UNDO) {
 			IUndoableOperation undoableOperation= event.getOperation();
 			if (undoableOperation instanceof TriggeredOperations) {
 				IUndoableOperation triggeringOperation= ((TriggeredOperations)undoableOperation).getTriggeringOperation();
 				if (triggeringOperation instanceof UndoableOperation2ChangeAdapter) {
-					Object[] affectedObjects= ((UndoableOperation2ChangeAdapter)triggeringOperation).getAffectedObjects();
+					Object[] affectedObjects= ((UndoableOperation2ChangeAdapter)triggeringOperation).getAllAffectedObjects();
 					if (affectedObjects != null) {
 						for (Object affectedObject : affectedObjects) {
 							if (affectedObject instanceof CompilationUnit) {
@@ -236,24 +270,33 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 				Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToVisitResourceDelta);
 			}
 			final Set<IFile> savedJavaFiles= new HashSet<IFile>();
+			final Set<IFile> externallyModifiedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> updatedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> committedJavaFiles= new HashSet<IFile>();
 			for (IFile file : svnChangedJavaFiles) {
 				if (changedJavaFiles.contains(file)) {
-					updatedJavaFiles.add(file);
+					updatedJavaFiles.add(file); //if both the java file and its svn storage have changed, then its an update
 				} else {
-					committedJavaFiles.add(file);
+					committedJavaFiles.add(file); //if only svn storage of a java file has changed, its a commit
 				}
 			}
 			for (IFile file : changedJavaFiles) {
-				if (!updatedJavaFiles.contains(file)) {
-					savedJavaFiles.add(file);
+				if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
+					if (isRefactoring || dirtyFiles.contains(file)){  
+						savedJavaFiles.add(file);						
+					}else{
+						externallyModifiedJavaFiles.add(file);
+					}					
 				}
+				dirtyFiles.remove(file);
 			}
+			dirtyFiles.removeAll(removedJavaFiles);
 			logger.logSavedFiles(savedJavaFiles, isRefactoring);
+			logger.logExternallyModifiedFiles(externallyModifiedJavaFiles);
 			logger.logUpdatedFiles(updatedJavaFiles);
 			logger.logCommittedFiles(committedJavaFiles);
-			removedJavaFiles.addAll(updatedJavaFiles); //uploaded files become unknown (like removed)
+			removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
+			removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
 			logger.removeKnownFiles(removedJavaFiles);
 		}
 	}
@@ -268,15 +311,16 @@ public class CodeChangeTracker implements IStartup, ISelectionListener, ITextLis
 
 	@Override
 	public void partClosed(IWorkbenchPart part) {
-		if (part instanceof JavaEditor) {
-			JavaEditor javaEditor= (JavaEditor)part;
-			IEditorInput editorInput= javaEditor.getEditorInput();
+		if (part instanceof AbstractDecoratedTextEditor) {
+			AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)part;
+			IEditorInput editorInput= editor.getEditorInput();
 			if (!(editorInput instanceof FileEditorInput)) {
 				Exception e= new RuntimeException();
 				Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_WrongJavaEditorInput +
-													javaEditor.getTitle());
+													editor.getTitle());
 			}
 			IFile closedFile= ((FileEditorInput)editorInput).getFile();
+			dirtyFiles.remove(closedFile);
 			logger.logClosedFile(closedFile);
 		}
 	}

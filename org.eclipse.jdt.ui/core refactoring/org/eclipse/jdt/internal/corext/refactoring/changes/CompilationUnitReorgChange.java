@@ -71,6 +71,11 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 
 	abstract Change doPerformReorg(IProgressMonitor pm) throws CoreException, OperationCanceledException;
 
+	//Stas:
+	public Object[] getAllAffectedObjects() {
+		return new Object[]{getModifiedElement()};
+	}
+
 	public Object getModifiedElement() {
 		return getCu();
 	}

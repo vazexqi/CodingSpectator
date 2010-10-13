@@ -466,10 +466,22 @@ public class CompositeChange extends Change {
 			Object[] affectedObjects= change.getAffectedObjects();
 			if (affectedObjects == null)
 				return null;
-			//Stas: to fix, comment out the above check and uncomment the below check
-//			if (affectedObjects != null){
+			result.addAll(Arrays.asList(affectedObjects));
+		}
+		return result.toArray();
+	}
+
+	//Stas:
+	public Object[] getAllAffectedObjects() {
+		if (fChanges.size() == 0)
+			return new Object[0];
+		List result= new ArrayList();
+		for (Iterator iter= fChanges.iterator(); iter.hasNext();) {
+			Change change= (Change)iter.next();
+			Object[] affectedObjects= change.getAllAffectedObjects();
+			if (affectedObjects != null){
 				result.addAll(Arrays.asList(affectedObjects));
-//			}
+			}
 		}
 		return result.toArray();
 	}

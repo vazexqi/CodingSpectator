@@ -292,6 +292,11 @@ public abstract class Change implements IAdaptable {
 	public Object[] getAffectedObjects() {
 		return null;
 	}
+	
+	//Stas:
+	public Object[] getAllAffectedObjects(){
+		return getAffectedObjects();
+	}
 
 	/**
 	 * {@inheritDoc}

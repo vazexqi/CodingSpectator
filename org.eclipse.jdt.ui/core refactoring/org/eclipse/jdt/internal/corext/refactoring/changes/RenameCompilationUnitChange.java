@@ -41,6 +41,11 @@ public final class RenameCompilationUnitChange extends AbstractJavaElementRename
 		setValidationMethod(VALIDATE_NOT_READ_ONLY | SAVE_IF_DIRTY);
 	}
 
+	//Stas:
+	public Object[] getAllAffectedObjects() {
+		return new Object[]{getModifiedElement()};
+	}
+
 	protected IPath createNewPath() {
 		final IPath path= getResourcePath();
 		if (path.getFileExtension() != null)

@@ -120,6 +120,13 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 		return fActiveChange.getAffectedObjects();
 	}
 
+	//Stas:
+	public Object[] getAllAffectedObjects() {
+		if (fActiveChange == null)
+			return null;
+		return fActiveChange.getAllAffectedObjects();
+	}
+
 	public void addContext(IUndoContext context) {
 		if (!fContexts.contains(context))
 			fContexts.add(context);

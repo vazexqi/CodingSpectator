@@ -59,9 +59,17 @@ public class Logger {
 
 	private static final long REFRESH_INTERVAL= 7 * 24 * 60 * 60 * 1000; //Refresh knownfiles every 7 days
 
+	//Used symbols: 16, remaining symbols:
+	//g i j k n q v w y z
+	
+	private static final String ECLIPSE_SESSION_SYMBOL= "l"; //$NON-NLS-1$
+
 	private static final String FILE_CLOSED_SYMBOL= "c"; //$NON-NLS-1$
 
 	private static final String FILE_SAVED_SYMBOL= "s"; //$NON-NLS-1$
+
+	//Modification outside of Eclipse, or it may be a move/copy refactoring that overwrites a file displayed in a viewer
+	private static final String FILE_EXTERNALLY_MODIFIED_SYMBOL= "x"; //$NON-NLS-1$ 
 
 	private static final String FILE_UPDATED_SYMBOL= "m"; //$NON-NLS-1$
 
@@ -78,6 +86,8 @@ public class Logger {
 	private static final String TEXT_CHANGE_UNDONE_SYMBOL= "h"; //$NON-NLS-1$
 
 	private static final String TEXT_CHANGE_REDONE_SYMBOL= "d"; //$NON-NLS-1$
+
+	private static final String REFACTORING_STARTED_SYMBOL= "b"; //$NON-NLS-1$
 
 	private static final String REFACTORING_PERFORMED_SYMBOL= "p"; //$NON-NLS-1$
 
@@ -109,6 +119,9 @@ public class Logger {
 		} catch (Exception e) {
 			logExceptionToErrorLog(e, Messages.Logger_OpenKnowfilesFileException);
 		}
+		TextChunk textChunk = new TextChunk(ECLIPSE_SESSION_SYMBOL);
+		textChunk.append(System.currentTimeMillis());
+		log(textChunk);
 	}
 
 	public void logTextEvent(TextEvent event, IFile editedFile, boolean isUndoing, boolean isRedoing) {
@@ -164,6 +177,16 @@ public class Logger {
 		}
 	}
 
+	public void logExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
+		for (IFile file : externallyModifiedFiles) {
+			TextChunk textChunk= new TextChunk(FILE_EXTERNALLY_MODIFIED_SYMBOL);
+			textChunk.append(file.getFullPath().toPortableString());
+			textChunk.append(System.currentTimeMillis());
+			System.out.println("File externally modified: " + textChunk); //$NON-NLS-1$
+			log(textChunk);
+		}
+	}
+
 	public void logUpdatedFiles(Set<IFile> updatedFiles) {
 		for (IFile file : updatedFiles) {
 			TextChunk textChunk= new TextChunk(FILE_UPDATED_SYMBOL);
@@ -189,6 +212,13 @@ public class Logger {
 		textChunk.append(file.getFullPath().toPortableString());
 		textChunk.append(System.currentTimeMillis());
 		System.out.println("File closed: " + textChunk); //$NON-NLS-1$
+		log(textChunk);
+	}
+	
+	public void logRefactoringStarted(){
+		TextChunk textChunk= new TextChunk(REFACTORING_STARTED_SYMBOL);
+		textChunk.append(System.currentTimeMillis());
+		System.out.println("Refactoring started: " + textChunk);
 		log(textChunk);
 	}
 
