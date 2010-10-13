@@ -43,48 +43,18 @@ public class UserValidationDialog extends Dialog {
 
 	private final String titleMessage;
 
-	private final Image titleImage;
-
 	private final String message;
 
 	private final int dialogImageType;
 
-	public UserValidationDialog(Shell parentShell, String titleMessage, String message, int dialogImageType) {
-		this(null, parentShell, titleMessage, null, message, dialogImageType);
-	}
-
-	/**
-	 * Creates a new validation dialog that prompts the user for login credentials.
-	 * 
-	 * @param parentShell the parent shell of this dialog
-	 * @param titleMessage the message to be displayed by this dialog's window
-	 * @param titleImage the image of this shell, may be <code>null</code>
-	 * @param message the message to prompt to the user
-	 */
-	public UserValidationDialog(Shell parentShell, String titleMessage, Image titleImage, String message) {
-		this(null, parentShell, titleMessage, titleImage, message, SWT.ICON_QUESTION);
-	}
-
-	/**
-	 * Creates a new validation dialog that prompts the user for login credentials.
-	 * 
-	 * @param lastUsed the authentication information that was originally as an attempt to login
-	 * @param parentShell the parent shell of this dialog
-	 * @param titleMessage the message to be displayed by this dialog's window
-	 * @param titleImage the image of this shell, may be <code>null</code>
-	 * @param message the message to prompt to the user
-	 */
-	public UserValidationDialog(AuthenticationInfo lastUsed, Shell parentShell, String titleMessage, Image titleImage, String message) {
-		this(lastUsed, parentShell, titleMessage, titleImage, message, SWT.ICON_WARNING);
-	}
-
-	private UserValidationDialog(AuthenticationInfo lastUsed, Shell parentShell, String titleMessage, Image titleImage, String message, int dialogImageType) {
+	public UserValidationDialog(Shell parentShell, String titleMessage, String message, String initialUsername, int dialogImageType) {
 		super(parentShell);
-		result= lastUsed;
 
 		this.titleMessage= titleMessage;
-		this.titleImage= titleImage;
 		this.message= message;
+
+		this.result= new AuthenticationInfo(initialUsername,"", false);
+
 		this.dialogImageType= dialogImageType;
 	}
 
@@ -92,7 +62,6 @@ public class UserValidationDialog extends Dialog {
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
 		newShell.setText(titleMessage);
-		newShell.setImage(titleImage);
 	}
 
 	@Override
@@ -138,9 +107,13 @@ public class UserValidationDialog extends Dialog {
 		label= new Label(fieldContainer, SWT.NONE);
 		label.setText(Messages.UserValidationDialog_Username);
 		username= new Text(fieldContainer, SWT.BORDER);
+		username.setEditable(false);
 		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		username.setLayoutData(layoutData);
 		username.setText(getUserName());
+
+		if (isUsernameEmpty())
+			username.setEditable(true);
 
 		label= new Label(fieldContainer, SWT.NONE);
 		label.setText(Messages.UserValidationDialog_Password);
@@ -153,6 +126,10 @@ public class UserValidationDialog extends Dialog {
 		saveButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 2, 1));
 		saveButton.setText(Messages.UserValidationDialog_SavePassword);
 		saveButton.setSelection(saveResult());
+	}
+
+	private boolean isUsernameEmpty() {
+		return "".equals(getUserName());
 	}
 
 	@Override

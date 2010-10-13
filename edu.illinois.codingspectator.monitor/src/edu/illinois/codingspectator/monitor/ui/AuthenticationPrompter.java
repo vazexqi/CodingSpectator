@@ -44,7 +44,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 				Shell shell= getDefaultParentShell();
 				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, dialogState.getDialogType());
+				String username= getSVNWorkingCopyUsername();
+				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());
 				if (dialog.open() == Window.OK) {
 					result[0]= dialog.getResult();
 				} else { // If cancel was invoked
@@ -55,6 +56,11 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		});
 		dialogState.changeState();
 		return result[0];
+	}
+
+	protected String getSVNWorkingCopyUsername() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
