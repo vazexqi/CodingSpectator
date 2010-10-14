@@ -4,13 +4,18 @@
 package edu.illinois.codingspectator.monitor.submission;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNException;
 
+import edu.illinois.codingspectator.monitor.Activator;
 import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
 import edu.illinois.codingspectator.monitor.ui.AuthenticationPrompter;
@@ -80,9 +85,39 @@ public class Submitter {
 	public void submit() throws SubmissionException {
 		try {
 			svnManager.doAdd(watchedDirectory);
+			notifyPreSubmit();
 			svnManager.doCommit(watchedDirectory);
+			notifyPostSubmit();
 		} catch (SVNException e) {
 			throw new SubmissionException(e);
+		}
+	}
+
+	private Collection<SubmitterListener> lookupExtensions() {
+		IConfigurationElement[] config= Platform.getExtensionRegistry().getConfigurationElementsFor("edu.illinois.codingspectator.monitor.submitter");
+		Collection<SubmitterListener> submitterListeners= new ArrayList<SubmitterListener>();
+		try {
+			for (IConfigurationElement e : config) {
+				Object o= e.createExecutableExtension("class");
+				submitterListeners.add((SubmitterListener)o);
+			}
+		} catch (CoreException e) {
+			Activator.getDefault().createErrorStatus("Failed to lookup extensions for edu.illinois.codingspectator.monitor.submitter.", e);
+		}
+		return submitterListeners;
+	}
+
+	private void notifyPreSubmit() {
+		Collection<SubmitterListener> submitterListeners= lookupExtensions();
+		for (SubmitterListener submitterListener : submitterListeners) {
+			submitterListener.preSubmit();
+		}
+	}
+
+	private void notifyPostSubmit() {
+		Collection<SubmitterListener> submitterListeners= lookupExtensions();
+		for (SubmitterListener submitterListener : submitterListeners) {
+			submitterListener.postSubmit();
 		}
 	}
 
