@@ -7,7 +7,7 @@ package edu.illinois.codingspectator.monitor.submission;
  * 
  * @author Mohsen Vakilian
  * @author nchen
- * @authro Stas Negara
+ * @author Stas Negara
  * 
  */
 public interface SubmitterListener {
