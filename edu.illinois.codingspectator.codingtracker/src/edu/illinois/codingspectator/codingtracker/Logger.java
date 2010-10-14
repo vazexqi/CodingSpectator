@@ -40,20 +40,24 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryServi
 @SuppressWarnings("restriction")
 public class Logger {
 
-	private BufferedWriter logFileWriter= null;
+	private static Logger loggerInstance;
 
-	private File logFile= null;
+	private File currentLogFile= null;
+
+	private File mainLogFile= null;
 
 	private File knownFilesFile= null;
 
 	private final Properties knownfiles= new Properties(); //Is thread-safe since SE 6
 
-	public static final IPath watchedDirectory= Platform.getStateLocation(
+	public static final IPath WATCHED_DIRECTORY= Platform.getStateLocation(
 			Platform.getBundle(Messages.Logger_LTKBundleName));
 
-	private static final String featureVersion= RefactoringHistoryService.getFeatureVersion().toString();
+	private static final String FEATURE_VERSION= RefactoringHistoryService.getFeatureVersion().toString();
 
 	private static final String CODINGTRACKER_FOLDER= Messages.Logger_ConfigurationFolder;
+
+	private static final IPath CODINGTRACKER_PATH= WATCHED_DIRECTORY.append(FEATURE_VERSION).append(CODINGTRACKER_FOLDER);
 
 	private static final String LOGFILE_NAME= Messages.Logger_CodeChangesFileName;
 
@@ -100,16 +104,22 @@ public class Logger {
 	private static final String REFACTORING_REDONE_SYMBOL= "r"; //$NON-NLS-1$
 
 
-	public Logger() {
-		IPath codingtrackerPath= watchedDirectory.append(featureVersion).append(CODINGTRACKER_FOLDER);
-		IPath logFilePath= codingtrackerPath.append(LOGFILE_NAME);
-		IPath knownfilesFilePath= codingtrackerPath.append(KNOWNFILES_FILE_NAME);
-		logFile= new File(logFilePath.toOSString());
+	public static Logger getInstance() {
+		if (loggerInstance == null) {
+			loggerInstance= new Logger();
+		}
+		return loggerInstance;
+	}
+
+	private Logger() {
+		IPath mainLogFilePath= CODINGTRACKER_PATH.append(LOGFILE_NAME);
+		IPath knownfilesFilePath= CODINGTRACKER_PATH.append(KNOWNFILES_FILE_NAME);
+		mainLogFile= new File(mainLogFilePath.toOSString());
 		knownFilesFile= new File(knownfilesFilePath.toOSString());
-		logFile.getParentFile().mkdirs(); //creates directories for knownFilesFile as well
+		mainLogFile.getParentFile().mkdirs(); //creates directories for knownFilesFile as well
 		try {
-			logFile.createNewFile();
-			logFileWriter= new BufferedWriter(new FileWriter(logFile, true));
+			mainLogFile.createNewFile();
+			currentLogFile= mainLogFile;
 		} catch (IOException e) {
 			logExceptionToErrorLog(e, Messages.Logger_CreateLogFileException);
 		}
@@ -310,7 +320,7 @@ public class Logger {
 			if (javaFile.exists()) { //Actually, should always exist here
 				TextChunk textChunk= new TextChunk(FILE_NEW_SYMBOL);
 				textChunk.append(fileString);
-				textChunk.append(getUnknownFileContent(javaFile));
+				textChunk.append(getFileContent(javaFile));
 				textChunk.append(System.currentTimeMillis());
 				System.out.println("New file: " + textChunk); //$NON-NLS-1$
 				log(textChunk);
@@ -318,7 +328,7 @@ public class Logger {
 		}
 	}
 
-	private String getUnknownFileContent(File file) {
+	private String getFileContent(File file) {
 		String fileContent= null;
 		InputStream inputStream= null;
 		try {
@@ -349,14 +359,53 @@ public class Logger {
 		return fileContent;
 	}
 
-	private synchronized void log(CharSequence text) {
+	/**
+	 * Start writing into a temporary log file
+	 */
+	public synchronized void commitStarted() {
+		System.out.println("START COMMIT"); //$NON-NLS-1$
+		IPath tempLogFilePath= CODINGTRACKER_PATH.append("t" + System.currentTimeMillis() + ".txt"); //$NON-NLS-1$ //$NON-NLS-2$
+		currentLogFile= new File(tempLogFilePath.toOSString());
 		try {
-			logFileWriter= new BufferedWriter(new FileWriter(logFile, true));
+			currentLogFile.createNewFile();
+		} catch (IOException e) {
+			logExceptionToErrorLog(e, Messages.Logger_CreateTempLogFileException);
+		}
+	}
+
+	/**
+	 * Switch back to the main log and append to it whatever was written in the temporary file, then
+	 * erase the temporary file
+	 */
+	public synchronized void commitCompleted() {
+		System.out.println("END COMMIT"); //$NON-NLS-1$
+		File tempFile= currentLogFile;
+		currentLogFile= mainLogFile;
+		String tempContent= getFileContent(tempFile);
+		log(tempContent);
+		tempFile.delete();
+	}
+
+	private synchronized void log(CharSequence text) {
+		BufferedWriter logFileWriter= null;
+		try {
+			long before= currentLogFile.length();
+			System.out.println("Before: " + before); //$NON-NLS-1$
+			logFileWriter= new BufferedWriter(new FileWriter(currentLogFile, true));
 			logFileWriter.append(text);
 			logFileWriter.flush();
-			logFileWriter.close();
+			long after= currentLogFile.length();
+			System.out.println("After: " + after); //$NON-NLS-1$
 		} catch (IOException e) {
 			logExceptionToErrorLog(e, Messages.Logger_AppendLogFileException);
+		} finally {
+			if (logFileWriter != null) {
+				try {
+					logFileWriter.close();
+				} catch (IOException e) {
+					//do nothing
+				}
+			}
 		}
 	}
 

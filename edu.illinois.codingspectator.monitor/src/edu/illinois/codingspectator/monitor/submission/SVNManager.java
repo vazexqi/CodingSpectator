@@ -13,6 +13,7 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
+import edu.illinois.codingspectator.codingtracker.Logger;
 import edu.illinois.codingspectator.monitor.Activator;
 
 /**
@@ -75,7 +76,10 @@ public class SVNManager {
 
 	public void doCommit(String pathToCommit) throws SVNException {
 		File[] pathToCommitFiles= new File[] { new File(pathToCommit) };
+		Logger logger= edu.illinois.codingspectator.codingtracker.Logger.getInstance();
+		logger.commitStarted();
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
+		logger.commitCompleted();
 	}
 
 }

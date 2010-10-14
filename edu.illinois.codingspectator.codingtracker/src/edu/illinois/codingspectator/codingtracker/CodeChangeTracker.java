@@ -82,7 +82,7 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 	}
 
 	private CodeChangeTracker() {
-		logger= new Logger();
+		logger= Logger.getInstance();
 	}
 
 	public void start() {

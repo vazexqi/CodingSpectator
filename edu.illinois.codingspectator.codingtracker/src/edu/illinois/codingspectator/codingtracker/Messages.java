@@ -11,6 +11,8 @@ public class Messages extends NLS {
 
 	public static String Logger_CreateLogFileException;
 
+	public static String Logger_CreateTempLogFileException;
+
 	public static String Logger_UnrecognizedRefactoringType;
 
 	public static String Logger_FailedToGetRefactoringArguments;
