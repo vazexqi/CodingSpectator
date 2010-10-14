@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="edu.illinois.codingspectator.monitor.submitter">
+      <submitterListener
+            class="edu.illinois.codingspectator.codingtracker.LoggerSubmitterListener"
+            id="edu.illinois.codingspectator.codingtracker.submitterListener"
+            name="edu.illinois.codingspectator.codingtracker.submitterListener">
+      </submitterListener>
+   </extension>
 
 </plugin>

@@ -14,7 +14,6 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
-import edu.illinois.codingspectator.codingtracker.Logger;
 import edu.illinois.codingspectator.monitor.Activator;
 
 /**

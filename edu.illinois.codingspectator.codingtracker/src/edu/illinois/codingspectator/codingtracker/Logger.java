@@ -53,11 +53,16 @@ public class Logger {
 	public static final IPath WATCHED_DIRECTORY= Platform.getStateLocation(
 			Platform.getBundle(Messages.Logger_LTKBundleName));
 
+	public static final IPath CODINGTRACKER_DIRECTORY= Platform.getStateLocation(
+			Platform.getBundle(Activator.PLUGIN_ID));
+
 	private static final String FEATURE_VERSION= RefactoringHistoryService.getFeatureVersion().toString();
 
-	private static final String CODINGTRACKER_FOLDER= Messages.Logger_ConfigurationFolder;
+	private static final String LOGGER_FOLDER= Messages.Logger_ConfigurationFolder;
 
-	private static final IPath CODINGTRACKER_PATH= WATCHED_DIRECTORY.append(FEATURE_VERSION).append(CODINGTRACKER_FOLDER);
+	private static final IPath LOGGER_PATH= WATCHED_DIRECTORY.append(FEATURE_VERSION).append(LOGGER_FOLDER);
+
+	private static final IPath KNOWNFILES_PATH= CODINGTRACKER_DIRECTORY.append(FEATURE_VERSION);
 
 	private static final String LOGFILE_NAME= Messages.Logger_CodeChangesFileName;
 
@@ -112,11 +117,12 @@ public class Logger {
 	}
 
 	private Logger() {
-		IPath mainLogFilePath= CODINGTRACKER_PATH.append(LOGFILE_NAME);
-		IPath knownfilesFilePath= CODINGTRACKER_PATH.append(KNOWNFILES_FILE_NAME);
+		IPath mainLogFilePath= LOGGER_PATH.append(LOGFILE_NAME);
+		IPath knownfilesFilePath= KNOWNFILES_PATH.append(KNOWNFILES_FILE_NAME);
 		mainLogFile= new File(mainLogFilePath.toOSString());
 		knownFilesFile= new File(knownfilesFilePath.toOSString());
-		mainLogFile.getParentFile().mkdirs(); //creates directories for knownFilesFile as well
+		mainLogFile.getParentFile().mkdirs();
+		knownFilesFile.getParentFile().mkdirs();
 		try {
 			mainLogFile.createNewFile();
 			currentLogFile= mainLogFile;
@@ -364,7 +370,7 @@ public class Logger {
 	 */
 	public synchronized void commitStarted() {
 		System.out.println("START COMMIT"); //$NON-NLS-1$
-		IPath tempLogFilePath= CODINGTRACKER_PATH.append("t" + System.currentTimeMillis() + ".txt"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath tempLogFilePath= LOGGER_PATH.append("t" + System.currentTimeMillis() + ".txt"); //$NON-NLS-1$ //$NON-NLS-2$
 		currentLogFile= new File(tempLogFilePath.toOSString());
 		try {
 			currentLogFile.createNewFile();
