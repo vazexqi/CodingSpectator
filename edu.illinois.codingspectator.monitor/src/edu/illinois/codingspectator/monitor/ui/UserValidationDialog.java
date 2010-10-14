@@ -53,7 +53,7 @@ public class UserValidationDialog extends Dialog {
 		this.titleMessage= titleMessage;
 		this.message= message;
 
-		this.result= new AuthenticationInfo(initialUsername,"", false);
+		this.result= new AuthenticationInfo(initialUsername, "", false);
 
 		this.dialogImageType= dialogImageType;
 	}
@@ -107,13 +107,16 @@ public class UserValidationDialog extends Dialog {
 		label= new Label(fieldContainer, SWT.NONE);
 		label.setText(Messages.UserValidationDialog_Username);
 		username= new Text(fieldContainer, SWT.BORDER);
+		username.setEnabled(false);
 		username.setEditable(false);
 		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		username.setLayoutData(layoutData);
 		username.setText(getUserName());
 
-		if (isUsernameEmpty())
+		if (isUsernameEmpty()) {
 			username.setEditable(true);
+			username.setEnabled(true);
+		}
 
 		label= new Label(fieldContainer, SWT.NONE);
 		label.setText(Messages.UserValidationDialog_Password);
