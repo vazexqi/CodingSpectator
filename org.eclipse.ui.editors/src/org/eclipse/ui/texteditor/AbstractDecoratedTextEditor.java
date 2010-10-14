@@ -160,8 +160,11 @@ import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
  * An intermediate editor comprising functionality not present in the leaner <code>AbstractTextEditor</code>,
  * but used in many heavy weight (and especially source editing) editors, such as line numbers,
  * change ruler, overview ruler, print margins, current line highlighting, etc.
- *
- * @since 3.0
+ * 
+ * @author Stas Negara - Added getHackedViewer() in order to get public access to the source viewer
+ *         
+* @since 3.0
+ * 
  */
 public abstract class AbstractDecoratedTextEditor extends StatusTextEditor {
 
@@ -306,7 +309,6 @@ public abstract class AbstractDecoratedTextEditor extends StatusTextEditor {
 	private FocusedInformationPresenter fInformationPresenter;
 
 	
-	//Stas:
 	public final ISourceViewer getHackedViewer() {
 		return getSourceViewer();
 	}
