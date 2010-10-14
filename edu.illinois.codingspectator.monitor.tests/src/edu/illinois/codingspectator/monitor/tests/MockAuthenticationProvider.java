@@ -18,7 +18,7 @@ public class MockAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
-		return new AuthenticationInfo("nchen", "nchen", false);
+		return new AuthenticationInfo("nchen", "nchen", false); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -27,6 +27,11 @@ public class MockAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public void saveAuthenticationInfo(AuthenticationInfo authenticationInfo) {
+	}
+
+	@Override
+	public String getRepositoryURL() {
+		return Messages.MockAuthenticationProvider_TestRepositoryURL;
 	}
 
 }

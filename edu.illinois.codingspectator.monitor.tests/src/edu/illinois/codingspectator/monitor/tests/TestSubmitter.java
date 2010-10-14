@@ -29,7 +29,6 @@ import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
-import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
 import edu.illinois.codingspectator.monitor.submission.Submitter;
 import edu.illinois.codingspectator.monitor.submission.Submitter.CanceledDialogException;
@@ -59,8 +58,6 @@ public class TestSubmitter {
 
 	private static final String PASSWORD= "nchen";
 
-//	private static final String UUID_FOR_TESTING= "00000000-0000-0000-0000-000000000000";
-
 	private static final String FILENAME= "foo";
 
 	private static Submitter submitter;
@@ -80,7 +77,7 @@ public class TestSubmitter {
 		UUID= PrefsFacade.getInstance().getAndSetUUIDLazily();
 		submitter= new Submitter(new MockAuthenticationProvider());
 
-		urlManager= new URLManager(Messages.Submitter_RepositoryBaseURL, USERNAME);
+		urlManager= new URLManager(Messages.MockAuthenticationProvider_TestRepositoryURL, USERNAME);
 
 		//Create a new SVNWCClient directly to be used to verify repository properties
 		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);
@@ -117,14 +114,13 @@ public class TestSubmitter {
 
 		// Check that the file has been created remotely.
 		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalRepositoryURL(), FILENAME));
-//		SVNURL url0= SVNURL.parseURIEncoded(Messages.Submitter_RepositoryBaseURL + "/" + USERNAME + "/" + UUID + "/" + FILENAME);
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
 
 	private void createTempFileLocally() throws CoreException {
 		// Create a file that will be added and committed.
-		IPath LTKdataLocation= Platform.getStateLocation(Platform.getBundle(Messages.Submitter_LTKBundleName));
+		IPath LTKdataLocation= Platform.getStateLocation(Platform.getBundle(edu.illinois.codingspectator.monitor.Messages.Submitter_LTKBundleName));
 		IFileStore fileStore= EFS.getLocalFileSystem().getStore(LTKdataLocation.append(FILENAME));
 		OutputStream outputStream= fileStore.openOutputStream(EFS.ATTRIBUTE_GROUP_READ | EFS.ATTRIBUTE_GROUP_WRITE, new NullProgressMonitor());
 		PrintWriter printWriter= new PrintWriter(outputStream);
