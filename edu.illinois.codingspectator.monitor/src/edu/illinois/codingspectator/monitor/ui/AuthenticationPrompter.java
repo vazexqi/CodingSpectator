@@ -15,10 +15,14 @@ import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.wc.SVNInfo;
 
 import edu.illinois.codingspectator.monitor.Activator;
 import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
+import edu.illinois.codingspectator.monitor.submission.SVNManager;
+import edu.illinois.codingspectator.monitor.submission.Submitter;
 
 /**
  * 
@@ -41,10 +45,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
-				Shell shell= getDefaultParentShell();
-				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
-				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, dialogState.getDialogType());
+				UserValidationDialog dialog= setupDialog(loginDestination);
 				if (dialog.open() == Window.OK) {
 					result[0]= dialog.getResult();
 				} else { // If cancel was invoked
@@ -52,9 +53,30 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 				}
 			}
 
+			private UserValidationDialog setupDialog(final String loginDestination) {
+				Shell shell= getDefaultParentShell();
+				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
+				String username= getSVNWorkingCopyUsername();
+				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
+
+				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());
+				return dialog;
+			}
+
 		});
 		dialogState.changeState();
 		return result[0];
+	}
+
+	protected String getSVNWorkingCopyUsername() {
+		SVNManager manager= new SVNManager();
+		try {
+			SVNInfo info= manager.doInfo(Submitter.watchedDirectory);
+			return info.getAuthor();
+		} catch (SVNException e) {
+			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
+			return "";
+		}
 	}
 
 	/**
