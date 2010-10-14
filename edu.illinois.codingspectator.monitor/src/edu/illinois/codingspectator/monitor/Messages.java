@@ -27,7 +27,7 @@ public class Messages extends NLS {
 
 	public static String Submitter_LTKBundleName;
 
-	public static String Submitter_RepositoryBaseURL;
+	public static String Submitter_ProductionRepositoryURL;
 
 	public static String UserValidationDialog_Password;
 

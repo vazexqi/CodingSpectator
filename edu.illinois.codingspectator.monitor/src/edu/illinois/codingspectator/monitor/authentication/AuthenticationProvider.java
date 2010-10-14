@@ -23,4 +23,6 @@ public interface AuthenticationProvider {
 
 	public abstract void saveAuthenticationInfo(AuthenticationInfo authenticationInfo) throws StorageException, IOException;
 
+	public abstract String getRepositoryURL();
+
 }

@@ -173,4 +173,9 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		return null;
 	}
 
+	@Override
+	public String getRepositoryURL() {
+		return Messages.Submitter_ProductionRepositoryURL;
+	}
+
 }
