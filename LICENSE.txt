@@ -71,6 +71,7 @@ all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.core.refactoring
   * org.eclipse.ltk.ui.refactoring
   * org.eclipse.jdt.ui
+  * org.eclipse.ui.editors
  
 * CodingSpectator depends on a plug-in that contains the binary form of the
 SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed

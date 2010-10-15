@@ -33,11 +33,14 @@ import edu.illinois.codingspectator.monitor.submission.Submitter;
  * 
  * @author Mohsen Vakilian
  * @author nchen
+ * @author Stas Negara
  * 
  */
 public class WorkbenchPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	private StringFieldEditor lastUploadTextField;
+
+	private StringFieldEditor uiudTextField;
 
 	public WorkbenchPreferencePage() {
 		super(GRID);
@@ -49,30 +52,13 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 		IPreferenceStore preferenceStore= PrefsFacade.getInstance().getPreferenceStore();
 		setPreferenceStore(preferenceStore);
 		setDescription(Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_Title));
-
-		preferenceStore.addPropertyChangeListener(new IPropertyChangeListener() {
-
-			@Override
-			public void propertyChange(final PropertyChangeEvent event) {
-				if (event.getProperty().equals(Messages.PrefsFacade_LastUploadTimeKey)) {
-					Display.getDefault().syncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							lastUploadTextField.setStringValue((String)event.getNewValue());
-
-						}
-					});
-
-					;
-				}
-			}
-		});
+		preferenceStore.addPropertyChangeListener(new LastUploadChangeListener(Messages.PrefsFacade_LastUploadTimeKey));
+		preferenceStore.addPropertyChangeListener(new UIUDChangeListener(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey));
 	}
 
 	@Override
 	protected void createFieldEditors() {
-		addDisabledTextField(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, Messages.WorkbenchPreferencePage_UUIDTextField);
+		uiudTextField= addDisabledTextField(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, Messages.WorkbenchPreferencePage_UUIDTextField);
 		lastUploadTextField= addDisabledTextField(Messages.PrefsFacade_LastUploadTimeKey, Messages.WorkbenchPreferencePage_LastUploadTextField);
 		createUploadNowButton();
 	}
@@ -108,6 +94,66 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 			}
 
 		});
+
+	}
+
+	/**
+	 * This class implements a listener that updates a given field editor whenever its preference
+	 * key changes.
+	 * 
+	 */
+	public abstract class PreferenceChangeListener implements IPropertyChangeListener {
+
+		final String preferenceKey;
+
+		public PreferenceChangeListener(String preferenceKey) {
+			super();
+			this.preferenceKey= preferenceKey;
+		}
+
+		protected abstract StringFieldEditor getFieldEditor();
+
+		@Override
+		public void propertyChange(final PropertyChangeEvent event) {
+			if (event.getProperty().equals(preferenceKey)) {
+				Display.getDefault().syncExec(new Runnable() {
+
+					@Override
+					public void run() {
+						getFieldEditor().setStringValue((String)event.getNewValue());
+
+					}
+				});
+
+				;
+			}
+		}
+
+	}
+
+	public class LastUploadChangeListener extends PreferenceChangeListener {
+
+		public LastUploadChangeListener(String preferenceKey) {
+			super(preferenceKey);
+		}
+
+		@Override
+		protected StringFieldEditor getFieldEditor() {
+			return lastUploadTextField;
+		}
+
+	}
+
+	public class UIUDChangeListener extends PreferenceChangeListener {
+
+		public UIUDChangeListener(String preferenceKey) {
+			super(preferenceKey);
+		}
+
+		@Override
+		protected StringFieldEditor getFieldEditor() {
+			return uiudTextField;
+		}
 
 	}
 
