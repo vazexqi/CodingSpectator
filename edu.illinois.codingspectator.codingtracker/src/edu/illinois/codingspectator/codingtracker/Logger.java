@@ -72,8 +72,8 @@ public class Logger {
 
 	private static final long REFRESH_INTERVAL= 7 * 24 * 60 * 60 * 1000; //Refresh knownfiles every 7 days
 
-	//Used symbols: 16, remaining symbols:
-	//g i j k n q v w y z
+	//Used symbols: 17, remaining symbols:
+	//g j k n q v w y z
 
 	private static final String ECLIPSE_SESSION_SYMBOL= "l"; //$NON-NLS-1$
 
@@ -85,6 +85,8 @@ public class Logger {
 	private static final String FILE_EXTERNALLY_MODIFIED_SYMBOL= "x"; //$NON-NLS-1$ 
 
 	private static final String FILE_UPDATED_SYMBOL= "m"; //$NON-NLS-1$
+
+	private static final String FILE_INITIALLY_COMMITTED_SYMBOL= "i"; //$NON-NLS-1$
 
 	private static final String FILE_COMMITTED_SYMBOL= "o"; //$NON-NLS-1$
 
@@ -213,6 +215,16 @@ public class Logger {
 			textChunk.append(file.getFullPath().toPortableString());
 			textChunk.append(System.currentTimeMillis());
 			System.out.println("File updated: " + textChunk); //$NON-NLS-1$
+			log(textChunk);
+		}
+	}
+
+	public void logInitiallyCommittedFiles(Set<IFile> initiallyCommittedFiles) {
+		for (IFile file : initiallyCommittedFiles) {
+			TextChunk textChunk= new TextChunk(FILE_INITIALLY_COMMITTED_SYMBOL);
+			textChunk.append(file.getFullPath().toPortableString());
+			textChunk.append(System.currentTimeMillis());
+			System.out.println("File initially committed: " + textChunk); //$NON-NLS-1$
 			log(textChunk);
 		}
 	}

@@ -193,7 +193,7 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			isRedoing= false;
 		}
 		if (eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.REDONE) {
-			if (currentEditor.isDirty()) {
+			if (currentEditor != null && currentEditor.isDirty()) {
 				dirtyFiles.add(currentFile);
 			} else {
 				dirtyFiles.remove(currentFile);
@@ -228,8 +228,10 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 	public void resourceChanged(IResourceChangeEvent event) {
 		IResourceDelta delta= event.getDelta();
 		if (delta != null) { //why could it be null?
+			final Set<IFile> addedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> changedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> removedJavaFiles= new HashSet<IFile>();
+			final Set<IFile> svnAddedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> svnChangedJavaFiles= new HashSet<IFile>();
 			try {
 				delta.accept(new IResourceDeltaVisitor() {
@@ -239,27 +241,37 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 						IResource resource= delta.getResource();
 						if (resource.getType() == IResource.FILE) {
 							IFile file= (IFile)resource;
-							String fileExtension= file.getFileExtension();
-							if (fileExtension != null) {
-								if (fileExtension.equals("java")) { //$NON-NLS-1$
-									if ((delta.getKind() == IResourceDelta.CHANGED) && ((delta.getFlags() & IResourceDelta.CONTENT) != 0)) {
-										changedJavaFiles.add(file);
-									} else if (delta.getKind() == IResourceDelta.REMOVED) {
+							String fileExtension= file.getFileExtension(); //may be null
+							if ("java".equals(fileExtension)) { //$NON-NLS-1$
+								switch (delta.getKind()) {
+									case IResourceDelta.ADDED:
+										addedJavaFiles.add(file);
+										break;
+									case IResourceDelta.REMOVED:
 										removedJavaFiles.add(file);
-									}
-								} else if (fileExtension.equals("svn-base") && //$NON-NLS-1$
-										(delta.getKind() == IResourceDelta.CHANGED) && ((delta.getFlags() & IResourceDelta.CONTENT) != 0)) {
-									String fileName= file.getName();
-									if (fileName.endsWith(".java.svn-base")) { //$NON-NLS-1$
-										IPath fileFullPath= file.getFullPath();
-										String parentDir= fileFullPath.segment(fileFullPath.segmentCount() - 2);
-										if (parentDir.equals("text-base")) { //$NON-NLS-1$
-											String javaSourceFileName= fileName.substring(0, fileName.lastIndexOf(".")); //$NON-NLS-1$
-											IPath javaSourceFilePath= fileFullPath.removeLastSegments(3).append(javaSourceFileName);
-											IFile javaSourceFile= ResourcesPlugin.getWorkspace().getRoot().getFile(javaSourceFilePath);
-											svnChangedJavaFiles.add(javaSourceFile);
+										break;
+									case IResourceDelta.CHANGED:
+										if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
+											changedJavaFiles.add(file);
 										}
-									}
+										break;
+								}
+							} else if ("svn-base".equals(fileExtension)) { //$NON-NLS-1$
+								switch (delta.getKind()) {
+									case IResourceDelta.ADDED:
+										IFile javaSourceFile= getJavaSourceFileForSVNFile(file);
+										if (javaSourceFile != null) {
+											svnAddedJavaFiles.add(javaSourceFile);
+										}
+										break;
+									case IResourceDelta.CHANGED:
+										if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
+											javaSourceFile= getJavaSourceFileForSVNFile(file);
+											if (javaSourceFile != null) {
+												svnChangedJavaFiles.add(javaSourceFile);
+											}
+										}
+										break;
 								}
 							}
 						}
@@ -272,12 +284,18 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			final Set<IFile> savedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> externallyModifiedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> updatedJavaFiles= new HashSet<IFile>();
+			final Set<IFile> initiallyCommittedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> committedJavaFiles= new HashSet<IFile>();
 			for (IFile file : svnChangedJavaFiles) {
 				if (changedJavaFiles.contains(file)) {
 					updatedJavaFiles.add(file); //if both the java file and its svn storage have changed, then its an update
 				} else {
 					committedJavaFiles.add(file); //if only svn storage of a java file has changed, its a commit
+				}
+			}
+			for (IFile file : svnAddedJavaFiles) {
+				if (!addedJavaFiles.contains(file)) { //if only svn storage was added for a file, its an initial commit
+					initiallyCommittedJavaFiles.add(file);
 				}
 			}
 			for (IFile file : changedJavaFiles) {
@@ -294,11 +312,34 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			logger.logSavedFiles(savedJavaFiles, isRefactoring);
 			logger.logExternallyModifiedFiles(externallyModifiedJavaFiles);
 			logger.logUpdatedFiles(updatedJavaFiles);
+			logger.logInitiallyCommittedFiles(initiallyCommittedJavaFiles);
 			logger.logCommittedFiles(committedJavaFiles);
 			removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
 			removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
 			logger.removeKnownFiles(removedJavaFiles);
 		}
+	}
+
+	/**
+	 * Returns null if there is no corresponding Java source file (e.g. when the SVN file is not
+	 * from text-base folder).
+	 * 
+	 * @param svnFile
+	 * @return
+	 */
+	private IFile getJavaSourceFileForSVNFile(IFile svnFile) {
+		IFile javaSourceFile= null;
+		String fileName= svnFile.getName();
+		if (fileName.endsWith(".java.svn-base")) { //$NON-NLS-1$
+			IPath fileFullPath= svnFile.getFullPath();
+			String parentDir= fileFullPath.segment(fileFullPath.segmentCount() - 2);
+			if (parentDir.equals("text-base")) { //$NON-NLS-1$
+				String javaSourceFileName= fileName.substring(0, fileName.lastIndexOf(".")); //$NON-NLS-1$
+				IPath javaSourceFilePath= fileFullPath.removeLastSegments(3).append(javaSourceFileName);
+				javaSourceFile= ResourcesPlugin.getWorkspace().getRoot().getFile(javaSourceFilePath);
+			}
+		}
+		return javaSourceFile;
 	}
 
 	@Override
