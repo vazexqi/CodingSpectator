@@ -3,5 +3,9 @@
    <description name="CodingSpectator Update Site" url="http://codingspectator.cs.illinois.edu/updates">
       CodingSpectator Update Site
    </description>
-   <category-def name="CodingSpectator" label="CodingSpectator"/>
+   <category-def name="CodingSpectator" label="CodingSpectator">
+      <description>
+         This category contains all the artifacts for the installation of CodingSpectator.
+      </description>
+   </category-def>
 </site>
