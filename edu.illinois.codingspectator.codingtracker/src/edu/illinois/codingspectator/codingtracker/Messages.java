@@ -5,6 +5,8 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME= "edu.illinois.codingspectator.codingtracker.messages"; //$NON-NLS-1$
 
+	public static String Activator_Debugging_Mode;
+
 	public static String Logger_CodeChangesFileName;
 
 	public static String Logger_LTKBundleName;

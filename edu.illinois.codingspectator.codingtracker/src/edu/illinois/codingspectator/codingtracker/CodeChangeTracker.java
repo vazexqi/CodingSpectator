@@ -105,7 +105,9 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 	}
 
 	public void start() {
-		System.out.println("Early startup");
+		if (Activator.isInDebugMode) {
+			System.out.println("Early startup");
+		}
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(trackerInstance, IResourceChangeEvent.POST_CHANGE);
 		OperationHistoryFactory.getOperationHistory().addOperationHistoryListener(trackerInstance);
 		RefactoringCore.getHistoryService().addExecutionListener(trackerInstance);
@@ -224,8 +226,9 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-//		System.out.println("NOTIFIED!");		
-		System.out.println("Part=" + part.getClass().getName());
+		if (Activator.isInDebugMode) {
+			System.out.println("Part=" + part.getClass().getName());
+		}
 		IFile newFile= null;
 		ISourceViewer sourceViewer= null;
 		if (part instanceof CompareEditor) {
@@ -242,7 +245,9 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			addEditor(currentEditor, newFile);
 			if (!newFile.equals(currentFile)) {
 				currentFile= newFile;
-				System.out.println("File:\"" + Logger.getPortableFilePath(currentFile) + "\"");
+				if (Activator.isInDebugMode) {
+					System.out.println("File:\"" + Logger.getPortableFilePath(currentFile) + "\"");
+				}
 			}
 			if (listenedViewer != null) {
 				listenedViewer.removeTextListener(trackerInstance);
@@ -328,7 +333,9 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 								IResource resource= ((CompilationUnit)affectedObject).getResource();
 								if (resource instanceof IFile) { //Could it be something else?
 									IFile file= (IFile)resource;
-//									System.out.println("File to be modified:" + Logger.getPortableFilePath(file));
+									if (Activator.isInDebugMode) {
+										System.out.println("File to be modified:" + Logger.getPortableFilePath(file));
+									}
 									logger.ensureIsKnownFile(file);
 								}
 							}

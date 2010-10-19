@@ -162,8 +162,10 @@ public class Logger {
 	public void logTextEvent(TextEvent event, IFile editedFile, boolean isUndoing, boolean isRedoing) {
 		//Use DocumentEvent to get correct, file-based offsets (which do not depend on expanding/collapsing of import statements,methods,etc.)
 		DocumentEvent documentEvent= event.getDocumentEvent(); //should never be null in this method
-//		System.out.println("Replaced text:\"" + (event.getReplacedText() == null ? "" : event.getReplacedText()) + //$NON-NLS-1$ //$NON-NLS-2$
-//				"\", new text:\"" + documentEvent.getText() + "\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (Activator.isInDebugMode) {
+//			System.out.println("Replaced text:\"" + (event.getReplacedText() == null ? "" : event.getReplacedText()) + //$NON-NLS-1$ //$NON-NLS-2$
+//					"\", new text:\"" + documentEvent.getText() + "\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
 		if (!editedFile.equals(lastEditedFile) || !knownfiles.containsKey(getPortableFilePath(editedFile))) {
 			lastEditedFile= editedFile;
 			ensureIsKnownFile(lastEditedFile);
@@ -185,7 +187,9 @@ public class Logger {
 		textChunk.append(documentEvent.getOffset());
 		textChunk.append(documentEvent.getLength());
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("Change: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("Change: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -207,7 +211,9 @@ public class Logger {
 		textChunk.append(documentEvent.getOffset());
 		textChunk.append(documentEvent.getLength());
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("Conflict editor change: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("Conflict editor change: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -215,7 +221,9 @@ public class Logger {
 		TextChunk textChunk= new TextChunk(FILE_EDIT_SYMBOL);
 		textChunk.append(getPortableFilePath(lastEditedFile));
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("File edited: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("File edited: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -225,7 +233,9 @@ public class Logger {
 		textChunk.append(getPortableFilePath(editedFile));
 		textChunk.append(initialContent);
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("Conflict editor opened: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("Conflict editor opened: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -239,7 +249,9 @@ public class Logger {
 			}
 			textChunk.append(getPortableFilePath(file));
 			textChunk.append(System.currentTimeMillis());
-			System.out.println("File saved: " + textChunk); //$NON-NLS-1$
+			if (Activator.isInDebugMode) {
+				System.out.println("File saved: " + textChunk); //$NON-NLS-1$
+			}
 			log(textChunk);
 		}
 	}
@@ -249,7 +261,9 @@ public class Logger {
 			TextChunk textChunk= new TextChunk(CONFLICT_EDITOR_SAVED_SYMBOL);
 			textChunk.append(conflictEditorID);
 			textChunk.append(System.currentTimeMillis());
-			System.out.println("Conflict editor saved: " + textChunk); //$NON-NLS-1$
+			if (Activator.isInDebugMode) {
+				System.out.println("Conflict editor saved: " + textChunk); //$NON-NLS-1$
+			}
 			log(textChunk);
 		}
 	}
@@ -259,7 +273,9 @@ public class Logger {
 			TextChunk textChunk= new TextChunk(FILE_EXTERNALLY_MODIFIED_SYMBOL);
 			textChunk.append(getPortableFilePath(file));
 			textChunk.append(System.currentTimeMillis());
-			System.out.println("File externally modified: " + textChunk); //$NON-NLS-1$
+			if (Activator.isInDebugMode) {
+				System.out.println("File externally modified: " + textChunk); //$NON-NLS-1$
+			}
 			log(textChunk);
 		}
 	}
@@ -269,7 +285,9 @@ public class Logger {
 			TextChunk textChunk= new TextChunk(FILE_UPDATED_SYMBOL);
 			textChunk.append(getPortableFilePath(file));
 			textChunk.append(System.currentTimeMillis());
-			System.out.println("File updated: " + textChunk); //$NON-NLS-1$
+			if (Activator.isInDebugMode) {
+				System.out.println("File updated: " + textChunk); //$NON-NLS-1$
+			}
 			log(textChunk);
 		}
 	}
@@ -304,7 +322,9 @@ public class Logger {
 				textChunk.append(getFileContent(javaFile));
 				long timestamp= System.currentTimeMillis();
 				textChunk.append(timestamp);
-				System.out.println(debugMessage + textChunk);
+				if (Activator.isInDebugMode) {
+					System.out.println(debugMessage + textChunk);
+				}
 				log(textChunk);
 				knownfiles.setProperty(portableFilePath, String.valueOf(timestamp));
 			}
@@ -316,7 +336,9 @@ public class Logger {
 		TextChunk textChunk= new TextChunk(FILE_CLOSED_SYMBOL);
 		textChunk.append(getPortableFilePath(file));
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("File closed: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("File closed: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -324,14 +346,18 @@ public class Logger {
 		TextChunk textChunk= new TextChunk(CONFLICT_EDITOR_CLOSED_SYMBOL);
 		textChunk.append(editorID);
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("Conflcit editor closed: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("Conflcit editor closed: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
 	public void logRefactoringStarted() {
 		TextChunk textChunk= new TextChunk(REFACTORING_STARTED_SYMBOL);
 		textChunk.append(System.currentTimeMillis());
-		System.out.println("Refactoring started: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("Refactoring started: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -339,16 +365,20 @@ public class Logger {
 	public void logRefactoringExecutionEvent(RefactoringExecutionEvent event) {
 		RefactoringDescriptorProxy refactoringDescriptorProxy= event.getDescriptor();
 		RefactoringDescriptor refactoringDescriptor= refactoringDescriptorProxy.requestDescriptor(new NullProgressMonitor());
-//		System.out.println("Refactoring descriptor id: " + refactoringDescriptor.getID()); //$NON-NLS-1$
-//		System.out.println("Project: " + refactoringDescriptor.getProject()); //$NON-NLS-1$
-//		System.out.println("Flags: " + refactoringDescriptor.getFlags()); //$NON-NLS-1$
-//		System.out.println("Timestamp: " + refactoringDescriptor.getTimeStamp()); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+//			System.out.println("Refactoring descriptor id: " + refactoringDescriptor.getID()); //$NON-NLS-1$
+//			System.out.println("Project: " + refactoringDescriptor.getProject()); //$NON-NLS-1$
+//			System.out.println("Flags: " + refactoringDescriptor.getFlags()); //$NON-NLS-1$
+//			System.out.println("Timestamp: " + refactoringDescriptor.getTimeStamp()); //$NON-NLS-1$
+		}
 		Map arguments= getRefactoringArguments(refactoringDescriptor);
 		Set keys= arguments.keySet();
-//		for (Object key : keys) {
-//			Object value= arguments.get(key);
-//			System.out.println("Argument \"" + key + "\" = \"" + value + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//		}
+		if (Activator.isInDebugMode) {
+//			for (Object key : keys) {
+//				Object value= arguments.get(key);
+//				System.out.println("Argument \"" + key + "\" = \"" + value + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//			}
+		}
 		TextChunk textChunk= null;
 		switch (event.getEventType()) {
 			case RefactoringExecutionEvent.PERFORMED:
@@ -374,7 +404,9 @@ public class Logger {
 			textChunk.append(value);
 		}
 		textChunk.append(refactoringDescriptor.getTimeStamp());
-		System.out.println("Refactoring info: " + textChunk); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("Refactoring info: " + textChunk); //$NON-NLS-1$
+		}
 		log(textChunk);
 	}
 
@@ -421,7 +453,9 @@ public class Logger {
 				textChunk.append(fileString);
 				textChunk.append(getFileContent(javaFile));
 				textChunk.append(System.currentTimeMillis());
-				System.out.println("New file: " + textChunk); //$NON-NLS-1$
+				if (Activator.isInDebugMode) {
+					System.out.println("New file: " + textChunk); //$NON-NLS-1$
+				}
 				log(textChunk);
 			}
 		}
@@ -462,7 +496,9 @@ public class Logger {
 	 * Start writing into a temporary log file
 	 */
 	public synchronized void commitStarted() {
-		System.out.println("START COMMIT"); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("START COMMIT"); //$NON-NLS-1$
+		}
 		IPath tempLogFilePath= LOGGER_PATH.append("t" + System.currentTimeMillis() + ".txt"); //$NON-NLS-1$ //$NON-NLS-2$
 		currentLogFile= new File(tempLogFilePath.toOSString());
 		try {
@@ -477,7 +513,9 @@ public class Logger {
 	 * erase the temporary file
 	 */
 	public synchronized void commitCompleted() {
-		System.out.println("END COMMIT"); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("END COMMIT"); //$NON-NLS-1$
+		}
 		File tempFile= currentLogFile;
 		currentLogFile= mainLogFile;
 		String tempContent= getFileContent(tempFile);
@@ -488,13 +526,15 @@ public class Logger {
 	private synchronized void log(CharSequence text) {
 		BufferedWriter logFileWriter= null;
 		try {
-			long before= currentLogFile.length();
-			System.out.println("Before: " + before); //$NON-NLS-1$
+			if (Activator.isInDebugMode) {
+				System.out.println("Before: " + currentLogFile.length()); //$NON-NLS-1$
+			}
 			logFileWriter= new BufferedWriter(new FileWriter(currentLogFile, true));
 			logFileWriter.append(text);
 			logFileWriter.flush();
-			long after= currentLogFile.length();
-			System.out.println("After: " + after); //$NON-NLS-1$
+			if (Activator.isInDebugMode) {
+				System.out.println("After: " + currentLogFile.length()); //$NON-NLS-1$
+			}
 		} catch (IOException e) {
 			logExceptionToErrorLog(e, Messages.Logger_AppendLogFileException);
 		} finally {
@@ -509,7 +549,9 @@ public class Logger {
 	}
 
 	private synchronized void logKnownfiles() {
-		System.out.println("logKnownfiles"); //$NON-NLS-1$
+		if (Activator.isInDebugMode) {
+			System.out.println("logKnownfiles"); //$NON-NLS-1$
+		}
 		BufferedWriter knownfilesFileWriter= null;
 		try {
 			knownfilesFileWriter= new BufferedWriter(new FileWriter(knownFilesFile));

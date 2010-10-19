@@ -16,6 +16,8 @@ public class Activator implements BundleActivator {
 	// The plug-in ID
 	public static final String PLUGIN_ID= "edu.illinois.codingspectator.codingtracker"; //$NON-NLS-1$
 
+	public static final boolean isInDebugMode= System.getenv(Messages.Activator_Debugging_Mode) != null;
+
 	private static BundleContext context;
 
 	static BundleContext getContext() {
