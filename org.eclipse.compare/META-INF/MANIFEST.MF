@@ -21,7 +21,7 @@ Export-Package: org.eclipse.compare,org.eclipse.compare.contentmergevi
  e.internal.merge;x-internal:=true,org.eclipse.compare.internal.patch;
  x-internal:=true,org.eclipse.compare.patch,org.eclipse.compare.struct
  uremergeviewer
-Bundle-Version: 3.5.100.I20100526-0800
+Bundle-Version: 3.9.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Bundle-Name: %pluginName
