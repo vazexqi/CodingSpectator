@@ -10,54 +10,58 @@
  *******************************************************************************/
 package org.eclipse.compare.internal;
 
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.text.TextViewer;
-import org.eclipse.jface.viewers.IPostSelectionProvider;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.widgets.Widget;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.ListenerList;
+
+import org.eclipse.jface.viewers.IPostSelectionProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.text.TextViewer;
+
 
 /**
- * A selection provider for view parts with more that one viewer. Tracks the focus of the viewers to
- * provide the correct selection.
+ * A selection provider for view parts with more that one viewer. Tracks the
+ * focus of the viewers to provide the correct selection.
  * 
- * This is a modified version of org.eclipse.jdt.internal.ui.viewsupport.SelectionProviderMediator
+ * This is a modified version of
+ * org.eclipse.jdt.internal.ui.viewsupport.SelectionProviderMediator
  */
 public class CompareEditorSelectionProvider implements IPostSelectionProvider {
 
 	private class InternalListener implements ISelectionChangedListener, FocusListener {
 		/*
-		 * @see ISelectionChangedListener#selectionChanged
-		 */
+	 	 * @see ISelectionChangedListener#selectionChanged
+	 	 */
 		public void selectionChanged(SelectionChangedEvent event) {
 			doSelectionChanged(event);
 		}
 
-		/*
-		 * @see FocusListener#focusGained
-		 */
-		public void focusGained(FocusEvent e) {
-			// expecting a StyledText widget here
-			doFocusChanged(e.widget);
-		}
+	    /*
+	     * @see FocusListener#focusGained
+	     */
+	    public void focusGained(FocusEvent e) {
+	    	// expecting a StyledText widget here
+	    	doFocusChanged(e.widget);
+	    }
 
-		/*
-		 * @see FocusListener#focusLost
-		 */
-		public void focusLost(FocusEvent e) {
-			// do not reset due to focus behavior on GTK
-			//fViewerInFocus= null;
-		}
+	    /*
+	     * @see FocusListener#focusLost
+	     */
+	    public void focusLost(FocusEvent e) {
+	    	// do not reset due to focus behavior on GTK
+	    	//fViewerInFocus= null;
+	    }
 	}
 
 	private class InternalPostSelectionListener implements ISelectionChangedListener {
@@ -70,17 +74,15 @@ public class CompareEditorSelectionProvider implements IPostSelectionProvider {
 	private TextViewer[] fViewers;
 
 	private TextViewer fViewerInFocus;
-
 	private ListenerList fSelectionChangedListeners;
-
 	private ListenerList fPostSelectionChangedListeners;
 
 	public CompareEditorSelectionProvider() {
-		fSelectionChangedListeners= new ListenerList();
-		fPostSelectionChangedListeners= new ListenerList();
+		fSelectionChangedListeners = new ListenerList();
+		fPostSelectionChangedListeners = new ListenerList();
 		// nothing more to do here, Compare Editor is initializing
 	}
-
+	
 	/**
 	 * @param viewers All viewers that can provide a selection
 	 * @param viewerInFocus the viewer currently in focus or <code>null</code>
@@ -90,12 +92,12 @@ public class CompareEditorSelectionProvider implements IPostSelectionProvider {
 		fViewers= viewers;
 		InternalListener listener= new InternalListener();
 		fViewerInFocus= viewerInFocus;
-
+		
 		for (int i= 0; i < fViewers.length; i++) {
 			TextViewer viewer= fViewers[i];
 			viewer.addSelectionChangedListener(listener);
 			viewer.addPostSelectionChangedListener(new InternalPostSelectionListener());
-			StyledText textWidget= viewer.getTextWidget();
+			StyledText textWidget = viewer.getTextWidget();
 			textWidget.addFocusListener(listener);
 		}
 	}
@@ -108,7 +110,7 @@ public class CompareEditorSelectionProvider implements IPostSelectionProvider {
 			}
 		}
 	}
-
+	
 	final void doPostSelectionChanged(SelectionChangedEvent event) {
 		ISelectionProvider provider= event.getSelectionProvider();
 		if (provider == fViewerInFocus) {
@@ -137,7 +139,7 @@ public class CompareEditorSelectionProvider implements IPostSelectionProvider {
 
 			Object[] listeners= fSelectionChangedListeners.getListeners();
 			for (int i= 0; i < listeners.length; i++) {
-				ISelectionChangedListener listener= (ISelectionChangedListener)listeners[i];
+				ISelectionChangedListener listener= (ISelectionChangedListener) listeners[i];
 				listener.selectionChanged(event);
 			}
 		}
@@ -149,7 +151,7 @@ public class CompareEditorSelectionProvider implements IPostSelectionProvider {
 
 			Object[] listeners= fPostSelectionChangedListeners.getListeners();
 			for (int i= 0; i < listeners.length; i++) {
-				ISelectionChangedListener listener= (ISelectionChangedListener)listeners[i];
+				ISelectionChangedListener listener= (ISelectionChangedListener) listeners[i];
 				listener.selectionChanged(event);
 			}
 		}

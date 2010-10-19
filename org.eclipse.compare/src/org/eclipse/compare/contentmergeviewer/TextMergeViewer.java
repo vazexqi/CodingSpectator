@@ -241,6 +241,7 @@ import com.ibm.icu.text.MessageFormat;
  * 
  * @author Stas Negara - Added getLeftViewer() (in order to be able to listen to its changes)
  * 
+ * 
  * @see org.eclipse.compare.rangedifferencer.RangeDifferencer
  * @see org.eclipse.jface.text.TextViewer
  * @see ITokenComparator

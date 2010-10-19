@@ -143,7 +143,6 @@ import org.eclipse.ui.texteditor.ITextEditorExtension3;
  * @author Stas Negara - Added getContentViewer() (in order to be able to get to its contained
  *         viewers)
  * 
- * 
  * @see CompareUI
  * @see CompareEditorInput
  */
