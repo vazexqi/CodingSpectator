@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.compare_3.5.100.I20100526-0800" version="1.2">
+    <plugin id="org.eclipse.compare_3.5.100.I20100526-0800"/>
+    <package name="org.eclipse.compare" visibility="1">
+        <type name="CompareEditorInput" restrictions="0">
+            <method name="createContentViewerSwitchingPane" restrictions="24" signature="(Lorg/eclipse/compare/Splitter;ILorg/eclipse/compare/CompareEditorInput;)Lorg/eclipse/compare/CompareViewerSwitchingPane;"/>
+            <method name="getContentViewerDescriptor" restrictions="24" signature="()Lorg/eclipse/compare/internal/ViewerDescriptor;"/>
+            <method name="getStructureViewerDescriptor" restrictions="24" signature="()Lorg/eclipse/compare/internal/ViewerDescriptor;"/>
+            <method name="setContentViewerDescriptor" restrictions="24" signature="(Lorg/eclipse/compare/internal/ViewerDescriptor;)V"/>
+            <method name="setFocus" restrictions="8" signature="()V"/>
+            <method name="setFocus2" restrictions="8" signature="()Z"/>
+            <method name="setStructureViewerDescriptor" restrictions="24" signature="(Lorg/eclipse/compare/internal/ViewerDescriptor;)V"/>
+        </type>
+        <type name="CompareUI" restrictions="4">
+            <method name="addStructureViewerAlias" restrictions="8" signature="(Ljava/lang/String;Ljava/lang/String;)V"/>
+            <method name="removeAllStructureViewerAliases" restrictions="8" signature="(Ljava/lang/String;)V"/>
+        </type>
+        <type name="CompareViewerPane" restrictions="0">
+            <method name="createTopLeft" restrictions="24" signature="(Lorg/eclipse/swt/widgets/Composite;)Lorg/eclipse/swt/widgets/Control;"/>
+        </type>
+        <type name="CompareViewerSwitchingPane" restrictions="0">
+            <method name="getTitleArgument" restrictions="24" signature="()Ljava/lang/String;"/>
+            <method name="inputChanged" restrictions="24" signature="(Ljava/lang/Object;)Z"/>
+            <method name="setTitleArgument" restrictions="24" signature="(Ljava/lang/String;)V"/>
+        </type>
+        <type name="EditionSelectionDialog" restrictions="2"/>
+        <type name="HistoryItem" restrictions="2"/>
+        <type name="ISharedDocumentAdapter" restrictions="1"/>
+        <type name="NavigationAction" restrictions="2"/>
+        <type name="ResourceNode" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.compare.patch" visibility="1">
+        <type name="IFilePatch" restrictions="1"/>
+        <type name="WorkspacePatcherUI" restrictions="6"/>
+    </package>
+    <package name="org.eclipse.compare.structuremergeviewer" visibility="1">
+        <type name="DiffTreeViewer" restrictions="2"/>
+        <type name="StructureDiffViewer" restrictions="2"/>
+    </package>
+</component>

@@ -7,6 +7,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.compare.CompareEditorInput;
+import org.eclipse.compare.ITypedElement;
+import org.eclipse.compare.ResourceNode;
+import org.eclipse.compare.contentmergeviewer.TextMergeViewer;
+import org.eclipse.compare.internal.CompareEditor;
+import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.commands.operations.OperationHistoryEvent;
@@ -28,18 +34,23 @@ import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.team.internal.ui.mapping.ModelCompareEditorInput;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
@@ -58,9 +69,17 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 
 	private IFile currentFile= null;
 
-	private AbstractDecoratedTextEditor currentEditor= null;
+	private EditorPart currentEditor= null;
 
 	ISourceViewer listenedViewer= null;
+
+	//CompareEditors opened for conflict editing require special handling. They are not editing the original file, but some initial
+	//snapshot, which needs to be logged. Also, changes performed in such an editor does not affect other editors, thus need to be logged
+	//separately. Moreover, a user can open many such editors for a single file, which means that code changes for every such editor
+	//have to be logged separately (i.e. identified with a unique editor's ID).
+	private final Set<CompareEditor> openConflictEditors= new HashSet<CompareEditor>();
+
+	private final Set<CompareEditor> dirtyConflictEditors= new HashSet<CompareEditor>();
 
 	private volatile boolean isRefactoring= false;
 
@@ -126,33 +145,122 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 		}
 	}
 
+	private boolean isConflictEditor(IEditorPart editor) {
+		if (!(editor instanceof CompareEditor)) {
+			return false;
+		}
+		//TODO: Maybe some other inputs (not of a conflict editor) are good for tracking and are not ModelCompareEditorInput
+		if (((CompareEditor)editor).getEditorInput() instanceof ModelCompareEditorInput) {
+			return false;
+		}
+		return true;
+	}
+
+	private String getConflictEditorInitialContent(CompareEditor compareEditor) {
+		CompareEditorInput compareEditorInput= (CompareEditorInput)compareEditor.getEditorInput();
+		ICompareInput compareInput= (ICompareInput)compareEditorInput.getCompareResult();
+		ResourceNode resourceNode= (ResourceNode)compareInput.getLeft();
+		return new String(resourceNode.getContent());
+	}
+
+	private String getConflictEditorID(CompareEditor compareEditor) {
+		String compareEditorString= compareEditor.toString();
+		return compareEditorString.substring(compareEditorString.lastIndexOf('@') + 1);
+	}
+
+	private IFile getEditorJavaFile(CompareEditor compareEditor) {
+		IFile javaFile= null;
+		IEditorInput editorInput= compareEditor.getEditorInput();
+		if (editorInput instanceof CompareEditorInput) {
+			CompareEditorInput compareEditorInput= (CompareEditorInput)editorInput;
+			Object compareResult= compareEditorInput.getCompareResult();
+			if (compareResult instanceof ICompareInput) {
+				ICompareInput compareInput= (ICompareInput)compareResult;
+				ITypedElement leftTypedElement= compareInput.getLeft();
+				if (leftTypedElement instanceof ResourceNode) {
+					ResourceNode resourceNode= (ResourceNode)leftTypedElement;
+					IResource resource= resourceNode.getResource();
+					if (resource instanceof IFile) {
+						IFile file= (IFile)resource;
+						if (isJavaFile(file)) {
+							javaFile= file;
+						}
+					}
+				}
+			}
+		}
+		return javaFile;
+	}
+
+	private IFile getEditorJavaFile(AbstractDecoratedTextEditor editor) {
+		IFile javaFile= null;
+		IEditorInput editorInput= editor.getEditorInput();
+		if (editorInput instanceof FileEditorInput) {
+			IFile file= ((FileEditorInput)editorInput).getFile();
+			if (isJavaFile(file)) {
+				javaFile= file;
+			}
+		}
+		return javaFile;
+	}
+
+	private ISourceViewer getEditorSourceViewer(CompareEditor compareEditor) {
+		ISourceViewer sourceViewer= null;
+		IEditorInput editorInput= compareEditor.getEditorInput();
+		if (editorInput instanceof CompareEditorInput) {
+			CompareEditorInput compareEditorInput= (CompareEditorInput)editorInput;
+			Viewer contentViewer= compareEditorInput.getContentViewer();
+			if (contentViewer instanceof TextMergeViewer) {
+				sourceViewer= ((TextMergeViewer)contentViewer).getLeftViewer();
+			}
+		}
+		return sourceViewer;
+	}
+
+	private ISourceViewer getEditorSourceViewer(AbstractDecoratedTextEditor editor) {
+		return editor.getHackedViewer();
+	}
+
+
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-//		System.out.println("NOTIFIED!");
-		if (part instanceof AbstractDecoratedTextEditor) {
+//		System.out.println("NOTIFIED!");		
+		System.out.println("Part=" + part.getClass().getName());
+		IFile newFile= null;
+		ISourceViewer sourceViewer= null;
+		if (part instanceof CompareEditor) {
+			CompareEditor compareEditor= (CompareEditor)part;
+			newFile= getEditorJavaFile(compareEditor);
+			sourceViewer= getEditorSourceViewer(compareEditor);
+		} else if (part instanceof AbstractDecoratedTextEditor) {
 			AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)part;
-			IEditorInput editorInput= editor.getEditorInput();
-			if (!(editorInput instanceof FileEditorInput)) {
-				Exception e= new RuntimeException();
-				Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_WrongJavaEditorInput +
-													editor.getTitle());
+			newFile= getEditorJavaFile(editor);
+			sourceViewer= getEditorSourceViewer(editor);
+		}
+		if (newFile != null) {
+			currentEditor= (EditorPart)part; //Should be EditorPart if newFile != null
+			addEditor(currentEditor, newFile);
+			if (!newFile.equals(currentFile)) {
+				currentFile= newFile;
+				System.out.println("File:\"" + Logger.getPortableFilePath(currentFile) + "\"");
 			}
-			IFile newFile= ((FileEditorInput)editorInput).getFile();
-			//Look only for Java files
-			if (newFile.getFileExtension().equals("java")) { //$NON-NLS-1$
-				if (!newFile.equals(currentFile)) {
-					currentFile= newFile;
-					currentEditor= editor;
-					//Or, alternatively:
-					//FileBuffers.getTextFileBufferManager().getTextFileBuffer(currentFile.getFullPath(), LocationKind.IFILE);				
-					System.out.println("File:\"" + currentFile.getFullPath().toPortableString() + "\"");
-				}
-				ISourceViewer sourceViewer= editor.getHackedViewer();
-				if (listenedViewer != null) {
-					listenedViewer.removeTextListener(trackerInstance);
-				}
-				listenedViewer= sourceViewer;
+			if (listenedViewer != null) {
+				listenedViewer.removeTextListener(trackerInstance);
+			}
+			listenedViewer= sourceViewer;
+			if (listenedViewer != null) {
 				listenedViewer.addTextListener(trackerInstance);
+			}
+		}
+	}
+
+	private void addEditor(EditorPart editor, IFile editedFile) {
+		if (isConflictEditor(editor)) {
+			CompareEditor compareEditor= (CompareEditor)editor;
+			if (!openConflictEditors.contains(compareEditor)) {
+				openConflictEditors.add(compareEditor);
+				dirtyConflictEditors.add(compareEditor); //conflict editors are always dirty from the start
+				logger.logOpenedConflictEditor(getConflictEditorID(compareEditor), getConflictEditorInitialContent(compareEditor), editedFile);
 			}
 		}
 	}
@@ -161,8 +269,14 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 	public void textChanged(TextEvent event) {
 		DocumentEvent documentEvent= event.getDocumentEvent();
 		if (documentEvent != null && !isRefactoring) {
-			dirtyFiles.add(currentFile);
-			logger.logTextEvent(event, currentFile, isUndoing, isRedoing);
+			if (isConflictEditor(currentEditor)) {
+				CompareEditor compareEditor= (CompareEditor)currentEditor;
+				dirtyConflictEditors.add(compareEditor);
+				logger.logConflictEditorTextEvent(event, getConflictEditorID(compareEditor), isUndoing, isRedoing);
+			} else {
+				dirtyFiles.add(currentFile);
+				logger.logTextEvent(event, currentFile, isUndoing, isRedoing);
+			}
 		}
 	}
 
@@ -193,10 +307,12 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			isRedoing= false;
 		}
 		if (eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.REDONE) {
-			if (currentEditor != null && currentEditor.isDirty()) {
-				dirtyFiles.add(currentFile);
-			} else {
-				dirtyFiles.remove(currentFile);
+			if (currentEditor != null && !isConflictEditor(currentEditor)) { //conflict editors remain dirty until saved
+				if (currentEditor.isDirty()) {
+					dirtyFiles.add(currentFile);
+				} else {
+					dirtyFiles.remove(currentFile);
+				}
 			}
 		}
 		if (eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
@@ -212,7 +328,7 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 								IResource resource= ((CompilationUnit)affectedObject).getResource();
 								if (resource instanceof IFile) { //Could it be something else?
 									IFile file= (IFile)resource;
-//									System.out.println("File to be modified:" + file.getFullPath().toPortableString());
+//									System.out.println("File to be modified:" + Logger.getPortableFilePath(file));
 									logger.ensureIsKnownFile(file);
 								}
 							}
@@ -220,7 +336,6 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 					}
 				}
 			}
-
 		}
 	}
 
@@ -233,6 +348,7 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 			final Set<IFile> removedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> svnAddedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> svnChangedJavaFiles= new HashSet<IFile>();
+			final Set<String> svnEntriesChangeSet= new HashSet<String>();
 			try {
 				delta.accept(new IResourceDeltaVisitor() {
 
@@ -241,37 +357,41 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 						IResource resource= delta.getResource();
 						if (resource.getType() == IResource.FILE) {
 							IFile file= (IFile)resource;
-							String fileExtension= file.getFileExtension(); //may be null
-							if ("java".equals(fileExtension)) { //$NON-NLS-1$
-								switch (delta.getKind()) {
-									case IResourceDelta.ADDED:
-										addedJavaFiles.add(file);
-										break;
-									case IResourceDelta.REMOVED:
-										removedJavaFiles.add(file);
-										break;
-									case IResourceDelta.CHANGED:
-										if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
-											changedJavaFiles.add(file);
-										}
-										break;
-								}
-							} else if ("svn-base".equals(fileExtension)) { //$NON-NLS-1$
-								switch (delta.getKind()) {
-									case IResourceDelta.ADDED:
-										IFile javaSourceFile= getJavaSourceFileForSVNFile(file);
-										if (javaSourceFile != null) {
-											svnAddedJavaFiles.add(javaSourceFile);
-										}
-										break;
-									case IResourceDelta.CHANGED:
-										if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
-											javaSourceFile= getJavaSourceFileForSVNFile(file);
-											if (javaSourceFile != null) {
-												svnChangedJavaFiles.add(javaSourceFile);
+							if (file.getName().equals("entries")) { //$NON-NLS-1$
+								svnEntriesChangeSet.add("yes"); //$NON-NLS-1$
+							} else {
+								String fileExtension= file.getFileExtension(); //may be null
+								if ("java".equals(fileExtension)) { //$NON-NLS-1$
+									switch (delta.getKind()) {
+										case IResourceDelta.ADDED:
+											addedJavaFiles.add(file);
+											break;
+										case IResourceDelta.REMOVED:
+											removedJavaFiles.add(file);
+											break;
+										case IResourceDelta.CHANGED:
+											if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
+												changedJavaFiles.add(file);
 											}
-										}
-										break;
+											break;
+									}
+								} else if ("svn-base".equals(fileExtension)) { //$NON-NLS-1$
+									switch (delta.getKind()) {
+										case IResourceDelta.ADDED:
+											IFile javaSourceFile= getJavaSourceFileForSVNFile(file);
+											if (javaSourceFile != null) {
+												svnAddedJavaFiles.add(javaSourceFile);
+											}
+											break;
+										case IResourceDelta.CHANGED:
+											if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
+												javaSourceFile= getJavaSourceFileForSVNFile(file);
+												if (javaSourceFile != null) {
+													svnChangedJavaFiles.add(javaSourceFile);
+												}
+											}
+											break;
+									}
 								}
 							}
 						}
@@ -282,6 +402,8 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 				Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToVisitResourceDelta);
 			}
 			final Set<IFile> savedJavaFiles= new HashSet<IFile>();
+			//Actually, should not be more than one per resourceChanged notification
+			final Set<String> savedConflictEditorIDs= new HashSet<String>();
 			final Set<IFile> externallyModifiedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> updatedJavaFiles= new HashSet<IFile>();
 			final Set<IFile> initiallyCommittedJavaFiles= new HashSet<IFile>();
@@ -298,18 +420,39 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 					initiallyCommittedJavaFiles.add(file);
 				}
 			}
+			//Detect files saved from a conflict editor and remove them from changedJavaFiles
+			//such that they are not considered for a regular save
+			IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+			if (activePage != null) {
+				IEditorReference[] editorReferences= activePage.getEditorReferences();
+				for (IEditorReference editorReference : editorReferences) {
+					IEditorPart editor= editorReference.getEditor(false);
+					if (editor != null && isConflictEditor(editor) && !editor.isDirty()) {
+						CompareEditor compareEditor= (CompareEditor)editor;
+						if (dirtyConflictEditors.contains(compareEditor)) {
+							dirtyConflictEditors.remove(compareEditor);
+							savedConflictEditorIDs.add(getConflictEditorID(compareEditor));
+							changedJavaFiles.remove(getEditorJavaFile(compareEditor));
+						}
+					}
+				}
+			}
+			boolean isSVNEntriesChanged= svnEntriesChangeSet.size() > 0;
 			for (IFile file : changedJavaFiles) {
 				if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
-					if (isRefactoring || dirtyFiles.contains(file)) {
+					if (isRefactoring || dirtyFiles.contains(file) && !isSVNEntriesChanged) {
 						savedJavaFiles.add(file);
 					} else {
 						externallyModifiedJavaFiles.add(file);
 					}
 				}
+				//TODO: Removing from dirty files when updated or changed externally may cause subsequent save to be treated as an
+				//external modification. Is it ok (e.g. this can be detected and filtered out during the replay phase)?
 				dirtyFiles.remove(file);
 			}
 			dirtyFiles.removeAll(removedJavaFiles);
 			logger.logSavedFiles(savedJavaFiles, isRefactoring);
+			logger.logSavedConflictEditors(savedConflictEditorIDs);
 			logger.logExternallyModifiedFiles(externallyModifiedJavaFiles);
 			logger.logUpdatedFiles(updatedJavaFiles);
 			logger.logInitiallyCommittedFiles(initiallyCommittedJavaFiles);
@@ -342,6 +485,14 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 		return javaSourceFile;
 	}
 
+	private boolean isJavaFile(IFile file) {
+		String fileExtension= file.getFileExtension();
+		if (fileExtension != null && fileExtension.equals("java")) { //$NON-NLS-1$
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void partActivated(IWorkbenchPart part) {
 	}
@@ -352,17 +503,41 @@ public class CodeChangeTracker implements ISelectionListener, ITextListener, IRe
 
 	@Override
 	public void partClosed(IWorkbenchPart part) {
-		if (part instanceof AbstractDecoratedTextEditor) {
-			AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)part;
-			IEditorInput editorInput= editor.getEditorInput();
-			if (!(editorInput instanceof FileEditorInput)) {
-				Exception e= new RuntimeException();
-				Logger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_WrongJavaEditorInput +
-													editor.getTitle());
+		IFile closedFile= null;
+		if (part instanceof CompareEditor) {
+			closedFile= getEditorJavaFile((CompareEditor)part);
+		} else if (part instanceof AbstractDecoratedTextEditor) {
+			closedFile= getEditorJavaFile((AbstractDecoratedTextEditor)part);
+		}
+		if (closedFile != null) {
+			if (isConflictEditor((EditorPart)part)) {
+				CompareEditor compareEditor= (CompareEditor)part;
+				openConflictEditors.remove(compareEditor);
+				dirtyConflictEditors.remove(compareEditor);
+				logger.logClosedConflictEditor(getConflictEditorID(compareEditor));
+			} else {
+				//Check that this is the last editor of this file that is closed
+				IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+				if (activePage != null) {
+					IEditorReference[] editorReferences= activePage.getEditorReferences();
+					for (IEditorReference editorReference : editorReferences) {
+						IEditorPart editor= editorReference.getEditor(false);
+						if (editor != part && !isConflictEditor(editor)) {
+							IFile file= null;
+							if (editor instanceof CompareEditor) {
+								file= getEditorJavaFile((CompareEditor)editor);
+							} else if (editor instanceof AbstractDecoratedTextEditor) {
+								file= getEditorJavaFile((AbstractDecoratedTextEditor)editor);
+							}
+							if (closedFile.equals(file)) {
+								return; // file is not really closed as it is opened in another editor
+							}
+						}
+					}
+				}
+				dirtyFiles.remove(closedFile);
+				logger.logClosedFile(closedFile);
 			}
-			IFile closedFile= ((FileEditorInput)editorInput).getFile();
-			dirtyFiles.remove(closedFile);
-			logger.logClosedFile(closedFile);
 		}
 	}
 

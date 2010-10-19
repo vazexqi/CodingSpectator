@@ -72,16 +72,23 @@ public class Logger {
 
 	private static final long REFRESH_INTERVAL= 7 * 24 * 60 * 60 * 1000; //Refresh knownfiles every 7 days
 
-	//Used symbols: 17, remaining symbols:
-	//g j k n q v w y z
+	//Used symbols: 23, remaining symbols:
+	//v w y
+
+	private static final String CONFLICT_EDITOR_OPENED_SYMBOL= "g"; //$NON-NLS-1$
 
 	private static final String ECLIPSE_SESSION_SYMBOL= "l"; //$NON-NLS-1$
 
 	private static final String FILE_CLOSED_SYMBOL= "c"; //$NON-NLS-1$
 
+	private static final String CONFLICT_EDITOR_CLOSED_SYMBOL= "q"; //$NON-NLS-1$
+
 	private static final String FILE_SAVED_SYMBOL= "s"; //$NON-NLS-1$
 
-	//Modification outside of Eclipse, or it may be a move/copy refactoring that overwrites a file displayed in a viewer
+	private static final String CONFLICT_EDITOR_SAVED_SYMBOL= "z"; //$NON-NLS-1$
+
+	//Modification outside of Eclipse, or it may be a move/copy refactoring that overwrites a file displayed in a viewer, 
+	//or SVN performs Revert operation, or some dirty file is changed externally and then saved (without refreshing)
 	private static final String FILE_EXTERNALLY_MODIFIED_SYMBOL= "x"; //$NON-NLS-1$ 
 
 	private static final String FILE_UPDATED_SYMBOL= "m"; //$NON-NLS-1$
@@ -101,6 +108,12 @@ public class Logger {
 	private static final String TEXT_CHANGE_UNDONE_SYMBOL= "h"; //$NON-NLS-1$
 
 	private static final String TEXT_CHANGE_REDONE_SYMBOL= "d"; //$NON-NLS-1$
+
+	private static final String CONFLICT_EDITOR_TEXT_CHANGE_PERFORMED_SYMBOL= "j"; //$NON-NLS-1$
+
+	private static final String CONFLICT_EDITOR_TEXT_CHANGE_UNDONE_SYMBOL= "k"; //$NON-NLS-1$
+
+	private static final String CONFLICT_EDITOR_TEXT_CHANGE_REDONE_SYMBOL= "n"; //$NON-NLS-1$
 
 	private static final String REFACTORING_STARTED_SYMBOL= "b"; //$NON-NLS-1$
 
@@ -151,7 +164,7 @@ public class Logger {
 		DocumentEvent documentEvent= event.getDocumentEvent(); //should never be null in this method
 //		System.out.println("Replaced text:\"" + (event.getReplacedText() == null ? "" : event.getReplacedText()) + //$NON-NLS-1$ //$NON-NLS-2$
 //				"\", new text:\"" + documentEvent.getText() + "\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if (!editedFile.equals(lastEditedFile) || !knownfiles.containsKey(editedFile.getFullPath().toPortableString())) {
+		if (!editedFile.equals(lastEditedFile) || !knownfiles.containsKey(getPortableFilePath(editedFile))) {
 			lastEditedFile= editedFile;
 			ensureIsKnownFile(lastEditedFile);
 			logEditedFile();
@@ -176,11 +189,43 @@ public class Logger {
 		log(textChunk);
 	}
 
+	public void logConflictEditorTextEvent(TextEvent event, String editorID, boolean isUndoing, boolean isRedoing) {
+		//Use DocumentEvent to get correct, file-based offsets (which do not depend on expanding/collapsing of import statements,methods,etc.)
+		DocumentEvent documentEvent= event.getDocumentEvent(); //should never be null in this method
+		TextChunk textChunk= null;
+		if (isUndoing) {
+			textChunk= new TextChunk(CONFLICT_EDITOR_TEXT_CHANGE_UNDONE_SYMBOL);
+		} else if (isRedoing) {
+			textChunk= new TextChunk(CONFLICT_EDITOR_TEXT_CHANGE_REDONE_SYMBOL);
+		} else {
+			textChunk= new TextChunk(CONFLICT_EDITOR_TEXT_CHANGE_PERFORMED_SYMBOL);
+		}
+		textChunk.append(editorID);
+		String replacedText= event.getReplacedText() == null ? "" : event.getReplacedText(); //$NON-NLS-1$
+		textChunk.append(replacedText);
+		textChunk.append(documentEvent.getText());
+		textChunk.append(documentEvent.getOffset());
+		textChunk.append(documentEvent.getLength());
+		textChunk.append(System.currentTimeMillis());
+		System.out.println("Conflict editor change: " + textChunk); //$NON-NLS-1$
+		log(textChunk);
+	}
+
 	private void logEditedFile() {
 		TextChunk textChunk= new TextChunk(FILE_EDIT_SYMBOL);
-		textChunk.append(lastEditedFile.getFullPath().toPortableString());
+		textChunk.append(getPortableFilePath(lastEditedFile));
 		textChunk.append(System.currentTimeMillis());
 		System.out.println("File edited: " + textChunk); //$NON-NLS-1$
+		log(textChunk);
+	}
+
+	public void logOpenedConflictEditor(String editorID, String initialContent, IFile editedFile) {
+		TextChunk textChunk= new TextChunk(CONFLICT_EDITOR_OPENED_SYMBOL);
+		textChunk.append(editorID);
+		textChunk.append(getPortableFilePath(editedFile));
+		textChunk.append(initialContent);
+		textChunk.append(System.currentTimeMillis());
+		System.out.println("Conflict editor opened: " + textChunk); //$NON-NLS-1$
 		log(textChunk);
 	}
 
@@ -192,9 +237,19 @@ public class Logger {
 			} else {
 				textChunk= new TextChunk(FILE_SAVED_SYMBOL);
 			}
-			textChunk.append(file.getFullPath().toPortableString());
+			textChunk.append(getPortableFilePath(file));
 			textChunk.append(System.currentTimeMillis());
 			System.out.println("File saved: " + textChunk); //$NON-NLS-1$
+			log(textChunk);
+		}
+	}
+
+	public void logSavedConflictEditors(Set<String> savedConflictEditorIDs) {
+		for (String conflictEditorID : savedConflictEditorIDs) {
+			TextChunk textChunk= new TextChunk(CONFLICT_EDITOR_SAVED_SYMBOL);
+			textChunk.append(conflictEditorID);
+			textChunk.append(System.currentTimeMillis());
+			System.out.println("Conflict editor saved: " + textChunk); //$NON-NLS-1$
 			log(textChunk);
 		}
 	}
@@ -202,7 +257,7 @@ public class Logger {
 	public void logExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
 		for (IFile file : externallyModifiedFiles) {
 			TextChunk textChunk= new TextChunk(FILE_EXTERNALLY_MODIFIED_SYMBOL);
-			textChunk.append(file.getFullPath().toPortableString());
+			textChunk.append(getPortableFilePath(file));
 			textChunk.append(System.currentTimeMillis());
 			System.out.println("File externally modified: " + textChunk); //$NON-NLS-1$
 			log(textChunk);
@@ -212,7 +267,7 @@ public class Logger {
 	public void logUpdatedFiles(Set<IFile> updatedFiles) {
 		for (IFile file : updatedFiles) {
 			TextChunk textChunk= new TextChunk(FILE_UPDATED_SYMBOL);
-			textChunk.append(file.getFullPath().toPortableString());
+			textChunk.append(getPortableFilePath(file));
 			textChunk.append(System.currentTimeMillis());
 			System.out.println("File updated: " + textChunk); //$NON-NLS-1$
 			log(textChunk);
@@ -220,30 +275,56 @@ public class Logger {
 	}
 
 	public void logInitiallyCommittedFiles(Set<IFile> initiallyCommittedFiles) {
-		for (IFile file : initiallyCommittedFiles) {
-			TextChunk textChunk= new TextChunk(FILE_INITIALLY_COMMITTED_SYMBOL);
-			textChunk.append(file.getFullPath().toPortableString());
-			textChunk.append(System.currentTimeMillis());
-			System.out.println("File initially committed: " + textChunk); //$NON-NLS-1$
-			log(textChunk);
-		}
+		logCommit(initiallyCommittedFiles, true);
 	}
 
 	public void logCommittedFiles(Set<IFile> committedFiles) {
-		for (IFile file : committedFiles) {
-			TextChunk textChunk= new TextChunk(FILE_COMMITTED_SYMBOL);
-			textChunk.append(file.getFullPath().toPortableString());
-			textChunk.append(System.currentTimeMillis());
-			System.out.println("File committed: " + textChunk); //$NON-NLS-1$
-			log(textChunk);
+		logCommit(committedFiles, false);
+	}
+
+	/**
+	 * Log that files were committed and capture snapshots of them.
+	 * 
+	 * @param committedFiles
+	 * @param isInitialCommit
+	 */
+	private void logCommit(Set<IFile> committedFiles, boolean isInitialCommit) {
+		if (committedFiles.size() > 0) {
+			String commitSymbol= FILE_COMMITTED_SYMBOL;
+			String debugMessage= "File committed: "; //$NON-NLS-1$
+			if (isInitialCommit) {
+				commitSymbol= FILE_INITIALLY_COMMITTED_SYMBOL;
+				debugMessage= "File initially committed: "; //$NON-NLS-1$
+			}
+			for (IFile file : committedFiles) {
+				TextChunk textChunk= new TextChunk(commitSymbol);
+				String portableFilePath= getPortableFilePath(file);
+				textChunk.append(portableFilePath);
+				File javaFile= new File(file.getLocation().toOSString());
+				textChunk.append(getFileContent(javaFile));
+				long timestamp= System.currentTimeMillis();
+				textChunk.append(timestamp);
+				System.out.println(debugMessage + textChunk);
+				log(textChunk);
+				knownfiles.setProperty(portableFilePath, String.valueOf(timestamp));
+			}
+			logKnownfiles();
 		}
 	}
 
 	public void logClosedFile(IFile file) {
 		TextChunk textChunk= new TextChunk(FILE_CLOSED_SYMBOL);
-		textChunk.append(file.getFullPath().toPortableString());
+		textChunk.append(getPortableFilePath(file));
 		textChunk.append(System.currentTimeMillis());
 		System.out.println("File closed: " + textChunk); //$NON-NLS-1$
+		log(textChunk);
+	}
+
+	public void logClosedConflictEditor(String editorID) {
+		TextChunk textChunk= new TextChunk(CONFLICT_EDITOR_CLOSED_SYMBOL);
+		textChunk.append(editorID);
+		textChunk.append(System.currentTimeMillis());
+		System.out.println("Conflcit editor closed: " + textChunk); //$NON-NLS-1$
 		log(textChunk);
 	}
 
@@ -317,7 +398,7 @@ public class Logger {
 	public void removeKnownFiles(Set<IFile> files) {
 		boolean hasChanged= false;
 		for (IFile file : files) {
-			Object removed= knownfiles.remove(file.getFullPath().toPortableString());
+			Object removed= knownfiles.remove(getPortableFilePath(file));
 			if (removed != null) {
 				hasChanged= true;
 			}
@@ -328,7 +409,7 @@ public class Logger {
 	}
 
 	public void ensureIsKnownFile(IFile file) {
-		String fileString= file.getFullPath().toPortableString();
+		String fileString= getPortableFilePath(file);
 		String timestamp= knownfiles.getProperty(fileString);
 		if (timestamp == null) { //not found
 			knownfiles.setProperty(fileString, String.valueOf(System.currentTimeMillis()));
@@ -466,6 +547,10 @@ public class Logger {
 	public static void logExceptionToErrorLog(Exception e, String message) {
 		IStatus status= new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, message, e);
 		ResourcesPlugin.getPlugin().getLog().log(status);
+	}
+
+	public static String getPortableFilePath(IFile file) {
+		return file.getFullPath().toPortableString();
 	}
 
 }

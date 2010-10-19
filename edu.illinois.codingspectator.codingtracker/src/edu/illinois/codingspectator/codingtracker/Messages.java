@@ -21,8 +21,6 @@ public class Messages extends NLS {
 
 	public static String CodeChangeTracker_FailedToGetActiveWorkbenchWindow;
 
-	public static String CodeChangeTracker_WrongJavaEditorInput;
-
 	public static String Logger_KnownFilesFileName;
 
 	public static String Logger_OpenKnowfilesFileException;
