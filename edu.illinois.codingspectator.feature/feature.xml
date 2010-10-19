@@ -88,6 +88,7 @@ all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.core.refactoring
   * org.eclipse.ltk.ui.refactoring
   * org.eclipse.jdt.ui
+  * org.eclipse.ui.editors
  
 * CodingSpectator depends on a plug-in that contains the binary form of the
 SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed
@@ -100,19 +101,23 @@ under the TMate Open Source License.]]>
 
    <includes
          id="edu.illinois.codingspectator.jdt.helios.patch"
-         version="0.0.0"/>
+         version="0.0.0"
+         optional="true"/>
 
    <includes
          id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
-         version="0.0.0"/>
+         version="0.0.0"
+         optional="true"/>
 
    <includes
          id="edu.illinois.codingspectator.platform.helios.patch"
-         version="0.0.0"/>
+         version="0.0.0"
+         optional="true"/>
 
    <includes
          id="edu.illinois.codingspectator.platform.heliosSR1.patch"
-         version="0.0.0"/>
+         version="0.0.0"
+         optional="true"/>
 
    <plugin
          id="org.tmatesoft.svn_1.3.4.eclipse"
