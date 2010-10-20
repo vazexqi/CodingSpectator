@@ -673,7 +673,7 @@ public abstract class RefactoringWizard extends Wizard {
 	private void logRefactoringEvent(int refactoringEventType) {
 		try {
 			RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor(getConditionCheckingStatus());
-			System.err.println(refactoringDescriptor.toString());
+			Logger.logDebug(refactoringDescriptor.toString());
 
 			// Wrap it into a refactoring descriptor proxy
 			RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
