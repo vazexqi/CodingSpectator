@@ -66,7 +66,8 @@ public class SecureStorageFacade {
 					return null;
 				}
 			} catch (StorageException e) {
-				clearSecureStorage();
+				if (e.getErrorCode() != StorageException.NO_PASSWORD)
+					clearSecureStorage();
 				return null;
 			}
 		} else {
