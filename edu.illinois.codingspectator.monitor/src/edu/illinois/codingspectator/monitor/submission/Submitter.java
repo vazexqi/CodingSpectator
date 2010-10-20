@@ -55,9 +55,10 @@ public class Submitter {
 			if (isCanceled(authenticationInfo))
 				throw new CanceledDialogException();
 
-			svnManager= new SVNManager(new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName()), authenticationInfo.getUserName(), authenticationInfo.getPassword());
-			svnManager.doImport(watchedDirectory);
-			svnManager.doCheckout(watchedDirectory);
+			svnManager= new SVNManager(new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName()), watchedDirectory, authenticationInfo.getUserName(),
+					authenticationInfo.getPassword());
+			svnManager.doImport();
+			svnManager.doCheckout();
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);
