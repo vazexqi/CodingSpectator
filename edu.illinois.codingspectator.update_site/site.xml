@@ -6,6 +6,9 @@
    <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010181311.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010181311">
       <category name="CodingSpectator"/>
    </feature>
+   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010201050.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010201050">
+      <category name="CodingSpectator"/>
+   </feature>
    <category-def name="CodingSpectator" label="CodingSpectator">
       <description>
          This category contains all the artifacts for the installation of CodingSpectator.

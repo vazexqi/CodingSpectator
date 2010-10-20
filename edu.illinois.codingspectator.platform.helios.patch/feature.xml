@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="edu.illinois.codingspectator.platform.helios.patch"
-      label="Patch for LTK Helios"
+      label="Patch for Platform Helios"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description>
-   Patch for LTK Helios
+   Patch for Platform Helios
    </description>
 
    <copyright><![CDATA[Copyright (c) 2000, 2010 IBM Corporation and others.
