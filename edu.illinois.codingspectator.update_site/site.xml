@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010151736.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010151736">
-      <category name="CodingSpectator"/>
-   </feature>
-   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010181311.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010181311">
-      <category name="CodingSpectator"/>
-   </feature>
-   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010191449.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010191449">
+   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201010211411.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201010211411">
       <category name="CodingSpectator"/>
    </feature>
    <category-def name="CodingSpectator" label="CodingSpectator">
