@@ -3,13 +3,8 @@ package edu.illinois.codingspectator.codingtracker;
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME= "edu.illinois.codingspectator.codingtracker.messages"; //$NON-NLS-1$
 
-	public static String Activator_Debugging_Mode;
-
-	public static String Logger_CodeChangesFileName;
-
-	public static String Logger_LTKBundleName;
+	private static final String BUNDLE_NAME= "edu.illinois.codingspectator.codingtracker.messages";
 
 	public static String Logger_CreateLogFileException;
 
@@ -17,13 +12,9 @@ public class Messages extends NLS {
 
 	public static String Logger_UnrecognizedRefactoringType;
 
-	public static String Logger_FailedToGetRefactoringArguments;
-
 	public static String Logger_AppendLogFileException;
 
 	public static String CodeChangeTracker_FailedToGetActiveWorkbenchWindow;
-
-	public static String Logger_KnownFilesFileName;
 
 	public static String Logger_OpenKnowfilesFileException;
 
@@ -32,8 +23,6 @@ public class Messages extends NLS {
 	public static String Logger_ReadUnknownFileException;
 
 	public static String Logger_CompleteReadUnknownFileException;
-
-	public static String Logger_ConfigurationFolder;
 
 	public static String CodeChangeTracker_FailedToVisitResourceDelta;
 

@@ -387,7 +387,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		edu.illinois.codingspectator.codingtracker.CodeChangeTracker.getInstance().start();
+		edu.illinois.codingspectator.codingtracker.CodeChangeTracker.start();
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
 				ICompilationUnit original= workingCopy.getPrimary();

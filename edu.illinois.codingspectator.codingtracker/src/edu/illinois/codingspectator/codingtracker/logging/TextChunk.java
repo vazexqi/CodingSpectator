@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker;
+package edu.illinois.codingspectator.codingtracker.logging;
 
 /**
  * 
@@ -10,9 +10,9 @@ package edu.illinois.codingspectator.codingtracker;
  */
 public class TextChunk implements CharSequence {
 
-	private static final String ESCAPE_SYMBOL= "~"; //$NON-NLS-1$
+	private static final String ESCAPE_SYMBOL= "~";
 
-	private static final String DELIMETER_SYMBOL= "#"; //$NON-NLS-1$
+	private static final String DELIMETER_SYMBOL= "#";
 
 	private final StringBuffer text;
 
@@ -27,7 +27,7 @@ public class TextChunk implements CharSequence {
 
 	public void append(String str) {
 		if (str == null) {
-			str= ""; //$NON-NLS-1$
+			str= "";
 		}
 		text.append(escapeString(str)).append(DELIMETER_SYMBOL);
 	}

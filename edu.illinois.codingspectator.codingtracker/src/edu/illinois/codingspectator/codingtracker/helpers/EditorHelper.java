@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker;
+package edu.illinois.codingspectator.codingtracker.helpers;
 
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
@@ -25,6 +25,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
  * @author Mohsen Vakilian - Extracted this class from CodeChangeTracker
  * 
  */
+@SuppressWarnings("restriction")
 public class EditorHelper {
 
 	public static boolean isConflictEditor(IEditorPart editor) {
@@ -38,7 +39,7 @@ public class EditorHelper {
 		return true;
 	}
 
-	static String getConflictEditorInitialContent(CompareEditor compareEditor) {
+	public static String getConflictEditorInitialContent(CompareEditor compareEditor) {
 		CompareEditorInput compareEditorInput= (CompareEditorInput)compareEditor.getEditorInput();
 		ICompareInput compareInput= (ICompareInput)compareEditorInput.getCompareResult();
 		ResourceNode resourceNode= (ResourceNode)compareInput.getLeft();
@@ -50,7 +51,7 @@ public class EditorHelper {
 		return compareEditorString.substring(compareEditorString.lastIndexOf('@') + 1);
 	}
 
-	public static IFile getEditorJavaFile(CompareEditor compareEditor) {
+	public static IFile getEditedJavaFile(CompareEditor compareEditor) {
 		IFile javaFile= null;
 		IEditorInput editorInput= compareEditor.getEditorInput();
 		if (editorInput instanceof CompareEditorInput) {
@@ -64,7 +65,7 @@ public class EditorHelper {
 					IResource resource= resourceNode.getResource();
 					if (resource instanceof IFile) {
 						IFile file= (IFile)resource;
-						if (FileProperties.isJavaFile(file)) {
+						if (isJavaFile(file)) {
 							javaFile= file;
 						}
 					}
@@ -74,19 +75,19 @@ public class EditorHelper {
 		return javaFile;
 	}
 
-	public static IFile getEditorJavaFile(AbstractDecoratedTextEditor editor) {
+	public static IFile getEditedJavaFile(AbstractDecoratedTextEditor editor) {
 		IFile javaFile= null;
 		IEditorInput editorInput= editor.getEditorInput();
 		if (editorInput instanceof FileEditorInput) {
 			IFile file= ((FileEditorInput)editorInput).getFile();
-			if (FileProperties.isJavaFile(file)) {
+			if (isJavaFile(file)) {
 				javaFile= file;
 			}
 		}
 		return javaFile;
 	}
 
-	public static ISourceViewer getEditorSourceViewer(CompareEditor compareEditor) {
+	public static ISourceViewer getEditingSourceViewer(CompareEditor compareEditor) {
 		ISourceViewer sourceViewer= null;
 		IEditorInput editorInput= compareEditor.getEditorInput();
 		if (editorInput instanceof CompareEditorInput) {
@@ -99,8 +100,16 @@ public class EditorHelper {
 		return sourceViewer;
 	}
 
-	public static ISourceViewer getEditorSourceViewer(AbstractDecoratedTextEditor editor) {
+	public static ISourceViewer getEditingSourceViewer(AbstractDecoratedTextEditor editor) {
 		return editor.getHackedViewer();
+	}
+
+	private static boolean isJavaFile(IFile file) {
+		String fileExtension= file.getFileExtension();
+		if (fileExtension != null && fileExtension.equals("java")) {
+			return true;
+		}
+		return false;
 	}
 
 }

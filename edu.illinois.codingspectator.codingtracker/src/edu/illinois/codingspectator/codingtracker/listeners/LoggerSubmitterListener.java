@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker;
+package edu.illinois.codingspectator.codingtracker.listeners;
 
 import edu.illinois.codingspectator.monitor.submission.SubmitterListener;
 
@@ -11,16 +11,16 @@ import edu.illinois.codingspectator.monitor.submission.SubmitterListener;
  * 
  * 
  */
-public class LoggerSubmitterListener implements SubmitterListener {
+public class LoggerSubmitterListener extends BasicListener implements SubmitterListener {
 
 	@Override
 	public void preSubmit() {
-		Logger.getInstance().commitStarted();
+		eventLogger.commitStarted();
 	}
 
 	@Override
 	public void postSubmit() {
-		Logger.getInstance().commitCompleted();
+		eventLogger.commitCompleted();
 	}
 
 }

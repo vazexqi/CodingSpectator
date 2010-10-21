@@ -4,7 +4,7 @@
    <extension
          point="edu.illinois.codingspectator.monitor.submitter">
       <submitterListener
-            class="edu.illinois.codingspectator.codingtracker.LoggerSubmitterListener"
+            class="edu.illinois.codingspectator.codingtracker.listeners.LoggerSubmitterListener"
             id="edu.illinois.codingspectator.codingtracker.submitterListener"
             name="edu.illinois.codingspectator.codingtracker.submitterListener">
       </submitterListener>

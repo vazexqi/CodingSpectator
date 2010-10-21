@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.codingtracker.listeners;
 
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener;
@@ -13,9 +14,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import edu.illinois.codingspectator.codingtracker.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.Logger;
-import edu.illinois.codingspectator.codingtracker.UserSessionState;
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 
 /**
  * 
@@ -23,13 +22,25 @@ import edu.illinois.codingspectator.codingtracker.UserSessionState;
  * @author Mohsen Vakilian - Extracted this class from CodeChangeTracker
  * 
  */
-public class PartListener implements IPartListener {
+@SuppressWarnings("restriction")
+public class PartListener extends BasicListener implements IPartListener {
 
-	UserSessionState userSessionState;
+	public static void register() {
+		Display.getDefault().asyncExec(new Runnable() {
 
-	public PartListener(UserSessionState userSessionState) {
-		super();
-		this.userSessionState= userSessionState;
+			@Override
+			public void run() {
+				//TODO: Is it too heavy-weight? Did not notice any additional lag even on a slow machine.  
+				boolean isPartListenerRegistered= false;
+				while (!isPartListenerRegistered) {
+					IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+					if (activePage != null) {
+						activePage.addPartListener(new PartListener());
+						isPartListenerRegistered= true;
+					}
+				}
+			}
+		});
 	}
 
 	@Override
@@ -44,40 +55,47 @@ public class PartListener implements IPartListener {
 	public void partClosed(IWorkbenchPart part) {
 		IFile closedFile= null;
 		if (part instanceof CompareEditor) {
-			closedFile= EditorHelper.getEditorJavaFile((CompareEditor)part);
+			closedFile= EditorHelper.getEditedJavaFile((CompareEditor)part);
 		} else if (part instanceof AbstractDecoratedTextEditor) {
-			closedFile= EditorHelper.getEditorJavaFile((AbstractDecoratedTextEditor)part);
+			closedFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)part);
 		}
 		if (closedFile != null) {
 			if (EditorHelper.isConflictEditor((EditorPart)part)) {
-				CompareEditor compareEditor= (CompareEditor)part;
-				userSessionState.getOpenConflictEditors().remove(compareEditor);
-				userSessionState.getDirtyConflictEditors().remove(compareEditor);
-				Logger.getInstance().logClosedConflictEditor(EditorHelper.getConflictEditorID(compareEditor));
+				closeConflictEditor((CompareEditor)part);
 			} else {
-				//Check that this is the last editor of this file that is closed
-				IWorkbenchPage activePage= userSessionState.getActiveWorkbenchWindow().getActivePage();
-				if (activePage != null) {
-					IEditorReference[] editorReferences= activePage.getEditorReferences();
-					for (IEditorReference editorReference : editorReferences) {
-						IEditorPart editor= editorReference.getEditor(false);
-						if (editor != part && !EditorHelper.isConflictEditor(editor)) {
-							IFile file= null;
-							if (editor instanceof CompareEditor) {
-								file= EditorHelper.getEditorJavaFile((CompareEditor)editor);
-							} else if (editor instanceof AbstractDecoratedTextEditor) {
-								file= EditorHelper.getEditorJavaFile((AbstractDecoratedTextEditor)editor);
-							}
-							if (closedFile.equals(file)) {
-								return; // file is not really closed as it is opened in another editor
-							}
-						}
-					}
-				}
-				userSessionState.getDirtyFiles().remove(closedFile);
-				Logger.getInstance().logClosedFile(closedFile);
+				closeRegularEditor(part, closedFile);
 			}
 		}
+	}
+
+	private void closeConflictEditor(CompareEditor compareEditor) {
+		openConflictEditors.remove(compareEditor);
+		dirtyConflictEditors.remove(compareEditor);
+		eventLogger.logClosedConflictEditor(EditorHelper.getConflictEditorID(compareEditor));
+	}
+
+	private void closeRegularEditor(IWorkbenchPart part, IFile closedFile) {
+		//Check that this is the last editor of this file that is closed
+		IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+		if (activePage != null) {
+			IEditorReference[] editorReferences= activePage.getEditorReferences();
+			for (IEditorReference editorReference : editorReferences) {
+				IEditorPart editor= editorReference.getEditor(false);
+				if (editor != part && !EditorHelper.isConflictEditor(editor)) {
+					IFile file= null;
+					if (editor instanceof CompareEditor) {
+						file= EditorHelper.getEditedJavaFile((CompareEditor)editor);
+					} else if (editor instanceof AbstractDecoratedTextEditor) {
+						file= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)editor);
+					}
+					if (closedFile.equals(file)) {
+						return; // file is not really closed as it is opened in another editor
+					}
+				}
+			}
+		}
+		dirtyFiles.remove(closedFile);
+		eventLogger.logClosedFile(closedFile);
 	}
 
 	@Override
@@ -87,5 +105,6 @@ public class PartListener implements IPartListener {
 	@Override
 	public void partOpened(IWorkbenchPart part) {
 	}
+
 
 }
