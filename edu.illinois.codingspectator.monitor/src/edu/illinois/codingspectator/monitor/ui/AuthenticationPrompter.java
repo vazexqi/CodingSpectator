@@ -9,18 +9,14 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
-import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.wc.SVNInfo;
 
 import edu.illinois.codingspectator.monitor.Activator;
 import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
+import edu.illinois.codingspectator.monitor.prefs.SecureStorageFacade;
 import edu.illinois.codingspectator.monitor.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.submission.Submitter;
 
@@ -33,6 +29,8 @@ import edu.illinois.codingspectator.monitor.submission.Submitter;
 public class AuthenticationPrompter implements AuthenticationProvider {
 
 	DialogState dialogState= new DialogState();
+
+	SecureStorageFacade secureStorageFacade= new SecureStorageFacade();
 
 	/**
 	 * @see org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI.getUsernamePassword(String)
@@ -56,7 +54,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			private UserValidationDialog setupDialog(final String loginDestination) {
 				Shell shell= getDefaultParentShell();
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				String username= getSVNWorkingCopyUsername();
+				String username= new SVNManager(Submitter.watchedDirectory).getSVNWorkingCopyUsername();
 				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
 
 				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());
@@ -66,17 +64,6 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		});
 		dialogState.changeState();
 		return result[0];
-	}
-
-	protected String getSVNWorkingCopyUsername() {
-		SVNManager manager= new SVNManager();
-		try {
-			SVNInfo info= manager.doInfo(Submitter.watchedDirectory);
-			return info.getAuthor();
-		} catch (SVNException e) {
-			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
-			return "";
-		}
 	}
 
 	/**
@@ -90,73 +77,22 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 
 	@Override
 	public void clearSecureStorage() throws IOException {
-		if (securePreferencesNodeExists()) {
-			ISecurePreferences prefNode= getSecurePreferencesNode();
-			prefNode.removeNode();
-			prefNode.flush();
-		}
+		secureStorageFacade.clearSecureStorage();
 	}
 
-	private ISecurePreferences getSecurePreferencesNode() {
-		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
-		String nodeName= Messages.SecureStorage_AuthenticationNodeName;
-		if (securePreferences.nodeExists(nodeName)) {
-			return securePreferences.node(nodeName);
-		} else
-			return null;
-	}
 
-	private boolean securePreferencesNodeExists() {
-		return getSecurePreferencesNode() != null;
-	}
-
-	private ISecurePreferences getSecurePreferencesNodeLazily() {
-		ISecurePreferences securePreferences= SecurePreferencesFactory.getDefault();
-		String nodeName= Messages.SecureStorage_AuthenticationNodeName;
-		return securePreferences.node(nodeName);
-	}
-
-	/**
-	 * @see org.eclipse.equinox.internal.p2.repository.Credentials.forLocation(URI, boolean,
-	 *      AuthenticationInfo)
-	 */
 	private AuthenticationInfo askOrLookupCredentials() throws IOException {
-		if (securePreferencesNodeExists()) {
-			ISecurePreferences prefNode= getSecurePreferencesNode();
-			String username= null, password= null;
-			try {
-				username= prefNode.get(Messages.SecureStorage_UsernameKey, null);
-				password= prefNode.get(Messages.SecureStorage_PasswordKey, null);
-				if (username != null && password != null)
-					return new UIServices.AuthenticationInfo(username, password, true);
-				else {
-					clearSecureStorage();
-					return null;
-				}
-			} catch (StorageException e) {
-				clearSecureStorage();
-				return null;
-			}
+		AuthenticationInfo authenticationInfo= secureStorageFacade.getStoredAuthenticationInfo();
+		if (authenticationInfo != null) {
+			return authenticationInfo;
+		} else {
+			return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
 		}
-
-		return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
 	}
 
 	@Override
 	public void saveAuthenticationInfo(UIServices.AuthenticationInfo authenticationInfo) throws IOException {
-		if (authenticationInfo.saveResult()) {
-			try {
-				ISecurePreferences prefNode= getSecurePreferencesNodeLazily();
-				prefNode.put(Messages.SecureStorage_UsernameKey, authenticationInfo.getUserName(), true);
-				prefNode.put(Messages.SecureStorage_PasswordKey, authenticationInfo.getPassword(), true);
-				prefNode.flush();
-			} catch (Exception e) {
-				clearSecureStorage();
-			}
-		} else {
-			// if persisted earlier - the preference should be removed
-			clearSecureStorage();
-		}
+		secureStorageFacade.saveAuthenticationInfo(authenticationInfo);
 	}
 
 	/* (non-Javadoc)

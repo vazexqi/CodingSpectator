@@ -31,8 +31,11 @@ public class SVNManager {
 
 	private final URLManager urlManager;
 
-	public SVNManager(URLManager urlManager, String username, String password) {
+	private String svnWorkingCopyDirectory;
+
+	public SVNManager(URLManager urlManager, String svnWorkingCopyDirectory, String username, String password) {
 		this.urlManager= urlManager;
+		this.svnWorkingCopyDirectory= svnWorkingCopyDirectory;
 		setupLibrary();
 		cm= SVNClientManager.newInstance(null, username, password);
 	}
@@ -41,34 +44,46 @@ public class SVNManager {
 	 * Lightweight version for local working-copy operations only. No authentication info is
 	 * required.
 	 */
-	public SVNManager() {
-		this.urlManager= null;
-		setupLibrary();
-		cm= SVNClientManager.newInstance();
+	public SVNManager(String svnWorkingCopyDirectory) {
+		this(null, svnWorkingCopyDirectory, null, null);
 	}
 
 	//
 	// Local working copy operations
 	//
 
-	public SVNInfo doInfo(String directory) throws SVNException {
-		File workingCopyDirectory= new File(directory);
+	public SVNInfo doInfo() throws SVNException {
+		File workingCopyDirectory= new File(svnWorkingCopyDirectory);
 		return cm.getWCClient().doInfo(workingCopyDirectory, SVNRevision.WORKING);
+	}
+
+	/**
+	 * @return the username of the local working copy, or the empty string if the local working copy
+	 *         has not been created yet.
+	 */
+	public String getSVNWorkingCopyUsername() {
+		try {
+			SVNInfo info= doInfo();
+			return info.getAuthor();
+		} catch (SVNException e) {
+			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
+			return "";
+		}
 	}
 
 	// 
 	// Remote repository operations
 	//
 
-	public void doImport(String directory) throws SVNException {
-		if (isWorkingDirectoryValid(directory))
+	public void doImport() throws SVNException {
+		if (isWorkingDirectoryValid())
 			return;
-		File file= new File(directory);
+		File file= new File(svnWorkingCopyDirectory);
 		cm.getCommitClient().doImport(file, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
 	}
 
-	public void doCheckout(String destinationPath) throws SVNException {
-		File destinationPathFile= new File(destinationPath);
+	public void doCheckout() throws SVNException {
+		File destinationPathFile= new File(svnWorkingCopyDirectory);
 		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), destinationPathFile, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
 				true);
 	}
@@ -83,8 +98,8 @@ public class SVNManager {
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
 	}
 
-	public boolean isWorkingDirectoryValid(String directory) {
-		File file= new File(directory);
+	public boolean isWorkingDirectoryValid() {
+		File file= new File(svnWorkingCopyDirectory);
 		try {
 			cm.getWCClient().doInfo(file, SVNRevision.WORKING);
 		} catch (SVNException e) {

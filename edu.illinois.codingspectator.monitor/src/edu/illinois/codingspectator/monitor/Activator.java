@@ -92,10 +92,10 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	}
 
 	private boolean shouldUpload() {
-		return isInTestMode() && enoughTimeHasElapsedSinceLastUpload();
+		return isNotInTestMode() && enoughTimeHasElapsedSinceLastUpload();
 	}
 
-	private boolean isInTestMode() {
+	private boolean isNotInTestMode() {
 		return System.getenv(Messages.Activator_Testing_Mode) == null;
 	}
 
