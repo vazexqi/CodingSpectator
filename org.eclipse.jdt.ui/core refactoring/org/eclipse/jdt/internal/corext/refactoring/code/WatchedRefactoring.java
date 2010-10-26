@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -27,7 +28,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * @author nchen
  * 
  */
-public abstract class WatchedRefactoring extends Refactoring {
+public abstract class WatchedRefactoring extends Refactoring implements IWatchedRefactoring {
 
 	private static final String DEFAULT_NULL_ASTNODE_CODE_SNIPPET= "EMPTY CODE SNIPPET"; //$NON-NLS-1$
 

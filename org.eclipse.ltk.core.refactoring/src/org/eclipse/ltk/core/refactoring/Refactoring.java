@@ -54,7 +54,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * The class should be subclassed by clients wishing to implement new refactorings.
  * </p>
  * 
- * @author Mohsen Vakilian, nchen - Added getSimpleRefactoringDescriptor(RefactoringStatus).
  * 
  * @since 3.0
  */
@@ -241,10 +240,6 @@ public abstract class Refactoring extends PlatformObject {
 	 */
 	public String toString() {
 		return getName();
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		throw new UnsupportedOperationException();
 	}
 
 }

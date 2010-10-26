@@ -31,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
@@ -671,21 +672,21 @@ public abstract class RefactoringWizard extends Wizard {
 
 
 	private void logRefactoringEvent(int refactoringEventType) {
-		try {
-			RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor(getConditionCheckingStatus());
-			Logger.logDebug(refactoringDescriptor.toString());
+		if (!(fRefactoring instanceof IWatchedRefactoring))
+			return;
 
-			// Wrap it into a refactoring descriptor proxy
-			RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
+		RefactoringDescriptor refactoringDescriptor= ((IWatchedRefactoring)fRefactoring).getSimpleRefactoringDescriptor(getConditionCheckingStatus());
+		Logger.logDebug(refactoringDescriptor.toString());
 
-			// Wrap it into a refactoringdecriptor event using proxy
-			RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
+		// Wrap it into a refactoring descriptor proxy
+		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
-			// Call RefactoringHistorySerializer to persist
-			RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-			serializer.historyNotification(event);
-		} catch (UnsupportedOperationException e) {
-		}
+		// Wrap it into a refactoringdecriptor event using proxy
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
+
+		// Call RefactoringHistorySerializer to persist
+		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+		serializer.historyNotification(event);
 	}
 
 	//---- Internal API, but public due to Java constraints ------------------------------
