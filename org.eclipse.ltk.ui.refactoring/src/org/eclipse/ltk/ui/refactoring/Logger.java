@@ -7,8 +7,10 @@ package org.eclipse.ltk.ui.refactoring;
  */
 public class Logger {
 
+	private static final String DEBUGGING_MODE= "DEBUG_MODE"; //$NON-NLS-1$
+
 	private static boolean isInDebugMode() {
-		return System.getenv(Messages.Logger_DebuggingMode) != null;
+		return System.getenv(DEBUGGING_MODE) != null;
 	}
 
 	public static void logDebug(String debugInfo) {
