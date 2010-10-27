@@ -1,2 +1,10 @@
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractConstantRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractTempRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineConstantRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineMethodRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFactoryRefactoring.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
+
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java

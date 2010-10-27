@@ -12,24 +12,30 @@ package org.eclipse.ltk.core.refactoring.participants;
 
 import org.eclipse.core.runtime.Assert;
 
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+
 /**
- * A generic rename refactoring. The actual refactoring is done
- * by the rename processor passed to the constructor.
+ * A generic rename refactoring. The actual refactoring is done by the rename processor passed to
+ * the constructor.
  * <p>
  * This class is not intended to be subclassed by clients.
  * </p>
- *
+ * 
  * @since 3.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Made this class implement IWatchedRefactoring
  */
-public class RenameRefactoring extends ProcessorBasedRefactoring {
+public class RenameRefactoring extends ProcessorBasedRefactoring implements IWatchedRefactoring {
 
 	private RenameProcessor fProcessor;
 
 	/**
 	 * Creates a new rename refactoring with the given rename processor.
-	 *
+	 * 
 	 * @param processor the rename processor
 	 */
 	public RenameRefactoring(RenameProcessor processor) {
@@ -43,5 +49,11 @@ public class RenameRefactoring extends ProcessorBasedRefactoring {
 	 */
 	public RefactoringProcessor getProcessor() {
 		return fProcessor;
+	}
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		if (!(fProcessor instanceof IWatchedRefactoring))
+			throw new UnsupportedOperationException();
+		return ((IWatchedRefactoring)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 }

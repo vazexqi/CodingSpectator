@@ -21,20 +21,25 @@ import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
 import org.eclipse.ltk.internal.ui.refactoring.IErrorWizardPage;
 import org.eclipse.ltk.internal.ui.refactoring.InternalAPI;
 import org.eclipse.ltk.internal.ui.refactoring.UIPerformChangeOperation;
 
 /**
- * An abstract wizard page that is to be used to implement user input pages presented
- * inside a {@link org.eclipse.ltk.ui.refactoring.RefactoringWizard refactoring wizard}.
- * User input pages are shown at the beginning of a wizard. As soon as the last input
- * page is left the refactoring's condition checking is performed. Depending on the
- * outcome an error page or the preview page is shown.
+ * An abstract wizard page that is to be used to implement user input pages presented inside a
+ * {@link org.eclipse.ltk.ui.refactoring.RefactoringWizard refactoring wizard}. User input pages are
+ * shown at the beginning of a wizard. As soon as the last input page is left the refactoring's
+ * condition checking is performed. Depending on the outcome an error page or the preview page is
+ * shown.
  * <p>
  * Clients may extend this class.
  * </p>
+ * 
+ * @author Mohsen Vakilian, nchen - Added a logging statement to the performFinish method to log
+ *         refactoring descriptors before changes are actually committed.
+ * 
  * @since 3.0
  */
 public abstract class UserInputWizardPage extends RefactoringWizardPage {
@@ -43,6 +48,7 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 
 	/**
 	 * Creates a new user input page.
+	 * 
 	 * @param name the page's name.
 	 */
 	public UserInputWizardPage(String name) {
@@ -50,12 +56,11 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 	}
 
 	/**
-	 * Returns <code>true</code> if this is the last user input page in the stack
-	 * of input pages; <code>false</code> otherwise. The last user input page is not
-	 * necessarily the page after which the refactoring's precondition has to be
-	 * triggered. For wizards implementing a dynamic work flow, this may happen for
-	 * other pages as well.
-	 *
+	 * Returns <code>true</code> if this is the last user input page in the stack of input pages;
+	 * <code>false</code> otherwise. The last user input page is not necessarily the page after
+	 * which the refactoring's precondition has to be triggered. For wizards implementing a dynamic
+	 * work flow, this may happen for other pages as well.
+	 * 
 	 * @return whether this is the last user input page or not.
 	 */
 	public boolean isLastUserInputPage() {
@@ -63,12 +68,11 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 	}
 
 	/**
-	 * Triggers the refactoring's condition checking and returns either the
-	 * error wizard page or a preview page, depending on the outcome of the
-	 * precondition checking.
-	 *
-	 * @return either the error or the preview page, depending on the refactoring's
-	 *  precondition checking
+	 * Triggers the refactoring's condition checking and returns either the error wizard page or a
+	 * preview page, depending on the outcome of the precondition checking.
+	 * 
+	 * @return either the error or the preview page, depending on the refactoring's precondition
+	 *         checking
 	 */
 	protected final IWizardPage computeSuccessorPage() {
 		return getRefactoringWizard().computeUserInputSuccessorPage(this, getContainer());
@@ -77,14 +81,14 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 	/**
 	 * Sets the page's complete status depending on the given <tt>
 	 * ReactoringStatus</tt>.
-	 *
+	 * 
 	 * @param status the <tt>RefactoringStatus</tt>
 	 */
 	public void setPageComplete(RefactoringStatus status) {
 		getRefactoringWizard().setConditionCheckingStatus(status);
 
 		int severity= status.getSeverity();
-		if (severity == RefactoringStatus.FATAL){
+		if (severity == RefactoringStatus.FATAL) {
 			setPageComplete(false);
 			setErrorMessage(status.getMessageMatchingSeverity(severity));
 		} else {
@@ -146,9 +150,12 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 				inputStatus= wizard.checkFinalConditions();
 		} else {
 			CreateChangeOperation create= new CreateChangeOperation(
-				new CheckConditionsOperation(refactoring, CheckConditionsOperation.FINAL_CONDITIONS),
-				threshold);
+					new CheckConditionsOperation(refactoring, CheckConditionsOperation.FINAL_CONDITIONS),
+					threshold);
 			PerformChangeOperation perform= new UIPerformChangeOperation(getShell().getDisplay(), create, getContainer());
+
+			//---- Added logging mechanism to refactorings
+			wizard.logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED);
 
 			FinishResult result= wizard.internalPerformFinish(InternalAPI.INSTANCE, perform);
 			wizard.internalSetChange(InternalAPI.INSTANCE, create.getChange());
@@ -178,7 +185,7 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 		return true;
 	}
 
-	/* package */ void markAsLastUserInputPage() {
+	/* package */void markAsLastUserInputPage() {
 		fIsLastUserInputPage= true;
 	}
 

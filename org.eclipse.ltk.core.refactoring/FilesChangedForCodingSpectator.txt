@@ -1,1 +1,5 @@
 src/org/eclipse/ltk/core/refactoring/IWatchedRefactoring.java
+src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistorySerializer.java
+src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistoryService.java
+src/org/eclipse/ltk/ui/refactoring/UserInputWizardPage.java
+src/org/eclipse/ltk/core/refactoring/participants/RenameRefactoring.java

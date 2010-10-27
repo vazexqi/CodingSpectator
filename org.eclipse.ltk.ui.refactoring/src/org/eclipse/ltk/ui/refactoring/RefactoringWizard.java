@@ -647,13 +647,7 @@ public abstract class RefactoringWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		RefactoringWizardPage page= (RefactoringWizardPage)getContainer().getCurrentPage();
-		boolean acceptedToPerformFinish= page.performFinish();
-
-		if (acceptedToPerformFinish) {
-			logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED);
-		}
-
-		return acceptedToPerformFinish;
+		return page.performFinish();
 	}
 
 	/**
@@ -671,7 +665,7 @@ public abstract class RefactoringWizard extends Wizard {
 	}
 
 
-	private void logRefactoringEvent(int refactoringEventType) {
+	public void logRefactoringEvent(int refactoringEventType) {
 		if (!(fRefactoring instanceof IWatchedRefactoring))
 			return;
 

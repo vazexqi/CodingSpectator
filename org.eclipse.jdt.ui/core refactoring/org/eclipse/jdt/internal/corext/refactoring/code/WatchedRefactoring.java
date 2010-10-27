@@ -36,6 +36,16 @@ public abstract class WatchedRefactoring extends Refactoring implements IWatched
 
 	protected int fSelectionLength;
 
+	protected ICompilationUnit fCompilationUnit;
+
+	public WatchedRefactoring(ICompilationUnit fCompilationUnit) {
+		this.fCompilationUnit= fCompilationUnit;
+	}
+
+	public WatchedRefactoring() {
+
+	}
+
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus) {
 		Map arguments= new HashMap();
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
@@ -82,12 +92,14 @@ public abstract class WatchedRefactoring extends Refactoring implements IWatched
 	}
 
 	private ASTNode findTargetNode() {
-		ASTNode localNode= RefactoringASTParser.parseWithASTProvider(getCompilationUnit(), true, new NullProgressMonitor());
+		ASTNode localNode= RefactoringASTParser.parseWithASTProvider(getCompilationUnit(), false, new NullProgressMonitor());
 
 		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
 		return NodeFinder.perform(localNode, fSelectionStart, fSelectionLength);
 	}
 
-	protected abstract ICompilationUnit getCompilationUnit();
+	protected ICompilationUnit getCompilationUnit() {
+		return fCompilationUnit;
+	}
 
 }
