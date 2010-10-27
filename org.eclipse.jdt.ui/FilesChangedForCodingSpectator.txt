@@ -1,0 +1,2 @@
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java

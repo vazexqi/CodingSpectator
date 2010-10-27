@@ -1,0 +1,1 @@
+src/org/eclipse/ltk/core/refactoring/IWatchedRefactoring.java
