@@ -7,5 +7,6 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFacto
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java
