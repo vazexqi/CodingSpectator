@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.refactoring.rename;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Assert;
@@ -26,6 +28,7 @@ import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -70,35 +73,45 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-public class RenameLocalVariableProcessor extends JavaRenameProcessor implements IReferenceUpdating {
+public class RenameLocalVariableProcessor extends JavaRenameProcessor implements IReferenceUpdating, IWatchedRefactoring {
 
 	private ILocalVariable fLocalVariable;
+
 	private ICompilationUnit fCu;
 
 	//the following fields are set or modified after the construction
 	private boolean fUpdateReferences;
+
 	private String fCurrentName;
+
 	private String fNewName;
+
 	private CompilationUnit fCompilationUnitNode;
+
 	private VariableDeclaration fTempDeclarationNode;
+
 	private CompilationUnitChange fChange;
 
 	private boolean fIsComposite;
+
 	private GroupCategorySet fCategorySet;
+
 	private TextChangeManager fChangeManager;
+
 	private RenameAnalyzeUtil.LocalAnalyzePackage fLocalAnalyzePackage;
 
 	public static final String IDENTIFIER= "org.eclipse.jdt.ui.renameLocalVariableProcessor"; //$NON-NLS-1$
 
 	/**
 	 * Creates a new rename local variable processor.
+	 * 
 	 * @param localVariable the local variable, or <code>null</code> if invoked by scripting
 	 */
 	public RenameLocalVariableProcessor(ILocalVariable localVariable) {
 		fLocalVariable= localVariable;
 		fUpdateReferences= true;
 		if (localVariable != null)
-			fCu= (ICompilationUnit) localVariable.getAncestor(IJavaElement.COMPILATION_UNIT);
+			fCu= (ICompilationUnit)localVariable.getAncestor(IJavaElement.COMPILATION_UNIT);
 		fNewName= ""; //$NON-NLS-1$
 		fIsComposite= false;
 	}
@@ -114,7 +127,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	 * <p>
 	 * This constructor is only used by <code>RenameTypeProcessor</code>.
 	 * </p>
-	 *
+	 * 
 	 * @param localVariable the local variable
 	 * @param manager the change manager
 	 * @param node the compilation unit node
@@ -210,8 +223,8 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		initAST();
 		if (fTempDeclarationNode == null || fTempDeclarationNode.resolveBinding() == null)
 			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.RenameTempRefactoring_must_select_local);
-		if (! Checks.isDeclaredIn(fTempDeclarationNode, MethodDeclaration.class)
-		 && ! Checks.isDeclaredIn(fTempDeclarationNode, Initializer.class))
+		if (!Checks.isDeclaredIn(fTempDeclarationNode, MethodDeclaration.class)
+				&& !Checks.isDeclaredIn(fTempDeclarationNode, Initializer.class))
 			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.RenameTempRefactoring_only_in_methods_and_initializers);
 
 		initNames();
@@ -226,10 +239,10 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		if (name == null)
 			return;
 		if (name.getParent() instanceof VariableDeclaration)
-			fTempDeclarationNode= (VariableDeclaration) name.getParent();
+			fTempDeclarationNode= (VariableDeclaration)name.getParent();
 	}
 
-	private void initNames(){
+	private void initNames() {
 		fCurrentName= fTempDeclarationNode.getName().getIdentifier();
 	}
 
@@ -240,7 +253,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	}
 
 	protected IFile[] getChangedFiles() throws CoreException {
-		return new IFile[] {ResourceUtil.getFile(fCu)};
+		return new IFile[] { ResourceUtil.getFile(fCu) };
 	}
 
 	public int getSaveMode() {
@@ -250,7 +263,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	protected RefactoringStatus doCheckFinalConditions(IProgressMonitor pm, CheckConditionsContext context)
 			throws CoreException, OperationCanceledException {
 		try {
-			pm.beginTask("", 1);	 //$NON-NLS-1$
+			pm.beginTask("", 1); //$NON-NLS-1$
 
 			RefactoringStatus result= checkNewElementName(fNewName);
 			if (result.hasFatalError())
@@ -277,7 +290,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	 */
 	public RefactoringStatus checkNewElementName(String newName) throws JavaModelException {
 		RefactoringStatus result= Checks.checkFieldName(newName, fCu);
-		if (! Checks.startsWithLowerCase(newName))
+		if (!Checks.startsWithLowerCase(newName))
 			if (fIsComposite) {
 				final String nameOfParent= JavaElementLabels.getElementLabel(fLocalVariable.getParent(), JavaElementLabels.ALL_DEFAULT);
 				final String nameOfType= JavaElementLabels.getElementLabel(fLocalVariable.getAncestor(IJavaElement.TYPE), JavaElementLabels.ALL_DEFAULT);
@@ -323,7 +336,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	}
 
 	private TextEdit[] getAllRenameEdits(TextEdit declarationEdit) {
-		if (! fUpdateReferences)
+		if (!fUpdateReferences)
 			return new TextEdit[] { declarationEdit };
 
 		TempOccurrenceAnalyzer fTempAnalyzer= new TempOccurrenceAnalyzer(fTempDeclarationNode, true);
@@ -358,7 +371,8 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		IJavaProject javaProject= fCu.getJavaProject();
 		if (javaProject != null)
 			project= javaProject.getElementName();
-		final String header= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fCurrentName), JavaElementLabels.getElementLabel(fLocalVariable.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(fNewName)});
+		final String header= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fCurrentName),
+				JavaElementLabels.getElementLabel(fLocalVariable.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(fNewName) });
 		final String description= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fCurrentName));
 		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
 		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_LOCAL_VARIABLE);
@@ -372,16 +386,58 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		return descriptor;
 	}
 
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		String project= null;
+		IJavaProject javaProject= fCu.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		final String header= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fCurrentName),
+				JavaElementLabels.getElementLabel(fLocalVariable.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(fNewName) });
+		final String description= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fCurrentName));
+		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
+		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_LOCAL_VARIABLE, project, description, comment,
+				arguments, RefactoringDescriptor.NONE);
+		descriptor.setJavaElement(fLocalVariable);
+		descriptor.setNewName(getNewElementName());
+		descriptor.setUpdateReferences(fUpdateReferences);
+		return descriptor;
+	}
+
+	private Map populateInstrumentationData(RefactoringStatus refactoringStatus) {
+		Map arguments= new HashMap();
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
+		populateRefactoringSpecificFields(arguments);
+		return arguments;
+	}
+
+	protected void populateRefactoringSpecificFields(final Map arguments) {
+		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_INPUT, fLocalVariable.getHandleIdentifier()); // This has an exception
+		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_NAME, getNewElementName());
+		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_REFERENCES, Boolean.valueOf(fUpdateReferences).toString());
+	}
+
+	private String getSelection() {
+		return fLocalVariable.getElementName();
+	}
+
+	private String getCodeSnippet() {
+		return fLocalVariable.getParent().toString();
+	}
+
 	private RefactoringStatus initialize(JavaRefactoringArguments extended) {
 		final String handle= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT);
 		if (handle != null) {
 			final IJavaElement element= JavaRefactoringDescriptorUtil.handleToElement(extended.getProject(), handle, false);
 			if (element != null && element.exists()) {
 				if (element.getElementType() == IJavaElement.COMPILATION_UNIT) {
-					fCu= (ICompilationUnit) element;
+					fCu= (ICompilationUnit)element;
 				} else if (element.getElementType() == IJavaElement.LOCAL_VARIABLE) {
-					fLocalVariable= (ILocalVariable) element;
-					fCu= (ICompilationUnit) fLocalVariable.getAncestor(IJavaElement.COMPILATION_UNIT);
+					fLocalVariable= (ILocalVariable)element;
+					fCu= (ICompilationUnit)fLocalVariable.getAncestor(IJavaElement.COMPILATION_UNIT);
 					if (fCu == null)
 						return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_LOCAL_VARIABLE);
 				} else
@@ -412,7 +468,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 							for (int index= 0; index < elements.length; index++) {
 								final IJavaElement element= elements[index];
 								if (element instanceof ILocalVariable)
-									fLocalVariable= (ILocalVariable) element;
+									fLocalVariable= (ILocalVariable)element;
 							}
 						}
 						if (fLocalVariable == null)

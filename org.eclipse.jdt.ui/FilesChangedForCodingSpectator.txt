@@ -6,5 +6,6 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineMethodRe
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFactoryRefactoring.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java
