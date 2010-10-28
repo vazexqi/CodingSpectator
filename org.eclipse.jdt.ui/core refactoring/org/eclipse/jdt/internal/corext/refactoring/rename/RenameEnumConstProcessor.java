@@ -94,7 +94,7 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 		return result;
 	}
 
-	protected RenameJavaElementDescriptor createRefactoringDescriptor() {
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final IField field= getField();
 		String project= null;
 		IJavaProject javaProject= field.getJavaProject();

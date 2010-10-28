@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.refactoring.rename;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.Assert;
@@ -28,7 +26,6 @@ import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
-import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -47,8 +44,9 @@ import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
@@ -73,7 +71,7 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-public class RenameLocalVariableProcessor extends JavaRenameProcessor implements IReferenceUpdating, IWatchedRefactoring {
+public class RenameLocalVariableProcessor extends JavaRenameProcessor implements IReferenceUpdating {
 
 	private ILocalVariable fLocalVariable;
 
@@ -358,15 +356,14 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenameTypeProcessor_creating_changes, 1);
 
-			RenameJavaElementDescriptor descriptor= createRefactoringDescriptor();
-			fChange.setDescriptor(new RefactoringChangeDescriptor(descriptor));
+			fChange.setDescriptor(new RefactoringChangeDescriptor(createRefactoringDescriptor()));
 			return fChange;
 		} finally {
 			monitor.done();
 		}
 	}
 
-	private RenameJavaElementDescriptor createRefactoringDescriptor() {
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fCu.getJavaProject();
 		if (javaProject != null)
@@ -384,48 +381,6 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		descriptor.setNewName(getNewElementName());
 		descriptor.setUpdateReferences(fUpdateReferences);
 		return descriptor;
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= null;
-		IJavaProject javaProject= fCu.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		final String header= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fCurrentName),
-				JavaElementLabels.getElementLabel(fLocalVariable.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(fNewName) });
-		final String description= Messages.format(RefactoringCoreMessages.RenameLocalVariableProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fCurrentName));
-		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_LOCAL_VARIABLE, project, description, comment,
-				arguments, RefactoringDescriptor.NONE);
-		descriptor.setJavaElement(fLocalVariable);
-		descriptor.setNewName(getNewElementName());
-		descriptor.setUpdateReferences(fUpdateReferences);
-		return descriptor;
-	}
-
-	private Map populateInstrumentationData(RefactoringStatus refactoringStatus) {
-		Map arguments= new HashMap();
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
-		populateRefactoringSpecificFields(arguments);
-		return arguments;
-	}
-
-	protected void populateRefactoringSpecificFields(final Map arguments) {
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_INPUT, fLocalVariable.getHandleIdentifier()); // This has an exception
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_NAME, getNewElementName());
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_REFERENCES, Boolean.valueOf(fUpdateReferences).toString());
-	}
-
-	private String getSelection() {
-		return fLocalVariable.getElementName();
-	}
-
-	private String getCodeSnippet() {
-		return fLocalVariable.getParent().toString();
 	}
 
 	private RefactoringStatus initialize(JavaRefactoringArguments extended) {

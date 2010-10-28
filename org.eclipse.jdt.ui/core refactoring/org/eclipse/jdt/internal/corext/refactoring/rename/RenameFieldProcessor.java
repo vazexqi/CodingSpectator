@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.corext.refactoring.rename;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -28,7 +27,6 @@ import org.eclipse.text.edits.TextEdit;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
-import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -100,7 +98,7 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-public class RenameFieldProcessor extends JavaRenameProcessor implements IReferenceUpdating, ITextUpdating, IDelegateUpdating, IWatchedRefactoring {
+public class RenameFieldProcessor extends JavaRenameProcessor implements IReferenceUpdating, ITextUpdating, IDelegateUpdating {
 
 	protected static final String ATTRIBUTE_TEXTUAL_MATCHES= "textual"; //$NON-NLS-1$
 
@@ -611,8 +609,7 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenameFieldRefactoring_checking, 1);
 			TextChange[] changes= fChangeManager.getAllChanges();
-			RenameJavaElementDescriptor descriptor= createRefactoringDescriptor();
-			return new DynamicValidationRefactoringChange(descriptor, getProcessorName(), changes);
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), getProcessorName(), changes);
 		} finally {
 			monitor.done();
 		}
@@ -623,7 +620,7 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 	 * 
 	 * @return return the refactoring descriptor for this refactoring
 	 */
-	protected RenameJavaElementDescriptor createRefactoringDescriptor() {
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fField.getJavaProject();
 		if (javaProject != null)
@@ -664,29 +661,6 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 		descriptor.setKeepOriginal(fDelegateUpdating);
 		descriptor.setDeprecateDelegate(fDelegateDeprecation);
 		return descriptor;
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		RenameJavaElementDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
-		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
-				augmentedArguments, d.getFlags());
-		return descriptor;
-	}
-
-	private Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
-		return basicArguments;
-	}
-
-	private String getSelection() {
-		return fField.getElementName();
-	}
-
-	private String getCodeSnippet() {
-		return fField.toString();
 	}
 
 	private RefactoringStatus createChanges(IProgressMonitor pm) throws CoreException {

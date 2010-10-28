@@ -12,11 +12,9 @@ package org.eclipse.jdt.internal.corext.refactoring.rename;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
@@ -31,7 +29,6 @@ import org.eclipse.text.edits.ReplaceEdit;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
-import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -99,7 +96,7 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-public abstract class RenameMethodProcessor extends JavaRenameProcessor implements IReferenceUpdating, IDelegateUpdating, IWatchedRefactoring {
+public abstract class RenameMethodProcessor extends JavaRenameProcessor implements IReferenceUpdating, IDelegateUpdating {
 
 	private static final String ATTRIBUTE_DELEGATE= "delegate"; //$NON-NLS-1$
 
@@ -714,52 +711,18 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 			final TextChange[] changes= fChangeManager.getAllChanges();
 			final List list= new ArrayList(changes.length);
 			list.addAll(Arrays.asList(changes));
-			String project= null;
-			IJavaProject javaProject= fMethod.getJavaProject();
-			if (javaProject != null)
-				project= javaProject.getElementName();
-			int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE;
-			try {
-				if (!Flags.isPrivate(fMethod.getFlags()))
-					flags|= RefactoringDescriptor.MULTI_CHANGE;
-			} catch (JavaModelException exception) {
-				JavaPlugin.log(exception);
-			}
-			final IType declaring= fMethod.getDeclaringType();
-			try {
-				if (declaring.isAnonymous() || declaring.isLocal())
-					flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-			} catch (JavaModelException exception) {
-				JavaPlugin.log(exception);
-			}
-			final String description= Messages.format(RefactoringCoreMessages.RenameMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
-			final String header= Messages.format(RefactoringCoreMessages.RenameMethodProcessor_descriptor_description,
-					new String[] { JavaElementLabels.getTextLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName()) });
-			final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
 
-			final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_METHOD);
-			descriptor.setProject(project);
-			descriptor.setDescription(description);
-			descriptor.setComment(comment);
-			descriptor.setFlags(flags);
-			descriptor.setJavaElement(fMethod);
-			descriptor.setNewName(getNewElementName());
-			descriptor.setUpdateReferences(fUpdateReferences);
-			descriptor.setKeepOriginal(fDelegateUpdating);
-			descriptor.setDeprecateDelegate(fDelegateDeprecation);
-
-			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.RenameMethodProcessor_change_name, (Change[])list.toArray(new Change[list.size()]));
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameMethodProcessor_change_name, (Change[])list.toArray(new Change[list.size()]));
 		} finally {
 			monitor.done();
 		}
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fMethod.getJavaProject();
 		if (javaProject != null)
 			project= javaProject.getElementName();
-
 		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE;
 		try {
 			if (!Flags.isPrivate(fMethod.getFlags()))
@@ -779,36 +742,17 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 				new String[] { JavaElementLabels.getTextLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName()) });
 		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
 
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_METHOD, project, description, comment,
-				arguments, flags);
-
+		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_METHOD);
+		descriptor.setProject(project);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment);
+		descriptor.setFlags(flags);
+		descriptor.setJavaElement(fMethod);
+		descriptor.setNewName(getNewElementName());
+		descriptor.setUpdateReferences(fUpdateReferences);
+		descriptor.setKeepOriginal(fDelegateUpdating);
+		descriptor.setDeprecateDelegate(fDelegateDeprecation);
 		return descriptor;
-	}
-
-	private Map populateInstrumentationData(RefactoringStatus refactoringStatus) {
-		Map arguments= new HashMap();
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
-		populateRefactoringSpecificFields(arguments);
-		return arguments;
-	}
-
-	protected void populateRefactoringSpecificFields(final Map arguments) {
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_INPUT, fMethod.getHandleIdentifier()); // This has an exception
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_NAME, getNewElementName());
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_REFERENCES, Boolean.valueOf(fUpdateReferences).toString());
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_DELEGATE, Boolean.valueOf(fDelegateUpdating).toString());
-		arguments.put(RenameJavaElementDescriptor.ATTRIBUTE_DEPRECATE, Boolean.valueOf(fDelegateDeprecation).toString());
-	}
-
-	private String getSelection() {
-		return fMethod.getElementName();
-	}
-
-	private String getCodeSnippet() {
-		return fMethod.toString();
 	}
 
 	private TextChangeManager createChanges(IProgressMonitor pm, RefactoringStatus status) throws CoreException {

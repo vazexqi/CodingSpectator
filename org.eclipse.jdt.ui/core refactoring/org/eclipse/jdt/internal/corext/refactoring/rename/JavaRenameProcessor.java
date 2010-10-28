@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.refactoring.rename;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -18,6 +20,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
@@ -26,14 +30,19 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.ltk.core.refactoring.participants.ValidateEditChecker;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+
+import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 
-public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating {
+public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedRefactoring {
 
 	private String fNewElementName;
+
 	private RenameModifications fRenameModifications;
 
 	public final RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants shared) throws CoreException {
@@ -41,7 +50,7 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 	}
 
 	public final RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
-		ResourceChangeChecker checker= (ResourceChangeChecker) context.getChecker(ResourceChangeChecker.class);
+		ResourceChangeChecker checker= (ResourceChangeChecker)context.getChecker(ResourceChangeChecker.class);
 		IResourceChangeDescriptionFactory deltaFactory= checker.getDeltaFactory();
 		RefactoringStatus result= doCheckFinalConditions(pm, context);
 		if (result.hasFatalError())
@@ -75,9 +84,34 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 
 	/**
 	 * @return a save mode from {@link RefactoringSaveHelper}
-	 *
+	 * 
 	 * @see RefactoringSaveHelper
 	 */
 	public abstract int getSaveMode();
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		JavaRefactoringDescriptor d= createRefactoringDescriptor();
+		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
+		final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
+				augmentedArguments, d.getFlags());
+		return descriptor;
+	}
+
+	protected abstract JavaRefactoringDescriptor createRefactoringDescriptor();
+
+	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
+		return basicArguments;
+	}
+
+	protected String getSelection() {
+		return ((IJavaElement)getElements()[0]).getElementName();
+	}
+
+	protected String getCodeSnippet() {
+		return ((IJavaElement)getElements()[0]).toString();
+	}
 
 }

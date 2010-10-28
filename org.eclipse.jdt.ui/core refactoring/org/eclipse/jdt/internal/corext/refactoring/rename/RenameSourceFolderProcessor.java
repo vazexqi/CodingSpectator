@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
@@ -173,23 +174,26 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask(RefactoringCoreMessages.RenameTypeRefactoring_creating_change, 1);
 		try {
-			final IResource resource= fSourceFolder.getResource();
-			final String project= resource.getProject().getName();
-			final String newName= getNewElementName();
-			final String description= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description_short, JavaElementLabels.getElementLabel(fSourceFolder, JavaElementLabels.ALL_DEFAULT));
-			final String header= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description, new String[] { BasicElementLabels.getPathLabel(resource.getFullPath(), false), BasicElementLabels.getJavaElementName(newName)});
-			final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
-			final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_SOURCE_FOLDER);
-			descriptor.setProject(project);
-			descriptor.setDescription(description);
-			descriptor.setComment(comment);
-			descriptor.setFlags(RefactoringDescriptor.NONE);
-			descriptor.setJavaElement(fSourceFolder);
-			descriptor.setNewName(newName);
-			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.RenameSourceFolderRefactoring_rename, new Change[] { new RenameSourceFolderChange(fSourceFolder, newName)});
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameSourceFolderRefactoring_rename, new Change[] { new RenameSourceFolderChange(fSourceFolder, getNewElementName())});
 		} finally {
 			monitor.done();
 		}
+	}
+
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+		final IResource resource= fSourceFolder.getResource();
+		final String project= resource.getProject().getName();
+		final String description= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description_short, JavaElementLabels.getElementLabel(fSourceFolder, JavaElementLabels.ALL_DEFAULT));
+		final String header= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description, new String[] { BasicElementLabels.getPathLabel(resource.getFullPath(), false), BasicElementLabels.getJavaElementName(getNewElementName())});
+		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
+		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_SOURCE_FOLDER);
+		descriptor.setProject(project);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment);
+		descriptor.setFlags(RefactoringDescriptor.NONE);
+		descriptor.setJavaElement(fSourceFolder);
+		descriptor.setNewName(getNewElementName());
+		return descriptor;
 	}
 
 	private RefactoringStatus initialize(JavaRefactoringArguments generic) {
