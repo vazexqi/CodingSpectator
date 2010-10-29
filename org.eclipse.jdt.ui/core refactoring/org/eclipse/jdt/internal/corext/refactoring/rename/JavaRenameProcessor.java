@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.refactoring.rename;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
@@ -37,6 +39,8 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatur
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
+
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 
 public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedRefactoring {
@@ -91,10 +95,23 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
+		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
 		final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
 				augmentedArguments, d.getFlags());
 		return descriptor;
+	}
+
+	protected Map getArguments(JavaRefactoringDescriptor d) {
+		try {
+			Class c= JavaRefactoringDescriptor.class;
+			Method getArgumentsMethod= c.getDeclaredMethod("getArguments", new Class[] {}); //$NON-NLS-1$
+			getArgumentsMethod.setAccessible(true);
+			return (Map)getArgumentsMethod.invoke(d, new Object[] {});
+		} catch (Exception e) {
+			JavaPlugin.log(e);
+		}
+		return new HashMap();
+
 	}
 
 	protected abstract JavaRefactoringDescriptor createRefactoringDescriptor();

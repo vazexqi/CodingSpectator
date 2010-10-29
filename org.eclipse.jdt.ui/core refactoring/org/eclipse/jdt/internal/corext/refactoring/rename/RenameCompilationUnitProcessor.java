@@ -431,35 +431,37 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		RefactoringDescriptor r= createRefactoringDescriptor();
+		RefactoringDescriptor r= createRenameCompilationUnitRefactoringDescriptor();
 		if (r instanceof JavaRefactoringDescriptor) {
 			JavaRefactoringDescriptor d= (JavaRefactoringDescriptor)r;
-			final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
+			final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
 			final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
 					augmentedArguments, d.getFlags());
 			return descriptor;
 		} else {
 			String comment= r.getComment();
-			comment+= "SNIPPET: " + getCodeSnippet() + ",";
-			comment+= "SELECTION: " + getSelection() + ",";
-			comment+= "STATUS: " + refactoringStatus.toString();
+			comment+= "SNIPPET: " + getCodeSnippet() + ","; //$NON-NLS-1$//$NON-NLS-2$
+			comment+= "SELECTION: " + getSelection() + ","; //$NON-NLS-1$//$NON-NLS-2$
+			comment+= "STATUS: " + refactoringStatus.toString(); //$NON-NLS-1$
 			r.setComment(comment);
 			return r;
 		}
 	}
 
-	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
-		return basicArguments;
-	}
-
+	/**
+	 * This refactoring might return a RenameResourceDescriptor, which is not a subclass of
+	 * JavaRefactoringDescriptor. So, we have implemented createLocalRefactoringDescriptor instead
+	 * of createRefactoringDescriptor. Therefore, we cannot reuse
+	 * org.eclipse.jdt.internal.corext.refactoring
+	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
+	 * 
+	 * @return null
+	 */
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		return null;
 	}
 
-	protected RefactoringDescriptor createLocalRefactoringDescriptor() {
+	protected RefactoringDescriptor createRenameCompilationUnitRefactoringDescriptor() {
 		final String newName= getNewElementName();
 		final IResource resource= fCu.getResource();
 		if (resource != null && resource.isLinked()) {
