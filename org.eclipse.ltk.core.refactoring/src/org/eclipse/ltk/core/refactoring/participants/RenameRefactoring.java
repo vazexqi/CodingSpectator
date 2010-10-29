@@ -12,6 +12,8 @@ package org.eclipse.ltk.core.refactoring.participants;
 
 import org.eclipse.core.runtime.Assert;
 
+import org.eclipse.ltk.core.refactoring.IWatched;
+import org.eclipse.ltk.core.refactoring.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -52,8 +54,12 @@ public class RenameRefactoring extends ProcessorBasedRefactoring implements IWat
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		if (!(fProcessor instanceof IWatchedRefactoring))
+		if (!(fProcessor instanceof IWatched))
 			throw new UnsupportedOperationException();
-		return ((IWatchedRefactoring)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+		return ((IWatched)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	public boolean isWatched() {
+		return fProcessor instanceof IWatchedProcessor;
 	}
 }

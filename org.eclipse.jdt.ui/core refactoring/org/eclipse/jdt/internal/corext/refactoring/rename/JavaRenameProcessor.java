@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 
-import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
+import org.eclipse.ltk.core.refactoring.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 
-public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedRefactoring {
+public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedProcessor {
 
 	private String fNewElementName;
 
