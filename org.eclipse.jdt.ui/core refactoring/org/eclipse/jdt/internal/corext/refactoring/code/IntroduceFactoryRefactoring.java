@@ -116,7 +116,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * @author nchen - Extended WatchedRefactoring.
  * 
  */
-public class IntroduceFactoryRefactoring extends WatchedRefactoring {
+public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_PROTECT= "protect"; //$NON-NLS-1$
 

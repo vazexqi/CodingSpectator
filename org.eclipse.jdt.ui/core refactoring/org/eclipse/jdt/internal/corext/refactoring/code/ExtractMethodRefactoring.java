@@ -131,7 +131,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * 
  * @author Mohsen Vakilian, nchen - Extended WatchedRefactoring.
  */
-public class ExtractMethodRefactoring extends WatchedRefactoring {
+public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 

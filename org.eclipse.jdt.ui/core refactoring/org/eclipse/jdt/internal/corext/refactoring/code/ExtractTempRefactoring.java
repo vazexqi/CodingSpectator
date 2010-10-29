@@ -136,7 +136,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * @author nchen - Extended WatchedRefactoring.
  * 
  */
-public class ExtractTempRefactoring extends WatchedRefactoring {
+public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 

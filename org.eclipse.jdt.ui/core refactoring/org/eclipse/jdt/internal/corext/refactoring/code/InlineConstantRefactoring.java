@@ -129,7 +129,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * @author nchen - Extended WatchedRefactoring.
  * 
  */
-public class InlineConstantRefactoring extends WatchedRefactoring {
+public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 

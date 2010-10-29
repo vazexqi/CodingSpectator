@@ -98,7 +98,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * @author nchen - Extended WatchedRefactoring.
  * 
  */
-public class InlineMethodRefactoring extends WatchedRefactoring {
+public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_MODE= "mode"; //$NON-NLS-1$
 
