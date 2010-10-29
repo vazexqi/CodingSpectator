@@ -669,7 +669,11 @@ public abstract class RefactoringWizard extends Wizard {
 		if (!(fRefactoring instanceof IWatchedRefactoring))
 			return;
 
-		RefactoringDescriptor refactoringDescriptor= ((IWatchedRefactoring)fRefactoring).getSimpleRefactoringDescriptor(getConditionCheckingStatus());
+		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)fRefactoring;
+		if (!(watchedRefactoring.isWatched()))
+			return;
+
+		RefactoringDescriptor refactoringDescriptor= watchedRefactoring.getSimpleRefactoringDescriptor(getConditionCheckingStatus());
 		Logger.logDebug(refactoringDescriptor.toString());
 
 		// Wrap it into a refactoring descriptor proxy
