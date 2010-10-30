@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="fetch-svnkit-jars" default="move" basedir=".">
+<project name="fetch-svnkit-jars" default="install-jars" basedir=".">
 
 	<property name="svnkit-zip-destination" value="svn-kit" />
 	<property name="svnkit-base-url" value="http://www.svnkit.com" />
 	<property name="svnkit-zip-file" value="org.tmatesoft.svn_1.3.4.standalone.zip" />
 	<property name="svn-kit-full-version" value="svnkit-1.3.4.6888" />
 	<property name="project" value="org.tmatesoft.svn_1.3.4.eclipse" />
-	<property name="SHA" value="ea736c73d23285d2d73cd458d89bac709d1ff1c" />
+	<property name="SHA" value="ea736c73d23285d2d73cd458d89bac709d1ffd1c" />
 
 	<condition property="jar-files.present">
 		<and>
@@ -35,8 +35,12 @@
 		<checksum file="${svnkit-zip-destination}/${svnkit-zip-file}" algorithm="SHA" property="${SHA}" verifyproperty="checksum.ok" />
 	</target>
 
-	<target name="unzipcheck" depends="checksum" unless="checksum.ok">
-		<fail message="Checksums do not match. Aborting..." />
+	<target name="unzipcheck" depends="checksum">
+		<fail message="Checksums do not match. Aborting...">
+			<condition>
+				<isfalse value="${checksum.ok}" />
+			</condition>
+		</fail>
 	</target>
 
 	<target name="unzip" depends="unzipcheck">
@@ -56,14 +60,40 @@
 				<file name="trilead.jar" />
 			</filelist>
 		</move>
-		<!-- Refreshed the entire project directory to perform a build. This doesn't always seem to work and we might still need to invoke a build manually -->
+	</target>
+
+	<target name="refresh">
 		<eclipse.refreshLocal resource="${project}" depth="infinite" />
+	</target>
+
+	<target name="build">
+		<!-- Refreshed the entire project directory to perform a build. This doesn't always seem to work and we might still need to invoke a build manually -->
 		<eclipse.incrementalBuild kind="full" />
+	</target>
+
+	<target name="refresh-and-build" depends="refresh, build">
+	</target>
+
+	<target name="install-jars" depends="move, refresh-and-build">
 	</target>
 
 	<!-- By default we don't delete the zip files. However, the zip and jar files are ignored in git -->
 	<target name="remove-files">
 		<delete dir="${svnkit-zip-destination}" />
+	</target>
+
+	<target name="clean" depends="remove-files">
+		<delete>
+			<filelist dir=".">
+				<file name="antlr-runtime-3.1.3.jar" />
+				<file name="jna.jar" />
+				<file name="sqljet.1.0.3.jar" />
+				<file name="svnkit-cli.jar" />
+				<file name="svnkit.jar" />
+				<file name="svnkit-javahl.jar" />
+				<file name="trilead.jar" />
+			</filelist>
+		</delete>
 	</target>
 
 </project>
