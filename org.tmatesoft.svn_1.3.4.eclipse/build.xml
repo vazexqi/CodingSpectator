@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="fetch-svnkit-jars" default="move" basedir=".">
+
+	<property name="svnkit-zip-destination" value="svn-kit" />
+	<property name="svnkit-base-url" value="http://www.svnkit.com" />
+	<property name="svnkit-zip-file" value="org.tmatesoft.svn_1.3.4.standalone.zip" />
+	<property name="svn-kit-full-version" value="svnkit-1.3.4.6888" />
+	<property name="project" value="org.tmatesoft.svn_1.3.4.eclipse" />
+
+	<condition property="jar-files.present">
+		<and>
+			<available file="antlr-runtime-3.1.3.jar" />
+			<available file="jna.jar" />
+			<available file="sqljet.1.0.3.jar" />
+			<available file="svnkit-cli.jar" />
+			<available file="svnkit.jar" />
+			<available file="svnkit-javahl.jar" />
+			<available file="trilead.jar" />
+		</and>
+	</condition>
+
+	<condition property="zip-file.present">
+		<available file="${svnkit-zip-destination}/${svnkit-zip-file}" />
+	</condition>
+
+	<target name="fetch" unless="zip-file.present">
+		<mkdir dir="${svnkit-zip-destination}" />
+		<get src="${svnkit-base-url}/${svnkit-zip-file}" dest="${svnkit-zip-destination}/${svnkit-zip-file}" />
+	</target>
+
+	<target name="unzip" depends="fetch">
+		<unzip src="${svnkit-zip-destination}/${svnkit-zip-file}" dest="${svnkit-zip-destination}" />
+	</target>
+
+	<target name="move" depends="unzip" unless="jar-files.present">
+		<move todir=".">
+			<filelist dir="${svnkit-zip-destination}/${svn-kit-full-version}">
+				<file name="antlr-runtime-3.1.3.jar" />
+				<file name="jna.jar" />
+				<file name="sqljet.1.0.3.jar" />
+				<file name="svnkit-cli.jar" />
+				<file name="svnkit.jar" />
+				<file name="svnkit-javahl.jar" />
+				<file name="trilead.jar" />
+			</filelist>
+		</move>
+		<!-- Refreshed the entire project directory to perform a build. This doesn't always seem to work and we might still need to invoke a build manually -->
+		<eclipse.refreshLocal resource="${project}" depth="infinite" />
+		<eclipse.incrementalBuild kind="full" />
+	</target>
+
+	<!-- By default we don't delete the zip files. However, the zip and jar files are ignored in git -->
+	<target name="remove-files">
+		<delete dir="${svnkit-zip-destination}" />
+	</target>
+
+</project>
