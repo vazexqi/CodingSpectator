@@ -6,6 +6,7 @@
 	<property name="svnkit-zip-file" value="org.tmatesoft.svn_1.3.4.standalone.zip" />
 	<property name="svn-kit-full-version" value="svnkit-1.3.4.6888" />
 	<property name="project" value="org.tmatesoft.svn_1.3.4.eclipse" />
+	<property name="SHA" value="ea736c73d23285d2d73cd458d89bac709d1ff1c" />
 
 	<condition property="jar-files.present">
 		<and>
@@ -24,11 +25,22 @@
 	</condition>
 
 	<target name="fetch" unless="zip-file.present">
+		<echo message="Fetching zip files ...." />
 		<mkdir dir="${svnkit-zip-destination}" />
 		<get src="${svnkit-base-url}/${svnkit-zip-file}" dest="${svnkit-zip-destination}/${svnkit-zip-file}" />
 	</target>
 
-	<target name="unzip" depends="fetch">
+	<target name="checksum" depends="fetch">
+		<echo message="Verifying checksums..." />
+		<checksum file="${svnkit-zip-destination}/${svnkit-zip-file}" algorithm="SHA" property="${SHA}" verifyproperty="checksum.ok" />
+	</target>
+
+	<target name="unzipcheck" depends="checksum" unless="checksum.ok">
+		<fail message="Checksums do not match. Aborting..." />
+	</target>
+
+	<target name="unzip" depends="unzipcheck">
+		<echo message="Unzipping..." />
 		<unzip src="${svnkit-zip-destination}/${svnkit-zip-file}" dest="${svnkit-zip-destination}" />
 	</target>
 
