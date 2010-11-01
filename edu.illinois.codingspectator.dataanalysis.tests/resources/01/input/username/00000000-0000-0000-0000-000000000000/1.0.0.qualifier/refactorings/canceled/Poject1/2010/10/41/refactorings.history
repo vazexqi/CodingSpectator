@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring code-snippet="&#x09;&#x09;&#x09;&#x09;public class Main {&#x0A;&#x09;&#x09;&#x09;&#x09;&#x09;public static void main(String[] args) {&#x0A;&#x09;&#x09;&#x09;&#x09;&#x09;&#x09;System.out.println(&quot;m&quot;);&#x0A;&#x09;&#x09;&#x09;&#x09;&#x09;}&#x0A;&#x09;&#x09;&#x09;&#x09;}" comment="&#x0A;- Original project: &apos;Poject1&apos;&#x0A;- Method name: &apos;extracted&apos;&#x0A;- Declared visibility: &apos;private&apos;" comments="false" description="Extract method &apos;extracted&apos;" destination="0" exceptions="false" flags="786434" id="org.eclipse.jdt.ui.extract.method" input="/src&lt;{Main.java" name="extracted" replace="false" selection="66 24" stamp="1286499836564" status="&lt;OK&#x0A;&gt;" version="1.0" visibility="2"/>
+</session>
