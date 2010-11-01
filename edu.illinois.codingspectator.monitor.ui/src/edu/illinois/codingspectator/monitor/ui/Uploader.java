@@ -13,8 +13,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import edu.illinois.codingspectator.monitor.Activator;
 import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
-import edu.illinois.codingspectator.monitor.submission.Submitter;
-import edu.illinois.codingspectator.monitor.submission.Submitter.SubmitterException;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmitterException;
 
 /**
  * 

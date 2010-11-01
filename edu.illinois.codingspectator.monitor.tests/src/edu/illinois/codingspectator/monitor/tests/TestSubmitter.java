@@ -30,12 +30,12 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
-import edu.illinois.codingspectator.monitor.submission.Submitter;
-import edu.illinois.codingspectator.monitor.submission.Submitter.CanceledDialogException;
-import edu.illinois.codingspectator.monitor.submission.Submitter.FailedAuthenticationException;
-import edu.illinois.codingspectator.monitor.submission.Submitter.InitializationException;
-import edu.illinois.codingspectator.monitor.submission.Submitter.SubmissionException;
 import edu.illinois.codingspectator.monitor.submission.URLManager;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.CanceledDialogException;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.FailedAuthenticationException;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.InitializationException;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionException;
 
 /**
  * This class tests the submission process: we can import a directory and check it out; we can add

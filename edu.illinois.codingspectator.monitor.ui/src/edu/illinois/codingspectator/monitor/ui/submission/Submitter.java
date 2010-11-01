@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor.submission;
+package edu.illinois.codingspectator.monitor.ui.submission;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +18,9 @@ import org.tmatesoft.svn.core.SVNException;
 import edu.illinois.codingspectator.monitor.Activator;
 import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
+import edu.illinois.codingspectator.monitor.submission.SVNManager;
+import edu.illinois.codingspectator.monitor.submission.SubmitterListener;
+import edu.illinois.codingspectator.monitor.submission.URLManager;
 import edu.illinois.codingspectator.monitor.ui.AuthenticationPrompter;
 
 /**

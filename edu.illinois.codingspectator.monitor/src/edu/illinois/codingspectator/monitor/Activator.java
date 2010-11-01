@@ -4,17 +4,10 @@
 package edu.illinois.codingspectator.monitor;
 
 import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.Date;
 
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-
-import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
-import edu.illinois.codingspectator.monitor.submission.Submitter;
-import edu.illinois.codingspectator.monitor.ui.Uploader;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -23,9 +16,7 @@ import edu.illinois.codingspectator.monitor.ui.Uploader;
  * @author nchen
  * 
  */
-public class Activator extends AbstractUIPlugin implements IStartup {
-
-	private static final int UPLOAD_PERIOD_MILLISECONDS= 1000 * 60 * 60 * 24 * 1;
+public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID= "edu.illinois.refactoringwatcher.monitor"; //$NON-NLS-1$
@@ -78,34 +69,6 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	public void log(Status status) {
 		getLog().log(status);
-	}
-
-	@Override
-	public void earlyStartup() {
-		if (shouldUpload()) {
-			final Submitter submitter= new Submitter();
-
-			if (Uploader.promptUntilValidCredentialsOrCanceled(submitter)) {
-				Uploader.submit(submitter);
-			}
-		}
-	}
-
-	private boolean shouldUpload() {
-		return isNotInTestMode() && enoughTimeHasElapsedSinceLastUpload();
-	}
-
-	private boolean isNotInTestMode() {
-		return System.getenv(Messages.Activator_Testing_Mode) == null;
-	}
-
-	private boolean enoughTimeHasElapsedSinceLastUpload() {
-		try {
-			return new Date().getTime() - PrefsFacade.getInstance().getLastUploadTime() > UPLOAD_PERIOD_MILLISECONDS;
-		} catch (ParseException e) {
-			createErrorStatus("Cannot parse the date that we stored", e);
-			return true;
-		}
 	}
 
 	public static String populateMessageWithPluginName(String formattedString) {

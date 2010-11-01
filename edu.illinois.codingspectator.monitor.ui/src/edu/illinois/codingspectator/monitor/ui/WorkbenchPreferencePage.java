@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import edu.illinois.codingspectator.monitor.Activator;
 import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
-import edu.illinois.codingspectator.monitor.submission.Submitter;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
  * This is the preference page for the plug-in. It displays the UUID(String) which will be used in

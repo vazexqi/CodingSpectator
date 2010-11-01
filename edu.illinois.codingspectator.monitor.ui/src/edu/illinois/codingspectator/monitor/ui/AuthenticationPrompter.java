@@ -18,7 +18,7 @@ import edu.illinois.codingspectator.monitor.Messages;
 import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
 import edu.illinois.codingspectator.monitor.prefs.SecureStorageFacade;
 import edu.illinois.codingspectator.monitor.submission.SVNManager;
-import edu.illinois.codingspectator.monitor.submission.Submitter;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
  * 
