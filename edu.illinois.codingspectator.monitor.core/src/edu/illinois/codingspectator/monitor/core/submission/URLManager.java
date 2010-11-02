@@ -1,12 +1,10 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor.submission;
+package edu.illinois.codingspectator.monitor.core.submission;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
-
-import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
 
 /**
  * This class is responsible for computing the URLs for the remote repository and local working
@@ -22,10 +20,13 @@ public class URLManager {
 
 	private final String username;
 
-	public URLManager(String repositoryBaseURL, String username) {
+	private final String UUID;
+
+	public URLManager(String repositoryBaseURL, String username, String UUID) {
 		super();
 		this.repositoryBaseURL= repositoryBaseURL;
 		this.username= username;
+		this.UUID= UUID;
 	}
 
 	public SVNURL getSVNURL(String url) throws SVNException {
@@ -37,8 +38,7 @@ public class URLManager {
 	}
 
 	public String getPersonalRepositoryURL() {
-		return joinByURLSeparator(repositoryBaseURL, username, PrefsFacade
-				.getInstance().getAndSetUUIDLazily());
+		return joinByURLSeparator(repositoryBaseURL, username, UUID);
 	}
 
 	public String joinByURLSeparator(final String... strings) {

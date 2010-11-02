@@ -5,8 +5,6 @@ package edu.illinois.codingspectator.monitor.ui;
 
 import org.eclipse.swt.SWT;
 
-import edu.illinois.codingspectator.monitor.Messages;
-
 /**
  * 
  * @author Mohsen Vakilian

@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor.prefs;
+package edu.illinois.codingspectator.monitor.ui.prefs;
 
 import java.util.UUID;
 

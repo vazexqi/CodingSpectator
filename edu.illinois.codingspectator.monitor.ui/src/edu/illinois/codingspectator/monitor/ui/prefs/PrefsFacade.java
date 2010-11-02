@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor.prefs;
+package edu.illinois.codingspectator.monitor.ui.prefs;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,8 +9,8 @@ import java.util.Date;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import edu.illinois.codingspectator.monitor.Activator;
-import edu.illinois.codingspectator.monitor.Messages;
+import edu.illinois.codingspectator.monitor.ui.Activator;
+import edu.illinois.codingspectator.monitor.ui.Messages;
 
 /**
  * This class provides the facade to access the preference store. Since this is a shared resource we

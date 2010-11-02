@@ -24,10 +24,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import edu.illinois.codingspectator.monitor.Messages;
-
 /**
- * A dialog to prompt the user for login information such as user name and password.
+ * core A dialog to prompt the user for login information such as user name and password.
  * 
  * @see org.eclipse.equinox.internal.p2.ui.dialogs.UserValidationDialog
  */

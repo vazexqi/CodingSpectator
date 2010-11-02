@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="edu.illinois.codingspectator.monitor.submitter" name="edu.illinois.codingspectator.monitor.submitter" schema="schema/edu.illinois.codingspectator.monitor.submitter.exsd"/>
+   <extension-point id="edu.illinois.codingspectator.monitor.core.submitter" name="edu.illinois.codingspectator.monitor.core.submitter" schema="schema/edu.illinois.codingspectator.monitor.core.submitter.exsd"/>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
@@ -13,7 +13,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="edu.illinois.codingspectator.monitor.Activator">
+            class="edu.illinois.codingspectator.monitor.ui.Activator">
       </startup>
    </extension>
 

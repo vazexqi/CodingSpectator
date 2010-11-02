@@ -1,12 +1,9 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor;
+package edu.illinois.codingspectator.monitor.core;
 
-import java.text.MessageFormat;
-
-import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -16,7 +13,7 @@ import org.osgi.framework.BundleContext;
  * @author nchen
  * 
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID= "edu.illinois.refactoringwatcher.monitor"; //$NON-NLS-1$
@@ -59,20 +56,5 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
-	public Status createInfoStatus(String message) {
-		return new Status(Status.INFO, PLUGIN_ID, message);
-	}
-
-	public Status createErrorStatus(String message, Exception e) {
-		return new Status(Status.ERROR, PLUGIN_ID, message, e);
-	}
-
-	public void log(Status status) {
-		getLog().log(status);
-	}
-
-	public static String populateMessageWithPluginName(String formattedString) {
-		return MessageFormat.format(formattedString, Messages.WorkbenchPreferencePage_PluginName);
-	}
 
 }

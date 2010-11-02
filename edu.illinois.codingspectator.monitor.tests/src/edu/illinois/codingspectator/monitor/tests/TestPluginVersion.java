@@ -9,8 +9,6 @@ import org.eclipse.core.runtime.Platform;
 import org.junit.Test;
 import org.osgi.framework.Version;
 
-import edu.illinois.codingspectator.monitor.Messages;
-
 /**
  * 
  * @author Mohsen Vakilian
@@ -18,9 +16,11 @@ import edu.illinois.codingspectator.monitor.Messages;
  */
 public class TestPluginVersion {
 
+	private static final String LTK_BUNDLE_NAME= "org.eclipse.ltk.core.refactoring";
+
 	@Test
 	public void shouldGetPluginVersion() {
-		Version ltkVersion= Platform.getBundle(Messages.Submitter_LTKBundleName).getVersion();
-		assertTrue(String.format("The format of the version of %s is incorrect.", Messages.Submitter_LTKBundleName), ltkVersion.getMajor() + ltkVersion.getMinor() + ltkVersion.getMinor() > 0);
+		Version ltkVersion= Platform.getBundle(LTK_BUNDLE_NAME).getVersion();
+		assertTrue(String.format("The format of the version of %s is incorrect.", LTK_BUNDLE_NAME), ltkVersion.getMajor() + ltkVersion.getMinor() + ltkVersion.getMinor() > 0);
 	}
 }

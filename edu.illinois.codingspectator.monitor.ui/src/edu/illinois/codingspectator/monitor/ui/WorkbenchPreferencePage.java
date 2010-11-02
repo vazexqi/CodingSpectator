@@ -16,9 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import edu.illinois.codingspectator.monitor.Activator;
-import edu.illinois.codingspectator.monitor.Messages;
-import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
+import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**

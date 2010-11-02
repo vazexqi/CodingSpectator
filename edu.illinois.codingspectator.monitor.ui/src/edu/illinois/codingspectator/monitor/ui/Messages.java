@@ -1,9 +1,9 @@
-package edu.illinois.codingspectator.monitor;
+package edu.illinois.codingspectator.monitor.ui;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME= "edu.illinois.codingspectator.monitor.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME= "edu.illinois.codingspectator.monitor.ui.messages"; //$NON-NLS-1$
 
 	public static String Activator_Testing_Mode;
 
@@ -22,10 +22,6 @@ public class Messages extends NLS {
 	public static String SecureStorage_AuthenticationNodeName;
 
 	public static String SecureStorage_UsernameKey;
-
-	public static String Submitter_FeatureBundleName;
-
-	public static String Submitter_LTKBundleName;
 
 	public static String Submitter_ProductionRepositoryURL;
 
@@ -54,6 +50,7 @@ public class Messages extends NLS {
 	public static String WorkbenchPreferencePage_UUIDFieldPreferenceKey;
 
 	public static String WorkbenchPreferencePage_UUIDTextField;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 
-import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
+import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
 
 /**
  * @author Mohsen Vakilian

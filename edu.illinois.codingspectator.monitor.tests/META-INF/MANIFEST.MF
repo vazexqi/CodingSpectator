@@ -4,7 +4,7 @@ Bundle-Name: CodingSpectator Tests
 Bundle-SymbolicName: edu.illinois.codingspectator.monitor.tests;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: edu.illinois.codingspectator.monitor;bundle-version="1.0.0",
+Require-Bundle: edu.illinois.codingspectator.monitor.core;bundle-version="1.0.0",
  edu.illinois.codingspectator.monitor.ui;bundle-version="1.0.0",
  org.junit,
  org.tmatesoft.svn_1.3.4.eclipse;bundle-version="1.0.0",

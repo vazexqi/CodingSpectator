@@ -13,11 +13,9 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import edu.illinois.codingspectator.monitor.Activator;
-import edu.illinois.codingspectator.monitor.Messages;
-import edu.illinois.codingspectator.monitor.authentication.AuthenticationProvider;
-import edu.illinois.codingspectator.monitor.prefs.SecureStorageFacade;
-import edu.illinois.codingspectator.monitor.submission.SVNManager;
+import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
+import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
+import edu.illinois.codingspectator.monitor.ui.prefs.SecureStorageFacade;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
@@ -54,7 +52,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			private UserValidationDialog setupDialog(final String loginDestination) {
 				Shell shell= getDefaultParentShell();
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				String username= new SVNManager(Submitter.watchedDirectory).getSVNWorkingCopyUsername();
+				String username= new SVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyUsername();
 				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
 
 				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());

@@ -1,5 +1,6 @@
 package edu.illinois.codingspectator.monitor.ui;
 
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -8,8 +9,7 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import edu.illinois.codingspectator.monitor.Messages;
-import edu.illinois.codingspectator.monitor.prefs.PrefsFacade;
+import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
@@ -20,7 +20,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	private static final int UPLOAD_PERIOD_MILLISECONDS= 1000 * 60 * 60 * 24 * 1;
 
 	// The plug-in ID
-	public static final String PLUGIN_ID= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID= "edu.illinois.codingspectator.monitor.core.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -86,9 +86,20 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 		}
 	}
 
+	public Status createInfoStatus(String message) {
+		return new Status(Status.INFO, PLUGIN_ID, message);
+	}
 
 	public Status createErrorStatus(String message, Exception e) {
 		return new Status(Status.ERROR, PLUGIN_ID, message, e);
+	}
+
+	public void log(Status status) {
+		getLog().log(status);
+	}
+
+	public static String populateMessageWithPluginName(String formattedString) {
+		return MessageFormat.format(formattedString, Messages.WorkbenchPreferencePage_PluginName);
 	}
 
 

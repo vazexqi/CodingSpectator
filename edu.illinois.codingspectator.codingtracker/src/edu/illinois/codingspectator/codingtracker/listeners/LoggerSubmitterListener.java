@@ -3,7 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.listeners;
 
-import edu.illinois.codingspectator.monitor.submission.SubmitterListener;
+import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 
 /**
  * 

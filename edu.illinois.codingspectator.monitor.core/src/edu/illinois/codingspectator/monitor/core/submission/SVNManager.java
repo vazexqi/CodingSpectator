@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor.submission;
+package edu.illinois.codingspectator.monitor.core.submission;
 
 import java.io.File;
 
@@ -14,7 +14,7 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
-import edu.illinois.codingspectator.monitor.Activator;
+import edu.illinois.codingspectator.monitor.core.Activator;
 
 /**
  * This is the concrete implementation of the {@link Submitter} design contract for an SVN backend.

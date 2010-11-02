@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.monitor.prefs;
+package edu.illinois.codingspectator.monitor.ui.prefs;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
 import org.eclipse.equinox.security.storage.StorageException;
 
-import edu.illinois.codingspectator.monitor.Messages;
+import edu.illinois.codingspectator.monitor.ui.Messages;
 
 /**
  * 
