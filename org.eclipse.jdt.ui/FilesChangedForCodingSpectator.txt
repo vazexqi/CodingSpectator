@@ -1,4 +1,5 @@
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
+
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractConstantRefactoring.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractTempRefactoring.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineConstantRefactoring.java

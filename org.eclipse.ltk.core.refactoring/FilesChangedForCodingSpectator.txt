@@ -4,3 +4,5 @@ src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistoryService.
 src/org/eclipse/ltk/core/refactoring/participants/RenameRefactoring.java
 src/org/eclipse/ltk/core/refactoring/IWatched.java
 src/org/eclipse/ltk/core/refactoring/IWatchedProcessor.java
+src/org/eclipse/ltk/core/refactoring/IWatchedRefactoring.java
+
