@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -32,16 +31,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
-import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
-import org.eclipse.ltk.internal.core.refactoring.history.RefactoringDescriptorProxyAdapter;
-import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySerializer;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.ErrorWizardPage;
 import org.eclipse.ltk.internal.ui.refactoring.ExceptionHandler;
@@ -74,8 +68,7 @@ import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
  * Clients may extend this class.
  * </p>
  * 
- * @author Mohsen Vakilian, nchen - Changed performFinish(), performCancel. Added
- *         logRefactoringEvent(int).
+ * @author Mohsen Vakilian, nchen - Changed performFinish(), performCancel
  * 
  * @see org.eclipse.ltk.core.refactoring.Refactoring
  * 
@@ -657,44 +650,13 @@ public abstract class RefactoringWizard extends Wizard {
 	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#performHistoryNotification
 	 */
 	public boolean performCancel() {
-		logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
+		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
 
 		if (fChange != null) {
 			fChange.dispose();
 		}
 		return super.performCancel();
 	}
-
-	private static boolean doesMonitorUIExist() {
-		return Platform.getBundle("edu.illinois.codingspectator.monitor.ui") != null; //$NON-NLS-1$
-	}
-
-	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
-		if (!doesMonitorUIExist()) {
-			return;
-		}
-		if (!(refactoring instanceof IWatchedRefactoring))
-			return;
-
-		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
-		if (!(watchedRefactoring.isWatched()))
-			return;
-
-		RefactoringDescriptor refactoringDescriptor= watchedRefactoring.getSimpleRefactoringDescriptor(status);
-		Logger.logDebug(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
-	}
-
-	//---- Internal API, but public due to Java constraints ------------------------------
 
 	/**
 	 * Note: This method is for internal use only. Clients are not allowed to call this method.
