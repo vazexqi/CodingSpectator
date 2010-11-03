@@ -514,7 +514,7 @@ public abstract class RefactoringWizard extends Wizard {
 			setFinalConditionCheckingStatus(status);
 	}
 
-	private RefactoringStatus getConditionCheckingStatus() {
+	public RefactoringStatus getConditionCheckingStatus() {
 		return fConditionCheckingStatus;
 	}
 
@@ -657,7 +657,7 @@ public abstract class RefactoringWizard extends Wizard {
 	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#performHistoryNotification
 	 */
 	public boolean performCancel() {
-		logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED);
+		logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
 
 		if (fChange != null) {
 			fChange.dispose();
@@ -665,22 +665,22 @@ public abstract class RefactoringWizard extends Wizard {
 		return super.performCancel();
 	}
 
-	private boolean doesMonitorUIExist() {
+	private static boolean doesMonitorUIExist() {
 		return Platform.getBundle("edu.illinois.codingspectator.monitor.ui") != null; //$NON-NLS-1$
 	}
 
-	public void logRefactoringEvent(int refactoringEventType) {
+	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
 		if (!doesMonitorUIExist()) {
 			return;
 		}
-		if (!(fRefactoring instanceof IWatchedRefactoring))
+		if (!(refactoring instanceof IWatchedRefactoring))
 			return;
 
-		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)fRefactoring;
+		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
 		if (!(watchedRefactoring.isWatched()))
 			return;
 
-		RefactoringDescriptor refactoringDescriptor= watchedRefactoring.getSimpleRefactoringDescriptor(getConditionCheckingStatus());
+		RefactoringDescriptor refactoringDescriptor= watchedRefactoring.getSimpleRefactoringDescriptor(status);
 		Logger.logDebug(refactoringDescriptor.toString());
 
 		// Wrap it into a refactoring descriptor proxy

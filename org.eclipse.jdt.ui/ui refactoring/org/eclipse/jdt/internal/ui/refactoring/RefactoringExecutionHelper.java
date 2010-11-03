@@ -34,11 +34,14 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
 
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.ui.refactoring.RefactoringUI;
+import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
 import org.eclipse.jdt.internal.corext.util.Messages;
 
@@ -49,28 +52,40 @@ import org.eclipse.jdt.internal.ui.actions.WorkbenchRunnableAdapter;
 
 
 /**
- * A helper class to execute a refactoring. The class takes care of pushing the
- * undo change onto the undo stack and folding editor edits into one editor
- * undo object.
+ * A helper class to execute a refactoring. The class takes care of pushing the undo change onto the
+ * undo stack and folding editor edits into one editor undo object.
  */
 public class RefactoringExecutionHelper {
 
 	private final Refactoring fRefactoring;
+
 	private final Shell fParent;
+
 	private final IRunnableContext fExecContext;
+
 	private final int fStopSeverity;
+
 	private final int fSaveMode;
 
 	private class Operation implements IWorkspaceRunnable {
 		public Change fChange;
+
 		public PerformChangeOperation fPerformChangeOperation;
+
 		private final boolean fForked;
+
 		private final boolean fForkChangeExecution;
+
+		private RefactoringStatus fStatus;
 
 		public Operation(boolean forked, boolean forkChangeExecution) {
 			fForked= forked;
 			fForkChangeExecution= forkChangeExecution;
-        }
+		}
+
+		public RefactoringStatus getRefactoringStatus() {
+			return fStatus;
+		}
 
 		public void run(IProgressMonitor pm) throws CoreException {
 			try {
@@ -78,6 +93,7 @@ public class RefactoringExecutionHelper {
 				pm.subTask(""); //$NON-NLS-1$
 
 				final RefactoringStatus status= fRefactoring.checkAllConditions(new SubProgressMonitor(pm, 4, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK));
+				fStatus= status;
 				if (status.getSeverity() >= fStopSeverity) {
 					final boolean[] canceled= { false };
 					if (fForked) {
@@ -99,6 +115,7 @@ public class RefactoringExecutionHelper {
 
 				fPerformChangeOperation= new PerformChangeOperation(fChange);//RefactoringUI.createUIAwareChangeOperation(fChange);
 				fPerformChangeOperation.setUndoManager(RefactoringCore.getUndoManager(), fRefactoring.getName());
+
 				if (fRefactoring instanceof IScheduledRefactoring)
 					fPerformChangeOperation.setSchedulingRule(((IScheduledRefactoring)fRefactoring).getSchedulingRule());
 
@@ -115,13 +132,19 @@ public class RefactoringExecutionHelper {
 		 */
 		private boolean showStatusDialog(RefactoringStatus status) {
 			Dialog dialog= RefactoringUI.createRefactoringStatusDialog(status, fParent, fRefactoring.getName(), false);
+			if (fRefactoring instanceof IWatchedRefactoring) {
+				IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)fRefactoring;
+				if (watchedRefactoring.isWatched())
+					//TODO: Should we capture this as canceled or performed?
+					RefactoringWizard.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, status, fRefactoring);
+			}
 			return dialog.open() == IDialogConstants.CANCEL_ID;
 		}
 	}
 
 	/**
 	 * Creates a new refactoring execution helper.
-	 *
+	 * 
 	 * @param refactoring the refactoring
 	 * @param stopSeverity a refactoring status constant from {@link RefactoringStatus}
 	 * @param saveMode a save mode from {@link RefactoringSaveHelper}
@@ -142,8 +165,9 @@ public class RefactoringExecutionHelper {
 
 	/**
 	 * Must be called in the UI thread.
+	 * 
 	 * @param fork if set, the operation will be forked
-	 * @param cancelable  if set, the operation will be cancelable
+	 * @param cancelable if set, the operation will be cancelable
 	 * @throws InterruptedException thrown when the operation is cancelled
 	 * @throws InvocationTargetException thrown when the operation failed to execute
 	 */
@@ -153,17 +177,19 @@ public class RefactoringExecutionHelper {
 
 	/**
 	 * Must be called in the UI thread.<br>
-	 * <strong>Use {@link #perform(boolean, boolean)} unless you know exactly what you are doing!</strong>
-	 *
+	 * <strong>Use {@link #perform(boolean, boolean)} unless you know exactly what you are
+	 * doing!</strong>
+	 * 
 	 * @param fork if set, the operation will be forked
-	 * @param forkChangeExecution if the change should not be executed in the UI thread: This may not work in any case
-	 * @param cancelable  if set, the operation will be cancelable
+	 * @param forkChangeExecution if the change should not be executed in the UI thread: This may
+	 *            not work in any case
+	 * @param cancelable if set, the operation will be cancelable
 	 * @throws InterruptedException thrown when the operation is cancelled
 	 * @throws InvocationTargetException thrown when the operation failed to execute
 	 */
 	public void perform(boolean fork, boolean forkChangeExecution, boolean cancelable) throws InterruptedException, InvocationTargetException {
 		Assert.isTrue(Display.getCurrent() != null);
-		final IJobManager manager=  Job.getJobManager();
+		final IJobManager manager= Job.getJobManager();
 		final ISchedulingRule rule;
 		if (fRefactoring instanceof IScheduledRefactoring) {
 			rule= ((IScheduledRefactoring)fRefactoring).getSchedulingRule();
@@ -187,18 +213,31 @@ public class RefactoringExecutionHelper {
 				throw new InterruptedException();
 			final Operation op= new Operation(fork, forkChangeExecution);
 			fRefactoring.setValidationContext(fParent);
-			try{
+			try {
 				fExecContext.run(fork, cancelable, new WorkbenchRunnableAdapter(op, rule, true));
 				if (fork && !forkChangeExecution && op.fPerformChangeOperation != null)
 					fExecContext.run(false, false, new WorkbenchRunnableAdapter(op.fPerformChangeOperation, rule, true));
 
+				if (fRefactoring instanceof IWatchedRefactoring) {
+					IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)fRefactoring;
+					if (watchedRefactoring.isWatched())
+						RefactoringWizard.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, op.getRefactoringStatus(), fRefactoring);
+				}
 				if (op.fPerformChangeOperation != null) {
 					RefactoringStatus validationStatus= op.fPerformChangeOperation.getValidationStatus();
 					if (validationStatus != null && validationStatus.hasFatalError()) {
+
+						// When we have a problem executing
 						MessageDialog.openError(fParent, fRefactoring.getName(),
 								Messages.format(
 										RefactoringMessages.RefactoringExecutionHelper_cannot_execute,
 										validationStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL)));
+
+						if (fRefactoring instanceof IWatchedRefactoring) {
+							IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)fRefactoring;
+							if (watchedRefactoring.isWatched())
+								RefactoringWizard.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, op.getRefactoringStatus(), fRefactoring);
+						}
 						throw new InterruptedException();
 					}
 				}

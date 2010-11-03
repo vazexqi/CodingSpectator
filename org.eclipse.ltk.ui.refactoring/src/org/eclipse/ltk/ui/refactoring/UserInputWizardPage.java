@@ -155,7 +155,7 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 			PerformChangeOperation perform= new UIPerformChangeOperation(getShell().getDisplay(), create, getContainer());
 
 			//---- Added logging mechanism to refactorings
-			wizard.logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED);
+			RefactoringWizard.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, wizard.getConditionCheckingStatus(), getRefactoring());
 
 			FinishResult result= wizard.internalPerformFinish(InternalAPI.INSTANCE, perform);
 			wizard.internalSetChange(InternalAPI.INSTANCE, create.getChange());

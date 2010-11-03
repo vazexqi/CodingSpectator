@@ -52,10 +52,10 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	private String getHistoryFolder(final RefactoringHistoryEvent event) {
 		Assert.isNotNull(event);
 		switch (event.getEventType()) {
-			case RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED:
+			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED:
 				return RefactoringHistoryService.getRefactoringHistoryCanceledFolder();
 
-			case RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED:
+			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED:
 				return RefactoringHistoryService.getRefactoringHistoryPerformedFolder();
 
 			case RefactoringHistoryEvent.ADDED:
@@ -136,8 +136,8 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	}
 
 	private boolean isInsertion(final int type) {
-		if (type == RefactoringHistoryEvent.PUSHED || type == RefactoringHistoryEvent.ADDED || type == RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED
-				|| type == RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED)
+		if (type == RefactoringHistoryEvent.PUSHED || type == RefactoringHistoryEvent.ADDED || type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED
+				|| type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED)
 			return true;
 		else if (type == RefactoringHistoryEvent.POPPED)
 			return false;

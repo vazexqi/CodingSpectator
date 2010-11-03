@@ -39,12 +39,12 @@ public final class RefactoringHistoryEvent {
 	/**
 	 * Event type indicating that a refactoring descriptor has been performed (value 16)
 	 */
-	public static final int REFACTOR_BEHAVIOR_PERFORMED= 16;
+	public static final int CODINGSPECTATOR_REFACTORING_PERFORMED= 16;
 
 	/**
 	 * Event type indicating that a refactoring descriptor has been canceled (value 8)
 	 */
-	public static final int REFACTOR_BEHAVIOR_CANCELED= 8;
+	public static final int CODINGSPECTATOR_REFACTORING_CANCELED= 8;
 
 	/**
 	 * Event type indicating that a refactoring descriptor has been added to its associated history
