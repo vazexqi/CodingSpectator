@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -65,6 +66,23 @@ public class SVNManager {
 		try {
 			SVNInfo info= doInfo();
 			return info.getAuthor();
+		} catch (SVNException e) {
+			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
+			return "";
+		}
+	}
+
+	/**
+	 * @return the username of the local working copy, or the empty string if the local working copy
+	 *         has not been created yet.
+	 */
+	public String getSVNWorkingCopyRepositoryUUID() {
+		try {
+			SVNInfo info= doInfo();
+			SVNURL fullPath= info.getURL();
+			String path= fullPath.getPath();
+			int lastIndexOf= path.lastIndexOf('/');
+			return path.substring(lastIndexOf + 1);
 		} catch (SVNException e) {
 			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
 			return "";

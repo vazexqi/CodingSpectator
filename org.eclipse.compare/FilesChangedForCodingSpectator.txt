@@ -1,0 +1,2 @@
+src/org/eclipse/compare/CompareEditorInput.java
+src/org/eclipse/compare/contentmergeviewer/TextMergeViewer.java

@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingspectator.codingtracker;
 
+import org.eclipse.core.runtime.Platform;
+
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.listeners.OperationHistoryListener;
 import edu.illinois.codingspectator.codingtracker.listeners.PartListener;
@@ -23,12 +25,18 @@ public class CodeChangeTracker {
 	 * TextListener, which is registered in SelectionListener.
 	 */
 	public static void start() {
-		Debugger.debug("STARTED");
-		ResourceChangeListener.register();
-		OperationHistoryListener.register();
-		RefactoringExecutionListener.register();
-		SelectionListener.register();
-		PartListener.register(); //should be registered after SelectionListener 
+		if (doesMonitorUIExist()) {
+			Debugger.debug("STARTED");
+			ResourceChangeListener.register();
+			OperationHistoryListener.register();
+			RefactoringExecutionListener.register();
+			SelectionListener.register();
+			PartListener.register(); //should be registered after SelectionListener
+		}
+	}
+
+	private static boolean doesMonitorUIExist() {
+		return Platform.getBundle("edu.illinois.codingspectator.monitor.ui") != null;
 	}
 
 }

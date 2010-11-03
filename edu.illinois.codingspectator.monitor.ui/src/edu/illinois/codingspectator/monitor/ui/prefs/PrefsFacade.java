@@ -9,8 +9,10 @@ import java.util.Date;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.ui.Activator;
 import edu.illinois.codingspectator.monitor.ui.Messages;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
  * This class provides the facade to access the preference store. Since this is a shared resource we
@@ -46,12 +48,15 @@ public class PrefsFacade {
 	}
 
 	private boolean isUUIDSet() {
-		return !("".equals(getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey))); //$NON-NLS-1$
+		return !(getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey)).isEmpty();
 	}
 
 	private void setUUIDLazily() {
 		if (!isUUIDSet()) {
-			setUUID(UUIDGenerator.generateID());
+			String generatedID= new SVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
+			if (generatedID.isEmpty())
+				generatedID= UUIDGenerator.generateID();
+			setUUID(generatedID);
 		}
 	}
 

@@ -1,0 +1,1 @@
+src/org/eclipse/ui/texteditor/AbstractDecoratedTextEditor.java

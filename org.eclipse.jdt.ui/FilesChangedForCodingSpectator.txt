@@ -11,3 +11,8 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalV
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java
+
+ui/org/eclipse/jdt/internal/ui/JavaPlugin.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/CompilationUnitReorgChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenameCompilationUnitChange.java

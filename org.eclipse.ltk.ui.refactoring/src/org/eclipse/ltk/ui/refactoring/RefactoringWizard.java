@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -664,8 +665,14 @@ public abstract class RefactoringWizard extends Wizard {
 		return super.performCancel();
 	}
 
+	private boolean doesMonitorUIExist() {
+		return Platform.getBundle("edu.illinois.codingspectator.monitor.ui") != null; //$NON-NLS-1$
+	}
 
 	public void logRefactoringEvent(int refactoringEventType) {
+		if (!doesMonitorUIExist()) {
+			return;
+		}
 		if (!(fRefactoring instanceof IWatchedRefactoring))
 			return;
 

@@ -6,3 +6,7 @@ src/org/eclipse/ltk/core/refactoring/IWatched.java
 src/org/eclipse/ltk/core/refactoring/IWatchedProcessor.java
 src/org/eclipse/ltk/core/refactoring/IWatchedRefactoring.java
 
+src/org/eclipse/ltk/core/refactoring/Change.java
+src/org/eclipse/ltk/core/refactoring/CompositeChange.java
+src/org/eclipse/ltk/internal/core/refactoring/UndoableOperation2ChangeAdapter.java
+
