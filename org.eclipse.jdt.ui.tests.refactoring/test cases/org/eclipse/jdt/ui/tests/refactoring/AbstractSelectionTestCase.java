@@ -16,6 +16,7 @@ import java.io.InputStream;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -28,6 +29,7 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.IUndoManager;
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
@@ -36,22 +38,38 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 
+import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.code.InlineMethodRefactoring;
+
 import org.eclipse.jdt.ui.tests.refactoring.infra.AbstractCUTestCase;
 import org.eclipse.jdt.ui.tests.refactoring.infra.RefactoringTestPlugin;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Added our hook to call our getSimpleRefactoringDescriptor()
+ *         method for the refactorings
+ * 
+ */
 public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 
 	public static final String SQUARE_BRACKET_OPEN= "/*[*/";
-	public static final int    SQUARE_BRACKET_OPEN_LENGTH= SQUARE_BRACKET_OPEN.length();
-	public static final String SQUARE_BRACKET_CLOSE=   "/*]*/";
-	public static final int    SQUARE_BRACKET_CLOSE_LENGTH= SQUARE_BRACKET_CLOSE.length();
 
-	protected static final int VALID_SELECTION=     1;
-	protected static final int INVALID_SELECTION=   2;
+	public static final int SQUARE_BRACKET_OPEN_LENGTH= SQUARE_BRACKET_OPEN.length();
+
+	public static final String SQUARE_BRACKET_CLOSE= "/*]*/";
+
+	public static final int SQUARE_BRACKET_CLOSE_LENGTH= SQUARE_BRACKET_CLOSE.length();
+
+	protected static final int VALID_SELECTION= 1;
+
+	protected static final int INVALID_SELECTION= 2;
+
 	protected static final int COMPARE_WITH_OUTPUT= 3;
 
 	private boolean fIgnoreSelectionMarker;
+
 	private int[] fSelection;
+
 	protected boolean fIsPreDeltaTest;
 
 	public AbstractSelectionTestCase(String name) {
@@ -106,7 +124,7 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 				String original= unit.getSource();
 
 				final PerformRefactoringOperation op= new PerformRefactoringOperation(
-					refactoring, getCheckingStyle());
+						refactoring, getCheckingStyle());
 				if (fIsPreDeltaTest) {
 					IWorkspace workspace= ResourcesPlugin.getWorkspace();
 					IResourceChangeListener listener= new IResourceChangeListener() {
@@ -118,12 +136,21 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 						clearPreDelta();
 						workspace.checkpoint(false);
 						workspace.addResourceChangeListener(listener);
+
+						//CODINGSPECTATOR: Added a test to see if we can always generate a non-null refactoring descriptor
+						checkRefactoringDescriptorCreation(refactoring);
+
 						JavaCore.run(op, new NullProgressMonitor());
+
 					} finally {
 						workspace.removeResourceChangeListener(listener);
 					}
 				} else {
+					//CODINGSPECTATOR: Added a test to see if we can always generate a non-null refactoring descriptor
+					checkRefactoringDescriptorCreation(refactoring);
+
 					JavaCore.run(op, new NullProgressMonitor());
+
 				}
 				assertTrue("Precondition check failed: " + op.getConditionStatus().toString(), !op.getConditionStatus().hasFatalError());
 				assertTrue("Validation check failed: " + op.getConditionStatus().toString(), !op.getValidationStatus().hasFatalError());
@@ -140,6 +167,21 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 					compareSource(original, unit.getSource());
 				}
 				break;
+		}
+	}
+
+	protected void checkRefactoringDescriptorCreation(final Refactoring refactoring) throws OperationCanceledException, CoreException {
+		if (refactoring instanceof IWatchedRefactoring) {
+			IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
+			if (watchedRefactoring.isWatched()) {
+				RefactoringStatus refactoringStatus= null;
+				if (refactoring instanceof InlineMethodRefactoring) {
+					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
+				} else if (refactoring instanceof ExtractMethodRefactoring) {
+					refactoringStatus= new RefactoringStatus();
+				}
+				assertNotNull(watchedRefactoring.getSimpleRefactoringDescriptor(refactoringStatus));
+			}
 		}
 	}
 
@@ -192,8 +234,8 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 		assertTrue("Selection invalid", start >= 0 && end >= 0 && end >= start);
 
 		fSelection= new int[] {
-			start - (fIgnoreSelectionMarker ? SQUARE_BRACKET_CLOSE_LENGTH : 0),
-			end - start
+				start - (fIgnoreSelectionMarker ? SQUARE_BRACKET_CLOSE_LENGTH : 0),
+				end - start
 		};
 		// System.out.println("|"+ source.substring(result[0], result[0] + result[1]) + "|");
 	}
