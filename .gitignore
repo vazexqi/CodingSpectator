@@ -2,4 +2,8 @@
 *.class
 bin/
 screenshots/
+.metadata/
+org.eclipse.jdt.ui.tests/
+org.eclipse.test.performance/
+org.eclipse.text.tests/
 
