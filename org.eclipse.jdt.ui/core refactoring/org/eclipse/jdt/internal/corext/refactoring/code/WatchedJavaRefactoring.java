@@ -10,8 +10,8 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.NodeFinder;
 
@@ -37,11 +37,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected int fSelectionLength;
 
-	protected ICompilationUnit fCompilationUnit;
-
-	public WatchedJavaRefactoring(ICompilationUnit fCompilationUnit) {
-		this.fCompilationUnit= fCompilationUnit;
-	}
+	protected ITypeRoot fCompilationUnit;
 
 	public WatchedJavaRefactoring() {
 
@@ -64,7 +60,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected String getJavaProjectName() {
 		String project= null;
-		IJavaProject javaProject= getCompilationUnit().getJavaProject();
+		IJavaProject javaProject= getJavaTypeRoot().getJavaProject();
 		if (javaProject != null)
 			project= javaProject.getElementName();
 		return project;
@@ -72,7 +68,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	private String getSelection() {
 		try {
-			return getCompilationUnit().getBuffer().getText(fSelectionStart, fSelectionLength);
+			return getJavaTypeRoot().getBuffer().getText(fSelectionStart, fSelectionLength);
 		} catch (Exception e) {
 			JavaPlugin.log(e);
 		}
@@ -93,18 +89,16 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 			node= node.getParent();
 		}
 
-		return ASTNodes.asFormattedString(node, 4, System.getProperty("line.separator"), getCompilationUnit().getJavaProject().getOptions(true)); //$NON-NLS-1$
+		return ASTNodes.asFormattedString(node, 4, System.getProperty("line.separator"), getJavaTypeRoot().getJavaProject().getOptions(true)); //$NON-NLS-1$
 	}
 
 	private ASTNode findTargetNode() {
-		ASTNode localNode= RefactoringASTParser.parseWithASTProvider(getCompilationUnit(), false, new NullProgressMonitor());
+		ASTNode localNode= RefactoringASTParser.parseWithASTProvider(getJavaTypeRoot(), false, new NullProgressMonitor());
 
 		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
 		return NodeFinder.perform(localNode, fSelectionStart, fSelectionLength);
 	}
 
-	protected ICompilationUnit getCompilationUnit() {
-		return fCompilationUnit;
-	}
+	abstract protected ITypeRoot getJavaTypeRoot();
 
 }

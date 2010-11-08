@@ -44,6 +44,7 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -1158,7 +1159,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		return result;
 	}
 
-	public ICompilationUnit getCompilationUnit() {
+	public ITypeRoot getJavaTypeRoot() {
 		return fCUnit;
 	}
 

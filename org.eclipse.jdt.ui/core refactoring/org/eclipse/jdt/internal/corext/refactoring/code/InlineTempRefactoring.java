@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.dom.AST;
@@ -348,7 +349,7 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
 	}
 
-	protected ICompilationUnit getCompilationUnit() {
+	protected ITypeRoot getJavaTypeRoot() {
 		return fCu;
 	}
 
