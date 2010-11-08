@@ -9,6 +9,7 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFacto
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/JavaRenameProcessor.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java
 
@@ -18,3 +19,6 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/Compilation
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenameCompilationUnitChange.java
 
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/RefactoringExecutionHelper.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/WatchedMoveProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveStaticMembersProcessor.java

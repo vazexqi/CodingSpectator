@@ -12,24 +12,32 @@ package org.eclipse.ltk.core.refactoring.participants;
 
 import org.eclipse.core.runtime.Assert;
 
+import org.eclipse.ltk.core.refactoring.IWatched;
+import org.eclipse.ltk.core.refactoring.IWatchedProcessor;
+import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+
 /**
- * A generic move refactoring. The actual refactoring is done
- * by the move processor passed to the constructor.
+ * A generic move refactoring. The actual refactoring is done by the move processor passed to the
+ * constructor.
  * <p>
  * This class is not intended to be subclassed by clients.
  * </p>
- *
+ * 
  * @since 3.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class implement IWatchedRefactoring.
  */
-public class MoveRefactoring extends ProcessorBasedRefactoring {
+public class MoveRefactoring extends ProcessorBasedRefactoring implements IWatchedRefactoring {
 
 	private MoveProcessor fProcessor;
 
 	/**
 	 * Creates a new move refactoring with the given move processor.
-	 *
+	 * 
 	 * @param processor the move processor
 	 */
 	public MoveRefactoring(MoveProcessor processor) {
@@ -40,7 +48,7 @@ public class MoveRefactoring extends ProcessorBasedRefactoring {
 
 	/**
 	 * Returns the move processor associated with this move refactoring.
-	 *
+	 * 
 	 * @return returns the move processor associated with this move refactoring
 	 */
 	public MoveProcessor getMoveProcessor() {
@@ -52,5 +60,17 @@ public class MoveRefactoring extends ProcessorBasedRefactoring {
 	 */
 	public RefactoringProcessor getProcessor() {
 		return fProcessor;
+	}
+
+	//CODINGSPECTATOR: Added the following methods.
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		if (!(fProcessor instanceof IWatched))
+			throw new UnsupportedOperationException();
+		return ((IWatched)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	public boolean isWatched() {
+		return fProcessor instanceof IWatchedProcessor;
 	}
 }

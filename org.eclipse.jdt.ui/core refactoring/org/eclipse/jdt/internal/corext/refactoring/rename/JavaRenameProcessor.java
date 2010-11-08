@@ -42,7 +42,11 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
-
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Added template methods.
+ * 
+ */
 public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedProcessor {
 
 	private String fNewElementName;
@@ -92,6 +96,8 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 	 * @see RefactoringSaveHelper
 	 */
 	public abstract int getSaveMode();
+
+	// CODINGSPECTATOR: The following methods have been added as part of CodingSpectator to capture renames.
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
