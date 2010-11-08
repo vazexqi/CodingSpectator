@@ -32,6 +32,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -781,7 +782,7 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 		arguments.put(ATTRIBUTE_INITIALIZE, new Integer(fInitializeIn).toString());
 	}
 
-	protected ICompilationUnit getCompilationUnit() {
+	protected ITypeRoot getJavaTypeRoot() {
 		return fCu;
 	}
 

@@ -444,8 +444,8 @@ public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 		arguments.put(ATTRIBUTE_MODE, new Integer(fCurrentMode == Mode.INLINE_ALL ? 1 : 0).toString());
 	}
 
-	protected ICompilationUnit getCompilationUnit() {
-		return (ICompilationUnit)fInitialTypeRoot;
+	protected ITypeRoot getJavaTypeRoot() {
+		return fInitialTypeRoot;
 	}
 
 	private static SourceProvider resolveSourceProvider(RefactoringStatus status, ITypeRoot typeRoot, ASTNode invocation) {

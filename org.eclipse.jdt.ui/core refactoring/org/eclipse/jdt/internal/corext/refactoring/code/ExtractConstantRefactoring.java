@@ -35,6 +35,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.SourceRange;
@@ -652,7 +653,7 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(JdtFlags.getVisibilityCode(fVisibility)).toString());
 	}
 
-	protected ICompilationUnit getCompilationUnit() {
+	protected ITypeRoot getJavaTypeRoot() {
 		return fCu;
 	}
 
