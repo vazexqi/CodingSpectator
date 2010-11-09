@@ -633,6 +633,10 @@ public final class MoveStaticMembersProcessor extends WatchedMoveProcessor imple
 	}
 
 	private String getQualifiedTypeLabel(IType accessingType) {
+		//CODINGSPECTATOR
+		if (accessingType == null) {
+			return String.format("CODINGSPECTATOR:Type not found:%s", new String[] { fDestinationTypeName });
+		}
 		return BasicElementLabels.getJavaCodeString(accessingType.getFullyQualifiedName('.'));
 	}
 
@@ -867,7 +871,11 @@ public final class MoveStaticMembersProcessor extends WatchedMoveProcessor imple
 		descriptor.setDescription(description);
 		descriptor.setComment(comment.asString());
 		descriptor.setFlags(flags);
-		descriptor.setDestinationType(fDestinationType);
+
+		//CODINGSPECTATOR: Set the destination type of the descriptor only if fDestinationType is not null.
+		if (fDestinationType != null) {
+			descriptor.setDestinationType(fDestinationType);
+		}
 		descriptor.setKeepOriginal(fDelegateUpdating);
 		descriptor.setDeprecateDelegate(fDelegateDeprecation);
 		descriptor.setMembers(members);

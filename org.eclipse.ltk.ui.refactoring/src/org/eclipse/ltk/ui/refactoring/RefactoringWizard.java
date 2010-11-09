@@ -646,8 +646,6 @@ public abstract class RefactoringWizard extends Wizard {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#performHistoryNotification
 	 */
 	public boolean performCancel() {
 		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
