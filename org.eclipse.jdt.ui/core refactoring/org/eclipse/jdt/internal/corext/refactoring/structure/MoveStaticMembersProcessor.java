@@ -633,9 +633,9 @@ public final class MoveStaticMembersProcessor extends WatchedMoveProcessor imple
 	}
 
 	private String getQualifiedTypeLabel(IType accessingType) {
-		//CODINGSPECTATOR
+		//CODINGSPECTATOR: If the destination type entered by user is invalid, put generate an error message to be put in the header of the descriptor.  
 		if (accessingType == null) {
-			return String.format("CODINGSPECTATOR:Type not found:%s", new String[] { fDestinationTypeName });
+			return String.format("CODINGSPECTATOR:Type not found:%s", new String[] { fDestinationTypeName }); //$NON-NLS-1$
 		}
 		return BasicElementLabels.getJavaCodeString(accessingType.getFullyQualifiedName('.'));
 	}
@@ -872,10 +872,13 @@ public final class MoveStaticMembersProcessor extends WatchedMoveProcessor imple
 		descriptor.setComment(comment.asString());
 		descriptor.setFlags(flags);
 
-		//CODINGSPECTATOR: Set the destination type of the descriptor only if fDestinationType is not null.
+		//CODINGSPECTATOR: If the destination type is valid we put it in the descriptor, otherwise we use the type of one of the selected members. We have to put some type as the destination type of the descriptor for it checks for the non-nullness of this field.
 		if (fDestinationType != null) {
 			descriptor.setDestinationType(fDestinationType);
+		} else {
+			descriptor.setDestinationType(members[0].getDeclaringType());
 		}
+
 		descriptor.setKeepOriginal(fDelegateUpdating);
 		descriptor.setDeprecateDelegate(fDelegateDeprecation);
 		descriptor.setMembers(members);

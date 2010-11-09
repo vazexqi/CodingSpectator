@@ -16,6 +16,12 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatur
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
+/**
+ * 
+ * @author nchen
+ * @author Mohsen Vakilian
+ * 
+ */
 abstract public class WatchedMoveProcessor extends MoveProcessor implements IWatchedProcessor {
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
