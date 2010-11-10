@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.TextChangeCompatibility;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.util.JavaElementUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.refactoring.util.TextChangeManager;
@@ -95,7 +96,8 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  */
 /**
  * 
- * @author nchen - Extended WatchedRefactoring.
+ * @author nchen - Provided a method to create a refactoring descriptor.
+ * @author Mohsen Vakilian - Added the CODINGSPECTATOR change comments.
  * 
  */
 public class InlineMethodRefactoring extends WatchedJavaRefactoring {
@@ -412,42 +414,6 @@ public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 		return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.InlineMethodRefactoring_edit_inlineCall, fChangeManager.getAllChanges());
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		final IMethodBinding binding= fSourceProvider.getDeclaration().resolveBinding();
-		final ITypeBinding declaring= binding.getDeclaringClass();
-		if (!Modifier.isPrivate(binding.getModifiers()))
-			flags|= RefactoringDescriptor.MULTI_CHANGE;
-		final String description= Messages.format(RefactoringCoreMessages.InlineMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
-		final String header= Messages.format(
-				RefactoringCoreMessages.InlineMethodRefactoring_descriptor_description,
-				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED),
-						BindingLabelProvider.getBindingLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineMethodRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		if (fDeleteSource)
-			comment.addSetting(RefactoringCoreMessages.InlineMethodRefactoring_remove_method);
-		if (fCurrentMode == Mode.INLINE_ALL)
-			comment.addSetting(RefactoringCoreMessages.InlineMethodRefactoring_replace_references);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final InlineMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineMethodDescriptor(project, description, comment.asString(), arguments, flags);
-
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fInitialTypeRoot));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_DELETE, Boolean.valueOf(fDeleteSource).toString());
-		arguments.put(ATTRIBUTE_MODE, new Integer(fCurrentMode == Mode.INLINE_ALL ? 1 : 0).toString());
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fInitialTypeRoot;
-	}
-
 	private static SourceProvider resolveSourceProvider(RefactoringStatus status, ITypeRoot typeRoot, ASTNode invocation) {
 		CompilationUnit root= (CompilationUnit)invocation.getRoot();
 		IMethodBinding methodBinding= Invocations.resolveBinding(invocation);
@@ -589,6 +555,48 @@ public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 				parent= parent.getParent();
 			}
 		}
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		//CODINGSPECTATOR: Extracted the code to find the project name into 'WatchedJavaRefactoring.getJavaProjectName()'. 
+		String project= getJavaProjectName();
+
+		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		final IMethodBinding binding= fSourceProvider.getDeclaration().resolveBinding();
+		final ITypeBinding declaring= binding.getDeclaringClass();
+		if (!Modifier.isPrivate(binding.getModifiers()))
+			flags|= RefactoringDescriptor.MULTI_CHANGE;
+		final String description= Messages.format(RefactoringCoreMessages.InlineMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
+		final String header= Messages.format(
+				RefactoringCoreMessages.InlineMethodRefactoring_descriptor_description,
+				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						BindingLabelProvider.getBindingLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineMethodRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		if (fDeleteSource)
+			comment.addSetting(RefactoringCoreMessages.InlineMethodRefactoring_remove_method);
+		if (fCurrentMode == Mode.INLINE_ALL)
+			comment.addSetting(RefactoringCoreMessages.InlineMethodRefactoring_replace_references);
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
+		final InlineMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineMethodDescriptor(project, description, comment.asString(), arguments, flags);
+
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, Map arguments) {
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fInitialTypeRoot));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(ATTRIBUTE_DELETE, Boolean.valueOf(fDeleteSource).toString());
+		arguments.put(ATTRIBUTE_MODE, new Integer(fCurrentMode == Mode.INLINE_ALL ? 1 : 0).toString());
+	}
+
+	protected ITypeRoot getJavaTypeRoot() {
+		return fInitialTypeRoot;
 	}
 
 }

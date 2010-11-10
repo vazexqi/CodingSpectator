@@ -31,7 +31,9 @@ import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
+import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
@@ -43,10 +45,10 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatur
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.participants.ResourceProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.IMovePolicy;
-import org.eclipse.jdt.internal.corext.refactoring.structure.WatchedMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IQualifiedNameUpdating;
 import org.eclipse.jdt.internal.corext.util.Resources;
 
@@ -54,10 +56,10 @@ import org.eclipse.jdt.ui.refactoring.IRefactoringProcessorIds;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Made the class implement WatchedMoveProcessor
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  * 
  */
-public final class JavaMoveProcessor extends WatchedMoveProcessor implements IQualifiedNameUpdating, IReorgDestinationValidator {
+public final class JavaMoveProcessor extends MoveProcessor implements IWatchedProcessor, IQualifiedNameUpdating, IReorgDestinationValidator {
 
 	private ICreateTargetQueries fCreateTargetQueries;
 
@@ -317,16 +319,25 @@ public final class JavaMoveProcessor extends WatchedMoveProcessor implements IQu
 		return fMovePolicy.getSaveMode();
 	}
 
-	//CODINGSPECTATOR: The following method are required by WatchedMoveProcessor.
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
-		ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
-		if (changeDescriptor == null)
-			return null;
-		return (JavaRefactoringDescriptor)((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return new WatchedJavaMoveProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-		return RefactoringSignatureDescriptorFactory.createMoveDescriptor(project, description, comment, arguments, flags);
+	public class WatchedJavaMoveProcessor extends WatchedMoveProcessor {
+
+		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+			ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
+			if (changeDescriptor == null)
+				return null;
+			return (JavaRefactoringDescriptor)((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+		}
+
+		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+			return RefactoringSignatureDescriptorFactory.createMoveDescriptor(project, description, comment, arguments, flags);
+		}
 	}
 }

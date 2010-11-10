@@ -48,7 +48,9 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.TextChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
+import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
@@ -133,6 +135,7 @@ import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateMethodCreator;
 import org.eclipse.jdt.internal.corext.refactoring.structure.MemberVisibilityAdjustor.IVisibilityAdjustment;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IDelegateUpdating;
@@ -156,9 +159,9 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 /**
  * Refactoring processor to move instance methods.
  * 
- * @author Mohsen Vakilian, nchen - Made the class implement WatchedMoveProcessor.
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  */
-public final class MoveInstanceMethodProcessor extends WatchedMoveProcessor implements IDelegateUpdating {
+public final class MoveInstanceMethodProcessor extends MoveProcessor implements IDelegateUpdating, IWatchedProcessor {
 
 	/**
 	 * AST visitor to find references to parameters occurring in anonymous classes of a method body.
@@ -2912,7 +2915,9 @@ public final class MoveInstanceMethodProcessor extends WatchedMoveProcessor impl
 		return "arg"; //$NON-NLS-1$
 	}
 
-	//CODINGSPECTATOR: The following method are required by WatchedMoveProcessor.
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final Map arguments= new HashMap();
@@ -2954,7 +2959,19 @@ public final class MoveInstanceMethodProcessor extends WatchedMoveProcessor impl
 		return descriptor;
 	}
 
-	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-		return RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment, arguments, flags);
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return new WatchedMoveInstanceMethodProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
+
+	public class WatchedMoveInstanceMethodProcessor extends WatchedMoveProcessor {
+		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+			return MoveInstanceMethodProcessor.this.createRefactoringDescriptor();
+		}
+
+		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+			return RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment, arguments, flags);
+		}
+
+	}
+
 }

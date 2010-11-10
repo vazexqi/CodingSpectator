@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.corext.refactoring.rename;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,9 +18,9 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 
-import org.eclipse.ltk.core.refactoring.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
@@ -32,19 +28,16 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.ltk.core.refactoring.participants.ValidateEditChecker;
 
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
-import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedRenameProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-
 /**
  * 
- * @author Mohsen Vakilian, nchen - Added template methods.
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  * 
  */
 public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedProcessor {
@@ -97,44 +90,27 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 	 */
 	public abstract int getSaveMode();
 
-	// CODINGSPECTATOR: The following methods have been added as part of CodingSpectator to capture renames.
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		JavaRefactoringDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
-		final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
-				augmentedArguments, d.getFlags());
-		return descriptor;
+		return new WatchedJavaRenameProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	protected Map getArguments(JavaRefactoringDescriptor d) {
-		try {
-			Class c= JavaRefactoringDescriptor.class;
-			Method getArgumentsMethod= c.getDeclaredMethod("getArguments", new Class[] {}); //$NON-NLS-1$
-			getArgumentsMethod.setAccessible(true);
-			return (Map)getArgumentsMethod.invoke(d, new Object[] {});
-		} catch (Exception e) {
-			JavaPlugin.log(e);
+	abstract protected JavaRefactoringDescriptor createRefactoringDescriptor();
+
+	public class WatchedJavaRenameProcessor extends WatchedRenameProcessor {
+
+		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+			return JavaRenameProcessor.this.createRefactoringDescriptor();
 		}
-		return new HashMap();
+
+		protected Object[] getElements() {
+			return JavaRenameProcessor.this.getElements();
+		}
 
 	}
 
-	protected abstract JavaRefactoringDescriptor createRefactoringDescriptor();
-
-	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
-		return basicArguments;
-	}
-
-	protected String getSelection() {
-		return ((IJavaElement)getElements()[0]).getElementName();
-	}
-
-	protected String getCodeSnippet() {
-		return ((IJavaElement)getElements()[0]).toString();
-	}
 
 }

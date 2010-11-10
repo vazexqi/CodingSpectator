@@ -1,13 +1,12 @@
-package org.eclipse.jdt.internal.corext.refactoring.structure;
+package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.ltk.core.refactoring.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
@@ -16,11 +15,11 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
  * 
- * @author nchen
  * @author Mohsen Vakilian
+ * @author nchen
  * 
  */
-abstract public class WatchedMoveProcessor extends MoveProcessor implements IWatchedProcessor {
+abstract public class WatchedProcessor implements IWatchedProcessor {
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
@@ -73,5 +72,10 @@ abstract public class WatchedMoveProcessor extends MoveProcessor implements IWat
 			return ((IJavaElement)getElements()[0]);
 		return null;
 	}
+
+	/**
+	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#getElements()
+	 */
+	protected abstract Object[] getElements();
 
 }

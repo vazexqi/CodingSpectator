@@ -42,8 +42,10 @@ import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveArguments;
+import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.ParticipantManager;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
@@ -108,6 +110,7 @@ import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateFieldCreator;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateMethodCreator;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
@@ -129,11 +132,10 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Moshen Vakilian, nchen - Implemented the method to create a refactoring descriptor as
- *         required by WatchedMoveProcessor.
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  * 
  */
-public final class MoveStaticMembersProcessor extends WatchedMoveProcessor implements IDelegateUpdating {
+public final class MoveStaticMembersProcessor extends MoveProcessor implements IDelegateUpdating, IWatchedProcessor {
 
 	private static final String ATTRIBUTE_DELEGATE= "delegate"; //$NON-NLS-1$
 
@@ -1164,14 +1166,24 @@ public final class MoveStaticMembersProcessor extends WatchedMoveProcessor imple
 			return RefactoringCoreMessages.DelegateMethodCreator_keep_original_moved_singular_member;
 	}
 
-	//CODINGSPECTATOR: The following method are required by WatchedMoveProcessor.
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
-		return createDescriptor();
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return new WatchedMoveStaticMembersProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-		return RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(project, description, comment, arguments, flags);
+	public class WatchedMoveStaticMembersProcessor extends WatchedMoveProcessor {
+
+		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+			return MoveStaticMembersProcessor.this.createDescriptor();
+		}
+
+		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+			return RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(project, description, comment, arguments, flags);
+		}
 	}
+
 
 }

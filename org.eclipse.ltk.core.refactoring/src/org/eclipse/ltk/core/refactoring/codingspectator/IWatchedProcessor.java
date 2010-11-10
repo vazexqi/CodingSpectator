@@ -1,4 +1,5 @@
-package org.eclipse.ltk.core.refactoring;
+package org.eclipse.ltk.core.refactoring.codingspectator;
+
 
 /**
  * @author Mohsen Vakilian
