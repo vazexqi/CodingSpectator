@@ -53,7 +53,9 @@ public class RenameRefactoring extends ProcessorBasedRefactoring implements IWat
 		return fProcessor;
 	}
 
+	///////////////////////////////////////////////
 	//CODINGSPECTATOR: Added the following methods.
+	///////////////////////////////////////////////
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		if (!(fProcessor instanceof IWatched))
