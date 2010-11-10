@@ -170,6 +170,7 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 		}
 	}
 
+	//CODINGSPECTATOR: Added checkRefactoringDescriptorCreation(Refactoring) to check that the descriptor of a watched refactoring is available.
 	protected void checkRefactoringDescriptorCreation(final Refactoring refactoring) throws OperationCanceledException, CoreException {
 		if (refactoring instanceof IWatchedRefactoring) {
 			IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;

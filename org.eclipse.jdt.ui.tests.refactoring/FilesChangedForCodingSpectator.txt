@@ -1,1 +1,4 @@
+Changed Files
+=============
+
 test cases/org/eclipse/jdt/ui/tests/refactoring/AbstractSelectionTestCase.java
