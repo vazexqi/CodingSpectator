@@ -1,3 +1,6 @@
+Changed Files
+=============
+
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractConstantRefactoring.java
@@ -9,8 +12,7 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFacto
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
-
-core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/WatchedRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/JavaRenameProcessor.java
 
 ui/org/eclipse/jdt/internal/ui/JavaPlugin.java
 
@@ -18,3 +20,15 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/Compilation
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenameCompilationUnitChange.java
 
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/RefactoringExecutionHelper.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveStaticMembersProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/MoveMembersWizard.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInstanceMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
+
+Added Files
+===========
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedMoveProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessor.java

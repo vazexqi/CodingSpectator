@@ -98,6 +98,11 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Changed createRefactoringDescriptor
+ * 
+ */
 public class RenameFieldProcessor extends JavaRenameProcessor implements IReferenceUpdating, ITextUpdating, IDelegateUpdating {
 
 	protected static final String ATTRIBUTE_TEXTUAL_MATCHES= "textual"; //$NON-NLS-1$
@@ -618,7 +623,11 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 	/**
 	 * Overridden by subclasses.
 	 * 
+	 * CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to
+	 * JavaRefactoringDescriptor.
+	 * 
 	 * @return return the refactoring descriptor for this refactoring
+	 * 
 	 */
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;

@@ -387,7 +387,10 @@ public class JavaPlugin extends AbstractUIPlugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+
+		//CODINGSPECTATOR: Start codingtracker when jdt.ui starts up.
 		edu.illinois.codingspectator.codingtracker.CodeChangeTracker.start();
+
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
 				ICompilationUnit original= workingCopy.getPrimary();

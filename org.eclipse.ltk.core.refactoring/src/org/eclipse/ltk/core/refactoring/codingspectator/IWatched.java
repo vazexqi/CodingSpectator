@@ -1,4 +1,7 @@
-package org.eclipse.ltk.core.refactoring;
+package org.eclipse.ltk.core.refactoring.codingspectator;
+
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
 /**
  * @author Mohsen Vakilian

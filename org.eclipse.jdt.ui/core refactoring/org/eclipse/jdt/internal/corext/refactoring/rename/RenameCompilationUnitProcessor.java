@@ -430,22 +430,75 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 
 
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		RefactoringDescriptor r= createRenameCompilationUnitRefactoringDescriptor();
-		if (r instanceof JavaRefactoringDescriptor) {
-			JavaRefactoringDescriptor d= (JavaRefactoringDescriptor)r;
-			final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
-			final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
-					augmentedArguments, d.getFlags());
-			return descriptor;
-		} else {
-			String comment= r.getComment();
-			comment+= "SNIPPET: " + getCodeSnippet() + ","; //$NON-NLS-1$//$NON-NLS-2$
-			comment+= "SELECTION: " + getSelection() + ","; //$NON-NLS-1$//$NON-NLS-2$
-			comment+= "STATUS: " + refactoringStatus.toString(); //$NON-NLS-1$
-			r.setComment(comment);
-			return r;
+	/**
+	 * {@inheritDoc}
+	 */
+	public Change postCreateChange(Change[] participantChanges, IProgressMonitor pm) throws CoreException {
+		if (fWillRenameType)
+			return fRenameTypeProcessor.postCreateChange(participantChanges, pm);
+		return super.postCreateChange(participantChanges, pm);
+	}
+
+	private RefactoringStatus initialize(JavaRefactoringArguments extended) {
+		final String handle= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT);
+		if (handle == null) {
+			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
 		}
+
+		final IJavaElement element= JavaRefactoringDescriptorUtil.handleToElement(extended.getProject(), handle, false);
+		if (element == null || !element.exists() || element.getElementType() != IJavaElement.COMPILATION_UNIT)
+			return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_COMPILATION_UNIT);
+
+		final String name= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME);
+		if (name == null || name.length() == 0)
+			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME));
+
+		fCu= (ICompilationUnit)element;
+		try {
+			computeRenameTypeRefactoring();
+			setNewElementName(name);
+		} catch (CoreException exception) {
+			JavaPlugin.log(exception);
+			return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_COMPILATION_UNIT);
+		}
+		return new RefactoringStatus();
+	}
+
+	/**
+	 * @return the RenameTypeProcessor or <code>null</code> if no type will be renamed
+	 */
+	public RenameTypeProcessor getRenameTypeProcessor() {
+		return fRenameTypeProcessor;
+	}
+
+	public boolean isWillRenameType() {
+		return fWillRenameType;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public class WatchedRenameCompilationUnitProcessor extends WatchedJavaRenameProcessor {
+
+		public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+			RefactoringDescriptor r= createRenameCompilationUnitRefactoringDescriptor();
+			if (r instanceof JavaRefactoringDescriptor) {
+				JavaRefactoringDescriptor d= (JavaRefactoringDescriptor)r;
+				final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
+				final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
+						augmentedArguments, d.getFlags());
+				return descriptor;
+			} else {
+				String comment= r.getComment();
+				comment+= "SNIPPET: " + getCodeSnippet() + ","; //$NON-NLS-1$//$NON-NLS-2$
+				comment+= "SELECTION: " + getSelection() + ","; //$NON-NLS-1$//$NON-NLS-2$
+				comment+= "STATUS: " + refactoringStatus.toString(); //$NON-NLS-1$
+				r.setComment(comment);
+				return r;
+			}
+		}
+
 	}
 
 	/**
@@ -501,48 +554,5 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 		return descriptor;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Change postCreateChange(Change[] participantChanges, IProgressMonitor pm) throws CoreException {
-		if (fWillRenameType)
-			return fRenameTypeProcessor.postCreateChange(participantChanges, pm);
-		return super.postCreateChange(participantChanges, pm);
-	}
 
-	private RefactoringStatus initialize(JavaRefactoringArguments extended) {
-		final String handle= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT);
-		if (handle == null) {
-			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
-		}
-
-		final IJavaElement element= JavaRefactoringDescriptorUtil.handleToElement(extended.getProject(), handle, false);
-		if (element == null || !element.exists() || element.getElementType() != IJavaElement.COMPILATION_UNIT)
-			return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_COMPILATION_UNIT);
-
-		final String name= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME);
-		if (name == null || name.length() == 0)
-			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME));
-
-		fCu= (ICompilationUnit)element;
-		try {
-			computeRenameTypeRefactoring();
-			setNewElementName(name);
-		} catch (CoreException exception) {
-			JavaPlugin.log(exception);
-			return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_COMPILATION_UNIT);
-		}
-		return new RefactoringStatus();
-	}
-
-	/**
-	 * @return the RenameTypeProcessor or <code>null</code> if no type will be renamed
-	 */
-	public RenameTypeProcessor getRenameTypeProcessor() {
-		return fRenameTypeProcessor;
-	}
-
-	public boolean isWillRenameType() {
-		return fWillRenameType;
-	}
 }

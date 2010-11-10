@@ -12,11 +12,11 @@ package org.eclipse.ltk.core.refactoring.participants;
 
 import org.eclipse.core.runtime.Assert;
 
-import org.eclipse.ltk.core.refactoring.IWatched;
-import org.eclipse.ltk.core.refactoring.IWatchedProcessor;
-import org.eclipse.ltk.core.refactoring.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatched;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 
 /**
  * A generic rename refactoring. The actual refactoring is done by the rename processor passed to
@@ -52,6 +52,8 @@ public class RenameRefactoring extends ProcessorBasedRefactoring implements IWat
 	public RefactoringProcessor getProcessor() {
 		return fProcessor;
 	}
+
+	//CODINGSPECTATOR: Added the following methods.
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		if (!(fProcessor instanceof IWatched))
