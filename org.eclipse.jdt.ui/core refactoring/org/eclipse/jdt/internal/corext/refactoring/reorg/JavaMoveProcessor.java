@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
@@ -26,28 +27,37 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.ChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
+import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.participants.ResourceProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.IMovePolicy;
+import org.eclipse.jdt.internal.corext.refactoring.structure.WatchedMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IQualifiedNameUpdating;
 import org.eclipse.jdt.internal.corext.util.Resources;
 
 import org.eclipse.jdt.ui.refactoring.IRefactoringProcessorIds;
 
-public final class JavaMoveProcessor extends MoveProcessor implements IQualifiedNameUpdating, IReorgDestinationValidator {
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class implement WatchedMoveProcessor
+ * 
+ */
+public final class JavaMoveProcessor extends WatchedMoveProcessor implements IQualifiedNameUpdating, IReorgDestinationValidator {
 
 	private ICreateTargetQueries fCreateTargetQueries;
 
@@ -83,9 +93,9 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 	}
 
 	/**
-	 * Checks if <b>Java</b> references to the selected element(s) can be updated if moved to
-	 * the selected destination. Even if <code>false</code>, participants could still update
-	 * non-Java references.
+	 * Checks if <b>Java</b> references to the selected element(s) can be updated if moved to the
+	 * selected destination. Even if <code>false</code>, participants could still update non-Java
+	 * references.
 	 * 
 	 * @return <code>true</code> iff <b>Java</b> references to the moved element can be updated
 	 * @since 3.5
@@ -96,13 +106,14 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 
 	/**
 	 * DO NOT REMOVE, used in a product, see https://bugs.eclipse.org/299631 .
+	 * 
 	 * @return <code>true</code> iff <b>Java</b> references to the moved element can be updated
 	 * @deprecated since 3.5, replaced by {@link #canUpdateJavaReferences()}
 	 */
 	public boolean canUpdateReferences() {
 		return canUpdateJavaReferences();
 	}
-	
+
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException {
 		try {
 			Assert.isNotNull(fReorgQueries);
@@ -149,7 +160,7 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 			};
 			CreateTargetExecutionLog log= null;
 			if (fCreateTargetQueries instanceof MonitoringCreateTargetQueries) {
-				final MonitoringCreateTargetQueries queries= (MonitoringCreateTargetQueries) fCreateTargetQueries;
+				final MonitoringCreateTargetQueries queries= (MonitoringCreateTargetQueries)fCreateTargetQueries;
 				final ICreateTargetQueries delegate= queries.getDelegate();
 				if (delegate instanceof LoggedCreateTargetQueries)
 					log= queries.getCreateTargetExecutionLog();
@@ -162,7 +173,7 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 			}
 			Change change= fMovePolicy.createChange(pm);
 			if (change instanceof CompositeChange) {
-				CompositeChange subComposite= (CompositeChange) change;
+				CompositeChange subComposite= (CompositeChange)change;
 				result.merge(subComposite);
 			} else {
 				result.add(change);
@@ -179,7 +190,7 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 		Set result= new HashSet();
 		result.addAll(Arrays.asList(jNatures));
 		result.addAll(Arrays.asList(rNatures));
-		return (String[]) result.toArray(new String[result.size()]);
+		return (String[])result.toArray(new String[result.size()]);
 	}
 
 	public Object getCommonParentForInputElements() {
@@ -304,5 +315,18 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 
 	public int getSaveMode() {
 		return fMovePolicy.getSaveMode();
+	}
+
+	//CODINGSPECTATOR: The following method are required by WatchedMoveProcessor.
+
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+		ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
+		if (changeDescriptor == null)
+			return null;
+		return (JavaRefactoringDescriptor)((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+	}
+
+	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		return RefactoringSignatureDescriptorFactory.createMoveDescriptor(project, description, comment, arguments, flags);
 	}
 }

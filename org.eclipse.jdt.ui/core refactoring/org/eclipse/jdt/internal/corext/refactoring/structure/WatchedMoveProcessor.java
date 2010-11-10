@@ -25,6 +25,7 @@ abstract public class WatchedMoveProcessor extends MoveProcessor implements IWat
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
 		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
+
 		return createRefactoringDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments, d.getFlags());
 	}
 
@@ -53,11 +54,24 @@ abstract public class WatchedMoveProcessor extends MoveProcessor implements IWat
 	}
 
 	protected String getSelection() {
-		return ((IJavaElement)getElements()[0]).getElementName();
+		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
+		if (javaElementIfPossible != null)
+			return javaElementIfPossible.getElementName();
+		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
 	}
 
+
 	protected String getCodeSnippet() {
-		return ((IJavaElement)getElements()[0]).toString();
+		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
+		if (javaElementIfPossible != null)
+			return javaElementIfPossible.toString();
+		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
+	}
+
+	private IJavaElement getJavaElementIfPossible() {
+		if (getElements()[0] instanceof IJavaElement)
+			return ((IJavaElement)getElements()[0]);
+		return null;
 	}
 
 }

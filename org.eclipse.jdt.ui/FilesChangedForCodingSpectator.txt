@@ -24,3 +24,5 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/WatchedMo
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveStaticMembersProcessor.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/MoveMembersWizard.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInstanceMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
+
