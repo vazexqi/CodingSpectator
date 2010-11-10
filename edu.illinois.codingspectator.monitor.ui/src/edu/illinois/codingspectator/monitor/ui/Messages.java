@@ -5,8 +5,6 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME= "edu.illinois.codingspectator.monitor.ui.messages"; //$NON-NLS-1$
 
-	public static String Activator_Testing_Mode;
-
 	public static String AuthenticationPrompter_DialogDescription;
 
 	public static String AuthenticationPrompter_DialogDescriptionForReenteringAuthenticationInfo;
