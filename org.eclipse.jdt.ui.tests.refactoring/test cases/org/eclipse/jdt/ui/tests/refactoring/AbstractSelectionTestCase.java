@@ -16,7 +16,6 @@ import java.io.InputStream;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -33,14 +32,12 @@ import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
-import org.eclipse.jdt.internal.corext.refactoring.code.InlineMethodRefactoring;
 
+import org.eclipse.jdt.ui.tests.refactoring.codingspectator.RefactoringChecker;
 import org.eclipse.jdt.ui.tests.refactoring.infra.AbstractCUTestCase;
 import org.eclipse.jdt.ui.tests.refactoring.infra.RefactoringTestPlugin;
 
@@ -138,7 +135,7 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 						workspace.addResourceChangeListener(listener);
 
 						//CODINGSPECTATOR: Added a test to see if we can always generate a non-null refactoring descriptor
-						checkRefactoringDescriptorCreation(refactoring);
+						RefactoringChecker.checkRefactoringDescriptorCreation(refactoring);
 
 						JavaCore.run(op, new NullProgressMonitor());
 
@@ -147,7 +144,7 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 					}
 				} else {
 					//CODINGSPECTATOR: Added a test to see if we can always generate a non-null refactoring descriptor
-					checkRefactoringDescriptorCreation(refactoring);
+					RefactoringChecker.checkRefactoringDescriptorCreation(refactoring);
 
 					JavaCore.run(op, new NullProgressMonitor());
 
@@ -167,22 +164,6 @@ public abstract class AbstractSelectionTestCase extends AbstractCUTestCase {
 					compareSource(original, unit.getSource());
 				}
 				break;
-		}
-	}
-
-	//CODINGSPECTATOR: Added checkRefactoringDescriptorCreation(Refactoring) to check that the descriptor of a watched refactoring is available.
-	protected void checkRefactoringDescriptorCreation(final Refactoring refactoring) throws OperationCanceledException, CoreException {
-		if (refactoring instanceof IWatchedRefactoring) {
-			IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
-			if (watchedRefactoring.isWatched()) {
-				RefactoringStatus refactoringStatus= null;
-				if (refactoring instanceof InlineMethodRefactoring) {
-					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
-				} else if (refactoring instanceof ExtractMethodRefactoring) {
-					refactoringStatus= new RefactoringStatus();
-				}
-				assertNotNull(watchedRefactoring.getSimpleRefactoringDescriptor(refactoringStatus));
-			}
 		}
 	}
 

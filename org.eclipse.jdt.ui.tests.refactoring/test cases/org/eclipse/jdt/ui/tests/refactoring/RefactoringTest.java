@@ -69,8 +69,14 @@ import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.corext.refactoring.util.JavaElementUtil;
 import org.eclipse.jdt.internal.corext.util.Strings;
 
+import org.eclipse.jdt.ui.tests.refactoring.codingspectator.RefactoringChecker;
 import org.eclipse.jdt.ui.tests.refactoring.infra.RefactoringTestPlugin;
 
+/**
+ * 
+ * @author Mohsen Vakilian - Checked the refactoring descriptor before performing the refactoring.
+ * 
+ */
 public abstract class RefactoringTest extends TestCase {
 
 	/**
@@ -241,6 +247,10 @@ public abstract class RefactoringTest extends TestCase {
 
 	protected final RefactoringStatus performRefactoring(Refactoring ref, boolean providesUndo) throws Exception {
 		performDummySearch();
+
+		//CODINGSPECTATOR:
+		RefactoringChecker.checkRefactoringDescriptorCreation(ref);
+
 		IUndoManager undoManager= getUndoManager();
 		if (DESCRIPTOR_TEST) {
 			final CreateChangeOperation create= new CreateChangeOperation(

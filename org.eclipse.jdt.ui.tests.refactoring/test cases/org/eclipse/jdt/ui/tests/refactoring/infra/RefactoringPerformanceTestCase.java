@@ -19,7 +19,13 @@ import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
 import org.eclipse.jdt.ui.tests.performance.JdtPerformanceTestCase;
+import org.eclipse.jdt.ui.tests.refactoring.codingspectator.RefactoringChecker;
 
+/**
+ * 
+ * @author Mohsen Vakilian - Checked the refactoring descriptor before performing the refactoring.
+ * 
+ */
 public abstract class RefactoringPerformanceTestCase extends JdtPerformanceTestCase {
 
 	public RefactoringPerformanceTestCase() {
@@ -39,6 +45,9 @@ public abstract class RefactoringPerformanceTestCase extends JdtPerformanceTestC
 	}
 
 	protected void executeRefactoring(Refactoring refactoring, boolean measure, int maxSeverity, boolean checkUndo) throws Exception {
+		//CODINGSPECTATOR
+		RefactoringChecker.checkRefactoringDescriptorCreation(refactoring);
+
 		PerformRefactoringOperation operation= new PerformRefactoringOperation(refactoring, CheckConditionsOperation.ALL_CONDITIONS);
 		joinBackgroudActivities();
 		// Flush the undo manager to not count any already existing undo objects
