@@ -71,6 +71,11 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
+ * 
+ */
 public class RenameLocalVariableProcessor extends JavaRenameProcessor implements IReferenceUpdating {
 
 	private ILocalVariable fLocalVariable;
@@ -363,6 +368,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		}
 	}
 
+	//CODINGSPECTATOR: Generalized the return type of createRefactoringDescriptor from RenameJavaElementDescriptor to JavaRefactoringDescriptor. Also, changed the visibility of the method from private to protected.
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fCu.getJavaProject();

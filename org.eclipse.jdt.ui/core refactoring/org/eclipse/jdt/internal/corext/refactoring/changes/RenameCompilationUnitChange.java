@@ -47,6 +47,7 @@ public final class RenameCompilationUnitChange extends AbstractJavaElementRename
 		setValidationMethod(VALIDATE_NOT_READ_ONLY | SAVE_IF_DIRTY);
 	}
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
 	public Object[] getAllAffectedObjects() {
 		return new Object[] { getModifiedElement() };
 	}
