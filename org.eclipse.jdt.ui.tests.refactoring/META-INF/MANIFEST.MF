@@ -14,6 +14,7 @@ Export-Package:
  org.eclipse.jdt.ui.tests.refactoring.all;x-internal:=true,
  org.eclipse.jdt.ui.tests.refactoring.ccp;x-internal:=true,
  org.eclipse.jdt.ui.tests.refactoring.changes;x-internal:=true,
+ org.eclipse.jdt.ui.tests.refactoring.codingspectator;x-internal:=true,
  org.eclipse.jdt.ui.tests.refactoring.extensions;x-internal:=true,
  org.eclipse.jdt.ui.tests.refactoring.infra;x-internal:=true,
  org.eclipse.jdt.ui.tests.refactoring.nls;x-internal:=true,
