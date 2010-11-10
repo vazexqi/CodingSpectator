@@ -23,6 +23,8 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
  */
 public class PrefsFacade {
 
+	private static final String TESTING_UUID= "00000000-0000-0000-0000-000000000000";
+
 	// This method of providing a thread safe singleton comes from 
 	// http://www.ibm.com/developerworks/java/library/j-dcl.html
 	private static PrefsFacade instance= new PrefsFacade();
@@ -53,9 +55,15 @@ public class PrefsFacade {
 
 	private void setUUIDLazily() {
 		if (!isUUIDSet()) {
-			String generatedID= new SVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
-			if (generatedID.isEmpty())
-				generatedID= UUIDGenerator.generateID();
+			String generatedID;
+			if (RunningModes.isInDebugMode() || RunningModes.isInTestMode()) {
+				generatedID= TESTING_UUID;
+			} else {
+				generatedID= new SVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
+				if (generatedID.isEmpty()) {
+					generatedID= UUIDGenerator.generateID();
+				}
+			}
 			setUUID(generatedID);
 		}
 	}
