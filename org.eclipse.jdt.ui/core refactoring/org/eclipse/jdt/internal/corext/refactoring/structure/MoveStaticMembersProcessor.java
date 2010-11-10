@@ -1164,8 +1164,14 @@ public final class MoveStaticMembersProcessor extends WatchedMoveProcessor imple
 			return RefactoringCoreMessages.DelegateMethodCreator_keep_original_moved_singular_member;
 	}
 
-	//CODINGSPECTATOR
+	//CODINGSPECTATOR: The following method are required by WatchedMoveProcessor.
+
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		return createDescriptor();
 	}
+
+	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		return RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(project, description, comment, arguments, flags);
+	}
+
 }

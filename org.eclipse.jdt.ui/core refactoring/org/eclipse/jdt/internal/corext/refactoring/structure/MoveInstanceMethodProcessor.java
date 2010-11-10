@@ -49,7 +49,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
@@ -156,12 +155,13 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * Refactoring processor to move instance methods.
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class implement WatchedMoveProcessor.
  */
-public final class MoveInstanceMethodProcessor extends MoveProcessor implements IDelegateUpdating {
+public final class MoveInstanceMethodProcessor extends WatchedMoveProcessor implements IDelegateUpdating {
 
 	/**
-	 * AST visitor to find references to parameters occurring in anonymous
-	 * classes of a method body.
+	 * AST visitor to find references to parameters occurring in anonymous classes of a method body.
 	 */
 	public final class AnonymousClassReferenceFinder extends AstNodeFinder {
 
@@ -173,9 +173,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new anonymous class reference finder.
-		 *
-		 * @param declaration
-		 *            the method declaration to search for references
+		 * 
+		 * @param declaration the method declaration to search for references
 		 */
 		public AnonymousClassReferenceFinder(final MethodDeclaration declaration) {
 			fDeclaringType= declaration.resolveBinding().getDeclaringClass();
@@ -212,7 +211,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				if (!(node.getParent() instanceof FieldAccess)) {
 					final IBinding binding= node.resolveBinding();
 					if (binding instanceof IVariableBinding) {
-						final IVariableBinding variable= (IVariableBinding) binding;
+						final IVariableBinding variable= (IVariableBinding)binding;
 						final ITypeBinding declaring= variable.getDeclaringClass();
 						if (declaring != null && Bindings.equals(declaring, fDeclaringType))
 							fResult.add(node);
@@ -236,7 +235,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Returns the result set.
-		 *
+		 * 
 		 * @return the result set
 		 */
 		public final Set getResult() {
@@ -245,7 +244,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Returns the status of the find operation.
-		 *
+		 * 
 		 * @return the status of the operation
 		 */
 		public final RefactoringStatus getStatus() {
@@ -268,7 +267,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		}
 
 		protected ASTNode createBody(BodyDeclaration bd) throws JavaModelException {
-			MethodDeclaration methodDeclaration= (MethodDeclaration) bd;
+			MethodDeclaration methodDeclaration= (MethodDeclaration)bd;
 			final MethodInvocation invocation= getAst().newMethodInvocation();
 			invocation.setName(getAst().newSimpleName(getNewElementName()));
 			invocation.setExpression(createSimpleTargetAccessExpression(methodDeclaration));
@@ -281,7 +280,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		}
 
 		protected ASTNode createDocReference(final BodyDeclaration declaration) throws JavaModelException {
-			return MoveInstanceMethodProcessor.this.createMethodReference((MethodDeclaration) declaration, getAst());
+			return MoveInstanceMethodProcessor.this.createMethodReference((MethodDeclaration)declaration, getAst());
 		}
 
 		protected boolean getNeededInsertion() {
@@ -299,9 +298,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new enclosing instance reference finder.
-		 *
-		 * @param binding
-		 *            the declaring type
+		 * 
+		 * @param binding the declaring type
 		 */
 		public EnclosingInstanceReferenceFinder(final ITypeBinding binding) {
 			Assert.isNotNull(binding);
@@ -317,12 +315,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			final IBinding binding= node.resolveBinding();
 			ITypeBinding declaring= null;
 			if (binding instanceof IVariableBinding) {
-				final IVariableBinding variable= (IVariableBinding) binding;
+				final IVariableBinding variable= (IVariableBinding)binding;
 				if (Flags.isStatic(variable.getModifiers()))
 					return false;
 				declaring= variable.getDeclaringClass();
 			} else if (binding instanceof IMethodBinding) {
-				final IMethodBinding method= (IMethodBinding) binding;
+				final IMethodBinding method= (IMethodBinding)binding;
 				if (Flags.isStatic(method.getModifiers()))
 					return false;
 				declaring= method.getDeclaringClass();
@@ -330,9 +328,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			if (declaring != null) {
 				ITypeBinding enclosing= null;
 				for (final Iterator iterator= fEnclosingTypes.iterator(); iterator.hasNext();) {
-					enclosing= (ITypeBinding) iterator.next();
+					enclosing= (ITypeBinding)iterator.next();
 					if (Bindings.equals(enclosing, declaring)) {
-						fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_refers_enclosing_instances, JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
+						fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_refers_enclosing_instances,
+								JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
 						fResult.add(node);
 						break;
 					}
@@ -344,7 +343,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		public final boolean visit(final ThisExpression node) {
 			Assert.isNotNull(node);
 			if (node.getQualifier() != null) {
-				fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_refers_enclosing_instances, JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
+				fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_refers_enclosing_instances,
+						JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
 				fResult.add(node);
 			}
 			return false;
@@ -361,16 +361,15 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new generic reference finder.
-		 *
-		 * @param declaration
-		 *            the method declaration
+		 * 
+		 * @param declaration the method declaration
 		 */
 		public GenericReferenceFinder(final MethodDeclaration declaration) {
 			Assert.isNotNull(declaration);
 			ITypeBinding binding= null;
 			TypeParameter parameter= null;
 			for (final Iterator iterator= declaration.typeParameters().iterator(); iterator.hasNext();) {
-				parameter= (TypeParameter) iterator.next();
+				parameter= (TypeParameter)iterator.next();
 				binding= parameter.resolveBinding();
 				if (binding != null)
 					fBindings.add(binding.getKey());
@@ -384,10 +383,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			Assert.isNotNull(node);
 			final IBinding binding= node.resolveBinding();
 			if (binding instanceof ITypeBinding) {
-				final ITypeBinding type= (ITypeBinding) binding;
+				final ITypeBinding type= (ITypeBinding)binding;
 				if (!fBindings.contains(type.getKey()) && type.isTypeVariable()) {
 					fResult.add(node);
-					fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_no_type_variables, JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
+					fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_no_type_variables,
+							JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
 					return false;
 				}
 			}
@@ -402,24 +402,20 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Returns a argument node for the specified variable binding.
-		 *
-		 * @param binding
-		 *            the binding to create a argument node for
-		 * @param last
-		 *            <code>true</code> if the argument represented by this
-		 *            node is the last one in its declaring method
+		 * 
+		 * @param binding the binding to create a argument node for
+		 * @param last <code>true</code> if the argument represented by this node is the last one in
+		 *            its declaring method
 		 * @return the corresponding node
-		 * @throws JavaModelException
-		 *             if an error occurs
+		 * @throws JavaModelException if an error occurs
 		 */
 		public ASTNode getArgumentNode(IVariableBinding binding, boolean last) throws JavaModelException;
 
 		/**
 		 * Returns a target node for the current target.
-		 *
+		 * 
 		 * @return the corresponding node
-		 * @throws JavaModelException
-		 *             if an error occurs
+		 * @throws JavaModelException if an error occurs
 		 */
 		public ASTNode getTargetNode() throws JavaModelException;
 	}
@@ -452,13 +448,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new method body rewriter.
-		 *
-		 * @param targetRewrite
-		 *            the target compilation unit rewrite to use
-		 * @param rewrite
-		 *            the source ast rewrite to use
-		 * @param sourceDeclaration
-		 *            the source method declaration
+		 * 
+		 * @param targetRewrite the target compilation unit rewrite to use
+		 * @param rewrite the source ast rewrite to use
+		 * @param sourceDeclaration the source method declaration
 		 */
 		public MethodBodyRewriter(final CompilationUnitRewrite targetRewrite, final ASTRewrite rewrite, final MethodDeclaration sourceDeclaration) {
 			Assert.isNotNull(targetRewrite);
@@ -474,7 +467,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		private boolean isParameterName(String name) {
 			List parameters= fDeclaration.parameters();
 			for (Iterator iterator= parameters.iterator(); iterator.hasNext();) {
-				SingleVariableDeclaration decl= (SingleVariableDeclaration) iterator.next();
+				SingleVariableDeclaration decl= (SingleVariableDeclaration)iterator.next();
 				if (name.equals(decl.getName().getIdentifier())) {
 					return true;
 				}
@@ -513,7 +506,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			if (isParameterName(name) || StubUtility.useThisForFieldAccess(fTargetRewrite.getCu().getJavaProject())) {
 				FieldAccess fieldAccess= ast.newFieldAccess();
 				fieldAccess.setExpression(ast.newThisExpression());
-				fieldAccess.setName((SimpleName) rewrite.createMoveTarget(oldNameNode));
+				fieldAccess.setName((SimpleName)rewrite.createMoveTarget(oldNameNode));
 				return fieldAccess;
 			}
 			return rewrite.createMoveTarget(oldNameNode);
@@ -538,7 +531,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 					return false;
 				}
 			} else if (expression instanceof FieldAccess) {
-				final FieldAccess access= (FieldAccess) expression;
+				final FieldAccess access= (FieldAccess)expression;
 				final IBinding binding= access.getName().resolveBinding();
 				if (access.getExpression() instanceof ThisExpression && Bindings.equals(fTarget, binding)) {
 					ASTNode newFieldAccess= getFieldReference(node.getName(), fRewrite);
@@ -556,7 +549,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			Assert.isNotNull(nodes);
 			ASTNode node= null;
 			for (final Iterator iterator= nodes.iterator(); iterator.hasNext();) {
-				node= (ASTNode) iterator.next();
+				node= (ASTNode)iterator.next();
 				node.accept(this);
 			}
 		}
@@ -576,14 +569,14 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 					return true;
 				} else {
 					if (expression instanceof FieldAccess) {
-						final FieldAccess access= (FieldAccess) expression;
+						final FieldAccess access= (FieldAccess)expression;
 						if (Bindings.equals(access.resolveFieldBinding(), fTarget)) {
 							rewrite.remove(expression, null);
 							visit(node.arguments());
 							return false;
 						}
 					} else if (expression instanceof Name) {
-						final Name name= (Name) expression;
+						final Name name= (Name)expression;
 						if (Bindings.equals(name.resolveBinding(), fTarget)) {
 							rewrite.remove(expression, null);
 							visit(node.arguments());
@@ -599,7 +592,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			Assert.isNotNull(node);
 			IBinding binding= node.resolveBinding();
 			if (binding instanceof ITypeBinding) {
-				final ITypeBinding type= (ITypeBinding) binding;
+				final ITypeBinding type= (ITypeBinding)binding;
 				if (type.isClass() && type.getDeclaringClass() != null) {
 					final Type newType= fTargetRewrite.getImportRewrite().addImport(type, node.getAST());
 					fRewrite.replace(node, newType, null);
@@ -621,7 +614,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			final ASTRewrite rewrite= fRewrite;
 			final IBinding binding= node.resolveBinding();
 			if (binding instanceof ITypeBinding) {
-				final ITypeBinding type= (ITypeBinding) binding;
+				final ITypeBinding type= (ITypeBinding)binding;
 				if (type.isClass() && type.getDeclaringClass() != null) {
 					final String name= fTargetRewrite.getImportRewrite().addImport(type);
 					if (name != null && name.length() > 0) {
@@ -638,13 +631,14 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				} else
 					rewrite.replace(node, ast.newThisExpression(), null);
 			else if (binding instanceof IVariableBinding) {
-				final IVariableBinding variable= (IVariableBinding) binding;
+				final IVariableBinding variable= (IVariableBinding)binding;
 				final IMethodBinding method= fDeclaration.resolveBinding();
 				final ITypeBinding declaring= variable.getDeclaringClass();
 				if (method != null) {
 					if (Bindings.equals(method.getDeclaringClass(), declaring)) {
 						if (JdtFlags.isStatic(variable))
-							rewrite.replace(node, ast.newQualifiedName(ASTNodeFactory.newName(ast, fTargetRewrite.getImportRewrite().addImport(declaring)), ast.newSimpleName(node.getFullyQualifiedName())), null);
+							rewrite.replace(node,
+									ast.newQualifiedName(ASTNodeFactory.newName(ast, fTargetRewrite.getImportRewrite().addImport(declaring)), ast.newSimpleName(node.getFullyQualifiedName())), null);
 						else {
 							final FieldAccess access= ast.newFieldAccess();
 							access.setExpression(ast.newSimpleName(fTargetName));
@@ -652,7 +646,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 							rewrite.replace(node, access, null);
 						}
 					} else if (!(node.getParent() instanceof QualifiedName) && JdtFlags.isStatic(variable) && !fStaticImports.contains(variable)) {
-						rewrite.replace(node, ast.newQualifiedName(ASTNodeFactory.newName(ast, fTargetRewrite.getImportRewrite().addImport(declaring)), ast.newSimpleName(node.getFullyQualifiedName())), null);
+						rewrite.replace(node,
+								ast.newQualifiedName(ASTNodeFactory.newName(ast, fTargetRewrite.getImportRewrite().addImport(declaring)), ast.newSimpleName(node.getFullyQualifiedName())), null);
 					}
 				}
 			}
@@ -673,20 +668,19 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Returns the field binding associated with this expression.
-		 *
-		 * @param expression
-		 *            the expression to get the field binding for
-		 * @return the field binding, if the expression denotes a field access
-		 *         or a field name, <code>null</code> otherwise
+		 * 
+		 * @param expression the expression to get the field binding for
+		 * @return the field binding, if the expression denotes a field access or a field name,
+		 *         <code>null</code> otherwise
 		 */
 		protected static IVariableBinding getFieldBinding(final Expression expression) {
 			Assert.isNotNull(expression);
 			if (expression instanceof FieldAccess)
-				return (IVariableBinding) ((FieldAccess) expression).getName().resolveBinding();
+				return (IVariableBinding)((FieldAccess)expression).getName().resolveBinding();
 			if (expression instanceof Name) {
-				final IBinding binding= ((Name) expression).resolveBinding();
+				final IBinding binding= ((Name)expression).resolveBinding();
 				if (binding instanceof IVariableBinding) {
-					final IVariableBinding variable= (IVariableBinding) binding;
+					final IVariableBinding variable= (IVariableBinding)binding;
 					if (variable.isField())
 						return variable;
 				}
@@ -695,21 +689,20 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		}
 
 		/**
-		 * Is the specified name a qualified entity, e.g. preceded by 'this',
-		 * 'super' or part of a method invocation?
-		 *
-		 * @param name
-		 *            the name to check
-		 * @return <code>true</code> if this entity is qualified,
-		 *         <code>false</code> otherwise
+		 * Is the specified name a qualified entity, e.g. preceded by 'this', 'super' or part of a
+		 * method invocation?
+		 * 
+		 * @param name the name to check
+		 * @return <code>true</code> if this entity is qualified, <code>false</code> otherwise
 		 */
 		protected static boolean isQualifiedEntity(final Name name) {
 			Assert.isNotNull(name);
 			final ASTNode parent= name.getParent();
-			if (parent instanceof QualifiedName && ((QualifiedName) parent).getName().equals(name) || parent instanceof FieldAccess && ((FieldAccess) parent).getName().equals(name) || parent instanceof SuperFieldAccess)
+			if (parent instanceof QualifiedName && ((QualifiedName)parent).getName().equals(name) || parent instanceof FieldAccess && ((FieldAccess)parent).getName().equals(name)
+					|| parent instanceof SuperFieldAccess)
 				return true;
 			else if (parent instanceof MethodInvocation) {
-				final MethodInvocation invocation= (MethodInvocation) parent;
+				final MethodInvocation invocation= (MethodInvocation)parent;
 				return invocation.getExpression() != null && invocation.getName().equals(name);
 			}
 			return false;
@@ -726,10 +719,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new read only field finder.
-		 *
-		 * @param binding
-		 *            The declaring class of the method declaring to find fields
-		 *            for
+		 * 
+		 * @param binding The declaring class of the method declaring to find fields for
 		 */
 		public ReadyOnlyFieldFinder(final ITypeBinding binding) {
 			Assert.isNotNull(binding);
@@ -745,9 +736,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		}
 
 		/**
-		 * Returns all fields of the declaring class plus the ones references in
-		 * the visited method declaration.
-		 *
+		 * Returns all fields of the declaring class plus the ones references in the visited method
+		 * declaration.
+		 * 
 		 * @return all fields of the declaring class plus the references ones
 		 */
 		public final IVariableBinding[] getDeclaredFields() {
@@ -757,16 +748,16 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		}
 
 		/**
-		 * Returns all fields of the declaring class which are not written by
-		 * the visited method declaration.
-		 *
+		 * Returns all fields of the declaring class which are not written by the visited method
+		 * declaration.
+		 * 
 		 * @return all fields which are not written
 		 */
 		public final IVariableBinding[] getReadOnlyFields() {
 			IVariableBinding binding= null;
 			final List list= new LinkedList(fBindings);
 			for (final Iterator iterator= list.iterator(); iterator.hasNext();) {
-				binding= (IVariableBinding) iterator.next();
+				binding= (IVariableBinding)iterator.next();
 				if (fWritten.contains(binding.getKey()))
 					iterator.remove();
 			}
@@ -786,7 +777,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		public final boolean visit(final FieldAccess node) {
 			Assert.isNotNull(node);
 			if (node.getExpression() instanceof ThisExpression) {
-				final IVariableBinding binding= (IVariableBinding) node.getName().resolveBinding();
+				final IVariableBinding binding= (IVariableBinding)node.getName().resolveBinding();
 				if (binding != null) {
 					final String key= binding.getKey();
 					if (!fFound.contains(key)) {
@@ -817,7 +808,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			final IBinding binding= node.resolveBinding();
 			if (binding != null)
 				if (isFieldAccess(node) && !isQualifiedEntity(node)) {
-					final IVariableBinding variable= (IVariableBinding) binding;
+					final IVariableBinding variable= (IVariableBinding)binding;
 					final String key= variable.getKey();
 					if (!fFound.contains(key)) {
 						fFound.add(key);
@@ -838,9 +829,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new recursive call finder.
-		 *
-		 * @param declaration
-		 *            the method declaration
+		 * 
+		 * @param declaration the method declaration
 		 */
 		public RecursiveCallFinder(final MethodDeclaration declaration) {
 			Assert.isNotNull(declaration);
@@ -852,7 +842,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			final Expression expression= node.getExpression();
 			final IMethodBinding binding= node.resolveMethodBinding();
 			if (binding == null || !Modifier.isStatic(binding.getModifiers()) && Bindings.equals(binding, fBinding) && (expression == null || expression instanceof ThisExpression)) {
-				fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_potentially_recursive, JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
+				fStatus.merge(RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_potentially_recursive,
+						JavaStatusContext.create(fMethod.getCompilationUnit(), node)));
 				fResult.add(node);
 				return false;
 			}
@@ -944,13 +935,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		/**
 		 * Creates a new visibility adjusting argument factory.
-		 *
-		 * @param ast
-		 *            the ast to use for new nodes
-		 * @param rewrites
-		 *            the compilation unit rewrites
-		 * @param adjustments
-		 *            the map of elements to visibility adjustments
+		 * 
+		 * @param ast the ast to use for new nodes
+		 * @param rewrites the compilation unit rewrites
+		 * @param adjustments the map of elements to visibility adjustments
 		 */
 		public VisibilityAdjustingArgumentFactory(final AST ast, final Map rewrites, final Map adjustments) {
 			Assert.isNotNull(ast);
@@ -965,7 +953,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			Assert.isNotNull(binding);
 			final IJavaElement element= binding.getJavaElement();
 			if (element instanceof IType) {
-				final IType type= (IType) element;
+				final IType type= (IType)element;
 				if (!type.isBinary() && !type.isReadOnly() && !Flags.isPublic(type.getFlags())) {
 					boolean same= false;
 					final CompilationUnitRewrite rewrite= getCompilationUnitRewrite(fRewrites, type.getCompilationUnit());
@@ -975,9 +963,17 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						if (declaring != null && Bindings.equals(binding.getPackage(), fTarget.getType().getPackage()))
 							same= true;
 						final Modifier.ModifierKeyword keyword= same ? null : Modifier.ModifierKeyword.PUBLIC_KEYWORD;
-						final String modifier= same ? RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_default : RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_public;
-						if (MemberVisibilityAdjustor.hasLowerVisibility(binding.getModifiers(), same ? Modifier.NONE : keyword == null ? Modifier.NONE : keyword.toFlagValue()) && MemberVisibilityAdjustor.needsVisibilityAdjustments(type, keyword, fAdjustments))
-							fAdjustments.put(type, new MemberVisibilityAdjustor.OutgoingMemberVisibilityAdjustment(type, keyword, RefactoringStatus.createWarningStatus(Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_type_warning, new String[] { BindingLabelProvider.getBindingLabel(declaration.resolveBinding(), JavaElementLabels.ALL_FULLY_QUALIFIED), modifier }), JavaStatusContext.create(type.getCompilationUnit(), declaration))));
+						final String modifier= same
+								? RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_default
+								: RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_public;
+						if (MemberVisibilityAdjustor.hasLowerVisibility(binding.getModifiers(), same ? Modifier.NONE : keyword == null ? Modifier.NONE : keyword.toFlagValue())
+								&& MemberVisibilityAdjustor.needsVisibilityAdjustments(type, keyword, fAdjustments))
+							fAdjustments.put(
+									type,
+									new MemberVisibilityAdjustor.OutgoingMemberVisibilityAdjustment(type, keyword, RefactoringStatus.createWarningStatus(
+											Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_type_warning,
+													new String[] { BindingLabelProvider.getBindingLabel(declaration.resolveBinding(), JavaElementLabels.ALL_FULLY_QUALIFIED), modifier }),
+											JavaStatusContext.create(type.getCompilationUnit(), declaration))));
 					}
 				}
 			}
@@ -1012,11 +1008,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	public static final String IDENTIFIER= "org.eclipse.jdt.ui.moveInstanceMethodProcessor"; //$NON-NLS-1$
 
 	/**
-	 * Returns the bindings of the method arguments of the specified
-	 * declaration.
-	 *
-	 * @param declaration
-	 *            the method declaration
+	 * Returns the bindings of the method arguments of the specified declaration.
+	 * 
+	 * @param declaration the method declaration
 	 * @return the array of method argument variable bindings
 	 */
 	protected static IVariableBinding[] getArgumentBindings(final MethodDeclaration declaration) {
@@ -1025,7 +1019,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		VariableDeclaration variable= null;
 		IVariableBinding binding= null;
 		for (final Iterator iterator= declaration.parameters().iterator(); iterator.hasNext();) {
-			variable= (VariableDeclaration) iterator.next();
+			variable= (VariableDeclaration)iterator.next();
 			binding= variable.resolveBinding();
 			if (binding == null)
 				return new IVariableBinding[0];
@@ -1037,11 +1031,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Returns the bindings of the method argument types of the specified
-	 * declaration.
-	 *
-	 * @param declaration
-	 *            the method declaration
+	 * Returns the bindings of the method argument types of the specified declaration.
+	 * 
+	 * @param declaration the method declaration
 	 * @return the array of method argument variable bindings
 	 */
 	protected static ITypeBinding[] getArgumentTypes(final MethodDeclaration declaration) {
@@ -1063,24 +1055,22 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Is the specified name a field access?
-	 *
-	 * @param name
-	 *            the name to check
-	 * @return <code>true</code> if this name is a field access,
-	 *         <code>false</code> otherwise
+	 * 
+	 * @param name the name to check
+	 * @return <code>true</code> if this name is a field access, <code>false</code> otherwise
 	 */
 	protected static boolean isFieldAccess(final SimpleName name) {
 		Assert.isNotNull(name);
 		final IBinding binding= name.resolveBinding();
 		if (!(binding instanceof IVariableBinding))
 			return false;
-		final IVariableBinding variable= (IVariableBinding) binding;
+		final IVariableBinding variable= (IVariableBinding)binding;
 		if (!variable.isField())
 			return false;
 		if ("length".equals(name.getIdentifier())) { //$NON-NLS-1$
 			final ASTNode parent= name.getParent();
 			if (parent instanceof QualifiedName) {
-				final QualifiedName qualified= (QualifiedName) parent;
+				final QualifiedName qualified= (QualifiedName)parent;
 				final ITypeBinding type= qualified.getQualifier().resolveTypeBinding();
 				if (type != null && type.isArray())
 					return false;
@@ -1141,13 +1131,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates a new move instance method processor.
-	 *
-	 * @param method
-	 *            the method to move, or <code>null</code> if invoked by
+	 * 
+	 * @param method the method to move, or <code>null</code> if invoked by scripting
+	 * @param settings the code generation settings to apply, or <code>null</code> if invoked by
 	 *            scripting
-	 * @param settings
-	 *            the code generation settings to apply, or <code>null</code>
-	 *            if invoked by scripting
 	 */
 	public MoveInstanceMethodProcessor(final IMethod method, final CodeGenerationSettings settings) {
 		fSettings= settings;
@@ -1169,16 +1156,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Checks whether a method with the proposed name already exists in the
-	 * target type.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param status
-	 *            the status of the condition checking
-	 * @throws JavaModelException
-	 *             if the declared methods of the target type could not be
-	 *             retrieved
+	 * Checks whether a method with the proposed name already exists in the target type.
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param status the status of the condition checking
+	 * @throws JavaModelException if the declared methods of the target type could not be retrieved
 	 */
 	protected void checkConflictingMethod(final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException {
 		Assert.isNotNull(monitor);
@@ -1194,27 +1176,26 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				if (needsTargetNode())
 					newParamCount--;
 				if (method.getElementName().equals(fMethodName) && method.getParameterTypes().length == newParamCount)
-					status.merge(RefactoringStatus.createErrorStatus(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_already_exists, new String[] { BasicElementLabels.getJavaElementName(fMethodName), BasicElementLabels.getJavaElementName(fTargetType.getElementName()) }), JavaStatusContext.create(method)));
+					status.merge(RefactoringStatus.createErrorStatus(
+							Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_already_exists, new String[] { BasicElementLabels.getJavaElementName(fMethodName),
+									BasicElementLabels.getJavaElementName(fTargetType.getElementName()) }), JavaStatusContext.create(method)));
 				monitor.worked(1);
 			}
 			if (fMethodName.equals(fTargetType.getElementName()))
-				status.merge(RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_type_clash, BasicElementLabels.getJavaElementName(fMethodName)), JavaStatusContext.create(fTargetType)));
+				status.merge(RefactoringStatus.createFatalErrorStatus(
+						Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_type_clash, BasicElementLabels.getJavaElementName(fMethodName)),
+						JavaStatusContext.create(fTargetType)));
 		} finally {
 			monitor.done();
 		}
 	}
 
 	/**
-	 * Checks whether the new target name conflicts with an already existing
-	 * method parameter.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param status
-	 *            the status of the condition checking
-	 * @throws JavaModelException
-	 *             if the method declaration of the method to move could not be
-	 *             found
+	 * Checks whether the new target name conflicts with an already existing method parameter.
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param status the status of the condition checking
+	 * @throws JavaModelException if the method declaration of the method to move could not be found
 	 */
 	protected void checkConflictingTarget(final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException {
 		Assert.isNotNull(monitor);
@@ -1226,7 +1207,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			monitor.beginTask("", parameters.size()); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.MoveInstanceMethodProcessor_checking);
 			for (final Iterator iterator= parameters.iterator(); iterator.hasNext();) {
-				variable= (VariableDeclaration) iterator.next();
+				variable= (VariableDeclaration)iterator.next();
 				if (fTargetName.equals(variable.getName().getIdentifier())) {
 					status.merge(RefactoringStatus.createErrorStatus(RefactoringCoreMessages.MoveInstanceMethodProcessor_target_name_already_used, JavaStatusContext.create(fMethod)));
 					break;
@@ -1286,11 +1267,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Checks whether the target is a type variable or a generic type.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param status
-	 *            the refactoring status
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param status the refactoring status
 	 */
 	protected void checkGenericTarget(final IProgressMonitor monitor, final RefactoringStatus status) {
 		Assert.isNotNull(monitor);
@@ -1307,15 +1286,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Checks whether the method has references to type variables or generic
-	 * types.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param declaration
-	 *            the method declaration to check for generic types
-	 * @param status
-	 *            the status of the condition checking
+	 * Checks whether the method has references to type variables or generic types.
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param declaration the method declaration to check for generic types
+	 * @param status the status of the condition checking
 	 */
 	protected void checkGenericTypes(final IProgressMonitor monitor, final MethodDeclaration declaration, final RefactoringStatus status) {
 		Assert.isNotNull(monitor);
@@ -1359,15 +1334,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Checks whether the instance method body is compatible with this
-	 * refactoring.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param declaration
-	 *            the method declaration whose body to check
-	 * @param status
-	 *            the status of the condition checking
+	 * Checks whether the instance method body is compatible with this refactoring.
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param declaration the method declaration whose body to check
+	 * @param status the status of the condition checking
 	 */
 	protected void checkMethodBody(final IProgressMonitor monitor, final MethodDeclaration declaration, final RefactoringStatus status) {
 		Assert.isNotNull(monitor);
@@ -1405,15 +1376,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Checks whether the instance method declaration is compatible with this
-	 * refactoring.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param status
-	 *            the status of the condition checking
-	 * @throws JavaModelException
-	 *             if the method does not exist
+	 * Checks whether the instance method declaration is compatible with this refactoring.
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param status the status of the condition checking
+	 * @throws JavaModelException if the method does not exist
 	 */
 	protected void checkMethodDeclaration(final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException {
 		Assert.isNotNull(monitor);
@@ -1448,13 +1415,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Checks whether the method has possible targets to be moved to
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param declaration
-	 *            the method declaration to check
-	 * @param status
-	 *            the status of the condition checking
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param declaration the method declaration to check
+	 * @param status the status of the condition checking
 	 */
 	protected void checkPossibleTargets(final IProgressMonitor monitor, final MethodDeclaration declaration, final RefactoringStatus status) {
 		Assert.isNotNull(monitor);
@@ -1472,14 +1436,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Searches for references to the original method.
-	 *
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param status
-	 *            the refactoring status to use
+	 * 
+	 * @param monitor the progress monitor to use
+	 * @param status the refactoring status to use
 	 * @return the array of search result groups
-	 * @throws CoreException
-	 *             if an error occurred during search
+	 * @throws CoreException if an error occurred during search
 	 */
 	protected SearchResultGroup[] computeMethodReferences(final IProgressMonitor monitor, final RefactoringStatus status) throws CoreException {
 		Assert.isNotNull(monitor);
@@ -1490,7 +1451,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			SearchPattern pattern= SearchPattern.createPattern(fMethod, IJavaSearchConstants.REFERENCES, SearchUtils.GENERICS_AGNOSTIC_MATCH_RULE);
 			IJavaSearchScope scope= RefactoringScopeFactory.create(fMethod, true, false);
 
-			String binaryRefsDescription= Messages.format(RefactoringCoreMessages.ReferencesInBinaryContext_ref_in_binaries_description , BasicElementLabels.getJavaElementName(fMethod.getElementName()));
+			String binaryRefsDescription= Messages.format(RefactoringCoreMessages.ReferencesInBinaryContext_ref_in_binaries_description,
+					BasicElementLabels.getJavaElementName(fMethod.getElementName()));
 			ReferencesInBinaryContext binaryRefs= new ReferencesInBinaryContext(binaryRefsDescription);
 			CollectingSearchRequestor requestor= new CollectingSearchRequestor(binaryRefs);
 			SearchResultGroup[] result= RefactoringSearchEngine.search(pattern, scope, requestor, new SubProgressMonitor(monitor, 1), status);
@@ -1504,11 +1466,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Computes the files that are being modified by this refactoring.
-	 *
-	 * @param source
-	 *            the source compilation unit
-	 * @param target
-	 *            the target compilation unit
+	 * 
+	 * @param source the source compilation unit
+	 * @param target the target compilation unit
 	 * @return the modified files
 	 */
 	protected IFile[] computeModifiedFiles(final ICompilationUnit source, final ICompilationUnit target) {
@@ -1521,10 +1481,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the reserved identifiers in the method to move.
-	 *
+	 * 
 	 * @return the reserved identifiers
-	 * @throws JavaModelException
-	 *             if the method declaration could not be found
+	 * @throws JavaModelException if the method declaration could not be found
 	 */
 	protected String[] computeReservedIdentifiers() throws JavaModelException {
 		final List names= new ArrayList();
@@ -1533,7 +1492,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			final List parameters= declaration.parameters();
 			VariableDeclaration variable= null;
 			for (int index= 0; index < parameters.size(); index++) {
-				variable= (VariableDeclaration) parameters.get(index);
+				variable= (VariableDeclaration)parameters.get(index);
 				names.add(variable.getName().getIdentifier());
 			}
 			final Block body= declaration.getBody();
@@ -1550,11 +1509,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Computes the target categories for the method to move.
-	 *
-	 * @param declaration
-	 *            the method declaration
-	 * @return the possible targets as variable bindings of read-only fields and
-	 *         parameters
+	 * 
+	 * @param declaration the method declaration
+	 * @return the possible targets as variable bindings of read-only fields and parameters
 	 */
 	protected IVariableBinding[] computeTargetCategories(final MethodDeclaration declaration) {
 		Assert.isNotNull(declaration);
@@ -1597,21 +1554,16 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates a visibility-adjusted target expression taking advantage of
-	 * existing accessor methods.
-	 *
-	 * @param enclosingElement
-	 *            the java element which encloses the current method access.
-	 * @param expression
-	 *            the expression to access the target, or <code>null</code>
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param rewrite
-	 *            the ast rewrite to use
-	 * @return an adjusted target expression, or <code>null</code> if the
-	 *         access did not have to be changed
-	 * @throws JavaModelException
-	 *             if an error occurs while accessing the target expression
+	 * Creates a visibility-adjusted target expression taking advantage of existing accessor
+	 * methods.
+	 * 
+	 * @param enclosingElement the java element which encloses the current method access.
+	 * @param expression the expression to access the target, or <code>null</code>
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param rewrite the ast rewrite to use
+	 * @return an adjusted target expression, or <code>null</code> if the access did not have to be
+	 *         changed
+	 * @throws JavaModelException if an error occurs while accessing the target expression
 	 */
 	protected Expression createAdjustedTargetExpression(final IJavaElement enclosingElement, final Expression expression, final Map adjustments, final ASTRewrite rewrite) throws JavaModelException {
 		Assert.isNotNull(enclosingElement);
@@ -1619,7 +1571,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		Assert.isNotNull(rewrite);
 		final IJavaElement element= fTarget.getJavaElement();
 		if (element != null && !Modifier.isPublic(fTarget.getModifiers())) {
-			final IField field= (IField) fTarget.getJavaElement();
+			final IField field= (IField)fTarget.getJavaElement();
 			if (field != null) {
 				boolean same= field.getAncestor(IJavaElement.PACKAGE_FRAGMENT).equals(enclosingElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT));
 				final Modifier.ModifierKeyword keyword= same ? null : Modifier.ModifierKeyword.PUBLIC_KEYWORD;
@@ -1630,8 +1582,14 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						final MethodDeclaration method= ASTNodeSearchUtil.getMethodDeclarationNode(getter, fSourceRewrite.getRoot());
 						if (method != null) {
 							final IMethodBinding binding= method.resolveBinding();
-							if (binding != null && MemberVisibilityAdjustor.hasLowerVisibility(getter.getFlags(), same ? Modifier.NONE : keyword == null ? Modifier.NONE : keyword.toFlagValue()) && MemberVisibilityAdjustor.needsVisibilityAdjustments(getter, keyword, adjustments))
-								adjustments.put(getter, new MemberVisibilityAdjustor.OutgoingMemberVisibilityAdjustment(getter, keyword, RefactoringStatus.createWarningStatus(Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_method_warning, new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), modifier }), JavaStatusContext.create(getter))));
+							if (binding != null && MemberVisibilityAdjustor.hasLowerVisibility(getter.getFlags(), same ? Modifier.NONE : keyword == null ? Modifier.NONE : keyword.toFlagValue())
+									&& MemberVisibilityAdjustor.needsVisibilityAdjustments(getter, keyword, adjustments))
+								adjustments.put(
+										getter,
+										new MemberVisibilityAdjustor.OutgoingMemberVisibilityAdjustment(getter, keyword, RefactoringStatus.createWarningStatus(
+												Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_method_warning,
+														new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), modifier }),
+												JavaStatusContext.create(getter))));
 							final MethodInvocation invocation= rewrite.getAST().newMethodInvocation();
 							invocation.setExpression(expression);
 							invocation.setName(rewrite.getAST().newSimpleName(getter.getElementName()));
@@ -1639,8 +1597,13 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						}
 					}
 				}
-				if (MemberVisibilityAdjustor.hasLowerVisibility(field.getFlags(), (keyword == null ? Modifier.NONE : keyword.toFlagValue())) && MemberVisibilityAdjustor.needsVisibilityAdjustments(field, keyword, adjustments))
-					adjustments.put(field, new MemberVisibilityAdjustor.OutgoingMemberVisibilityAdjustment(field, keyword, RefactoringStatus.createWarningStatus(Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_field_warning, new String[] { BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED), modifier }), JavaStatusContext.create(field))));
+				if (MemberVisibilityAdjustor.hasLowerVisibility(field.getFlags(), (keyword == null ? Modifier.NONE : keyword.toFlagValue()))
+						&& MemberVisibilityAdjustor.needsVisibilityAdjustments(field, keyword, adjustments))
+					adjustments.put(
+							field,
+							new MemberVisibilityAdjustor.OutgoingMemberVisibilityAdjustment(field, keyword, RefactoringStatus.createWarningStatus(
+									Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_field_warning,
+											new String[] { BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED), modifier }), JavaStatusContext.create(field))));
 			}
 		}
 		return null;
@@ -1648,17 +1611,13 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates a generic argument list of the refactored moved method
-	 *
-	 * @param declaration
-	 *            the method declaration of the method to move
-	 * @param arguments
-	 *            the argument list to create
-	 * @param factory
-	 *            the argument factory to use
-	 * @return <code>true</code> if a target node had to be inserted as first
-	 *         argument, <code>false</code> otherwise
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * 
+	 * @param declaration the method declaration of the method to move
+	 * @param arguments the argument list to create
+	 * @param factory the argument factory to use
+	 * @return <code>true</code> if a target node had to be inserted as first argument,
+	 *         <code>false</code> otherwise
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected boolean createArgumentList(final MethodDeclaration declaration, final List arguments, final IArgumentFactory factory) throws JavaModelException {
 		Assert.isNotNull(declaration);
@@ -1671,7 +1630,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		boolean added= false;
 		final int size= declaration.parameters().size();
 		for (int index= 0; index < size; index++) {
-			variable= (VariableDeclaration) declaration.parameters().get(index);
+			variable= (VariableDeclaration)declaration.parameters().get(index);
 			binding= variable.resolveBinding();
 			if (binding != null) {
 				if (!Bindings.equals(binding, fTarget))
@@ -1703,38 +1662,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				return changes[0];
 			final List list= new ArrayList(changes.length);
 			list.addAll(Arrays.asList(changes));
-			final Map arguments= new HashMap();
-			String project= null;
-			final IJavaProject javaProject= fMethod.getJavaProject();
-			if (javaProject != null)
-				project= javaProject.getElementName();
-			int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-			final IType declaring= fMethod.getDeclaringType();
-			try {
-				if (declaring.isAnonymous() || declaring.isLocal())
-					flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-			} catch (JavaModelException exception) {
-				JavaPlugin.log(exception);
-			}
-			final String description= Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
-			final String header= Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description, new String[] { JavaElementLabels.getElementLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED), BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-			final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-			comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_moved_element_pattern, RefactoringCoreMessages.JavaRefactoringDescriptor_not_available));
-			comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_target_element_pattern, BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-			comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_name_pattern, BasicElementLabels.getJavaElementName(getMethodName())));
-			if (needsTargetNode())
-				comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_parameter_name_pattern, BasicElementLabels.getJavaElementName(getTargetName())));
-			final MoveMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment.asString(), arguments, flags);
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fMethod));
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
-			arguments.put(ATTRIBUTE_TARGET_NAME, fTargetName);
-			arguments.put(ATTRIBUTE_DEPRECATE, Boolean.valueOf(fDelegateDeprecation).toString());
-			arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemove).toString());
-			arguments.put(ATTRIBUTE_INLINE, Boolean.valueOf(fInline).toString());
-			arguments.put(ATTRIBUTE_USE_GETTER, Boolean.valueOf(fUseGetters).toString());
-			arguments.put(ATTRIBUTE_USE_SETTER, Boolean.valueOf(fUseSetters).toString());
-			arguments.put(ATTRIBUTE_TARGET_INDEX, new Integer(getTargetIndex()).toString());
-			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.MoveInstanceMethodRefactoring_name, (Change[]) list.toArray(new Change[list.size()]));
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.MoveInstanceMethodRefactoring_name, (Change[])list.toArray(new Change[list.size()]));
 		} finally {
 			monitor.done();
 		}
@@ -1742,16 +1670,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the text change manager for this processor.
-	 *
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to display progress
+	 * 
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to display progress
 	 * @return the created text change manager
-	 * @throws JavaModelException
-	 *             if the method declaration could not be found
-	 * @throws CoreException
-	 *             if the changes could not be generated
+	 * @throws JavaModelException if the method declaration could not be found
+	 * @throws CoreException if the changes could not be generated
 	 */
 	protected TextChangeManager createChangeManager(final RefactoringStatus status, final IProgressMonitor monitor) throws JavaModelException, CoreException {
 		Assert.isNotNull(status);
@@ -1761,7 +1685,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			monitor.setTaskName(RefactoringCoreMessages.MoveInstanceMethodProcessor_creating);
 			fSourceRewrite.clearASTAndImportRewrites();
 			final TextChangeManager manager= new TextChangeManager();
-			final CompilationUnitRewrite targetRewrite= fMethod.getCompilationUnit().equals(getTargetType().getCompilationUnit()) ? fSourceRewrite : new CompilationUnitRewrite(getTargetType().getCompilationUnit());
+			final CompilationUnitRewrite targetRewrite= fMethod.getCompilationUnit().equals(getTargetType().getCompilationUnit()) ? fSourceRewrite : new CompilationUnitRewrite(getTargetType()
+					.getCompilationUnit());
 			final MethodDeclaration declaration= ASTNodeSearchUtil.getMethodDeclarationNode(fMethod, fSourceRewrite.getRoot());
 			final SearchResultGroup[] references= computeMethodReferences(new SubProgressMonitor(monitor, 1), status);
 			final Map rewrites= new HashMap(2);
@@ -1783,7 +1708,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				createMethodImports(targetRewrite, declaration, new SubProgressMonitor(monitor, 1), status);
 			boolean removable= false;
 			if (fInline) {
-				String binaryRefsDescription= Messages.format(RefactoringCoreMessages.ReferencesInBinaryContext_ref_in_binaries_description , BasicElementLabels.getJavaElementName(getMethod().getElementName()));
+				String binaryRefsDescription= Messages.format(RefactoringCoreMessages.ReferencesInBinaryContext_ref_in_binaries_description,
+						BasicElementLabels.getJavaElementName(getMethod().getElementName()));
 				ReferencesInBinaryContext binaryRefs= new ReferencesInBinaryContext(binaryRefsDescription);
 				removable= createMethodDelegator(rewrites, declaration, references, adjustor.getAdjustments(), target, binaryRefs, status, new SubProgressMonitor(monitor, 1));
 				binaryRefs.addErrorIfNecessary(status);
@@ -1800,7 +1726,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			// field will be removed anyway.
 			final IJavaElement targetElement= fTarget.getJavaElement();
 			if (targetElement != null && targetElement instanceof IField && (Flags.isPrivate(fMethod.getFlags()) || !fInline)) {
-				final IVisibilityAdjustment adjustmentForTarget= (IVisibilityAdjustment) adjustor.getAdjustments().get(targetElement);
+				final IVisibilityAdjustment adjustmentForTarget= (IVisibilityAdjustment)adjustor.getAdjustments().get(targetElement);
 				if (adjustmentForTarget != null)
 					adjustor.getAdjustments().remove(targetElement);
 			}
@@ -1811,8 +1737,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			ICompilationUnit unit= null;
 			CompilationUnitRewrite rewrite= null;
 			for (final Iterator iterator= rewrites.keySet().iterator(); iterator.hasNext();) {
-				unit= (ICompilationUnit) iterator.next();
-				rewrite= (CompilationUnitRewrite) rewrites.get(unit);
+				unit= (ICompilationUnit)iterator.next();
+				rewrite= (CompilationUnitRewrite)rewrites.get(unit);
 				manager.manage(unit, rewrite.createChange(true));
 			}
 			return manager;
@@ -1822,29 +1748,22 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates the necessary change to inline a method invocation represented by
-	 * a search match.
-	 *
-	 * @param rewriter
-	 *            the current compilation unit rewrite
-	 * @param declaration
-	 *            the source method declaration
-	 * @param match
-	 *            the search match representing the method invocation
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param target
-	 *            <code>true</code> if a target node had to be inserted as
-	 *            first argument, <code>false</code> otherwise
-	 * @param status
-	 *            the refactoring status
-	 * @return <code>true</code> if the inline change could be performed,
-	 *         <code>false</code> otherwise
-	 * @throws JavaModelException
-	 *             if a problem occurred while creating the inlined target
-	 *             expression for field targets
+	 * Creates the necessary change to inline a method invocation represented by a search match.
+	 * 
+	 * @param rewriter the current compilation unit rewrite
+	 * @param declaration the source method declaration
+	 * @param match the search match representing the method invocation
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param target <code>true</code> if a target node had to be inserted as first argument,
+	 *            <code>false</code> otherwise
+	 * @param status the refactoring status
+	 * @return <code>true</code> if the inline change could be performed, <code>false</code>
+	 *         otherwise
+	 * @throws JavaModelException if a problem occurred while creating the inlined target expression
+	 *             for field targets
 	 */
-	protected boolean createInlinedMethodInvocation(final CompilationUnitRewrite rewriter, final MethodDeclaration declaration, final SearchMatch match, final Map adjustments, final boolean target, final RefactoringStatus status) throws JavaModelException {
+	protected boolean createInlinedMethodInvocation(final CompilationUnitRewrite rewriter, final MethodDeclaration declaration, final SearchMatch match, final Map adjustments, final boolean target,
+			final RefactoringStatus status) throws JavaModelException {
 		Assert.isNotNull(rewriter);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(match);
@@ -1855,12 +1774,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		final ASTNode node= ASTNodeSearchUtil.findNode(match, rewriter.getRoot());
 		final TextEditGroup group= rewriter.createGroupDescription(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_method_invocation);
 		if (node instanceof MethodInvocation) {
-			final MethodInvocation invocation= (MethodInvocation) node;
+			final MethodInvocation invocation= (MethodInvocation)node;
 			final ListRewrite list= rewrite.getListRewrite(invocation, MethodInvocation.ARGUMENTS_PROPERTY);
 			if (fTarget.isField()) {
 				Expression access= null;
 				if (invocation.getExpression() != null) {
-					access= createInlinedTargetExpression(rewriter, (IJavaElement) match.getElement(), invocation.getExpression(), adjustments, status);
+					access= createInlinedTargetExpression(rewriter, (IJavaElement)match.getElement(), invocation.getExpression(), adjustments, status);
 					rewrite.set(invocation, MethodInvocation.EXPRESSION_PROPERTY, access, group);
 				} else
 					rewrite.set(invocation, MethodInvocation.EXPRESSION_PROPERTY, rewrite.getAST().newSimpleName(fTarget.getName()), group);
@@ -1878,9 +1797,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						if (Bindings.equals(bindings[index], fTarget))
 							break;
 					if (index < bindings.length && invocation.arguments().size() > index) {
-						final Expression argument= (Expression) invocation.arguments().get(index);
+						final Expression argument= (Expression)invocation.arguments().get(index);
 						if (argument instanceof NullLiteral) {
-							status.merge(RefactoringStatus.createErrorStatus(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_no_null_argument, BindingLabelProvider.getBindingLabel(declaration.resolveBinding(), JavaElementLabels.ALL_FULLY_QUALIFIED)), JavaStatusContext.create(rewriter.getCu(), invocation)));
+							status.merge(RefactoringStatus.createErrorStatus(
+									Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_no_null_argument,
+											BindingLabelProvider.getBindingLabel(declaration.resolveBinding(), JavaElementLabels.ALL_FULLY_QUALIFIED)),
+									JavaStatusContext.create(rewriter.getCu(), invocation)));
 							result= false;
 						} else {
 							if (argument instanceof ThisExpression)
@@ -1892,7 +1814,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 									list.replace(argument, rewrite.createCopyTarget(invocation.getExpression()), group);
 								else {
 									final ThisExpression expression= rewrite.getAST().newThisExpression();
-									final AbstractTypeDeclaration member= (AbstractTypeDeclaration) ASTNodes.getParent(invocation, AbstractTypeDeclaration.class);
+									final AbstractTypeDeclaration member= (AbstractTypeDeclaration)ASTNodes.getParent(invocation, AbstractTypeDeclaration.class);
 									if (member != null) {
 										final ITypeBinding resolved= member.resolveBinding();
 										if (ASTNodes.getParent(invocation, AnonymousClassDeclaration.class) != null || resolved != null && resolved.isMember()) {
@@ -1920,31 +1842,25 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the target field expression for the inline method invocation.
-	 *
-	 * @param rewriter
-	 *            the current compilation unit rewrite
-	 * @param enclosingElement
-	 *            the enclosing java element of the method invocation.
-	 * @param original
-	 *            the original method invocation expression
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param status
-	 *            the refactoring status
-	 * @return
-	 * 			   returns the target expression
-	 * @throws JavaModelException
-	 *             if a problem occurred while retrieving potential getter
-	 *             methods of the target
+	 * 
+	 * @param rewriter the current compilation unit rewrite
+	 * @param enclosingElement the enclosing java element of the method invocation.
+	 * @param original the original method invocation expression
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param status the refactoring status
+	 * @return returns the target expression
+	 * @throws JavaModelException if a problem occurred while retrieving potential getter methods of
+	 *             the target
 	 */
-	protected Expression createInlinedTargetExpression(final CompilationUnitRewrite rewriter, final IJavaElement enclosingElement, final Expression original, final Map adjustments, final RefactoringStatus status) throws JavaModelException {
+	protected Expression createInlinedTargetExpression(final CompilationUnitRewrite rewriter, final IJavaElement enclosingElement, final Expression original, final Map adjustments,
+			final RefactoringStatus status) throws JavaModelException {
 		Assert.isNotNull(rewriter);
 		Assert.isNotNull(enclosingElement);
 		Assert.isNotNull(original);
 		Assert.isNotNull(adjustments);
 		Assert.isNotNull(status);
 		Assert.isTrue(fTarget.isField());
-		final Expression expression= (Expression) ASTNode.copySubtree(fSourceRewrite.getASTRewrite().getAST(), original);
+		final Expression expression= (Expression)ASTNode.copySubtree(fSourceRewrite.getASTRewrite().getAST(), original);
 		final Expression result= createAdjustedTargetExpression(enclosingElement, expression, adjustments, fSourceRewrite.getASTRewrite());
 		if (result == null) {
 			final FieldAccess access= fSourceRewrite.getASTRewrite().getAST().newFieldAccess();
@@ -1957,23 +1873,18 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the method arguments for the target method declaration.
-	 *
-	 * @param rewrites
-	 *            the compilation unit rewrites
-	 * @param rewrite
-	 *            the source ast rewrite
-	 * @param declaration
-	 *            the source method declaration
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param status
-	 *            the refactoring status
-	 * @return <code>true</code> if a target node had to be inserted as method
-	 *         argument, <code>false</code> otherwise
-	 * @throws JavaModelException
-	 *             if an error occurs while accessing the types of the arguments
+	 * 
+	 * @param rewrites the compilation unit rewrites
+	 * @param rewrite the source ast rewrite
+	 * @param declaration the source method declaration
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param status the refactoring status
+	 * @return <code>true</code> if a target node had to be inserted as method argument,
+	 *         <code>false</code> otherwise
+	 * @throws JavaModelException if an error occurs while accessing the types of the arguments
 	 */
-	protected boolean createMethodArguments(final Map rewrites, final ASTRewrite rewrite, final MethodDeclaration declaration, final Map adjustments, final RefactoringStatus status) throws JavaModelException {
+	protected boolean createMethodArguments(final Map rewrites, final ASTRewrite rewrite, final MethodDeclaration declaration, final Map adjustments, final RefactoringStatus status)
+			throws JavaModelException {
 		Assert.isNotNull(rewrites);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(rewrite);
@@ -2034,11 +1945,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		final ListRewrite list= rewrite.getListRewrite(declaration, MethodDeclaration.PARAMETERS_PROPERTY);
 		ASTNode node= null;
 		for (final Iterator iterator= declaration.parameters().iterator(); iterator.hasNext();) {
-			node= (ASTNode) iterator.next();
+			node= (ASTNode)iterator.next();
 			list.remove(node, null);
 		}
 		for (final Iterator iterator= arguments.iterator(); iterator.hasNext();) {
-			node= (ASTNode) iterator.next();
+			node= (ASTNode)iterator.next();
 			list.insertLast(node, null);
 		}
 		return result;
@@ -2046,13 +1957,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the method body for the target method declaration.
-	 *
-	 * @param rewriter
-	 *            the target compilation unit rewrite
-	 * @param rewrite
-	 *            the source ast rewrite
-	 * @param declaration
-	 *            the source method declaration
+	 * 
+	 * @param rewriter the target compilation unit rewrite
+	 * @param rewrite the source ast rewrite
+	 * @param declaration the source method declaration
 	 */
 	protected void createMethodBody(final CompilationUnitRewrite rewriter, final ASTRewrite rewrite, final MethodDeclaration declaration) {
 		Assert.isNotNull(declaration);
@@ -2061,13 +1969,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the method comment for the target method declaration.
-	 *
-	 * @param rewrite
-	 *            the source ast rewrite
-	 * @param declaration
-	 *            the source method declaration
-	 * @throws JavaModelException
-	 *             if the argument references could not be generated
+	 * 
+	 * @param rewrite the source ast rewrite
+	 * @param declaration the source method declaration
+	 * @throws JavaModelException if the argument references could not be generated
 	 */
 	protected void createMethodComment(final ASTRewrite rewrite, final MethodDeclaration declaration) throws JavaModelException {
 		Assert.isNotNull(rewrite);
@@ -2085,12 +1990,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			for (int index= 0; index < bindings.length; index++) {
 				binding= bindings[index];
 				for (final Iterator iterator= comment.tags().iterator(); iterator.hasNext();) {
-					element= (TagElement) iterator.next();
+					element= (TagElement)iterator.next();
 					name= element.getTagName();
 					fragments= element.fragments();
 					if (name != null) {
 						if (name.equals(TagElement.TAG_PARAM) && !fragments.isEmpty() && fragments.get(0) instanceof SimpleName) {
-							final SimpleName simple= (SimpleName) fragments.get(0);
+							final SimpleName simple= (SimpleName)fragments.get(0);
 							if (binding.getName().equals(simple.getIdentifier())) {
 								elements.put(binding.getKey(), element);
 								tags.remove(element);
@@ -2102,7 +2007,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			}
 			if (bindings.length == 0 && reference == null) {
 				for (final Iterator iterator= comment.tags().iterator(); iterator.hasNext();) {
-					element= (TagElement) iterator.next();
+					element= (TagElement)iterator.next();
 					name= element.getTagName();
 					fragments= element.fragments();
 					if (name != null && !name.equals(TagElement.TAG_PARAM))
@@ -2115,7 +2020,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				public final ASTNode getArgumentNode(final IVariableBinding argument, final boolean last) throws JavaModelException {
 					Assert.isNotNull(argument);
 					if (elements.containsKey(argument.getKey()))
-						return rewrite.createCopyTarget((ASTNode) elements.get(argument.getKey()));
+						return rewrite.createCopyTarget((ASTNode)elements.get(argument.getKey()));
 					return JavadocUtil.createParamTag(argument.getName(), declaration.getAST(), fMethod.getJavaProject());
 				}
 
@@ -2126,12 +2031,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			final ListRewrite rewriter= rewrite.getListRewrite(comment, Javadoc.TAGS_PROPERTY);
 			ASTNode tag= null;
 			for (final Iterator iterator= comment.tags().iterator(); iterator.hasNext();) {
-				tag= (ASTNode) iterator.next();
+				tag= (ASTNode)iterator.next();
 				if (!tags.contains(tag))
 					rewriter.remove(tag, null);
 			}
 			for (final Iterator iterator= arguments.iterator(); iterator.hasNext();) {
-				tag= (ASTNode) iterator.next();
+				tag= (ASTNode)iterator.next();
 				if (reference != null)
 					rewriter.insertBefore(tag, reference, null);
 				else
@@ -2142,16 +2047,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the method content of the moved method.
-	 *
-	 * @param document
-	 *            the document representing the source compilation unit
-	 * @param declaration
-	 *            the source method declaration
-	 * @param rewrite
-	 *            the ast rewrite to use
+	 * 
+	 * @param document the document representing the source compilation unit
+	 * @param declaration the source method declaration
+	 * @param rewrite the ast rewrite to use
 	 * @return the string representing the moved method body
-	 * @throws BadLocationException
-	 *             if an offset into the document is invalid
+	 * @throws BadLocationException if an offset into the document is invalid
 	 */
 	protected String createMethodContent(final IDocument document, final MethodDeclaration declaration, final ASTRewrite rewrite) throws BadLocationException {
 		Assert.isNotNull(document);
@@ -2169,34 +2070,26 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		processor.getRoot().addChild(result);
 		processor.performEdits();
 		final IRegion region= document.getLineInformation(document.getLineOfOffset(marker.getOffset()));
-		return Strings.changeIndent(document.get(marker.getOffset(), marker.getLength()), Strings.computeIndentUnits(document.get(region.getOffset(), region.getLength()), project), project, "", TextUtilities.getDefaultLineDelimiter(document)); //$NON-NLS-1$
+		return Strings.changeIndent(document.get(marker.getOffset(), marker.getLength()), Strings.computeIndentUnits(document.get(region.getOffset(), region.getLength()), project), project,
+				"", TextUtilities.getDefaultLineDelimiter(document)); //$NON-NLS-1$
 	}
 
 	/**
-	 * Creates the necessary changes to create the delegate method with the
-	 * original method body.
-	 *
-	 * @param document
-	 *            the buffer containing the source of the source compilation
-	 *            unit
-	 * @param declaration
-	 *            the method declaration to use as source
-	 * @param rewrite
-	 *            the ast rewrite to use for the copy of the method body
-	 * @param rewrites
-	 *            the compilation unit rewrites
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @throws CoreException
-	 *             if an error occurs
-	 * @return <code>true</code> if a target node had to be inserted as first
-	 *         argument, <code>false</code> otherwise
+	 * Creates the necessary changes to create the delegate method with the original method body.
+	 * 
+	 * @param document the buffer containing the source of the source compilation unit
+	 * @param declaration the method declaration to use as source
+	 * @param rewrite the ast rewrite to use for the copy of the method body
+	 * @param rewrites the compilation unit rewrites
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to display progress
+	 * @throws CoreException if an error occurs
+	 * @return <code>true</code> if a target node had to be inserted as first argument,
+	 *         <code>false</code> otherwise
 	 */
-	protected boolean createMethodCopy(final IDocument document, final MethodDeclaration declaration, final ASTRewrite rewrite, final Map rewrites, final Map adjustments, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
+	protected boolean createMethodCopy(final IDocument document, final MethodDeclaration declaration, final ASTRewrite rewrite, final Map rewrites, final Map adjustments,
+			final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(document);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(rewrite);
@@ -2215,8 +2108,13 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				if (declaring != null && Bindings.equals(declaring.getPackage(), fTarget.getType().getPackage()))
 					same= true;
 				final Modifier.ModifierKeyword keyword= same ? null : Modifier.ModifierKeyword.PUBLIC_KEYWORD;
-				if (MemberVisibilityAdjustor.hasLowerVisibility(binding.getModifiers(), same ? Modifier.NONE : keyword == null ? Modifier.NONE : keyword.toFlagValue()) && MemberVisibilityAdjustor.needsVisibilityAdjustments(fMethod, keyword, adjustments)) {
-					final MemberVisibilityAdjustor.IncomingMemberVisibilityAdjustment adjustment= new MemberVisibilityAdjustor.IncomingMemberVisibilityAdjustment(fMethod, keyword, RefactoringStatus.createStatus(RefactoringStatus.WARNING, Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_method_warning, new String[] { MemberVisibilityAdjustor.getLabel(fMethod), MemberVisibilityAdjustor.getLabel(keyword) }), JavaStatusContext.create(fMethod), null, RefactoringStatusEntry.NO_CODE, null));
+				if (MemberVisibilityAdjustor.hasLowerVisibility(binding.getModifiers(), same ? Modifier.NONE : keyword == null ? Modifier.NONE : keyword.toFlagValue())
+						&& MemberVisibilityAdjustor.needsVisibilityAdjustments(fMethod, keyword, adjustments)) {
+					final MemberVisibilityAdjustor.IncomingMemberVisibilityAdjustment adjustment= new MemberVisibilityAdjustor.IncomingMemberVisibilityAdjustment(fMethod, keyword,
+							RefactoringStatus.createStatus(
+									RefactoringStatus.WARNING,
+									Messages.format(RefactoringCoreMessages.MemberVisibilityAdjustor_change_visibility_method_warning, new String[] { MemberVisibilityAdjustor.getLabel(fMethod),
+											MemberVisibilityAdjustor.getLabel(keyword) }), JavaStatusContext.create(fMethod), null, RefactoringStatusEntry.NO_CODE, null));
 					ModifierRewrite.create(rewrite, declaration).setVisibility(keyword == null ? Modifier.NONE : keyword.toFlagValue(), null);
 					adjustment.setNeedsRewriting(false);
 					adjustments.put(fMethod, adjustment);
@@ -2234,25 +2132,20 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates the necessary changes to replace the body of the method
-	 * declaration with an expression to invoke the delegate.
-	 *
-	 * @param declaration
-	 *            the method declaration to replace its body
-	 * @param rewrites
-	 *            the compilation unit rewrites
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @throws CoreException
-	 *             if the change could not be generated
-	 * @return <code>true</code> if a target node had to be inserted as first
-	 *         argument, <code>false</code> otherwise
+	 * Creates the necessary changes to replace the body of the method declaration with an
+	 * expression to invoke the delegate.
+	 * 
+	 * @param declaration the method declaration to replace its body
+	 * @param rewrites the compilation unit rewrites
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to display progress
+	 * @throws CoreException if the change could not be generated
+	 * @return <code>true</code> if a target node had to be inserted as first argument,
+	 *         <code>false</code> otherwise
 	 */
-	protected boolean createMethodDelegation(final MethodDeclaration declaration, final Map rewrites, final Map adjustments, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
+	protected boolean createMethodDelegation(final MethodDeclaration declaration, final Map rewrites, final Map adjustments, final RefactoringStatus status, final IProgressMonitor monitor)
+			throws CoreException {
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(monitor);
 
@@ -2269,32 +2162,23 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates the necessary changes to inline the method invocations to the
-	 * original method.
-	 *
-	 * @param rewrites
-	 *            the map of compilation units to compilation unit rewrites
-	 * @param declaration
-	 *            the source method declaration
-	 * @param groups
-	 *            the search result groups representing all references to the
-	 *            moved method, including references in comments
-	 * @param adjustments
-	 *            the map of elements to visibility adjustments
-	 * @param target
-	 *            <code>true</code> if a target node must be inserted as first
-	 *            argument, <code>false</code> otherwise
-	 * @param binaryRefs
-	 *            the binary references context
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @return <code>true</code> if all method invocations to the original
-	 *         method declaration could be inlined, <code>false</code>
-	 *         otherwise
+	 * Creates the necessary changes to inline the method invocations to the original method.
+	 * 
+	 * @param rewrites the map of compilation units to compilation unit rewrites
+	 * @param declaration the source method declaration
+	 * @param groups the search result groups representing all references to the moved method,
+	 *            including references in comments
+	 * @param adjustments the map of elements to visibility adjustments
+	 * @param target <code>true</code> if a target node must be inserted as first argument,
+	 *            <code>false</code> otherwise
+	 * @param binaryRefs the binary references context
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to use
+	 * @return <code>true</code> if all method invocations to the original method declaration could
+	 *         be inlined, <code>false</code> otherwise
 	 */
-	protected boolean createMethodDelegator(final Map rewrites, final MethodDeclaration declaration, final SearchResultGroup[] groups, final Map adjustments, final boolean target, ReferencesInBinaryContext binaryRefs, final RefactoringStatus status, final IProgressMonitor monitor) {
+	protected boolean createMethodDelegator(final Map rewrites, final MethodDeclaration declaration, final SearchResultGroup[] groups, final Map adjustments, final boolean target,
+			ReferencesInBinaryContext binaryRefs, final RefactoringStatus status, final IProgressMonitor monitor) {
 		Assert.isNotNull(rewrites);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(groups);
@@ -2325,7 +2209,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						found= true;
 				}
 				if (found) {
-					status.merge(RefactoringStatus.createWarningStatus(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_overridden, BindingLabelProvider.getBindingLabel(declaration.resolveBinding(), JavaElementLabels.ALL_FULLY_QUALIFIED)), JavaStatusContext.create(fMethod)));
+					status.merge(RefactoringStatus.createWarningStatus(
+							Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_overridden,
+									BindingLabelProvider.getBindingLabel(declaration.resolveBinding(), JavaElementLabels.ALL_FULLY_QUALIFIED)), JavaStatusContext.create(fMethod)));
 					result= false;
 				} else {
 					monitor.worked(1);
@@ -2339,13 +2225,15 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						element= JavaCore.create(group.getResource());
 						if (element instanceof ICompilationUnit) {
 							matches= group.getSearchResults();
-							unit= (ICompilationUnit) element;
+							unit= (ICompilationUnit)element;
 							rewrite= getCompilationUnitRewrite(rewrites, unit);
 							SearchMatch match= null;
 							for (int offset= 0; offset < matches.length; offset++) {
 								match= matches[offset];
 								if (match.getAccuracy() == SearchMatch.A_INACCURATE) {
-									status.merge(RefactoringStatus.createWarningStatus(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_inaccurate, BasicElementLabels.getFileName(unit)), JavaStatusContext.create(unit, new SourceRange(match.getOffset(), match.getLength()))));
+									status.merge(RefactoringStatus.createWarningStatus(
+											Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_inaccurate, BasicElementLabels.getFileName(unit)),
+											JavaStatusContext.create(unit, new SourceRange(match.getOffset(), match.getLength()))));
 									result= false;
 								} else if (!createInlinedMethodInvocation(rewrite, declaration, match, adjustments, target, status))
 									result= false;
@@ -2367,19 +2255,13 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates the necessary imports for the copied method in the target
-	 * compilation unit.
-	 *
-	 * @param rewrite
-	 *            the target compilation unit rewrite
-	 * @param declaration
-	 *            the source method declaration
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param status
-	 *            the refactoring status to use
-	 * @throws CoreException
-	 *             if an error occurs
+	 * Creates the necessary imports for the copied method in the target compilation unit.
+	 * 
+	 * @param rewrite the target compilation unit rewrite
+	 * @param declaration the source method declaration
+	 * @param monitor the progress monitor to use
+	 * @param status the refactoring status to use
+	 * @throws CoreException if an error occurs
 	 */
 	protected void createMethodImports(final CompilationUnitRewrite rewrite, final MethodDeclaration declaration, final IProgressMonitor monitor, final RefactoringStatus status) throws CoreException {
 		Assert.isNotNull(rewrite);
@@ -2396,22 +2278,17 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates the necessary change to updated a comment reference represented
-	 * by a search match.
-	 *
-	 * @param rewrite
-	 *            the current compilation unit rewrite
-	 * @param declaration
-	 *            the source method declaration
-	 * @param match
-	 *            the search match representing the method reference
-	 * @param targetNode
-	 *            <code>true</code> if a target node had to be inserted as
-	 *            first argument, <code>false</code> otherwise
-	 * @param status
-	 *            the refactoring status
+	 * Creates the necessary change to updated a comment reference represented by a search match.
+	 * 
+	 * @param rewrite the current compilation unit rewrite
+	 * @param declaration the source method declaration
+	 * @param match the search match representing the method reference
+	 * @param targetNode <code>true</code> if a target node had to be inserted as first argument,
+	 *            <code>false</code> otherwise
+	 * @param status the refactoring status
 	 */
-	protected void createMethodJavadocReference(final CompilationUnitRewrite rewrite, final MethodDeclaration declaration, final SearchMatch match, final boolean targetNode, final RefactoringStatus status) {
+	protected void createMethodJavadocReference(final CompilationUnitRewrite rewrite, final MethodDeclaration declaration, final SearchMatch match, final boolean targetNode,
+			final RefactoringStatus status) {
 		Assert.isNotNull(rewrite);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(match);
@@ -2426,25 +2303,19 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Creates the necessary changes to update tag references to the original
-	 * method.
-	 *
-	 * @param rewrites
-	 *            the map of compilation units to compilation unit rewrites
-	 * @param declaration
-	 *            the source method declaration
-	 * @param groups
-	 *            the search result groups representing all references to the
-	 *            moved method, including references in comments
-	 * @param target
-	 *            <code>true</code> if a target node must be inserted as first
-	 *            argument, <code>false</code> otherwise
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to use
+	 * Creates the necessary changes to update tag references to the original method.
+	 * 
+	 * @param rewrites the map of compilation units to compilation unit rewrites
+	 * @param declaration the source method declaration
+	 * @param groups the search result groups representing all references to the moved method,
+	 *            including references in comments
+	 * @param target <code>true</code> if a target node must be inserted as first argument,
+	 *            <code>false</code> otherwise
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to use
 	 */
-	protected void createMethodJavadocReferences(final Map rewrites, final MethodDeclaration declaration, final SearchResultGroup[] groups, final boolean target, final RefactoringStatus status, final IProgressMonitor monitor) {
+	protected void createMethodJavadocReferences(final Map rewrites, final MethodDeclaration declaration, final SearchResultGroup[] groups, final boolean target, final RefactoringStatus status,
+			final IProgressMonitor monitor) {
 		Assert.isNotNull(rewrites);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(status);
@@ -2463,13 +2334,15 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 				unit= group.getCompilationUnit();
 				if (element instanceof ICompilationUnit) {
 					matches= group.getSearchResults();
-					unit= (ICompilationUnit) element;
+					unit= (ICompilationUnit)element;
 					rewrite= getCompilationUnitRewrite(rewrites, unit);
 					SearchMatch match= null;
 					for (int offset= 0; offset < matches.length; offset++) {
 						match= matches[offset];
 						if (match.getAccuracy() == SearchMatch.A_INACCURATE) {
-							status.merge(RefactoringStatus.createWarningStatus(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_inaccurate, BasicElementLabels.getFileName(unit)), JavaStatusContext.create(unit, new SourceRange(match.getOffset(), match.getLength()))));
+							status.merge(RefactoringStatus.createWarningStatus(
+									Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_inline_inaccurate, BasicElementLabels.getFileName(unit)),
+									JavaStatusContext.create(unit, new SourceRange(match.getOffset(), match.getLength()))));
 						} else
 							createMethodJavadocReference(rewrite, declaration, match, target, status);
 					}
@@ -2483,14 +2356,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates a comment method reference to the moved method
-	 *
-	 * @param declaration
-	 *            the method declaration of the original method
-	 * @param ast
-	 *            the ast to create the method reference for
+	 * 
+	 * @param declaration the method declaration of the original method
+	 * @param ast the ast to create the method reference for
 	 * @return the created link tag to reference the method
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected ASTNode createMethodReference(final MethodDeclaration declaration, final AST ast) throws JavaModelException {
 		Assert.isNotNull(ast);
@@ -2522,17 +2392,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * @param document
-	 *            the buffer containing the source of the source compilation
-	 *            unit
-	 * @param declaration
-	 *            the method declaration to use as source
-	 * @param rewrite
-	 *            the ast rewrite to use for the copy of the method body
-	 * @param rewrites
-	 *            the compilation unit rewrites
-	 * @throws JavaModelException
-	 *             if the insertion point cannot be found
+	 * @param document the buffer containing the source of the source compilation unit
+	 * @param declaration the method declaration to use as source
+	 * @param rewrite the ast rewrite to use for the copy of the method body
+	 * @param rewrites the compilation unit rewrites
+	 * @throws JavaModelException if the insertion point cannot be found
 	 */
 	protected void createMethodSignature(final IDocument document, final MethodDeclaration declaration, final ASTRewrite rewrite, final Map rewrites) throws JavaModelException {
 		Assert.isNotNull(document);
@@ -2541,24 +2405,22 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		Assert.isNotNull(rewrites);
 		try {
 			final CompilationUnitRewrite rewriter= getCompilationUnitRewrite(rewrites, getTargetType().getCompilationUnit());
-			final MethodDeclaration stub= (MethodDeclaration) rewriter.getASTRewrite().createStringPlaceholder(createMethodContent(document, declaration, rewrite), ASTNode.METHOD_DECLARATION);
+			final MethodDeclaration stub= (MethodDeclaration)rewriter.getASTRewrite().createStringPlaceholder(createMethodContent(document, declaration, rewrite), ASTNode.METHOD_DECLARATION);
 			final AbstractTypeDeclaration type= ASTNodeSearchUtil.getAbstractTypeDeclarationNode(getTargetType(), rewriter.getRoot());
-			rewriter.getASTRewrite().getListRewrite(type, type.getBodyDeclarationsProperty()).insertAt(stub, ASTNodes.getInsertionIndex(stub, type.bodyDeclarations()), rewriter.createGroupDescription(RefactoringCoreMessages.MoveInstanceMethodProcessor_add_moved_method));
+			rewriter.getASTRewrite().getListRewrite(type, type.getBodyDeclarationsProperty())
+					.insertAt(stub, ASTNodes.getInsertionIndex(stub, type.bodyDeclarations()), rewriter.createGroupDescription(RefactoringCoreMessages.MoveInstanceMethodProcessor_add_moved_method));
 		} catch (BadLocationException exception) {
 			JavaPlugin.log(exception);
 		}
 	}
 
 	/**
-	 * Creates the necessary changes to remove method type parameters if they
-	 * match with enclosing type parameters.
-	 *
-	 * @param rewrite
-	 *            the ast rewrite to use
-	 * @param declaration
-	 *            the method declaration to remove type parameters
-	 * @param status
-	 *            the refactoring status
+	 * Creates the necessary changes to remove method type parameters if they match with enclosing
+	 * type parameters.
+	 * 
+	 * @param rewrite the ast rewrite to use
+	 * @param declaration the method declaration to remove type parameters
+	 * @param status the refactoring status
 	 */
 	protected void createMethodTypeParameters(final ASTRewrite rewrite, final MethodDeclaration declaration, final RefactoringStatus status) {
 		ITypeBinding binding= fTarget.getType();
@@ -2576,8 +2438,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 						for (int index= 0; index < bindings.length; index++) {
 							for (int offset= 0; offset < parameters.length; offset++) {
 								if (parameters[offset].getName().equals(bindings[index].getName())) {
-									rewriter.remove((ASTNode) rewriter.getOriginalList().get(offset), null);
-									status.addWarning(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_present_type_parameter_warning, new Object[] { BasicElementLabels.getJavaElementName(parameters[offset].getName()), BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED) }), JavaStatusContext.create(fMethod));
+									rewriter.remove((ASTNode)rewriter.getOriginalList().get(offset), null);
+									status.addWarning(
+											Messages.format(
+													RefactoringCoreMessages.MoveInstanceMethodProcessor_present_type_parameter_warning,
+													new Object[] { BasicElementLabels.getJavaElementName(parameters[offset].getName()),
+															BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED) }), JavaStatusContext.create(fMethod));
 								}
 							}
 						}
@@ -2590,9 +2456,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Creates the expression to access the new target.
-	 *
-	 * @param declaration
-	 *            the method declaration where to access the target
+	 * 
+	 * @param declaration the method declaration where to access the target
 	 * @return the corresponding expression
 	 */
 	protected Expression createSimpleTargetAccessExpression(final MethodDeclaration declaration) {
@@ -2625,9 +2490,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the candidate targets for the method to move.
-	 *
-	 * @return the candidate targets as variable bindings of fields and
-	 *         parameters
+	 * 
+	 * @return the candidate targets as variable bindings of fields and parameters
 	 */
 	public final IVariableBinding[] getCandidateTargets() {
 		Assert.isNotNull(fCandidateTargets);
@@ -2636,17 +2500,15 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns a compilation unit rewrite for the specified compilation unit.
-	 *
-	 * @param rewrites
-	 *            the compilation unit rewrite map
-	 * @param unit
-	 *            the compilation unit
+	 * 
+	 * @param rewrites the compilation unit rewrite map
+	 * @param unit the compilation unit
 	 * @return the corresponding compilation unit rewrite
 	 */
 	protected CompilationUnitRewrite getCompilationUnitRewrite(final Map rewrites, final ICompilationUnit unit) {
 		Assert.isNotNull(rewrites);
 		Assert.isNotNull(unit);
-		CompilationUnitRewrite rewrite= (CompilationUnitRewrite) rewrites.get(unit);
+		CompilationUnitRewrite rewrite= (CompilationUnitRewrite)rewrites.get(unit);
 		if (rewrite == null) {
 			rewrite= new CompilationUnitRewrite(unit);
 			rewrites.put(unit, rewrite);
@@ -2694,7 +2556,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the method to be moved.
-	 *
+	 * 
 	 * @return the method to be moved
 	 */
 	public final IMethod getMethod() {
@@ -2703,7 +2565,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the new method name.
-	 *
+	 * 
 	 * @return the name of the new method
 	 */
 	public final String getMethodName() {
@@ -2712,9 +2574,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the possible targets for the method to move.
-	 *
-	 * @return the possible targets as variable bindings of read-only fields and
-	 *         parameters
+	 * 
+	 * @return the possible targets as variable bindings of read-only fields and parameters
 	 */
 	public final IVariableBinding[] getPossibleTargets() {
 		Assert.isNotNull(fPossibleTargets);
@@ -2730,7 +2591,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the index of the chosen target.
-	 *
+	 * 
 	 * @return the target index
 	 */
 	protected final int getTargetIndex() {
@@ -2747,7 +2608,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the new target name.
-	 *
+	 * 
 	 * @return the name of the new target
 	 */
 	public final String getTargetName() {
@@ -2756,17 +2617,16 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns the type of the new target.
-	 *
+	 * 
 	 * @return the type of the new target
-	 * @throws JavaModelException
-	 *             if the type does not exist
+	 * @throws JavaModelException if the type does not exist
 	 */
 	protected IType getTargetType() throws JavaModelException {
 		Assert.isNotNull(fTarget);
 		if (fTargetType == null) {
 			final ITypeBinding binding= fTarget.getType();
 			if (binding != null)
-				fTargetType= (IType) binding.getJavaElement();
+				fTargetType= (IType)binding.getJavaElement();
 			else
 				throw new JavaModelException(new CoreException(new Status(IStatus.ERROR, JavaPlugin.getPluginId(), 0, RefactoringCoreMessages.MoveInstanceMethodProcessor_cannot_be_moved, null)));
 		}
@@ -2775,9 +2635,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Initializes the refactoring with the given input.
-	 *
-	 * @param method
-	 *            the method to move
+	 * 
+	 * @param method the method to move
 	 */
 	protected void initialize(final IMethod method) {
 		Assert.isNotNull(method);
@@ -2795,7 +2654,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			if (element == null || !element.exists() || element.getElementType() != IJavaElement.METHOD)
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.MOVE_METHOD);
 			else {
-				fMethod= (IMethod) element;
+				fMethod= (IMethod)element;
 				initialize(fMethod);
 			}
 		} else
@@ -2870,11 +2729,9 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Is the specified name a target access?
-	 *
-	 * @param name
-	 *            the name to check
-	 * @return <code>true</code> if this name is a target access,
-	 *         <code>false</code> otherwise
+	 * 
+	 * @param name the name to check
+	 * @return <code>true</code> if this name is a target access, <code>false</code> otherwise
 	 */
 	protected boolean isTargetAccess(final Name name) {
 		Assert.isNotNull(name);
@@ -2882,12 +2739,12 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		if (Bindings.equals(fTarget, binding))
 			return true;
 		if (name.getParent() instanceof FieldAccess) {
-			final FieldAccess access= (FieldAccess) name.getParent();
+			final FieldAccess access= (FieldAccess)name.getParent();
 			final Expression expression= access.getExpression();
 			if (expression instanceof Name)
-				return isTargetAccess((Name) expression);
+				return isTargetAccess((Name)expression);
 		} else if (name instanceof QualifiedName) {
-			final QualifiedName qualified= (QualifiedName) name;
+			final QualifiedName qualified= (QualifiedName)name;
 			if (qualified.getQualifier() != null)
 				return isTargetAccess(qualified.getQualifier());
 		}
@@ -2904,9 +2761,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Does the moved method need a target node?
-	 *
-	 * @return <code>true</code> if it needs a target node, <code>false</code>
-	 *         otherwise
+	 * 
+	 * @return <code>true</code> if it needs a target node, <code>false</code> otherwise
 	 */
 	public final boolean needsTargetNode() {
 		return fTargetNode;
@@ -2930,10 +2786,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Determines whether the delegator has to be inlined.
-	 *
-	 * @param inline
-	 *            <code>true</code> to inline the delegator,
-	 *            <code>false</code> otherwise
+	 * 
+	 * @param inline <code>true</code> to inline the delegator, <code>false</code> otherwise
 	 */
 	public final void setInlineDelegator(final boolean inline) {
 		fInline= inline;
@@ -2941,9 +2795,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Sets the new method name.
-	 *
-	 * @param name
-	 *            the name to set
+	 * 
+	 * @param name the name to set
 	 * @return the status of the operation
 	 */
 	public final RefactoringStatus setMethodName(final String name) {
@@ -2956,13 +2809,11 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Determines whether the delegator has to be removed after inlining. Note
-	 * that the option to inline the delegator has to be enabled if this method
-	 * is called with the argument <code>true</code>.
-	 *
-	 * @param remove
-	 *            <code>true</code> if it should be removed,
-	 *            <code>false</code> otherwise
+	 * Determines whether the delegator has to be removed after inlining. Note that the option to
+	 * inline the delegator has to be enabled if this method is called with the argument
+	 * <code>true</code>.
+	 * 
+	 * @param remove <code>true</code> if it should be removed, <code>false</code> otherwise
 	 */
 	public final void setRemoveDelegator(final boolean remove) {
 		Assert.isTrue(!remove || fInline);
@@ -2971,9 +2822,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Sets the new target.
-	 *
-	 * @param target
-	 *            the target to set
+	 * 
+	 * @param target the target to set
 	 */
 	public final void setTarget(final IVariableBinding target) {
 		Assert.isNotNull(target);
@@ -2995,9 +2845,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Sets the new target name.
-	 *
-	 * @param name
-	 *            the name to set
+	 * 
+	 * @param name the name to set
 	 * @return the status of the operation
 	 */
 	public final RefactoringStatus setTargetName(final String name) {
@@ -3010,24 +2859,18 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * Determines whether getter methods should be used to resolve visibility
-	 * issues.
-	 *
-	 * @param use
-	 *            <code>true</code> if getter methods should be used,
-	 *            <code>false</code> otherwise
+	 * Determines whether getter methods should be used to resolve visibility issues.
+	 * 
+	 * @param use <code>true</code> if getter methods should be used, <code>false</code> otherwise
 	 */
 	public final void setUseGetters(final boolean use) {
 		fUseGetters= use;
 	}
 
 	/**
-	 * Determines whether setter methods should be used to resolve visibility
-	 * issues.
-	 *
-	 * @param use
-	 *            <code>true</code> if setter methods should be used,
-	 *            <code>false</code> otherwise
+	 * Determines whether setter methods should be used to resolve visibility issues.
+	 * 
+	 * @param use <code>true</code> if setter methods should be used, <code>false</code> otherwise
 	 */
 	public final void setUseSetters(final boolean use) {
 		fUseSetters= use;
@@ -3035,9 +2878,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Should getter methods be used to resolve visibility issues?
-	 *
-	 * @return <code>true</code> if getter methods should be used,
-	 *         <code>false</code> otherwise
+	 * 
+	 * @return <code>true</code> if getter methods should be used, <code>false</code> otherwise
 	 */
 	public final boolean shouldUseGetters() {
 		return fUseGetters;
@@ -3045,9 +2887,8 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Should setter methods be used to resolve visibility issues?
-	 *
-	 * @return <code>true</code> if setter methods should be used,
-	 *         <code>false</code> otherwise
+	 * 
+	 * @return <code>true</code> if setter methods should be used, <code>false</code> otherwise
 	 */
 	public final boolean shouldUseSetters() {
 		return fUseSetters;
@@ -3055,7 +2896,7 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 	/**
 	 * Returns a best guess for the name of the new target.
-	 *
+	 * 
 	 * @return a best guess for the name
 	 */
 	protected String suggestTargetName() {
@@ -3069,5 +2910,51 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			JavaPlugin.log(exception);
 		}
 		return "arg"; //$NON-NLS-1$
+	}
+
+	//CODINGSPECTATOR: The following method are required by WatchedMoveProcessor.
+
+	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		String project= null;
+		final IJavaProject javaProject= fMethod.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		final IType declaring= fMethod.getDeclaringType();
+		try {
+			if (declaring.isAnonymous() || declaring.isLocal())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String description= Messages
+				.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
+		final String header= Messages.format(
+				RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description,
+				new String[] { JavaElementLabels.getElementLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_moved_element_pattern, RefactoringCoreMessages.JavaRefactoringDescriptor_not_available));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_target_element_pattern,
+				BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_name_pattern, BasicElementLabels.getJavaElementName(getMethodName())));
+		if (needsTargetNode())
+			comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_parameter_name_pattern, BasicElementLabels.getJavaElementName(getTargetName())));
+		final MoveMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment.asString(), arguments, flags);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fMethod));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
+		arguments.put(ATTRIBUTE_TARGET_NAME, fTargetName);
+		arguments.put(ATTRIBUTE_DEPRECATE, Boolean.valueOf(fDelegateDeprecation).toString());
+		arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemove).toString());
+		arguments.put(ATTRIBUTE_INLINE, Boolean.valueOf(fInline).toString());
+		arguments.put(ATTRIBUTE_USE_GETTER, Boolean.valueOf(fUseGetters).toString());
+		arguments.put(ATTRIBUTE_USE_SETTER, Boolean.valueOf(fUseSetters).toString());
+		arguments.put(ATTRIBUTE_TARGET_INDEX, new Integer(getTargetIndex()).toString());
+		return descriptor;
+	}
+
+	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		return RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment, arguments, flags);
 	}
 }

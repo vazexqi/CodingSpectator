@@ -12,8 +12,6 @@ import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
-import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
-
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
@@ -27,12 +25,10 @@ abstract public class WatchedMoveProcessor extends MoveProcessor implements IWat
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
 		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
-//		final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createMoveDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments, d.getFlags());\
-		//FIXME: The following method call is specific to "move static member" refactoring.
-		final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments,
-				d.getFlags());
-		return descriptor;
+		return createRefactoringDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments, d.getFlags());
 	}
+
+	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
 
 	protected Map getArguments(JavaRefactoringDescriptor d) {
 		try {

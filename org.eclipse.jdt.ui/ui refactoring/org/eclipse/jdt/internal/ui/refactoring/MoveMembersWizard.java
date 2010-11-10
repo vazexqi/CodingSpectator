@@ -195,7 +195,7 @@ public class MoveMembersWizard extends RefactoringWizard {
 			fDestinationField.setItems((String[])fgMruDestinations.toArray(new String[fgMruDestinations.size()]));
 			fDestinationField.addModifyListener(new ModifyListener() {
 				public void modifyText(ModifyEvent e) {
-					//CODINGSPECTATOR:
+					//CODINGSPECTATOR: We set the destination type in the move processor every time the text field changes. This ensures that we capture the entered destination even when the refactoring gets eventually canceled. 
 					initializeRefactoring();
 
 					handleDestinationChanged();
