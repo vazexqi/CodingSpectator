@@ -49,6 +49,7 @@ import org.eclipse.ltk.internal.ui.refactoring.RefactoringPluginImages;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringUIMessages;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringUIPlugin;
 import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 /**
  * An abstract base implementation of a refactoring wizard. A refactoring wizard differs from a
@@ -648,6 +649,7 @@ public abstract class RefactoringWizard extends Wizard {
 	 * {@inheritDoc}
 	 */
 	public boolean performCancel() {
+		//CODINGSPECTATOR
 		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
 
 		if (fChange != null) {

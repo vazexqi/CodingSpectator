@@ -26,6 +26,7 @@ import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
 import org.eclipse.ltk.internal.ui.refactoring.IErrorWizardPage;
 import org.eclipse.ltk.internal.ui.refactoring.InternalAPI;
 import org.eclipse.ltk.internal.ui.refactoring.UIPerformChangeOperation;
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 /**
  * An abstract wizard page that is to be used to implement user input pages presented inside a

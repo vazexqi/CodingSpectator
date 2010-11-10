@@ -1,4 +1,4 @@
-package org.eclipse.ltk.ui.refactoring;
+package org.eclipse.ltk.ui.refactoring.codingspectator;
 
 import org.eclipse.core.runtime.Platform;
 

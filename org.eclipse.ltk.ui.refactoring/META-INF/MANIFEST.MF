@@ -15,6 +15,7 @@ Export-Package: org.eclipse.ltk.internal.ui.refactoring;x-internal:=true,
  org.eclipse.ltk.internal.ui.refactoring.util;x-internal:=true,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ltk.ui.refactoring.actions,
+ org.eclipse.ltk.ui.refactoring.codingspectator,
  org.eclipse.ltk.ui.refactoring.history,
  org.eclipse.ltk.ui.refactoring.model,
  org.eclipse.ltk.ui.refactoring.resource
