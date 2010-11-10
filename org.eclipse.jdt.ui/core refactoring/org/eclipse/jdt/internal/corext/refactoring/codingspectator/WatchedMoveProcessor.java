@@ -8,8 +8,4 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
  */
 abstract public class WatchedMoveProcessor extends WatchedProcessor {
 
-	protected Object[] getElements() {
-		return WatchedMoveProcessor.this.getElements();
-	}
-
 }

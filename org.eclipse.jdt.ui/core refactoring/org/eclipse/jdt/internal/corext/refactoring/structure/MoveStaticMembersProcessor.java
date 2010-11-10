@@ -1183,6 +1183,11 @@ public final class MoveStaticMembersProcessor extends MoveProcessor implements I
 		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
 			return RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(project, description, comment, arguments, flags);
 		}
+
+		protected Object[] getElements() {
+			return MoveStaticMembersProcessor.this.getElements();
+		}
+
 	}
 
 

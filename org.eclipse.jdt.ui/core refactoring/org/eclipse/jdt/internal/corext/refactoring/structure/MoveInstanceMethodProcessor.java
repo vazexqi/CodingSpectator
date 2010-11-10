@@ -2964,12 +2964,17 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 	}
 
 	public class WatchedMoveInstanceMethodProcessor extends WatchedMoveProcessor {
+
 		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 			return MoveInstanceMethodProcessor.this.createRefactoringDescriptor();
 		}
 
 		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
 			return RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment, arguments, flags);
+		}
+
+		protected Object[] getElements() {
+			return MoveInstanceMethodProcessor.this.getElements();
 		}
 
 	}

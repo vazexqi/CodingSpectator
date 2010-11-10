@@ -339,5 +339,10 @@ public final class JavaMoveProcessor extends MoveProcessor implements IWatchedPr
 		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
 			return RefactoringSignatureDescriptorFactory.createMoveDescriptor(project, description, comment, arguments, flags);
 		}
+
+		protected Object[] getElements() {
+			return JavaMoveProcessor.this.getElements();
+		}
+
 	}
 }
