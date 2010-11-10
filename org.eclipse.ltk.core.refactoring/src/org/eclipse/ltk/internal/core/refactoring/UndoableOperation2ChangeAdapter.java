@@ -135,6 +135,7 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 		return fActiveChange.getAffectedObjects();
 	}
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
 	public Object[] getAllAffectedObjects() {
 		if (fActiveChange == null)
 			return null;

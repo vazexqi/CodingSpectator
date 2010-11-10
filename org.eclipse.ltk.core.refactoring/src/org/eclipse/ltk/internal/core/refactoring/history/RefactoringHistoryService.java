@@ -89,6 +89,7 @@ import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter
  * @author nchen - Added getFeatureVersion(), getRefactoringHistoryCanceledFolder(),
  *         getRefactoringHistoryPerformedFolder(), constructHiddenFolder(baseName) to locate the
  *         folder to store the log files.
+ * @author Mohsen Vakilian - Added the CODINGSPECTATOR change comments.
  * 
  * @since 3.2
  */
@@ -145,22 +146,6 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/** The no history constant */
 	private static final NullRefactoringHistory NO_HISTORY= new NullRefactoringHistory();
-
-	public static Version getFeatureVersion() {
-		Bundle bundle= Platform.getBundle(RefactoringCoreMessages.CodingSpectator_FeatureBundleName);
-		if (bundle != null)
-			return bundle.getVersion();
-		else
-			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
-	}
-
-	public static String getRefactoringHistoryCanceledFolder() {
-		return constructHiddenFolder(NAME_HISTORY_CANCELED_FOLDER);
-	}
-
-	public static String getRefactoringHistoryPerformedFolder() {
-		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
-	}
 
 	private static String constructHiddenFolder(String baseName) {
 		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
@@ -1024,6 +1009,26 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 			fManagerCache.put(store, manager);
 		}
 		return manager;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public static Version getFeatureVersion() {
+		Bundle bundle= Platform.getBundle(RefactoringCoreMessages.CodingSpectator_FeatureBundleName);
+		if (bundle != null)
+			return bundle.getVersion();
+		else
+			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
+	}
+
+	public static String getRefactoringHistoryCanceledFolder() {
+		return constructHiddenFolder(NAME_HISTORY_CANCELED_FOLDER);
+	}
+
+	public static String getRefactoringHistoryPerformedFolder() {
+		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
 	}
 
 }

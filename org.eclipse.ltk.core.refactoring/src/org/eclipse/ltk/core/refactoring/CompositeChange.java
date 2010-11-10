@@ -471,6 +471,7 @@ public class CompositeChange extends Change {
 		return result.toArray();
 	}
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects().
 	public Object[] getAllAffectedObjects() {
 		if (fChanges.size() == 0)
 			return new Object[0];

@@ -62,7 +62,9 @@ public class MoveRefactoring extends ProcessorBasedRefactoring implements IWatch
 		return fProcessor;
 	}
 
+	///////////////////////////////////////////////
 	//CODINGSPECTATOR: Added the following methods.
+	///////////////////////////////////////////////
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		if (!(fProcessor instanceof IWatched))

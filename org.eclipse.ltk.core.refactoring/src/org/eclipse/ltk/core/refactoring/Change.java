@@ -281,6 +281,7 @@ public abstract class Change implements IAdaptable {
 		return null;
 	}
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
 	public Object[] getAllAffectedObjects() {
 		return getAffectedObjects();
 	}

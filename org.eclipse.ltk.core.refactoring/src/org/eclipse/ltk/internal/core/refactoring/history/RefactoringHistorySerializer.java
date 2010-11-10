@@ -52,6 +52,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	private String getHistoryFolder(final RefactoringHistoryEvent event) {
 		Assert.isNotNull(event);
 		switch (event.getEventType()) {
+			//CODINGSPECTATOR: Added the following two cases for handling the events that CodingSpectator is interested in.
 			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED:
 				return RefactoringHistoryService.getRefactoringHistoryCanceledFolder();
 
@@ -110,6 +111,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 		}
 	}
 
+	//CODINGSPECTATOR: Extracted the method getFileStore(String).
 	private IFileStore getFileStore(String historyFolder) {
 		return EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(historyFolder);
 	}
@@ -136,6 +138,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	}
 
 	private boolean isInsertion(final int type) {
+		//CODINGSPECTATOR: Made the two events of CodingSpectator get inserted to the history file.
 		if (type == RefactoringHistoryEvent.PUSHED || type == RefactoringHistoryEvent.ADDED || type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED
 				|| type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED)
 			return true;
