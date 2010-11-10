@@ -1616,6 +1616,7 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 		updateFont();
 	}
 
+	//CODINGSPECTATOR: Added the method getLeftViewer.
 	public SourceViewer getLeftViewer() {
 		if (fLeft != null) {
 			return fLeft.getSourceViewer();

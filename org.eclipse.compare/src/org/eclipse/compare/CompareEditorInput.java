@@ -264,6 +264,7 @@ public abstract class CompareEditorInput extends PlatformObject implements IEdit
 		}
 	}
 
+	//CODINGSPECTATOR: Added the method getContentViewer. 
 	public Viewer getContentViewer() {
 		if (fContentInputPane != null) {
 			return fContentInputPane.getViewer();
