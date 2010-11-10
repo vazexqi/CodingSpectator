@@ -339,6 +339,7 @@ public abstract class AbstractDecoratedTextEditor extends StatusTextEditor {
 	 */
 	private FocusedInformationPresenter fInformationPresenter;
 
+	//CODINGSPECTATOR: Added the method getHackedViewer.
 	public final ISourceViewer getHackedViewer() {
 		return getSourceViewer();
 	}
