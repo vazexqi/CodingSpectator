@@ -248,20 +248,33 @@ public abstract class RefactoringTest extends TestCase {
 	protected final RefactoringStatus performRefactoring(Refactoring ref, boolean providesUndo) throws Exception {
 		performDummySearch();
 
-		//CODINGSPECTATOR: Check for error early and return; this is similar to what the (testing for failure) tests are doing albeit being a shorter mechanism instead of using one of the Operation mechanism
-		RefactoringStatus status= RefactoringChecker.checkRefactoringDescriptorCreation(ref);
-		if (status.hasError())
-			return status;
+		//CODINGSPECTATOR:
+		final RefactoringChecker.Result result= RefactoringChecker.checkRefactoringDescriptorCreation(ref);
+		final RefactoringStatus status= result.getRefactoringStatus();
 
 		IUndoManager undoManager= getUndoManager();
 		if (DESCRIPTOR_TEST) {
-			final CreateChangeOperation create= new CreateChangeOperation(
-					new CheckConditionsOperation(ref, CheckConditionsOperation.ALL_CONDITIONS),
-					RefactoringStatus.FATAL);
-			create.run(new NullProgressMonitor());
-			RefactoringStatus checkingStatus= create.getConditionCheckingStatus();
-			if (!checkingStatus.isOK())
-				return checkingStatus;
+
+			//CODINGSPECTATOR
+			final CreateChangeOperation create;
+			if (result.getRemainingConditionsToCheck() > CheckConditionsOperation.NONE) {
+				create= new CreateChangeOperation(new CheckConditionsOperation(ref, result.getRemainingConditionsToCheck()), RefactoringStatus.FATAL);
+			} else {
+				create= new CreateChangeOperation(ref);
+			}
+
+			//CODINGSPECTATOR
+			if (status.isOK()) {
+				create.run(new NullProgressMonitor());
+				RefactoringStatus checkingStatus= create.getConditionCheckingStatus();
+				if (checkingStatus == null) {
+					checkingStatus= new RefactoringStatus();
+				}
+				status.merge(checkingStatus);
+			}
+
+			if (!status.isOK())
+				return status;
 			Change change= create.getChange();
 			ChangeDescriptor descriptor= change.getDescriptor();
 			if (descriptor instanceof RefactoringChangeDescriptor) {
@@ -288,16 +301,23 @@ public abstract class RefactoringTest extends TestCase {
 				}
 			}
 		}
-		final CreateChangeOperation create= new CreateChangeOperation(
-				new CheckConditionsOperation(ref, CheckConditionsOperation.ALL_CONDITIONS),
-				RefactoringStatus.FATAL);
+
+		//CODINGSPECTATOR
+		final CreateChangeOperation create;
+		if (result.getRemainingConditionsToCheck() > CheckConditionsOperation.NONE) {
+			create= new CreateChangeOperation(new CheckConditionsOperation(ref, result.getRemainingConditionsToCheck()), RefactoringStatus.FATAL);
+		} else {
+			create= new CreateChangeOperation(ref);
+		}
+
 		final PerformChangeOperation perform= new PerformChangeOperation(create);
 		perform.setUndoManager(undoManager, ref.getName());
 		IWorkspace workspace= ResourcesPlugin.getWorkspace();
 		if (fIsPreDeltaTest) {
 			IResourceChangeListener listener= new IResourceChangeListener() {
 				public void resourceChanged(IResourceChangeEvent event) {
-					if (create.getConditionCheckingStatus().isOK() && perform.changeExecuted()) {
+					//CODINGSPECTATOR
+					if (status.isOK() && perform.changeExecuted()) {
 						TestModelProvider.assertTrue(event.getDelta());
 					}
 				}
@@ -306,14 +326,29 @@ public abstract class RefactoringTest extends TestCase {
 				TestModelProvider.clearDelta();
 				workspace.checkpoint(false);
 				workspace.addResourceChangeListener(listener);
-				executePerformOperation(perform, workspace);
+
+				//CODINGSPECTATOR
+				if (status.isOK()) {
+					executePerformOperation(perform, workspace);
+				}
+
 			} finally {
 				workspace.removeResourceChangeListener(listener);
 			}
 		} else {
-			executePerformOperation(perform, workspace);
+			//CODINGSPECTATOR
+			if (status.isOK()) {
+				executePerformOperation(perform, workspace);
+			}
 		}
-		status= create.getConditionCheckingStatus();
+
+		//CODINGSPECTATOR
+		RefactoringStatus createChangeOperationStatus= create.getConditionCheckingStatus();
+		if (createChangeOperationStatus == null) {
+			createChangeOperationStatus= new RefactoringStatus();
+		}
+		status.merge(createChangeOperationStatus);
+
 		if (!status.isOK())
 			return status;
 		assertTrue("Change wasn't executed", perform.changeExecuted());
