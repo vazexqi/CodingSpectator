@@ -249,13 +249,15 @@ public abstract class RefactoringTest extends TestCase {
 		performDummySearch();
 
 		//CODINGSPECTATOR:
-		RefactoringChecker.checkRefactoringDescriptorCreation(ref);
+		int remainingConditionsToCheck= RefactoringChecker.checkRefactoringDescriptorCreation(ref);
 
 		IUndoManager undoManager= getUndoManager();
 		if (DESCRIPTOR_TEST) {
+			//CODINGSPECTATOR: Replaced CheckConditionsOperation.ALL_CONDITIONS by remainingConditionsToCheck.
 			final CreateChangeOperation create= new CreateChangeOperation(
-					new CheckConditionsOperation(ref, CheckConditionsOperation.ALL_CONDITIONS),
+					new CheckConditionsOperation(ref, remainingConditionsToCheck),
 					RefactoringStatus.FATAL);
+
 			create.run(new NullProgressMonitor());
 			RefactoringStatus checkingStatus= create.getConditionCheckingStatus();
 			if (!checkingStatus.isOK())
@@ -286,9 +288,12 @@ public abstract class RefactoringTest extends TestCase {
 				}
 			}
 		}
+
+		//CODINGSPECTATOR: Replaced CheckConditionsOperation.ALL_CONDITIONS by remainingConditionsToCheck.
 		final CreateChangeOperation create= new CreateChangeOperation(
-				new CheckConditionsOperation(ref, CheckConditionsOperation.ALL_CONDITIONS),
+				new CheckConditionsOperation(ref, remainingConditionsToCheck),
 				RefactoringStatus.FATAL);
+
 		final PerformChangeOperation perform= new PerformChangeOperation(create);
 		perform.setUndoManager(undoManager, ref.getName());
 		IWorkspace workspace= ResourcesPlugin.getWorkspace();
