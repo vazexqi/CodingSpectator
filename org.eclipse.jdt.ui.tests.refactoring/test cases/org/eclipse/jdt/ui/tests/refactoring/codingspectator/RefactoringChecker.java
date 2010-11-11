@@ -10,6 +10,7 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 
+import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.InlineMethodRefactoring;
 
 /**
@@ -30,12 +31,14 @@ public class RefactoringChecker {
 				RefactoringStatus refactoringStatus= null;
 				if (refactoring instanceof InlineMethodRefactoring) {
 					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
-//				} else if (refactoring instanceof ExtractMethodRefactoring) {
-//					refactoringStatus= new RefactoringStatus();
-				} else {
+				} else if (refactoring instanceof ExtractMethodRefactoring) {
 					refactoringStatus= new RefactoringStatus();
+				} else {
+					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
 				}
-				Assert.assertNotNull(watchedRefactoring.getSimpleRefactoringDescriptor(refactoringStatus));
+				if (!refactoringStatus.hasFatalError()) {
+					Assert.assertNotNull(watchedRefactoring.getSimpleRefactoringDescriptor(refactoringStatus));
+				}
 			}
 		}
 	}
