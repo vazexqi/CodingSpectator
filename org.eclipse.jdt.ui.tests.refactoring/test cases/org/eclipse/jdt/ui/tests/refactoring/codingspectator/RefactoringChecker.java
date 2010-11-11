@@ -58,17 +58,17 @@ public class RefactoringChecker {
 	public static Result checkRefactoringDescriptorCreation(final Refactoring refactoring) throws OperationCanceledException, CoreException {
 		System.out.println("checkRefactoringDescriptorCreation #" + ++i);
 		int remainingConditionsToCheck= CheckConditionsOperation.ALL_CONDITIONS;
-		RefactoringStatus refactoringStatus= null;
+		RefactoringStatus refactoringStatus= new RefactoringStatus();
 		if (refactoring instanceof IWatchedRefactoring) {
 			IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
 			if (watchedRefactoring.isWatched()) {
 				if (refactoring instanceof InlineMethodRefactoring) {
-					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
+					refactoringStatus.merge(refactoring.checkInitialConditions(new NullProgressMonitor()));
 					remainingConditionsToCheck= CheckConditionsOperation.FINAL_CONDITIONS;
 				} else if (refactoring instanceof ExtractMethodRefactoring) {
-					refactoringStatus= new RefactoringStatus();
+					// We don't execute checkInitialConditions since that would modify its initial settings.
 				} else {
-					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
+					refactoringStatus.merge(refactoring.checkInitialConditions(new NullProgressMonitor()));
 					remainingConditionsToCheck= CheckConditionsOperation.FINAL_CONDITIONS;
 				}
 
