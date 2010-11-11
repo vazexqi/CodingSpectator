@@ -245,17 +245,16 @@ public abstract class RefactoringTest extends TestCase {
 		return performRefactoring(ref, true);
 	}
 
+	//CODINGSPECTATOR
 	protected final RefactoringStatus performRefactoring(Refactoring ref, boolean providesUndo) throws Exception {
 		performDummySearch();
 
-		//CODINGSPECTATOR:
 		final RefactoringChecker.Result result= RefactoringChecker.checkRefactoringDescriptorCreation(ref);
 		final RefactoringStatus status= result.getRefactoringStatus();
 
 		IUndoManager undoManager= getUndoManager();
 		if (DESCRIPTOR_TEST) {
 
-			//CODINGSPECTATOR
 			final CreateChangeOperation create;
 			if (result.getRemainingConditionsToCheck() > CheckConditionsOperation.NONE) {
 				create= new CreateChangeOperation(new CheckConditionsOperation(ref, result.getRemainingConditionsToCheck()), RefactoringStatus.FATAL);
@@ -263,7 +262,6 @@ public abstract class RefactoringTest extends TestCase {
 				create= new CreateChangeOperation(ref);
 			}
 
-			//CODINGSPECTATOR
 			if (status.isOK()) {
 				create.run(new NullProgressMonitor());
 				RefactoringStatus checkingStatus= create.getConditionCheckingStatus();
@@ -302,7 +300,6 @@ public abstract class RefactoringTest extends TestCase {
 			}
 		}
 
-		//CODINGSPECTATOR
 		final CreateChangeOperation create;
 		if (result.getRemainingConditionsToCheck() > CheckConditionsOperation.NONE) {
 			create= new CreateChangeOperation(new CheckConditionsOperation(ref, result.getRemainingConditionsToCheck()), RefactoringStatus.FATAL);
@@ -316,7 +313,6 @@ public abstract class RefactoringTest extends TestCase {
 		if (fIsPreDeltaTest) {
 			IResourceChangeListener listener= new IResourceChangeListener() {
 				public void resourceChanged(IResourceChangeEvent event) {
-					//CODINGSPECTATOR
 					if (status.isOK() && perform.changeExecuted()) {
 						TestModelProvider.assertTrue(event.getDelta());
 					}
@@ -327,7 +323,6 @@ public abstract class RefactoringTest extends TestCase {
 				workspace.checkpoint(false);
 				workspace.addResourceChangeListener(listener);
 
-				//CODINGSPECTATOR
 				if (status.isOK()) {
 					executePerformOperation(perform, workspace);
 				}
@@ -336,13 +331,11 @@ public abstract class RefactoringTest extends TestCase {
 				workspace.removeResourceChangeListener(listener);
 			}
 		} else {
-			//CODINGSPECTATOR
 			if (status.isOK()) {
 				executePerformOperation(perform, workspace);
 			}
 		}
 
-		//CODINGSPECTATOR
 		RefactoringStatus createChangeOperationStatus= create.getConditionCheckingStatus();
 		if (createChangeOperationStatus == null) {
 			createChangeOperationStatus= new RefactoringStatus();
