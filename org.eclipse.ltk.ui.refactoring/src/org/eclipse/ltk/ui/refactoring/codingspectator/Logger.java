@@ -1,5 +1,8 @@
 package org.eclipse.ltk.ui.refactoring.codingspectator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -9,6 +12,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
+import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringDescriptorProxyAdapter;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySerializer;
 
@@ -27,6 +31,10 @@ public class Logger {
 		if (RunningModes.isInDebugMode()) {
 			System.err.println(debugInfo);
 		}
+	}
+
+	static boolean doesMonitorUIExist() {
+		return Platform.getBundle(MONITOR_UI) != null;
 	}
 
 	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
@@ -54,8 +62,41 @@ public class Logger {
 		serializer.historyNotification(event);
 	}
 
-	static boolean doesMonitorUIExist() {
-		return Platform.getBundle(MONITOR_UI) != null;
+	//FIXME
+	public static void logBasicRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
+		if (!Logger.doesMonitorUIExist()) {
+			return;
+		}
+		if (!(refactoring instanceof IWatchedRefactoring))
+			return;
+
+		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
+		if (!(watchedRefactoring.isWatched()))
+			return;
+
+		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(status);
+		logDebug(refactoringDescriptor.toString());
+
+		// Wrap it into a refactoring descriptor proxy
+		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
+
+		// Wrap it into a refactoringdecriptor event using proxy
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
+
+		// Call RefactoringHistorySerializer to persist
+		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+		serializer.historyNotification(event);
+	}
+
+	public static RefactoringDescriptor getBasicRefactoringDescriptor(RefactoringStatus status) {
+		Map arguments= new HashMap();
+		//arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
+		//arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, status.toString());
+
+		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from failed CheckInitialConditions"; //$NON-NLS-1$
+
+		return new DefaultRefactoringDescriptor("JAVA_REFACTORING", "JAVA_PROJECT", BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, "", arguments, RefactoringDescriptor.NONE);
 	}
 
 }
