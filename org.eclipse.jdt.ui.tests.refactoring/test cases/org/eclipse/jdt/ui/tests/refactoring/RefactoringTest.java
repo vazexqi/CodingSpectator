@@ -248,8 +248,10 @@ public abstract class RefactoringTest extends TestCase {
 	protected final RefactoringStatus performRefactoring(Refactoring ref, boolean providesUndo) throws Exception {
 		performDummySearch();
 
-		//CODINGSPECTATOR:
-		RefactoringChecker.checkRefactoringDescriptorCreation(ref);
+		//CODINGSPECTATOR: Check for error early and return; this is similar to what the (testing for failure) tests are doing albeit being a shorter mechanism instead of using one of the Operation mechanism
+		RefactoringStatus status= RefactoringChecker.checkRefactoringDescriptorCreation(ref);
+		if (status.hasError())
+			return status;
 
 		IUndoManager undoManager= getUndoManager();
 		if (DESCRIPTOR_TEST) {
@@ -311,7 +313,7 @@ public abstract class RefactoringTest extends TestCase {
 		} else {
 			executePerformOperation(perform, workspace);
 		}
-		RefactoringStatus status= create.getConditionCheckingStatus();
+		status= create.getConditionCheckingStatus();
 		if (!status.isOK())
 			return status;
 		assertTrue("Change wasn't executed", perform.changeExecuted());

@@ -23,24 +23,27 @@ public class RefactoringChecker {
 
 	static int i= 0;
 
-	public static void checkRefactoringDescriptorCreation(final Refactoring refactoring) throws OperationCanceledException, CoreException {
-		System.out.println("checkRefactoringDescriptorCreation #" + ++i);
+	public static RefactoringStatus checkRefactoringDescriptorCreation(final Refactoring refactoring) throws OperationCanceledException, CoreException {
+		RefactoringStatus refactoringStatus= new RefactoringStatus();
+
 		if (refactoring instanceof IWatchedRefactoring) {
 			IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
 			if (watchedRefactoring.isWatched()) {
-				RefactoringStatus refactoringStatus= null;
 				if (refactoring instanceof InlineMethodRefactoring) {
-					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
+					refactoringStatus.merge(refactoring.checkInitialConditions(new NullProgressMonitor()));
 				} else if (refactoring instanceof ExtractMethodRefactoring) {
-					refactoringStatus= new RefactoringStatus();
+					// don't execute checkInitialConditions since that would modify its initial settings
 				} else {
-					refactoringStatus= refactoring.checkInitialConditions(new NullProgressMonitor());
+					refactoringStatus.merge(refactoring.checkInitialConditions(new NullProgressMonitor()));
 				}
+				// We are being more liberal here to not log only in the presence of a "fatal" error. We could have chosen to not log on a "standard" error 
 				if (!refactoringStatus.hasFatalError()) {
 					Assert.assertNotNull(watchedRefactoring.getSimpleRefactoringDescriptor(refactoringStatus));
 				}
 			}
 		}
+
+		return refactoringStatus;
 	}
 
 }
