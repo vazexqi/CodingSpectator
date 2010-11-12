@@ -36,18 +36,17 @@ import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * Action to start the modify parameters refactoring. The refactoring supports
- * swapping and renaming of arguments.
+ * Action to start the modify parameters refactoring. The refactoring supports swapping and renaming
+ * of arguments.
  * <p>
- * This action is applicable to selections containing a method with one or
- * more arguments.
- *
+ * This action is applicable to selections containing a method with one or more arguments.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class ModifyParametersAction extends SelectionDispatchAction {
@@ -56,8 +55,9 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public ModifyParametersAction(JavaEditor editor) {
@@ -67,10 +67,10 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>ModifyParametersAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>ModifyParametersAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public ModifyParametersAction(IWorkbenchSite site) {
@@ -93,9 +93,9 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		}
 	}
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
 	}
@@ -122,7 +122,7 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 			// we have to call this here - no selection changed event is sent after a refactoring but it may still invalidate enablement
 			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(selection)) {
 				IMethod method= getSingleSelectedMethod(selection);
-				if (! ActionUtil.isEditable(getShell(), method))
+				if (!ActionUtil.isEditable(getShell(), method))
 					return;
 				RefactoringExecutionStarter.startChangeSignatureRefactoring(method, this, getShell());
 			}
@@ -131,15 +131,15 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		}
 	}
 
-    /*
-     * @see SelectionDispatchAction#run(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#run(ITextSelection)
+	 */
 	public void run(ITextSelection selection) {
 		try {
-			if (! ActionUtil.isEditable(fEditor))
+			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IMethod method= getSingleSelectedMethod(selection);
-			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(method)){
+			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(method)) {
 				RefactoringExecutionStarter.startChangeSignatureRefactoring(method, this, getShell());
 			} else {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.ModifyParametersAction_unavailable);
@@ -149,7 +149,7 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		}
 	}
 
-	private static IMethod getSingleSelectedMethod(IStructuredSelection selection){
+	private static IMethod getSingleSelectedMethod(IStructuredSelection selection) {
 		if (selection.isEmpty() || selection.size() != 1)
 			return null;
 		if (selection.getFirstElement() instanceof IMethod)
@@ -157,7 +157,7 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		return null;
 	}
 
-	private IMethod getSingleSelectedMethod(ITextSelection selection) throws JavaModelException{
+	private IMethod getSingleSelectedMethod(ITextSelection selection) throws JavaModelException {
 		//- when caret/selection on method name (call or declaration) -> that method
 		//- otherwise: caret position's enclosing method declaration
 		//  - when caret inside argument list of method declaration -> enclosing method declaration
