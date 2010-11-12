@@ -147,8 +147,9 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			}
 		}
 
+		IJavaElement element= null;
 		try {
-			IJavaElement element= getJavaElementFromEditor();
+			element= getJavaElementFromEditor();
 			IPreferenceStore store= JavaPlugin.getDefault().getPreferenceStore();
 			boolean lightweight= store.getBoolean(PreferenceConstants.REFACTOR_LIGHTWEIGHT);
 			if (element != null && RefactoringAvailabilityTester.isRenameElementAvailable(element)) {
@@ -168,7 +169,7 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		//CODINGSPECTATOR
 		ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
 		String javaProject= typeRoot.getJavaProject().getElementName();
-		String selectionIfAny= ""; //This can only happen if nothing was selected //$NON-NLS-1$
+		String selectionIfAny= element == null ? "" : element.getElementName(); //"" can only happen if nothing was selected //$NON-NLS-1$
 		Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.RenameJavaElementAction_not_available);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_not_available);
 	}
