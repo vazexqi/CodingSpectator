@@ -48,7 +48,7 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.InlineMethodAction;
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
- * @authors Mohsen Vakilian, nchen: Logged when the refactoring cannot be performed.
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability.
  */
 public class InlineAction extends SelectionDispatchAction {
 
