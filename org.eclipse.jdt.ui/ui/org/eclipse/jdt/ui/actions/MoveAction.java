@@ -45,22 +45,21 @@ import org.eclipse.jdt.internal.ui.refactoring.reorg.ReorgMoveAction;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * This action moves Java elements to a new location. The action prompts
- * the user for the new location.
+ * This action moves Java elements to a new location. The action prompts the user for the new
+ * location.
  * <p>
- * The action is applicable to a homogeneous selection containing either
- * projects, package fragment roots, package fragments, compilation units,
- * or static methods.
- *
+ * The action is applicable to a homogeneous selection containing either projects, package fragment
+ * roots, package fragments, compilation units, or static methods.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
-public class MoveAction extends SelectionDispatchAction{
+public class MoveAction extends SelectionDispatchAction {
 //TODO: remove duplicate availability checks. Look at
 //- f...Action.selectionChanged
 //- f...Action.isEnabled
@@ -71,15 +70,18 @@ public class MoveAction extends SelectionDispatchAction{
 //bug 35748 (no JavaElements for local types).
 
 	private JavaEditor fEditor;
+
 	private MoveInstanceMethodAction fMoveInstanceMethodAction;
+
 	private MoveStaticMembersAction fMoveStaticMembersAction;
+
 	private ReorgMoveAction fReorgMoveAction;
 
 	/**
-	 * Creates a new <code>MoveAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>MoveAction</code>. The action requires that the selection provided by the
+	 * site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public MoveAction(IWorkbenchSite site) {
@@ -93,8 +95,9 @@ public class MoveAction extends SelectionDispatchAction{
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public MoveAction(JavaEditor editor) {
@@ -174,19 +177,19 @@ public class MoveAction extends SelectionDispatchAction{
 		IJavaElement element= SelectionConverter.getElementAtOffset(fEditor);
 		if (element == null || !(element instanceof IMember))
 			return false;
-		IMember[] array= new IMember[] { (IMember) element};
+		IMember[] array= new IMember[] { (IMember)element };
 		if (!RefactoringAvailabilityTester.isMoveStaticMembersAvailable(array))
 			return false;
 		fMoveStaticMembersAction.run(selection);
 		return true;
 	}
 
-	private static IMember[] getSelectedMembers(IStructuredSelection selection){
+	private static IMember[] getSelectedMembers(IStructuredSelection selection) {
 		if (selection.isEmpty())
 			return null;
 
-		for  (Iterator iter= selection.iterator(); iter.hasNext(); ) {
-			if (! (iter.next() instanceof IMember))
+		for (Iterator iter= selection.iterator(); iter.hasNext();) {
+			if (!(iter.next() instanceof IMember))
 				return null;
 		}
 		return convertToMemberArray(selection.toArray());
@@ -197,7 +200,7 @@ public class MoveAction extends SelectionDispatchAction{
 			return null;
 		Set memberSet= new HashSet();
 		memberSet.addAll(Arrays.asList(obj));
-		return (IMember[]) memberSet.toArray(new IMember[memberSet.size()]);
+		return (IMember[])memberSet.toArray(new IMember[memberSet.size()]);
 	}
 
 	private boolean tryMoveStaticMembers(IStructuredSelection selection) throws JavaModelException {
@@ -213,7 +216,7 @@ public class MoveAction extends SelectionDispatchAction{
 		if (element == null || !(element instanceof IMethod))
 			return false;
 
-		IMethod method= (IMethod) element;
+		IMethod method= (IMethod)element;
 		if (!RefactoringAvailabilityTester.isMoveMethodAvailable(method))
 			return false;
 		fMoveInstanceMethodAction.run(selection);
@@ -235,9 +238,9 @@ public class MoveAction extends SelectionDispatchAction{
 			return null;
 
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IMethod))
+		if (!(first instanceof IMethod))
 			return null;
-		return (IMethod) first;
+		return (IMethod)first;
 	}
 
 
@@ -265,7 +268,7 @@ public class MoveAction extends SelectionDispatchAction{
 		setEnabled(computeEnableState());
 	}
 
-	private boolean computeEnableState(){
+	private boolean computeEnableState() {
 		return fMoveStaticMembersAction.isEnabled()
 				|| fMoveInstanceMethodAction.isEnabled()
 				|| fReorgMoveAction.isEnabled();
