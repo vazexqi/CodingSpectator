@@ -29,27 +29,28 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RenameResourceAction;
 /**
  * Renames a Java element or workbench resource.
  * <p>
- * Action is applicable to selections containing elements of type
- * <code>IJavaElement</code> or <code>IResource</code>.
- *
+ * Action is applicable to selections containing elements of type <code>IJavaElement</code> or
+ * <code>IResource</code>.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class RenameAction extends SelectionDispatchAction {
 
 	private RenameJavaElementAction fRenameJavaElement;
+
 	private RenameResourceAction fRenameResource;
 
 	/**
-	 * Creates a new <code>RenameAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>RenameAction</code>. The action requires that the selection provided by
+	 * the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public RenameAction(IWorkbenchSite site) {
@@ -64,8 +65,9 @@ public class RenameAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the Java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public RenameAction(JavaEditor editor) {
@@ -95,7 +97,7 @@ public class RenameAction extends SelectionDispatchAction {
 		setEnabled(computeEnabledState());
 	}
 
-	private boolean computeEnabledState(){
+	private boolean computeEnabledState() {
 		if (fRenameResource != null) {
 			return fRenameJavaElement.isEnabled() || fRenameResource.isEnabled();
 		} else {
