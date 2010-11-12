@@ -21,6 +21,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -45,6 +47,8 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.InlineMethodAction;
  * @since 2.1
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @authors Mohsen Vakilian, nchen: Logged when the refactoring cannot be performed.
  */
 public class InlineAction extends SelectionDispatchAction {
 
@@ -125,7 +129,10 @@ public class InlineAction extends SelectionDispatchAction {
 		//InlineMethod is last (also tries enclosing element):
 		if (fInlineMethod.isEnabled() && fInlineMethod.tryInlineMethod(typeRoot, node, selection, getShell()))
 			return;
-
+		//CODINGSPECTATOR
+		String javaProject= typeRoot.getJavaProject().getElementName();
+		String selectionIfAny= typeRoot.getElementName();
+		Logger.logDisallowedRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.InlineAction_select);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}
 

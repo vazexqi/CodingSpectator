@@ -62,7 +62,7 @@ public class Logger {
 		serializer.historyNotification(event);
 	}
 
-	public static void logDisallowedRefactoringEvent(Refactoring refactoring, String project, String selectionInformation, String errorMessage) {
+	public static void logDisallowedRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
 		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
 		logDebug(refactoringDescriptor.toString());
 
@@ -77,13 +77,13 @@ public class Logger {
 		serializer.historyNotification(event);
 	}
 
-	private static RefactoringDescriptor getBasicRefactoringDescriptor(Refactoring refactoring, String project, String selectionInformation, String errorMessage) {
+	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selectionInformation, String errorMessage) {
 		Map arguments= new HashMap();
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selectionInformation);
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
 
-		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from failed CheckInitialConditions"; //$NON-NLS-1$
+		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from a disallowed refactoring"; //$NON-NLS-1$
 
-		return new DefaultRefactoringDescriptor(refactoring.getName(), project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
+		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
 }

@@ -26,6 +26,11 @@ ui refactoring/org/eclipse/jdt/internal/ui/refactoring/MoveMembersWizard.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInstanceMethodProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
 
+# For capturing disallowed refactorings
+
+/ui/org/eclipse/jdt/ui/actions/InlineAction.java
+
+
 Added Files
 ===========
 
