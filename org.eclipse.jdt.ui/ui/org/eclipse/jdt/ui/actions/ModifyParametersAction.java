@@ -18,8 +18,11 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
@@ -48,6 +51,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @since 2.0
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen: Logged refactoring unavailability
  */
 public class ModifyParametersAction extends SelectionDispatchAction {
 
@@ -142,6 +147,11 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(method)) {
 				RefactoringExecutionStarter.startChangeSignatureRefactoring(method, this, getShell());
 			} else {
+				//CODINGSPECTATOR
+				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+				String javaProject= typeRoot.getJavaProject().getElementName();
+				String selectionIfAny= selection.getText();
+				Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.ModifyParametersAction_unavailable);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.ModifyParametersAction_unavailable);
 			}
 		} catch (JavaModelException e) {

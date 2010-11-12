@@ -30,6 +30,7 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProce
 
 ui/org/eclipse/jdt/ui/actions/InlineAction.java
 ui/org/eclipse/jdt/ui/actions/MoveAction.java
+ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
 
 
 Added Files
