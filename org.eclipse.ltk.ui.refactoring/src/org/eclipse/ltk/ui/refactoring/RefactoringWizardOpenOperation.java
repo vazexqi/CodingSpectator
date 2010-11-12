@@ -161,9 +161,6 @@ public class RefactoringWizardOpenOperation {
 						String message= fInitialConditions.getMessageMatchingSeverity(RefactoringStatus.FATAL);
 						MessageDialog.openInformation(parent, dialogTitle, message);
 						result[0]= INITIAL_CONDITION_CHECKING_FAILED;
-
-						//CODINGSPECTATOR:
-						//Logger.logBasicRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, fInitialConditions, refactoring);
 					} else {
 						fWizard.setInitialConditionCheckingStatus(fInitialConditions);
 						Dialog dialog= RefactoringUI.createRefactoringWizardDialog(fWizard, parent);
