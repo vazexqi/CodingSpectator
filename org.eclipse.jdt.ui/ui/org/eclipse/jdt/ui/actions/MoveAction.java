@@ -27,6 +27,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
@@ -167,6 +169,11 @@ public class MoveAction extends SelectionDispatchAction {
 			if (tryReorgMove())
 				return;
 
+			//CODINGSPECTATOR
+			IJavaElement elementAtOffset= SelectionConverter.getElementAtOffset(fEditor);
+			String javaProject= elementAtOffset.getJavaProject().getElementName();
+			String selectionIfAny= elementAtOffset.getElementName();
+			Logger.logDisallowedRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveAction_Move, RefactoringMessages.MoveAction_select);
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

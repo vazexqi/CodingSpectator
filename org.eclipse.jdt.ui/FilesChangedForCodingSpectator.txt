@@ -28,7 +28,8 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProce
 
 # For capturing disallowed refactorings
 
-/ui/org/eclipse/jdt/ui/actions/InlineAction.java
+ui/org/eclipse/jdt/ui/actions/InlineAction.java
+ui/org/eclipse/jdt/ui/actions/MoveAction.java
 
 
 Added Files
