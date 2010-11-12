@@ -132,7 +132,7 @@ public class InlineAction extends SelectionDispatchAction {
 		//CODINGSPECTATOR
 		String javaProject= typeRoot.getJavaProject().getElementName();
 		String selectionIfAny= typeRoot.getElementName();
-		Logger.logDisallowedRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.InlineAction_select);
+		Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.InlineAction_select);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}
 

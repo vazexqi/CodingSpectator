@@ -196,7 +196,7 @@ public final class RefactoringCoreMessages extends NLS {
 
 	public static String RefactoringHistoryService_RefactoringsCanceledDirectory;
 
-	public static String RefactoringHistoryService_RefactoringsDisallowedDirectory;
+	public static String RefactoringHistoryService_RefactoringsUnavailableDirectory;
 
 	public static String RefactoringHistoryService_RefactoringsPerformedDirectory;
 

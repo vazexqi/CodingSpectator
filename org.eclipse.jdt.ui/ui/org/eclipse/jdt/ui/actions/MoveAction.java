@@ -173,7 +173,7 @@ public class MoveAction extends SelectionDispatchAction {
 			IJavaElement elementAtOffset= SelectionConverter.getElementAtOffset(fEditor);
 			String javaProject= elementAtOffset.getJavaProject().getElementName();
 			String selectionIfAny= elementAtOffset.getElementName();
-			Logger.logDisallowedRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
+			Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveAction_Move, RefactoringMessages.MoveAction_select);
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

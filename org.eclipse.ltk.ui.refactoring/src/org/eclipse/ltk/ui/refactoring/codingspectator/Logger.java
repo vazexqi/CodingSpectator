@@ -62,7 +62,7 @@ public class Logger {
 		serializer.historyNotification(event);
 	}
 
-	public static void logDisallowedRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
+	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
 		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
 		logDebug(refactoringDescriptor.toString());
 
@@ -70,7 +70,7 @@ public class Logger {
 		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
 		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_DISALLOWED, proxy);
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
 
 		// Call RefactoringHistorySerializer to persist
 		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();

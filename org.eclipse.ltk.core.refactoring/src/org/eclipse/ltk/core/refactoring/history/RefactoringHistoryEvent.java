@@ -43,7 +43,7 @@ public final class RefactoringHistoryEvent {
 	/**
 	 * Event type indicating that a refactoring could not be invoked (invalid selection) (value 32)
 	 */
-	public static final int CODINGSPECTATOR_REFACTORING_DISALLOWED= 32;
+	public static final int CODINGSPECTATOR_REFACTORING_UNAVAILABLE= 32;
 
 	
 	/**

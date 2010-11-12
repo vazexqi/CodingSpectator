@@ -136,7 +136,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	public static final String NAME_HISTORY_PERFORMED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsPerformedDirectory;
 
 	/** The refactoring history disallowed folder */
-	public static final String NAME_HISTORY_DISALLOWED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsDisallowedDirectory;
+	public static final String NAME_HISTORY_UNAVAILABLE_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsUnavailableDirectory;
 
 	/** The refactoring history folder */
 	public static final String NAME_HISTORY_FOLDER= ".refactorings"; //$NON-NLS-1$
@@ -1034,7 +1034,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
 	}
 
-	public static String getRefactoringHistoryDisallowedFolder() {
-		return constructHiddenFolder(NAME_HISTORY_DISALLOWED_FOLDER);
+	public static String getRefactoringHistoryUnavailableFolder() {
+		return constructHiddenFolder(NAME_HISTORY_UNAVAILABLE_FOLDER);
 	}
 }
