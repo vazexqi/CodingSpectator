@@ -88,7 +88,7 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		if (selection.size() != 1)
 			return null;
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IJavaElement))
+		if (!(first instanceof IJavaElement))
 			return null;
 		return (IJavaElement)first;
 	}
@@ -99,7 +99,7 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			return;
 		try {
 			run(element, false);
-		} catch (CoreException e){
+		} catch (CoreException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_exception);
 		}
 	}
@@ -191,14 +191,14 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 
 	private void run(IJavaElement element, boolean lightweight) throws CoreException {
 		// Work around for http://dev.eclipse.org/bugs/show_bug.cgi?id=19104
-		if (! ActionUtil.isEditable(fEditor, getShell(), element))
+		if (!ActionUtil.isEditable(fEditor, getShell(), element))
 			return;
 		//XXX workaround bug 31998
 		if (ActionUtil.mustDisableJavaModelAction(getShell(), element))
 			return;
 
-		if (lightweight && fEditor instanceof CompilationUnitEditor && ! (element instanceof IPackageFragment)) {
-			new RenameLinkedMode(element, (CompilationUnitEditor) fEditor).start();
+		if (lightweight && fEditor instanceof CompilationUnitEditor && !(element instanceof IPackageFragment)) {
+			new RenameLinkedMode(element, (CompilationUnitEditor)fEditor).start();
 		} else {
 			RefactoringExecutionStarter.startRenameRefactoring(element, getShell());
 		}
