@@ -20,8 +20,11 @@ import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.IWorkbenchSite;
 
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -45,6 +48,10 @@ import org.eclipse.jdt.internal.ui.text.correction.CorrectionCommandHandler;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.LinkedNamesAssistProposal;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
+/**
+ * 
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability
+ */
 public class RenameJavaElementAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
@@ -158,6 +165,11 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		} catch (CoreException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_exception);
 		}
+		//CODINGSPECTATOR
+		ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+		String javaProject= typeRoot.getJavaProject().getElementName();
+		String selectionIfAny= ""; //This can only happen if nothing was selected //$NON-NLS-1$
+		Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.RenameJavaElementAction_not_available);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_not_available);
 	}
 
