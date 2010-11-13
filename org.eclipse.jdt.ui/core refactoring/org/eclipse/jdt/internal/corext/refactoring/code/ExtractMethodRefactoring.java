@@ -1228,7 +1228,6 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 		final Map arguments= populateInstrumentationData(refactoringStatus);
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
 
 		return descriptor;
 	}
