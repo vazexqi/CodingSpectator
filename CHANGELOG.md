@@ -1,3 +1,7 @@
+v1.0.0.201011161607
+===================
+- Fixed a bug that logged a refactoring as both performed and canceled (See [issue #110](https://github.com/vazexqi/CodingSpectator/issues/110) for more details).
+
 v1.0.0.201011111502
 ===================
 - Added the support for the move refactoring.
@@ -27,5 +31,5 @@ v1.0.0.201010151736
 
 v1.0.0.201010071957
 ===================
-- Added the support for the following refactorings: extract constant, extract method, extract local variable, inline constant, inline method, inline local variable, introduce factory, promote local variable to field.
+- Added the support for the following refactorings: extract constant, extract method, extract local variable, inline constant, inline method, inline local variable, introduce factory, convert local variable to field.
 
