@@ -34,6 +34,7 @@ import org.eclipse.ltk.core.refactoring.CreateChangeOperation;
 import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
@@ -642,7 +643,13 @@ public abstract class RefactoringWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		RefactoringWizardPage page= (RefactoringWizardPage)getContainer().getCurrentPage();
-		return page.performFinish();
+		//CODINGSPECTATOR: Create the refactoring descriptor before the change is created.
+		RefactoringDescriptor refactoringDescriptor= Logger.createRefactoringDescriptor(getConditionCheckingStatus(), getRefactoring());
+		boolean performedFinish= page.performFinish();
+		if (performedFinish) {
+			Logger.logRefactoringDescriptor(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, refactoringDescriptor);
+		}
+		return performedFinish;
 	}
 
 	/**

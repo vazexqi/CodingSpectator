@@ -21,12 +21,10 @@ import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.internal.ui.refactoring.FinishResult;
 import org.eclipse.ltk.internal.ui.refactoring.IErrorWizardPage;
 import org.eclipse.ltk.internal.ui.refactoring.InternalAPI;
 import org.eclipse.ltk.internal.ui.refactoring.UIPerformChangeOperation;
-import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 /**
  * An abstract wizard page that is to be used to implement user input pages presented inside a
@@ -137,6 +135,9 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * CODINGSPECTATOR: Create the refactoring descriptor early. But, log the descriptor just before
+	 * returning true.
 	 */
 	protected boolean performFinish() {
 		RefactoringWizard wizard= getRefactoringWizard();
@@ -155,13 +156,11 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 					threshold);
 			PerformChangeOperation perform= new UIPerformChangeOperation(getShell().getDisplay(), create, getContainer());
 
-			//CODINGSPECTATOR: Added logging mechanism to refactorings
-			Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, wizard.getConditionCheckingStatus(), getRefactoring());
-
 			FinishResult result= wizard.internalPerformFinish(InternalAPI.INSTANCE, perform);
 			wizard.internalSetChange(InternalAPI.INSTANCE, create.getChange());
-			if (result.isException())
+			if (result.isException()) {
 				return true;
+			}
 			if (result.isInterrupted())
 				return false;
 			inputStatus= new RefactoringStatus();

@@ -37,29 +37,41 @@ public class Logger {
 		return Platform.getBundle(MONITOR_UI) != null;
 	}
 
-	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
-		if (!Logger.doesMonitorUIExist()) {
-			return;
-		}
+	public static RefactoringDescriptor createRefactoringDescriptor(RefactoringStatus status, Refactoring refactoring) {
 		if (!(refactoring instanceof IWatchedRefactoring))
-			return;
+			return null;
 
 		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
 		if (!(watchedRefactoring.isWatched()))
+			return null;
+
+		return watchedRefactoring.getSimpleRefactoringDescriptor(status);
+	}
+
+	public static void logRefactoringDescriptor(int refactoringEventType, RefactoringDescriptor refactoringDescriptor) {
+		if (refactoringDescriptor == null)
 			return;
 
-		RefactoringDescriptor refactoringDescriptor= watchedRefactoring.getSimpleRefactoringDescriptor(status);
+		if (!Logger.doesMonitorUIExist()) {
+			return;
+		}
+
 		logDebug(refactoringDescriptor.toString());
 
 		// Wrap it into a refactoring descriptor proxy
 		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
-		// Wrap it into a refactoringdecriptor event using proxy
+		// Wrap it into a refactoring descriptor event using proxy
 		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
 
 		// Call RefactoringHistorySerializer to persist
 		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
 		serializer.historyNotification(event);
+	}
+
+	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
+		RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor(status, refactoring);
+		logRefactoringDescriptor(refactoringEventType, refactoringDescriptor);
 	}
 
 	//FIXME
@@ -75,17 +87,7 @@ public class Logger {
 			return;
 
 		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(status);
-		logDebug(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
+		logRefactoringDescriptor(refactoringEventType, refactoringDescriptor);
 	}
 
 	public static RefactoringDescriptor getBasicRefactoringDescriptor(RefactoringStatus status) {
