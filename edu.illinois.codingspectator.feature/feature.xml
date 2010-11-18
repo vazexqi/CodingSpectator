@@ -30,7 +30,7 @@ Developed by:
  
     University of Illinois
  
-    http://codingspectator.cs.illinois.edu/
+    http://codingspectator.github.com/
  
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal with
@@ -90,10 +90,15 @@ all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.ui.refactoring
   * org.eclipse.jdt.ui
   * org.eclipse.ui.editors
+  * org.eclipse.compare
  
 * CodingSpectator depends on a plug-in that contains the binary form of the
 SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed
-under the TMate Open Source License.]]>
+under the TMate Open Source License.
+
+* CodingSpectator depends on the JCommander library. JCommander is licensed
+under the Apache License - Version 2.0, and is available at
+http://beust.com/jcommander/.]]>
    </license>
 
 

@@ -78,3 +78,6 @@ all redistributed under the Eclipse Public License - Version 1.0.
 SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed
 under the TMate Open Source License.
 
+* CodingSpectator depends on the JCommander library. JCommander is licensed
+under the Apache License - Version 2.0, and is available at
+http://beust.com/jcommander/.
