@@ -82,7 +82,7 @@ public class Logger {
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selectionInformation);
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
 
-		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from a disallowed refactoring"; //$NON-NLS-1$
+		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
 
 		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
