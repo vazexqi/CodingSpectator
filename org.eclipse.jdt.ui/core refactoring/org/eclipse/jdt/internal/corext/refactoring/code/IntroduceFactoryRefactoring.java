@@ -350,15 +350,23 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 
 	/*
 	 * @see org.eclipse.jdt.internal.corext.refactoring.base.Refactoring#checkActivation(org.eclipse.core.runtime.IProgressMonitor)
+	 * 
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial conditions.
 	 */
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.IntroduceFactory_checkingActivation, 1);
 
-			if (!fCUHandle.isStructureKnown())
-				return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.IntroduceFactory_syntaxError);
+			if (!fCUHandle.isStructureKnown()) {
+				RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.IntroduceFactory_syntaxError);
+				logUnavailableRefactoring(status);
+				return status;
+			}
 
-			return checkSelection(new SubProgressMonitor(pm, 1));
+			RefactoringStatus status= checkSelection(new SubProgressMonitor(pm, 1));
+			if (status.hasFatalError())
+				logUnavailableRefactoring(status);
+			return status;
 		} finally {
 			pm.done();
 		}
@@ -1436,5 +1444,9 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 
 	protected ITypeRoot getJavaTypeRoot() {
 		return fCUHandle;
+	}
+
+	protected String getRefactoringType() {
+		return IJavaRefactorings.INTRODUCE_FACTORY;
 	}
 }
