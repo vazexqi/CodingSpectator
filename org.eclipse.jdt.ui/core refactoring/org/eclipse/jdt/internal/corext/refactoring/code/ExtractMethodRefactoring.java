@@ -41,7 +41,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
-import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -1256,10 +1255,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		return fCUnit;
 	}
 
-	private void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
-		if (getRefWizOpenOpCheckedInitConds()) {
-			Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_METHOD, getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
-			unsetRefWizOpenOpCheckedInitConds();
-		}
+	protected String getRefactoringType() {
+		return IJavaRefactorings.EXTRACT_METHOD;
 	}
 }

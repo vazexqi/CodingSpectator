@@ -291,8 +291,10 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 			pm.beginTask("", 7); //$NON-NLS-1$
 
 			RefactoringStatus result= Checks.validateEdit(fCu, getValidationContext());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
 				return result;
+			}
 			pm.worked(1);
 
 			if (fCuRewrite == null) {
@@ -303,8 +305,10 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 			}
 			result.merge(checkSelection(new SubProgressMonitor(pm, 3)));
 
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
 				return result;
+			}
 
 			if (isLiteralNodeSelected())
 				fReplaceAllOccurrences= false;
@@ -945,6 +949,10 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 
 	protected ITypeRoot getJavaTypeRoot() {
 		return fCu;
+	}
+
+	protected String getRefactoringType() {
+		return IJavaRefactorings.EXTRACT_CONSTANT;
 	}
 
 }
