@@ -156,6 +156,10 @@ public class RefactoringWizardOpenOperation {
 					manager.beginRule(ResourcesPlugin.getWorkspace().getRoot(), null);
 
 					refactoring.setValidationContext(parent);
+
+					//CODINGSPECTATOR: Inform the refactoring that RefactoringWizardOpenOperation has checked initial conditions on it.
+					refactoring.setRefWizOpenOpCheckedInitConds();
+
 					fInitialConditions= checkInitialConditions(refactoring, parent, dialogTitle, context);
 					if (fInitialConditions.hasFatalError()) {
 						String message= fInitialConditions.getMessageMatchingSeverity(RefactoringStatus.FATAL);

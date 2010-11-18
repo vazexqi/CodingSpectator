@@ -66,7 +66,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		return project;
 	}
 
-	private String getSelection() {
+	protected String getSelection() {
 		try {
 			return getJavaTypeRoot().getBuffer().getText(fSelectionStart, fSelectionLength);
 		} catch (Exception e) {
