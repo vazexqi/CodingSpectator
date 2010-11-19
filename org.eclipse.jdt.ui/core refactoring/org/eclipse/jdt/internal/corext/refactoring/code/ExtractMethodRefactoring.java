@@ -307,6 +307,9 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 	 * Checks if the refactoring can be activated. Activation typically means, if a corresponding
 	 * menu entry can be added to the UI.
 	 * 
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial
+	 * conditions.
+	 * 
 	 * @param pm a progress monitor to report progress during activation checking.
 	 * @return the refactoring status describing the result of the activation check.
 	 * @throws CoreException if checking fails
@@ -320,8 +323,10 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 		IFile[] changedFiles= ResourceUtil.getFiles(new ICompilationUnit[] { fCUnit });
 		result.merge(Checks.validateModifiesFiles(changedFiles, getValidationContext()));
-		if (result.hasFatalError())
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
 			return result;
+		}
 		result.merge(ResourceChangeChecker.checkFilesToBeChanged(changedFiles, new SubProgressMonitor(pm, 1)));
 
 		if (fRoot == null) {
@@ -333,8 +338,10 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		fRoot.accept(createVisitor());
 
 		result.merge(fAnalyzer.checkInitialConditions(fImportRewriter));
-		if (result.hasFatalError())
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
 			return result;
+		}
 		if (fVisibility == -1) {
 			setVisibility(Modifier.PRIVATE);
 		}
@@ -1247,4 +1254,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		return fCUnit;
 	}
 
+	protected String getRefactoringID() {
+		return IJavaRefactorings.EXTRACT_METHOD;
+	}
 }

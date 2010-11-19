@@ -242,4 +242,22 @@ public abstract class Refactoring extends PlatformObject {
 		return getName();
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//CODINGSPECTATOR: RefactoringWizardOpenOperation updates the state of the refactoring when it checks initial conditions.
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	boolean refWizOpenOpCheckedInitConds= false;
+
+	public void unsetRefWizOpenOpCheckedInitConds() {
+		refWizOpenOpCheckedInitConds= false;
+	}
+
+	public void setRefWizOpenOpCheckedInitConds() {
+		refWizOpenOpCheckedInitConds= true;
+	}
+
+	public boolean getRefWizOpenOpCheckedInitConds() {
+		return refWizOpenOpCheckedInitConds;
+	}
+
 }

@@ -574,8 +574,10 @@ public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 			pm.beginTask("", 6); //$NON-NLS-1$
 
 			RefactoringStatus result= Checks.validateModifiesFiles(ResourceUtil.getFiles(new ICompilationUnit[] { fCu }), getValidationContext());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
 				return result;
+			}
 
 			if (fCompilationUnitNode == null) {
 				fCompilationUnitNode= RefactoringASTParser.parseWithASTProvider(fCu, true, new SubProgressMonitor(pm, 3));
@@ -586,6 +588,11 @@ public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 			result.merge(checkSelection(new SubProgressMonitor(pm, 3)));
 			if (!result.hasFatalError() && isLiteralNodeSelected())
 				fReplaceAllOccurrences= false;
+
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
+			}
+
 			return result;
 
 		} finally {
@@ -1094,4 +1101,7 @@ public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 		return fCu;
 	}
 
+	protected String getRefactoringID() {
+		return IJavaRefactorings.EXTRACT_LOCAL_VARIABLE;
+	}
 }

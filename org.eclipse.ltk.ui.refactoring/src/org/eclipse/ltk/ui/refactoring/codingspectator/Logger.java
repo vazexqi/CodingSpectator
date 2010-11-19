@@ -74,31 +74,28 @@ public class Logger {
 		logRefactoringDescriptor(refactoringEventType, refactoringDescriptor);
 	}
 
-	//FIXME
-	public static void logBasicRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
-		if (!Logger.doesMonitorUIExist()) {
-			return;
-		}
-		if (!(refactoring instanceof IWatchedRefactoring))
-			return;
+	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
+		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
+		logDebug(refactoringDescriptor.toString());
 
-		IWatchedRefactoring watchedRefactoring= (IWatchedRefactoring)refactoring;
-		if (!(watchedRefactoring.isWatched()))
-			return;
+		// Wrap it into a refactoring descriptor proxy
+		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
-		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(status);
-		logRefactoringDescriptor(refactoringEventType, refactoringDescriptor);
+		// Wrap it into a refactoringdecriptor event using proxy
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
+
+		// Call RefactoringHistorySerializer to persist
+		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+		serializer.historyNotification(event);
 	}
 
-	public static RefactoringDescriptor getBasicRefactoringDescriptor(RefactoringStatus status) {
+	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selectionInformation, String errorMessage) {
 		Map arguments= new HashMap();
-		//arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		//arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, status.toString());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selectionInformation);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
 
-		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from failed CheckInitialConditions"; //$NON-NLS-1$
+		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
 
-		return new DefaultRefactoringDescriptor("JAVA_REFACTORING", "JAVA_PROJECT", BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, "", arguments, RefactoringDescriptor.NONE);
+		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
-
 }

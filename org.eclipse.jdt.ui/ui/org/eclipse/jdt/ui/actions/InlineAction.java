@@ -21,6 +21,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -37,42 +39,48 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.InlineMethodAction;
 
 /**
  * Inlines a method, local variable or a static final field.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability.
  */
 public class InlineAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
+
 	private final InlineTempAction fInlineTemp;
+
 	private final InlineMethodAction fInlineMethod;
+
 	private final InlineConstantAction fInlineConstant;
 
 	/**
-	 * Creates a new <code>InlineAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>InlineAction</code>. The action requires that the selection provided by
+	 * the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public InlineAction(IWorkbenchSite site) {
 		super(site);
 		setText(RefactoringMessages.InlineAction_Inline);
-		fInlineTemp		= new InlineTempAction(site);
-		fInlineConstant	= new InlineConstantAction(site);
-		fInlineMethod	= new InlineMethodAction(site);
+		fInlineTemp= new InlineTempAction(site);
+		fInlineConstant= new InlineConstantAction(site);
+		fInlineMethod= new InlineMethodAction(site);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.INLINE_ACTION);
 	}
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the compilation unit editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public InlineAction(JavaEditor editor) {
@@ -80,9 +88,9 @@ public class InlineAction extends SelectionDispatchAction {
 		super(editor.getEditorSite());
 		setText(RefactoringMessages.InlineAction_Inline);
 		fEditor= editor;
-		fInlineTemp		= new InlineTempAction(editor);
-		fInlineConstant	= new InlineConstantAction(editor);
-		fInlineMethod	= new InlineMethodAction(editor);
+		fInlineTemp= new InlineTempAction(editor);
+		fInlineConstant= new InlineConstantAction(editor);
+		fInlineMethod= new InlineMethodAction(editor);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.INLINE_ACTION);
 		setEnabled(SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
 	}
@@ -111,7 +119,7 @@ public class InlineAction extends SelectionDispatchAction {
 		CompilationUnit node= RefactoringASTParser.parseWithASTProvider(typeRoot, true, null);
 
 		if (typeRoot instanceof ICompilationUnit) {
-			ICompilationUnit cu= (ICompilationUnit) typeRoot;
+			ICompilationUnit cu= (ICompilationUnit)typeRoot;
 			if (fInlineTemp.isEnabled() && fInlineTemp.tryInlineTemp(cu, node, selection, getShell()))
 				return;
 
@@ -121,7 +129,10 @@ public class InlineAction extends SelectionDispatchAction {
 		//InlineMethod is last (also tries enclosing element):
 		if (fInlineMethod.isEnabled() && fInlineMethod.tryInlineMethod(typeRoot, node, selection, getShell()))
 			return;
-
+		//CODINGSPECTATOR
+		String javaProject= typeRoot.getJavaProject().getElementName();
+		String selectionIfAny= typeRoot.getElementName();
+		Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.InlineAction_select);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}
 
@@ -136,6 +147,6 @@ public class InlineAction extends SelectionDispatchAction {
 		else
 			//inline temp will never be enabled on IStructuredSelection
 			//don't bother running it
-			Assert.isTrue(! fInlineTemp.isEnabled());
+			Assert.isTrue(!fInlineTemp.isEnabled());
 	}
 }

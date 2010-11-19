@@ -9,6 +9,7 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -66,7 +67,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		return project;
 	}
 
-	private String getSelection() {
+	protected String getSelection() {
 		try {
 			return getJavaTypeRoot().getBuffer().getText(fSelectionStart, fSelectionLength);
 		} catch (Exception e) {
@@ -100,5 +101,16 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	abstract protected ITypeRoot getJavaTypeRoot();
+
+	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
+		if (getRefWizOpenOpCheckedInitConds()) {
+			Logger.logUnavailableRefactoringEvent(getRefactoringID(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+			unsetRefWizOpenOpCheckedInitConds();
+		}
+	}
+
+	protected String getRefactoringID() {
+		throw new UnsupportedOperationException();
+	}
 
 }

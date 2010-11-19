@@ -34,8 +34,8 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * Refactoring history listener which continuously persists the global refactoring history in the
  * different history locations.
  * 
- * @author Mohsen Vakilian, nchen - Added the support for serializing two new types of events, i.e.
- *         canceled and all performed refactorings.
+ * @author Mohsen Vakilian, nchen - Added the support for serializing three new types of events,
+ *         i.e. canceled, performed and disallowed refactorings.
  * 
  * @since 3.2
  */
@@ -58,6 +58,9 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 
 			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED:
 				return RefactoringHistoryService.getRefactoringHistoryPerformedFolder();
+				
+			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE:
+				return RefactoringHistoryService.getRefactoringHistoryUnavailableFolder();
 
 			case RefactoringHistoryEvent.ADDED:
 			case RefactoringHistoryEvent.PUSHED:
@@ -140,7 +143,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	private boolean isInsertion(final int type) {
 		//CODINGSPECTATOR: Made the two events of CodingSpectator get inserted to the history file.
 		if (type == RefactoringHistoryEvent.PUSHED || type == RefactoringHistoryEvent.ADDED || type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED
-				|| type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED)
+				|| type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED || type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE)
 			return true;
 		else if (type == RefactoringHistoryEvent.POPPED)
 			return false;
