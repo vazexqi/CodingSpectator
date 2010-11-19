@@ -1446,7 +1446,7 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 		return fCUHandle;
 	}
 
-	protected String getRefactoringType() {
+	protected String getRefactoringID() {
 		return IJavaRefactorings.INTRODUCE_FACTORY;
 	}
 }

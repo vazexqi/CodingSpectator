@@ -1255,7 +1255,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		return fCUnit;
 	}
 
-	protected String getRefactoringType() {
+	protected String getRefactoringID() {
 		return IJavaRefactorings.EXTRACT_METHOD;
 	}
 }

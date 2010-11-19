@@ -104,13 +104,13 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
 		if (getRefWizOpenOpCheckedInitConds()) {
-			Logger.logUnavailableRefactoringEvent(getRefactoringType(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+			Logger.logUnavailableRefactoringEvent(getRefactoringID(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
 			unsetRefWizOpenOpCheckedInitConds();
 		}
 	}
 
-	protected String getRefactoringType() {
-		return null; //Default implementation
+	protected String getRefactoringID() {
+		throw new UnsupportedOperationException();
 	}
 
 }

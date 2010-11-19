@@ -1101,7 +1101,7 @@ public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 		return fCu;
 	}
 
-	protected String getRefactoringType() {
+	protected String getRefactoringID() {
 		return IJavaRefactorings.EXTRACT_LOCAL_VARIABLE;
 	}
 }
