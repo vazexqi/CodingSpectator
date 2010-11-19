@@ -322,31 +322,49 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 
 	/*
 	 * @see org.eclipse.jdt.internal.corext.refactoring.base.Refactoring#checkActivation(org.eclipse.core.runtime.IProgressMonitor)
+	 * 
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial conditions.
 	 */
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
 		RefactoringStatus result= Checks.validateModifiesFiles(
 				ResourceUtil.getFiles(new ICompilationUnit[] { fCu }),
 				getValidationContext());
-		if (result.hasFatalError())
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
 			return result;
+		}
 
 		initAST(pm);
 
-		if (fTempDeclarationNode == null)
-			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_select_declaration);
+		if (fTempDeclarationNode == null) {
+			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_select_declaration);
+			logUnavailableRefactoring(status);
+			return status;
+		}
 
-		if (!Checks.isDeclaredIn(fTempDeclarationNode, MethodDeclaration.class))
-			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_only_declared_in_methods);
+		if (!Checks.isDeclaredIn(fTempDeclarationNode, MethodDeclaration.class)) {
+			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_only_declared_in_methods);
+			logUnavailableRefactoring(status);
+			return status;
+		}
 
-		if (isMethodParameter())
-			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_method_parameters);
+		if (isMethodParameter()) {
+			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_method_parameters);
+			logUnavailableRefactoring(status);
+			return status;
+		}
 
-		if (isTempAnExceptionInCatchBlock())
-			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_exceptions);
+		if (isTempAnExceptionInCatchBlock()) {
+			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_exceptions);
+			logUnavailableRefactoring(status);
+			return status;
+		}
 
 		result.merge(checkTempTypeForLocalTypeUsage());
-		if (result.hasFatalError())
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
 			return result;
+		}
 
 		checkTempInitializerForLocalTypeUsage();
 
@@ -1061,5 +1079,9 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 
 	protected ITypeRoot getJavaTypeRoot() {
 		return fCu;
+	}
+
+	protected String getRefactoringID() {
+		return IJavaRefactorings.CONVERT_LOCAL_VARIABLE;
 	}
 }
