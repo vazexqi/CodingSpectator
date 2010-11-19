@@ -53,6 +53,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
 		populateRefactoringSpecificFields(getJavaProjectName(), arguments);
 		return arguments;
 	}
@@ -103,7 +104,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	abstract protected ITypeRoot getJavaTypeRoot();
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
-		if (getRefWizOpenOpCheckedInitConds()) {
+		if (isRefWizOpenOpCheckedInitConds()) {
 			Logger.logUnavailableRefactoringEvent(getRefactoringID(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
 			unsetRefWizOpenOpCheckedInitConds();
 		}

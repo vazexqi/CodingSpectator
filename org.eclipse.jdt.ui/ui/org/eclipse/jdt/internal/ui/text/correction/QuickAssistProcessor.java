@@ -38,6 +38,8 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
+import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -1954,6 +1956,11 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @author Mohsen Vakilian, nchen - Captured invocation of refactorings through quick assist.
+	 * 
+	 */
 	private static class RefactoringCorrectionProposal extends CUCorrectionProposal {
 		private final Refactoring fRefactoring;
 
@@ -1981,6 +1988,10 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 				dummyChange.setEdit(new InsertEdit(0, "")); //$NON-NLS-1$
 				return dummyChange;
 			}
+
+			//CODINGSPECTATOR: Mark the refactoring as invoked by quick assist so that this information gets added to the refactoring descriptor.
+			fRefactoring.setInvokedByQuickAssist();
+
 			return (TextChange)fRefactoring.createChange(new NullProgressMonitor());
 		}
 
@@ -1994,5 +2005,14 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 			}
 			return super.getAdditionalProposalInfo(monitor);
 		}
+
+		/////////////////
+		//CODINGSPECTATOR
+		/////////////////
+
+		protected void aboutToPerformChange() {
+			Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, fRefactoringStatus, fRefactoring);
+		}
+
 	}
 }

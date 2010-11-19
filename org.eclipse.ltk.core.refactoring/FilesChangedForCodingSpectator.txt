@@ -11,6 +11,9 @@ src/org/eclipse/ltk/internal/core/refactoring/UndoableOperation2ChangeAdapter.ja
 
 src/org/eclipse/ltk/core/refactoring/participants/MoveRefactoring.java
 
+src/org/eclipse/ltk/core/refactoring/Refactoring.java
+src/org/eclipse/ltk/core/refactoring/RefactoringDescriptor.java
+
 Added Files
 ===========
 

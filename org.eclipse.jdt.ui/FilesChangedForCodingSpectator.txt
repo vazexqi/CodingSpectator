@@ -34,6 +34,9 @@ ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
 ui/org/eclipse/jdt/ui/actions/RenameAction.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameJavaElementAction.java
 
+ui/org/eclipse/jdt/internal/ui/text/correction/QuickAssistProcessor.java
+ui/org/eclipse/jdt/internal/ui/text/correction/proposals/ChangeCorrectionProposal.java
+
 
 Added Files
 ===========

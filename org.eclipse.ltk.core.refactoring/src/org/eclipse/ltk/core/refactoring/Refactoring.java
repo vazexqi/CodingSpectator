@@ -242,11 +242,12 @@ public abstract class Refactoring extends PlatformObject {
 		return getName();
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//CODINGSPECTATOR: RefactoringWizardOpenOperation updates the state of the refactoring when it checks initial conditions.
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
-	boolean refWizOpenOpCheckedInitConds= false;
+	//RefactoringWizardOpenOperation updates the state of the refactoring when it checks initial conditions.
+	private boolean refWizOpenOpCheckedInitConds= false;
 
 	public void unsetRefWizOpenOpCheckedInitConds() {
 		refWizOpenOpCheckedInitConds= false;
@@ -256,8 +257,18 @@ public abstract class Refactoring extends PlatformObject {
 		refWizOpenOpCheckedInitConds= true;
 	}
 
-	public boolean getRefWizOpenOpCheckedInitConds() {
+	public boolean isRefWizOpenOpCheckedInitConds() {
 		return refWizOpenOpCheckedInitConds;
+	}
+
+	private boolean invokedByQuickAssist= false;
+
+	public boolean isInvokedByQuickAssist() {
+		return invokedByQuickAssist;
+	}
+
+	public void setInvokedByQuickAssist() {
+		invokedByQuickAssist= true;
 	}
 
 }

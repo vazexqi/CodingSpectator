@@ -59,6 +59,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * that invoke a {@link Change}. The proposal offers a proposal information but no context
  * information.
  * 
+ * @author Mohsen Vakilian, nchen - Captured invocation of refactorings through quick assist.
+ * 
  * @since 3.2
  */
 public class ChangeCorrectionProposal implements IJavaCompletionProposal, ICommandAccess, ICompletionProposalExtension5, ICompletionProposalExtension6 {
@@ -169,6 +171,10 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 					boolean successful= false;
 					try {
 						manager.aboutToPerformChange(change);
+
+						//CODINGSPECTATOR
+						aboutToPerformChange();
+
 						undoChange= change.perform(new NullProgressMonitor());
 						successful= true;
 					} finally {
@@ -373,6 +379,15 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 		fCommandId= commandId;
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
+	/**
+	 * RefactoringCorrectionProposal overrides this method to log the refactoring invoked by the
+	 * quick assist just before it's performed.
+	 */
+	protected void aboutToPerformChange() {
+	}
 
 }

@@ -160,6 +160,10 @@ public abstract class RefactoringDescriptor implements Comparable {
 	 */
 	private long fTimeStamp= -1;
 
+	////////////////////////////////////////////////////////////////////////////////
+	//CODINGSPECTATOR: The following attributes have been added for CodingSpectator.
+	////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * The attribute for the code snippet that is captured during a refactoring.
 	 */
@@ -175,6 +179,12 @@ public abstract class RefactoringDescriptor implements Comparable {
 	 * messages of the refactoring.
 	 */
 	public static final String ATTRIBUTE_STATUS= "status"; //$NON-NLS-1$
+
+	/**
+	 * This attribute is to indicate whether a refactoring has been performed through a quick assist
+	 * proposal.
+	 */
+	public static final String ATTRIBUTE_INVOKED_BY_QUICKASSIST= "invoked-by-quickassist"; //$NON-NLS-1$
 
 	/**
 	 * Creates a new refactoring descriptor.
@@ -200,6 +210,8 @@ public abstract class RefactoringDescriptor implements Comparable {
 		fProject= project;
 		fComment= comment;
 		fFlags= flags;
+
+		//CODINGSPECTATOR
 		setTimeStamp(System.currentTimeMillis());
 	}
 
