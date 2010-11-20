@@ -53,7 +53,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Provided the method createRefactoringDescriptor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
@@ -224,5 +224,13 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 		else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, ATTRIBUTE_NAME));
 		return new RefactoringStatus();
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_SOURCE_FOLDER;
 	}
 }

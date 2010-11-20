@@ -37,7 +37,7 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedProcessor {
@@ -98,19 +98,15 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 		return new WatchedJavaRenameProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	abstract protected JavaRefactoringDescriptor createRefactoringDescriptor();
-
 	public String getSelection() {
-		throw new UnsupportedOperationException();
-	}
-
-	public String getDescriptorID() {
-		throw new UnsupportedOperationException();
+		return new WatchedJavaRenameProcessor().getSelection();
 	}
 
 	public String getJavaProjectName() {
-		throw new UnsupportedOperationException();
+		return new WatchedJavaRenameProcessor().getJavaProjectName();
 	}
+
+	abstract protected JavaRefactoringDescriptor createRefactoringDescriptor();
 
 	public class WatchedJavaRenameProcessor extends WatchedRenameProcessor {
 
@@ -120,6 +116,10 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 
 		protected Object[] getElements() {
 			return JavaRenameProcessor.this.getElements();
+		}
+
+		public String getDescriptorID() {
+			throw new UnsupportedOperationException();
 		}
 
 	}

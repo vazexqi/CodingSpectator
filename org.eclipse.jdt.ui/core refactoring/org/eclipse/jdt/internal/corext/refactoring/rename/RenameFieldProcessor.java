@@ -100,7 +100,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Changed createRefactoringDescriptor
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public class RenameFieldProcessor extends JavaRenameProcessor implements IReferenceUpdating, ITextUpdating, IDelegateUpdating {
@@ -968,5 +968,13 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 			return RefactoringCoreMessages.DelegateFieldCreator_keep_original_renamed_plural;
 		else
 			return RefactoringCoreMessages.DelegateFieldCreator_keep_original_renamed_singular;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_FIELD;
 	}
 }

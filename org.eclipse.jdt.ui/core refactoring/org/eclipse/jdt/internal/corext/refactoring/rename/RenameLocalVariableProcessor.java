@@ -73,7 +73,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public class RenameLocalVariableProcessor extends JavaRenameProcessor implements IReferenceUpdating {
@@ -454,5 +454,13 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 
 	public RenameAnalyzeUtil.LocalAnalyzePackage getLocalAnalyzePackage() {
 		return fLocalAnalyzePackage;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_LOCAL_VARIABLE;
 	}
 }

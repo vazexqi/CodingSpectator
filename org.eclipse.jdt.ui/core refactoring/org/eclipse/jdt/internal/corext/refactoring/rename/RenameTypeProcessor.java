@@ -127,7 +127,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Changed the signature of createFieldRenameProcessor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpdating, IReferenceUpdating, IQualifiedNameUpdating, ISimilarDeclarationUpdating, IResourceMapper, IJavaElementMapper {
@@ -1763,5 +1763,13 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		if (fPreloadedElementToName.size() == 0)
 			return false;
 		return true;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_TYPE;
 	}
 }

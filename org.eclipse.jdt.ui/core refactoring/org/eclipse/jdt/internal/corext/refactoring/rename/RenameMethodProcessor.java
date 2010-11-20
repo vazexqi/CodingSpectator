@@ -98,7 +98,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public abstract class RenameMethodProcessor extends JavaRenameProcessor implements IReferenceUpdating, IDelegateUpdating {
@@ -889,6 +889,10 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
 	//CODINGSPECTATOR: Extracted createRefactoringDescriptor from createChange.
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
@@ -927,5 +931,8 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 		return descriptor;
 	}
 
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_METHOD;
+	}
 
 }

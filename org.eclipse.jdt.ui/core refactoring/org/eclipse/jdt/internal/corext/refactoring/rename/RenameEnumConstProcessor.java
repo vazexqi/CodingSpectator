@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Changed the signature of createRefactoringDescriptor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public final class RenameEnumConstProcessor extends RenameFieldProcessor {
@@ -173,5 +173,13 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 
 	public boolean isApplicable() throws CoreException {
 		return RefactoringAvailabilityTester.isRenameEnumConstAvailable(getField());
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_ENUM_CONSTANT;
 	}
 }

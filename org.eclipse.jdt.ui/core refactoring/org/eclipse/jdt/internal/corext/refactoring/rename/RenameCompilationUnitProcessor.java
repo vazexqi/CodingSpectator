@@ -513,10 +513,9 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	 * org.eclipse.jdt.internal.corext.refactoring
 	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
 	 * 
-	 * @return null
 	 */
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	protected RefactoringDescriptor createRenameCompilationUnitRefactoringDescriptor() {
@@ -559,5 +558,13 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 		return descriptor;
 	}
 
+	public String getDescriptorID() {
+		final IResource resource= fCu.getResource();
+		if (resource != null && resource.isLinked()) {
+			return RenameResourceDescriptor.ID;
+		}
+
+		return IJavaRefactorings.RENAME_COMPILATION_UNIT;
+	}
 
 }

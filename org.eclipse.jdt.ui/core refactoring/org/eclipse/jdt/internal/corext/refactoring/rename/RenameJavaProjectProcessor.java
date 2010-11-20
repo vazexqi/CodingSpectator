@@ -57,7 +57,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Provided the method createRefactoringDescriptor.
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
 public final class RenameJavaProjectProcessor extends JavaRenameProcessor implements IReferenceUpdating {
@@ -243,5 +243,13 @@ public final class RenameJavaProjectProcessor extends JavaRenameProcessor implem
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_REFERENCES));
 		return new RefactoringStatus();
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_JAVA_PROJECT;
 	}
 }

@@ -112,10 +112,6 @@ abstract public class WatchedProcessor implements IWatchedProcessor {
 	 */
 	abstract protected Object[] getElements();
 
-	public String getDescriptorID() {
-		throw new UnsupportedOperationException();
-	}
-
 	public String getJavaProjectName() {
 		String project= null;
 		final IJavaProject javaProject= getJavaElementIfPossible().getJavaProject();
