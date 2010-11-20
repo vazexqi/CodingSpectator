@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201011161607.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201011161607">
+   <feature url="features/edu.illinois.codingspectator.feature_1.0.0.201011201702.jar" id="edu.illinois.codingspectator.feature" version="1.0.0.201011201702">
       <category name="CodingSpectator"/>
    </feature>
    <category-def name="CodingSpectator" label="CodingSpectator">
