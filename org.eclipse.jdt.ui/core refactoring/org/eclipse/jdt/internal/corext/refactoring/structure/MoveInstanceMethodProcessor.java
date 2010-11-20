@@ -2963,6 +2963,19 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		return new WatchedMoveInstanceMethodProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
+	public String getSelection() {
+		return new WatchedMoveInstanceMethodProcessor().getSelection();
+	}
+
+	public String getDescriptorID() {
+		return new WatchedMoveInstanceMethodProcessor().getDescriptorID();
+	}
+
+	public String getJavaProjectName() {
+		return new WatchedMoveInstanceMethodProcessor().getJavaProjectName();
+	}
+
+
 	public class WatchedMoveInstanceMethodProcessor extends WatchedMoveProcessor {
 
 		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
@@ -2975,6 +2988,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 
 		protected Object[] getElements() {
 			return MoveInstanceMethodProcessor.this.getElements();
+		}
+
+		public String getDescriptorID() {
+			return IJavaRefactorings.MOVE_METHOD;
 		}
 
 	}

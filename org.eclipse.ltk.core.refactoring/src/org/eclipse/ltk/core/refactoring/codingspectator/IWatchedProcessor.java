@@ -8,4 +8,10 @@ package org.eclipse.ltk.core.refactoring.codingspectator;
  */
 public interface IWatchedProcessor extends IWatched {
 
+	public String getSelection();
+
+	public String getDescriptorID();
+
+	public String getJavaProjectName();
+
 }

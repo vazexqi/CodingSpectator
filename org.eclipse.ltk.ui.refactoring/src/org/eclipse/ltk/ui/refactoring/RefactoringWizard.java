@@ -36,6 +36,7 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.ErrorWizardPage;
@@ -50,7 +51,6 @@ import org.eclipse.ltk.internal.ui.refactoring.RefactoringPluginImages;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringUIMessages;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringUIPlugin;
 import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
-import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 /**
  * An abstract base implementation of a refactoring wizard. A refactoring wizard differs from a

@@ -1081,7 +1081,7 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 		return fCu;
 	}
 
-	protected String getRefactoringID() {
+	protected String getDescriptorID() {
 		return IJavaRefactorings.CONVERT_LOCAL_VARIABLE;
 	}
 }

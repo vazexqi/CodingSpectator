@@ -39,6 +39,7 @@ import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
@@ -327,6 +328,18 @@ public final class JavaMoveProcessor extends MoveProcessor implements IWatchedPr
 		return new WatchedJavaMoveProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
+	public String getSelection() {
+		return new WatchedJavaMoveProcessor().getSelection();
+	}
+
+	public String getDescriptorID() {
+		return new WatchedJavaMoveProcessor().getDescriptorID();
+	}
+
+	public String getJavaProjectName() {
+		return new WatchedJavaMoveProcessor().getJavaProjectName();
+	}
+
 	public class WatchedJavaMoveProcessor extends WatchedMoveProcessor {
 
 		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
@@ -342,6 +355,10 @@ public final class JavaMoveProcessor extends MoveProcessor implements IWatchedPr
 
 		protected Object[] getElements() {
 			return JavaMoveProcessor.this.getElements();
+		}
+
+		public String getDescriptorID() {
+			return IJavaRefactorings.MOVE;
 		}
 
 	}

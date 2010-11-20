@@ -1174,6 +1174,18 @@ public final class MoveStaticMembersProcessor extends MoveProcessor implements I
 		return new WatchedMoveStaticMembersProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
+	public String getSelection() {
+		return new WatchedMoveStaticMembersProcessor().getSelection();
+	}
+
+	public String getDescriptorID() {
+		return new WatchedMoveStaticMembersProcessor().getDescriptorID();
+	}
+
+	public String getJavaProjectName() {
+		return new WatchedMoveStaticMembersProcessor().getJavaProjectName();
+	}
+
 	public class WatchedMoveStaticMembersProcessor extends WatchedMoveProcessor {
 
 		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
@@ -1186,6 +1198,10 @@ public final class MoveStaticMembersProcessor extends MoveProcessor implements I
 
 		protected Object[] getElements() {
 			return MoveStaticMembersProcessor.this.getElements();
+		}
+
+		public String getDescriptorID() {
+			return IJavaRefactorings.MOVE_STATIC_MEMBERS;
 		}
 
 	}

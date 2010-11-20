@@ -38,6 +38,8 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.internal.core.refactoring.Messages;
 import org.eclipse.ltk.internal.core.refactoring.ParticipantDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
@@ -54,6 +56,9 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * Since 3.4, this class is non abstract and can be instantiated. {@link #getProcessor()} will
  * return the processor passed in {@link #ProcessorBasedRefactoring(RefactoringProcessor)} or the
  * processor set by {@link #setProcessor(RefactoringProcessor)}.
+ * 
+ * @author Mohsen Vakilian, nchen - Logged refactorings with fatal errors while checking initial
+ *         conditions.
  * 
  * @since 3.0
  */
@@ -205,6 +210,9 @@ public class ProcessorBasedRefactoring extends Refactoring {
 
 		result.merge(getProcessor().checkInitialConditions(new SubProgressMonitor(pm, 8)));
 		if (result.hasFatalError()) {
+			//CODINGSPECTATOR
+			logUnavailableRefactoring(result);
+
 			pm.done();
 			return result;
 		}
@@ -434,4 +442,23 @@ public class ProcessorBasedRefactoring extends Refactoring {
 			}
 		}
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
+		try {
+			if (isRefWizOpenOpCheckedInitConds()) {
+				if (fProcessor instanceof IWatchedProcessor) {
+					IWatchedProcessor watchedProcessor= (IWatchedProcessor)fProcessor;
+					Logger.logUnavailableRefactoringEvent(watchedProcessor.getDescriptorID(), watchedProcessor.getJavaProjectName(), watchedProcessor.getSelection(),
+							refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+					unsetRefWizOpenOpCheckedInitConds();
+				}
+			}
+		} catch (UnsupportedOperationException e) {
+		}
+	}
+
 }

@@ -1,4 +1,4 @@
-package org.eclipse.ltk.ui.refactoring.codingspectator;
+package org.eclipse.ltk.core.refactoring.codingspectator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringDescriptorProxyAdapter;

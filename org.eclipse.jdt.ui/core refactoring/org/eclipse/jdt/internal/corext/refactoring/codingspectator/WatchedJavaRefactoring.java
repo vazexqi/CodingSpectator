@@ -9,7 +9,7 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
-import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -105,12 +105,12 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
 		if (isRefWizOpenOpCheckedInitConds()) {
-			Logger.logUnavailableRefactoringEvent(getRefactoringID(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+			Logger.logUnavailableRefactoringEvent(getDescriptorID(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
 			unsetRefWizOpenOpCheckedInitConds();
 		}
 	}
 
-	protected String getRefactoringID() {
+	protected String getDescriptorID() {
 		throw new UnsupportedOperationException();
 	}
 

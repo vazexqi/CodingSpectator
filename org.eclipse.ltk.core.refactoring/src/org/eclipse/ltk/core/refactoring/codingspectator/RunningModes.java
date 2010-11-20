@@ -1,4 +1,4 @@
-package org.eclipse.ltk.ui.refactoring.codingspectator;
+package org.eclipse.ltk.core.refactoring.codingspectator;
 
 /**
  * 

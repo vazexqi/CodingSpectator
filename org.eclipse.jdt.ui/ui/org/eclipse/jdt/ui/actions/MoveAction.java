@@ -27,7 +27,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;

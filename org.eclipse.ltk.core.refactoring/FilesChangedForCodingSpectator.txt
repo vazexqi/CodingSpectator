@@ -14,9 +14,13 @@ src/org/eclipse/ltk/core/refactoring/participants/MoveRefactoring.java
 src/org/eclipse/ltk/core/refactoring/Refactoring.java
 src/org/eclipse/ltk/core/refactoring/RefactoringDescriptor.java
 
+src/org/eclipse/ltk/core/refactoring/participants/ProcessorBasedRefactoring.java
+
 Added Files
 ===========
 
 src/org/eclipse/ltk/core/refactoring/codingspectator/IWatched.java
 src/org/eclipse/ltk/core/refactoring/codingspectator/IWatchedProcessor.java
 src/org/eclipse/ltk/core/refactoring/codingspectator/IWatchedRefactoring.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/Logger.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/RunningModes.java

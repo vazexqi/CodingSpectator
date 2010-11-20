@@ -11,6 +11,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 import org.eclipse.jdt.internal.corext.refactoring.rename.JavaRenameProcessor;
@@ -85,7 +86,7 @@ abstract public class WatchedProcessor implements IWatchedProcessor {
 		return basicArguments;
 	}
 
-	protected String getSelection() {
+	public String getSelection() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
 		if (javaElementIfPossible != null)
 			return javaElementIfPossible.getElementName();
@@ -109,6 +110,18 @@ abstract public class WatchedProcessor implements IWatchedProcessor {
 	/**
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#getElements()
 	 */
-	protected abstract Object[] getElements();
+	abstract protected Object[] getElements();
+
+	public String getDescriptorID() {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getJavaProjectName() {
+		String project= null;
+		final IJavaProject javaProject= getJavaElementIfPossible().getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		return project;
+	}
 
 }

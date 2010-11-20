@@ -951,7 +951,7 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 		return fCu;
 	}
 
-	protected String getRefactoringID() {
+	protected String getDescriptorID() {
 		return IJavaRefactorings.EXTRACT_CONSTANT;
 	}
 

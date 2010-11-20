@@ -100,6 +100,18 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 
 	abstract protected JavaRefactoringDescriptor createRefactoringDescriptor();
 
+	public String getSelection() {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getDescriptorID() {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getJavaProjectName() {
+		throw new UnsupportedOperationException();
+	}
+
 	public class WatchedJavaRenameProcessor extends WatchedRenameProcessor {
 
 		protected JavaRefactoringDescriptor createRefactoringDescriptor() {

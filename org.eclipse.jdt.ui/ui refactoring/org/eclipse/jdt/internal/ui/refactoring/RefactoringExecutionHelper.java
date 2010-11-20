@@ -38,9 +38,9 @@ import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.ui.refactoring.RefactoringUI;
-import org.eclipse.ltk.ui.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.internal.corext.util.Messages;
 

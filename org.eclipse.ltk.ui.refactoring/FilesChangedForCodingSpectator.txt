@@ -6,4 +6,3 @@ src/org/eclipse/ltk/ui/refactoring/UserInputWizardPage.java
 
 Added Files
 ===========
-src/org/eclipse/ltk/ui/refactoring/codingspectator/Logger.java
