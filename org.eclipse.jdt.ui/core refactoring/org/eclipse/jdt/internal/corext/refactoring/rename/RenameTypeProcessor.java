@@ -125,6 +125,11 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Changed the signature of createFieldRenameProcessor.
+ * 
+ */
 public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpdating, IReferenceUpdating, IQualifiedNameUpdating, ISimilarDeclarationUpdating, IResourceMapper, IJavaElementMapper {
 
 	private static final String ATTRIBUTE_QUALIFIED= "qualified"; //$NON-NLS-1$
@@ -1647,6 +1652,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		processor.setUpdateReferences(getUpdateReferences());
 	}
 
+	//CODINGSPECTATOR: Changed the return type from RenameFieldProcessor to JavaRenameProcessor.
 	private JavaRenameProcessor createFieldRenameProcessor(final IField field, final String newName) {
 		final RenameFieldProcessor processor= new RenameFieldProcessor(field, fChangeManager, CATEGORY_FIELD_RENAME);
 		processor.setNewElementName(newName);

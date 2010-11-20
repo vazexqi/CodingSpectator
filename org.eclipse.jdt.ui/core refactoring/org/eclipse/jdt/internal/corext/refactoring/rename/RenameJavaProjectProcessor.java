@@ -55,6 +55,11 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Provided the method createRefactoringDescriptor.
+ * 
+ */
 public final class RenameJavaProjectProcessor extends JavaRenameProcessor implements IReferenceUpdating {
 
 	private IJavaProject fProject;
@@ -188,6 +193,7 @@ public final class RenameJavaProjectProcessor extends JavaRenameProcessor implem
 		return newProjectStore.fetchInfo().exists();
 	}
 
+	//CODINGSPECTATOR: Extracted createRefactoringDescriptor.
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask("", 1); //$NON-NLS-1$
@@ -198,6 +204,7 @@ public final class RenameJavaProjectProcessor extends JavaRenameProcessor implem
 		}
 	}
 
+	//CODINGSPECTATOR: Extracted createChange.
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final String description= Messages.format(RefactoringCoreMessages.RenameJavaProjectProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fProject.getElementName()));
 		final String header= Messages.format(RefactoringCoreMessages.RenameJavaProjectChange_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fProject.getElementName()),

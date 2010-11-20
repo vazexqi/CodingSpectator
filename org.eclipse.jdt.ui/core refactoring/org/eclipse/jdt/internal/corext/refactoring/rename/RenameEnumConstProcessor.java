@@ -40,13 +40,17 @@ import org.eclipse.jdt.ui.refactoring.IRefactoringProcessorIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Changed the signature of createRefactoringDescriptor.
+ * 
+ */
 public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 
 	/**
 	 * Creates a new rename enum const processor.
-	 *
-	 * @param field
-	 *            the enum constant
+	 * 
+	 * @param field the enum constant
 	 */
 	public RenameEnumConstProcessor(IField field) {
 		super(field);
@@ -54,12 +58,10 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 
 	/**
 	 * Creates a new rename enum const processor.
-	 *
-	 * @param arguments
-	 *            the arguments
-	 *
-	 * @param status
-	 *            the status
+	 * 
+	 * @param arguments the arguments
+	 * 
+	 * @param status the status
 	 */
 	public RenameEnumConstProcessor(JavaRefactoringArguments arguments, RefactoringStatus status) {
 		super(null);
@@ -94,6 +96,7 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 		return result;
 	}
 
+	//CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to JavaRefactoringDescriptor. 
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final IField field= getField();
 		String project= null;
@@ -111,7 +114,8 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 			JavaPlugin.log(exception);
 		}
 		final String description= Messages.format(RefactoringCoreMessages.RenameEnumConstProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fField.getElementName()));
-		final String header= Messages.format(RefactoringCoreMessages.RenameEnumConstProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(field.getElementName()), JavaElementLabels.getElementLabel(field.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName())});
+		final String header= Messages.format(RefactoringCoreMessages.RenameEnumConstProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(field.getElementName()),
+				JavaElementLabels.getElementLabel(field.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName()) });
 		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
 		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_ENUM_CONSTANT);
 		descriptor.setProject(project);
@@ -146,7 +150,7 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 			if (element == null || !element.exists() || element.getElementType() != IJavaElement.FIELD)
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_ENUM_CONSTANT);
 			else
-				fField= (IField) element;
+				fField= (IField)element;
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
 		final String name= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME);

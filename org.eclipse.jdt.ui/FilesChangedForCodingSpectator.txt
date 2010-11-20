@@ -13,6 +13,13 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethod
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/JavaRenameProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameTypeParameterProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameSourceFolderProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameTypeProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenamePackageProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameJavaProjectProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameEnumConstProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameCompilationUnitProcessor.java
 
 ui/org/eclipse/jdt/internal/ui/JavaPlugin.java
 

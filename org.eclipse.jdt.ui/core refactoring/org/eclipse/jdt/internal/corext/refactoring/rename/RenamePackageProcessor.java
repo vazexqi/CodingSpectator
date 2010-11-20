@@ -110,6 +110,11 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Changed the signature of createRefactoringDescriptor.
+ * 
+ */
 public class RenamePackageProcessor extends JavaRenameProcessor implements
 		IReferenceUpdating, ITextUpdating, IQualifiedNameUpdating, IResourceMapper, IJavaElementMapper {
 
@@ -600,6 +605,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		}
 	}
 
+	//CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to JavaRefactoringDescriptor. 
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fPackage.getJavaProject();

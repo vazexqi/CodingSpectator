@@ -69,6 +69,9 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * Rename processor to rename type parameters.
+ * 
+ * @author Mohsen Vakilian, nchen - Provided the method createRefactoringDescriptor.
+ * 
  */
 public class RenameTypeParameterProcessor extends JavaRenameProcessor implements IReferenceUpdating {
 
@@ -246,6 +249,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 		return result;
 	}
 
+	//CODINGSPECTATOR: Extracted createRefactoringDescriptor.
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		Assert.isNotNull(monitor);
 		try {
@@ -260,6 +264,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 		}
 	}
 
+	//CODINGSPECTATOR: Extracted from createChange.
 	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fTypeParameter.getJavaProject();
