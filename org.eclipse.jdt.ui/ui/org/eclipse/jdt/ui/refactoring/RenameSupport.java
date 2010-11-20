@@ -73,6 +73,10 @@ import org.eclipse.jdt.internal.ui.refactoring.reorg.RenameUserInterfaceStarter;
  * 
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian - Added a method to set the quick assist origin of the underlying
+ *         refactoring of this class.
+ * 
  */
 public class RenameSupport {
 
@@ -513,5 +517,19 @@ public class RenameSupport {
 				state.restore(newElement);
 			}
 		}
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public void setInvokedByQuickAssist(boolean invokedByQuickAssist) {
+		fRefactoring.setInvokedByQuickAssist(invokedByQuickAssist);
+	}
+
+	public static RenameSupport create(RenameJavaElementDescriptor descriptor, boolean invokedByQuickAssist) throws CoreException {
+		RenameSupport renameSupport= create(descriptor);
+		renameSupport.setInvokedByQuickAssist(invokedByQuickAssist);
+		return renameSupport;
 	}
 }

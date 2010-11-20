@@ -90,6 +90,11 @@ import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.refactoring.DelegateUIHelper;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.LinkedNamesAssistProposal.DeleteBlockingExitPolicy;
 
+/**
+ * 
+ * @author Mohsen Vakilian - Added the support to keep track of the origin of the refactoring.
+ * 
+ */
 public class RenameLinkedMode {
 
 	private class FocusEditingSupport implements IEditingSupport {
@@ -170,6 +175,9 @@ public class RenameLinkedMode {
 	 */
 	private IUndoableOperation fStartingUndoOperation;
 
+	//CODINGSPECTATOR: Added a flag to track the quick assist origin of the refactoring.
+	private boolean invokedByQuickAssist;
+
 
 	public RenameLinkedMode(IJavaElement element, CompilationUnitEditor editor) {
 		Assert.isNotNull(element);
@@ -177,6 +185,12 @@ public class RenameLinkedMode {
 		fEditor= editor;
 		fJavaElement= element;
 		fFocusEditingSupport= new FocusEditingSupport();
+	}
+
+	//CODINGSPECTATOR: Added the constructor to keep track of the quick assist origin of the refactoring.
+	public RenameLinkedMode(IJavaElement element, CompilationUnitEditor editor, boolean invokedByQuickAssist) {
+		this(element, editor);
+		this.invokedByQuickAssist= invokedByQuickAssist;
 	}
 
 	public static RenameLinkedMode getActiveLinkedMode() {
@@ -449,7 +463,10 @@ public class RenameLinkedMode {
 			return null;
 
 		RenameJavaElementDescriptor descriptor= createRenameDescriptor(fJavaElement, newName);
-		RenameSupport renameSupport= RenameSupport.create(descriptor);
+
+		//CODINGSPECTATOR: Pass along the quick assist origin of the refactoring.
+		RenameSupport renameSupport= RenameSupport.create(descriptor, invokedByQuickAssist);
+
 		return renameSupport;
 	}
 

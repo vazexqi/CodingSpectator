@@ -122,6 +122,10 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 			throw new UnsupportedOperationException();
 		}
 
+		protected boolean isInvokedByQuickAssist() {
+			return JavaRenameProcessor.this.isInvokedByQuickAssist();
+		}
+
 	}
 
 

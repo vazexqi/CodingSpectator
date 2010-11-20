@@ -74,12 +74,12 @@ import org.eclipse.jdt.internal.corext.refactoring.code.IntroduceIndirectionRefa
 import org.eclipse.jdt.internal.corext.refactoring.code.IntroduceParameterRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.ReplaceInvocationsRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.generics.InferTypeArgumentsRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.ICopyPolicy;
+import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.IMovePolicy;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaCopyProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaDeleteProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.JavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ReorgPolicyFactory;
-import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.ICopyPolicy;
-import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.IMovePolicy;
 import org.eclipse.jdt.internal.corext.refactoring.sef.SelfEncapsulateFieldRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.structure.ChangeSignatureProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.structure.ChangeTypeRefactoring;
@@ -139,39 +139,42 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 /**
  * Helper class to run refactorings from action code.
  * <p>
- * This class has been introduced to decouple actions from the refactoring code,
- * in order not to eagerly load refactoring classes during action
- * initialization.
+ * This class has been introduced to decouple actions from the refactoring code, in order not to
+ * eagerly load refactoring classes during action initialization.
  * </p>
- *
+ * 
  * @since 3.1
+ * 
+ * @author Mohsen Vakilian - Made this factory set the quick assist origin of some the refactorings
+ *         that it creates.
+ * 
  */
 public final class RefactoringExecutionStarter {
 
 	private static RenameSupport createRenameSupport(IJavaElement element, String newName, int flags) throws CoreException {
 		switch (element.getElementType()) {
 			case IJavaElement.JAVA_PROJECT:
-				return RenameSupport.create((IJavaProject) element, newName, flags);
+				return RenameSupport.create((IJavaProject)element, newName, flags);
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				return RenameSupport.create((IPackageFragmentRoot) element, newName);
+				return RenameSupport.create((IPackageFragmentRoot)element, newName);
 			case IJavaElement.PACKAGE_FRAGMENT:
-				return RenameSupport.create((IPackageFragment) element, newName, flags);
+				return RenameSupport.create((IPackageFragment)element, newName, flags);
 			case IJavaElement.COMPILATION_UNIT:
-				return RenameSupport.create((ICompilationUnit) element, newName, flags);
+				return RenameSupport.create((ICompilationUnit)element, newName, flags);
 			case IJavaElement.TYPE:
-				return RenameSupport.create((IType) element, newName, flags);
+				return RenameSupport.create((IType)element, newName, flags);
 			case IJavaElement.METHOD:
-				final IMethod method= (IMethod) element;
+				final IMethod method= (IMethod)element;
 				if (method.isConstructor())
 					return createRenameSupport(method.getDeclaringType(), newName, flags);
 				else
-					return RenameSupport.create((IMethod) element, newName, flags);
+					return RenameSupport.create((IMethod)element, newName, flags);
 			case IJavaElement.FIELD:
-				return RenameSupport.create((IField) element, newName, flags);
+				return RenameSupport.create((IField)element, newName, flags);
 			case IJavaElement.TYPE_PARAMETER:
-				return RenameSupport.create((ITypeParameter) element, newName, flags);
+				return RenameSupport.create((ITypeParameter)element, newName, flags);
 			case IJavaElement.LOCAL_VARIABLE:
-				return RenameSupport.create((ILocalVariable) element, newName, flags);
+				return RenameSupport.create((ILocalVariable)element, newName, flags);
 		}
 		return null;
 	}
@@ -221,7 +224,8 @@ public final class RefactoringExecutionStarter {
 		new RefactoringStarter().activate(new ChangeTypeWizard(refactoring), shell, RefactoringMessages.ChangeTypeAction_dialog_title, RefactoringSaveHelper.SAVE_REFACTORING);
 	}
 
-	public static void startCleanupRefactoring(ICompilationUnit[] cus, ICleanUp[] cleanUps, boolean useOptionsFromProfile, Shell shell, boolean showWizard, String actionName) throws InvocationTargetException {
+	public static void startCleanupRefactoring(ICompilationUnit[] cus, ICleanUp[] cleanUps, boolean useOptionsFromProfile, Shell shell, boolean showWizard, String actionName)
+			throws InvocationTargetException {
 		final CleanUpRefactoring refactoring= new CleanUpRefactoring(actionName);
 		for (int i= 0; i < cus.length; i++) {
 			refactoring.addCompilationUnit(cus[i]);
@@ -317,7 +321,7 @@ public final class RefactoringExecutionStarter {
 
 	public static boolean startInlineConstantRefactoring(final ICompilationUnit unit, final CompilationUnit node, final int offset, final int length, final Shell shell) {
 		final InlineConstantRefactoring refactoring= new InlineConstantRefactoring(unit, node, offset, length);
-		if (! refactoring.checkStaticFinalConstantNameSelected().hasFatalError()) {
+		if (!refactoring.checkStaticFinalConstantNameSelected().hasFatalError()) {
 			new RefactoringStarter().activate(new InlineConstantWizard(refactoring), shell, RefactoringMessages.InlineConstantAction_dialog_title, RefactoringSaveHelper.SAVE_REFACTORING);
 			return true;
 		}
@@ -402,7 +406,7 @@ public final class RefactoringExecutionStarter {
 			return;
 		final Set set= new HashSet();
 		set.addAll(Arrays.asList(members));
-		final IMember[] elements= (IMember[]) set.toArray(new IMember[set.size()]);
+		final IMember[] elements= (IMember[])set.toArray(new IMember[set.size()]);
 		IJavaProject project= null;
 		if (elements.length > 0)
 			project= elements[0].getJavaProject();
@@ -436,6 +440,23 @@ public final class RefactoringExecutionStarter {
 		final RenameSupport support= createRenameSupport(element, null, RenameSupport.UPDATE_REFERENCES);
 		if (support != null && support.preCheck().isOK())
 			support.openDialog(shell);
+	}
+
+
+	/**
+	 * CODINGSPECTATOR: Record the quick assist origin of the refactoring.
+	 * 
+	 * @see org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter#startRenameRefactoring
+	 * 
+	 */
+	public static void startRenameRefactoring(IJavaElement element, Shell shell, boolean invokedByQuickAssist) throws CoreException {
+		final RenameSupport support= createRenameSupport(element, null, RenameSupport.UPDATE_REFERENCES);
+		if (support != null) {
+			support.setInvokedByQuickAssist(invokedByQuickAssist);
+			if (support.preCheck().isOK()) {
+				support.openDialog(shell);
+			}
+		}
 	}
 
 	public static void startRenameResourceRefactoring(final IResource resource, final Shell shell) {
@@ -478,15 +499,16 @@ public final class RefactoringExecutionStarter {
 	public static void startIntroduceParameterObject(ICompilationUnit unit, int offset, Shell shell) throws CoreException {
 		IJavaElement javaElement= unit.getElementAt(offset);
 		if (javaElement instanceof IMethod) {
-			IMethod method= (IMethod) javaElement;
+			IMethod method= (IMethod)javaElement;
 			startIntroduceParameterObject(method, shell);
 		}
 	}
 
 	public static void startIntroduceParameterObject(IMethod method, Shell shell) throws CoreException {
 		RefactoringStatus availability= Checks.checkAvailability(method);
-		if (availability.hasError()){
-			MessageDialog.openError(shell, RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_title, RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_description);
+		if (availability.hasError()) {
+			MessageDialog.openError(shell, RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_title,
+					RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_description);
 			return;
 		}
 		IntroduceParameterObjectDescriptor ipod= RefactoringSignatureDescriptorFactory.createIntroduceParameterObjectDescriptor();
@@ -499,10 +521,11 @@ public final class RefactoringExecutionStarter {
 			final RefactoringStatusEntry entry= status.getEntryMatchingSeverity(RefactoringStatus.FATAL);
 			if (entry.getCode() == RefactoringStatusCodes.OVERRIDES_ANOTHER_METHOD || entry.getCode() == RefactoringStatusCodes.METHOD_DECLARED_IN_INTERFACE) {
 				final Object element= entry.getData();
-				IMethod superMethod= (IMethod) element;
+				IMethod superMethod= (IMethod)element;
 				availability= Checks.checkAvailability(superMethod);
-				if (availability.hasError()){
-					MessageDialog.openError(shell, RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_title, RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_description);
+				if (availability.hasError()) {
+					MessageDialog.openError(shell, RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_title,
+							RefactoringMessages.RefactoringExecutionStarter_IntroduceParameterObject_problem_description);
 					return;
 				}
 				String message= Messages.format(RefactoringMessages.RefactoringErrorDialogUtil_okToPerformQuestion, entry.getMessage());
@@ -510,8 +533,8 @@ public final class RefactoringExecutionStarter {
 					ipod= RefactoringSignatureDescriptorFactory.createIntroduceParameterObjectDescriptor();
 					ipod.setMethod(superMethod);
 					processor= new IntroduceParameterObjectProcessor(ipod);
-				}
-				else processor=null;
+				} else
+					processor= null;
 			}
 		}
 		if (processor != null) {

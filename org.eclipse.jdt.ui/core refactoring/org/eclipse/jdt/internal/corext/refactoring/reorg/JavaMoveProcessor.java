@@ -361,5 +361,9 @@ public final class JavaMoveProcessor extends MoveProcessor implements IWatchedPr
 			return IJavaRefactorings.MOVE;
 		}
 
+		protected boolean isInvokedByQuickAssist() {
+			return JavaMoveProcessor.this.isInvokedByQuickAssist();
+		}
+
 	}
 }

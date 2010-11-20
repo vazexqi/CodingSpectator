@@ -79,10 +79,13 @@ abstract public class WatchedProcessor implements IWatchedProcessor {
 
 	protected abstract JavaRefactoringDescriptor createRefactoringDescriptor();
 
+	protected abstract boolean isInvokedByQuickAssist();
+
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
 		return basicArguments;
 	}
 

@@ -2994,6 +2994,10 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 			return IJavaRefactorings.MOVE_METHOD;
 		}
 
+		protected boolean isInvokedByQuickAssist() {
+			return MoveInstanceMethodProcessor.this.isInvokedByQuickAssist();
+		}
+
 	}
 
 }

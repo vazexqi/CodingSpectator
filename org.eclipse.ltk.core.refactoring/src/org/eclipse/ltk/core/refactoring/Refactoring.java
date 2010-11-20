@@ -56,6 +56,9 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * 
  * 
  * @since 3.0
+ * 
+ * @author Mohsen Vakilian, nchen - Enabled the refactoring to keep track of its invoker.
+ * 
  */
 public abstract class Refactoring extends PlatformObject {
 
@@ -269,6 +272,10 @@ public abstract class Refactoring extends PlatformObject {
 
 	public void setInvokedByQuickAssist() {
 		invokedByQuickAssist= true;
+	}
+
+	public void setInvokedByQuickAssist(boolean invokedByQuickAssist) {
+		this.invokedByQuickAssist= invokedByQuickAssist;
 	}
 
 }

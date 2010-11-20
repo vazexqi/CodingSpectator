@@ -50,11 +50,14 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * 
- * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability. Added a flag to indicate the
+ *          quick assist origin of the refactoring.
  */
 public class RenameJavaElementAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
+
+	private boolean invokedByQuickAssist= false;
 
 	public RenameJavaElementAction(IWorkbenchSite site) {
 		super(site);
@@ -64,6 +67,12 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		this(editor.getEditorSite());
 		fEditor= editor;
 		setEnabled(SelectionConverter.canOperateOn(fEditor));
+	}
+
+	//CODINGSPECTATOR: Record the quick assist origin of the refactoring.
+	public RenameJavaElementAction(JavaEditor editor, boolean invokedByQuickAssist) {
+		this(editor);
+		this.invokedByQuickAssist= invokedByQuickAssist;
 	}
 
 	//---- Structured selection ------------------------------------------------
@@ -211,9 +220,11 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			return;
 
 		if (lightweight && fEditor instanceof CompilationUnitEditor && !(element instanceof IPackageFragment)) {
-			new RenameLinkedMode(element, (CompilationUnitEditor)fEditor).start();
+			//CODINGSPECTATOR: Pass along the quick assist origin of the refactoring.
+			new RenameLinkedMode(element, (CompilationUnitEditor)fEditor, invokedByQuickAssist).start();
 		} else {
-			RefactoringExecutionStarter.startRenameRefactoring(element, getShell());
+			//CODINGSPECTATOR: Pass along the quick assist origin of the refactoring.
+			RefactoringExecutionStarter.startRenameRefactoring(element, getShell(), invokedByQuickAssist);
 		}
 	}
 }

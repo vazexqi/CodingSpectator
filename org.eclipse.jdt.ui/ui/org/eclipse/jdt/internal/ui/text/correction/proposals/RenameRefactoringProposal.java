@@ -37,6 +37,10 @@ import org.eclipse.jdt.internal.ui.text.correction.ICommandAccess;
 
 /**
  * A quick assist proposal that starts the Rename refactoring.
+ * 
+ * @author Mohsen Vakilian - Set the flag in RenameJavaElementAction to indicate the quick assist
+ *         origin of the refactoring.
+ * 
  */
 public class RenameRefactoringProposal implements IJavaCompletionProposal, ICompletionProposalExtension6, ICommandAccess {
 
@@ -57,7 +61,9 @@ public class RenameRefactoringProposal implements IJavaCompletionProposal, IComp
 	 * @see ICompletionProposal#apply(IDocument)
 	 */
 	public void apply(IDocument document) {
-		RenameJavaElementAction renameAction= new RenameJavaElementAction(fEditor);
+		//CODINGSPECTATOR: Record the fact that the refactoring has been initiated through quick assist.
+		RenameJavaElementAction renameAction= new RenameJavaElementAction(fEditor, true);
+
 		renameAction.doRun();
 	}
 

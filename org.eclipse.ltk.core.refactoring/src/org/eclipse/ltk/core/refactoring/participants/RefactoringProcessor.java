@@ -44,6 +44,8 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
  * </p>
  * 
  * @since 3.0
+ * 
+ * @author Mohsen Vakilian - Added a method to check the quick assist origin of the refactoring.
  */
 public abstract class RefactoringProcessor extends PlatformObject {
 
@@ -237,4 +239,13 @@ public abstract class RefactoringProcessor extends PlatformObject {
 	 * @see ISharableParticipant
 	 */
 	public abstract RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException;
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public boolean isInvokedByQuickAssist() {
+		return fRefactoring.isInvokedByQuickAssist();
+	}
+
 }

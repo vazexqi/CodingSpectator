@@ -57,10 +57,10 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * return the processor passed in {@link #ProcessorBasedRefactoring(RefactoringProcessor)} or the
  * processor set by {@link #setProcessor(RefactoringProcessor)}.
  * 
+ * @since 3.0
+ * 
  * @author Mohsen Vakilian, nchen - Logged refactorings with fatal errors while checking initial
  *         conditions.
- * 
- * @since 3.0
  */
 public class ProcessorBasedRefactoring extends Refactoring {
 
@@ -448,16 +448,13 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	/////////////////
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
-		try {
-			if (isRefWizOpenOpCheckedInitConds()) {
-				if (fProcessor instanceof IWatchedProcessor) {
-					IWatchedProcessor watchedProcessor= (IWatchedProcessor)fProcessor;
-					Logger.logUnavailableRefactoringEvent(watchedProcessor.getDescriptorID(), watchedProcessor.getJavaProjectName(), watchedProcessor.getSelection(),
+		if (isRefWizOpenOpCheckedInitConds()) {
+			if (fProcessor instanceof IWatchedProcessor) {
+				IWatchedProcessor watchedProcessor= (IWatchedProcessor)fProcessor;
+				Logger.logUnavailableRefactoringEvent(watchedProcessor.getDescriptorID(), watchedProcessor.getJavaProjectName(), watchedProcessor.getSelection(),
 							refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
-					unsetRefWizOpenOpCheckedInitConds();
-				}
+				unsetRefWizOpenOpCheckedInitConds();
 			}
-		} catch (UnsupportedOperationException e) {
 		}
 	}
 

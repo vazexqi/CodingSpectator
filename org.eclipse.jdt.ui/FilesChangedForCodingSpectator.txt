@@ -41,8 +41,13 @@ ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
 ui/org/eclipse/jdt/ui/actions/RenameAction.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameJavaElementAction.java
 
+# For capturing the refactorings invoked by quick assist
 ui/org/eclipse/jdt/internal/ui/text/correction/QuickAssistProcessor.java
 ui/org/eclipse/jdt/internal/ui/text/correction/proposals/ChangeCorrectionProposal.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/RefactoringExecutionStarter.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/RenameLinkedMode.java
+ui/org/eclipse/jdt/internal/ui/text/correction/proposals/RenameRefactoringProposal.java
+ui/org/eclipse/jdt/ui/refactoring/RenameSupport.java
 
 
 Added Files

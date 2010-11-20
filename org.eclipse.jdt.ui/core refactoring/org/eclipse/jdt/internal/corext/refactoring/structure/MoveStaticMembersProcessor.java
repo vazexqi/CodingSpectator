@@ -1204,6 +1204,10 @@ public final class MoveStaticMembersProcessor extends MoveProcessor implements I
 			return IJavaRefactorings.MOVE_STATIC_MEMBERS;
 		}
 
+		protected boolean isInvokedByQuickAssist() {
+			return MoveStaticMembersProcessor.this.isInvokedByQuickAssist();
+		}
+
 	}
 
 
