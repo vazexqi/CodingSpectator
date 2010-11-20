@@ -41,7 +41,9 @@ import org.eclipse.jdt.internal.ui.text.correction.ICommandAccess;
 public class RenameRefactoringProposal implements IJavaCompletionProposal, ICompletionProposalExtension6, ICommandAccess {
 
 	private final String fLabel;
+
 	private int fRelevance;
+
 	private final JavaEditor fEditor;
 
 	public RenameRefactoringProposal(JavaEditor editor) {
