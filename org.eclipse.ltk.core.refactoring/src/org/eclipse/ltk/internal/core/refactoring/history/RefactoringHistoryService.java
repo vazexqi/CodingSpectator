@@ -150,10 +150,6 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/** The no history constant */
 	private static final NullRefactoringHistory NO_HISTORY= new NullRefactoringHistory();
 
-	private static String constructHiddenFolder(String baseName) {
-		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
-	}
-
 	/**
 	 * Filters the given array of refactoring proxies and returns the result in the specified
 	 * refactoring descriptor proxy set.
@@ -1024,6 +1020,10 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 			return bundle.getVersion();
 		else
 			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
+	}
+
+	private static String constructHiddenFolder(String baseName) {
+		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
 	}
 
 	public static String getRefactoringHistoryCanceledFolder() {
