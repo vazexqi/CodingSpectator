@@ -31,20 +31,29 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.epp.usagedata.internal.gathering.events.UsageDataEvent;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UploadSettings;
+import org.osgi.framework.Version;
 
 /**
  * Instances of the {@link BasicUploader} class are responsible for uploading a set of files to the
  * server.
  * 
  * @author Wayne Beaton
+ * @author Mohsen Vakilian, nchen - Made the class copy UDC files to the watched directory of
+ *         CodingSpectator before uploading them to the UDC server.
  * 
  */
 public class BasicUploader extends AbstractUploader {
@@ -121,6 +130,10 @@ public class BasicUploader extends AbstractUploader {
 
 		try {
 			long start= System.currentTimeMillis();
+
+			//CODINGSPECTATOR
+			copyToCodingSpectatorWatchedDirectory(monitor);
+
 			result= doUpload(monitor);
 			long duration= System.currentTimeMillis() - start;
 
@@ -383,5 +396,37 @@ public class BasicUploader extends AbstractUploader {
 
 	public void removeResponseListener(BasicUploaderResponseListener listener) {
 		responseListeners.remove(listener);
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public void copyToCodingSpectatorWatchedDirectory(IProgressMonitor monitor) throws CoreException {
+		monitor.subTask("Copy UDC files to CodingSpectator");
+		File[] udcFiles= getUploadParameters().getFiles();
+
+		IFileSystem fileSystem= EFS.getLocalFileSystem();
+		IFileStore destinationStore= fileSystem.getStore(getFreshCodingSpectatorUDCPath());
+		destinationStore.mkdir(EFS.OVERWRITE, monitor);
+
+		for (File udcFile : udcFiles) {
+			IFileStore udcFileStore= fileSystem.fromLocalFile(udcFile);
+			udcFileStore.copy(destinationStore.getChild(udcFileStore.getName()), EFS.OVERWRITE, monitor);
+		}
+
+	}
+
+	private IPath getFreshCodingSpectatorUDCPath() {
+		return getCodingSpectatorWatchedDirectory().append("udc")
+				.append(String.valueOf(System.currentTimeMillis()));
+	}
+
+	private IPath getCodingSpectatorWatchedDirectory() {
+		return Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).append(getCodingSpectatorVersion().toString());
+	}
+
+	private Version getCodingSpectatorVersion() {
+		return Platform.getBundle("edu.illinois.codingspectator.monitor.core").getVersion();
 	}
 }
