@@ -23,8 +23,8 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmitterExc
 public class Uploader {
 
 	private static IStatus reportUploadFailure(SubmitterException exception) {
-		Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
-		Status errorStatus= Activator.getDefault().createErrorStatus(Messages.WorkbenchPreferencePage_FailedToUploadMessage, exception);
+		String errorMessage= Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
+		Status errorStatus= Activator.getDefault().createErrorStatus(errorMessage, exception);
 		Activator.getDefault().log(errorStatus);
 		return errorStatus;
 	}
