@@ -1,3 +1,7 @@
+v1.0.0.201011241815
+===================
+- Copied UDC data to the watched directory of CodingSpectator just before UDC uploads its data.
+
 v1.0.0.201011201702
 ===================
 - Captured failures of refactorings before the refactoring wizard. These early failures make the refactorings unavailable. (See [issue #30](https://github.com/vazexqi/CodingSpectator/issues/30) for more details).
