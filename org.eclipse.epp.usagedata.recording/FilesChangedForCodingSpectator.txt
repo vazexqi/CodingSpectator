@@ -1,0 +1,5 @@
+Changed Files
+=============
+
+META-INF/MANIFEST.MF
+src/org/eclipse/epp/usagedata/internal/recording/uploading/BasicUploader.java
