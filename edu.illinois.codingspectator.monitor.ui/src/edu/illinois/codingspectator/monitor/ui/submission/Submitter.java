@@ -154,7 +154,7 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class SubmitterException extends Exception {
+	public static abstract class SubmitterException extends Exception {
 
 		public SubmitterException() {
 			super();
@@ -162,10 +162,6 @@ public class Submitter {
 
 		public SubmitterException(Exception e) {
 			super(e);
-		}
-
-		public SubmitterException(String message) {
-			super(message);
 		}
 	}
 
@@ -180,11 +176,6 @@ public class Submitter {
 		public FailedAuthenticationException(Exception e) {
 			super(e);
 		}
-
-		public FailedAuthenticationException(String message) {
-			super(message);
-		}
-
 	}
 
 	@SuppressWarnings("serial")
@@ -197,11 +188,6 @@ public class Submitter {
 		public CanceledDialogException(Exception e) {
 			super(e);
 		}
-
-		public CanceledDialogException(String message) {
-			super(message);
-		}
-
 	}
 
 	@SuppressWarnings("serial")
@@ -211,6 +197,10 @@ public class Submitter {
 			super(e);
 		}
 
+		public boolean isLockedDirectoryError() {
+			String LOCKED_DIRECTORY_PARTIAL_SVNMESSAGE= "locked; try performing 'cleanup'";
+			return getMessage().contains(LOCKED_DIRECTORY_PARTIAL_SVNMESSAGE);
+		}
 	}
 
 	@SuppressWarnings("serial")
