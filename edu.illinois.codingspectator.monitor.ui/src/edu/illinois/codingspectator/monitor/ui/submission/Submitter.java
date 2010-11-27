@@ -147,10 +147,25 @@ public class Submitter {
 				continue;
 			} catch (CanceledDialogException e) {
 				return false;
+			} catch (InitializationException initException) {
+				if (initException.isLockedDirectoryError()) {
+					tryCleanup();
+				} else {
+					throw initException;
+				}
 			}
 			break;
 		}
 		return true;
+	}
+
+	protected void tryCleanup() throws InitializationException {
+		SVNManager svnManager= new SVNManager(WATCHED_DIRECTORY);
+		try {
+			svnManager.doCleanup(WATCHED_DIRECTORY);
+		} catch (SVNException e) {
+			throw new InitializationException(e);
+		}
 	}
 
 	@SuppressWarnings("serial")
