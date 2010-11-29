@@ -59,7 +59,7 @@ public class PrefsFacade {
 			if (RunningModes.isInDebugMode() || RunningModes.isInTestMode()) {
 				generatedID= TESTING_UUID;
 			} else {
-				generatedID= new SVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
+				generatedID= SVNManager.createLocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
 				if (generatedID.isEmpty()) {
 					generatedID= UUIDGenerator.generateID();
 				}

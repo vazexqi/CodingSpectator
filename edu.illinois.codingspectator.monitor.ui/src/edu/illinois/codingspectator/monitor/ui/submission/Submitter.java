@@ -17,6 +17,8 @@ import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
+import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
+import edu.illinois.codingspectator.monitor.core.submission.RemoteSVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 import edu.illinois.codingspectator.monitor.core.submission.URLManager;
@@ -40,7 +42,7 @@ public class Submitter {
 	public static final String WATCHED_DIRECTORY= Platform.getStateLocation(
 			Platform.getBundle(LTK_BUNDLE_NAME)).toOSString();
 
-	private SVNManager svnManager;
+	private RemoteSVNManager remoteSVNManager;
 
 	private AuthenticationProvider authenticationProvider;
 
@@ -63,10 +65,10 @@ public class Submitter {
 
 			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
 					.getInstance().getAndSetUUIDLazily());
-			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(),
+			remoteSVNManager= SVNManager.createRemoteSVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(),
 					authenticationInfo.getPassword());
-			svnManager.doImport();
-			svnManager.doCheckout();
+			remoteSVNManager.doImport();
+			remoteSVNManager.doCheckout();
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);
@@ -93,9 +95,9 @@ public class Submitter {
 
 	public void submit() throws SubmissionException {
 		try {
-			svnManager.doAdd(WATCHED_DIRECTORY);
+			remoteSVNManager.doAdd();
 			notifyPreSubmit();
-			svnManager.doCommit(WATCHED_DIRECTORY);
+			remoteSVNManager.doCommit();
 			notifyPostSubmit();
 		} catch (SVNException e) {
 			throw new SubmissionException(e);
@@ -103,7 +105,9 @@ public class Submitter {
 	}
 
 	private Collection<SubmitterListener> lookupExtensions() {
-		IConfigurationElement[] config= Platform.getExtensionRegistry().getConfigurationElementsFor("edu.illinois.codingspectator.monitor.core.submitter");
+		String extensionPointId= "edu.illinois.codingspectator.monitor.core.submitter";
+
+		IConfigurationElement[] config= Platform.getExtensionRegistry().getConfigurationElementsFor(extensionPointId);
 		Collection<SubmitterListener> submitterListeners= new ArrayList<SubmitterListener>();
 		try {
 			for (IConfigurationElement e : config) {
@@ -111,7 +115,7 @@ public class Submitter {
 				submitterListeners.add((SubmitterListener)o);
 			}
 		} catch (CoreException e) {
-			Activator.getDefault().createErrorStatus("Failed to lookup extensions for edu.illinois.codingspectator.monitor.core.submitter.", e);
+			Activator.getDefault().createErrorStatus(String.format("Failed to lookup extensions for %s.", extensionPointId), e);
 		}
 		return submitterListeners;
 	}
@@ -162,7 +166,7 @@ public class Submitter {
 
 	protected void tryCleanup() throws InitializationException {
 		try {
-			SVNManager svnManager= new SVNManager(WATCHED_DIRECTORY);
+			LocalSVNManager svnManager= SVNManager.createLocalSVNManager(WATCHED_DIRECTORY);
 			svnManager.doCleanup();
 		} catch (SVNException e) {
 			throw new InitializationException(e);

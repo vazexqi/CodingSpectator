@@ -5,130 +5,70 @@ package edu.illinois.codingspectator.monitor.core.submission;
 
 import java.io.File;
 
-import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
 import edu.illinois.codingspectator.monitor.core.Activator;
 
 /**
- * This is the concrete implementation of the {@link Submitter} design contract for an SVN backend.
+ * This is the implementation of the {@link Submitter} design contract for an SVN backend. There are
+ * two versions of the backend: LocalSVNManager and RemoteSVNManager. LocalSVNManager only allows
+ * operations that do not require communicating with the server. RemoteSVNManager allows both local
+ * operations and operations that require communication with the server (thus it requires login
+ * credentials).
+ * 
+ * This is the factory for creating LocalSVNManager and RemoteSVNManager.
  * 
  * @author Mohsen Vakilian
  * @author nchen
  * 
  */
-public class SVNManager {
+public abstract class SVNManager {
 
-	private static final String COMMIT_MESSAGE= Activator.PLUGIN_ID;
+	protected static final String COMMIT_MESSAGE= Activator.PLUGIN_ID;
 
-	private final SVNClientManager cm;
+	protected SVNClientManager cm;
 
-	private final URLManager urlManager;
+	protected URLManager urlManager;
 
-	private String svnWorkingCopyDirectory;
+	protected File svnWorkingCopyDirectory;
 
-	public SVNManager(URLManager urlManager, String svnWorkingCopyDirectory, String username, String password) {
+	protected SVNManager(URLManager urlManager, String svnWorkingCopyDirectory, String username, String password) {
 		this.urlManager= urlManager;
-		this.svnWorkingCopyDirectory= svnWorkingCopyDirectory;
+		this.svnWorkingCopyDirectory= new File(svnWorkingCopyDirectory);
 		setupLibrary();
 		cm= SVNClientManager.newInstance(null, username, password);
 	}
 
-	/**
-	 * Lightweight version for local working-copy operations only. No authentication info is
-	 * required.
-	 */
-	public SVNManager(String svnWorkingCopyDirectory) {
-		this(null, svnWorkingCopyDirectory, null, null);
+	public static RemoteSVNManager createRemoteSVNManager(URLManager urlManager, String svnWorkingCopyDirectory, String username, String password) {
+		return new RemoteSVNManager(urlManager, svnWorkingCopyDirectory, username, password);
+	}
+
+	public static LocalSVNManager createLocalSVNManager(String svnWorkingCopyDirectory) {
+		return new LocalSVNManager(null, svnWorkingCopyDirectory, null, null);
 	}
 
 	//
-	// Local working copy operations
+	// Helper methods
 	//
-
-	public SVNInfo doInfo() throws SVNException {
-		File workingCopyDirectory= new File(svnWorkingCopyDirectory);
-		return cm.getWCClient().doInfo(workingCopyDirectory, SVNRevision.WORKING);
-	}
-
-	/**
-	 * @return the username of the local working copy, or the empty string if the local working copy
-	 *         has not been created yet.
-	 */
-	public String getSVNWorkingCopyUsername() {
-		try {
-			SVNInfo info= doInfo();
-			return info.getAuthor();
-		} catch (SVNException e) {
-			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
-			return "";
-		}
-	}
-
-	/**
-	 * @return the username of the local working copy, or the empty string if the local working copy
-	 *         has not been created yet.
-	 */
-	public String getSVNWorkingCopyRepositoryUUID() {
-		try {
-			SVNInfo info= doInfo();
-			SVNURL fullPath= info.getURL();
-			String path= fullPath.getPath();
-			int lastIndexOf= path.lastIndexOf('/');
-			return path.substring(lastIndexOf + 1);
-		} catch (SVNException e) {
-			// Do not log. This is a harmless operation. If nothing is available, we just default to ""
-			return "";
-		}
-	}
-
-	// 
-	// Remote repository operations
-	//
-
-	public void doImport() throws SVNException {
-		if (isWorkingDirectoryValid())
-			return;
-		File file= new File(svnWorkingCopyDirectory);
-		cm.getCommitClient().doImport(file, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
-	}
-
-	public void doCheckout() throws SVNException {
-		File destinationPathFile= new File(svnWorkingCopyDirectory);
-		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), destinationPathFile, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
-				true);
-	}
-
-	public void doAdd(String pathToAdd) throws SVNException {
-		File pathToAddFile= new File(pathToAdd);
-		cm.getWCClient().doAdd(pathToAddFile, true, false, false, SVNDepth.INFINITY, false, false);
-	}
-
-	public void doCommit(String pathToCommit) throws SVNException {
-		File[] pathToCommitFiles= new File[] { new File(pathToCommit) };
-		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
-	}
-
-	public void doCleanup() throws SVNException {
-		File pathtoCleanUpFile= new File(svnWorkingCopyDirectory);
-		cm.getWCClient().doCleanup(pathtoCleanUpFile);
-	}
-
 	public boolean isWorkingDirectoryValid() {
-		File file= new File(svnWorkingCopyDirectory);
 		try {
-			cm.getWCClient().doInfo(file, SVNRevision.WORKING);
+			cm.getWCClient().doInfo(svnWorkingCopyDirectory, SVNRevision.WORKING);
 		} catch (SVNException e) {
 			return false;
 		}
 		return true;
+	}
+
+	protected String extractUUIDFromFullPath(SVNURL fullPath) {
+		String path= fullPath.getPath();
+		int lastIndexOf= path.lastIndexOf('/');
+		return path.substring(lastIndexOf + 1);
 	}
 
 	private static void setupLibrary() {
@@ -139,5 +79,4 @@ public class SVNManager {
 		//For using over file:///
 		FSRepositoryFactory.setup();
 	}
-
 }

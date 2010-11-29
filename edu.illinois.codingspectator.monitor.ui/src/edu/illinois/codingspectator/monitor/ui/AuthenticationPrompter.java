@@ -52,7 +52,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			private UserValidationDialog setupDialog(final String loginDestination) {
 				Shell shell= getDefaultParentShell();
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				String username= new SVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyUsername();
+				String username= SVNManager.createLocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyUsername();
 				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
 
 				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());
