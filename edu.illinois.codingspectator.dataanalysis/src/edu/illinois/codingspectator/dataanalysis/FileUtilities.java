@@ -46,10 +46,13 @@ public class FileUtilities {
 		in.close();
 	}
 
-	public static File createFile(String path) {
+	public static File createFile(String path) throws IOException {
 		File file= new File(path);
-		if (file.exists())
+		if (file.exists()) {
 			file.delete();
+		}
+		file.getParentFile().mkdirs();
+		file.createNewFile();
 		return file;
 	}
 }

@@ -32,7 +32,7 @@ public class OutputLog {
 
 	}
 
-	public void createLog() {
+	public void createLog() throws IOException {
 		outputFile= FileUtilities.createFile(LogConsolidator.join(targetPath, includeDir + ".xml"));
 	}
 
