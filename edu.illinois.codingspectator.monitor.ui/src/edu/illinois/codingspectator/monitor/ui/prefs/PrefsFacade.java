@@ -9,7 +9,7 @@ import java.util.Date;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
+import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
 import edu.illinois.codingspectator.monitor.ui.Activator;
 import edu.illinois.codingspectator.monitor.ui.Messages;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
@@ -59,7 +59,7 @@ public class PrefsFacade {
 			if (RunningModes.isInDebugMode() || RunningModes.isInTestMode()) {
 				generatedID= TESTING_UUID;
 			} else {
-				generatedID= SVNManager.createLocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
+				generatedID= new LocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
 				if (generatedID.isEmpty()) {
 					generatedID= UUIDGenerator.generateID();
 				}

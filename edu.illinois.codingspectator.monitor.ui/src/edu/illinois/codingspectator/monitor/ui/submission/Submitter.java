@@ -18,7 +18,6 @@ import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
 import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
-import edu.illinois.codingspectator.monitor.core.submission.RemoteSVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 import edu.illinois.codingspectator.monitor.core.submission.URLManager;
@@ -42,7 +41,7 @@ public class Submitter {
 	public static final String WATCHED_DIRECTORY= Platform.getStateLocation(
 			Platform.getBundle(LTK_BUNDLE_NAME)).toOSString();
 
-	private RemoteSVNManager remoteSVNManager;
+	private SVNManager svnManager;
 
 	private AuthenticationProvider authenticationProvider;
 
@@ -65,10 +64,9 @@ public class Submitter {
 
 			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
 					.getInstance().getAndSetUUIDLazily());
-			remoteSVNManager= SVNManager.createRemoteSVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(),
-					authenticationInfo.getPassword());
-			remoteSVNManager.doImport();
-			remoteSVNManager.doCheckout();
+			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(), authenticationInfo.getPassword());
+			svnManager.doImport();
+			svnManager.doCheckout();
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);
@@ -95,9 +93,9 @@ public class Submitter {
 
 	public void submit() throws SubmissionException {
 		try {
-			remoteSVNManager.doAdd();
+			svnManager.doAdd();
 			notifyPreSubmit();
-			remoteSVNManager.doCommit();
+			svnManager.doCommit();
 			notifyPostSubmit();
 		} catch (SVNException e) {
 			throw new SubmissionException(e);
@@ -166,7 +164,7 @@ public class Submitter {
 
 	protected void tryCleanup() throws InitializationException {
 		try {
-			LocalSVNManager svnManager= SVNManager.createLocalSVNManager(WATCHED_DIRECTORY);
+			LocalSVNManager svnManager= new LocalSVNManager(WATCHED_DIRECTORY);
 			svnManager.doCleanup();
 		} catch (SVNException e) {
 			throw new InitializationException(e);
