@@ -56,13 +56,13 @@ public class PrefsFacade {
 	private void setUUIDLazily() {
 		if (!isUUIDSet()) {
 			String generatedID;
-			if (RunningModes.isInDebugMode() || RunningModes.isInTestMode()) {
-				generatedID= TESTING_UUID;
-			} else {
+			if (RunningModes.isInProductionMode()) {
 				generatedID= new LocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
 				if (generatedID.isEmpty()) {
 					generatedID= UUIDGenerator.generateID();
 				}
+			} else {
+				generatedID= TESTING_UUID;
 			}
 			setUUID(generatedID);
 		}

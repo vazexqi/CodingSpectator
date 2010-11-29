@@ -21,8 +21,6 @@ public class Messages extends NLS {
 
 	public static String SecureStorage_UsernameKey;
 
-	public static String Submitter_ProductionRepositoryURL;
-
 	public static String UserValidationDialog_Password;
 
 	public static String UserValidationDialog_SavePassword;

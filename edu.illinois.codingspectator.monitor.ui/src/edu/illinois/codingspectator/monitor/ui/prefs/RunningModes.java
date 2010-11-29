@@ -24,4 +24,8 @@ public class RunningModes {
 		return System.getenv(TESTING_MODE) != null;
 	}
 
+	public static boolean isInProductionMode() {
+		return (!isInDebugMode() && !isInTestMode());
+	}
+
 }
