@@ -116,8 +116,8 @@ public class SVNManager {
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
 	}
 
-	public void doCleanup(String pathToCleanUp) throws SVNException {
-		File pathtoCleanUpFile= new File(pathToCleanUp);
+	public void doCleanup() throws SVNException {
+		File pathtoCleanUpFile= new File(svnWorkingCopyDirectory);
 		cm.getWCClient().doCleanup(pathtoCleanUpFile);
 	}
 

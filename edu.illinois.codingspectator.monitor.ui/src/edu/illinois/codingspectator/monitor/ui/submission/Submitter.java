@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
+import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
@@ -160,9 +161,9 @@ public class Submitter {
 	}
 
 	protected void tryCleanup() throws InitializationException {
-		SVNManager svnManager= new SVNManager(WATCHED_DIRECTORY);
 		try {
-			svnManager.doCleanup(WATCHED_DIRECTORY);
+			SVNManager svnManager= new SVNManager(WATCHED_DIRECTORY);
+			svnManager.doCleanup();
 		} catch (SVNException e) {
 			throw new InitializationException(e);
 		}
@@ -208,13 +209,23 @@ public class Submitter {
 	@SuppressWarnings("serial")
 	public static class InitializationException extends SubmitterException {
 
+		private SVNErrorCode errorCode;
+
 		public InitializationException(Exception e) {
 			super(e);
 		}
 
+		public InitializationException(SVNException e) {
+			super(e);
+			errorCode= e.getErrorMessage().getErrorCode();
+		}
+
 		public boolean isLockedDirectoryError() {
-			String LOCKED_DIRECTORY_PARTIAL_SVNMESSAGE= "locked; try performing 'cleanup'";
-			return getMessage().contains(LOCKED_DIRECTORY_PARTIAL_SVNMESSAGE);
+			if (errorCode != null) {
+				return errorCode.equals(SVNErrorCode.WC_LOCKED);
+			} else {
+				return false;
+			}
 		}
 	}
 
