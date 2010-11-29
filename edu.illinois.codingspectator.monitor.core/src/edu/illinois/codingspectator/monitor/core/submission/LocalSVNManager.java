@@ -3,8 +3,6 @@
  */
 package edu.illinois.codingspectator.monitor.core.submission;
 
-import java.io.File;
-
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
@@ -25,8 +23,7 @@ public class LocalSVNManager extends SVNManager {
 	}
 
 	public SVNInfo doInfo() throws SVNException {
-		File workingCopyDirectory= svnWorkingCopyDirectory;
-		return cm.getWCClient().doInfo(workingCopyDirectory, SVNRevision.WORKING);
+		return cm.getWCClient().doInfo(svnWorkingCopyDirectory, SVNRevision.WORKING);
 	}
 
 	public String getSVNWorkingCopyUsername() {
@@ -51,12 +48,10 @@ public class LocalSVNManager extends SVNManager {
 	}
 
 	public void doCleanup() throws SVNException {
-		File pathtoCleanUpFile= svnWorkingCopyDirectory;
-		cm.getWCClient().doCleanup(pathtoCleanUpFile);
+		cm.getWCClient().doCleanup(svnWorkingCopyDirectory);
 	}
 
 	public void doAdd() throws SVNException {
-		File pathToAddFile= svnWorkingCopyDirectory;
-		cm.getWCClient().doAdd(pathToAddFile, true, false, false, SVNDepth.INFINITY, false, false);
+		cm.getWCClient().doAdd(svnWorkingCopyDirectory, true, false, false, SVNDepth.INFINITY, false, false);
 	}
 }

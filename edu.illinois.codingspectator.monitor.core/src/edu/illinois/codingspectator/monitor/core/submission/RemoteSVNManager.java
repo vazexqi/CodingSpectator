@@ -26,13 +26,11 @@ public class RemoteSVNManager extends LocalSVNManager {
 	public void doImport() throws SVNException {
 		if (isWorkingDirectoryValid())
 			return;
-		File directoryToImport= svnWorkingCopyDirectory;
-		cm.getCommitClient().doImport(directoryToImport, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
+		cm.getCommitClient().doImport(svnWorkingCopyDirectory, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
 	}
 
 	public void doCheckout() throws SVNException {
-		File directoryForCheckout= svnWorkingCopyDirectory;
-		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), directoryForCheckout, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
+		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), svnWorkingCopyDirectory, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
 				true);
 	}
 
