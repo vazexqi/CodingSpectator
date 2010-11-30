@@ -20,6 +20,11 @@ import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UsageDataRecordingSettings;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Added check to see if we are only collecting and not uploading
+ * 
+ */
 public class UploadManager {
 
 	public static final int UPLOAD_STARTED_OK= 0;
@@ -61,7 +66,7 @@ public class UploadManager {
 	 * @return a status code.
 	 */
 	public int startUpload() {
-		if (!getSettings().isEnabled())
+		if (!getSettings().isEnabled() || getSettings().isCollectButNeverUpload()) // CODINGSPECTATOR
 			return UPLOAD_DISABLED;
 		if (PlatformUI.getWorkbench().isClosing())
 			return WORKBENCH_IS_CLOSING;

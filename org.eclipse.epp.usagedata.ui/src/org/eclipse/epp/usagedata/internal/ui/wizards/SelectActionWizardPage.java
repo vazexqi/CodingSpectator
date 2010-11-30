@@ -123,7 +123,7 @@ public class SelectActionWizardPage extends WizardPage {
 	}
 
 	private void createNeverUploadRadio(Composite parent) {
-		neverUploadRadio = createRadio(parent, Messages.SelectActionWizardPage_16,AskUserUploader.NEVER_UPLOAD);	 
+		neverUploadRadio = createRadio(parent, Messages.SelectActionWizardPage_16,AskUserUploader.COLLECT_BUT_NEVER_UPLOAD);	 
 		createDescriptionText(parent, Messages.SelectActionWizardPage_17);		 
 	}
 

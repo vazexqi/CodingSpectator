@@ -25,6 +25,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Disabled the option to turn off UDC usage capture completely Ð
+ *         the new option is to collect but not to upload.
+ * 
+ */
 public class AskUserUploader extends AbstractUploader {
 	public static final int UPLOAD_NOW= 0;
 
@@ -32,7 +38,7 @@ public class AskUserUploader extends AbstractUploader {
 
 	public static final int DONT_UPLOAD= 2;
 
-	public static final int NEVER_UPLOAD= 3;
+	public static final int COLLECT_BUT_NEVER_UPLOAD= 3;
 
 	private BasicUploader basicUploader;
 
@@ -86,7 +92,7 @@ public class AskUserUploader extends AbstractUploader {
 				return UPLOAD_ALWAYS;
 			}
 		} else {
-			return NEVER_UPLOAD;
+			return COLLECT_BUT_NEVER_UPLOAD;
 		}
 	}
 
@@ -114,11 +120,12 @@ public class AskUserUploader extends AbstractUploader {
 		fireUploadComplete(new UploadResult(UploadResult.CANCELLED));
 	}
 
+	// CODINGSPECATOR: Do not allow turning off of usage capture
 	public synchronized void execute() {
 		dialog= null;
 
 		getSettings().setAskBeforeUploading(action != UPLOAD_ALWAYS);
-		getSettings().setEnabled(action != NEVER_UPLOAD);
+		getSettings().setCollectButNeverUpload(shouldCollectButDontUpload());
 		getSettings().setUserAcceptedTermsOfUse(userAcceptedTermsOfUse);
 
 		if (action == UPLOAD_ALWAYS || action == UPLOAD_NOW) {
@@ -169,5 +176,12 @@ public class AskUserUploader extends AbstractUploader {
 
 	public UsageDataEventFilter getFilter() {
 		return getUploadParameters().getFilter();
+	}
+
+	/////////////////
+	// CODINGSPECATOR
+	/////////////////
+	protected boolean shouldCollectButDontUpload() {
+		return COLLECT_BUT_NEVER_UPLOAD == 1;
 	}
 }

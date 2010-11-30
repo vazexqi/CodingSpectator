@@ -34,6 +34,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @author Wayne Beaton
  * 
+ * @author Mohsen Vakilian, nchen - Added an option for collecting but not uploading
  */
 public class UsageDataRecordingSettings implements UploadSettings {
 
@@ -378,4 +379,21 @@ public class UsageDataRecordingSettings implements UploadSettings {
 		return UPLOAD_URL_DEFAULT;
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public static final String COLLECT_BUT_NEVER_UPLOAD_KEY= UsageDataRecordingActivator.PLUGIN_ID + ".collectbutneverupload"; //$NON-NLS-1$
+
+	public void setCollectButNeverUpload(boolean value) {
+		getPreferencesStore().setValue(COLLECT_BUT_NEVER_UPLOAD_KEY, value);
+		UsageDataRecordingActivator.getDefault().savePluginPreferences();
+	}
+
+	public boolean isCollectButNeverUpload() {
+		if (getPreferencesStore().contains(COLLECT_BUT_NEVER_UPLOAD_KEY))
+			return getPreferencesStore().getBoolean(COLLECT_BUT_NEVER_UPLOAD_KEY);
+		else
+			return false;
+	}
 }
