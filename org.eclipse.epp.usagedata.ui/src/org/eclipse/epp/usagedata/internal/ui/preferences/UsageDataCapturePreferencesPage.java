@@ -27,34 +27,34 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class UsageDataCapturePreferencesPage extends PreferencePage
-	implements IWorkbenchPreferencePage {
-	
+		implements IWorkbenchPreferencePage {
+
 	Button captureEnabledCheckbox;
 
-	IPropertyChangeListener propertyChangeListener = new IPropertyChangeListener() {
+	IPropertyChangeListener propertyChangeListener= new IPropertyChangeListener() {
 		public void propertyChange(final PropertyChangeEvent event) {
 			if (UsageDataCaptureSettings.CAPTURE_ENABLED_KEY.equals(event.getProperty())) {
 				getControl().getDisplay().syncExec(new Runnable() {
 					public void run() {
 						captureEnabledCheckbox.setSelection((Boolean)event.getNewValue());
 					};
-				});				
+				});
 			}
-		}			
+		}
 	};
-	
+
 	public UsageDataCapturePreferencesPage() {
-		setDescription(Messages.UsageDataCapturePreferencesPage_0); 
+		setDescription(Messages.UsageDataCapturePreferencesPage_0);
 		setPreferenceStore(UsageDataCaptureActivator.getDefault().getPreferenceStore());
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public void init(IWorkbench workbench) {
 		getPreferenceStore().addPropertyChangeListener(propertyChangeListener);
 	}
-	
+
 	@Override
 	public void dispose() {
 		getPreferenceStore().removePropertyChangeListener(propertyChangeListener);
@@ -63,18 +63,18 @@ public class UsageDataCapturePreferencesPage extends PreferencePage
 
 	@Override
 	protected Control createContents(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
+		Composite composite= new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
+
 		composite.setLayout(new GridLayout());
-		
+
 		createGeneralInformationArea(composite);
-		
-		Label filler = new Label(parent, SWT.NONE);
+
+		Label filler= new Label(parent, SWT.NONE);
 		filler.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));
-		
+
 		initialize();
-		
+
 		return composite;
 	}
 
@@ -85,7 +85,7 @@ public class UsageDataCapturePreferencesPage extends PreferencePage
 	@Override
 	public boolean performOk() {
 		getCapturePreferences().setValue(UsageDataCaptureSettings.CAPTURE_ENABLED_KEY, captureEnabledCheckbox.getSelection());
-	
+
 		return super.performOk();
 	}
 
@@ -97,13 +97,13 @@ public class UsageDataCapturePreferencesPage extends PreferencePage
 	}
 
 	private void createGeneralInformationArea(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
+		Composite composite= new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
-		
+
 		composite.setLayout(new GridLayout());
-		
-		captureEnabledCheckbox = new Button(composite, SWT.CHECK | SWT.LEFT);
-		captureEnabledCheckbox.setText(Messages.UsageDataCapturePreferencesPage_1);  
+
+		captureEnabledCheckbox= new Button(composite, SWT.CHECK | SWT.LEFT);
+		captureEnabledCheckbox.setText(Messages.UsageDataCapturePreferencesPage_1);
 	}
 
 
