@@ -27,8 +27,8 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Disabled the option to turn off UDC usage capture completely Ð
- *         the new option is to collect but not to upload.
+ * @author Mohsen Vakilian, nchen - Disabled the option to turn off UDC usage capture completely the
+ *         new option is to collect but not to upload.
  * 
  */
 public class AskUserUploader extends AbstractUploader {
