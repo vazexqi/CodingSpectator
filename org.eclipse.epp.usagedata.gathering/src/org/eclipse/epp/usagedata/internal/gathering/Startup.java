@@ -10,12 +10,23 @@
  *******************************************************************************/
 package org.eclipse.epp.usagedata.internal.gathering;
 
+import org.eclipse.epp.usagedata.internal.gathering.settings.UsageDataCaptureSettings;
 import org.eclipse.ui.IStartup;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - always set capturing to true
+ * 
+ */
 public class Startup implements IStartup {
 
+	// CODINGSPECTATOR
 	public void earlyStartup() {
-		// Nothing to do. We just want the bundle to start.
+		getCaptureSettings().setEnabled(true);
+	}
+
+	private UsageDataCaptureSettings getCaptureSettings() {
+		return UsageDataCaptureActivator.getDefault().getSettings();
 	}
 
 }
