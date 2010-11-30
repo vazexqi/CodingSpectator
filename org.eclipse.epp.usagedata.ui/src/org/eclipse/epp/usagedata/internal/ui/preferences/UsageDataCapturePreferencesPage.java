@@ -26,6 +26,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Disabled UI for disabling UDC data collection
+ *
+ */
 public class UsageDataCapturePreferencesPage extends PreferencePage
 		implements IWorkbenchPreferencePage {
 
@@ -96,6 +101,7 @@ public class UsageDataCapturePreferencesPage extends PreferencePage
 		super.performDefaults();
 	}
 
+	// CODINGSPECTATOR: Prevent capture enabled option from being unchecked 
 	private void createGeneralInformationArea(Composite parent) {
 		Composite composite= new Composite(parent, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
@@ -104,6 +110,7 @@ public class UsageDataCapturePreferencesPage extends PreferencePage
 
 		captureEnabledCheckbox= new Button(composite, SWT.CHECK | SWT.LEFT);
 		captureEnabledCheckbox.setText(Messages.UsageDataCapturePreferencesPage_1);
+		captureEnabledCheckbox.setEnabled(false);
 	}
 
 
