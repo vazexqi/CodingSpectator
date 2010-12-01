@@ -23,6 +23,8 @@ import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -39,6 +41,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -132,7 +135,7 @@ public class BasicUploader extends AbstractUploader {
 			long start= System.currentTimeMillis();
 
 			//CODINGSPECTATOR
-			copyToCodingSpectatorWatchedDirectory(monitor);
+			copyAndCreateFreshDirectory(monitor);
 
 			result= doUpload(monitor);
 			long duration= System.currentTimeMillis() - start;
@@ -402,24 +405,74 @@ public class BasicUploader extends AbstractUploader {
 	//CODINGSPECTATOR
 	/////////////////
 
-	public void copyToCodingSpectatorWatchedDirectory(IProgressMonitor monitor) throws CoreException {
+	public synchronized void startTransferToCodingSpectator() {
+		checkValues();
+		if (uploadInProgress)
+			return;
+		uploadInProgress= true;
+		Job job= new Job("Transfering usage data to CodingSpectator...") { //$NON-NLS-1$
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					transferToCodingSpectator(monitor);
+				} catch (Exception e) {
+					UsageDataRecordingActivator.getDefault().log(IStatus.WARNING, e, "An exception occurred while trying to upload usage data."); //$NON-NLS-1$
+				}
+				uploadInProgress= false;
+				fireTransferToCodingSpectatorComplete();
+				return Status.OK_STATUS;
+			}
+		};
+		job.setPriority(Job.LONG);
+		job.schedule();
+	}
+
+	public void transferToCodingSpectator(IProgressMonitor monitor) throws CoreException {
 		monitor.subTask("Copy UDC files to CodingSpectator");
 		File[] udcFiles= getUploadParameters().getFiles();
-
-		IFileSystem fileSystem= EFS.getLocalFileSystem();
-		IFileStore destinationStore= fileSystem.getStore(getFreshCodingSpectatorUDCPath());
-		destinationStore.mkdir(EFS.OVERWRITE, monitor);
+		IFileStore destinationStore= getFreshTimestampDirectory(monitor, EFS.getLocalFileSystem(), getCodingSpectatorUDCPathLazily());
 
 		for (File udcFile : udcFiles) {
-			IFileStore udcFileStore= fileSystem.fromLocalFile(udcFile);
+			IFileStore udcFileStore= EFS.getLocalFileSystem().fromLocalFile(udcFile);
 			udcFileStore.copy(destinationStore.getChild(udcFileStore.getName()), EFS.OVERWRITE, monitor);
 		}
+	}
 
+	private void copyAndCreateFreshDirectory(IProgressMonitor monitor) throws CoreException {
+		transferToCodingSpectator(monitor);
+		getFreshTimestampDirectory(monitor, EFS.getLocalFileSystem(), getFreshCodingSpectatorUDCPath());
+	}
+
+	private IFileStore getFreshTimestampDirectory(IProgressMonitor monitor, IFileSystem fileSystem, IPath directoryPath) throws CoreException {
+		IFileStore destinationStore= fileSystem.getStore(directoryPath);
+		destinationStore.mkdir(EFS.OVERWRITE, monitor);
+		return destinationStore;
+	}
+
+	private IPath getCodingSpectatorUDCPathLazily() throws CoreException {
+		List<String> listOfTimestampDirs= Arrays.asList(listCurrentTimestamps());
+		if (listOfTimestampDirs.isEmpty()) {
+			return getFreshCodingSpectatorUDCPath();
+		} else {
+			String latestTimestampFolder= Collections.max(listOfTimestampDirs);
+			return getCodingSpectatorUDCRoot().append(latestTimestampFolder);
+		}
+	}
+
+	private String[] listCurrentTimestamps() throws CoreException {
+		IFileSystem fileSystem= EFS.getLocalFileSystem();
+		IFileStore store= fileSystem.getStore(getCodingSpectatorUDCRoot());
+		String[] childNames= store.childNames(EFS.NONE, new NullProgressMonitor());
+		return childNames;
 	}
 
 	private IPath getFreshCodingSpectatorUDCPath() {
-		return getCodingSpectatorWatchedDirectory().append("udc")
+		return getCodingSpectatorUDCRoot()
 				.append(String.valueOf(System.currentTimeMillis()));
+	}
+
+	private IPath getCodingSpectatorUDCRoot() {
+		return getCodingSpectatorWatchedDirectory().append("udc");
 	}
 
 	private IPath getCodingSpectatorWatchedDirectory() {

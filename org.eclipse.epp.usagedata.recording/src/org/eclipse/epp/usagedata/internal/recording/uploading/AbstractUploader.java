@@ -11,7 +11,13 @@
 package org.eclipse.epp.usagedata.internal.recording.uploading;
 
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Added listeners for transferring UDC data to CodingSpectator.
+ * 
+ */
 public abstract class AbstractUploader implements Uploader {
 
 	private ListenerList uploadListeners= new ListenerList();
@@ -46,5 +52,25 @@ public abstract class AbstractUploader implements Uploader {
 	protected void checkValues() {
 		if (uploadParameters == null)
 			throw new RuntimeException("The UploadParameters must be set."); //$NON-NLS-1$
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private ListenerList transferToCodingSpectatorListeners= new ListenerList();
+
+	public void addTransferToCodingSpectatorListener(TransferToCodingSpectatorListener listener) {
+		transferToCodingSpectatorListeners.add(listener);
+	}
+
+	public void removeTransferToCodingSpectatorListener(TransferToCodingSpectatorListener listener) {
+		transferToCodingSpectatorListeners.remove(listener);
+	}
+
+	protected void fireTransferToCodingSpectatorComplete() {
+		for (Object listener : transferToCodingSpectatorListeners.getListeners()) {
+			((TransferToCodingSpectatorListener)listener).transferToCodingSpectatorComplete();
+		}
 	}
 }

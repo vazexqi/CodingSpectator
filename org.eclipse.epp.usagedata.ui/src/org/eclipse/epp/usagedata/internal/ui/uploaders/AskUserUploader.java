@@ -19,6 +19,7 @@ import org.eclipse.epp.usagedata.internal.recording.uploading.AbstractUploader;
 import org.eclipse.epp.usagedata.internal.recording.uploading.BasicUploader;
 import org.eclipse.epp.usagedata.internal.recording.uploading.UploadListener;
 import org.eclipse.epp.usagedata.internal.recording.uploading.UploadResult;
+import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
 import org.eclipse.epp.usagedata.internal.ui.wizards.AskUserUploaderWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
@@ -28,7 +29,8 @@ import org.eclipse.ui.PlatformUI;
 /**
  * 
  * @author Mohsen Vakilian, nchen - Disabled the option to turn off UDC usage capture completely the
- *         new option is to collect but not to upload.
+ *         new option is to collect but not to upload. And, added the support to transfer UDC data
+ *         to CodingSpectator.
  * 
  */
 public class AskUserUploader extends AbstractUploader {
@@ -178,10 +180,29 @@ public class AskUserUploader extends AbstractUploader {
 		return getUploadParameters().getFilter();
 	}
 
-	/////////////////
-	// CODINGSPECATOR
-	/////////////////
+	////////////////
+	//CODINGSPECATOR
+	////////////////
+
 	protected boolean shouldCollectButDontUpload() {
 		return COLLECT_BUT_NEVER_UPLOAD == 1;
 	}
+
+	public void startTransferToCodingSpectator() {
+		checkValues();
+		startBasicTransferToCodingSpectator();
+	}
+
+	private void startBasicTransferToCodingSpectator() {
+		basicUploader= new BasicUploader(getUploadParameters());
+		basicUploader.addTransferToCodingSpectatorListener(new TransferToCodingSpectatorListener() {
+			@Override
+			public void transferToCodingSpectatorComplete() {
+				fireTransferToCodingSpectatorComplete();
+				basicUploader= null;
+			}
+		});
+		basicUploader.startTransferToCodingSpectator();
+	}
+
 }

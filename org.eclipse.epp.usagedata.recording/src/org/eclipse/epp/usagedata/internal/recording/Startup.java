@@ -10,10 +10,19 @@
  *******************************************************************************/
 package org.eclipse.epp.usagedata.internal.recording;
 
+import org.eclipse.epp.usagedata.internal.recording.uploading.UploadManager;
 import org.eclipse.ui.IStartup;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Added transfer of UDC data to CodingSpectator watched directory
+ *         on startup
+ * 
+ */
 public class Startup implements IStartup {
 	public void earlyStartup() {
-		// Nothing to do. Just want to make sure the bundle is running.
+		//CODINGSPECTATOR
+		UploadManager manager= UsageDataRecordingActivator.getDefault().getUploadManager();
+		manager.startTransferToCodingSpectator();
 	}
 }

@@ -18,11 +18,13 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UsageDataRecordingSettings;
+import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
 import org.eclipse.ui.PlatformUI;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Added check to see if we are only collecting and not uploading
+ * @author Mohsen Vakilian, nchen - Added check to see if we are only collecting and not uploading.
+ *         And, added the support for transferring UDC data to CodingSpectator.
  * 
  */
 public class UploadManager {
@@ -39,11 +41,15 @@ public class UploadManager {
 
 	public static final int UPLOAD_DISABLED= 5;
 
+	public static final int PREPARATION_OK= 6;
+
 	private Object lock= new Object();
 
 	private Uploader uploader;
 
 	private ListenerList uploadListeners= new ListenerList();
+
+	private UploadParameters uploadParameters;
 
 	/**
 	 * This method starts the upload. The first thing it does is find the files containing data that
@@ -66,6 +72,27 @@ public class UploadManager {
 	 * @return a status code.
 	 */
 	public int startUpload() {
+		int preparationValue= prepareUploadData();
+		if (preparationValue != PREPARATION_OK)
+			return preparationValue;
+
+		/*
+		 * Add a listener to the new uploader so that it will notify
+		 * us when it is complete. Then, we'll notify our own listeners.
+		 */
+		uploader.addUploadListener(new UploadListener() {
+			public void uploadComplete(UploadResult result) {
+				uploader= null;
+				fireUploadComplete(result);
+			}
+		});
+
+		uploader.startUpload();
+
+		return UPLOAD_STARTED_OK;
+	}
+
+	public int prepareUploadData() {
 		if (!getSettings().isEnabled() || getSettings().isCollectButNeverUpload()) // CODINGSPECTATOR
 			return UPLOAD_DISABLED;
 		if (PlatformUI.getWorkbench().isClosing())
@@ -87,7 +114,7 @@ public class UploadManager {
 
 		getSettings().setLastUploadTime();
 
-		UploadParameters uploadParameters= new UploadParameters();
+		uploadParameters= new UploadParameters();
 		uploadParameters.setSettings(getSettings());
 		uploadParameters.setFiles(usageDataUploadFiles);
 		//request.setFilter(getSettings().getFilter());
@@ -101,13 +128,10 @@ public class UploadManager {
 		uploader.addUploadListener(new UploadListener() {
 			public void uploadComplete(UploadResult result) {
 				uploader= null;
-				fireUploadComplete(result);
 			}
 		});
 
-		uploader.startUpload();
-
-		return UPLOAD_STARTED_OK;
+		return PREPARATION_OK;
 	}
 
 	private File[] findUsageDataUploadFiles() {
@@ -166,5 +190,27 @@ public class UploadManager {
 		for (Object listener : uploadListeners.getListeners()) {
 			((UploadListener)listener).uploadComplete(result);
 		}
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public int startTransferToCodingSpectator() {
+		int preparationValue= prepareUploadData();
+		if (preparationValue != PREPARATION_OK)
+			return preparationValue;
+
+		uploader.addTransferToCodingSpectatorListener(new TransferToCodingSpectatorListener() {
+
+			public void transferToCodingSpectatorComplete() {
+				uploader= null;
+
+			}
+		});
+
+		uploader.startTransferToCodingSpectator();
+
+		return UPLOAD_STARTED_OK;
 	}
 }

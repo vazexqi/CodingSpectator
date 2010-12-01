@@ -14,5 +14,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.epp.usagedata.internal.recording;x-friends:="org.eclipse.epp.usagedata.ui",
  org.eclipse.epp.usagedata.internal.recording.filtering;x-friends:="org.eclipse.epp.usagedata.ui",
  org.eclipse.epp.usagedata.internal.recording.settings;x-friends:="org.eclipse.epp.usagedata.ui",
- org.eclipse.epp.usagedata.internal.recording.uploading;x-friends:="org.eclipse.epp.usagedata.ui"
+ org.eclipse.epp.usagedata.internal.recording.uploading;x-friends:="org.eclipse.epp.usagedata.ui",
+ org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator
 Bundle-Vendor: %Bundle-Vendor.0

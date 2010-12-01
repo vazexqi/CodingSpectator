@@ -10,7 +10,13 @@
  *******************************************************************************/
 package org.eclipse.epp.usagedata.internal.recording.uploading;
 
+import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Added the support to transfer UDC data to CodingSpectator.
+ * 
+ */
 public interface Uploader {
 	boolean isUploadInProgress();
 
@@ -23,4 +29,14 @@ public interface Uploader {
 	void setUploadParameters(UploadParameters uploadParameters);
 
 	UploadParameters getUploadParameters();
+
+	/////////////////
+	//CODINGSPECTATOR
+	////////////////
+
+	void startTransferToCodingSpectator();
+
+	void addTransferToCodingSpectatorListener(TransferToCodingSpectatorListener listener);
+
+	void removeTransferToCodingSpectatorListener(TransferToCodingSpectatorListener listener);
 }
