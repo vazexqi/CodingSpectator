@@ -15,12 +15,12 @@ public interface Uploader {
 	boolean isUploadInProgress();
 
 	void startUpload();
-	
+
 	void addUploadListener(UploadListener listener);
-	
+
 	void removeUploadListener(UploadListener listener);
 
 	void setUploadParameters(UploadParameters uploadParameters);
-	
+
 	UploadParameters getUploadParameters();
 }
