@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.dataanalysis;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.beust.jcommander.Parameter;
@@ -17,7 +18,7 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandDescription= "Traversers the input directory recursively and conslidates all log files into a few number of files.")
 public class CommandLineParameters {
 	@Parameter(names= { "-n", "--include" }, description= "Refactoring log files that have these names in their paths will be included in the output.")
-	public List<String> includeDirs;
+	public List<String> includeDirs= new LinkedList<String>();
 
 	@Parameter(names= { "-i", "--input" }, description= "The input directory that containts raw log files either directly or indirectly.")
 	public String inputDir= ".";
