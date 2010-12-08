@@ -42,7 +42,7 @@ public class OperationHistoryListener extends BasicListener implements IOperatio
 				IUndoableOperation triggeringOperation= ((TriggeredOperations)undoableOperation).getTriggeringOperation();
 				if (triggeringOperation instanceof UndoableOperation2ChangeAdapter) {
 					Set<IFile> affectedFiles= getAffectedFiles((UndoableOperation2ChangeAdapter)triggeringOperation);
-					eventLogger.ensureAreKnownFiles(affectedFiles);
+					eventRecorder.ensureAreKnownFiles(affectedFiles);
 				}
 			}
 		}

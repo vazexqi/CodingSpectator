@@ -12,7 +12,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.EditorPart;
 
-import edu.illinois.codingspectator.codingtracker.logging.EventLogger;
+import edu.illinois.codingspectator.codingtracker.recording.EventRecorder;
 
 /**
  * 
@@ -22,7 +22,7 @@ import edu.illinois.codingspectator.codingtracker.logging.EventLogger;
 @SuppressWarnings("restriction")
 public abstract class BasicListener {
 
-	protected static final EventLogger eventLogger= EventLogger.getInstance();
+	protected static final EventRecorder eventRecorder= EventRecorder.getInstance();
 
 	protected static volatile IWorkbenchWindow activeWorkbenchWindow= null;
 

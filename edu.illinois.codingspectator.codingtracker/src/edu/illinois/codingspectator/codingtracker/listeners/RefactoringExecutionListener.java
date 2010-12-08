@@ -24,10 +24,10 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 		if (eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
 				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO) {
 			isRefactoring= true;
-			eventLogger.logRefactoringStarted();
+			eventRecorder.recordRefactoringStarted();
 		} else {
 			isRefactoring= false;
-			eventLogger.logRefactoringExecutionEvent(event);
+			eventRecorder.recordRefactoringExecutionEvent(event);
 		}
 	}
 

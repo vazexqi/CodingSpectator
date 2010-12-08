@@ -17,7 +17,6 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import edu.illinois.codingspectator.codingtracker.Messages;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.LoggerHelper;
 
 /**
  * 
@@ -40,7 +39,7 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 				activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				if (activeWorkbenchWindow == null) {
 					Exception e= new RuntimeException();
-					LoggerHelper.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToGetActiveWorkbenchWindow);
+					Debugger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToGetActiveWorkbenchWindow);
 				}
 			}
 		});
@@ -86,7 +85,7 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 			if (!openConflictEditors.contains(compareEditor)) {
 				openConflictEditors.add(compareEditor);
 				dirtyConflictEditors.add(compareEditor); //conflict editors are always dirty from the start
-				eventLogger.logOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), EditorHelper.getConflictEditorInitialContent(compareEditor), editedFile);
+				eventRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), EditorHelper.getConflictEditorInitialContent(compareEditor), editedFile);
 			}
 		}
 	}

@@ -6,11 +6,15 @@ package edu.illinois.codingspectator.codingtracker.helpers;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ui.IWorkbenchPart;
 
-import edu.illinois.codingspectator.codingtracker.logging.TextChunk;
+import edu.illinois.codingspectator.codingtracker.Activator;
+import edu.illinois.codingspectator.codingtracker.recording.TextChunk;
 
 /**
  * 
@@ -30,7 +34,7 @@ public class Debugger {
 
 	public static void debugFilePath(String message, IFile file) {
 		if (isInDebugMode) {
-			System.out.println(message + LoggerHelper.getPortableFilePath(file));
+			System.out.println(message + RecorderHelper.getPortableFilePath(file));
 		}
 	}
 
@@ -58,7 +62,7 @@ public class Debugger {
 //			System.out.println("Project: " + refactoringDescriptor.getProject());
 //			System.out.println("Flags: " + refactoringDescriptor.getFlags());
 //			System.out.println("Timestamp: " + refactoringDescriptor.getTimeStamp());
-//			Map arguments= LoggerHelper.getRefactoringArguments(refactoringDescriptor);
+//			Map arguments= RecorderHelper.getRefactoringArguments(refactoringDescriptor);
 //			if (arguments != null) {
 //				Set keys= arguments.keySet();
 //				for (Object key : keys) {
@@ -76,4 +80,10 @@ public class Debugger {
 //					"\", new text:\"" + documentEvent.getText() + "\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength());
 		}
 	}
+
+	public static void logExceptionToErrorLog(Exception e, String message) {
+		IStatus status= new Status(IStatus.ERROR, Activator.PLUGIN_ID, 0, message, e);
+		ResourcesPlugin.getPlugin().getLog().log(status);
+	}
+
 }

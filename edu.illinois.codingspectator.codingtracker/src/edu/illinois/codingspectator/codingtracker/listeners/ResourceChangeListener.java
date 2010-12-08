@@ -22,8 +22,8 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 
 import edu.illinois.codingspectator.codingtracker.Messages;
+import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.LoggerHelper;
 
 /**
  * 
@@ -77,7 +77,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			initializeSets();
 			populateSets(delta);
 			calculateSets();
-			logSets();
+			recordSets();
 			updateDirtyAndKnownFiles();
 		}
 	}
@@ -102,7 +102,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			//used IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS to see changes in .svn folder
 			delta.accept(resourceDeltaVisitor, IContainer.INCLUDE_TEAM_PRIVATE_MEMBERS);
 		} catch (CoreException e) {
-			LoggerHelper.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToVisitResourceDelta);
+			Debugger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToVisitResourceDelta);
 		}
 	}
 
@@ -161,13 +161,13 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		}
 	}
 
-	private void logSets() {
-		eventLogger.logSavedFiles(savedJavaFiles, isRefactoring);
-		eventLogger.logSavedConflictEditors(savedConflictEditorIDs);
-		eventLogger.logExternallyModifiedFiles(externallyModifiedJavaFiles);
-		eventLogger.logUpdatedFiles(updatedJavaFiles);
-		eventLogger.logCommittedFiles(initiallyCommittedJavaFiles, true);
-		eventLogger.logCommittedFiles(committedJavaFiles, false);
+	private void recordSets() {
+		eventRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
+		eventRecorder.recordSavedConflictEditors(savedConflictEditorIDs);
+		eventRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
+		eventRecorder.recordUpdatedFiles(updatedJavaFiles);
+		eventRecorder.recordCommittedFiles(initiallyCommittedJavaFiles, true);
+		eventRecorder.recordCommittedFiles(committedJavaFiles, false);
 	}
 
 	private void updateDirtyAndKnownFiles() {
@@ -177,7 +177,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		dirtyFiles.removeAll(changedJavaFiles);
 		removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
 		removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
-		eventLogger.removeKnownFiles(removedJavaFiles);
+		eventRecorder.removeKnownFiles(removedJavaFiles);
 	}
 
 	/**

@@ -11,16 +11,16 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
  * 
  * 
  */
-public class LoggerSubmitterListener extends BasicListener implements SubmitterListener {
+public class RecorderSubmitterListener extends BasicListener implements SubmitterListener {
 
 	@Override
 	public void preSubmit() {
-		eventLogger.commitStarted();
+		eventRecorder.commitStarted();
 	}
 
 	@Override
 	public void postSubmit() {
-		eventLogger.commitCompleted();
+		eventRecorder.commitCompleted();
 	}
 
 }
