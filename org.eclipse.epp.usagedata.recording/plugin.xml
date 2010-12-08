@@ -19,4 +19,12 @@
       <startup
             class="org.eclipse.epp.usagedata.internal.recording.Startup"></startup>
    </extension>
+   <extension
+         point="edu.illinois.codingspectator.monitor.core.submitter">
+      <submitterListener
+            class="org.eclipse.epp.usagedata.internal.recording.uploading.UploadManager"
+            id="org.eclipse.epp.usagedata.internal.recording.uploading.uploadManager"
+            name="org.eclipse.epp.usagedata.internal.recording.uploading.uploadManager">
+      </submitterListener>
+   </extension>
 </plugin>

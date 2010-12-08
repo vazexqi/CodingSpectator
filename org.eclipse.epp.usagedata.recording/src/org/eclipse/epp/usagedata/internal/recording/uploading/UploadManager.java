@@ -16,10 +16,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UsageDataRecordingSettings;
 import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
 import org.eclipse.ui.PlatformUI;
+
+import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 
 /**
  * 
@@ -27,7 +30,7 @@ import org.eclipse.ui.PlatformUI;
  *         And, added the support for transferring UDC data to CodingSpectator.
  * 
  */
-public class UploadManager {
+public class UploadManager implements SubmitterListener {
 
 	public static final int UPLOAD_STARTED_OK= 0;
 
@@ -196,6 +199,15 @@ public class UploadManager {
 	//CODINGSPECTATOR
 	/////////////////
 
+	/**
+	 * This class uses the monitor.core.submitter extension point to make sure that transferring UDC
+	 * data to the watched directory doesn't interfere with uploading the watched directory of
+	 * CodingSpectator. We synchronize the method preSubmit to block the submitter until the UDC
+	 * data is transferred over to the watched directory. But, a single lock is not sufficient
+	 * because transferring the UDC files is done in a separate Eclipse {@link Job}.
+	 */
+	public final static Object udcTransferToCodingSpectatorLock= new Object();
+
 	public int startTransferToCodingSpectator() {
 		int preparationValue= prepareUploadData();
 		if (preparationValue != PREPARATION_OK)
@@ -212,5 +224,14 @@ public class UploadManager {
 		uploader.startTransferToCodingSpectator();
 
 		return UPLOAD_STARTED_OK;
+	}
+
+	public synchronized void preSubmit() {
+		synchronized (udcTransferToCodingSpectatorLock) {
+
+		}
+	}
+
+	public void postSubmit() {
 	}
 }
