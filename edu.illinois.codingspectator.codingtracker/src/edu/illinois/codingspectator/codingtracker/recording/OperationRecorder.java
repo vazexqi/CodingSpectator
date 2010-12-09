@@ -5,12 +5,10 @@ package edu.illinois.codingspectator.codingtracker.recording;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
@@ -20,7 +18,20 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryServi
 import edu.illinois.codingspectator.codingtracker.Messages;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.RecorderHelper;
-import edu.illinois.codingspectator.codingtracker.operations.OperationFactory;
+import edu.illinois.codingspectator.codingtracker.operations.FileEditedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.StartEclipseOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedConflictEditorTextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedTextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.RedoneConflictEditorTextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.RedoneTextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.TextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.UndoneConflictEditorTextChangeOperation;
+import edu.illinois.codingspectator.codingtracker.operations.textchanges.UndoneTextChangeOperation;
 
 /**
  * 
@@ -29,9 +40,9 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationFactory;
  * 
  */
 @SuppressWarnings("restriction")
-public class EventRecorder {
+public class OperationRecorder {
 
-	private static volatile EventRecorder recorderInstance= null;
+	private static volatile OperationRecorder recorderInstance= null;
 
 	static final String FEATURE_VERSION= RefactoringHistoryService.getFeatureVersion().toString();
 
@@ -42,67 +53,49 @@ public class EventRecorder {
 	private IFile lastEditedFile= null;
 
 
-	public static EventRecorder getInstance() {
+	public static OperationRecorder getInstance() {
 		if (recorderInstance == null) {
-			recorderInstance= new EventRecorder();
+			recorderInstance= new OperationRecorder();
 		}
 		return recorderInstance;
 	}
 
-	private EventRecorder() {
-		OperationFactory.createStartEclipseOperation().serialize(textRecorder);
+	private OperationRecorder() {
+		new StartEclipseOperation().serialize(textRecorder);
 	}
 
-	public void recordTextEvent(TextEvent event, IFile editedFile, boolean isUndoing, boolean isRedoing) {
+	public void recordChangedText(TextEvent textEvent, IFile editedFile, boolean isUndoing, boolean isRedoing) {
 		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
 			lastEditedFile= editedFile;
 			ensureIsKnownFile(lastEditedFile);
 			recordEditedFile();
 		}
-		Debugger.debugTextEvent(event);
-		TextChunk textChunk= null;
+		Debugger.debugTextEvent(textEvent);
+		TextChangeOperation textChangeOperation= null;
 		if (isUndoing) {
-			textChunk= new TextChunk(Symbols.TEXT_CHANGE_UNDONE_SYMBOL);
+			textChangeOperation= new UndoneTextChangeOperation(textEvent);
 		} else if (isRedoing) {
-			textChunk= new TextChunk(Symbols.TEXT_CHANGE_REDONE_SYMBOL);
+			textChangeOperation= new RedoneTextChangeOperation(textEvent);
 		} else {
-			textChunk= new TextChunk(Symbols.TEXT_CHANGE_PERFORMED_SYMBOL);
+			textChangeOperation= new PerformedTextChangeOperation(textEvent);
 		}
-		populateTextEventChunk(textChunk, event);
-		Debugger.debugTextChunk("Change: ", textChunk);
-		textRecorder.record(textChunk);
+		textChangeOperation.serialize(textRecorder);
 	}
 
-	public void recordConflictEditorTextEvent(TextEvent event, String editorID, boolean isUndoing, boolean isRedoing) {
-		TextChunk textChunk= null;
+	public void recordConflictEditorChangedText(TextEvent textEvent, String editorID, boolean isUndoing, boolean isRedoing) {
+		ConflictEditorTextChangeOperation conflictEditorTextChangeOperation= null;
 		if (isUndoing) {
-			textChunk= new TextChunk(Symbols.CONFLICT_EDITOR_TEXT_CHANGE_UNDONE_SYMBOL);
+			conflictEditorTextChangeOperation= new UndoneConflictEditorTextChangeOperation(editorID, textEvent);
 		} else if (isRedoing) {
-			textChunk= new TextChunk(Symbols.CONFLICT_EDITOR_TEXT_CHANGE_REDONE_SYMBOL);
+			conflictEditorTextChangeOperation= new RedoneConflictEditorTextChangeOperation(editorID, textEvent);
 		} else {
-			textChunk= new TextChunk(Symbols.CONFLICT_EDITOR_TEXT_CHANGE_PERFORMED_SYMBOL);
+			conflictEditorTextChangeOperation= new PerformedConflictEditorTextChangeOperation(editorID, textEvent);
 		}
-		textChunk.append(editorID);
-		populateTextEventChunk(textChunk, event);
-		Debugger.debugTextChunk("Conflict editor change: ", textChunk);
-		textRecorder.record(textChunk);
-	}
-
-	private void populateTextEventChunk(TextChunk textChunk, TextEvent event) {
-		//TODO: Recording the replaced text is redundant, is it really needed? 
-		//E.g. it could be used during the replay phase to check that the replaced text corresponds to the file text at this offset. 
-		String replacedText= event.getReplacedText() == null ? "" : event.getReplacedText();
-		textChunk.append(replacedText);
-		//Use DocumentEvent to get correct, file-based offsets (which do not depend on expanding/collapsing of import statements,methods,etc.)
-		DocumentEvent documentEvent= event.getDocumentEvent(); //should never be null in this method
-		textChunk.append(documentEvent.getText());
-		textChunk.append(documentEvent.getOffset());
-		textChunk.append(documentEvent.getLength());
-		textChunk.append(System.currentTimeMillis());
+		conflictEditorTextChangeOperation.serialize(textRecorder);
 	}
 
 	private void recordEditedFile() {
-		OperationFactory.createFileEditOperation(lastEditedFile).serialize(textRecorder);
+		new FileEditedOperation(lastEditedFile).serialize(textRecorder);
 	}
 
 	public void recordOpenedConflictEditor(String editorID, String initialContent, IFile editedFile) {
@@ -204,51 +197,33 @@ public class EventRecorder {
 		textRecorder.record(textChunk);
 	}
 
-	public void recordRefactoringStarted() {
+	public void recordStartedRefactoring() {
 		TextChunk textChunk= new TextChunk(Symbols.REFACTORING_STARTED_SYMBOL);
 		textChunk.append(System.currentTimeMillis());
 		Debugger.debugTextChunk("Refactoring started: ", textChunk);
 		textRecorder.record(textChunk);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public void recordRefactoringExecutionEvent(RefactoringExecutionEvent event) {
+	public void recordExecutedRefactoring(RefactoringExecutionEvent event) {
 		RefactoringDescriptorProxy refactoringDescriptorProxy= event.getDescriptor();
 		RefactoringDescriptor refactoringDescriptor= refactoringDescriptorProxy.requestDescriptor(new NullProgressMonitor());
 		Debugger.debugRefactoringDescriptor(refactoringDescriptor);
-		TextChunk textChunk= null;
+		RefactoringOperation refactoringOperation= null;
 		switch (event.getEventType()) {
 			case RefactoringExecutionEvent.PERFORMED:
-				textChunk= new TextChunk(Symbols.REFACTORING_PERFORMED_SYMBOL);
+				refactoringOperation= new PerformedRefactoringOperation(refactoringDescriptor);
 				break;
 			case RefactoringExecutionEvent.REDONE:
-				textChunk= new TextChunk(Symbols.REFACTORING_REDONE_SYMBOL);
+				refactoringOperation= new RedoneRefactoringOperation(refactoringDescriptor);
 				break;
 			case RefactoringExecutionEvent.UNDONE:
-				textChunk= new TextChunk(Symbols.REFACTORING_UNDONE_SYMBOL);
+				refactoringOperation= new UndoneRefactoringOperation(refactoringDescriptor);
 				break;
 			default:
 				Exception e= new RuntimeException();
 				Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + event.getEventType());
 		}
-		textChunk.append(refactoringDescriptor.getID());
-		textChunk.append(refactoringDescriptor.getProject());
-		textChunk.append(refactoringDescriptor.getFlags());
-		Map arguments= RecorderHelper.getRefactoringArguments(refactoringDescriptor);
-		if (arguments != null) {
-			Set keys= arguments.keySet();
-			textChunk.append(keys.size());
-			for (Object key : keys) {
-				Object value= arguments.get(key);
-				textChunk.append(key);
-				textChunk.append(value);
-			}
-		} else {
-			textChunk.append(0);
-		}
-		textChunk.append(refactoringDescriptor.getTimeStamp());
-		Debugger.debugTextChunk("Refactoring info: ", textChunk);
-		textRecorder.record(textChunk);
+		refactoringOperation.serialize(textRecorder);
 	}
 
 	public void removeKnownFiles(Set<IFile> files) {

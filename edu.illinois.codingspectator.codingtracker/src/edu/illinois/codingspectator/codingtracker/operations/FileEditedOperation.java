@@ -15,12 +15,12 @@ import edu.illinois.codingspectator.codingtracker.recording.TextChunk;
  * 
  * 
  */
-public class FileEditOperation extends UserOperation {
+public class FileEditedOperation extends UserOperation {
 
 	private final IFile editedFile;
 
-	public FileEditOperation(IFile editedFile) {
-		super(Symbols.FILE_EDIT_SYMBOL, "File edited: ");
+	public FileEditedOperation(IFile editedFile) {
+		super(Symbols.FILE_EDITED_SYMBOL, "File edited: ");
 		this.editedFile= editedFile;
 	}
 

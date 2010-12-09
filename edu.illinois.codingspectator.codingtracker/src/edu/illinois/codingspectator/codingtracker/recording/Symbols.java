@@ -38,7 +38,7 @@ public abstract class Symbols {
 
 	public static final String FILE_NEW_SYMBOL= "f";
 
-	public static final String FILE_EDIT_SYMBOL= "e";
+	public static final String FILE_EDITED_SYMBOL= "e";
 
 	public static final String TEXT_CHANGE_PERFORMED_SYMBOL= "t";
 

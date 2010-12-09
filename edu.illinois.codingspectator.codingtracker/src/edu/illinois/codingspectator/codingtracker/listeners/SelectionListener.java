@@ -85,7 +85,7 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 			if (!openConflictEditors.contains(compareEditor)) {
 				openConflictEditors.add(compareEditor);
 				dirtyConflictEditors.add(compareEditor); //conflict editors are always dirty from the start
-				eventRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), EditorHelper.getConflictEditorInitialContent(compareEditor), editedFile);
+				operationRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), EditorHelper.getConflictEditorInitialContent(compareEditor), editedFile);
 			}
 		}
 	}

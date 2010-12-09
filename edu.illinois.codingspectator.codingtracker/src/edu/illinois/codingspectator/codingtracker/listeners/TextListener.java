@@ -25,10 +25,10 @@ public class TextListener extends BasicListener implements ITextListener {
 			if (EditorHelper.isConflictEditor(currentEditor)) {
 				CompareEditor compareEditor= (CompareEditor)currentEditor;
 				dirtyConflictEditors.add(compareEditor);
-				eventRecorder.recordConflictEditorTextEvent(event, EditorHelper.getConflictEditorID(compareEditor), isUndoing, isRedoing);
+				operationRecorder.recordConflictEditorChangedText(event, EditorHelper.getConflictEditorID(compareEditor), isUndoing, isRedoing);
 			} else {
 				dirtyFiles.add(currentFile);
-				eventRecorder.recordTextEvent(event, currentFile, isUndoing, isRedoing);
+				operationRecorder.recordChangedText(event, currentFile, isUndoing, isRedoing);
 			}
 		}
 	}

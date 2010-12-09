@@ -71,7 +71,7 @@ public class PartListener extends BasicListener implements IPartListener {
 	private void closeConflictEditor(CompareEditor compareEditor) {
 		openConflictEditors.remove(compareEditor);
 		dirtyConflictEditors.remove(compareEditor);
-		eventRecorder.recordClosedConflictEditor(EditorHelper.getConflictEditorID(compareEditor));
+		operationRecorder.recordClosedConflictEditor(EditorHelper.getConflictEditorID(compareEditor));
 	}
 
 	private void closeRegularEditor(IWorkbenchPart part, IFile closedFile) {
@@ -95,7 +95,7 @@ public class PartListener extends BasicListener implements IPartListener {
 			}
 		}
 		dirtyFiles.remove(closedFile);
-		eventRecorder.recordClosedFile(closedFile);
+		operationRecorder.recordClosedFile(closedFile);
 	}
 
 	@Override

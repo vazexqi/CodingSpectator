@@ -37,7 +37,7 @@ public class KnownfilesRecorder {
 
 	private static final IPath CODINGTRACKER_PATH= Platform.getStateLocation(Platform.getBundle(Activator.PLUGIN_ID));
 
-	private static final IPath KNOWNFILES_PATH= CODINGTRACKER_PATH.append(EventRecorder.FEATURE_VERSION);
+	private static final IPath KNOWNFILES_PATH= CODINGTRACKER_PATH.append(OperationRecorder.FEATURE_VERSION);
 
 	private static final String KNOWNFILES_FILE_NAME= "knownfiles.txt";
 

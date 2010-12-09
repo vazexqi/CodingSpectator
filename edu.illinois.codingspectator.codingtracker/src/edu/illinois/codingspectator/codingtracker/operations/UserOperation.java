@@ -27,6 +27,12 @@ public abstract class UserOperation {
 		timestamp= System.currentTimeMillis();
 	}
 
+	public UserOperation(String operationSymbol, String debugMessage, long timestamp) {
+		this.operationSymbol= operationSymbol;
+		this.debugMessage= debugMessage;
+		this.timestamp= timestamp;
+	}
+
 	public void serialize(TextRecorder textRecorder) {
 		TextChunk textChunk= new TextChunk(operationSymbol);
 		populateTextChunk(textChunk);

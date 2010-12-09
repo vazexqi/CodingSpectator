@@ -15,12 +15,12 @@ public class RecorderSubmitterListener extends BasicListener implements Submitte
 
 	@Override
 	public void preSubmit() {
-		eventRecorder.commitStarted();
+		operationRecorder.commitStarted();
 	}
 
 	@Override
 	public void postSubmit() {
-		eventRecorder.commitCompleted();
+		operationRecorder.commitCompleted();
 	}
 
 }

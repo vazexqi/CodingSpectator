@@ -162,12 +162,12 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void recordSets() {
-		eventRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
-		eventRecorder.recordSavedConflictEditors(savedConflictEditorIDs);
-		eventRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
-		eventRecorder.recordUpdatedFiles(updatedJavaFiles);
-		eventRecorder.recordCommittedFiles(initiallyCommittedJavaFiles, true);
-		eventRecorder.recordCommittedFiles(committedJavaFiles, false);
+		operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
+		operationRecorder.recordSavedConflictEditors(savedConflictEditorIDs);
+		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
+		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
+		operationRecorder.recordCommittedFiles(initiallyCommittedJavaFiles, true);
+		operationRecorder.recordCommittedFiles(committedJavaFiles, false);
 	}
 
 	private void updateDirtyAndKnownFiles() {
@@ -177,7 +177,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		dirtyFiles.removeAll(changedJavaFiles);
 		removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
 		removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
-		eventRecorder.removeKnownFiles(removedJavaFiles);
+		operationRecorder.removeKnownFiles(removedJavaFiles);
 	}
 
 	/**

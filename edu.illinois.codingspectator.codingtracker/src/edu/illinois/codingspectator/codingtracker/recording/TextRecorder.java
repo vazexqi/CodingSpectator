@@ -32,7 +32,7 @@ public class TextRecorder {
 
 	private static final String RECORDER_FOLDER= "codingtracker";
 
-	private static final IPath RECORDER_PATH= WATCHED_PATH.append(EventRecorder.FEATURE_VERSION).append(RECORDER_FOLDER);
+	private static final IPath RECORDER_PATH= WATCHED_PATH.append(OperationRecorder.FEATURE_VERSION).append(RECORDER_FOLDER);
 
 	private static final String RECORDFILE_NAME= "codechanges.txt";
 
