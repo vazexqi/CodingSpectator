@@ -11,12 +11,13 @@
 package org.eclipse.epp.usagedata.internal.recording.uploading;
 
 import java.io.File;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UsageDataRecordingSettings;
 import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
@@ -202,11 +203,12 @@ public class UploadManager implements SubmitterListener {
 	/**
 	 * This class uses the monitor.core.submitter extension point to make sure that transferring UDC
 	 * data to the watched directory doesn't interfere with uploading the watched directory of
-	 * CodingSpectator. We synchronize the method preSubmit to block the submitter until the UDC
-	 * data is transferred over to the watched directory. But, a single lock is not sufficient
-	 * because transferring the UDC files is done in a separate Eclipse {@link Job}.
+	 * CodingSpectator.
+	 * 
+	 * The submitter and the UDC data transferrer should acquire the watched directory's lock in
+	 * order to write into or upload the contents of the watched directory.
 	 */
-	public final static Object udcTransferToCodingSpectatorLock= new Object();
+	public final static Lock watchedDirectoryLock= new ReentrantLock();
 
 	public int startTransferToCodingSpectator() {
 		int preparationValue= prepareUploadData();
@@ -226,12 +228,11 @@ public class UploadManager implements SubmitterListener {
 		return UPLOAD_STARTED_OK;
 	}
 
-	public synchronized void preSubmit() {
-		synchronized (udcTransferToCodingSpectatorLock) {
-
-		}
+	public void preSubmit() {
+		watchedDirectoryLock.lock();
 	}
 
 	public void postSubmit() {
+		watchedDirectoryLock.unlock();
 	}
 }
