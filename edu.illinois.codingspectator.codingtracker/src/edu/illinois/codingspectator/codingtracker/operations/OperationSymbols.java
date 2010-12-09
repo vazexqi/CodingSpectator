@@ -1,14 +1,14 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.recording;
+package edu.illinois.codingspectator.codingtracker.operations;
 
 /**
  * 
  * @author Stas Negara
  * 
  */
-public abstract class Symbols {
+public abstract class OperationSymbols {
 
 	//Used symbols: 23, remaining symbols: v w y
 

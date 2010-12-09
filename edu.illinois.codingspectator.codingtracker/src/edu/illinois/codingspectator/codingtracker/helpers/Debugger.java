@@ -14,7 +14,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ui.IWorkbenchPart;
 
 import edu.illinois.codingspectator.codingtracker.Activator;
-import edu.illinois.codingspectator.codingtracker.recording.TextChunk;
+import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 
 /**
  * 
@@ -44,7 +44,7 @@ public class Debugger {
 		}
 	}
 
-	public static void debugTextChunk(String message, TextChunk textChunk) {
+	public static void debugTextChunk(String message, OperationTextChunk textChunk) {
 		if (isInDebugMode) {
 			System.out.println(message + textChunk);
 		}

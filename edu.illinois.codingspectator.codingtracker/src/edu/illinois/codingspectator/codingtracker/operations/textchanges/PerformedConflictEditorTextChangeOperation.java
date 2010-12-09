@@ -5,18 +5,27 @@ package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
 import org.eclipse.jface.text.TextEvent;
 
-import edu.illinois.codingspectator.codingtracker.recording.Symbols;
+import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
  * 
  * @author Stas Negara
  * 
- * 
  */
 public class PerformedConflictEditorTextChangeOperation extends ConflictEditorTextChangeOperation {
 
 	public PerformedConflictEditorTextChangeOperation(String editorID, TextEvent textEvent) {
-		super(editorID, textEvent, Symbols.CONFLICT_EDITOR_TEXT_CHANGE_PERFORMED_SYMBOL, "Performed conflict editor text change: ");
+		super(editorID, textEvent);
+	}
+
+	@Override
+	protected String getOperationSymbol() {
+		return OperationSymbols.CONFLICT_EDITOR_TEXT_CHANGE_PERFORMED_SYMBOL;
+	}
+
+	@Override
+	protected String getDebugMessage() {
+		return "Performed conflict editor text change: ";
 	}
 
 }

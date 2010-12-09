@@ -1,9 +1,9 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.operations.textchanges;
+package edu.illinois.codingspectator.codingtracker.operations.files;
 
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.core.resources.IFile;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -12,20 +12,20 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
  * @author Stas Negara
  * 
  */
-public class UndoneTextChangeOperation extends TextChangeOperation {
+public class CommittedFileOperation extends SnapshotedFileOperation {
 
-	public UndoneTextChangeOperation(TextEvent textEvent) {
-		super(textEvent);
+	public CommittedFileOperation(IFile committedFile) {
+		super(committedFile);
 	}
 
 	@Override
 	protected String getOperationSymbol() {
-		return OperationSymbols.TEXT_CHANGE_UNDONE_SYMBOL;
+		return OperationSymbols.FILE_COMMITTED_SYMBOL;
 	}
 
 	@Override
 	protected String getDebugMessage() {
-		return "Undone text change: ";
+		return "File committed: ";
 	}
 
 }

@@ -1,9 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.operations.textchanges;
-
-import org.eclipse.jface.text.TextEvent;
+package edu.illinois.codingspectator.codingtracker.operations.conflicteditors;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -12,20 +10,20 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
  * @author Stas Negara
  * 
  */
-public class UndoneTextChangeOperation extends TextChangeOperation {
+public class ClosedConflictEditorOperation extends ConflictEditorOperation {
 
-	public UndoneTextChangeOperation(TextEvent textEvent) {
-		super(textEvent);
+	public ClosedConflictEditorOperation(String editorID) {
+		super(editorID);
 	}
 
 	@Override
 	protected String getOperationSymbol() {
-		return OperationSymbols.TEXT_CHANGE_UNDONE_SYMBOL;
+		return OperationSymbols.CONFLICT_EDITOR_CLOSED_SYMBOL;
 	}
 
 	@Override
 	protected String getDebugMessage() {
-		return "Undone text change: ";
+		return "Conflict editor closed: ";
 	}
 
 }

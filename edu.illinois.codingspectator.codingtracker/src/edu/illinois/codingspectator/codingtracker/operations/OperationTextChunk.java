@@ -1,14 +1,14 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.recording;
+package edu.illinois.codingspectator.codingtracker.operations;
 
 /**
  * 
  * @author Stas Negara
  * 
  */
-public class TextChunk implements CharSequence {
+public class OperationTextChunk implements CharSequence {
 
 	private static final String ESCAPE_SYMBOL= "~";
 
@@ -16,7 +16,7 @@ public class TextChunk implements CharSequence {
 
 	private final StringBuffer text;
 
-	public TextChunk(String chunkType) {
+	public OperationTextChunk(String chunkType) {
 		text= new StringBuffer();
 		text.append(chunkType);
 	}

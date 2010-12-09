@@ -4,43 +4,37 @@
 package edu.illinois.codingspectator.codingtracker.operations;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.recording.TextChunk;
 import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
 
 /**
  * 
  * @author Stas Negara
  * 
- * 
  */
 public abstract class UserOperation {
 
-	private final String operationSymbol;
-
-	private final String debugMessage;
-
 	private final long timestamp;
 
-	public UserOperation(String operationSymbol, String debugMessage) {
-		this.operationSymbol= operationSymbol;
-		this.debugMessage= debugMessage;
+	public UserOperation() {
 		timestamp= System.currentTimeMillis();
 	}
 
-	public UserOperation(String operationSymbol, String debugMessage, long timestamp) {
-		this.operationSymbol= operationSymbol;
-		this.debugMessage= debugMessage;
+	public UserOperation(long timestamp) {
 		this.timestamp= timestamp;
 	}
 
 	public void serialize(TextRecorder textRecorder) {
-		TextChunk textChunk= new TextChunk(operationSymbol);
+		OperationTextChunk textChunk= new OperationTextChunk(getOperationSymbol());
 		populateTextChunk(textChunk);
 		textChunk.append(timestamp);
-		Debugger.debugTextChunk(debugMessage, textChunk);
+		Debugger.debugTextChunk(getDebugMessage(), textChunk);
 		textRecorder.record(textChunk);
 	}
 
-	protected abstract void populateTextChunk(TextChunk textChunk);
+	protected abstract String getOperationSymbol();
+
+	protected abstract void populateTextChunk(OperationTextChunk textChunk);
+
+	protected abstract String getDebugMessage();
 
 }

@@ -5,18 +5,27 @@ package edu.illinois.codingspectator.codingtracker.operations.refactorings;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 
-import edu.illinois.codingspectator.codingtracker.recording.Symbols;
+import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
  * 
  * @author Stas Negara
  * 
- * 
  */
 public class PerformedRefactoringOperation extends RefactoringOperation {
 
 	public PerformedRefactoringOperation(RefactoringDescriptor refactoringDescriptor) {
-		super(refactoringDescriptor, Symbols.REFACTORING_PERFORMED_SYMBOL, "Performed refactoring: ");
+		super(refactoringDescriptor);
+	}
+
+	@Override
+	protected String getOperationSymbol() {
+		return OperationSymbols.REFACTORING_PERFORMED_SYMBOL;
+	}
+
+	@Override
+	protected String getDebugMessage() {
+		return "Performed refactoring: ";
 	}
 
 }

@@ -17,13 +17,25 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryServi
 
 import edu.illinois.codingspectator.codingtracker.Messages;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.RecorderHelper;
-import edu.illinois.codingspectator.codingtracker.operations.FileEditedOperation;
-import edu.illinois.codingspectator.codingtracker.operations.StartEclipseOperation;
+import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
+import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
+import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.CommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.InitiallyCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.starts.StartEclipseOperation;
+import edu.illinois.codingspectator.codingtracker.operations.starts.StartRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedConflictEditorTextChangeOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedTextChangeOperation;
@@ -36,7 +48,6 @@ import edu.illinois.codingspectator.codingtracker.operations.textchanges.UndoneT
 /**
  * 
  * @author Stas Negara
- * 
  * 
  */
 @SuppressWarnings("restriction")
@@ -95,61 +106,40 @@ public class OperationRecorder {
 	}
 
 	private void recordEditedFile() {
-		new FileEditedOperation(lastEditedFile).serialize(textRecorder);
+		new EditedFileOperation(lastEditedFile).serialize(textRecorder);
 	}
 
-	public void recordOpenedConflictEditor(String editorID, String initialContent, IFile editedFile) {
-		TextChunk textChunk= new TextChunk(Symbols.CONFLICT_EDITOR_OPENED_SYMBOL);
-		textChunk.append(editorID);
-		textChunk.append(RecorderHelper.getPortableFilePath(editedFile));
-		textChunk.append(initialContent);
-		textChunk.append(System.currentTimeMillis());
-		Debugger.debugTextChunk("Conflict editor opened: ", textChunk);
-		textRecorder.record(textChunk);
+	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
+		new OpenedConflictEditorOperation(editorID, editedFile, initialContent).serialize(textRecorder);
 	}
 
 	public void recordSavedFiles(Set<IFile> savedFiles, boolean isRefactoring) {
 		for (IFile file : savedFiles) {
-			TextChunk textChunk;
+			FileOperation fileOperation= null;
 			if (isRefactoring) {
-				textChunk= new TextChunk(Symbols.FILE_REFACTORED_SAVED_SYMBOL);
+				fileOperation= new RefactoredSavedFileOperation(file);
 			} else {
-				textChunk= new TextChunk(Symbols.FILE_SAVED_SYMBOL);
+				fileOperation= new SavedFileOperation(file);
 			}
-			textChunk.append(RecorderHelper.getPortableFilePath(file));
-			textChunk.append(System.currentTimeMillis());
-			Debugger.debugTextChunk("File saved: ", textChunk);
-			textRecorder.record(textChunk);
+			fileOperation.serialize(textRecorder);
 		}
 	}
 
 	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs) {
-		for (String conflictEditorID : savedConflictEditorIDs) {
-			TextChunk textChunk= new TextChunk(Symbols.CONFLICT_EDITOR_SAVED_SYMBOL);
-			textChunk.append(conflictEditorID);
-			textChunk.append(System.currentTimeMillis());
-			Debugger.debugTextChunk("Conflict editor saved: ", textChunk);
-			textRecorder.record(textChunk);
+		for (String editorID : savedConflictEditorIDs) {
+			new SavedConflictEditorOperation(editorID).serialize(textRecorder);
 		}
 	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
 		for (IFile file : externallyModifiedFiles) {
-			TextChunk textChunk= new TextChunk(Symbols.FILE_EXTERNALLY_MODIFIED_SYMBOL);
-			textChunk.append(RecorderHelper.getPortableFilePath(file));
-			textChunk.append(System.currentTimeMillis());
-			Debugger.debugTextChunk("File externally modified: ", textChunk);
-			textRecorder.record(textChunk);
+			new ExternallyModifiedFileOperation(file).serialize(textRecorder);
 		}
 	}
 
 	public void recordUpdatedFiles(Set<IFile> updatedFiles) {
 		for (IFile file : updatedFiles) {
-			TextChunk textChunk= new TextChunk(Symbols.FILE_UPDATED_SYMBOL);
-			textChunk.append(RecorderHelper.getPortableFilePath(file));
-			textChunk.append(System.currentTimeMillis());
-			Debugger.debugTextChunk("File updated: ", textChunk);
-			textRecorder.record(textChunk);
+			new UpdatedFileOperation(file).serialize(textRecorder);
 		}
 	}
 
@@ -161,20 +151,12 @@ public class OperationRecorder {
 	 */
 	public void recordCommittedFiles(Set<IFile> committedFiles, boolean isInitialCommit) {
 		if (committedFiles.size() > 0) {
-			String commitSymbol= Symbols.FILE_COMMITTED_SYMBOL;
-			String debugMessage= "File committed: ";
-			if (isInitialCommit) {
-				commitSymbol= Symbols.FILE_INITIALLY_COMMITTED_SYMBOL;
-				debugMessage= "File initially committed: ";
-			}
 			for (IFile file : committedFiles) {
-				TextChunk textChunk= new TextChunk(commitSymbol);
-				textChunk.append(RecorderHelper.getPortableFilePath(file));
-				File javaFile= new File(file.getLocation().toOSString());
-				textChunk.append(RecorderHelper.getFileContent(javaFile));
-				textChunk.append(System.currentTimeMillis());
-				Debugger.debugTextChunk(debugMessage, textChunk);
-				textRecorder.record(textChunk);
+				if (isInitialCommit) {
+					new InitiallyCommittedFileOperation(file).serialize(textRecorder);
+				} else {
+					new CommittedFileOperation(file).serialize(textRecorder);
+				}
 				knownfilesRecorder.addKnownfile(file);
 			}
 			knownfilesRecorder.recordKnownfiles();
@@ -182,26 +164,15 @@ public class OperationRecorder {
 	}
 
 	public void recordClosedFile(IFile file) {
-		TextChunk textChunk= new TextChunk(Symbols.FILE_CLOSED_SYMBOL);
-		textChunk.append(RecorderHelper.getPortableFilePath(file));
-		textChunk.append(System.currentTimeMillis());
-		Debugger.debugTextChunk("File closed: ", textChunk);
-		textRecorder.record(textChunk);
+		new ClosedFileOperation(file).serialize(textRecorder);
 	}
 
 	public void recordClosedConflictEditor(String editorID) {
-		TextChunk textChunk= new TextChunk(Symbols.CONFLICT_EDITOR_CLOSED_SYMBOL);
-		textChunk.append(editorID);
-		textChunk.append(System.currentTimeMillis());
-		Debugger.debugTextChunk("Conflict editor closed: ", textChunk);
-		textRecorder.record(textChunk);
+		new ClosedConflictEditorOperation(editorID).serialize(textRecorder);
 	}
 
 	public void recordStartedRefactoring() {
-		TextChunk textChunk= new TextChunk(Symbols.REFACTORING_STARTED_SYMBOL);
-		textChunk.append(System.currentTimeMillis());
-		Debugger.debugTextChunk("Refactoring started: ", textChunk);
-		textRecorder.record(textChunk);
+		new StartRefactoringOperation().serialize(textRecorder);
 	}
 
 	public void recordExecutedRefactoring(RefactoringExecutionEvent event) {
@@ -253,14 +224,8 @@ public class OperationRecorder {
 				knownfilesRecorder.addKnownfile(file);
 				hasChanged= true;
 				//save the content of a previously unknown file
-				File javaFile= new File(file.getLocation().toOSString());
-				if (javaFile.exists()) { //Actually, should always exist here
-					TextChunk textChunk= new TextChunk(Symbols.FILE_NEW_SYMBOL);
-					textChunk.append(RecorderHelper.getPortableFilePath(file));
-					textChunk.append(RecorderHelper.getFileContent(javaFile));
-					textChunk.append(System.currentTimeMillis());
-					Debugger.debugTextChunk("New file: ", textChunk);
-					textRecorder.record(textChunk);
+				if (new File(file.getLocation().toOSString()).exists()) { //Actually, should always exist here
+					new NewFileOperation(file).serialize(textRecorder);
 				}
 			}
 		}

@@ -5,18 +5,27 @@ package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
 import org.eclipse.jface.text.TextEvent;
 
-import edu.illinois.codingspectator.codingtracker.recording.Symbols;
+import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
  * 
  * @author Stas Negara
  * 
- * 
  */
 public class RedoneTextChangeOperation extends TextChangeOperation {
 
 	public RedoneTextChangeOperation(TextEvent textEvent) {
-		super(textEvent, Symbols.TEXT_CHANGE_REDONE_SYMBOL, "Redone text change: ");
+		super(textEvent);
+	}
+
+	@Override
+	protected String getOperationSymbol() {
+		return OperationSymbols.TEXT_CHANGE_REDONE_SYMBOL;
+	}
+
+	@Override
+	protected String getDebugMessage() {
+		return "Redone text change: ";
 	}
 
 }
