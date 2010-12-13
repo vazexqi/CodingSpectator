@@ -1,0 +1,4 @@
+Changed Files
+=============
+
+src/org/eclipse/epp/usagedata/internal/gathering/Startup.java
