@@ -389,7 +389,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 		super.start(context);
 
 		//CODINGSPECTATOR: Start codingtracker when jdt.ui starts up.
-		edu.illinois.codingspectator.codingtracker.CodeChangeTracker.start();
+		edu.illinois.codingspectator.codingtracker.recording.CodeChangeTracker.start();
 
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
