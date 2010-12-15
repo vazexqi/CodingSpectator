@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ui.PlatformUI;
 
 import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
@@ -44,6 +45,9 @@ public class Uploader {
 	}
 
 	public static void submit(final Submitter submitter) {
+		if (PlatformUI.getWorkbench().isClosing())
+			return;
+
 		Job job= new Job(MessageFormat.format(Messages.WorkbenchPreferencePage_UploadingMessage, Messages.WorkbenchPreferencePage_PluginName)) {
 
 			@Override
