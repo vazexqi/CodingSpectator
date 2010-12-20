@@ -28,8 +28,8 @@ public class CommittedFileOperation extends SnapshotedFileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "File committed: ";
+	public String getDescription() {
+		return "File committed";
 	}
 
 }

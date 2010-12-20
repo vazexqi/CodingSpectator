@@ -28,8 +28,8 @@ public class RefactoredSavedFileOperation extends FileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "File saved while refactored: ";
+	public String getDescription() {
+		return "File saved while refactored";
 	}
 
 }

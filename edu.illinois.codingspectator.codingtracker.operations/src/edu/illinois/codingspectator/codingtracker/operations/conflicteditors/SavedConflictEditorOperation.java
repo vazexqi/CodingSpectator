@@ -26,8 +26,8 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Conflict editor saved: ";
+	public String getDescription() {
+		return "Conflict editor saved";
 	}
 
 }

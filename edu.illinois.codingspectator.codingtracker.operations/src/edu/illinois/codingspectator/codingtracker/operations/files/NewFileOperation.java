@@ -28,8 +28,8 @@ public class NewFileOperation extends SnapshotedFileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "New file: ";
+	public String getDescription() {
+		return "New file";
 	}
 
 }

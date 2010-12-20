@@ -28,8 +28,8 @@ public class RedoneRefactoringOperation extends RefactoringOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Redone refactoring: ";
+	public String getDescription() {
+		return "Redone refactoring";
 	}
 
 }

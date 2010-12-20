@@ -28,8 +28,8 @@ public class UpdatedFileOperation extends FileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "File updated: ";
+	public String getDescription() {
+		return "File updated";
 	}
 
 }

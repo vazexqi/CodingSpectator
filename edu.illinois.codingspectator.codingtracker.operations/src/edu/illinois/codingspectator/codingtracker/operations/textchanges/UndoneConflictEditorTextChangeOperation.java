@@ -28,8 +28,8 @@ public class UndoneConflictEditorTextChangeOperation extends ConflictEditorTextC
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Undone conflict editor text change: ";
+	public String getDescription() {
+		return "Undone conflict editor text change";
 	}
 
 }

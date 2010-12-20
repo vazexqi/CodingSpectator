@@ -38,4 +38,12 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 		super.initializeFrom(operationLexer);
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("Editor ID: " + editorID + "\n");
+		sb.append(super.toString());
+		return sb.toString();
+	}
+
 }

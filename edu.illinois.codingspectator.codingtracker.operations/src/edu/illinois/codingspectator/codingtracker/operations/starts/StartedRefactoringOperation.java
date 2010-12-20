@@ -25,8 +25,8 @@ public class StartedRefactoringOperation extends UserOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Refactoring started: ";
+	public String getDescription() {
+		return "Started refactoring";
 	}
 
 	@Override

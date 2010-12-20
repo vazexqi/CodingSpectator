@@ -28,8 +28,8 @@ public class UndoneTextChangeOperation extends TextChangeOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Undone text change: ";
+	public String getDescription() {
+		return "Undone text change";
 	}
 
 }

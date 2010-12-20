@@ -28,8 +28,8 @@ public class ExternallyModifiedFileOperation extends FileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "File externally modified: ";
+	public String getDescription() {
+		return "File externally modified";
 	}
 
 }

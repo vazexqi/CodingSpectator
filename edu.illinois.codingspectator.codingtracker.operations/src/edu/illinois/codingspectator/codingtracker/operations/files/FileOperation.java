@@ -38,4 +38,12 @@ public abstract class FileOperation extends UserOperation {
 		filePath= operationLexer.getNextLexeme();
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("File path: " + filePath + "\n");
+		sb.append(super.toString());
+		return sb.toString();
+	}
+
 }

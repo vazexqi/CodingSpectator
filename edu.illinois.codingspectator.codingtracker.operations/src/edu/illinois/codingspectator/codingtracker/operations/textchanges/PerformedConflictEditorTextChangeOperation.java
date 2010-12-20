@@ -28,8 +28,8 @@ public class PerformedConflictEditorTextChangeOperation extends ConflictEditorTe
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Performed conflict editor text change: ";
+	public String getDescription() {
+		return "Performed conflict editor text change";
 	}
 
 }

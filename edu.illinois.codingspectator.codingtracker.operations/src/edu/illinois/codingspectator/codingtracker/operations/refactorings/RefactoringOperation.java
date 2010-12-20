@@ -88,4 +88,19 @@ public abstract class RefactoringOperation extends UserOperation {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("ID: " + id + "\n");
+		sb.append("Project: " + project + "\n");
+		sb.append("Flags: " + flags + "\n");
+		sb.append("Arguments count: " + arguments.size() + "\n");
+		for (Entry<String, String> argumentEntry : arguments.entrySet()) {
+			sb.append("Key: " + argumentEntry.getKey() + "\n");
+			sb.append("Value: " + argumentEntry.getValue() + "\n");
+		}
+		sb.append(super.toString());
+		return sb.toString();
+	}
+
 }

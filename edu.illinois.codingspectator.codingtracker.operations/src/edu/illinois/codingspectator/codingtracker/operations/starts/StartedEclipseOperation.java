@@ -25,8 +25,8 @@ public class StartedEclipseOperation extends UserOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Eclipse started: ";
+	public String getDescription() {
+		return "Started Eclipse";
 	}
 
 	@Override

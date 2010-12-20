@@ -55,4 +55,15 @@ public abstract class TextChangeOperation extends UserOperation {
 		length= Integer.valueOf(operationLexer.getNextLexeme());
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("Replaced text: " + replacedText + "\n");
+		sb.append("New text: " + newText + "\n");
+		sb.append("Offset: " + offset + "\n");
+		sb.append("Length: " + length + "\n");
+		sb.append(super.toString());
+		return sb.toString();
+	}
+
 }

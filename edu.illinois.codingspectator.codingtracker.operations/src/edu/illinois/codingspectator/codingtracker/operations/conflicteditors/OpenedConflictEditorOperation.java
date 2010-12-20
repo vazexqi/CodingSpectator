@@ -37,8 +37,8 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Conflict editor opened: ";
+	public String getDescription() {
+		return "Conflict editor opened";
 	}
 
 	@Override
@@ -53,6 +53,15 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 		super.initializeFrom(operationLexer);
 		editedFilePath= operationLexer.getNextLexeme();
 		initialContent= operationLexer.getNextLexeme();
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("File path: " + editedFilePath + "\n");
+		sb.append("Initial content: " + initialContent + "\n");
+		sb.append(super.toString());
+		return sb.toString();
 	}
 
 }

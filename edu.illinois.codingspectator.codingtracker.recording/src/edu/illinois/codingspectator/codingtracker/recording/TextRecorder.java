@@ -90,7 +90,7 @@ public class TextRecorder {
 	}
 
 	public void record(UserOperation userOperation) {
-		record(userOperation.generateTextualRepresentation());
+		record(userOperation.generateSerializationText());
 	}
 
 	private synchronized void record(CharSequence text) {

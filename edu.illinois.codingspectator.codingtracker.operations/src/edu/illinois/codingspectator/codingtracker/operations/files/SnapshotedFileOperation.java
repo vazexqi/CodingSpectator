@@ -41,4 +41,12 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 		fileContent= operationLexer.getNextLexeme();
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("File content: " + fileContent + "\n");
+		sb.append(super.toString());
+		return sb.toString();
+	}
+
 }

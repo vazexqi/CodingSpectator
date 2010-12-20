@@ -28,8 +28,8 @@ public class PerformedRefactoringOperation extends RefactoringOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Performed refactoring: ";
+	public String getDescription() {
+		return "Performed refactoring";
 	}
 
 }

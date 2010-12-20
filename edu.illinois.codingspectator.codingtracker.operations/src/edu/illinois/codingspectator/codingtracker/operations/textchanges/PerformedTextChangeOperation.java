@@ -28,8 +28,8 @@ public class PerformedTextChangeOperation extends TextChangeOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Performed text change: ";
+	public String getDescription() {
+		return "Performed text change";
 	}
 
 }

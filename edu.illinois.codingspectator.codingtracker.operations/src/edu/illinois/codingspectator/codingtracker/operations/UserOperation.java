@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations;
 
+import java.util.Date;
+
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 
 /**
@@ -22,11 +24,11 @@ public abstract class UserOperation {
 		this.timestamp= timestamp;
 	}
 
-	public OperationTextChunk generateTextualRepresentation() {
+	public OperationTextChunk generateSerializationText() {
 		OperationTextChunk textChunk= new OperationTextChunk(getOperationSymbol());
 		populateTextChunk(textChunk);
 		textChunk.append(timestamp);
-		Debugger.debugTextChunk(getDebugMessage(), textChunk);
+		Debugger.debugTextChunk(getDescription() + ": ", textChunk);
 		return textChunk;
 	}
 
@@ -36,9 +38,18 @@ public abstract class UserOperation {
 		timestamp= Long.valueOf(operationLexer.getNextLexeme());
 	}
 
+	@Override
+	public String toString() {
+		return "Timestamp: " + timestamp;
+	}
+
+	public Date getDate() {
+		return new Date(timestamp);
+	}
+
 	protected abstract char getOperationSymbol();
 
-	protected abstract String getDebugMessage();
+	public abstract String getDescription();
 
 	protected abstract void populateTextChunk(OperationTextChunk textChunk);
 

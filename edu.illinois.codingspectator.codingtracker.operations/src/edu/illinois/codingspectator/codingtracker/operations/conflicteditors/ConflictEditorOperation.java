@@ -35,4 +35,12 @@ public abstract class ConflictEditorOperation extends UserOperation {
 		editorID= operationLexer.getNextLexeme();
 	}
 
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("Editor ID: " + editorID + "\n");
+		sb.append(super.toString());
+		return sb.toString();
+	}
+
 }

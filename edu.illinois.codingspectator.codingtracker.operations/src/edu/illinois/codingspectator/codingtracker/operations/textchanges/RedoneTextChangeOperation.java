@@ -28,8 +28,8 @@ public class RedoneTextChangeOperation extends TextChangeOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Redone text change: ";
+	public String getDescription() {
+		return "Redone text change";
 	}
 
 }

@@ -28,8 +28,8 @@ public class SavedFileOperation extends FileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "File saved: ";
+	public String getDescription() {
+		return "File saved";
 	}
 
 }

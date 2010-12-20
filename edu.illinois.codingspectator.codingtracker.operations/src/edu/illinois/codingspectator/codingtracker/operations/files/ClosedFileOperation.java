@@ -28,8 +28,8 @@ public class ClosedFileOperation extends FileOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "File closed: ";
+	public String getDescription() {
+		return "File closed";
 	}
 
 }

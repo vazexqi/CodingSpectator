@@ -28,8 +28,8 @@ public class UndoneRefactoringOperation extends RefactoringOperation {
 	}
 
 	@Override
-	protected String getDebugMessage() {
-		return "Undone refactoring: ";
+	public String getDescription() {
+		return "Undone refactoring";
 	}
 
 }
