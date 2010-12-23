@@ -484,6 +484,10 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	//CODINGSPECTATOR
 	/////////////////
 
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return new WatchedRenameCompilationUnitProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
 	public class WatchedRenameCompilationUnitProcessor extends WatchedJavaRenameProcessor {
 
 		public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
@@ -508,9 +512,9 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 
 	/**
 	 * This refactoring might return a RenameResourceDescriptor, which is not a subclass of
-	 * JavaRefactoringDescriptor. So, we have implemented createLocalRefactoringDescriptor instead
-	 * of createRefactoringDescriptor. Therefore, we cannot reuse
-	 * org.eclipse.jdt.internal.corext.refactoring
+	 * JavaRefactoringDescriptor. So, we have implemented
+	 * createRenameCompilationUnitRefactoringDescriptor instead of createRefactoringDescriptor.
+	 * Therefore, we cannot reuse org.eclipse.jdt.internal.corext.refactoring
 	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
 	 * 
 	 */
