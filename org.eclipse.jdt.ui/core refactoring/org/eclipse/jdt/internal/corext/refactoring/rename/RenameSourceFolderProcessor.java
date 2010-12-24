@@ -190,7 +190,7 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange.
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final IResource resource= fSourceFolder.getResource();
 		final String project= resource.getProject().getName();
 		final String description= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description_short,

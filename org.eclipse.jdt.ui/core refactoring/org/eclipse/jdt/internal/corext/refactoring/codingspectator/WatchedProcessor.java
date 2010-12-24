@@ -53,7 +53,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * @author nchen
  * 
  */
-abstract public class WatchedProcessor implements IWatchedProcessor {
+abstract public class WatchedProcessor implements IWatchedJavaProcessor {
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
@@ -76,10 +76,6 @@ abstract public class WatchedProcessor implements IWatchedProcessor {
 		return new HashMap();
 
 	}
-
-	protected abstract JavaRefactoringDescriptor createRefactoringDescriptor();
-
-	protected abstract boolean isInvokedByQuickAssist();
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
@@ -110,17 +106,17 @@ abstract public class WatchedProcessor implements IWatchedProcessor {
 		return null;
 	}
 
-	/**
-	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#getElements()
-	 */
-	abstract protected Object[] getElements();
-
 	public String getJavaProjectName() {
 		String project= null;
 		final IJavaProject javaProject= getJavaElementIfPossible().getJavaProject();
 		if (javaProject != null)
 			project= javaProject.getElementName();
 		return project;
+	}
+
+	//FIXME: Subclasses of WatchedProcessor should not override getDescriptorID. 
+	public String getDescriptorID() {
+		throw new UnsupportedOperationException();
 	}
 
 }

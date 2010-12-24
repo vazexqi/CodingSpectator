@@ -894,7 +894,7 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 	/////////////////
 
 	//CODINGSPECTATOR: Extracted createRefactoringDescriptor from createChange.
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fMethod.getJavaProject();
 		if (javaProject != null)

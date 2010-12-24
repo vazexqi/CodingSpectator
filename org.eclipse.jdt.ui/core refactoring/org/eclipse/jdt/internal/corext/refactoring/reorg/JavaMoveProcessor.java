@@ -31,7 +31,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
-import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
@@ -46,6 +45,7 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatur
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.participants.ResourceProcessors;
@@ -60,7 +60,7 @@ import org.eclipse.jdt.ui.refactoring.IRefactoringProcessorIds;
  * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  * 
  */
-public final class JavaMoveProcessor extends MoveProcessor implements IWatchedProcessor, IQualifiedNameUpdating, IReorgDestinationValidator {
+public final class JavaMoveProcessor extends MoveProcessor implements IWatchedJavaProcessor, IQualifiedNameUpdating, IReorgDestinationValidator {
 
 	private ICreateTargetQueries fCreateTargetQueries;
 
@@ -333,35 +333,35 @@ public final class JavaMoveProcessor extends MoveProcessor implements IWatchedPr
 	}
 
 	public String getDescriptorID() {
-		return new WatchedJavaMoveProcessor().getDescriptorID();
+		return IJavaRefactorings.MOVE;
 	}
 
 	public String getJavaProjectName() {
 		return new WatchedJavaMoveProcessor().getJavaProjectName();
 	}
 
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+		ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
+		if (changeDescriptor == null)
+			return null;
+		return (JavaRefactoringDescriptor)((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+	}
+
 	public class WatchedJavaMoveProcessor extends WatchedMoveProcessor {
 
-		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
-			ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
-			if (changeDescriptor == null)
-				return null;
-			return (JavaRefactoringDescriptor)((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+		public JavaRefactoringDescriptor createRefactoringDescriptor() {
+			return JavaMoveProcessor.this.createRefactoringDescriptor();
 		}
 
 		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
 			return RefactoringSignatureDescriptorFactory.createMoveDescriptor(project, description, comment, arguments, flags);
 		}
 
-		protected Object[] getElements() {
+		public Object[] getElements() {
 			return JavaMoveProcessor.this.getElements();
 		}
 
-		public String getDescriptorID() {
-			return IJavaRefactorings.MOVE;
-		}
-
-		protected boolean isInvokedByQuickAssist() {
+		public boolean isInvokedByQuickAssist() {
 			return JavaMoveProcessor.this.isInvokedByQuickAssist();
 		}
 

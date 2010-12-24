@@ -205,7 +205,7 @@ public final class RenameJavaProjectProcessor extends JavaRenameProcessor implem
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange.
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final String description= Messages.format(RefactoringCoreMessages.RenameJavaProjectProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fProject.getElementName()));
 		final String header= Messages.format(RefactoringCoreMessages.RenameJavaProjectChange_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fProject.getElementName()),
 				BasicElementLabels.getJavaElementName(getNewElementName()) });

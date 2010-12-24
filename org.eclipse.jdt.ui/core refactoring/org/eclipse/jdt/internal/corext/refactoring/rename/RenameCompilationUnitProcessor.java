@@ -484,10 +484,6 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	//CODINGSPECTATOR
 	/////////////////
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return new WatchedRenameCompilationUnitProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
-	}
-
 	public class WatchedRenameCompilationUnitProcessor extends WatchedJavaRenameProcessor {
 
 		public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
@@ -510,6 +506,10 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 
 	}
 
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return new WatchedRenameCompilationUnitProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
 	/**
 	 * This refactoring might return a RenameResourceDescriptor, which is not a subclass of
 	 * JavaRefactoringDescriptor. So, we have implemented
@@ -518,7 +518,7 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
 	 * 
 	 */
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		throw new UnsupportedOperationException();
 	}
 
