@@ -14,7 +14,6 @@ import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
@@ -29,16 +28,16 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringStarter;
 import org.eclipse.jdt.internal.ui.refactoring.code.ExtractMethodWizard;
 
 /**
- * Extracts the code selected inside a compilation unit editor into a new method.
- * Necessary arguments, exceptions and returns values are computed and an
- * appropriate method signature is generated.
- *
+ * Extracts the code selected inside a compilation unit editor into a new method. Necessary
+ * arguments, exceptions and returns values are computed and an appropriate method signature is
+ * generated.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class ExtractMethodAction extends SelectionDispatchAction {
@@ -47,16 +46,17 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
-	 *
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public ExtractMethodAction(JavaEditor editor) {
 		super(editor.getEditorSite());
 		setText(RefactoringMessages.ExtractMethodAction_label);
 		fEditor= editor;
-		setEnabled(SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
+//		setEnabled(SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
+		setEnabled(true);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.EXTRACT_METHOD_ACTION);
 	}
 
@@ -64,17 +64,20 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void selectionChanged(ITextSelection selection) {
-		setEnabled(selection.getLength() == 0 ? false : fEditor != null && SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
+//		setEnabled(selection.getLength() == 0 ? false : fEditor != null && SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
+		setEnabled(true);
 	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection the Java text selection (internal type)
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
-		setEnabled(RefactoringAvailabilityTester.isExtractMethodAvailable(selection));
+		setEnabled(true);
+//		setEnabled(RefactoringAvailabilityTester.isExtractMethodAvailable(selection));
 	}
 
 	/* (non-Javadoc)
