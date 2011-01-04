@@ -1,4 +1,4 @@
-package edu.illinois.eclispewatcher.tests;
+package edu.illinois.eclipsewatcher.tests;
 
 
 import java.io.File;

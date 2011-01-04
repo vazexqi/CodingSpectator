@@ -1,9 +1,8 @@
-package edu.illinois.eclispewatcher.tests;
+package edu.illinois.eclipsewatcher.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
@@ -12,22 +11,17 @@ import org.junit.runner.RunWith;
 
 import edu.illinois.eclipsewatcher.test.utils.FileUtilities;
 
+
 /**
  * @author Mohsen Vakilian
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class ExtractMethodTest extends RefactoringWatcherTest {
+public class ExtractConstantTest extends RefactoringWatcherTest {
 
-	private static final String REFACTOR_MENU_ITEM_NAME= "Extract Method...";
+	static final String TEST_FILE_NAME= "ExtractConstantTestFile";
 
-	private static final String REFACTOR_MENU_NAME= "Refactor";
-
-	private static final String DIALOG_NAME= "Extract Method";
-
-	static final String TEST_FILE_NAME= "ExtractMethodTestFile";
-
-	static final String PROJECT_NAME= "MyFirstProject_" + ExtractMethodTest.class;
+	static final String PROJECT_NAME= "MyFirstProject_" + ExtractConstantTest.class;
 
 	@Test
 	public void canSetupProject() throws Exception {
@@ -56,7 +50,7 @@ public class ExtractMethodTest extends RefactoringWatcherTest {
 	public void shouldCaptureCancelledRefactoring() {
 		prepareRefactoring();
 
-		bot.shell(DIALOG_NAME).activate();
+		bot.shell("Extract Constant").activate();
 		bot.button("Cancel").click();
 	}
 
@@ -71,7 +65,7 @@ public class ExtractMethodTest extends RefactoringWatcherTest {
 	public void shouldCapturePerformedRefactoring() throws Exception {
 		prepareRefactoring();
 
-		bot.shell(DIALOG_NAME).activate();
+		bot.shell("Extract Constant").activate();
 		bot.button("OK").click();
 	}
 
@@ -97,20 +91,18 @@ public class ExtractMethodTest extends RefactoringWatcherTest {
 
 		// Extract Constant Refactoring
 		editor.setFocus();
-		editor.selectRange(7, 8, 38 - 8);
+		editor.selectRange(5, 27, 34 - 27);
 
-		Display.getDefault().syncExec(new WaitForEvents());
-
-		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
+		SWTBotMenu refactorMenu= bot.menu("Refactor");
 		assertTrue(refactorMenu.isEnabled());
 
-		Display.getDefault().syncExec(new WaitForEvents());
-
-		SWTBotMenu extractConstantMenuItem= refactorMenu.menu(REFACTOR_MENU_ITEM_NAME);
+		SWTBotMenu extractConstantMenuItem= refactorMenu.menu("Extract Constant...");
 		assertTrue(extractConstantMenuItem.isEnabled());
 
 		extractConstantMenuItem.click();
 	}
+
+
 
 	@Override
 	String getProjectName() {
@@ -122,16 +114,6 @@ public class ExtractMethodTest extends RefactoringWatcherTest {
 		return TEST_FILE_NAME;
 	}
 
-	/*
-	 * See http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/swt_threading.htm
-	 */
-	class WaitForEvents implements Runnable {
 
-		@Override
-		public void run() {
-			while (Display.getDefault().readAndDispatch())
-				;
-		}
 
-	}
 }

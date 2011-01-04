@@ -1,4 +1,4 @@
-package edu.illinois.eclispewatcher.tests;
+package edu.illinois.eclipsewatcher.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
