@@ -4,7 +4,12 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 
-
+/**
+ * 
+ * @author Mohsen Vakilian
+ * @author nchen
+ * 
+ */
 public abstract class WatchedJavaMoveProcessor extends MoveProcessor implements IWatchedJavaProcessor {
 
 	protected WatchedProcessorDelegate watchedProcessorDelegate;
