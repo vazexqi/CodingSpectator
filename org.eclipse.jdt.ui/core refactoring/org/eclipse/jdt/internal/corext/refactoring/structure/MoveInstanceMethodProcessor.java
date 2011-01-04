@@ -49,7 +49,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
@@ -135,7 +134,8 @@ import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedMoveProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaMoveProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateMethodCreator;
 import org.eclipse.jdt.internal.corext.refactoring.structure.MemberVisibilityAdjustor.IVisibilityAdjustment;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IDelegateUpdating;
@@ -161,7 +161,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * 
  * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  */
-public final class MoveInstanceMethodProcessor extends MoveProcessor implements IDelegateUpdating, IWatchedJavaProcessor {
+public final class MoveInstanceMethodProcessor extends WatchedJavaMoveProcessor implements IDelegateUpdating {
 
 	/**
 	 * AST visitor to find references to parameters occurring in anonymous classes of a method body.
@@ -2959,40 +2959,23 @@ public final class MoveInstanceMethodProcessor extends MoveProcessor implements 
 		return descriptor;
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return new WatchedMoveInstanceMethodProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
-	}
-
-	public String getSelection() {
-		return new WatchedMoveInstanceMethodProcessor().getSelection();
-	}
-
 	public String getDescriptorID() {
 		return IJavaRefactorings.MOVE_METHOD;
 	}
 
-	public String getJavaProjectName() {
-		return new WatchedMoveInstanceMethodProcessor().getJavaProjectName();
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedMoveInstanceMethodProcessorDelegate(this);
 	}
 
-	public class WatchedMoveInstanceMethodProcessor extends WatchedMoveProcessor {
+	public class WatchedMoveInstanceMethodProcessorDelegate extends WatchedProcessorDelegate {
 
-		public JavaRefactoringDescriptor createRefactoringDescriptor() {
-			return MoveInstanceMethodProcessor.this.createRefactoringDescriptor();
+		public WatchedMoveInstanceMethodProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
 		}
 
 		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
 			return RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment, arguments, flags);
 		}
-
-		public Object[] getElements() {
-			return MoveInstanceMethodProcessor.this.getElements();
-		}
-
-		public boolean isInvokedByQuickAssist() {
-			return MoveInstanceMethodProcessor.this.isInvokedByQuickAssist();
-		}
-
 	}
 
 }
