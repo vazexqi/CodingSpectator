@@ -2,8 +2,10 @@ package edu.illinois.codingspectator;
 
 public class ExtractMethodTestFile {
 
-	public static void main(String[] args) {
-        System.out.println("Test0");
-	}
+    static final String CONSTANT= "TestConstant";
+
+    public static void main(String[] args) {
+        System.out.println(CONSTANT);
+    }
 
 }

@@ -3,15 +3,11 @@
  */
 package edu.illinois.codingspectator.tests;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -21,67 +17,22 @@ import org.junit.runner.RunWith;
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class InlineConstantTest extends RefactoringWatcherTest {
 
+	private static final String INLINE_CONSTANT_DIALOG_NAME= "Inline Constant";
+
+	private static final String INLINE_CONSTANT_MENU_ITEM= "Inline...";
+
 	static final String TEST_FILE_NAME= "InlineConstantTestFile";
 
 	static final String PROJECT_NAME= "MyFirstProject_" + InlineConstantTest.class;
 
-	@Test
-	public void canSetupProject() throws Exception {
-		super.canCreateANewJavaProject();
-		super.canCreateANewJavaClass();
-		super.prepareJavaTextInEditor();
+	void cancelRefactoring() {
+		bot.shell(INLINE_CONSTANT_DIALOG_NAME).activate();
+		bot.button(CANCEL_BUTTON_NAME).click();
 	}
 
-	///////////////////////////////////////////////////////////////////////////
-	//
-	// SWTBot tests run in order which is why we can take advantage of this
-	// and capture the canceled refactoring first and then do the actual 
-	// refactoring. Currently we are just testing that the appropriates folders 
-	// are created.
-	//
-	///////////////////////////////////////////////////////////////////////////
-
-	@Test
-	public void currentRefactoringsCapturedShouldBeEmpty() {
-		assertFalse(performedRefactorings.fetchInfo().exists());
-		assertFalse(canceledRefactorings.fetchInfo().exists());
-	}
-
-	@Test
-	public void shouldCaptureCancelledRefactoring() {
-		prepareRefactoring();
-
-		bot.shell("Inline Constant").activate();
-		bot.button("Cancel").click();
-	}
-
-	@Test
-	// This needs to be interleaved here after the refactoring has been canceled.
-	public void currentRefactoringsCanceledShouldBePopulated() {
-		assertFalse(performedRefactorings.fetchInfo().exists());
-		assertTrue(canceledRefactorings.fetchInfo().exists());
-	}
-
-	@Test
-	public void shouldCapturePerformedRefactoring() throws Exception {
-		prepareRefactoring();
-
-		bot.shell("Inline Constant").activate();
-		bot.button("OK").click();
-	}
-
-	@Test
-	// This needs to be interleaved here after the refactoring has been performed.
-	public void currentRefactoringsPerformedShouldBePopulated() {
-		assertTrue(performedRefactorings.fetchInfo().exists());
-		assertTrue(canceledRefactorings.fetchInfo().exists());
-	}
-
-	// This is a hack to ensure that refactorings are cleared at the end of each test
-	@Test
-	public void cleanRefactoringHistory() throws CoreException {
-		canceledRefactorings.delete(EFS.NONE, null);
-		performedRefactorings.delete(EFS.NONE, null);
+	void performRefactoring() {
+		bot.shell(INLINE_CONSTANT_DIALOG_NAME).activate();
+		bot.button(OK_BUTTON_NAME).click();
 	}
 
 	@Override
@@ -92,15 +43,14 @@ public class InlineConstantTest extends RefactoringWatcherTest {
 		editor.setFocus();
 		editor.selectRange(4, 24, 32 - 24);
 
-		SWTBotMenu refactorMenu= bot.menu("Refactor");
+		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
 		assertTrue(refactorMenu.isEnabled());
 
-		SWTBotMenu extractConstantMenuItem= refactorMenu.menu("Inline...");
+		SWTBotMenu extractConstantMenuItem= refactorMenu.menu(INLINE_CONSTANT_MENU_ITEM);
 		assertTrue(extractConstantMenuItem.isEnabled());
 
 		extractConstantMenuItem.click();
 	}
-
 
 	@Override
 	String getProjectName() {

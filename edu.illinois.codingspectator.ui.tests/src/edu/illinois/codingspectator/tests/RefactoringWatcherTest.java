@@ -3,8 +3,12 @@
  */
 package edu.illinois.codingspectator.tests;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Composite;
@@ -17,6 +21,7 @@ import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
@@ -30,7 +35,7 @@ import org.osgi.framework.Version;
  */
 public abstract class RefactoringWatcherTest {
 
-	private static final String GENERIC_VERSION_NUMBER= "1.1.1.qualifier";
+	private static final String GENERIC_VERSION_NUMBER= "1.0.0.qualifier";
 
 	static final String PLUGIN_NAME= "edu.illinois.codingspectator.ui.tests";
 
@@ -47,6 +52,14 @@ public abstract class RefactoringWatcherTest {
 	protected IFileStore performedRefactorings;
 
 	protected IFileStore canceledRefactorings;
+
+	private static final int SLEEPTIME= 1000;
+
+	protected static final String CANCEL_BUTTON_NAME= "Cancel";
+
+	protected static final String OK_BUTTON_NAME= "OK";
+
+	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
 	private static Version getFeatureVersion() {
 		Bundle bundle= Platform.getBundle("edu.illinois.codingspectator.monitor");
@@ -155,6 +168,67 @@ public abstract class RefactoringWatcherTest {
 
 	abstract String getTestFileName();
 
+	abstract void cancelRefactoring();
+
+	abstract void performRefactoring();
+
+	@Test
+	public void canSetupProject() throws Exception {
+		canCreateANewJavaProject();
+		canCreateANewJavaClass();
+		prepareJavaTextInEditor();
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// SWTBot tests run in order which is why we can take advantage of this
+	// and capture the canceled refactoring first and then do the actual 
+	// refactoring. Currently we are just testing that the appropriates folders 
+	// are created.
+	//
+	///////////////////////////////////////////////////////////////////////////
+
+	@Test
+	public void currentRefactoringsCapturedShouldBeEmpty() {
+		bot.sleep(SLEEPTIME);
+		assertFalse(performedRefactorings.fetchInfo().exists());
+		assertFalse(canceledRefactorings.fetchInfo().exists());
+	}
+
+	@Test
+	public void shouldCaptureCancelledRefactoring() {
+		prepareRefactoring();
+		cancelRefactoring();
+	}
+
+	// This needs to be interleaved here after the refactoring has been canceled.
+	@Test
+	public void currentRefactoringsCanceledShouldBePopulated() {
+		bot.sleep(SLEEPTIME);
+		assertFalse(performedRefactorings.fetchInfo().exists());
+		assertTrue(canceledRefactorings.fetchInfo().exists());
+	}
+
+	@Test
+	public void shouldCapturePerformedRefactoring() throws Exception {
+		prepareRefactoring();
+		performRefactoring();
+	}
+
+	// This needs to be interleaved here after the refactoring has been performed.
+	@Test
+	public void currentRefactoringsPerformedShouldBePopulated() {
+		bot.sleep(SLEEPTIME);
+		assertTrue(performedRefactorings.fetchInfo().exists());
+		assertTrue(canceledRefactorings.fetchInfo().exists());
+	}
+
+	// This is a hack to ensure that refactorings are cleared at the end of each test
+	@Test
+	public void cleanRefactoringHistory() throws CoreException {
+		canceledRefactorings.delete(EFS.NONE, null);
+		performedRefactorings.delete(EFS.NONE, null);
+	}
 
 
 }
