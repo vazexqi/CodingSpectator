@@ -2,6 +2,7 @@ Changed Files
 =============
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
+ui/org/eclipse/jdt/ui/actions/ExtractMethodAction.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractConstantRefactoring.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractTempRefactoring.java

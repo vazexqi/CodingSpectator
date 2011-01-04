@@ -14,6 +14,9 @@ import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
+
+import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
@@ -39,6 +42,9 @@ import org.eclipse.jdt.internal.ui.refactoring.code.ExtractMethodWizard;
  * @since 2.0
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Made the extract method refactoring menu item always enabled in
+ *         testing mode. This is a hack to circumvent a bug in SWTBot.
  */
 public class ExtractMethodAction extends SelectionDispatchAction {
 
@@ -55,8 +61,8 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 		super(editor.getEditorSite());
 		setText(RefactoringMessages.ExtractMethodAction_label);
 		fEditor= editor;
-//		setEnabled(SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
-		setEnabled(true);
+		//CODINGSPECTATOR
+		setEnabled(isEnabled(SelectionConverter.getInputAsCompilationUnit(fEditor) != null));
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.EXTRACT_METHOD_ACTION);
 	}
 
@@ -64,8 +70,8 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void selectionChanged(ITextSelection selection) {
-//		setEnabled(selection.getLength() == 0 ? false : fEditor != null && SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
-		setEnabled(true);
+		//CODINGSPECTATOR
+		setEnabled(isEnabled(selection.getLength() == 0 ? false : fEditor != null && SelectionConverter.getInputAsCompilationUnit(fEditor) != null));
 	}
 
 	/**
@@ -76,8 +82,8 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
-		setEnabled(true);
-//		setEnabled(RefactoringAvailabilityTester.isExtractMethodAvailable(selection));
+		//CODINGSPECTATOR
+		setEnabled(isEnabled(RefactoringAvailabilityTester.isExtractMethodAvailable(selection)));
 	}
 
 	/* (non-Javadoc)
@@ -88,5 +94,14 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 			return;
 		ExtractMethodRefactoring refactoring= new ExtractMethodRefactoring(SelectionConverter.getInputAsCompilationUnit(fEditor), selection.getOffset(), selection.getLength());
 		new RefactoringStarter().activate(new ExtractMethodWizard(refactoring), getShell(), RefactoringMessages.ExtractMethodAction_dialog_title, RefactoringSaveHelper.SAVE_NOTHING);
+	}
+
+	//CODINGSPECTATOR
+	private boolean isEnabled(boolean isGoingToBeEnabled) {
+		if (RunningModes.isInTestMode()) {
+			return true;
+		} else {
+			return isGoingToBeEnabled;
+		}
 	}
 }
