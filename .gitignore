@@ -1,4 +1,10 @@
+.DS_Store
 *.class
-org.eclipse.jdt.ui/bin/
+bin/
 screenshots/
+.metadata/
+org.eclipse.jdt.ui.tests/
+org.eclipse.test.performance/
+org.eclipse.text.tests/
+org.eclipse.jdt.core.manipulation/
 

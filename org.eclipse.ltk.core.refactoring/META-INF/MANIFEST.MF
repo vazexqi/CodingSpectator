@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.ltk.core.refactoring; singleton:=true
-Bundle-Version: 3.5.100.qualifier
+Bundle-Version: 3.9.100.qualifier
 Bundle-Activator: org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.core.refactoring.codingspectator,
  org.eclipse.ltk.core.refactoring.history,
  org.eclipse.ltk.core.refactoring.model,
  org.eclipse.ltk.core.refactoring.participants,

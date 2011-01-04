@@ -20,8 +20,11 @@ import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.IWorkbenchSite;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -45,9 +48,16 @@ import org.eclipse.jdt.internal.ui.text.correction.CorrectionCommandHandler;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.LinkedNamesAssistProposal;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
+/**
+ * 
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability. Added a flag to indicate the
+ *          quick assist origin of the refactoring.
+ */
 public class RenameJavaElementAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
+
+	private boolean invokedByQuickAssist= false;
 
 	public RenameJavaElementAction(IWorkbenchSite site) {
 		super(site);
@@ -57,6 +67,12 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		this(editor.getEditorSite());
 		fEditor= editor;
 		setEnabled(SelectionConverter.canOperateOn(fEditor));
+	}
+
+	//CODINGSPECTATOR: Record the quick assist origin of the refactoring.
+	public RenameJavaElementAction(JavaEditor editor, boolean invokedByQuickAssist) {
+		this(editor);
+		this.invokedByQuickAssist= invokedByQuickAssist;
 	}
 
 	//---- Structured selection ------------------------------------------------
@@ -88,7 +104,7 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		if (selection.size() != 1)
 			return null;
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IJavaElement))
+		if (!(first instanceof IJavaElement))
 			return null;
 		return (IJavaElement)first;
 	}
@@ -99,7 +115,7 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			return;
 		try {
 			run(element, false);
-		} catch (CoreException e){
+		} catch (CoreException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_exception);
 		}
 	}
@@ -140,8 +156,9 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			}
 		}
 
+		IJavaElement element= null;
 		try {
-			IJavaElement element= getJavaElementFromEditor();
+			element= getJavaElementFromEditor();
 			IPreferenceStore store= JavaPlugin.getDefault().getPreferenceStore();
 			boolean lightweight= store.getBoolean(PreferenceConstants.REFACTOR_LIGHTWEIGHT);
 			if (element != null && RefactoringAvailabilityTester.isRenameElementAvailable(element)) {
@@ -158,6 +175,11 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		} catch (CoreException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_exception);
 		}
+		//CODINGSPECTATOR
+		ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+		String javaProject= typeRoot.getJavaProject().getElementName();
+		String selectionIfAny= element == null ? "" : element.getElementName(); //"" can only happen if nothing was selected //$NON-NLS-1$
+		Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.RenameJavaElementAction_not_available);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_not_available);
 	}
 
@@ -191,16 +213,18 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 
 	private void run(IJavaElement element, boolean lightweight) throws CoreException {
 		// Work around for http://dev.eclipse.org/bugs/show_bug.cgi?id=19104
-		if (! ActionUtil.isEditable(fEditor, getShell(), element))
+		if (!ActionUtil.isEditable(fEditor, getShell(), element))
 			return;
 		//XXX workaround bug 31998
 		if (ActionUtil.mustDisableJavaModelAction(getShell(), element))
 			return;
 
-		if (lightweight && fEditor instanceof CompilationUnitEditor && ! (element instanceof IPackageFragment)) {
-			new RenameLinkedMode(element, (CompilationUnitEditor) fEditor).start();
+		if (lightweight && fEditor instanceof CompilationUnitEditor && !(element instanceof IPackageFragment)) {
+			//CODINGSPECTATOR: Pass along the quick assist origin of the refactoring.
+			new RenameLinkedMode(element, (CompilationUnitEditor)fEditor, invokedByQuickAssist).start();
 		} else {
-			RefactoringExecutionStarter.startRenameRefactoring(element, getShell());
+			//CODINGSPECTATOR: Pass along the quick assist origin of the refactoring.
+			RefactoringExecutionStarter.startRenameRefactoring(element, getShell(), invokedByQuickAssist);
 		}
 	}
 }

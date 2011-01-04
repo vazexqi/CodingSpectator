@@ -31,10 +31,17 @@ import org.eclipse.jdt.internal.corext.util.JavaElementResourceMapping;
 
 import org.eclipse.jdt.ui.JavaElementLabels;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 abstract class CompilationUnitReorgChange extends ResourceChange {
 
 	private String fCuHandle;
+
 	private String fOldPackageHandle;
+
 	private String fNewPackageHandle;
 
 	private INewNameQuery fNewNameQuery;
@@ -70,6 +77,11 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 	}
 
 	abstract Change doPerformReorg(IProgressMonitor pm) throws CoreException, OperationCanceledException;
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
+	}
 
 	public Object getModifiedElement() {
 		return getCu();

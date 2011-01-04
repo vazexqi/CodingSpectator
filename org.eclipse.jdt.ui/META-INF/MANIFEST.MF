@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.ui; singleton:=true
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.9.0.qualifier
 Bundle-Activator: org.eclipse.jdt.internal.ui.JavaPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
@@ -22,6 +22,7 @@ Export-Package: org.eclipse.jdt.internal.corext;x-friends:="org.eclipse.jdt.juni
  org.eclipse.jdt.internal.corext.refactoring.changes;x-internal:=true,
  org.eclipse.jdt.internal.corext.refactoring.code;x-internal:=true,
  org.eclipse.jdt.internal.corext.refactoring.code.flow;x-internal:=true,
+ org.eclipse.jdt.internal.corext.refactoring.codingspectator;x-internal:=true,
  org.eclipse.jdt.internal.corext.refactoring.delegates;x-internal:=true,
  org.eclipse.jdt.internal.corext.refactoring.generics;x-internal:=true,
  org.eclipse.jdt.internal.corext.refactoring.nls;x-internal:=true,
@@ -42,7 +43,7 @@ Export-Package: org.eclipse.jdt.internal.corext;x-friends:="org.eclipse.jdt.juni
  org.eclipse.jdt.internal.corext.refactoring.util;x-internal:=true,
  org.eclipse.jdt.internal.corext.template.java;x-internal:=true,
  org.eclipse.jdt.internal.corext.util;x-friends:="org.eclipse.jdt.junit",
- org.eclipse.jdt.internal.ui;x-friends:="org.eclipse.jdt.junit, org.eclipse.jdt.apt.ui",
+ org.eclipse.jdt.internal.ui;x-friends:="org.eclipse.jdt.junit,org.eclipse.jdt.apt.ui",
  org.eclipse.jdt.internal.ui.actions;x-friends:="org.eclipse.jdt.junit",
  org.eclipse.jdt.internal.ui.browsing;x-internal:=true,
  org.eclipse.jdt.internal.ui.callhierarchy;x-internal:=true,
@@ -90,9 +91,9 @@ Export-Package: org.eclipse.jdt.internal.corext;x-friends:="org.eclipse.jdt.juni
  org.eclipse.jdt.internal.ui.text.template.contentassist;x-internal:=true,
  org.eclipse.jdt.internal.ui.text.template.preferences;x-internal:=true,
  org.eclipse.jdt.internal.ui.typehierarchy;x-internal:=true,
- org.eclipse.jdt.internal.ui.util;x-friends:="org.eclipse.jdt.junit, org.eclipse.jdt.apt.ui",
+ org.eclipse.jdt.internal.ui.util;x-friends:="org.eclipse.jdt.junit,org.eclipse.jdt.apt.ui",
  org.eclipse.jdt.internal.ui.viewsupport;x-friends:="org.eclipse.jdt.junit",
- org.eclipse.jdt.internal.ui.wizards;x-friends:="org.eclipse.jdt.junit, org.eclipse.jdt.apt.ui",
+ org.eclipse.jdt.internal.ui.wizards;x-friends:="org.eclipse.jdt.junit,org.eclipse.jdt.apt.ui",
  org.eclipse.jdt.internal.ui.wizards.buildpaths;x-internal:=true,
  org.eclipse.jdt.internal.ui.wizards.buildpaths.newsourcepage;x-internal:=true,
  org.eclipse.jdt.internal.ui.wizards.dialogfields;x-friends:="org.eclipse.jdt.apt.ui",
@@ -137,5 +138,6 @@ Require-Bundle:
  org.eclipse.ui.navigator;bundle-version="[3.3.200,4.0.0)",
  org.eclipse.ui.navigator.resources;bundle-version="[3.4.0,4.0.0)",
  org.eclipse.jdt.core.manipulation;bundle-version="[1.3.0,2.0.0)",
- com.ibm.icu;bundle-version="3.4.4"
+ com.ibm.icu;bundle-version="3.4.4",
+ edu.illinois.codingspectator.codingtracker;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4

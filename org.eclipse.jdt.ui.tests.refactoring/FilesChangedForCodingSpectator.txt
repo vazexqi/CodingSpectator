@@ -1,0 +1,11 @@
+Changed Files
+=============
+
+test cases/org/eclipse/jdt/ui/tests/refactoring/AbstractSelectionTestCase.java
+test cases/org/eclipse/jdt/ui/tests/refactoring/RefactoringTest.java
+test cases/org/eclipse/jdt/ui/tests/refactoring/infra/RefactoringPerformanceTestCase.java
+
+Added Files
+===========
+
+test cases/org/eclipse/jdt/ui/tests/refactoring/codingspectator/RefactoringChecker.java

@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
+import org.eclipse.jdt.internal.corext.refactoring.rename.JavaRenameProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.rename.RenameFieldProcessor;
 
 /**
@@ -36,7 +37,7 @@ public final class RenameFieldRefactoringContribution extends JavaUIRefactoringC
 	 */
 	public Refactoring createRefactoring(JavaRefactoringDescriptor descriptor, RefactoringStatus status) {
 		JavaRefactoringArguments arguments= new JavaRefactoringArguments(descriptor.getProject(), retrieveArgumentMap(descriptor));
-		RenameFieldProcessor processor= new RenameFieldProcessor(arguments, status);
+		JavaRenameProcessor processor= new RenameFieldProcessor(arguments, status);
 		return new RenameRefactoring(processor);
 	}
 

@@ -55,29 +55,35 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 
 /**
- * Implementation of a Java completion proposal to be used for quick fix and quick assist
- * proposals that invoke a {@link Change}. The proposal offers a proposal information but no context
+ * Implementation of a Java completion proposal to be used for quick fix and quick assist proposals
+ * that invoke a {@link Change}. The proposal offers a proposal information but no context
  * information.
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Captured invocation of refactorings through quick assist.
+ * 
  * @since 3.2
  */
 public class ChangeCorrectionProposal implements IJavaCompletionProposal, ICommandAccess, ICompletionProposalExtension5, ICompletionProposalExtension6 {
 
 	private Change fChange;
+
 	private String fName;
+
 	private int fRelevance;
+
 	private Image fImage;
+
 	private String fCommandId;
 
 	/**
 	 * Constructs a change correction proposal.
-	 *
+	 * 
 	 * @param name The name that is displayed in the proposal selection dialog.
 	 * @param change The change that is executed when the proposal is applied or <code>null</code>
-	 * if the change will be created by implementors of {@link #createChange()}.
+	 *            if the change will be created by implementors of {@link #createChange()}.
 	 * @param relevance The relevance of this proposal.
-	 * @param image The image that is displayed for this proposal or <code>null</code> if no
-	 * image is desired.
+	 * @param image The image that is displayed for this proposal or <code>null</code> if no image
+	 *            is desired.
 	 */
 	public ChangeCorrectionProposal(String name, Change change, int relevance, Image image) {
 		if (name == null) {
@@ -103,17 +109,16 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Performs the change associated with this proposal.
-	 *
-	 * @param activeEditor The editor currently active or <code>null</code> if no
-	 * editor is active.
-	 * @param document The document of the editor currently active or <code>null</code> if
-	 * no editor is visible.
+	 * 
+	 * @param activeEditor The editor currently active or <code>null</code> if no editor is active.
+	 * @param document The document of the editor currently active or <code>null</code> if no editor
+	 *            is visible.
 	 * @throws CoreException Thrown when the invocation of the change failed.
 	 */
 	protected void performChange(IEditorPart activeEditor, IDocument document) throws CoreException {
 		StyledText disabledStyledText= null;
 		TraverseListener traverseBlocker= null;
-		
+
 		Change change= null;
 		IRewriteTarget rewriteTarget= null;
 		try {
@@ -123,7 +128,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 					LinkedModeModel.closeAllModels(document);
 				}
 				if (activeEditor != null) {
-					rewriteTarget= (IRewriteTarget) activeEditor.getAdapter(IRewriteTarget.class);
+					rewriteTarget= (IRewriteTarget)activeEditor.getAdapter(IRewriteTarget.class);
 					if (rewriteTarget != null) {
 						rewriteTarget.beginCompoundChange();
 					}
@@ -138,7 +143,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 					 */
 					Object control= activeEditor.getAdapter(Control.class);
 					if (control instanceof StyledText) {
-						disabledStyledText= (StyledText) control;
+						disabledStyledText= (StyledText)control;
 						if (disabledStyledText.getEditable()) {
 							disabledStyledText.setEditable(false);
 							traverseBlocker= new TraverseListener() {
@@ -158,7 +163,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 				RefactoringStatus valid= change.isValid(new NullProgressMonitor());
 				if (valid.hasFatalError()) {
 					IStatus status= new Status(IStatus.ERROR, JavaPlugin.getPluginId(), IStatus.ERROR,
-						valid.getMessageMatchingSeverity(RefactoringStatus.FATAL), null);
+							valid.getMessageMatchingSeverity(RefactoringStatus.FATAL), null);
 					throw new CoreException(status);
 				} else {
 					IUndoManager manager= RefactoringCore.getUndoManager();
@@ -166,6 +171,10 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 					boolean successful= false;
 					try {
 						manager.aboutToPerformChange(change);
+
+						//CODINGSPECTATOR
+						aboutToPerformChange();
+
 						undoChange= change.perform(new NullProgressMonitor());
 						successful= true;
 					} finally {
@@ -261,7 +270,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Returns the name of the proposal.
-	 *
+	 * 
 	 * @return return the name of the proposal
 	 */
 	public String getName() {
@@ -284,7 +293,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Sets the proposal's image or <code>null</code> if no image is desired.
-	 *
+	 * 
 	 * @param image the desired image.
 	 */
 	public void setImage(Image image) {
@@ -293,7 +302,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Returns the change that will be executed when the proposal is applied.
-	 *
+	 * 
 	 * @return returns the change for this proposal.
 	 * @throws CoreException thrown when the change could not be created
 	 */
@@ -315,10 +324,9 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 	}
 
 	/**
-	 * Creates the text change for this proposal.
-	 * This method is only called once and only when no text change has been passed in
- 	 * {@link #ChangeCorrectionProposal(String, Change, int, Image)}.
- 	 *
+	 * Creates the text change for this proposal. This method is only called once and only when no
+	 * text change has been passed in {@link #ChangeCorrectionProposal(String, Change, int, Image)}.
+	 * 
 	 * @return returns the created change.
 	 * @throws CoreException thrown if the creation of the change failed.
 	 */
@@ -328,7 +336,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Sets the display name.
-	 *
+	 * 
 	 * @param name the name to set
 	 */
 	public void setDisplayName(String name) {
@@ -347,6 +355,7 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Sets the relevance.
+	 * 
 	 * @param relevance the relevance to set
 	 */
 	public void setRelevance(int relevance) {
@@ -362,14 +371,23 @@ public class ChangeCorrectionProposal implements IJavaCompletionProposal, IComma
 
 	/**
 	 * Set the proposal id to allow assigning a shortcut to the correction proposal.
-	 *
-	 * @param commandId The proposal id for this proposal or <code>null</code> if no command
-	 * should be assigned to this proposal.
+	 * 
+	 * @param commandId The proposal id for this proposal or <code>null</code> if no command should
+	 *            be assigned to this proposal.
 	 */
 	public void setCommandId(String commandId) {
 		fCommandId= commandId;
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
+	/**
+	 * RefactoringCorrectionProposal overrides this method to log the refactoring invoked by the
+	 * quick assist just before it's performed.
+	 */
+	protected void aboutToPerformChange() {
+	}
 
 }

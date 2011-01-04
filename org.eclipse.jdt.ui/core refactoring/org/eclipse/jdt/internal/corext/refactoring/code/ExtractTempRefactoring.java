@@ -38,6 +38,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.SourceRange;
@@ -116,6 +117,7 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStringStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.RefactoringStatusCodes;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.rename.RefactoringAnalyzeUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.CompilationUnitRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.util.NoCommentSourceRangeComputer;
@@ -132,8 +134,12 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * Extract Local Variable (from selected expression inside method or initializer).
+ * 
+ * @author nchen - Provided a method to create a refactoring descriptor.
+ * @author Mohsen Vakilian - Added the CODINGSPECTATOR change comments.
+ * 
  */
-public class ExtractTempRefactoring extends WatchedRefactoring {
+public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 
@@ -337,6 +343,8 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 
 	private String fTempName;
 
+	//CODINGSPECTATOR: Pulled up 'fSelectionStart' and 'fSelectionLength' to WatchedJavaRefactoring.
+
 	private String[] fGuessedTempNames;
 
 	private boolean fCheckResultForCompileProblems;
@@ -505,7 +513,9 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 		}
 	}
 
+	//CODINGSPECTATOR: Renamed createRefactoringDescriptor to getRefactoringDescriptor.
 	private final ExtractLocalDescriptor getRefactoringDescriptor() {
+		//CODINGSPECTATOR: Extracted the code to find the project name into 'WatchedJavaRefactoring.getJavaProjectName()'. 
 		String project= getJavaProjectName();
 
 		final String description= Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fTempName));
@@ -532,48 +542,6 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 		populateRefactoringSpecificFields(project, arguments);
 		return descriptor;
 	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		final String description= Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fTempName));
-		final String expression= ASTNodes.asString(fSelectedExpression.getAssociatedExpression());
-		final String header= Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_descriptor_description,
-				new String[] { BasicElementLabels.getJavaElementName(fTempName), BasicElementLabels.getJavaCodeString(expression) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fTempName)));
-		final BodyDeclaration decl= (BodyDeclaration)ASTNodes.getParent(fSelectedExpression.getAssociatedExpression(), BodyDeclaration.class);
-		if (decl instanceof MethodDeclaration) {
-			final IMethodBinding method= ((MethodDeclaration)decl).resolveBinding();
-			final String label= method != null ? BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED) : BasicElementLabels
-					.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
-			comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_destination_pattern, label));
-		}
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_expression_pattern, BasicElementLabels.getJavaCodeString(expression)));
-		if (fReplaceAllOccurrences)
-			comment.addSetting(RefactoringCoreMessages.ExtractTempRefactoring_replace_occurrences);
-		if (fDeclareFinal)
-			comment.addSetting(RefactoringCoreMessages.ExtractTempRefactoring_declare_final);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final ExtractLocalDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractLocalDescriptor(project, description, comment.asString(), arguments, RefactoringDescriptor.NONE);
-		populateRefactoringSpecificFields(project, arguments);
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fTempName);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllOccurrences).toString());
-		arguments.put(ATTRIBUTE_FINAL, Boolean.valueOf(fDeclareFinal).toString());
-
-	}
-
-	protected ICompilationUnit getCompilationUnit() {
-		return fCu;
-	}
-
 
 	private void doCreateChange(IProgressMonitor pm) throws CoreException {
 		try {
@@ -606,8 +574,10 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 			pm.beginTask("", 6); //$NON-NLS-1$
 
 			RefactoringStatus result= Checks.validateModifiesFiles(ResourceUtil.getFiles(new ICompilationUnit[] { fCu }), getValidationContext());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
 				return result;
+			}
 
 			if (fCompilationUnitNode == null) {
 				fCompilationUnitNode= RefactoringASTParser.parseWithASTProvider(fCu, true, new SubProgressMonitor(pm, 3));
@@ -618,6 +588,11 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 			result.merge(checkSelection(new SubProgressMonitor(pm, 3)));
 			if (!result.hasFatalError() && isLiteralNodeSelected())
 				fReplaceAllOccurrences= false;
+
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
+			}
+
 			return result;
 
 		} finally {
@@ -1080,4 +1055,53 @@ public class ExtractTempRefactoring extends WatchedRefactoring {
 		return new RefactoringStatus();
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		//CODINGSPECTATOR: Extracted the code to find the project name into 'WatchedJavaRefactoring.getJavaProjectName()'. 
+		String project= getJavaProjectName();
+
+		final String description= Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fTempName));
+		final String expression= ASTNodes.asString(fSelectedExpression.getAssociatedExpression());
+		final String header= Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_descriptor_description,
+				new String[] { BasicElementLabels.getJavaElementName(fTempName), BasicElementLabels.getJavaCodeString(expression) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fTempName)));
+		final BodyDeclaration decl= (BodyDeclaration)ASTNodes.getParent(fSelectedExpression.getAssociatedExpression(), BodyDeclaration.class);
+		if (decl instanceof MethodDeclaration) {
+			final IMethodBinding method= ((MethodDeclaration)decl).resolveBinding();
+			final String label= method != null ? BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED) : BasicElementLabels
+					.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
+			comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_destination_pattern, label));
+		}
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractTempRefactoring_expression_pattern, BasicElementLabels.getJavaCodeString(expression)));
+		if (fReplaceAllOccurrences)
+			comment.addSetting(RefactoringCoreMessages.ExtractTempRefactoring_replace_occurrences);
+		if (fDeclareFinal)
+			comment.addSetting(RefactoringCoreMessages.ExtractTempRefactoring_declare_final);
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
+		final ExtractLocalDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractLocalDescriptor(project, description, comment.asString(), arguments, RefactoringDescriptor.NONE);
+		populateRefactoringSpecificFields(project, arguments);
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, Map arguments) {
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fTempName);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllOccurrences).toString());
+		arguments.put(ATTRIBUTE_FINAL, Boolean.valueOf(fDeclareFinal).toString());
+
+	}
+
+	protected ITypeRoot getJavaTypeRoot() {
+		return fCu;
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.EXTRACT_LOCAL_VARIABLE;
+	}
 }

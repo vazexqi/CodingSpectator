@@ -1,0 +1,93 @@
+/AbstractSelectionTestCase.java/1.31/Fri Nov  5 21:08:07 2010/-ko/Tv20100520-0800
+/AllChangeTests.java/1.10/Wed Apr 28 16:48:16 2010/-ko/Tv20100520-0800
+/AllRefactoringTests.java/1.55/Fri Jan 22 10:54:57 2010/-ko/Tv20100520-0800
+/AllTests.java/1.16/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/BinaryReferencesTestSetup.java/1.4/Thu Sep 11 12:00:22 2008//Tv20100520-0800
+/BinaryReferencesTests.java/1.10/Mon Dec 15 17:53:30 2008//Tv20100520-0800
+/ChangeSignatureTests.java/1.86/Mon Dec  7 17:01:34 2009/-ko/Tv20100520-0800
+/ChangeTypeRefactoringTests.java/1.27/Mon May  3 17:31:30 2010//Tv20100520-0800
+/ConvertAnonymousToNestedTests.java/1.37/Mon Oct 20 08:17:22 2008/-ko/Tv20100520-0800
+/CopyPackageChangeTest.java/1.15/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/DelegateCreatorTests.java/1.7/Thu Jan 14 17:03:06 2010/-ko/Tv20100520-0800
+/DocumentChangeTest.java/1.3/Wed Apr 28 16:48:16 2010//Tv20100520-0800
+/ExtractClassTests.java/1.17/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/ExtractConstantTests.java/1.50/Tue Apr 20 19:42:15 2010/-ko/Tv20100520-0800
+/ExtractInterfaceTests.java/1.92/Fri Feb  5 15:10:43 2010/-ko/Tv20100520-0800
+/ExtractMethodTestSetup.java/1.27/Thu Sep 11 12:00:23 2008/-ko/Tv20100520-0800
+/ExtractMethodTests.java/1.93/Fri Nov  5 21:05:20 2010/-ko/Tv20100520-0800
+/ExtractSupertypeTests.java/1.6/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/ExtractTempTests.java/1.109/Tue Apr 20 19:42:15 2010/-ko/Tv20100520-0800
+/InferTypeArgumentsTests.java/1.40/Thu Apr  1 15:15:52 2010//Tv20100520-0800
+/InlineConstantTests.java/1.36/Tue Jan 19 14:09:07 2010/-ko/Tv20100520-0800
+/InlineMethodTestSetup.java/1.24/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/InlineMethodTests.java/1.85/Wed Aug 26 16:26:03 2009/-ko/Tv20100520-0800
+/InlineTempTests.java/1.60/Tue Jan 19 14:09:07 2010/-ko/Tv20100520-0800
+/IntroduceFactoryTests.java/1.37/Tue Jan  5 13:51:46 2010//Tv20100520-0800
+/IntroduceIndirectionTests.java/1.8/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/IntroduceParameterObjectTests.java/1.16/Tue Jan  6 14:34:17 2009//Tv20100520-0800
+/IntroduceParameterTests.java/1.20/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/Java15Setup.java/1.4/Fri Jun 17 15:50:27 2005//Tv20100520-0800
+/Java16Setup.java/1.2/Thu Sep 11 12:00:25 2008//Tv20100520-0800
+/LineColumnSelectionTestCase.java/1.9/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/MoveInnerToTopLevelTests.java/1.60/Fri Mar  5 17:36:46 2010/-ko/Tv20100520-0800
+/MoveInstanceMethodTests.java/1.49/Thu Sep 11 12:00:24 2008/-ko/Tv20100520-0800
+/MoveMembersTests.java/1.44/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/NullRefactoring.java/1.14/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/ParticipantTesting.java/1.14/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/PathTransformationTests.java/1.13/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/PromoteTempToFieldTests.java/1.44/Fri Nov 14 13:01:44 2008/-ko/Tv20100520-0800
+/PullUpTests.java/1.62/Thu Sep 11 12:00:24 2008/-ko/Tv20100520-0800
+/PushDownTests.java/1.31/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RefactoringScannerTests.java/1.21/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RefactoringTest.java/1.61/Tue Apr 21 06:58:10 2009/-ko/Tv20100520-0800
+/RefactoringTestSetup.java/1.11/Thu Sep 11 12:00:23 2008//Tv20100520-0800
+/RenameFieldTests.java/1.10/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameJavaProjectTests.java/1.28/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameMethodInInterfaceTests.java/1.35/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameMethodTests.java/1.11/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameNonPrivateFieldTests.java/1.43/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenamePackageTests.java/1.55/Fri Jun 12 16:58:47 2009/-ko/Tv20100520-0800
+/RenameParametersTests.java/1.33/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenamePrivateFieldTests.java/1.39/Wed Dec 31 21:14:42 2008/-ko/Tv20100520-0800
+/RenamePrivateMethodTests.java/1.26/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameResourceChangeTests.java/1.20/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameSourceFolderChangeTests.java/1.21/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameStaticMethodTests.java/1.34/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenameTempTests.java/1.63/Mon Oct  5 12:46:52 2009/-ko/Tv20100520-0800
+/RenameTests.java/1.12/Wed Dec 31 21:14:42 2008//Tv20100520-0800
+/RenameTypeParameterTests.java/1.8/Fri Jun 12 18:12:17 2009//Tv20100520-0800
+/RenameTypeTests.java/1.64/Mon Dec 15 17:53:30 2008/-ko/Tv20100520-0800
+/RenameVirtualMethodInClassTests.java/1.47/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/RenamingNameSuggestorTests.java/1.9/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/ReplaceInvocationsTests.java/1.3/Wed Dec 31 21:14:41 2008/-kk/Tv20100520-0800
+/RewriteMethodInvocationsTestSetup.java/1.4/Wed Dec 31 21:14:41 2008/-kk/Tv20100520-0800
+/RippleMethodFinderTests.java/1.7/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/SefTestSetup.java/1.21/Wed Dec 31 21:14:41 2008/-ko/Tv20100520-0800
+/SefTests.java/1.37/Wed Nov 12 10:26:59 2008/-ko/Tv20100520-0800
+/SurroundWithTestSetup.java/1.23/Tue Mar 31 12:25:46 2009/-ko/Tv20100520-0800
+/SurroundWithTests.java/1.35/Thu Sep 11 12:00:25 2008/-ko/Tv20100520-0800
+/TestChangeMethodSignaturParticipant.java/1.5/Mon Dec  7 17:01:35 2009//Tv20100520-0800
+/TestCopyParticipantShared.java/1.9/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestCopyParticipantSingle.java/1.7/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestCreateParticipantShared.java/1.6/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestCreateParticipantSingle.java/1.6/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestDeleteParticipantShared.java/1.6/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestDeleteParticipantSingle.java/1.6/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestModelProvider.java/1.14/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestMoveParticipantShared.java/1.5/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestMoveParticipantSingle.java/1.5/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestRenameParticipantShared.java/1.9/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/TestRenameParticipantSingle.java/1.5/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+/UndoManagerTests.java/1.17/Fri Dec  5 18:01:01 2008/-ko/Tv20100520-0800
+/UseSupertypeWherePossibleTests.java/1.34/Mon Apr 20 16:15:07 2009/-ko/Tv20100520-0800
+/ValidateEditTests.java/1.8/Wed Dec 31 21:14:41 2008//Tv20100520-0800
+D/actions////
+D/all////
+D/ccp////
+D/changes////
+D/extensions////
+D/infra////
+D/nls////
+D/reorg////
+D/type////
+D/typeconstraints////

@@ -33,18 +33,28 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
  * @since 3.2
  * 
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * 
+ * @author Mohsen Vakilia, nchen: Added new events to capture disallowed, performed and canceled refactorings
  */
 public final class RefactoringHistoryEvent {
 
+	//CODINGSPECTATOR
+	
+	/**
+	 * Event type indicating that a refactoring could not be invoked (invalid selection) (value 32)
+	 */
+	public static final int CODINGSPECTATOR_REFACTORING_UNAVAILABLE= 32;
+
+	
 	/**
 	 * Event type indicating that a refactoring descriptor has been performed (value 16)
 	 */
-	public static final int REFACTOR_BEHAVIOR_PERFORMED= 16;
+	public static final int CODINGSPECTATOR_REFACTORING_PERFORMED= 16;
 
 	/**
 	 * Event type indicating that a refactoring descriptor has been canceled (value 8)
 	 */
-	public static final int REFACTOR_BEHAVIOR_CANCELED= 8;
+	public static final int CODINGSPECTATOR_REFACTORING_CANCELED= 8;
 
 	/**
 	 * Event type indicating that a refactoring descriptor has been added to its associated history

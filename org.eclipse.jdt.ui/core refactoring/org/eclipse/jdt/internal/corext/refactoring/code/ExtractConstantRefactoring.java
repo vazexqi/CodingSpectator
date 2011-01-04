@@ -35,6 +35,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.SourceRange;
@@ -90,6 +91,7 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStringStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.RefactoringStatusCodes;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.rename.RefactoringAnalyzeUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.CompilationUnitRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
@@ -103,7 +105,12 @@ import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.text.correction.ModifierCorrectionSubProcessor;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-public class ExtractConstantRefactoring extends WatchedRefactoring {
+
+/**
+ * @author nchen - Provided a method to create a refactoring descriptor.
+ * @author Mohsen Vakilian - Added the CODINGSPECTATOR change comments.
+ */
+public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 
@@ -284,8 +291,10 @@ public class ExtractConstantRefactoring extends WatchedRefactoring {
 			pm.beginTask("", 7); //$NON-NLS-1$
 
 			RefactoringStatus result= Checks.validateEdit(fCu, getValidationContext());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
 				return result;
+			}
 			pm.worked(1);
 
 			if (fCuRewrite == null) {
@@ -296,8 +305,10 @@ public class ExtractConstantRefactoring extends WatchedRefactoring {
 			}
 			result.merge(checkSelection(new SubProgressMonitor(pm, 3)));
 
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
 				return result;
+			}
 
 			if (isLiteralNodeSelected())
 				fReplaceAllOccurrences= false;
@@ -581,7 +592,9 @@ public class ExtractConstantRefactoring extends WatchedRefactoring {
 		return fChange;
 	}
 
+	//CODINGSPECTATOR: Renamed createRefactoringDescriptor to getRefactoringDescriptor.
 	private ExtractConstantDescriptor getRefactoringDescriptor() {
+		//CODINGSPECTATOR: Extracted the code to find the project name into 'WatchedJavaRefactoring.getJavaProjectName()'. 
 		String project= getJavaProjectName();
 
 		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
@@ -608,48 +621,6 @@ public class ExtractConstantRefactoring extends WatchedRefactoring {
 		ExtractConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractConstantDescriptor(project, description, comment.asString(), arguments, flags);
 		populateRefactoringSpecificFields(project, arguments);
 		return descriptor;
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		if (JdtFlags.getVisibilityCode(fVisibility) != Modifier.PRIVATE)
-			flags|= RefactoringDescriptor.STRUCTURAL_CHANGE;
-
-		final String expression= ASTNodes.asString(fSelectedExpression.getAssociatedExpression());
-		final String description= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fConstantName));
-		final String header= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fConstantName),
-				BasicElementLabels.getJavaCodeString(expression) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_name_pattern, BasicElementLabels.getJavaElementName(fConstantName)));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_expression_pattern, BasicElementLabels.getJavaCodeString(expression)));
-		String visibility= fVisibility;
-		if ("".equals(visibility)) //$NON-NLS-1$
-			visibility= RefactoringCoreMessages.ExtractConstantRefactoring_default_visibility;
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_visibility_pattern, visibility));
-		if (fReplaceAllOccurrences)
-			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_replace_occurrences);
-		if (fQualifyReferencesWithDeclaringClassName)
-			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_qualify_references);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		ExtractConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractConstantDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fConstantName);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllOccurrences).toString());
-		arguments.put(ATTRIBUTE_QUALIFY, Boolean.valueOf(fQualifyReferencesWithDeclaringClassName).toString());
-		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(JdtFlags.getVisibilityCode(fVisibility)).toString());
-	}
-
-	protected ICompilationUnit getCompilationUnit() {
-		return fCu;
 	}
 
 	private void replaceExpressionsWithConstant() throws JavaModelException {
@@ -933,4 +904,55 @@ public class ExtractConstantRefactoring extends WatchedRefactoring {
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, ATTRIBUTE_QUALIFY));
 		return new RefactoringStatus();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		String project= getJavaProjectName();
+
+		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		if (JdtFlags.getVisibilityCode(fVisibility) != Modifier.PRIVATE)
+			flags|= RefactoringDescriptor.STRUCTURAL_CHANGE;
+
+		final String expression= ASTNodes.asString(fSelectedExpression.getAssociatedExpression());
+		final String description= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fConstantName));
+		final String header= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fConstantName),
+				BasicElementLabels.getJavaCodeString(expression) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_name_pattern, BasicElementLabels.getJavaElementName(fConstantName)));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_expression_pattern, BasicElementLabels.getJavaCodeString(expression)));
+		String visibility= fVisibility;
+		if ("".equals(visibility)) //$NON-NLS-1$
+			visibility= RefactoringCoreMessages.ExtractConstantRefactoring_default_visibility;
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_visibility_pattern, visibility));
+		if (fReplaceAllOccurrences)
+			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_replace_occurrences);
+		if (fQualifyReferencesWithDeclaringClassName)
+			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_qualify_references);
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
+		ExtractConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractConstantDescriptor(project, description, comment.asString(), arguments, flags);
+		populateRefactoringSpecificFields(project, arguments);
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, Map arguments) {
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fConstantName);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllOccurrences).toString());
+		arguments.put(ATTRIBUTE_QUALIFY, Boolean.valueOf(fQualifyReferencesWithDeclaringClassName).toString());
+		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(JdtFlags.getVisibilityCode(fVisibility)).toString());
+	}
+
+	protected ITypeRoot getJavaTypeRoot() {
+		return fCu;
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.EXTRACT_CONSTANT;
+	}
+
 }

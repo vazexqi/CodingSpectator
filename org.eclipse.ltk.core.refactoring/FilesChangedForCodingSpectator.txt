@@ -1,0 +1,27 @@
+Changed Files
+=============
+
+src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistorySerializer.java
+src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistoryService.java
+src/org/eclipse/ltk/core/refactoring/participants/RenameRefactoring.java
+
+src/org/eclipse/ltk/core/refactoring/Change.java
+src/org/eclipse/ltk/core/refactoring/CompositeChange.java
+src/org/eclipse/ltk/internal/core/refactoring/UndoableOperation2ChangeAdapter.java
+
+src/org/eclipse/ltk/core/refactoring/participants/MoveRefactoring.java
+
+src/org/eclipse/ltk/core/refactoring/Refactoring.java
+src/org/eclipse/ltk/core/refactoring/RefactoringDescriptor.java
+
+src/org/eclipse/ltk/core/refactoring/participants/ProcessorBasedRefactoring.java
+src/org/eclipse/ltk/core/refactoring/participants/RefactoringProcessor.java
+
+Added Files
+===========
+
+src/org/eclipse/ltk/core/refactoring/codingspectator/IWatched.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/IWatchedProcessor.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/IWatchedRefactoring.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/Logger.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/RunningModes.java

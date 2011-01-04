@@ -35,11 +35,9 @@ import org.eclipse.ltk.core.refactoring.PerformChangeOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
-import org.eclipse.ltk.internal.core.refactoring.history.RefactoringDescriptorProxyAdapter;
-import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySerializer;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.ErrorWizardPage;
 import org.eclipse.ltk.internal.ui.refactoring.ExceptionHandler;
@@ -71,6 +69,8 @@ import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
  * <p>
  * Clients may extend this class.
  * </p>
+ * 
+ * @author Mohsen Vakilian, nchen - Changed performFinish(), performCancel
  * 
  * @see org.eclipse.ltk.core.refactoring.Refactoring
  * 
@@ -509,7 +509,7 @@ public abstract class RefactoringWizard extends Wizard {
 			setFinalConditionCheckingStatus(status);
 	}
 
-	private RefactoringStatus getConditionCheckingStatus() {
+	public RefactoringStatus getConditionCheckingStatus() {
 		return fConditionCheckingStatus;
 	}
 
@@ -643,49 +643,27 @@ public abstract class RefactoringWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		RefactoringWizardPage page= (RefactoringWizardPage)getContainer().getCurrentPage();
-		boolean acceptedToPerformFinish= page.performFinish();
-
-		if (acceptedToPerformFinish) {
-			logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_PERFORMED);
+		//CODINGSPECTATOR: Create the refactoring descriptor before the change is created.
+		RefactoringDescriptor refactoringDescriptor= Logger.createRefactoringDescriptor(getConditionCheckingStatus(), getRefactoring());
+		boolean performedFinish= page.performFinish();
+		if (performedFinish) {
+			Logger.logRefactoringDescriptor(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, refactoringDescriptor);
 		}
-
-		return acceptedToPerformFinish;
+		return performedFinish;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#performHistoryNotification
 	 */
 	public boolean performCancel() {
-		logRefactoringEvent(RefactoringHistoryEvent.REFACTOR_BEHAVIOR_CANCELED);
+		//CODINGSPECTATOR
+		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
 
 		if (fChange != null) {
 			fChange.dispose();
 		}
 		return super.performCancel();
 	}
-
-
-	private void logRefactoringEvent(int refactoringEventType) {
-		try {
-			RefactoringDescriptor refactoringDescriptor= fRefactoring.getSimpleRefactoringDescriptor(getConditionCheckingStatus());
-			System.err.println(refactoringDescriptor.toString());
-
-			// Wrap it into a refactoring descriptor proxy
-			RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-			// Wrap it into a refactoringdecriptorevent using proxy
-			RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
-
-			// Call RefactoringHistorySerializer to persist
-			RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-			serializer.historyNotification(event);
-		} catch (UnsupportedOperationException e) {
-		}
-	}
-
-	//---- Internal API, but public due to Java constraints ------------------------------
 
 	/**
 	 * Note: This method is for internal use only. Clients are not allowed to call this method.

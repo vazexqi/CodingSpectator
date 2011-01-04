@@ -1,0 +1,61 @@
+Changed Files
+=============
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractConstantRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractTempRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineConstantRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineMethodRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFactoryRefactoring.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/JavaRenameProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameTypeParameterProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameSourceFolderProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameTypeProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenamePackageProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameJavaProjectProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameEnumConstProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameCompilationUnitProcessor.java
+
+ui/org/eclipse/jdt/internal/ui/JavaPlugin.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/CompilationUnitReorgChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenameCompilationUnitChange.java
+
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/RefactoringExecutionHelper.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveStaticMembersProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/MoveMembersWizard.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInstanceMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
+
+# For capturing disallowed refactorings
+
+ui/org/eclipse/jdt/ui/actions/InlineAction.java
+ui/org/eclipse/jdt/ui/actions/MoveAction.java
+ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
+ui/org/eclipse/jdt/ui/actions/RenameAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameJavaElementAction.java
+
+# For capturing the refactorings invoked by quick assist
+ui/org/eclipse/jdt/internal/ui/text/correction/QuickAssistProcessor.java
+ui/org/eclipse/jdt/internal/ui/text/correction/proposals/ChangeCorrectionProposal.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/RefactoringExecutionStarter.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/RenameLinkedMode.java
+ui/org/eclipse/jdt/internal/ui/text/correction/proposals/RenameRefactoringProposal.java
+ui/org/eclipse/jdt/ui/refactoring/RenameSupport.java
+
+
+Added Files
+===========
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaMoveProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRenameProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessorDelegate.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/IWatchedJavaProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedRenameProcessorDelegate.java

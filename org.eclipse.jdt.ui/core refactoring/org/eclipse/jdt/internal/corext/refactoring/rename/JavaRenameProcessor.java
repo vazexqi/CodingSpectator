@@ -21,19 +21,29 @@ import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
-import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.ltk.core.refactoring.participants.ValidateEditChecker;
 
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRenameProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedRenameProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
-
-public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating {
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
+ * 
+ */
+public abstract class JavaRenameProcessor extends WatchedJavaRenameProcessor implements INameUpdating {
 
 	private String fNewElementName;
+
 	private RenameModifications fRenameModifications;
 
 	public final RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants shared) throws CoreException {
@@ -41,7 +51,7 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 	}
 
 	public final RefactoringStatus checkFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException, OperationCanceledException {
-		ResourceChangeChecker checker= (ResourceChangeChecker) context.getChecker(ResourceChangeChecker.class);
+		ResourceChangeChecker checker= (ResourceChangeChecker)context.getChecker(ResourceChangeChecker.class);
 		IResourceChangeDescriptionFactory deltaFactory= checker.getDeltaFactory();
 		RefactoringStatus result= doCheckFinalConditions(pm, context);
 		if (result.hasFatalError())
@@ -75,9 +85,37 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 
 	/**
 	 * @return a save mode from {@link RefactoringSaveHelper}
-	 *
+	 * 
 	 * @see RefactoringSaveHelper
 	 */
 	public abstract int getSaveMode();
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedJavaRenameProcessorDelegate(this);
+	}
+
+	public class WatchedJavaRenameProcessorDelegate extends WatchedRenameProcessorDelegate {
+
+		public WatchedJavaRenameProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
+		}
+
+		public JavaRefactoringDescriptor createRefactoringDescriptor() {
+			return JavaRenameProcessor.this.createRefactoringDescriptor();
+		}
+
+		public Object[] getElements() {
+			return JavaRenameProcessor.this.getElements();
+		}
+
+		public boolean isInvokedByQuickAssist() {
+			return JavaRenameProcessor.this.isInvokedByQuickAssist();
+		}
+
+	}
 
 }

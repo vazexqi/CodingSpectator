@@ -36,14 +36,23 @@ import org.eclipse.ltk.core.refactoring.IValidationCheckResultQuery;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
-
-public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdvancedUndoableOperation  {
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
+public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdvancedUndoableOperation {
 
 	private String fLabel;
+
 	private String fDescription;
+
 	private Change fExecuteChange;
+
 	private Change fUndoChange;
+
 	private Change fRedoChange;
+
 	private Change fActiveChange;
 
 	private ChangeDescriptor fChangeDescriptor;
@@ -52,11 +61,14 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 
 	private static class ContextAdapter implements IAdaptable {
 		private IAdaptable fInfoAdapter;
+
 		private String fTitle;
+
 		public ContextAdapter(IAdaptable infoAdapter, String title) {
 			fInfoAdapter= infoAdapter;
 			fTitle= title;
 		}
+
 		public Object getAdapter(Class adapter) {
 			if (String.class.equals(adapter))
 				return fTitle;
@@ -66,8 +78,11 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 
 	private static class ExecuteResult {
 		boolean changeExecuted;
+
 		Change reverseChange;
+
 		RefactoringStatus validationStatus;
+
 		public ExecuteResult() {
 			validationStatus= new RefactoringStatus();
 		}
@@ -95,7 +110,7 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 	}
 
 	public void setChangeDescriptor(ChangeDescriptor descriptor) {
-		fChangeDescriptor=  descriptor;
+		fChangeDescriptor= descriptor;
 	}
 
 	public void setLabel(String label) {
@@ -120,6 +135,13 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 		return fActiveChange.getAffectedObjects();
 	}
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		if (fActiveChange == null)
+			return null;
+		return fActiveChange.getAllAffectedObjects();
+	}
+
 	public void addContext(IUndoContext context) {
 		if (!fContexts.contains(context))
 			fContexts.add(context);
@@ -128,8 +150,8 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 	public boolean hasContext(IUndoContext context) {
 		if (context == null)
 			return false;
-		for (int i = 0; i< fContexts.size(); i++) {
-			IUndoContext otherContext = (IUndoContext)fContexts.get(i);
+		for (int i= 0; i < fContexts.size(); i++) {
+			IUndoContext otherContext= (IUndoContext)fContexts.get(i);
 			// have to check both ways because one context may be more general in
 			// its matching rules than another.
 			if (context.matches(otherContext) || otherContext.matches(context))
@@ -155,10 +177,10 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 			monitor= new NullProgressMonitor();
 		try {
 			ExecuteResult result= executeChange(
-				getQuery(
-					info,
-					RefactoringCoreMessages.Refactoring_execute_label),
-				monitor);
+					getQuery(
+							info,
+							RefactoringCoreMessages.Refactoring_execute_label),
+					monitor);
 			if (!result.changeExecuted) {
 				return createStatus(result);
 			}
@@ -180,10 +202,10 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 			monitor= new NullProgressMonitor();
 		try {
 			ExecuteResult result= executeChange(
-				getQuery(
-					info,
-					RefactoringCoreMessages.Refactoring_undo_label),
-				monitor);
+					getQuery(
+							info,
+							RefactoringCoreMessages.Refactoring_undo_label),
+					monitor);
 			if (!result.changeExecuted) {
 				fUndoChange= null;
 				fRedoChange= null;
@@ -202,8 +224,8 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 	public IStatus computeUndoableStatus(IProgressMonitor monitor) throws ExecutionException {
 		if (fUndoChange == null)
 			return new Status(IStatus.ERROR, RefactoringCorePlugin.getPluginId(), IStatus.ERROR,
-				RefactoringCoreMessages.UndoableOperation2ChangeAdapter_no_undo_available,
-				null);
+					RefactoringCoreMessages.UndoableOperation2ChangeAdapter_no_undo_available,
+					null);
 		try {
 			if (monitor == null)
 				monitor= new NullProgressMonitor();
@@ -233,10 +255,10 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 			monitor= new NullProgressMonitor();
 		try {
 			ExecuteResult result= executeChange(
-				getQuery(
-					info,
-					RefactoringCoreMessages.Refactoring_redo_label),
-				monitor);
+					getQuery(
+							info,
+							RefactoringCoreMessages.Refactoring_redo_label),
+					monitor);
 			if (!result.changeExecuted) {
 				fUndoChange= null;
 				fRedoChange= null;
@@ -255,8 +277,8 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 	public IStatus computeRedoableStatus(IProgressMonitor monitor) throws ExecutionException {
 		if (fRedoChange == null)
 			return new Status(IStatus.ERROR, RefactoringCorePlugin.getPluginId(), IStatus.ERROR,
-				RefactoringCoreMessages.UndoableOperation2ChangeAdapter_no_redo_available,
-				null);
+					RefactoringCoreMessages.UndoableOperation2ChangeAdapter_no_redo_available,
+					null);
 		try {
 			if (monitor == null)
 				monitor= new NullProgressMonitor();
@@ -278,7 +300,7 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 	}
 
 	public void aboutToNotify(OperationHistoryEvent event) {
-		switch(event.getEventType()) {
+		switch (event.getEventType()) {
 			case OperationHistoryEvent.ABOUT_TO_EXECUTE:
 			case OperationHistoryEvent.ABOUT_TO_UNDO:
 			case OperationHistoryEvent.ABOUT_TO_REDO:
@@ -325,7 +347,7 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 					fActiveChange.dispose();
 					if (result.reverseChange != null) {
 						result.reverseChange.initializeValidationData(new NotCancelableProgressMonitor(
-							new SubProgressMonitor(monitor, 1)));
+								new SubProgressMonitor(monitor, 1)));
 						reverseIsInitialized= true;
 					}
 				} catch (CoreException e) {
@@ -356,8 +378,8 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 			return result.validationStatus.getEntryWithHighestSeverity().toStatus();
 		} else {
 			return new Status(IStatus.ERROR, RefactoringCorePlugin.getPluginId(), IStatus.ERROR,
-				RefactoringCoreMessages.UndoableOperation2ChangeAdapter_error_message,
-				null);
+					RefactoringCoreMessages.UndoableOperation2ChangeAdapter_error_message,
+					null);
 		}
 	}
 

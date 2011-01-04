@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
@@ -50,15 +51,22 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
+ * 
+ */
 public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 
 	private static final String ATTRIBUTE_PATH= "path"; //$NON-NLS-1$
+
 	private static final String ATTRIBUTE_NAME= "name"; //$NON-NLS-1$
 
 	private IPackageFragmentRoot fSourceFolder;
 
 	/**
 	 * Creates a new rename source folder processor.
+	 * 
 	 * @param root the package fragment root, or <code>null</code> if invoked by scripting
 	 */
 	public RenameSourceFolderProcessor(IPackageFragmentRoot root) {
@@ -90,7 +98,7 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 	}
 
 	public Object[] getElements() {
-		return new Object[] {fSourceFolder};
+		return new Object[] { fSourceFolder };
 	}
 
 	public Object getNewElement() throws CoreException {
@@ -128,11 +136,11 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 
 	public RefactoringStatus checkNewElementName(String newName) throws CoreException {
 		Assert.isNotNull(newName, "new name"); //$NON-NLS-1$
-		if (! newName.trim().equals(newName))
+		if (!newName.trim().equals(newName))
 			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.RenameSourceFolderRefactoring_blank);
 
-		IContainer c= 	fSourceFolder.getResource().getParent();
-		if (! c.getFullPath().isValidSegment(newName))
+		IContainer c= fSourceFolder.getResource().getParent();
+		if (!c.getFullPath().isValidSegment(newName))
 			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.RenameSourceFolderRefactoring_invalid_name);
 
 		RefactoringStatus result= RefactoringStatus.create(c.getWorkspace().validateName(newName, IResource.FOLDER));
@@ -159,9 +167,9 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 
 	protected RefactoringStatus doCheckFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException {
 		pm.beginTask("", 1); //$NON-NLS-1$
-		try{
+		try {
 			return new RefactoringStatus();
-		} finally{
+		} finally {
 			pm.done();
 		}
 	}
@@ -170,26 +178,34 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 		return true;
 	}
 
+	//CODINGSPECTATOR: Extracted createRefactoringDescriptor.
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask(RefactoringCoreMessages.RenameTypeRefactoring_creating_change, 1);
 		try {
-			final IResource resource= fSourceFolder.getResource();
-			final String project= resource.getProject().getName();
-			final String newName= getNewElementName();
-			final String description= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description_short, JavaElementLabels.getElementLabel(fSourceFolder, JavaElementLabels.ALL_DEFAULT));
-			final String header= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description, new String[] { BasicElementLabels.getPathLabel(resource.getFullPath(), false), BasicElementLabels.getJavaElementName(newName)});
-			final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
-			final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_SOURCE_FOLDER);
-			descriptor.setProject(project);
-			descriptor.setDescription(description);
-			descriptor.setComment(comment);
-			descriptor.setFlags(RefactoringDescriptor.NONE);
-			descriptor.setJavaElement(fSourceFolder);
-			descriptor.setNewName(newName);
-			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.RenameSourceFolderRefactoring_rename, new Change[] { new RenameSourceFolderChange(fSourceFolder, newName)});
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameSourceFolderRefactoring_rename, new Change[] { new RenameSourceFolderChange(
+					fSourceFolder, getNewElementName()) });
 		} finally {
 			monitor.done();
 		}
+	}
+
+	//CODINGSPECTATOR: Extracted from createChange.
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+		final IResource resource= fSourceFolder.getResource();
+		final String project= resource.getProject().getName();
+		final String description= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description_short,
+				JavaElementLabels.getElementLabel(fSourceFolder, JavaElementLabels.ALL_DEFAULT));
+		final String header= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description, new String[] { BasicElementLabels.getPathLabel(resource.getFullPath(), false),
+				BasicElementLabels.getJavaElementName(getNewElementName()) });
+		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
+		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_SOURCE_FOLDER);
+		descriptor.setProject(project);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment);
+		descriptor.setFlags(RefactoringDescriptor.NONE);
+		descriptor.setJavaElement(fSourceFolder);
+		descriptor.setNewName(getNewElementName());
+		return descriptor;
 	}
 
 	private RefactoringStatus initialize(JavaRefactoringArguments generic) {
@@ -199,7 +215,7 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 			if (resource == null || !resource.exists())
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(resource, getProcessorName(), IJavaRefactorings.RENAME_SOURCE_FOLDER);
 			else
-				fSourceFolder= (IPackageFragmentRoot) JavaCore.create(resource);
+				fSourceFolder= (IPackageFragmentRoot)JavaCore.create(resource);
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, ATTRIBUTE_PATH));
 		final String name= generic.getAttribute(ATTRIBUTE_NAME);
@@ -208,5 +224,13 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 		else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, ATTRIBUTE_NAME));
 		return new RefactoringStatus();
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_SOURCE_FOLDER;
 	}
 }

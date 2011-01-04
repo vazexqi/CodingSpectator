@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="edu.illinois.codingspectator.feature"
+      label="CodingSpectator"
+      version="1.0.0.qualifier"
+      provider-name="University of Illinois">
+
+   <description>
+      CodingSpectator collects the user&apos;s interactions with Eclipse. Then, it submits the collected to a central server.
+   </description>
+
+   <copyright>
+      <![CDATA[University of Illinois/NCSA Open Source License
+Copyright (c) 2008-2010 University of Illinois at Urbana-Champaign.
+All rights reserved.]]>
+   </copyright>
+
+   <license>
+      <![CDATA[CodingSpectator Release License
+===============================
+ 
+University of Illinois/NCSA Open Source License
+ 
+Copyright (c) 2008-2010 University of Illinois at Urbana-Champaign. All rights
+reserved.
+ 
+Developed by:
+ 
+    CodingSpectator Team
+ 
+    University of Illinois
+ 
+    http://codingspectator.github.com/
+ 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal with
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+ 
+  * Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimers.
+ 
+  * Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimers in the documentation
+  and/or other materials provided with the distribution.
+ 
+  * Neither the names of the CodingSpectator Team, University of Illinois, nor the
+  names of its contributors may be used to endorse or promote products derived
+  from this Software without specific prior written permission.
+ 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+SOFTWARE.
+ 
+Copyrights and Licenses for Third Party Software Distributed with CodingSpectator
+=================================================================================
+ 
+The CodingSpectator software depends on third party software. Such software will
+have its own individual LICENSE.TXT file in the directory in which it appears.
+This file will describe the copyrights, license, and restrictions which apply to
+that code.
+ 
+The disclaimer of warranty in the University of Illinois Open Source License
+applies to all code in the CodingSpectator Distribution, and nothing in any of
+the other licenses gives permission to use the names of the CodingSpectator Team
+or the University of Illinois to endorse or promote products derived from this
+Software.
+ 
+The following pieces of software have additional or alternate copyrights,
+licenses, and/or restrictions.
+ 
+* CodingSpectator is implemented as an Eclipse plug-in. Eclipse is available at
+http://www.eclipse.org/ and is licensed under the Eclipse Public License -
+Version 1.0.
+ 
+* CodingSpectator depends on the following projects that are licensed under the
+Eclipse Public License - Version 1.0.
+  * edu.illinois.CodingSpectator.jdt.patch
+  * edu.illinois.CodingSpectator.platform.patch
+  * edu.illinois.codingspectator.epp.usagedata.feature.patch
+ 
+* CodingSpectator depends on a modified version of the following Eclipse plug-ins
+all redistributed under the Eclipse Public License - Version 1.0.
+  * org.eclipse.ltk.core.refactoring
+  * org.eclipse.ltk.ui.refactoring
+  * org.eclipse.jdt.ui
+  * org.eclipse.ui.editors
+  * org.eclipse.compare
+  * org.eclipse.epp.usagedata.recording
+ 
+* CodingSpectator depends on a plug-in that contains the binary form of the
+SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed
+under the TMate Open Source License.
+
+* CodingSpectator depends on the JCommander library. JCommander is licensed
+under the Apache License - Version 2.0, and is available at
+http://beust.com/jcommander/.]]>
+   </license>
+
+
+   <url>
+      <update label="CodingSpectator Update Site" url="http://codingspectator.cs.illinois.edu/updates"/>
+   </url>
+
+   <includes
+         id="edu.illinois.codingspectator.jdt.helios.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.helios.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.heliosSR1.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <plugin
+         id="org.tmatesoft.svn_1.3.4.eclipse"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.codingtracker"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.monitor.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.monitor.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

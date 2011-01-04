@@ -28,6 +28,8 @@ import java.util.Set;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 import org.xml.sax.InputSource;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -84,6 +86,11 @@ import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter
 /**
  * Default implementation of a refactoring history service.
  * 
+ * @author nchen - Added getFeatureVersion(), getRefactoringHistoryCanceledFolder(),
+ *         getRefactoringHistoryPerformedFolder(), constructHiddenFolder(baseName) to locate the
+ *         folder to store the log files.
+ * @author Mohsen Vakilian - Added the CODINGSPECTATOR change comments.
+ * 
  * @since 3.2
  */
 public final class RefactoringHistoryService implements IRefactoringHistoryService {
@@ -123,10 +130,13 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	public static final String NAME_HISTORY_FILE= "refactorings.history"; //$NON-NLS-1$
 
 	/** The refactoring history canceled folder */
-	public static final String NAME_HISTORY_CANCELED_FOLDER= ".refactorings.canceled";
+	public static final String NAME_HISTORY_CANCELED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsCanceledDirectory;
 
 	/** The refactoring history performed folder */
-	public static final String NAME_HISTORY_PERFORMED_FOLDER= ".refactorings.performed";
+	public static final String NAME_HISTORY_PERFORMED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsPerformedDirectory;
+
+	/** The refactoring history disallowed folder */
+	public static final String NAME_HISTORY_UNAVAILABLE_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsUnavailableDirectory;
 
 	/** The refactoring history folder */
 	public static final String NAME_HISTORY_FOLDER= ".refactorings"; //$NON-NLS-1$
@@ -1000,4 +1010,31 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 		return manager;
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public static Version getFeatureVersion() {
+		Bundle bundle= Platform.getBundle(RefactoringCoreMessages.CodingSpectator_FeatureBundleName);
+		if (bundle != null)
+			return bundle.getVersion();
+		else
+			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
+	}
+
+	private static String constructHiddenFolder(String baseName) {
+		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
+	}
+
+	public static String getRefactoringHistoryCanceledFolder() {
+		return constructHiddenFolder(NAME_HISTORY_CANCELED_FOLDER);
+	}
+
+	public static String getRefactoringHistoryPerformedFolder() {
+		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
+	}
+
+	public static String getRefactoringHistoryUnavailableFolder() {
+		return constructHiddenFolder(NAME_HISTORY_UNAVAILABLE_FOLDER);
+	}
 }

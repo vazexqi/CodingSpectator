@@ -54,7 +54,11 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * The class should be subclassed by clients wishing to implement new refactorings.
  * </p>
  * 
+ * 
  * @since 3.0
+ * 
+ * @author Mohsen Vakilian, nchen - Enabled the refactoring to keep track of its invoker.
+ * 
  */
 public abstract class Refactoring extends PlatformObject {
 
@@ -241,8 +245,37 @@ public abstract class Refactoring extends PlatformObject {
 		return getName();
 	}
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		throw new UnsupportedOperationException();
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	//RefactoringWizardOpenOperation updates the state of the refactoring when it checks initial conditions.
+	private boolean refWizOpenOpCheckedInitConds= false;
+
+	public void unsetRefWizOpenOpCheckedInitConds() {
+		refWizOpenOpCheckedInitConds= false;
+	}
+
+	public void setRefWizOpenOpCheckedInitConds() {
+		refWizOpenOpCheckedInitConds= true;
+	}
+
+	public boolean isRefWizOpenOpCheckedInitConds() {
+		return refWizOpenOpCheckedInitConds;
+	}
+
+	private boolean invokedByQuickAssist= false;
+
+	public boolean isInvokedByQuickAssist() {
+		return invokedByQuickAssist;
+	}
+
+	public void setInvokedByQuickAssist() {
+		invokedByQuickAssist= true;
+	}
+
+	public void setInvokedByQuickAssist(boolean invokedByQuickAssist) {
+		this.invokedByQuickAssist= invokedByQuickAssist;
 	}
 
 }

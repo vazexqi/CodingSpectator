@@ -110,31 +110,47 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
+ * 
+ */
 public class RenamePackageProcessor extends JavaRenameProcessor implements
 		IReferenceUpdating, ITextUpdating, IQualifiedNameUpdating, IResourceMapper, IJavaElementMapper {
 
 	private static final String ATTRIBUTE_QUALIFIED= "qualified"; //$NON-NLS-1$
+
 	private static final String ATTRIBUTE_TEXTUAL_MATCHES= "textual"; //$NON-NLS-1$
+
 	private static final String ATTRIBUTE_PATTERNS= "patterns"; //$NON-NLS-1$
+
 	private static final String ATTRIBUTE_HIERARCHICAL= "hierarchical"; //$NON-NLS-1$
 
 	private IPackageFragment fPackage;
 
 	private TextChangeManager fChangeManager;
+
 	private ImportsManager fImportsManager;
+
 	private QualifiedNameSearchResult fQualifiedNameSearchResult;
 
 	private boolean fUpdateReferences;
+
 	private boolean fUpdateTextualMatches;
+
 	private boolean fUpdateQualifiedNames;
+
 	private String fFilePatterns;
+
 	private boolean fRenameSubpackages;
 
 	public static final String IDENTIFIER= "org.eclipse.jdt.ui.renamePackageProcessor"; //$NON-NLS-1$
+
 	private RenamePackageChange fRenamePackageChange;
 
 	/**
 	 * Creates a new rename package processor.
+	 * 
 	 * @param fragment the package fragment, or <code>null</code> if invoked by scripting
 	 */
 	public RenamePackageProcessor(IPackageFragment fragment) {
@@ -159,7 +175,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		return RefactoringAvailabilityTester.isRenameAvailable(fPackage);
 	}
 
-	public String getProcessorName(){
+	public String getProcessorName() {
 		return RefactoringCoreMessages.RenamePackageRefactoring_name;
 	}
 
@@ -168,7 +184,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	}
 
 	public Object[] getElements() {
-		return new Object[] {fPackage};
+		return new Object[] { fPackage };
 	}
 
 	protected RenameModifications computeRenameModifications() throws CoreException {
@@ -190,7 +206,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		}
 		if (fQualifiedNameSearchResult != null)
 			combined.addAll(Arrays.asList(fQualifiedNameSearchResult.getAllFiles()));
-		return (IFile[]) combined.toArray(new IFile[combined.size()]);
+		return (IFile[])combined.toArray(new IFile[combined.size()]);
 	}
 
 	public int getSaveMode() {
@@ -217,7 +233,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		fUpdateReferences= update;
 	}
 
-	public boolean getUpdateReferences(){
+	public boolean getUpdateReferences() {
 		return fUpdateReferences;
 	}
 
@@ -247,11 +263,11 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	//---- IResourceMapper  ----------------------------------
 
 	public IResource getRefactoredResource(IResource element) {
-		IFolder packageFolder= (IFolder) fPackage.getResource();
+		IFolder packageFolder= (IFolder)fPackage.getResource();
 		if (packageFolder == null)
 			return element;
 
-		IContainer newPackageFolder= (IContainer) getNewPackage().getResource();
+		IContainer newPackageFolder= (IContainer)getNewPackage().getResource();
 
 		if (packageFolder.equals(element))
 			return newPackageFolder;
@@ -276,7 +292,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	public IJavaElement getRefactoredJavaElement(IJavaElement original) {
 		return new GenericRefactoringHandleTransplanter() {
 			protected IPackageFragment transplantHandle(IPackageFragmentRoot parent, IPackageFragment element) {
-				if (! fRenameSubpackages) {
+				if (!fRenameSubpackages) {
 					if (fPackage.equals(element))
 						return getNewPackage();
 				} else {
@@ -338,7 +354,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 	//---- IRenameProcessor ----------------------------------------------
 
-	public final String getCurrentElementName(){
+	public final String getCurrentElementName() {
 		return fPackage.getElementName();
 	}
 
@@ -359,7 +375,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		return result;
 	}
 
-	public Object getNewElement(){
+	public Object getNewElement() {
 		return getNewPackage();
 	}
 
@@ -373,7 +389,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	}
 
 	protected RefactoringStatus doCheckFinalConditions(IProgressMonitor pm, CheckConditionsContext context) throws CoreException {
-		try{
+		try {
 			pm.beginTask("", 23 + (fUpdateQualifiedNames ? 10 : 0) + (fUpdateTextualMatches ? 10 : 0)); //$NON-NLS-1$
 			pm.setTaskName(RefactoringCoreMessages.RenamePackageRefactoring_checking);
 			RefactoringStatus result= new RefactoringStatus();
@@ -382,7 +398,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			result.merge(checkForMainAndNativeMethods());
 			pm.worked(2);
 
-			if (fPackage.isReadOnly()){
+			if (fPackage.isReadOnly()) {
 				String message= Messages.format(RefactoringCoreMessages.RenamePackageRefactoring_Packagered_only, getElementLabel(fPackage));
 				result.addFatalError(message);
 			} else if (Resources.isReadOnly(fPackage.getResource())) {
@@ -420,7 +436,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 				computeQualifiedNameMatches(new SubProgressMonitor(pm, 10));
 
 			return result;
-		} finally{
+		} finally {
 			pm.done();
 		}
 	}
@@ -429,7 +445,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		return fPackage;
 	}
 
-	private RefactoringStatus checkForMainAndNativeMethods() throws CoreException{
+	private RefactoringStatus checkForMainAndNativeMethods() throws CoreException {
 		RefactoringStatus result= new RefactoringStatus();
 		if (fRenameSubpackages) {
 			IPackageFragment[] allSubpackages= JavaElementUtil.getPackageAndSubpackages(fPackage);
@@ -453,7 +469,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	 */
 	public static boolean isPackageNameOkInRoot(String newName, IPackageFragmentRoot root) throws CoreException {
 		IPackageFragment pack= root.getPackageFragment(newName);
-		if (! pack.exists())
+		if (!pack.exists())
 			return true;
 		else if (pack.containsJavaResources())
 			return false;
@@ -470,9 +486,9 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 				// renaming to subpackage (a -> a.b) is always OK, since all subpackages are also renamed
 				return null;
 			}
-			if (! isAncestorPackage(newName, currentName)) {
+			if (!isAncestorPackage(newName, currentName)) {
 				// renaming to an unrelated package
-				if (! isPackageNameOkInRoot(newName, getPackageFragmentRoot())) {
+				if (!isPackageNameOkInRoot(newName, getPackageFragmentRoot())) {
 					return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.RenamePackageRefactoring_package_exists);
 				}
 			}
@@ -480,17 +496,17 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			// 'a.b' does not contain any subpackage that would collide with another subpackage of 'a'
 			// (e.g. a.b.c collides if a.c already exists, but a.b.b does not collide with a.b)
 			IPackageFragment[] packsToRename= JavaElementUtil.getPackageAndSubpackages(fPackage);
-			for (int i = 0; i < packsToRename.length; i++) {
-				IPackageFragment pack = packsToRename[i];
+			for (int i= 0; i < packsToRename.length; i++) {
+				IPackageFragment pack= packsToRename[i];
 				String newPack= newName + pack.getElementName().substring(currentName.length());
-				if (! isAncestorPackage(currentName, newPack) && ! isPackageNameOkInRoot(newPack, getPackageFragmentRoot())) {
+				if (!isAncestorPackage(currentName, newPack) && !isPackageNameOkInRoot(newPack, getPackageFragmentRoot())) {
 					String msg= Messages.format(RefactoringCoreMessages.RenamePackageProcessor_subpackage_collides, BasicElementLabels.getJavaElementName(newPack));
 					return RefactoringStatus.createFatalErrorStatus(msg);
 				}
 			}
 			return null;
 
-		} else if (! isPackageNameOkInRoot(newName, getPackageFragmentRoot())) {
+		} else if (!isPackageNameOkInRoot(newName, getPackageFragmentRoot())) {
 			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.RenamePackageRefactoring_package_exists);
 		} else {
 			return null;
@@ -516,10 +532,10 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		Set topLevelTypeNames= getTopLevelTypeNames();
 		for (int i= 0; i < roots.length; i++) {
 			IPackageFragmentRoot root= roots[i];
-			if (! isPackageNameOkInRoot(newName, root)) {
-				String rootLabel = JavaElementLabels.getElementLabel(root, JavaElementLabels.ALL_DEFAULT);
+			if (!isPackageNameOkInRoot(newName, root)) {
+				String rootLabel= JavaElementLabels.getElementLabel(root, JavaElementLabels.ALL_DEFAULT);
 				String newPackageName= BasicElementLabels.getJavaElementName(getNewElementName());
-				String message= Messages.format(RefactoringCoreMessages.RenamePackageRefactoring_aleady_exists, new Object[]{ newPackageName, rootLabel});
+				String message= Messages.format(RefactoringCoreMessages.RenamePackageRefactoring_aleady_exists, new Object[] { newPackageName, rootLabel });
 				status.merge(RefactoringStatus.createWarningStatus(message));
 				status.merge(checkTypeNameConflicts(root, newName, topLevelTypeNames));
 			}
@@ -563,8 +579,8 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 		for (int i= 0; i < types.length; i++) {
 			String name= types[i].getElementName();
-			if (topLevelTypeNames.contains(name)){
-				String[] keys= {getElementLabel(iCompilationUnit.getParent()), getElementLabel(types[i])};
+			if (topLevelTypeNames.contains(name)) {
+				String[] keys= { getElementLabel(iCompilationUnit.getParent()), getElementLabel(types[i]) };
 				String msg= Messages.format(RefactoringCoreMessages.RenamePackageRefactoring_contains_type, keys);
 				RefactoringStatusContext context= JavaStatusContext.create(types[i]);
 				result.addError(msg, context);
@@ -576,10 +592,9 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenamePackageRefactoring_creating_change, 1);
-			final RenameJavaElementDescriptor descriptor= createRefactoringDescriptor();
-			final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.RenamePackageRefactoring_change_name);
+			final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenamePackageRefactoring_change_name);
 			result.addAll(fChangeManager.getAllChanges());
-			fRenamePackageChange= new RenamePackageChange( fPackage, getNewElementName(),  fRenameSubpackages);
+			fRenamePackageChange= new RenamePackageChange(fPackage, getNewElementName(), fRenameSubpackages);
 			result.add(fRenamePackageChange);
 			monitor.worked(1);
 			return result;
@@ -590,14 +605,15 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		}
 	}
 
-	private RenameJavaElementDescriptor createRefactoringDescriptor() {
+	//CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to JavaRefactoringDescriptor. 
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fPackage.getJavaProject();
 		if (javaProject != null)
 			project= javaProject.getElementName();
 		final int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
 		final String description= Messages.format(RefactoringCoreMessages.RenamePackageProcessor_descriptor_description_short, getElementLabel(fPackage));
-		final String header= Messages.format(RefactoringCoreMessages.RenamePackageProcessor_descriptor_description, new String[] { getElementLabel(fPackage), getNewElementName()});
+		final String header= Messages.format(RefactoringCoreMessages.RenamePackageProcessor_descriptor_description, new String[] { getElementLabel(fPackage), getNewElementName() });
 		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
 		if (fRenameSubpackages)
 			comment.addSetting(RefactoringCoreMessages.RenamePackageProcessor_rename_subpackages);
@@ -623,7 +639,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 	public Change postCreateChange(Change[] participantChanges, IProgressMonitor pm) throws CoreException {
 		if (fQualifiedNameSearchResult != null) {
-			CompositeChange parent= (CompositeChange) fRenamePackageChange.getParent();
+			CompositeChange parent= (CompositeChange)fRenamePackageChange.getParent();
 			try {
 				/*
 				 * Sneak text changes in before the package rename to ensure
@@ -645,7 +661,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		if (fQualifiedNameSearchResult == null)
 			fQualifiedNameSearchResult= new QualifiedNameSearchResult();
 		QualifiedNameFinder.process(fQualifiedNameSearchResult, fPackage.getElementName(), getNewElementName(),
-			fFilePatterns, fPackage.getJavaProject().getProject(), pm);
+				fFilePatterns, fPackage.getJavaProject().getProject(), pm);
 	}
 
 	public String getNewPackageName(String oldSubPackageName) {
@@ -655,25 +671,42 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 	private static class PackageRenamer {
 		private final IPackageFragment fPackage;
+
 		private final RenamePackageProcessor fProcessor;
+
 		private final TextChangeManager fTextChangeManager;
+
 		private final ImportsManager fImportsManager;
 
-		/** references to fPackage (can include star imports which also import namesake package fragments) */
+		/**
+		 * references to fPackage (can include star imports which also import namesake package
+		 * fragments)
+		 */
 		private SearchResultGroup[] fOccurrences;
 
-		/** References in CUs from fOccurrences and fPackage to types in namesake packages.
-		 * <p>These need an import with the old package name.
-		 * <p>- from fOccurrences (without namesakes): may have shared star import
-		 * 		(star-import not updated here, but for fOccurrences)
-		 * <p>- from fPackage: may have unimported references to types of namesake packages
-		 * <p>- both: may have unused imports of namesake packages.
-		 * <p>Mutable List of SearchResultGroup. */
+		/**
+		 * References in CUs from fOccurrences and fPackage to types in namesake packages.
+		 * <p>
+		 * These need an import with the old package name.
+		 * <p>
+		 * - from fOccurrences (without namesakes): may have shared star import (star-import not
+		 * updated here, but for fOccurrences)
+		 * <p>
+		 * - from fPackage: may have unimported references to types of namesake packages
+		 * <p>
+		 * - both: may have unused imports of namesake packages.
+		 * <p>
+		 * Mutable List of SearchResultGroup.
+		 */
 		private List fReferencesToTypesInNamesakes;
 
-		/** References in CUs from namesake packages to types in fPackage.
-		 * <p>These need an import with the new package name.
-		 * <p>Mutable List of SearchResultGroup. */
+		/**
+		 * References in CUs from namesake packages to types in fPackage.
+		 * <p>
+		 * These need an import with the new package name.
+		 * <p>
+		 * Mutable List of SearchResultGroup.
+		 */
 		private List fReferencesToTypesInPackage;
 
 		public PackageRenamer(IPackageFragment pack, RenamePackageProcessor processor, TextChangeManager textChangeManager, ImportsManager importsManager) {
@@ -685,10 +718,10 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 		void doRename(IProgressMonitor pm, RefactoringStatus result) throws CoreException {
 			pm.beginTask("", 16); //$NON-NLS-1$
-			if (fProcessor.getUpdateReferences()){
+			if (fProcessor.getUpdateReferences()) {
 				pm.setTaskName(RefactoringCoreMessages.RenamePackageRefactoring_searching);
 
-				String binaryRefsDescription= Messages.format(RefactoringCoreMessages.ReferencesInBinaryContext_ref_in_binaries_description , getElementLabel(fPackage));
+				String binaryRefsDescription= Messages.format(RefactoringCoreMessages.ReferencesInBinaryContext_ref_in_binaries_description, getElementLabel(fPackage));
 				ReferencesInBinaryContext binaryRefs= new ReferencesInBinaryContext(binaryRefsDescription);
 
 				fOccurrences= getReferences(new SubProgressMonitor(pm, 4), binaryRefs, result);
@@ -724,16 +757,16 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 		private void addReferenceUpdates(IProgressMonitor pm) throws CoreException {
 			pm.beginTask("", fOccurrences.length + fReferencesToTypesInPackage.size() + fReferencesToTypesInNamesakes.size()); //$NON-NLS-1$
-			for (int i= 0; i < fOccurrences.length; i++){
+			for (int i= 0; i < fOccurrences.length; i++) {
 				ICompilationUnit cu= fOccurrences[i].getCompilationUnit();
 				if (cu == null)
 					continue;
 				SearchMatch[] results= fOccurrences[i].getSearchResults();
-				for (int j= 0; j < results.length; j++){
+				for (int j= 0; j < results.length; j++) {
 					SearchMatch result= results[j];
 					IJavaElement enclosingElement= SearchUtils.getEnclosingJavaElement(result);
 					if (enclosingElement instanceof IImportDeclaration) {
-						IImportDeclaration importDeclaration= (IImportDeclaration) enclosingElement;
+						IImportDeclaration importDeclaration= (IImportDeclaration)enclosingElement;
 						String updatedImport= getUpdatedImport(importDeclaration);
 						updateImport(cu, importDeclaration, updatedImport);
 					} else { // is reference
@@ -755,14 +788,14 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 			if (fReferencesToTypesInNamesakes.size() != 0) {
 				for (Iterator iter= fReferencesToTypesInNamesakes.iterator(); iter.hasNext();) {
-					SearchResultGroup referencesToTypesInNamesakes= (SearchResultGroup) iter.next();
+					SearchResultGroup referencesToTypesInNamesakes= (SearchResultGroup)iter.next();
 					addTypeImports(referencesToTypesInNamesakes);
 					pm.worked(1);
 				}
 			}
 			if (fReferencesToTypesInPackage.size() != 0) {
 				for (Iterator iter= fReferencesToTypesInPackage.iterator(); iter.hasNext();) {
-					SearchResultGroup namesakeReferencesToPackage= (SearchResultGroup) iter.next();
+					SearchResultGroup namesakeReferencesToPackage= (SearchResultGroup)iter.next();
 					updateTypeImports(namesakeReferencesToPackage);
 					pm.worked(1);
 				}
@@ -770,13 +803,16 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			pm.done();
 		}
 
-		/** Removes the found SearchResultGroup from the list iff found.
-		 *  @param cu the cu
-		 *  @param searchResultGroups List of SearchResultGroup
-		 *  @return the SearchResultGroup for cu, or null iff not found */
+		/**
+		 * Removes the found SearchResultGroup from the list iff found.
+		 * 
+		 * @param cu the cu
+		 * @param searchResultGroups List of SearchResultGroup
+		 * @return the SearchResultGroup for cu, or null iff not found
+		 */
 		private static SearchResultGroup extractGroupFor(ICompilationUnit cu, List searchResultGroups) {
 			for (Iterator iter= searchResultGroups.iterator(); iter.hasNext();) {
-				SearchResultGroup group= (SearchResultGroup) iter.next();
+				SearchResultGroup group= (SearchResultGroup)iter.next();
 				if (cu.equals(group.getCompilationUnit())) {
 					iter.remove();
 					return group;
@@ -802,8 +838,10 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 		/**
 		 * @return search scope with
-		 * <p>- fPackage and
-		 * <p>- all CUs from fOccurrences which are not in a namesake package
+		 *         <p>
+		 *         - fPackage and
+		 *         <p>
+		 *         - all CUs from fOccurrences which are not in a namesake package
 		 */
 		private IJavaSearchScope getPackageAndOccurrencesWithoutNamesakesScope() {
 			List scopeList= new ArrayList();
@@ -812,11 +850,11 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 				ICompilationUnit cu= fOccurrences[i].getCompilationUnit();
 				if (cu == null)
 					continue;
-				IPackageFragment pack= (IPackageFragment) cu.getParent();
-				if (! pack.getElementName().equals(fPackage.getElementName()))
+				IPackageFragment pack= (IPackageFragment)cu.getParent();
+				if (!pack.getElementName().equals(fPackage.getElementName()))
 					scopeList.add(cu);
 			}
-			return SearchEngine.createJavaSearchScope((IJavaElement[]) scopeList.toArray(new IJavaElement[scopeList.size()]));
+			return SearchEngine.createJavaSearchScope((IJavaElement[])scopeList.toArray(new IJavaElement[scopeList.size()]));
 		}
 
 		private List getReferencesToTypesInNamesakes(IProgressMonitor pm, RefactoringStatus status) throws CoreException {
@@ -877,32 +915,34 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		private IType[] getTypesInPackage(IPackageFragment packageFragment) throws JavaModelException {
 			List types= new ArrayList();
 			addContainedTypes(packageFragment, types);
-			return (IType[]) types.toArray(new IType[types.size()]);
+			return (IType[])types.toArray(new IType[types.size()]);
 		}
 
 		/**
 		 * @param scope search scope
 		 * @param pm mrogress monitor
-		 * @return all package fragments in <code>scope</code> with same name as <code>fPackage</code>, excluding fPackage
+		 * @return all package fragments in <code>scope</code> with same name as
+		 *         <code>fPackage</code>, excluding fPackage
 		 * @throws CoreException if search failed
 		 */
 		private IPackageFragment[] getNamesakePackages(IJavaSearchScope scope, IProgressMonitor pm) throws CoreException {
-			SearchPattern pattern= SearchPattern.createPattern(fPackage.getElementName(), IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+			SearchPattern pattern= SearchPattern.createPattern(fPackage.getElementName(), IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH
+					| SearchPattern.R_CASE_SENSITIVE);
 
 			final HashSet packageFragments= new HashSet();
 			SearchRequestor requestor= new SearchRequestor() {
 				public void acceptSearchMatch(SearchMatch match) throws CoreException {
 					IJavaElement enclosingElement= SearchUtils.getEnclosingJavaElement(match);
 					if (enclosingElement instanceof IPackageFragment) {
-						IPackageFragment pack= (IPackageFragment) enclosingElement;
-						if (! fPackage.equals(pack))
+						IPackageFragment pack= (IPackageFragment)enclosingElement;
+						if (!fPackage.equals(pack))
 							packageFragments.add(pack);
 					}
 				}
 			};
 			new SearchEngine().search(pattern, SearchUtils.getDefaultSearchParticipants(), scope, requestor, pm);
 
-			return (IPackageFragment[]) packageFragments.toArray(new IPackageFragment[packageFragments.size()]);
+			return (IPackageFragment[])packageFragments.toArray(new IPackageFragment[packageFragments.size()]);
 		}
 
 		private IType[] getTypesInPackages(IPackageFragment[] packageFragments) throws JavaModelException {
@@ -911,7 +951,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 				IPackageFragment pack= packageFragments[i];
 				addContainedTypes(pack, types);
 			}
-			return (IType[]) types.toArray(new IType[types.size()]);
+			return (IType[])types.toArray(new IType[types.size()]);
 		}
 
 		private void addContainedTypes(IPackageFragment pack, List typesCollector) throws JavaModelException {
@@ -919,9 +959,9 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			for (int c= 0; c < children.length; c++) {
 				IJavaElement child= children[c];
 				if (child instanceof ICompilationUnit) {
-					typesCollector.addAll(Arrays.asList(((ICompilationUnit) child).getTypes()));
+					typesCollector.addAll(Arrays.asList(((ICompilationUnit)child).getTypes()));
 				} else if (child instanceof IClassFile) {
-					typesCollector.add(((IClassFile) child).getType());
+					typesCollector.add(((IClassFile)child).getType());
 				}
 			}
 		}
@@ -938,7 +978,9 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		}
 
 		/**
-		 * Add new imports to types in <code>typeReferences</code> with package <code>fPackage</code>.
+		 * Add new imports to types in <code>typeReferences</code> with package
+		 * <code>fPackage</code>.
+		 * 
 		 * @param typeReferences type references
 		 * @throws CoreException should not happen
 		 */
@@ -947,9 +989,9 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			for (int i= 0; i < searchResults.length; i++) {
 				SearchMatch result= searchResults[i];
 				IJavaElement enclosingElement= SearchUtils.getEnclosingJavaElement(result);
-				if (! (enclosingElement instanceof IImportDeclaration)) {
+				if (!(enclosingElement instanceof IImportDeclaration)) {
 					String reference= getNormalizedTypeReference(result);
-					if (! reference.startsWith(fPackage.getElementName())) {
+					if (!reference.startsWith(fPackage.getElementName())) {
 						// is unqualified
 						reference= cutOffInnerTypes(reference);
 						ImportChange importChange= fImportsManager.getImportChange(typeReferences.getCompilationUnit());
@@ -960,8 +1002,9 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		}
 
 		/**
-		 * Add new imports to types in <code>typeReferences</code> with package <code>fNewElementName</code>
-		 * and remove old import with <code>fPackage</code>.
+		 * Add new imports to types in <code>typeReferences</code> with package
+		 * <code>fNewElementName</code> and remove old import with <code>fPackage</code>.
+		 * 
 		 * @param typeReferences type references
 		 * @throws CoreException should not happen
 		 */
@@ -971,11 +1014,11 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 				SearchMatch result= searchResults[i];
 				IJavaElement enclosingElement= SearchUtils.getEnclosingJavaElement(result);
 				if (enclosingElement instanceof IImportDeclaration) {
-					IImportDeclaration importDeclaration= (IImportDeclaration) enclosingElement;
+					IImportDeclaration importDeclaration= (IImportDeclaration)enclosingElement;
 					updateImport(typeReferences.getCompilationUnit(), importDeclaration, getUpdatedImport(importDeclaration));
 				} else {
 					String reference= getNormalizedTypeReference(result);
-					if (! reference.startsWith(fPackage.getElementName())) {
+					if (!reference.startsWith(fPackage.getElementName())) {
 						reference= cutOffInnerTypes(reference);
 						ImportChange importChange= fImportsManager.getImportChange(typeReferences.getCompilationUnit());
 						importChange.removeImport(fPackage.getElementName() + '.' + reference);
@@ -1012,22 +1055,24 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	}
 
 	/**
-	 * Collector for import additions/removals.
-	 * Saves all changes for a one-pass rewrite.
+	 * Collector for import additions/removals. Saves all changes for a one-pass rewrite.
 	 */
 	static class ImportsManager {
 		public static class ImportChange {
-			private ArrayList/*<String>*/ fStaticToRemove= new ArrayList();
-			private ArrayList/*<String[2]>*/ fStaticToAdd= new ArrayList();
-			private ArrayList/*<String>*/ fToRemove= new ArrayList();
-			private ArrayList/*<String>*/ fToAdd= new ArrayList();
+			private ArrayList/*<String>*/fStaticToRemove= new ArrayList();
+
+			private ArrayList/*<String[2]>*/fStaticToAdd= new ArrayList();
+
+			private ArrayList/*<String>*/fToRemove= new ArrayList();
+
+			private ArrayList/*<String>*/fToAdd= new ArrayList();
 
 			public void removeStaticImport(String elementName) {
 				fStaticToRemove.add(elementName);
 			}
 
 			public void addStaticImport(String declaringType, String memberName) {
-				fStaticToAdd.add(new String[] {declaringType, memberName});
+				fStaticToAdd.add(new String[] { declaringType, memberName });
 			}
 
 			public void removeImport(String elementName) {
@@ -1039,10 +1084,10 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			}
 		}
 
-		private HashMap/*<ICompilationUnit, ImportChange>*/ fImportChanges= new HashMap();
+		private HashMap/*<ICompilationUnit, ImportChange>*/fImportChanges= new HashMap();
 
 		public ImportChange getImportChange(ICompilationUnit cu) {
-			ImportChange importChange= (ImportChange) fImportChanges.get(cu);
+			ImportChange importChange= (ImportChange)fImportChanges.get(cu);
 			if (importChange == null) {
 				importChange= new ImportChange();
 				fImportChanges.put(cu, importChange);
@@ -1052,24 +1097,24 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 
 		public void rewriteImports(TextChangeManager changeManager, IProgressMonitor pm) throws CoreException {
 			for (Iterator iter= fImportChanges.entrySet().iterator(); iter.hasNext();) {
-				Entry entry= (Entry) iter.next();
-				ICompilationUnit cu= (ICompilationUnit) entry.getKey();
-				ImportChange importChange= (ImportChange) entry.getValue();
+				Entry entry= (Entry)iter.next();
+				ICompilationUnit cu= (ICompilationUnit)entry.getKey();
+				ImportChange importChange= (ImportChange)entry.getValue();
 
 				ImportRewrite importRewrite= StubUtility.createImportRewrite(cu, true);
 				importRewrite.setFilterImplicitImports(false);
 				for (Iterator iterator= importChange.fStaticToRemove.iterator(); iterator.hasNext();) {
-					importRewrite.removeStaticImport((String) iterator.next());
+					importRewrite.removeStaticImport((String)iterator.next());
 				}
 				for (Iterator iterator= importChange.fToRemove.iterator(); iterator.hasNext();) {
-					importRewrite.removeImport((String) iterator.next());
+					importRewrite.removeImport((String)iterator.next());
 				}
 				for (Iterator iterator= importChange.fStaticToAdd.iterator(); iterator.hasNext();) {
-					String[] toAdd= (String[]) iterator.next();
+					String[] toAdd= (String[])iterator.next();
 					importRewrite.addStaticImport(toAdd[0], toAdd[1], true);
 				}
 				for (Iterator iterator= importChange.fToAdd.iterator(); iterator.hasNext();) {
-					importRewrite.addImport((String) iterator.next());
+					importRewrite.addImport((String)iterator.next());
 				}
 
 				if (importRewrite.hasRecordedChanges()) {
@@ -1093,7 +1138,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 			if (element == null || !element.exists() || element.getElementType() != IJavaElement.PACKAGE_FRAGMENT)
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.RENAME_PACKAGE);
 			else
-				fPackage= (IPackageFragment) element;
+				fPackage= (IPackageFragment)element;
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
 		final String name= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME);
@@ -1127,5 +1172,13 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, ATTRIBUTE_HIERARCHICAL));
 		return new RefactoringStatus();
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_PACKAGE;
 	}
 }

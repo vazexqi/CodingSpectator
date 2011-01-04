@@ -44,6 +44,7 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -112,6 +113,7 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil;
 import org.eclipse.jdt.internal.corext.refactoring.ParameterInfo;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.refactoring.util.ResourceUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.SelectionAwareSourceRangeComputer;
@@ -128,8 +130,10 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * Extracts a method in a compilation unit based on a text selection range.
+ * 
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  */
-public class ExtractMethodRefactoring extends WatchedRefactoring {
+public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 
@@ -146,6 +150,8 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 	CompilationUnit fRoot;
 
 	private ImportRewrite fImportRewriter;
+
+	//CODINGSPECTATOR: Pulled up 'fSelectionStart' and 'fSelectionLength' to WatchedJavaRefactoring.
 
 	private AST fAST;
 
@@ -301,6 +307,9 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 	 * Checks if the refactoring can be activated. Activation typically means, if a corresponding
 	 * menu entry can be added to the UI.
 	 * 
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial
+	 * conditions.
+	 * 
 	 * @param pm a progress monitor to report progress during activation checking.
 	 * @return the refactoring status describing the result of the activation check.
 	 * @throws CoreException if checking fails
@@ -314,8 +323,10 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 
 		IFile[] changedFiles= ResourceUtil.getFiles(new ICompilationUnit[] { fCUnit });
 		result.merge(Checks.validateModifiesFiles(changedFiles, getValidationContext()));
-		if (result.hasFatalError())
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
 			return result;
+		}
 		result.merge(ResourceChangeChecker.checkFilesToBeChanged(changedFiles, new SubProgressMonitor(pm, 1)));
 
 		if (fRoot == null) {
@@ -327,8 +338,10 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 		fRoot.accept(createVisitor());
 
 		result.merge(fAnalyzer.checkInitialConditions(fImportRewriter));
-		if (result.hasFatalError())
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
 			return result;
+		}
 		if (fVisibility == -1) {
 			setVisibility(Modifier.PRIVATE);
 		}
@@ -648,7 +661,10 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 
 	private ExtractMethodDescriptor getRefactoringDescriptor() {
 		final Map arguments= new HashMap();
+
+		//CODINGSPECTATOR: Extracted the code to find the project name into 'WatchedJavaRefactoring.getJavaProjectName()'. 
 		String project= getJavaProjectName();
+
 		ITypeBinding type= null;
 		if (fDestination instanceof AbstractTypeDeclaration) {
 			final AbstractTypeDeclaration decl= (AbstractTypeDeclaration)fDestination;
@@ -684,44 +700,6 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
 		populateRefactoringSpecificFields(project, arguments);
 		return descriptor;
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
-
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, ""); //$NON-NLS-1$
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
-
-		String visibility= JdtFlags.getVisibilityString(fVisibility);
-		if ("".equals(visibility)) //$NON-NLS-1$
-			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_visibility_pattern, visibility));
-		if (fThrowRuntimeExceptions)
-			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_declare_thrown_exceptions);
-		if (fReplaceDuplicates)
-			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_replace_occurrences);
-		if (fGenerateJavadoc)
-			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, final Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(fVisibility).toString());
-		arguments.put(ATTRIBUTE_DESTINATION, new Integer(fDestinationIndex).toString());
-		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
-		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
-		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
 	}
 
 	/**
@@ -1156,10 +1134,6 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 		return result;
 	}
 
-	public ICompilationUnit getCompilationUnit() {
-		return fCUnit;
-	}
-
 	private RefactoringStatus initialize(JavaRefactoringArguments arguments) {
 		final String selection= arguments.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION);
 		if (selection == null)
@@ -1233,5 +1207,54 @@ public class ExtractMethodRefactoring extends WatchedRefactoring {
 		fThrowRuntimeExceptions= Boolean.valueOf(exceptions).booleanValue();
 
 		return new RefactoringStatus();
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		String project= getJavaProjectName();
+
+		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
+
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, ""); //$NON-NLS-1$
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
+
+		String visibility= JdtFlags.getVisibilityString(fVisibility);
+		if ("".equals(visibility)) //$NON-NLS-1$
+			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_visibility_pattern, visibility));
+		if (fThrowRuntimeExceptions)
+			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_declare_thrown_exceptions);
+		if (fReplaceDuplicates)
+			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_replace_occurrences);
+		if (fGenerateJavadoc)
+			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
+		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
+
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, final Map arguments) {
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(fVisibility).toString());
+		arguments.put(ATTRIBUTE_DESTINATION, new Integer(fDestinationIndex).toString());
+		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
+		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
+		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
+	}
+
+	public ITypeRoot getJavaTypeRoot() {
+		return fCUnit;
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.EXTRACT_METHOD;
 	}
 }
