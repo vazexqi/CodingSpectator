@@ -54,6 +54,8 @@ Added Files
 ===========
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRefactoring.java
-core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedMoveProcessor.java
-core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaMoveProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRenameProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessorDelegate.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/IWatchedJavaProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedRenameProcessorDelegate.java
