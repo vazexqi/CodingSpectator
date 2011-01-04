@@ -16,7 +16,11 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatur
  * @author nchen
  * 
  */
-abstract public class WatchedRenameProcessor extends WatchedProcessor {
+abstract public class WatchedRenameProcessorDelegate extends WatchedProcessorDelegate {
+
+	public WatchedRenameProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+		super(watchedProcessor);
+	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
