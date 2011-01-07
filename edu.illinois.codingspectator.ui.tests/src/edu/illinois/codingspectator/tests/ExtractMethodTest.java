@@ -42,7 +42,7 @@ public class ExtractMethodTest extends RefactoringWatcherTest {
 		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_FILE_NAME + ".java").toTextEditor();
 
 		editor.setFocus();
-		editor.selectRange(7, 8, 38 - 8);
+		editor.selectRange(7, 8, 37 - 8);
 
 		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
 		assertTrue(refactorMenu.isEnabled());
