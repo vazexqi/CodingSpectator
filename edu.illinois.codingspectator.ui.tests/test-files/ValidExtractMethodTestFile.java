@@ -1,6 +1,6 @@
 package edu.illinois.codingspectator;
 
-public class ExtractMethodTestFile {
+public class ValidExtractMethodTestFile {
 
     static final String CONSTANT= "TestConstant";
 

@@ -1,10 +1,9 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.tests;
 
-import static org.junit.Assert.assertTrue;
-
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.junit.runner.RunWith;
 
 /**
@@ -12,55 +11,33 @@ import org.junit.runner.RunWith;
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class InvalidExtractMethodTest extends CodingSpectatorTest {
+public class InvalidExtractMethodTest extends ExtractMethodTest {
 
 	private static final String CONTINUE_BUTTON_NAME= "Continue";
 
-	private static final String METHOD_NAME_LABEL= "Method name:";
-
 	private static final String INVALID_EXTRACTED_METHOD= "invalidExtractedMethod";
-
-	private static final String REFACTOR_MENU_ITEM_NAME= "Extract Method...";
-
-	private static final String EXTRACT_METHOD_DIALOG_NAME= "Extract Method";
 
 	static final String TEST_FILE_NAME= "InvalidExtractMethodTestFile";
 
-	static final String PROJECT_NAME= "MyFirstProject_" + InvalidExtractMethodTest.class;
-
 	@Override
-	void cancelRefactoring() {
-		bot.shell(EXTRACT_METHOD_DIALOG_NAME).activate();
-		bot.button(CANCEL_BUTTON_NAME).click();
+	protected String getExtractedMethodName() {
+		return INVALID_EXTRACTED_METHOD;
 	}
 
 	@Override
-	void performRefactoring() {
-		bot.shell(EXTRACT_METHOD_DIALOG_NAME).activate();
-		bot.textWithLabel(METHOD_NAME_LABEL).setText(INVALID_EXTRACTED_METHOD);
-		bot.button(OK_BUTTON_NAME).click();
+	protected void performRefactoring() {
+		super.performRefactoring();
 		bot.button(CONTINUE_BUTTON_NAME).click();
 	}
 
 	@Override
 	public void prepareRefactoring() {
-		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_FILE_NAME + ".java").toTextEditor();
-
-		editor.setFocus();
-		editor.selectRange(8, 8, 35 - 8);
-
-		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
-		assertTrue(refactorMenu.isEnabled());
-
-		SWTBotMenu extractConstantMenuItem= refactorMenu.menu(REFACTOR_MENU_ITEM_NAME);
-		assertTrue(extractConstantMenuItem.isEnabled());
-
-		extractConstantMenuItem.click();
+		invokeRefactoring(8, 8, 35 - 8);
 	}
 
 	@Override
-	String getProjectName() {
-		return PROJECT_NAME;
+	String getProjectNameSuffix() {
+		return InvalidExtractMethodTest.class.toString();
 	}
 
 	@Override

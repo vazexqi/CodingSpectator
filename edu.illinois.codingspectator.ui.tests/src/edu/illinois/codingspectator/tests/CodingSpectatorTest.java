@@ -19,6 +19,7 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -155,28 +156,50 @@ public abstract class CodingSpectatorTest {
 	public void prepareJavaTextInEditor() throws Exception {
 
 		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
-		String contents= FileUtils.read(bundle.getEntry("test-files/" + getTestFileName() + ".java"));
+		String contents= FileUtils.read(bundle.getEntry("test-files/" + getTestFileFullName()));
 
-		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileName() + ".java").toTextEditor();
+		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileFullName()).toTextEditor();
 		editor.setText(contents);
 		editor.save();
 	}
 
+	public String getProjectName() {
+		return "TestProject_" + getProjectNameSuffix();
+	}
+
+	abstract protected String refactoringMenuItemName();
+
+	protected void invokeRefactoring(int line, int column, int length) {
+		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileFullName()).toTextEditor();
+
+		editor.setFocus();
+		editor.selectRange(line, column, length);
+
+		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
+		assertTrue(refactorMenu.isEnabled());
+
+		SWTBotMenu refactoringMenuItem= refactorMenu.menu(refactoringMenuItemName());
+		assertTrue(refactoringMenuItem.isEnabled());
+
+		refactoringMenuItem.click();
+	}
+
 	abstract public void prepareRefactoring();
 
-	abstract String getProjectName();
+	abstract String getProjectNameSuffix();
 
 	abstract String getTestFileName();
 
-	abstract void cancelRefactoring();
+	abstract protected String getRefactoringDialogName();
 
-	abstract void performRefactoring();
+	protected void cancelRefactoring() {
+		bot.shell(getRefactoringDialogName()).activate();
+		bot.button(CANCEL_BUTTON_NAME).click();
+	}
 
-	@Test
-	public void canSetupProject() throws Exception {
-		canCreateANewJavaProject();
-		canCreateANewJavaClass();
-		prepareJavaTextInEditor();
+	protected void performRefactoring() {
+		bot.shell(getRefactoringDialogName()).activate();
+		bot.button(OK_BUTTON_NAME).click();
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -187,6 +210,13 @@ public abstract class CodingSpectatorTest {
 	// are created.
 	//
 	///////////////////////////////////////////////////////////////////////////
+
+	@Test
+	public void canSetupProject() throws Exception {
+		canCreateANewJavaProject();
+		canCreateANewJavaClass();
+		prepareJavaTextInEditor();
+	}
 
 	@Test
 	public void currentRefactoringsCapturedShouldBeEmpty() {
@@ -228,6 +258,10 @@ public abstract class CodingSpectatorTest {
 	public void cleanRefactoringHistory() throws CoreException {
 		canceledRefactorings.delete(EFS.NONE, null);
 		performedRefactorings.delete(EFS.NONE, null);
+	}
+
+	protected String getTestFileFullName() {
+		return getTestFileName() + ".java";
 	}
 
 }
