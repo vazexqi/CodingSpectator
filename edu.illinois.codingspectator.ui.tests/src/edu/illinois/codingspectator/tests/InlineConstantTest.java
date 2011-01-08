@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class InlineConstantTest extends RefactoringWatcherTest {
+public class InlineConstantTest extends CodingSpectatorTest {
 
 	private static final String INLINE_CONSTANT_DIALOG_NAME= "Inline Constant";
 

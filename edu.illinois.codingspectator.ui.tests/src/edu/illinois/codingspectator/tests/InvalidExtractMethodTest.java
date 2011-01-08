@@ -12,19 +12,21 @@ import org.junit.runner.RunWith;
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class ExtractMethodTest extends CodingSpectatorTest {
+public class InvalidExtractMethodTest extends CodingSpectatorTest {
+
+	private static final String CONTINUE_BUTTON_NAME= "Continue";
 
 	private static final String METHOD_NAME_LABEL= "Method name:";
 
-	private static final String VALID_EXTRACTED_METHOD= "validExtractedMethod";
+	private static final String INVALID_EXTRACTED_METHOD= "invalidExtractedMethod";
 
 	private static final String REFACTOR_MENU_ITEM_NAME= "Extract Method...";
 
 	private static final String EXTRACT_METHOD_DIALOG_NAME= "Extract Method";
 
-	static final String TEST_FILE_NAME= "ExtractMethodTestFile";
+	static final String TEST_FILE_NAME= "InvalidExtractMethodTestFile";
 
-	static final String PROJECT_NAME= "MyFirstProject_" + ExtractMethodTest.class;
+	static final String PROJECT_NAME= "MyFirstProject_" + InvalidExtractMethodTest.class;
 
 	@Override
 	void cancelRefactoring() {
@@ -35,8 +37,9 @@ public class ExtractMethodTest extends CodingSpectatorTest {
 	@Override
 	void performRefactoring() {
 		bot.shell(EXTRACT_METHOD_DIALOG_NAME).activate();
-		bot.textWithLabel(METHOD_NAME_LABEL).setText(VALID_EXTRACTED_METHOD);
+		bot.textWithLabel(METHOD_NAME_LABEL).setText(INVALID_EXTRACTED_METHOD);
 		bot.button(OK_BUTTON_NAME).click();
+		bot.button(CONTINUE_BUTTON_NAME).click();
 	}
 
 	@Override
@@ -44,7 +47,7 @@ public class ExtractMethodTest extends CodingSpectatorTest {
 		SWTBotEclipseEditor editor= bot.editorByTitle(TEST_FILE_NAME + ".java").toTextEditor();
 
 		editor.setFocus();
-		editor.selectRange(7, 8, 37 - 8);
+		editor.selectRange(8, 8, 35 - 8);
 
 		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
 		assertTrue(refactorMenu.isEnabled());

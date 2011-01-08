@@ -33,7 +33,7 @@ import org.osgi.framework.Version;
  * @author nchen
  * 
  */
-public abstract class RefactoringWatcherTest {
+public abstract class CodingSpectatorTest {
 
 	private static final String GENERIC_VERSION_NUMBER= "1.0.0.qualifier";
 
@@ -229,6 +229,5 @@ public abstract class RefactoringWatcherTest {
 		canceledRefactorings.delete(EFS.NONE, null);
 		performedRefactorings.delete(EFS.NONE, null);
 	}
-
 
 }

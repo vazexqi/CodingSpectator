@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class ExtractConstantTest extends RefactoringWatcherTest {
+public class ExtractConstantTest extends CodingSpectatorTest {
 
 	private static final String EXTRACT_CONSTANT_MENU_ITEM= "Extract Constant...";
 
