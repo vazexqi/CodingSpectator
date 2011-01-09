@@ -76,15 +76,19 @@ public abstract class CodingSpectatorTest {
 	}
 
 	private String getRefactoringStorageLocation(String directory) {
-
-		String fullDirectory= REFACTORING_HISTORY_LOCATION + getSystemFileSeparator() + getFeatureVersion();
+		StringBuilder fullDirectory= new StringBuilder();
+		fullDirectory.append(REFACTORING_HISTORY_LOCATION);
+		fullDirectory.append(getSystemFileSeparator());
+		fullDirectory.append(getFeatureVersion());
 
 		String directorySeparator= "/";
 		String[] directories= directory.split(directorySeparator);
-		for (int i= 0; i < directories.length; i++)
-			fullDirectory+= getSystemFileSeparator() + directories[i];
+		for (int i= 0; i < directories.length; i++) {
+			fullDirectory.append(getSystemFileSeparator());
+			fullDirectory.append(directories[i]);
+		}
 
-		return fullDirectory;
+		return fullDirectory.toString();
 	}
 
 	private String getSystemFileSeparator() {
