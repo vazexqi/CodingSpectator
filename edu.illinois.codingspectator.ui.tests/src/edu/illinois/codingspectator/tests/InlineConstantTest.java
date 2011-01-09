@@ -26,7 +26,7 @@ public class InlineConstantTest extends CodingSpectatorTest {
 
 	@Override
 	public void prepareRefactoring() {
-		invokeRefactoring(4, 24, 32 - 24);
+		invokeRefactoring(7, 24, 32 - 24);
 	}
 
 	@Override
