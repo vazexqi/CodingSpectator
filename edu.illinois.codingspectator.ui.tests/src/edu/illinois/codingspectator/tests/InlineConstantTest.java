@@ -30,11 +30,6 @@ public class InlineConstantTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	String getProjectNameSuffix() {
-		return InlineConstantTest.class.toString();
-	}
-
-	@Override
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}

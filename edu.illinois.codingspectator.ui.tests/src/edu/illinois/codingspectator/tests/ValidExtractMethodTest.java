@@ -28,11 +28,6 @@ public class ValidExtractMethodTest extends ExtractMethodTest {
 	}
 
 	@Override
-	String getProjectNameSuffix() {
-		return ValidExtractMethodTest.class.toString();
-	}
-
-	@Override
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}

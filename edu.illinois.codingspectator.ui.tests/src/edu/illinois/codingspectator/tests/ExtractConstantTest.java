@@ -35,11 +35,6 @@ public class ExtractConstantTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	String getProjectNameSuffix() {
-		return ExtractConstantTest.class.toString();
-	}
-
-	@Override
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}

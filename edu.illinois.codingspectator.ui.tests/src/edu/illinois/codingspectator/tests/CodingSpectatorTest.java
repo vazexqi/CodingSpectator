@@ -190,7 +190,9 @@ public abstract class CodingSpectatorTest {
 
 	abstract public void prepareRefactoring();
 
-	abstract String getProjectNameSuffix();
+	protected String getProjectNameSuffix() {
+		return getClass().toString();
+	}
 
 	abstract String getTestFileName();
 

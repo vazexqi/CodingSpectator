@@ -36,11 +36,6 @@ public class InvalidExtractMethodTest extends ExtractMethodTest {
 	}
 
 	@Override
-	String getProjectNameSuffix() {
-		return InvalidExtractMethodTest.class.toString();
-	}
-
-	@Override
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}
