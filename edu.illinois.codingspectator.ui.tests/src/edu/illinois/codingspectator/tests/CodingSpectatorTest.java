@@ -60,6 +60,8 @@ public abstract class CodingSpectatorTest {
 
 	protected static final String OK_BUTTON_NAME= "OK";
 
+	protected static final String FINISH_BUTTON_NAME= "Finish";
+
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
 	private static Version getFeatureVersion() {
@@ -145,7 +147,7 @@ public abstract class CodingSpectatorTest {
 		bot.button("Finish").click();
 	}
 
-	private void selectCurrentJavaProject() {
+	protected SWTBotTree selectCurrentJavaProject() {
 		SWTBotView packageExplorerView= bot.viewByTitle("Package Explorer");
 		packageExplorerView.show();
 
@@ -154,7 +156,7 @@ public abstract class CodingSpectatorTest {
 		Tree swtTree= (Tree)bot.widget(WidgetMatcherFactory.widgetOfType(Tree.class), packageExplorerComposite);
 		SWTBotTree tree= new SWTBotTree(swtTree);
 
-		tree.select(getProjectName());
+		return tree.select(getProjectName());
 	}
 
 	public void prepareJavaTextInEditor() throws Exception {
@@ -205,7 +207,11 @@ public abstract class CodingSpectatorTest {
 
 	protected void performRefactoring() {
 		bot.shell(getRefactoringDialogName()).activate();
-		bot.button(OK_BUTTON_NAME).click();
+		bot.button(getRefactoringDialogApplyButtonName()).click();
+	}
+
+	protected String getRefactoringDialogApplyButtonName() {
+		return OK_BUTTON_NAME;
 	}
 
 	///////////////////////////////////////////////////////////////////////////
