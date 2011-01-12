@@ -29,7 +29,7 @@ public class UpdatedFileOperation extends FileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File updated";
+		return "Updated file";
 	}
 
 }

@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -29,7 +30,12 @@ public class ClosedFileOperation extends FileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File closed";
+		return "Closed file";
+	}
+
+	@Override
+	public void replay() throws CoreException {
+		getFileEditor().close(false);
 	}
 
 }

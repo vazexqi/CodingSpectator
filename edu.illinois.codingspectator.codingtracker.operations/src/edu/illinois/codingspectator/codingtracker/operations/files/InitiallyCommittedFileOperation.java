@@ -29,7 +29,7 @@ public class InitiallyCommittedFileOperation extends SnapshotedFileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File initially committed";
+		return "Initially committed file";
 	}
 
 }

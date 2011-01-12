@@ -5,8 +5,9 @@ Bundle-SymbolicName: edu.illinois.codingspectator.codingtracker.recording;single
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.codingtracker.recording.Activator
 Require-Bundle: org.eclipse.jdt.core,
- edu.illinois.codingspectator.codingtracker.operations;bundle-version="1.0.0";visibility:=reexport,
- edu.illinois.codingspectator.monitor.core
+ edu.illinois.codingspectator.codingtracker.operations;visibility:=reexport,
+ edu.illinois.codingspectator.monitor.core,
+ org.eclipse.jdt.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: University of Ilinois
 Bundle-ActivationPolicy: lazy

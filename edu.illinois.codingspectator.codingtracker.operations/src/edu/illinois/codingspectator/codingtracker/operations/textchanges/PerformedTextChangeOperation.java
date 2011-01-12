@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.TextEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
@@ -30,6 +31,11 @@ public class PerformedTextChangeOperation extends TextChangeOperation {
 	@Override
 	public String getDescription() {
 		return "Performed text change";
+	}
+
+	@Override
+	protected void replayTextChange() throws BadLocationException {
+		currentDocument.replace(offset, length, newText);
 	}
 
 }

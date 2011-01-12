@@ -4,6 +4,8 @@
 package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -29,7 +31,13 @@ public class EditedFileOperation extends FileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File edited";
+		return "Edited file";
+	}
+
+	@Override
+	public void replay() throws CoreException {
+		ITextEditor editor= getFileEditor();
+		currentDocument= editor.getDocumentProvider().getDocument(editor.getEditorInput());
 	}
 
 }

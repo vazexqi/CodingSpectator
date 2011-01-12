@@ -39,6 +39,11 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 	}
 
 	@Override
+	protected void replayTextChange() {
+		throw new RuntimeException("Unsupported operation");
+	}
+
+	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Editor ID: " + editorID + "\n");

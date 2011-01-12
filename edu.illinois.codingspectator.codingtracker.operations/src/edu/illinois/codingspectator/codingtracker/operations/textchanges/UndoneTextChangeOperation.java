@@ -3,7 +3,9 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.TextEvent;
+import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -30,6 +32,11 @@ public class UndoneTextChangeOperation extends TextChangeOperation {
 	@Override
 	public String getDescription() {
 		return "Undone text change";
+	}
+
+	@Override
+	protected void replayTextChange() throws ExecutionException {
+		DocumentUndoManagerRegistry.getDocumentUndoManager(currentDocument).undo();
 	}
 
 }

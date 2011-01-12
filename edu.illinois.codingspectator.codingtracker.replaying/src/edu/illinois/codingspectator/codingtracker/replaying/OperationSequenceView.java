@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.codingtracker.replaying;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -13,17 +14,20 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -46,11 +50,21 @@ public class OperationSequenceView extends ViewPart {
 
 	private static final SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss:SS");
 
+	private static final Color whiteColor= Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+
+	private static final Color yellowColor= Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
+
 	private TableViewer viewer;
 
 	private OperationSequenceFilter filter= new OperationSequenceFilter();
 
+	private Action replayAction;
+
 	private Text operationTextPane;
+
+	private Iterator<UserOperation> userOperationsIterator;
+
+	private UserOperation currentUserOperation;
 
 	public OperationSequenceView() {
 	}
@@ -91,19 +105,30 @@ public class OperationSequenceView extends ViewPart {
 
 	private void createViewerColumns() {
 		TableViewerColumn descriptionColumn= createColumn("Operation description", 200);
-		descriptionColumn.setLabelProvider(new ColumnLabelProvider() {
+		descriptionColumn.setLabelProvider(new StyledCellLabelProvider() {
 			@Override
-			public String getText(Object element) {
-				return ((UserOperation)element).getDescription();
+			public void update(ViewerCell cell) {
+				cell.setText(((UserOperation)cell.getElement()).getDescription());
+				updateCellAppearance(cell);
 			}
 		});
 		TableViewerColumn dateColumn= createColumn("Date", 150);
-		dateColumn.setLabelProvider(new ColumnLabelProvider() {
+		dateColumn.setLabelProvider(new StyledCellLabelProvider() {
 			@Override
-			public String getText(Object element) {
-				return dateFormat.format(((UserOperation)element).getDate());
+			public void update(ViewerCell cell) {
+				cell.setText(dateFormat.format(((UserOperation)cell.getElement()).getDate()));
+				updateCellAppearance(cell);
 			}
 		});
+	}
+
+	private void updateCellAppearance(ViewerCell cell) {
+		if (cell.getElement() == currentUserOperation) {
+			cell.setBackground(yellowColor);
+			cell.scrollIntoView();
+		} else {
+			cell.setBackground(whiteColor);
+		}
 	}
 
 	private TableViewerColumn createColumn(String title, int width) {
@@ -124,6 +149,8 @@ public class OperationSequenceView extends ViewPart {
 		toolBarManager.add(createFilterAction("Refactorings", "Display refactoring operations", OperationSequenceFilter.FilteredOperations.REFACTORINGS));
 		toolBarManager.add(createFilterAction("Snapshots", "Display snapshot-producing operations", OperationSequenceFilter.FilteredOperations.SNAPSHOTS));
 		toolBarManager.add(createFilterAction("Others", "Display all other operations", OperationSequenceFilter.FilteredOperations.OTHERS));
+		toolBarManager.add(new Separator());
+		toolBarManager.add(createReplayAction());
 	}
 
 	private IAction createLoadOperationSequenceAction() {
@@ -135,6 +162,8 @@ public class OperationSequenceView extends ViewPart {
 				if (selectedFilePath != null) {
 					String operationsRecord= FileHelper.getFileContent(new File(selectedFilePath));
 					List<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					userOperationsIterator= userOperations.iterator();
+					advanceCurrentUserOperation();
 					viewer.setInput(userOperations);
 				}
 			}
@@ -159,6 +188,37 @@ public class OperationSequenceView extends ViewPart {
 		return action;
 	}
 
+	private IAction createReplayAction() {
+		replayAction= new Action() {
+			@Override
+			public void run() {
+				try {
+					currentUserOperation.replay();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				advanceCurrentUserOperation();
+				viewer.refresh();
+			}
+		};
+		replayAction.setText("Replay");
+		replayAction.setToolTipText("Replay the current user operation");
+		replayAction.setEnabled(false);
+		return replayAction;
+	}
+
+	private void advanceCurrentUserOperation() {
+		if (userOperationsIterator.hasNext()) {
+			currentUserOperation= userOperationsIterator.next();
+			replayAction.setEnabled(true);
+		} else {
+			currentUserOperation= null;
+			replayAction.setEnabled(false);
+		}
+		viewer.setSelection(null, false);
+		displayInOperationTextPane(currentUserOperation);
+	}
+
 	private void layoutViewer() {
 		Table table= viewer.getTable();
 		table.setHeaderVisible(true);
@@ -176,15 +236,18 @@ public class OperationSequenceView extends ViewPart {
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				Object firstSelectionElement= ((IStructuredSelection)event.getSelection()).getFirstElement();
-				if (firstSelectionElement != null) {
-					//remove \r chars, because they are displayed as little squares
-					operationTextPane.setText(firstSelectionElement.toString().replace("\r", ""));
-				} else {
-					operationTextPane.setText("");
-				}
+				displayInOperationTextPane(((IStructuredSelection)event.getSelection()).getFirstElement());
 			}
 		});
+	}
+
+	private void displayInOperationTextPane(Object object) {
+		if (object != null) {
+			//remove \r chars, because they are displayed as little squares
+			operationTextPane.setText(object.toString().replace("\r", ""));
+		} else {
+			operationTextPane.setText("");
+		}
 	}
 
 }

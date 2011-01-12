@@ -9,5 +9,13 @@
             name="edu.illinois.codingspectator.codingtracker.submitterListener">
       </submitterListener>
    </extension>
+   <extension
+         point="org.eclipse.jdt.ui.startup">
+      <startupListener
+            class="edu.illinois.codingspectator.codingtracker.listeners.JDTUIStartupListener"
+            id="edu.illinois.codingspectator.codingtracker.recording.startupListener"
+            name="edu.illinois.codingspectator.codingtracker.recording.startupListener">
+      </startupListener>
+   </extension>
 
 </plugin>

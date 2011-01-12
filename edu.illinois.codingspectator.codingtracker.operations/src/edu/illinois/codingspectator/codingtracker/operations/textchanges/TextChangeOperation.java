@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.TextEvent;
 
@@ -17,13 +19,13 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  */
 public abstract class TextChangeOperation extends UserOperation {
 
-	private String replacedText;
+	protected String replacedText;
 
-	private String newText;
+	protected String newText;
 
-	private int offset;
+	protected int offset;
 
-	private int length;
+	protected int length;
 
 	public TextChangeOperation() {
 		super();
@@ -56,6 +58,17 @@ public abstract class TextChangeOperation extends UserOperation {
 	}
 
 	@Override
+	public void replay() throws BadLocationException, ExecutionException {
+		if (!replacedText.equals(currentDocument.get(offset, length))) {
+			throw new RuntimeException("Replaced text is not present in the document: " + this);
+		}
+		replayTextChange();
+		if (!newText.equals(currentDocument.get(offset, newText.length()))) {
+			throw new RuntimeException("New text does not appear in the document: " + this);
+		}
+	}
+
+	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Replaced text: " + replacedText + "\n");
@@ -65,5 +78,7 @@ public abstract class TextChangeOperation extends UserOperation {
 		sb.append(super.toString());
 		return sb.toString();
 	}
+
+	protected abstract void replayTextChange() throws BadLocationException, ExecutionException;
 
 }

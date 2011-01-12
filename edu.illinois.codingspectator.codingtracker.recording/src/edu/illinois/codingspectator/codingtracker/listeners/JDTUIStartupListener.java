@@ -1,16 +1,12 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.recording;
+package edu.illinois.codingspectator.codingtracker.listeners;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.internal.ui.startup.StartupListener;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.listeners.OperationHistoryListener;
-import edu.illinois.codingspectator.codingtracker.listeners.PartListener;
-import edu.illinois.codingspectator.codingtracker.listeners.RefactoringExecutionListener;
-import edu.illinois.codingspectator.codingtracker.listeners.ResourceChangeListener;
-import edu.illinois.codingspectator.codingtracker.listeners.SelectionListener;
 
 /**
  * 
@@ -18,13 +14,15 @@ import edu.illinois.codingspectator.codingtracker.listeners.SelectionListener;
  * @author Mohsen Vakilian - Extracted PartListener from this class.
  * 
  */
-public class CodeChangeTracker {
+public class JDTUIStartupListener implements StartupListener {
 
 	/**
-	 * This is the entry point of codingtracker plugin. It registers all listeners except
+	 * This is the entry point of codingtracker.recording plugin. It registers all listeners except
 	 * TextListener, which is registered in SelectionListener.
 	 */
-	public static void start() {
+	@Override
+	public void jdtuiIsAboutToStart() {
+		Debugger.debug("NOTIFIED");
 		if (doesMonitorUIExist()) {
 			Debugger.debug("STARTED");
 			ResourceChangeListener.register();

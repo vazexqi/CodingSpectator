@@ -29,7 +29,7 @@ public class RefactoredSavedFileOperation extends FileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File saved while refactored";
+		return "Saved file while refactored";
 	}
 
 }

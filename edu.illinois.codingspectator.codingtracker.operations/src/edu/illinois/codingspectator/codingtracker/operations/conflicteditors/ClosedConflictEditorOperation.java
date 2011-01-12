@@ -27,7 +27,7 @@ public class ClosedConflictEditorOperation extends ConflictEditorOperation {
 
 	@Override
 	public String getDescription() {
-		return "Conflict editor closed";
+		return "Closed conflict editor";
 	}
 
 }

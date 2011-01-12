@@ -29,7 +29,7 @@ public class CommittedFileOperation extends SnapshotedFileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File committed";
+		return "Committed file";
 	}
 
 }

@@ -29,7 +29,7 @@ public class ExternallyModifiedFileOperation extends FileOperation {
 
 	@Override
 	public String getDescription() {
-		return "File externally modified";
+		return "Externally modified file";
 	}
 
 }

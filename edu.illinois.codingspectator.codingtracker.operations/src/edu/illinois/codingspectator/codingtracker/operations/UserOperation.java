@@ -5,6 +5,8 @@ package edu.illinois.codingspectator.codingtracker.operations;
 
 import java.util.Date;
 
+import org.eclipse.jface.text.IDocument;
+
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 
 /**
@@ -13,6 +15,8 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
  * 
  */
 public abstract class UserOperation {
+
+	protected static IDocument currentDocument;
 
 	private long timestamp;
 
@@ -54,5 +58,10 @@ public abstract class UserOperation {
 	protected abstract void populateTextChunk(OperationTextChunk textChunk);
 
 	protected abstract void initializeFrom(OperationLexer operationLexer);
+
+	//TODO: Should be protected abstract method
+	public void replay() throws Exception {
+
+	}
 
 }

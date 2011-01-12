@@ -38,7 +38,7 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 
 	@Override
 	public String getDescription() {
-		return "Conflict editor opened";
+		return "Opened conflict editor";
 	}
 
 	@Override
