@@ -27,11 +27,6 @@ public class InvalidMoveStaticFieldTest extends MoveStaticMemberTest {
 	}
 
 	@Override
-	String getTestFileName() {
-		return "MoveStaticMemberTestFile";
-	}
-
-	@Override
 	protected String[] getRefactoringDialogApplyButtonSequence() {
 		return new String[] { OK_BUTTON_NAME, CONTINUE_BUTTON_NAME };
 	}

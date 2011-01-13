@@ -26,9 +26,4 @@ public class ValidMoveStaticFieldTest extends MoveStaticMemberTest {
 		selectElementToRefactor(7, 18, 24 - 19);
 	}
 
-	@Override
-	String getTestFileName() {
-		return "MoveStaticMemberTestFile";
-	}
-
 }

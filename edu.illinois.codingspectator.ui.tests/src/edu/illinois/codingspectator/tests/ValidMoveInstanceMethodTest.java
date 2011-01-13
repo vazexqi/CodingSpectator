@@ -9,21 +9,11 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-public class ValidMoveStaticMethodTest extends MoveStaticMemberTest {
-
-	@Override
-	protected String getDestinationType() {
-		return "edu.illinois.codingspectator.C2";
-	}
-
-	@Override
-	protected String getSelectedMember() {
-		return "m()";
-	}
+public class ValidMoveInstanceMethodTest extends MoveInstanceMethodTest {
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(9, 16, 1);
+		selectElementToRefactor(7, 9, 2);
 	}
 
 }

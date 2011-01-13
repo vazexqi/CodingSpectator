@@ -9,11 +9,9 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-abstract public class MoveStaticMemberTest extends CodingSpectatorTest {
+abstract public class MoveStaticMemberTest extends MoveTest {
 
 	protected static final String DESTINATION_TYPE_LABEL_FORMAT= "Destination type for '%s':";
-
-	protected static final String MOVE_MENU_ITEM_NAME= "Move...";
 
 	protected static final String MOVE_STATIC_MEMBER_DIALOG_NAME= "Move Static Members";
 
@@ -27,11 +25,6 @@ abstract public class MoveStaticMemberTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	protected String refactoringMenuItemName() {
-		return MOVE_MENU_ITEM_NAME;
-	}
-
-	@Override
 	protected void configureRefactoring() {
 		super.configureRefactoring();
 		bot.comboBoxWithLabel(getDestinationLabel()).setText(getDestinationType());
@@ -39,6 +32,11 @@ abstract public class MoveStaticMemberTest extends CodingSpectatorTest {
 
 	private String getDestinationLabel() {
 		return String.format(DESTINATION_TYPE_LABEL_FORMAT, getSelectedMember());
+	}
+
+	@Override
+	protected String getTestFileName() {
+		return "MoveStaticMemberTestFile";
 	}
 
 }
