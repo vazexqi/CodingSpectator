@@ -97,12 +97,6 @@ public abstract class CodingSpectatorTest {
 		return System.getProperty("file.separator");
 	}
 
-	@BeforeClass
-	public static void beforeClass() throws Exception {
-		bot= new SWTWorkbenchBot();
-		dismissWelcomeScreenIfPresent();
-	}
-
 	private static void dismissWelcomeScreenIfPresent() {
 		try {
 			bot.viewByTitle("Welcome").close();
@@ -214,6 +208,10 @@ public abstract class CodingSpectatorTest {
 		return OK_BUTTON_NAME;
 	}
 
+	protected String getTestFileFullName() {
+		return getTestFileName() + ".java";
+	}
+
 	///////////////////////////////////////////////////////////////////////////
 	//
 	// SWTBot tests run in order which is why we can take advantage of this
@@ -222,6 +220,12 @@ public abstract class CodingSpectatorTest {
 	// are created.
 	//
 	///////////////////////////////////////////////////////////////////////////
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		bot= new SWTWorkbenchBot();
+		dismissWelcomeScreenIfPresent();
+	}
 
 	@Test
 	public void canSetupProject() throws Exception {
@@ -272,8 +276,9 @@ public abstract class CodingSpectatorTest {
 		performedRefactorings.delete(EFS.NONE, null);
 	}
 
-	protected String getTestFileFullName() {
-		return getTestFileName() + ".java";
+	@Test
+	public void closeCurrentProject() {
+		selectCurrentJavaProject().contextMenu("Close Project").click();
 	}
 
 }
