@@ -9,7 +9,7 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-public class ValidMoveStaticFieldTest extends MoveStaticMemberTest {
+public class ValidMoveStaticMethodTest extends MoveStaticMemberTest {
 
 	@Override
 	protected String getDestinationType() {
@@ -18,12 +18,12 @@ public class ValidMoveStaticFieldTest extends MoveStaticMemberTest {
 
 	@Override
 	protected String getSelectedMember() {
-		return "field";
+		return "m()";
 	}
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(7, 18, 24 - 19);
+		selectElementToRefactor(9, 16, 1);
 	}
 
 	@Override

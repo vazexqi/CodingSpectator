@@ -18,12 +18,12 @@ public class InvalidMoveStaticFieldTest extends MoveStaticMemberTest {
 
 	@Override
 	protected String getSelectedMember() {
-		return "field1";
+		return "field";
 	}
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(7, 18, 25 - 19);
+		selectElementToRefactor(7, 18, 24 - 19);
 	}
 
 	@Override
@@ -35,4 +35,5 @@ public class InvalidMoveStaticFieldTest extends MoveStaticMemberTest {
 	protected String[] getRefactoringDialogApplyButtonSequence() {
 		return new String[] { OK_BUTTON_NAME, CONTINUE_BUTTON_NAME };
 	}
+
 }

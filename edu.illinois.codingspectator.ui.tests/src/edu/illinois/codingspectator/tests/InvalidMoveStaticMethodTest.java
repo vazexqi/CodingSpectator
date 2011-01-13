@@ -9,26 +9,31 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-public class ValidMoveStaticFieldTest extends MoveStaticMemberTest {
+public class InvalidMoveStaticMethodTest extends MoveStaticMemberTest {
 
 	@Override
 	protected String getDestinationType() {
-		return "edu.illinois.codingspectator.C2";
+		return "edu.illinois.codingspectator.C3";
 	}
 
 	@Override
 	protected String getSelectedMember() {
-		return "field";
+		return "m()";
 	}
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(7, 18, 24 - 19);
+		selectElementToRefactor(9, 16, 1);
 	}
 
 	@Override
 	String getTestFileName() {
 		return "MoveStaticMemberTestFile";
+	}
+
+	@Override
+	protected String[] getRefactoringDialogApplyButtonSequence() {
+		return new String[] { OK_BUTTON_NAME, CONTINUE_BUTTON_NAME };
 	}
 
 }

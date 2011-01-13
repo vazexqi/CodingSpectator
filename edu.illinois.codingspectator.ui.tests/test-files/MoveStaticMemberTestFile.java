@@ -5,7 +5,11 @@ package edu.illinois.codingspectator;
 
 class C1 {
 
-    static Object field1;
+    static Object field;
+    
+    static void m() {
+    	
+    }
 
 }
 
@@ -15,6 +19,10 @@ class C2 {
 
 class C3 {
 	
-    static Object field1;
+    static Object field;
 	
+    static void m() {
+    	
+    }
+    
 }

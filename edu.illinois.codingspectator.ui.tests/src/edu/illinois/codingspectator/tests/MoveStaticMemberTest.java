@@ -33,6 +33,7 @@ abstract public class MoveStaticMemberTest extends CodingSpectatorTest {
 
 	@Override
 	protected void configureRefactoring() {
+		super.configureRefactoring();
 		bot.comboBoxWithLabel(getDestinationLabel()).setText(getDestinationType());
 	}
 
