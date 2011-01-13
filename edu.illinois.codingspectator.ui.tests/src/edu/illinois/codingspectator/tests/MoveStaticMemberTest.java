@@ -32,11 +32,8 @@ abstract public class MoveStaticMemberTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	protected void performRefactoring() {
-		bot.shell(getRefactoringDialogName()).activate();
-		String destinationLabel= getDestinationLabel();
-		bot.comboBoxWithLabel(destinationLabel).setText(getDestinationType());
-		bot.button(OK_BUTTON_NAME).click();
+	protected void configureRefactoring() {
+		bot.comboBoxWithLabel(getDestinationLabel()).setText(getDestinationType());
 	}
 
 	private String getDestinationLabel() {

@@ -3,9 +3,6 @@
  */
 package edu.illinois.codingspectator.tests;
 
-import static org.junit.Assert.assertTrue;
-
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 /**
@@ -21,23 +18,20 @@ public class RenameCompilationUnitTest extends CodingSpectatorTest {
 		return "Rename...";
 	}
 
-
 	@Override
-	protected String getRefactoringDialogApplyButtonName() {
-		return FINISH_BUTTON_NAME;
+	protected String[] getRefactoringDialogApplyButtonSequence() {
+		return new String[] { FINISH_BUTTON_NAME };
 	}
 
 	@Override
-	public void prepareRefactoring() {
+	public void selectElementToRefactor() {
 		SWTBotTreeItem compilationUnitTreeItem= selectCurrentJavaProject().getTreeItem(getProjectName()).expand().expandNode("src").expandNode("edu.illinois.codingspectator");
 		compilationUnitTreeItem.select(getTestFileFullName());
-		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
-		assertTrue(refactorMenu.isEnabled());
+	}
 
-		SWTBotMenu refactoringMenuItem= refactorMenu.menu(refactoringMenuItemName());
-		assertTrue(refactoringMenuItem.isEnabled());
-
-		refactoringMenuItem.click();
+	@Override
+	protected void configureRefactoring() {
+		super.configureRefactoring();
 		bot.textWithLabel("New name:").setText("Renamed" + getTestFileName());
 	}
 

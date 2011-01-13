@@ -23,8 +23,8 @@ public class ValidExtractMethodTest extends ExtractMethodTest {
 	}
 
 	@Override
-	public void prepareRefactoring() {
-		invokeRefactoring(10, 8, 37 - 8);
+	public void selectElementToRefactor() {
+		selectElementToRefactor(10, 8, 37 - 8);
 	}
 
 	@Override

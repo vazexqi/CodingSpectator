@@ -26,8 +26,8 @@ public class ExtractConstantTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	public void prepareRefactoring() {
-		invokeRefactoring(8, 27, 34 - 27);
+	public void selectElementToRefactor() {
+		selectElementToRefactor(8, 27, 34 - 27);
 	}
 
 	protected String refactoringMenuItemName() {

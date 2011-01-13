@@ -62,6 +62,8 @@ public abstract class CodingSpectatorTest {
 
 	protected static final String FINISH_BUTTON_NAME= "Finish";
 
+	protected static final String CONTINUE_BUTTON_NAME= "Continue";
+
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
 	private static Version getFeatureVersion() {
@@ -169,12 +171,14 @@ public abstract class CodingSpectatorTest {
 
 	abstract protected String refactoringMenuItemName();
 
-	protected void invokeRefactoring(int line, int column, int length) {
+	protected void selectElementToRefactor(int line, int column, int length) {
 		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileFullName()).toTextEditor();
 
 		editor.setFocus();
 		editor.selectRange(line, column, length);
+	}
 
+	protected void invokeRefactoring() {
 		SWTBotMenu refactorMenu= bot.menu(REFACTOR_MENU_NAME);
 		assertTrue(refactorMenu.isEnabled());
 
@@ -184,7 +188,12 @@ public abstract class CodingSpectatorTest {
 		refactoringMenuItem.click();
 	}
 
-	abstract public void prepareRefactoring();
+	protected abstract void selectElementToRefactor();
+
+	private void prepareRefactoring() {
+		selectElementToRefactor();
+		invokeRefactoring();
+	}
 
 	protected String getProjectNameSuffix() {
 		return getClass().toString();
@@ -194,18 +203,28 @@ public abstract class CodingSpectatorTest {
 
 	abstract protected String getRefactoringDialogName();
 
-	protected void cancelRefactoring() {
+	protected void activateRefactoringDialog() {
 		bot.shell(getRefactoringDialogName()).activate();
+	}
+
+	protected void cancelRefactoring() {
+		activateRefactoringDialog();
 		bot.button(CANCEL_BUTTON_NAME).click();
 	}
 
-	protected void performRefactoring() {
-		bot.shell(getRefactoringDialogName()).activate();
-		bot.button(getRefactoringDialogApplyButtonName()).click();
+	protected void configureRefactoring() {
+		activateRefactoringDialog();
 	}
 
-	protected String getRefactoringDialogApplyButtonName() {
-		return OK_BUTTON_NAME;
+	private void performRefactoring() {
+		activateRefactoringDialog();
+		for (String applyButtonName : getRefactoringDialogApplyButtonSequence()) {
+			bot.button(applyButtonName).click();
+		}
+	}
+
+	protected String[] getRefactoringDialogApplyButtonSequence() {
+		return new String[] { OK_BUTTON_NAME };
 	}
 
 	protected String getTestFileFullName() {
@@ -258,6 +277,7 @@ public abstract class CodingSpectatorTest {
 	@Test
 	public void shouldCapturePerformedRefactoring() throws Exception {
 		prepareRefactoring();
+		configureRefactoring();
 		performRefactoring();
 	}
 

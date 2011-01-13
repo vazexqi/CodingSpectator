@@ -9,11 +9,11 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-public class ValidMoveStaticFieldTest extends MoveStaticMemberTest {
+public class InvalidMoveStaticFieldTest extends MoveStaticMemberTest {
 
 	@Override
 	protected String getDestinationType() {
-		return "edu.illinois.codingspectator.C2";
+		return "edu.illinois.codingspectator.C3";
 	}
 
 	@Override
@@ -31,4 +31,8 @@ public class ValidMoveStaticFieldTest extends MoveStaticMemberTest {
 		return "MoveStaticMemberTestFile";
 	}
 
+	@Override
+	protected String[] getRefactoringDialogApplyButtonSequence() {
+		return new String[] { OK_BUTTON_NAME, CONTINUE_BUTTON_NAME };
+	}
 }

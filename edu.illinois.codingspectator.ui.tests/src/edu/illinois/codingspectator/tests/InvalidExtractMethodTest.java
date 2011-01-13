@@ -25,14 +25,13 @@ public class InvalidExtractMethodTest extends ExtractMethodTest {
 	}
 
 	@Override
-	protected void performRefactoring() {
-		super.performRefactoring();
-		bot.button(CONTINUE_BUTTON_NAME).click();
+	protected String[] getRefactoringDialogApplyButtonSequence() {
+		return new String[] { OK_BUTTON_NAME, CONTINUE_BUTTON_NAME };
 	}
 
 	@Override
-	public void prepareRefactoring() {
-		invokeRefactoring(8, 8, 35 - 8);
+	public void selectElementToRefactor() {
+		selectElementToRefactor(8, 8, 35 - 8);
 	}
 
 	@Override

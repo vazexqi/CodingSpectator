@@ -15,6 +15,6 @@ class C2 {
 
 class C3 {
 	
-    static Object field2;
+    static Object field1;
 	
 }
