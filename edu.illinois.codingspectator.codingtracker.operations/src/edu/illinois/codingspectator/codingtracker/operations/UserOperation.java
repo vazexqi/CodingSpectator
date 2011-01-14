@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
 import java.util.Date;
 
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.ISourceViewer;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 
@@ -17,6 +18,8 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 public abstract class UserOperation {
 
 	protected static IDocument currentDocument;
+
+	protected static ISourceViewer currentViewer;
 
 	private long timestamp;
 

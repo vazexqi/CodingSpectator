@@ -12,5 +12,5 @@ Export-Package: edu.illinois.codingspectator.codingtracker.operations,
  edu.illinois.codingspectator.codingtracker.operations.textchanges
 Require-Bundle: edu.illinois.codingspectator.codingtracker.helpers;visibility:=reexport,
  org.eclipse.jdt.core,
- org.eclipse.jdt.ui.tests,
- org.eclipse.jdt.ui
+ org.eclipse.jdt.ui,
+ org.eclipse.jdt.ui.tests
