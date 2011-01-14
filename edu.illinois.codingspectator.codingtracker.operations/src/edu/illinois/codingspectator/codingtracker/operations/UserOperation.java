@@ -47,6 +47,10 @@ public abstract class UserOperation {
 		return "Timestamp: " + timestamp;
 	}
 
+	public long getTime() {
+		return timestamp;
+	}
+
 	public Date getDate() {
 		return new Date(timestamp);
 	}

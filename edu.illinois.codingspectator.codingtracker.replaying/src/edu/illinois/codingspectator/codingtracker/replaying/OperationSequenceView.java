@@ -4,16 +4,12 @@
 package edu.illinois.codingspectator.codingtracker.replaying;
 
 
-import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.List;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -28,14 +24,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
-import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
 
@@ -54,24 +48,26 @@ public class OperationSequenceView extends ViewPart {
 
 	private static final Color yellowColor= Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW);
 
-	private TableViewer viewer;
+	private static final Color redColor= Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 
-	private OperationSequenceFilter filter= new OperationSequenceFilter();
+	private final OperationSequenceFilter operationSequenceFilter;
 
-	private Action replayAction;
+	private final UserOperationReplayer userOperationReplayer;
+
+	private TableViewer tableViewer;
 
 	private Text operationTextPane;
 
-	private Iterator<UserOperation> userOperationsIterator;
-
-	private UserOperation currentUserOperation;
+	private boolean isDoubleClickRefresh= false;
 
 	public OperationSequenceView() {
+		operationSequenceFilter= new OperationSequenceFilter(this);
+		userOperationReplayer= new UserOperationReplayer(this);
 	}
 
 	@Override
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		tableViewer.getControl().setFocus();
 	}
 
 	@Override
@@ -94,9 +90,9 @@ public class OperationSequenceView extends ViewPart {
 	}
 
 	private void createViewer(Composite parent) {
-		viewer= new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
-		viewer.addFilter(filter);
+		tableViewer= new TableViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		tableViewer.setContentProvider(ArrayContentProvider.getInstance());
+		tableViewer.addFilter(operationSequenceFilter);
 		createViewerColumns();
 		createViewerToolBar();
 		layoutViewer();
@@ -123,16 +119,23 @@ public class OperationSequenceView extends ViewPart {
 	}
 
 	private void updateCellAppearance(ViewerCell cell) {
-		if (cell.getElement() == currentUserOperation) {
+		Object cellElement= cell.getElement();
+		if (userOperationReplayer.isBreakpoint(cellElement)) {
+			cell.setBackground(redColor);
+		}
+		if (userOperationReplayer.isCurrentUserOperation(cellElement)) {
 			cell.setBackground(yellowColor);
-			cell.scrollIntoView();
-		} else {
+			if (!isDoubleClickRefresh) {
+				cell.scrollIntoView();
+			}
+		}
+		if (!userOperationReplayer.isBreakpoint(cellElement) && !userOperationReplayer.isCurrentUserOperation(cellElement)) {
 			cell.setBackground(whiteColor);
 		}
 	}
 
 	private TableViewerColumn createColumn(String title, int width) {
-		TableViewerColumn viewerColumn= new TableViewerColumn(viewer, SWT.NONE);
+		TableViewerColumn viewerColumn= new TableViewerColumn(tableViewer, SWT.NONE);
 		TableColumn tableColumn= viewerColumn.getColumn();
 		tableColumn.setText(title);
 		tableColumn.setWidth(width);
@@ -142,85 +145,12 @@ public class OperationSequenceView extends ViewPart {
 	}
 
 	private void createViewerToolBar() {
-		IToolBarManager toolBarManager= getViewSite().getActionBars().getToolBarManager();
-		toolBarManager.add(createLoadOperationSequenceAction());
-		toolBarManager.add(new Separator());
-		toolBarManager.add(createFilterAction("Text Changes", "Display text change operations", OperationSequenceFilter.FilteredOperations.TEXT_CHANGES));
-		toolBarManager.add(createFilterAction("Refactorings", "Display refactoring operations", OperationSequenceFilter.FilteredOperations.REFACTORINGS));
-		toolBarManager.add(createFilterAction("Snapshots", "Display snapshot-producing operations", OperationSequenceFilter.FilteredOperations.SNAPSHOTS));
-		toolBarManager.add(createFilterAction("Others", "Display all other operations", OperationSequenceFilter.FilteredOperations.OTHERS));
-		toolBarManager.add(new Separator());
-		toolBarManager.add(createReplayAction());
-	}
-
-	private IAction createLoadOperationSequenceAction() {
-		Action action= new Action() {
-			@Override
-			public void run() {
-				FileDialog fileDialog= new FileDialog(viewer.getControl().getShell(), SWT.OPEN);
-				String selectedFilePath= fileDialog.open();
-				if (selectedFilePath != null) {
-					String operationsRecord= FileHelper.getFileContent(new File(selectedFilePath));
-					List<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
-					userOperationsIterator= userOperations.iterator();
-					advanceCurrentUserOperation();
-					viewer.setInput(userOperations);
-				}
-			}
-		};
-		action.setText("Load");
-		action.setToolTipText("Load operation sequence from a file");
-		return action;
-	}
-
-	private IAction createFilterAction(String actionText, String actionToolTipText,
-										final OperationSequenceFilter.FilteredOperations filteredOperations) {
-		Action action= new Action() {
-			@Override
-			public void run() {
-				filter.toggleFilteredOperations(filteredOperations);
-				viewer.refresh();
-			}
-		};
-		action.setText(actionText);
-		action.setToolTipText(actionToolTipText);
-		action.setChecked(true);
-		return action;
-	}
-
-	private IAction createReplayAction() {
-		replayAction= new Action() {
-			@Override
-			public void run() {
-				try {
-					currentUserOperation.replay();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				advanceCurrentUserOperation();
-				viewer.refresh();
-			}
-		};
-		replayAction.setText("Replay");
-		replayAction.setToolTipText("Replay the current user operation");
-		replayAction.setEnabled(false);
-		return replayAction;
-	}
-
-	private void advanceCurrentUserOperation() {
-		if (userOperationsIterator.hasNext()) {
-			currentUserOperation= userOperationsIterator.next();
-			replayAction.setEnabled(true);
-		} else {
-			currentUserOperation= null;
-			replayAction.setEnabled(false);
-		}
-		viewer.setSelection(null, false);
-		displayInOperationTextPane(currentUserOperation);
+		userOperationReplayer.addToolBarActions();
+		operationSequenceFilter.addToolBarActions();
 	}
 
 	private void layoutViewer() {
-		Table table= viewer.getTable();
+		Table table= tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
@@ -229,19 +159,54 @@ public class OperationSequenceView extends ViewPart {
 		gridData.verticalAlignment= GridData.FILL;
 		gridData.grabExcessHorizontalSpace= true;
 		gridData.grabExcessVerticalSpace= true;
-		viewer.getControl().setLayoutData(gridData);
+		tableViewer.getControl().setLayoutData(gridData);
 	}
 
 	private void addViewerListeners() {
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				displayInOperationTextPane(((IStructuredSelection)event.getSelection()).getFirstElement());
 			}
 		});
+		tableViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				UserOperation userOperation= (UserOperation)((IStructuredSelection)event.getSelection()).getFirstElement();
+				userOperationReplayer.toggleBreakpoint(userOperation);
+				removeSelection();
+				isDoubleClickRefresh= true;
+				refreshTableViewer();
+				isDoubleClickRefresh= false;
+			}
+		});
 	}
 
-	private void displayInOperationTextPane(Object object) {
+	IToolBarManager getToolBarManager() {
+		return getViewSite().getActionBars().getToolBarManager();
+	}
+
+	Shell getShell() {
+		return tableViewer.getControl().getShell();
+	}
+
+	Display getDisplay() {
+		return tableViewer.getControl().getDisplay();
+	}
+
+	void setTableViewerInput(Object object) {
+		tableViewer.setInput(object);
+	}
+
+	void refreshTableViewer() {
+		tableViewer.refresh();
+	}
+
+	void removeSelection() {
+		tableViewer.setSelection(null, false);
+	}
+
+	void displayInOperationTextPane(Object object) {
 		if (object != null) {
 			//remove \r chars, because they are displayed as little squares
 			operationTextPane.setText(object.toString().replace("\r", ""));

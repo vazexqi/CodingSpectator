@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -35,7 +36,9 @@ public class ClosedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		getFileEditor().close(false);
+		//Don't use getFileEditor().close(false), because it is executed asynchronously 
+		ITextEditor fileEditor= getFileEditor();
+		fileEditor.getSite().getPage().closeEditor(fileEditor, false);
 	}
 
 }

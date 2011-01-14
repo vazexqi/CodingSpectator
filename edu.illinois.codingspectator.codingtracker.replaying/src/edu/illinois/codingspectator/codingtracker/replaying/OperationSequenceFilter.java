@@ -3,9 +3,13 @@
  */
 package edu.illinois.codingspectator.codingtracker.replaying;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
+import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SnapshotedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
@@ -19,9 +23,11 @@ import edu.illinois.codingspectator.codingtracker.operations.textchanges.TextCha
  */
 public class OperationSequenceFilter extends ViewerFilter {
 
-	public enum FilteredOperations {
+	private enum FilteredOperations {
 		TEXT_CHANGES, REFACTORINGS, SNAPSHOTS, OTHERS
 	}
+
+	private final OperationSequenceView operationSequenceView;
 
 	private boolean showTextChanges= true;
 
@@ -30,6 +36,10 @@ public class OperationSequenceFilter extends ViewerFilter {
 	private boolean showSnapshots= true;
 
 	private boolean showOthers= true;
+
+	public OperationSequenceFilter(OperationSequenceView operationSequenceView) {
+		this.operationSequenceView= operationSequenceView;
+	}
 
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
@@ -46,7 +56,27 @@ public class OperationSequenceFilter extends ViewerFilter {
 		return showOthers;
 	}
 
-	public void toggleFilteredOperations(FilteredOperations filteredOperations) {
+	void addToolBarActions() {
+		IToolBarManager toolBarManager= operationSequenceView.getToolBarManager();
+		toolBarManager.add(createFilterAction("Text Changes", "Display text change operations", FilteredOperations.TEXT_CHANGES));
+		toolBarManager.add(createFilterAction("Refactorings", "Display refactoring operations", FilteredOperations.REFACTORINGS));
+		toolBarManager.add(createFilterAction("Snapshots", "Display snapshot-producing operations", FilteredOperations.SNAPSHOTS));
+		toolBarManager.add(createFilterAction("Others", "Display all other operations", FilteredOperations.OTHERS));
+	}
+
+	private IAction createFilterAction(String actionText, String actionToolTipText, final FilteredOperations filteredOperations) {
+		IAction action= new Action() {
+			@Override
+			public void run() {
+				toggleFilteredOperations(filteredOperations);
+				operationSequenceView.refreshTableViewer();
+			}
+		};
+		ViewerHelper.initAction(action, actionText, actionToolTipText, true, true, true);
+		return action;
+	}
+
+	private void toggleFilteredOperations(FilteredOperations filteredOperations) {
 		switch (filteredOperations) {
 			case TEXT_CHANGES:
 				showTextChanges= !showTextChanges;
