@@ -3,10 +3,14 @@
  */
 package edu.illinois.codingspectator;
 
-public class ExtractConstantTestFile {
+public class InvalidExtractMethodTestFile {
 
 	public static void main(String[] args) {
-        System.out.println("Test0");
+        System.out.println("main");
+	}
+
+	private void invalidExtractedMethod() {
+
 	}
 
 }

@@ -3,7 +3,7 @@
  */
 package edu.illinois.codingspectator;
 
-public class InlineConstantTestFile {
+public class ValidExtractMethodTestFile {
 
     static final String CONSTANT= "TestConstant";
 

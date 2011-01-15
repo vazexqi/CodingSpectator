@@ -12,4 +12,6 @@ public interface IWatched {
 
 	public abstract RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus);
 
+	public boolean isInvokedByQuickAssist();
+
 }

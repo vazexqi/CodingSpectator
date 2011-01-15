@@ -606,7 +606,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	}
 
 	//CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to JavaRefactoringDescriptor. 
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fPackage.getJavaProject();
 		if (javaProject != null)

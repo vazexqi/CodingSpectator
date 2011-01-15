@@ -3,10 +3,26 @@
  */
 package edu.illinois.codingspectator;
 
-public class ExtractConstantTestFile {
+class C1 {
 
-	public static void main(String[] args) {
-        System.out.println("Test0");
+    void m2(C2 c2) {
+
+	}
+
+    void m3(C3 c3) {
+
+	}
+
+}
+
+class C2 {
+
+}
+
+class C3 {
+
+	void m3() {
+
 	}
 
 }

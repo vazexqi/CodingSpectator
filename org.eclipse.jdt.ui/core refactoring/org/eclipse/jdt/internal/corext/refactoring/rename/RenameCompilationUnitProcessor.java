@@ -52,6 +52,8 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.RenameCompilationUnitChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IQualifiedNameUpdating;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IReferenceUpdating;
@@ -484,11 +486,11 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	//CODINGSPECTATOR
 	/////////////////
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return new WatchedRenameCompilationUnitProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
-	}
+	public class WatchedRenameCompilationUnitProcessorDelegate extends WatchedJavaRenameProcessorDelegate {
 
-	public class WatchedRenameCompilationUnitProcessor extends WatchedJavaRenameProcessor {
+		public WatchedRenameCompilationUnitProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
+		}
 
 		public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 			RefactoringDescriptor r= createRenameCompilationUnitRefactoringDescriptor();
@@ -510,16 +512,8 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 
 	}
 
-	/**
-	 * This refactoring might return a RenameResourceDescriptor, which is not a subclass of
-	 * JavaRefactoringDescriptor. So, we have implemented
-	 * createRenameCompilationUnitRefactoringDescriptor instead of createRefactoringDescriptor.
-	 * Therefore, we cannot reuse org.eclipse.jdt.internal.corext.refactoring
-	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
-	 * 
-	 */
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
-		throw new UnsupportedOperationException();
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedRenameCompilationUnitProcessorDelegate(this);
 	}
 
 	protected RefactoringDescriptor createRenameCompilationUnitRefactoringDescriptor() {
@@ -569,6 +563,18 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 		}
 
 		return IJavaRefactorings.RENAME_COMPILATION_UNIT;
+	}
+
+	/*
+	 * This refactoring might return a RenameResourceDescriptor, which is not a subclass of
+	 * JavaRefactoringDescriptor. So, we have implemented
+	 * createRenameCompilationUnitRefactoringDescriptor instead of createRefactoringDescriptor.
+	 * Therefore, we cannot reuse org.eclipse.jdt.internal.corext.refactoring
+	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
+	 * 
+	 */
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+		throw new UnsupportedOperationException();
 	}
 
 }

@@ -4,7 +4,7 @@
 <project name="fetch-jars" default="install-jars" basedir=".">
 
 	<property name="jar-dest" value="lib" />
-	<property name="jar-base-url" value="http://beust.com/jcommander" />
+	<property name="jar-base-url" value="http://jcommander.org" />
 	<property name="jar-filename" value="jcommander-1.7.jar" />
 	<property name="project" value="edu.illinois.codingspectator.dataanalysis" />
 	<property name="SHA" value="df242839ea4fb5dc2a05d793a8e826ebf21084bb" />

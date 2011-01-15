@@ -11,32 +11,25 @@ import org.junit.runner.RunWith;
  * @author nchen
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class InlineConstantTest extends CodingSpectatorTest {
+public class ValidExtractMethodTest extends ExtractMethodTest {
 
-	private static final String INLINE_CONSTANT_DIALOG_NAME= "Inline Constant";
+	private static final String VALID_EXTRACTED_METHOD_NAME= "validExtractedMethod";
 
-	private static final String INLINE_CONSTANT_MENU_ITEM= "Inline...";
-
-	static final String TEST_FILE_NAME= "InlineConstantTestFile";
+	static final String TEST_FILE_NAME= "ValidExtractMethodTestFile";
 
 	@Override
-	protected String getRefactoringDialogName() {
-		return INLINE_CONSTANT_DIALOG_NAME;
+	protected String getExtractedMethodName() {
+		return VALID_EXTRACTED_METHOD_NAME;
 	}
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(7, 24, 32 - 24);
+		selectElementToRefactor(10, 8, 37 - 8);
 	}
 
 	@Override
 	String getTestFileName() {
 		return TEST_FILE_NAME;
-	}
-
-	@Override
-	protected String refactoringMenuItemName() {
-		return INLINE_CONSTANT_MENU_ITEM;
 	}
 
 }

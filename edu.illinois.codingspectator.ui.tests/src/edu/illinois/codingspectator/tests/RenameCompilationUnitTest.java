@@ -1,0 +1,48 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
+package edu.illinois.codingspectator.tests;
+
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+
+/**
+ * 
+ * @author Mohsen Vakilian
+ * @author nchen
+ * 
+ */
+public class RenameCompilationUnitTest extends CodingSpectatorTest {
+
+	@Override
+	protected String refactoringMenuItemName() {
+		return "Rename...";
+	}
+
+	@Override
+	protected String[] getRefactoringDialogApplyButtonSequence() {
+		return new String[] { FINISH_BUTTON_NAME };
+	}
+
+	@Override
+	public void selectElementToRefactor() {
+		SWTBotTreeItem compilationUnitTreeItem= selectCurrentJavaProject().getTreeItem(getProjectName()).expand().expandNode("src").expandNode("edu.illinois.codingspectator");
+		compilationUnitTreeItem.select(getTestFileFullName());
+	}
+
+	@Override
+	protected void configureRefactoring() {
+		super.configureRefactoring();
+		bot.textWithLabel("New name:").setText("Renamed" + getTestFileName());
+	}
+
+	@Override
+	String getTestFileName() {
+		return "RenameCompilationUnitTestFile";
+	}
+
+	@Override
+	protected String getRefactoringDialogName() {
+		return "Rename Compilation Unit";
+	}
+
+}

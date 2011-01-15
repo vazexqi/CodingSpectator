@@ -42,10 +42,8 @@ import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
-import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.MoveArguments;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.ParticipantManager;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
@@ -110,7 +108,9 @@ import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedMoveProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaMoveProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateFieldCreator;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateMethodCreator;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
@@ -135,7 +135,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
  * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
  * 
  */
-public final class MoveStaticMembersProcessor extends MoveProcessor implements IDelegateUpdating, IWatchedProcessor {
+public final class MoveStaticMembersProcessor extends WatchedJavaMoveProcessor implements IDelegateUpdating {
 
 	private static final String ATTRIBUTE_DELEGATE= "delegate"; //$NON-NLS-1$
 
@@ -1170,45 +1170,28 @@ public final class MoveStaticMembersProcessor extends MoveProcessor implements I
 	//CODINGSPECTATOR
 	/////////////////
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return new WatchedMoveStaticMembersProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
-	}
-
-	public String getSelection() {
-		return new WatchedMoveStaticMembersProcessor().getSelection();
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+		return createDescriptor();
 	}
 
 	public String getDescriptorID() {
-		return new WatchedMoveStaticMembersProcessor().getDescriptorID();
+		return IJavaRefactorings.MOVE_STATIC_MEMBERS;
 	}
 
-	public String getJavaProjectName() {
-		return new WatchedMoveStaticMembersProcessor().getJavaProjectName();
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedMoveStaticMembersProcessor(this);
 	}
 
-	public class WatchedMoveStaticMembersProcessor extends WatchedMoveProcessor {
+	public class WatchedMoveStaticMembersProcessor extends WatchedProcessorDelegate {
 
-		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
-			return MoveStaticMembersProcessor.this.createDescriptor();
+		public WatchedMoveStaticMembersProcessor(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
 		}
 
 		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
 			return RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(project, description, comment, arguments, flags);
 		}
 
-		protected Object[] getElements() {
-			return MoveStaticMembersProcessor.this.getElements();
-		}
-
-		public String getDescriptorID() {
-			return IJavaRefactorings.MOVE_STATIC_MEMBERS;
-		}
-
-		protected boolean isInvokedByQuickAssist() {
-			return MoveStaticMembersProcessor.this.isInvokedByQuickAssist();
-		}
-
 	}
-
 
 }
