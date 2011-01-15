@@ -54,7 +54,7 @@ public abstract class CodingSpectatorTest {
 
 	protected IFileStore canceledRefactorings;
 
-	private static final int SLEEPTIME= 1000;
+	private static final int SLEEPTIME= 1500;
 
 	protected static final String CANCEL_BUTTON_NAME= "Cancel";
 
