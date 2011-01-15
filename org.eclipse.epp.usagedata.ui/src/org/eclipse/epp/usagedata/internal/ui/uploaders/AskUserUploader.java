@@ -196,7 +196,7 @@ public class AskUserUploader extends AbstractUploader {
 	private void startBasicTransferToCodingSpectator() {
 		basicUploader= new BasicUploader(getUploadParameters());
 		basicUploader.addTransferToCodingSpectatorListener(new TransferToCodingSpectatorListener() {
-			@Override
+
 			public void transferToCodingSpectatorComplete() {
 				fireTransferToCodingSpectatorComplete();
 				basicUploader= null;
