@@ -7,6 +7,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.TextEvent;
+import org.eclipse.text.undo.DocumentUndoManagerRegistry;
+import org.eclipse.text.undo.IDocumentUndoManager;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -39,6 +41,10 @@ public abstract class TextChangeOperation extends UserOperation {
 		newText= documentEvent.getText();
 		offset= documentEvent.getOffset();
 		length= documentEvent.getLength();
+	}
+
+	protected IDocumentUndoManager getCurrentDocumentUndoManager() {
+		return DocumentUndoManagerRegistry.getDocumentUndoManager(currentDocument);
 	}
 
 	@Override
