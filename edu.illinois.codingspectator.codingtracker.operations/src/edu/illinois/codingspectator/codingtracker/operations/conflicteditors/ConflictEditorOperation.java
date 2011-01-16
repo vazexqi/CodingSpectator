@@ -36,6 +36,11 @@ public abstract class ConflictEditorOperation extends UserOperation {
 	}
 
 	@Override
+	public void replay() {
+		throw new RuntimeException("Unsupported operation");
+	}
+
+	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Editor ID: " + editorID + "\n");

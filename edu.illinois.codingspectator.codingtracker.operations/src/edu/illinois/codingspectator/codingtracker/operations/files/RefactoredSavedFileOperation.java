@@ -32,4 +32,9 @@ public class RefactoredSavedFileOperation extends FileOperation {
 		return "Saved file while refactored";
 	}
 
+	@Override
+	public void replay() {
+		//do nothing
+	}
+
 }

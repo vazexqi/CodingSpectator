@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.refactorings;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
@@ -30,6 +31,11 @@ public class UndoneRefactoringOperation extends RefactoringOperation {
 	@Override
 	public String getDescription() {
 		return "Undone refactoring";
+	}
+
+	@Override
+	public void replay() throws CoreException {
+		getRefactoringUndoManager().performUndo(null, null);
 	}
 
 }

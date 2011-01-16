@@ -7,8 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ltk.core.refactoring.IUndoManager;
+import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringContribution;
+import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringContributionManager;
 
@@ -63,6 +68,24 @@ public abstract class RefactoringOperation extends UserOperation {
 				arguments.put(key.toString(), value.toString());
 			}
 		}
+	}
+
+	protected Refactoring getInitializedRefactoring() throws CoreException {
+		RefactoringStatus initializationStatus= new RefactoringStatus();
+		Refactoring refactoring= getRefactoringDescriptor().createRefactoring(initializationStatus);
+		if (!initializationStatus.isOK()) {
+			throw new RuntimeException("Failed to initialize a refactoring from its descriptor: " + id);
+		}
+		return refactoring;
+	}
+
+	private RefactoringDescriptor getRefactoringDescriptor() {
+		RefactoringContribution refactoringContribution= RefactoringCore.getRefactoringContribution(id);
+		return refactoringContribution.createDescriptor(id, project, "Recorded refactoring", "", arguments, flags);
+	}
+
+	protected IUndoManager getRefactoringUndoManager() {
+		return RefactoringCore.getUndoManager();
 	}
 
 	@Override

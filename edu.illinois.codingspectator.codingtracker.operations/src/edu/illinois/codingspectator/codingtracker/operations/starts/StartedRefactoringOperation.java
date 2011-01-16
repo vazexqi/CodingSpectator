@@ -39,4 +39,9 @@ public class StartedRefactoringOperation extends UserOperation {
 		//Nothing to initialize		
 	}
 
+	@Override
+	public void replay() {
+		//do nothing
+	}
+
 }

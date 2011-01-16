@@ -32,4 +32,9 @@ public class UpdatedFileOperation extends FileOperation {
 		return "Updated file";
 	}
 
+	@Override
+	public void replay() {
+		//do nothing
+	}
+
 }

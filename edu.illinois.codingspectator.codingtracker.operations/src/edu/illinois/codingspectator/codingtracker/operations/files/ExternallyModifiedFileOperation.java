@@ -32,4 +32,9 @@ public class ExternallyModifiedFileOperation extends FileOperation {
 		return "Externally modified file";
 	}
 
+	@Override
+	public void replay() {
+		//do nothing
+	}
+
 }

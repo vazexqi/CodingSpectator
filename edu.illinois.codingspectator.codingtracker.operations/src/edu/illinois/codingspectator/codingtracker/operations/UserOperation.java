@@ -66,9 +66,6 @@ public abstract class UserOperation {
 
 	protected abstract void initializeFrom(OperationLexer operationLexer);
 
-	//TODO: Should be protected abstract method
-	public void replay() throws Exception {
-
-	}
+	public abstract void replay() throws Exception;
 
 }
