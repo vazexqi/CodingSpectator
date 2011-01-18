@@ -44,9 +44,12 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.JavaRefactoringDesc
  * 
  * @since 1.1
  * 
+ * @author Mohsen Vakilian, nchen - Added ability to add more information by cloning an existing
+ *         RefactoringDescriptor
+ * 
  * @noextend This class is not intended to be subclassed by clients outside JDT.
  */
-public abstract class JavaRefactoringDescriptor extends RefactoringDescriptor {
+public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 
 	/**
 	 * Predefined argument called <code>element&lt;Number&gt;</code>.
@@ -391,4 +394,15 @@ public abstract class JavaRefactoringDescriptor extends RefactoringDescriptor {
 			status.merge(RefactoringStatus.createFatalErrorStatus(DescriptorMessages.JavaRefactoringDescriptor_no_description));
 		return status;
 	}
+
+	//////////////////
+	// CODINGSPECTATOR
+	//////////////////
+	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
+		Map augmentedArguments= new HashMap(this.getArguments());
+		augmentedArguments.putAll(arguments);
+		return new JavaRefactoringDescriptor(this.getID(), this.getProject(), this.getDescription(), this.getComment(), augmentedArguments, this.getFlags());
+	}
+
+
 }
