@@ -2,7 +2,6 @@ Changed Files
 =============
 
 src/org/eclipse/ltk/ui/refactoring/RefactoringWizard.java
-src/org/eclipse/ltk/ui/refactoring/UserInputWizardPage.java
 
 Added Files
 ===========

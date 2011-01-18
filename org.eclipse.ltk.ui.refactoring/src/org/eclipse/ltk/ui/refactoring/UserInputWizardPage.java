@@ -36,9 +36,6 @@ import org.eclipse.ltk.internal.ui.refactoring.UIPerformChangeOperation;
  * Clients may extend this class.
  * </p>
  * 
- * @author Mohsen Vakilian, nchen - Added a logging statement to the performFinish method to log
- *         refactoring descriptors before changes are actually committed.
- * 
  * @since 3.0
  */
 public abstract class UserInputWizardPage extends RefactoringWizardPage {
@@ -136,8 +133,6 @@ public abstract class UserInputWizardPage extends RefactoringWizardPage {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * CODINGSPECTATOR: Create the refactoring descriptor early. But, log the descriptor just before
-	 * returning true.
 	 */
 	protected boolean performFinish() {
 		RefactoringWizard wizard= getRefactoringWizard();
