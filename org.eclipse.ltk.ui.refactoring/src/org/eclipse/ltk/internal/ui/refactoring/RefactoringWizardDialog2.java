@@ -46,8 +46,15 @@ import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.ProgressMonitorPart;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Monitored key UI events in the dialog e.g. preview, cancel, ok,
+ *         etc.
+ * 
+ */
 public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer {
 
 	private RefactoringWizard fWizard;
@@ -514,6 +521,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		IWizardPage current= fCurrentPage;
 		saveInitialSize();
 		fCurrentPage= fCurrentPage.getNextPage();
+		fWizard.addNavigationHistoryItem(NavigationHistoryItem.getNextorPreviewPressedInstance(fCurrentPage.getTitle()));
 		if (current == fCurrentPage)
 			return;
 		if (!fHasAdditionalPages && IErrorWizardPage.PAGE_NAME.equals(fCurrentPage.getName())) {
@@ -547,6 +555,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		if (current == fCurrentPage)
 			return;
 
+		fWizard.addNavigationHistoryItem(NavigationHistoryItem.getBackPressedInstance(fCurrentPage.getTitle()));
 		showCurrentPage();
 	}
 
@@ -555,11 +564,14 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 				fWizard.internalShowBackButtonOnStatusDialog(InternalAPI.INSTANCE));
 		switch (dialog.open()) {
 			case IDialogConstants.OK_ID:
+				fWizard.addNavigationHistoryItem(NavigationHistoryItem.getOKErrorDialogInstance(page.getTitle()));
 				return true;
 			case IDialogConstants.BACK_ID:
+				fWizard.addNavigationHistoryItem(NavigationHistoryItem.getBackErrorDialogInstance(page.getTitle()));
 				fCurrentPage= fCurrentPage.getPreviousPage();
 				break;
 			case IDialogConstants.CANCEL_ID:
+				fWizard.addNavigationHistoryItem(NavigationHistoryItem.getCancelErrorDialogInstance(page.getTitle()));
 				cancelPressed();
 		}
 		return false;

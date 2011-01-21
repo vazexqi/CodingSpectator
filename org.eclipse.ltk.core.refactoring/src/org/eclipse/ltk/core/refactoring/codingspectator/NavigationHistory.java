@@ -9,13 +9,11 @@ import java.util.List;
  * @author nchen
  */
 public class NavigationHistory {
-	private static final String INITIAL_DIALOG_MARKER= "BEGIN"; //$NON-NLS-1$
 
 	final List navigationHistoryItems;
 
-	public NavigationHistory(String buttonLabel, long initialTimestamp) {
+	public NavigationHistory() {
 		navigationHistoryItems= new ArrayList();
-		navigationHistoryItems.add(new NavigationHistoryItem(INITIAL_DIALOG_MARKER, buttonLabel, initialTimestamp));
 	}
 
 	public void addItem(NavigationHistoryItem item) {

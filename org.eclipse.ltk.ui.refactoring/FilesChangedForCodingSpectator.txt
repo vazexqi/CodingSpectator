@@ -2,6 +2,10 @@ Changed Files
 =============
 
 src/org/eclipse/ltk/ui/refactoring/RefactoringWizard.java
+src/org/eclipse/ltk/internal/ui/refactoring/RefactoringWizardDialog2.java
 
 Added Files
 ===========
+
+src/org/eclipse/ltk/core/refactoring/codingspectator/NavigationHistory.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/NavigationHistoryItem.java

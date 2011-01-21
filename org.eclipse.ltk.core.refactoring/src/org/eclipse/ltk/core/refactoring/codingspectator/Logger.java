@@ -24,6 +24,8 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySeria
  */
 public class Logger {
 
+	private static final String NAVIGATION_HISTORY_ATTRIBUTE= "NavigationHistory"; //$NON-NLS-1$
+
 	private static final String MONITOR_UI= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
 
 	public static void logDebug(String debugInfo) {
@@ -69,8 +71,24 @@ public class Logger {
 	}
 
 	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
+		logRefactoringEvent(refactoringEventType, status, refactoring, null);
+	}
+
+	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring, NavigationHistory navigationHistory) {
 		RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor(status, refactoring);
+
+		if (navigationHistory != null) {
+			refactoringDescriptor= augmentRefactoringDescriptor(navigationHistory, refactoringDescriptor);
+		}
+
 		logRefactoringDescriptor(refactoringEventType, refactoringDescriptor);
+	}
+
+	public static RefactoringDescriptor augmentRefactoringDescriptor(NavigationHistory navigationHistory, RefactoringDescriptor refactoringDescriptor) {
+		HashMap augmentedArguments= new HashMap();
+		augmentedArguments.put(NAVIGATION_HISTORY_ATTRIBUTE, navigationHistory.toString());
+		refactoringDescriptor= refactoringDescriptor.cloneByAugmenting(augmentedArguments);
+		return refactoringDescriptor;
 	}
 
 	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
