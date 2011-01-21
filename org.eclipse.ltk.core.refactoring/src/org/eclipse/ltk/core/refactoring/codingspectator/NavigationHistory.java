@@ -21,15 +21,15 @@ public class NavigationHistory {
 	}
 
 	public String toString() {
-		StringBuilder builder= new StringBuilder("{ "); //$NON-NLS-1$
+		StringBuilder builder= new StringBuilder("{"); //$NON-NLS-1$
 
 		for (Iterator iterator= navigationHistoryItems.iterator(); iterator.hasNext();) {
 			NavigationHistoryItem item= (NavigationHistoryItem)iterator.next();
 			builder.append(item);
-			builder.append(" "); //$NON-NLS-1$
+			builder.append(","); //$NON-NLS-1$
 		}
 
-		builder.append(" }"); //$NON-NLS-1$
+		builder.append("}"); //$NON-NLS-1$
 
 		return builder.toString();
 	}

@@ -649,9 +649,6 @@ public abstract class RefactoringWizard extends Wizard {
 	public boolean performFinish() {
 		RefactoringWizardPage page= (RefactoringWizardPage)getContainer().getCurrentPage();
 
-		// Log that the user has finished the refactoring
-		addNavigationHistoryItem(NavigationHistoryItem.getPerformOKInstance());
-
 		// Create the refactoring descriptor before the change is created because creating a change for a refactoring could invalidate a lot of the preconditions
 		RefactoringDescriptor refactoringDescriptor= Logger.createRefactoringDescriptor(getConditionCheckingStatus(), getRefactoring());
 
@@ -667,10 +664,6 @@ public abstract class RefactoringWizard extends Wizard {
 	 * {@inheritDoc}
 	 */
 	public boolean performCancel() {
-
-		// Log that the user has finished the refactoring
-		addNavigationHistoryItem(NavigationHistoryItem.getPerformCancelInstance());
-
 		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring, navigationHistory);
 
 		if (fChange != null) {

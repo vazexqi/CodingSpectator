@@ -469,6 +469,8 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 	}
 
 	protected void cancelPressed() {
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.CANCEL_LABEL));
+
 		if (fActiveRunningOperations == 0) {
 			if (fWizard.performCancel())
 				super.cancelPressed();
@@ -476,6 +478,8 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 	}
 
 	protected void okPressed() {
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.OK_LABEL));
+
 		IWizardPage current= fCurrentPage;
 		saveInitialSize();
 		if (fWizard.performFinish()) {
@@ -517,11 +521,11 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		return IPreviewWizardPage.PAGE_NAME.equals(fCurrentPage.getName());
 	}
 
-	private void nextOrPreviewPressed() {
+	private void nextOrPreviewPressed(Button button) {
 		IWizardPage current= fCurrentPage;
 		saveInitialSize();
 		fCurrentPage= fCurrentPage.getNextPage();
-		fWizard.addNavigationHistoryItem(NavigationHistoryItem.getNextorPreviewPressedInstance(fCurrentPage.getTitle()));
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), button.getText()));
 		if (current == fCurrentPage)
 			return;
 		if (!fHasAdditionalPages && IErrorWizardPage.PAGE_NAME.equals(fCurrentPage.getName())) {
@@ -555,7 +559,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		if (current == fCurrentPage)
 			return;
 
-		fWizard.addNavigationHistoryItem(NavigationHistoryItem.getBackPressedInstance(fCurrentPage.getTitle()));
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.BACK_LABEL));
 		showCurrentPage();
 	}
 
@@ -564,14 +568,16 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 				fWizard.internalShowBackButtonOnStatusDialog(InternalAPI.INSTANCE));
 		switch (dialog.open()) {
 			case IDialogConstants.OK_ID:
-				fWizard.addNavigationHistoryItem(NavigationHistoryItem.getOKErrorDialogInstance(page.getTitle()));
+
+				//See RefactoringStatusDialog#createButtonsForButtonBar() for the labels of the buttons
+				fWizard.addNavigationHistoryItem(new NavigationHistoryItem(page.getName(), RefactoringUIMessages.RefactoringStatusDialog_Continue));
 				return true;
 			case IDialogConstants.BACK_ID:
-				fWizard.addNavigationHistoryItem(NavigationHistoryItem.getBackErrorDialogInstance(page.getTitle()));
+				fWizard.addNavigationHistoryItem(new NavigationHistoryItem(page.getName(), IDialogConstants.BACK_LABEL));
 				fCurrentPage= fCurrentPage.getPreviousPage();
 				break;
 			case IDialogConstants.CANCEL_ID:
-				fWizard.addNavigationHistoryItem(NavigationHistoryItem.getCancelErrorDialogInstance(page.getTitle()));
+				fWizard.addNavigationHistoryItem(new NavigationHistoryItem(page.getName(), IDialogConstants.CANCEL_LABEL));
 				cancelPressed();
 		}
 		return false;
@@ -713,7 +719,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 
 	private void createPreviewButton(Composite parent) {
 		if (!(fCurrentPage instanceof PreviewWizardPage) && fWizard.internalHasPreviewPage(InternalAPI.INSTANCE)) {
-			Button preview= createButton(parent, PREVIEW_ID, RefactoringUIMessages.RefactoringWizardDialog2_buttons_preview_label, false);
+			final Button preview= createButton(parent, PREVIEW_ID, RefactoringUIMessages.RefactoringWizardDialog2_buttons_preview_label, false);
 			if (fMakeNextButtonDefault) {
 				preview.getShell().setDefaultButton(preview);
 			}
@@ -723,7 +729,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 					if (isPreviewPageActive()) {
 						backPressed();
 					} else {
-						nextOrPreviewPressed();
+						nextOrPreviewPressed(preview);
 					}
 				}
 			});
@@ -754,11 +760,11 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 				backPressed();
 			}
 		});
-		Button nextButton= createButton(composite, IDialogConstants.NEXT_ID, IDialogConstants.NEXT_LABEL, false);
+		final Button nextButton= createButton(composite, IDialogConstants.NEXT_ID, IDialogConstants.NEXT_LABEL, false);
 		nextButton.addSelectionListener(new SelectionAdapter() {
 
 			public void widgetSelected(SelectionEvent e) {
-				nextOrPreviewPressed();
+				nextOrPreviewPressed(nextButton);
 			}
 		});
 

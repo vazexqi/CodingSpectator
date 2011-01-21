@@ -182,7 +182,7 @@ public class RefactoringWizardOpenOperation {
 							result[0]= Window.CANCEL;
 						else {
 							// CODINGSPECTATOR: Monitor for initial creation of dialog
-							fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fWizard.getWindowTitle()));
+							fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fWizard.getDefaultPageTitle()));
 							result[0]= dialog.open();
 						}
 					}

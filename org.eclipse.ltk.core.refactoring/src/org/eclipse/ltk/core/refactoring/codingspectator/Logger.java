@@ -24,7 +24,7 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySeria
  */
 public class Logger {
 
-	private static final String NAVIGATION_HISTORY_ATTRIBUTE= "NavigationHistory"; //$NON-NLS-1$
+	private static final String NAVIGATION_HISTORY_ATTRIBUTE= "navigationHistory"; //$NON-NLS-1$
 
 	private static final String MONITOR_UI= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
 
