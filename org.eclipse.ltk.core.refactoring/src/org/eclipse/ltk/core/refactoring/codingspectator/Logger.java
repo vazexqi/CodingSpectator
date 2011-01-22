@@ -39,6 +39,12 @@ public class Logger {
 	}
 
 	public static RefactoringDescriptor createRefactoringDescriptor(RefactoringStatus status, Refactoring refactoring) {
+		if (isWatched(refactoring))
+			return convertToWatchedRefactoring(refactoring).getSimpleRefactoringDescriptor(status);
+		return null;
+	}
+
+	public static IWatchedRefactoring convertToWatchedRefactoring(Refactoring refactoring) {
 		if (!(refactoring instanceof IWatchedRefactoring))
 			return null;
 
@@ -46,7 +52,11 @@ public class Logger {
 		if (!(watchedRefactoring.isWatched()))
 			return null;
 
-		return watchedRefactoring.getSimpleRefactoringDescriptor(status);
+		return watchedRefactoring;
+	}
+
+	public static boolean isWatched(Refactoring refactoring) {
+		return convertToWatchedRefactoring(refactoring) != null;
 	}
 
 	public static void logRefactoringDescriptor(int refactoringEventType, RefactoringDescriptor refactoringDescriptor) {
@@ -75,19 +85,29 @@ public class Logger {
 	}
 
 	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring, NavigationHistory navigationHistory) {
-		RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor(status, refactoring);
-
-		if (navigationHistory != null) {
-			refactoringDescriptor= augmentRefactoringDescriptor(navigationHistory, refactoringDescriptor);
+		if (isWatched(refactoring)) {
+			RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor(status, refactoring);
+			appendThenLog(refactoringEventType, navigationHistory, refactoringDescriptor);
 		}
+	}
 
+	private static void appendThenLog(int refactoringEventType, NavigationHistory navigationHistory, RefactoringDescriptor refactoringDescriptor) {
+		refactoringDescriptor= appendNavigationHistory(navigationHistory, refactoringDescriptor);
 		logRefactoringDescriptor(refactoringEventType, refactoringDescriptor);
 	}
 
-	public static RefactoringDescriptor augmentRefactoringDescriptor(NavigationHistory navigationHistory, RefactoringDescriptor refactoringDescriptor) {
-		HashMap augmentedArguments= new HashMap();
-		augmentedArguments.put(NAVIGATION_HISTORY_ATTRIBUTE, navigationHistory.toString());
-		refactoringDescriptor= refactoringDescriptor.cloneByAugmenting(augmentedArguments);
+	public static void logRefactoringEvent(int refactoringEventType, RefactoringDescriptor refactoringDescriptor, NavigationHistory navigationHistory) {
+		if (refactoringDescriptor != null) {
+			appendThenLog(refactoringEventType, navigationHistory, refactoringDescriptor);
+		}
+	}
+
+	public static RefactoringDescriptor appendNavigationHistory(NavigationHistory navigationHistory, RefactoringDescriptor refactoringDescriptor) {
+		if (navigationHistory != null) {
+			HashMap augmentedArguments= new HashMap();
+			augmentedArguments.put(NAVIGATION_HISTORY_ATTRIBUTE, navigationHistory.toString());
+			refactoringDescriptor= refactoringDescriptor.cloneByAugmenting(augmentedArguments);
+		}
 		return refactoringDescriptor;
 	}
 

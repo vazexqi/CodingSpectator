@@ -654,8 +654,7 @@ public abstract class RefactoringWizard extends Wizard {
 
 		boolean performedFinish= page.performFinish();
 		if (performedFinish) {
-			refactoringDescriptor= Logger.augmentRefactoringDescriptor(navigationHistory, refactoringDescriptor);
-			Logger.logRefactoringDescriptor(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, refactoringDescriptor);
+			Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, refactoringDescriptor, navigationHistory);
 		}
 		return performedFinish;
 	}
