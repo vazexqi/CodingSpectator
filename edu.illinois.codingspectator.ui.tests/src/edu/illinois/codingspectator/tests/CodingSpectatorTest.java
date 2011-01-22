@@ -11,6 +11,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -54,15 +55,19 @@ public abstract class CodingSpectatorTest {
 
 	protected IFileStore canceledRefactorings;
 
-	private static final int SLEEPTIME= 1500;
+	protected static final int SLEEPTIME= 1500;
 
-	protected static final String CANCEL_BUTTON_NAME= "Cancel";
+	protected static final String YES_BUTTON_LABEL= IDialogConstants.YES_LABEL;
 
-	protected static final String OK_BUTTON_NAME= "OK";
+	protected static final String CANCEL_BUTTON_LABEL= IDialogConstants.CANCEL_LABEL;
 
-	protected static final String FINISH_BUTTON_NAME= "Finish";
+	protected static final String OK_BUTTON_LABEL= IDialogConstants.OK_LABEL;
 
-	protected static final String CONTINUE_BUTTON_NAME= "Continue";
+	protected static final String FINISH_BUTTON_LABEL= IDialogConstants.FINISH_LABEL;
+
+	protected static final String NEXT_BUTTON_LABEL= IDialogConstants.NEXT_LABEL;
+
+	protected static final String CONTINUE_BUTTON_LABEL= "Continue";
 
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
@@ -112,18 +117,18 @@ public abstract class CodingSpectatorTest {
 
 		bot.shell("New Project").activate();
 		bot.tree().expandNode("Java").select("Java Project");
-		bot.button("Next >").click();
+		bot.button(NEXT_BUTTON_LABEL).click();
 
 		bot.textWithLabel("Project name:").setText(getProjectName());
 
-		bot.button("Finish").click();
+		bot.button(FINISH_BUTTON_LABEL).click();
 
 		dismissJavaPerspectiveIfPresent();
 	}
 
 	private void dismissJavaPerspectiveIfPresent() {
 		try {
-			bot.button("Yes").click();
+			bot.button(YES_BUTTON_LABEL).click();
 		} catch (WidgetNotFoundException exception) {
 			// The second and subsequent time this is invoked the Java perspective change dialog will not be shown.
 		}
@@ -140,7 +145,7 @@ public abstract class CodingSpectatorTest {
 		bot.textWithLabel("Package:").setText(PACKAGE_NAME);
 		bot.textWithLabel("Name:").setText(getTestFileName());
 
-		bot.button("Finish").click();
+		bot.button(FINISH_BUTTON_LABEL).click();
 	}
 
 	protected SWTBotTree selectCurrentJavaProject() {
@@ -209,7 +214,7 @@ public abstract class CodingSpectatorTest {
 
 	protected void cancelRefactoring() {
 		activateRefactoringDialog();
-		bot.button(CANCEL_BUTTON_NAME).click();
+		bot.button(CANCEL_BUTTON_LABEL).click();
 	}
 
 	protected void configureRefactoring() {
@@ -224,7 +229,7 @@ public abstract class CodingSpectatorTest {
 	}
 
 	protected String[] getRefactoringDialogApplyButtonSequence() {
-		return new String[] { OK_BUTTON_NAME };
+		return new String[] { OK_BUTTON_LABEL };
 	}
 
 	protected String getTestFileFullName() {
@@ -269,6 +274,10 @@ public abstract class CodingSpectatorTest {
 	// This needs to be interleaved here after the refactoring has been canceled.
 	@Test
 	public void currentRefactoringsCanceledShouldBePopulated() {
+		verifyCanceledRefactoringBehavior();
+	}
+
+	public void verifyCanceledRefactoringBehavior() {
 		bot.sleep(SLEEPTIME);
 		assertFalse(performedRefactorings.fetchInfo().exists());
 		assertTrue(canceledRefactorings.fetchInfo().exists());
@@ -284,6 +293,10 @@ public abstract class CodingSpectatorTest {
 	// This needs to be interleaved here after the refactoring has been performed.
 	@Test
 	public void currentRefactoringsPerformedShouldBePopulated() {
+		verifyPerformedRefactoringBehavior();
+	}
+
+	public void verifyPerformedRefactoringBehavior() {
 		bot.sleep(SLEEPTIME);
 		assertTrue(performedRefactorings.fetchInfo().exists());
 		assertTrue(canceledRefactorings.fetchInfo().exists());

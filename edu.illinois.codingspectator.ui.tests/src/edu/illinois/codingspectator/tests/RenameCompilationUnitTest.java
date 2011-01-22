@@ -20,7 +20,7 @@ public class RenameCompilationUnitTest extends CodingSpectatorTest {
 
 	@Override
 	protected String[] getRefactoringDialogApplyButtonSequence() {
-		return new String[] { FINISH_BUTTON_NAME };
+		return new String[] { FINISH_BUTTON_LABEL };
 	}
 
 	@Override
