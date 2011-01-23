@@ -469,6 +469,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 	}
 
 	protected void cancelPressed() {
+		//CODINGSPECTATOR: Record the time of pressing the cancel button on the current page.
 		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.CANCEL_LABEL));
 
 		if (fActiveRunningOperations == 0) {
@@ -478,6 +479,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 	}
 
 	protected void okPressed() {
+		//CODINGSPECTATOR: This method gets invoked when the user presses OK. So, record the time of the occurrence of this event.
 		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.OK_LABEL));
 
 		IWizardPage current= fCurrentPage;
@@ -521,11 +523,15 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		return IPreviewWizardPage.PAGE_NAME.equals(fCurrentPage.getName());
 	}
 
+	//CODINGSPECTATOR: Added button as a parameter to the method so that it can tell which one was pressed "next" or "preview".
 	private void nextOrPreviewPressed(Button button) {
 		IWizardPage current= fCurrentPage;
 		saveInitialSize();
 		fCurrentPage= fCurrentPage.getNextPage();
+
+		//CODINGSPECTATOR: Record the event of pressing the button on the current page.
 		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), button.getText()));
+
 		if (current == fCurrentPage)
 			return;
 		if (!fHasAdditionalPages && IErrorWizardPage.PAGE_NAME.equals(fCurrentPage.getName())) {
@@ -559,10 +565,13 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		if (current == fCurrentPage)
 			return;
 
+		//CODINGSPECTATOR: Record the time of pressing the back button on the current page. 
 		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.BACK_LABEL));
+
 		showCurrentPage();
 	}
 
+	//CODINGSPECTATOR: Update the navigation history whenever the user presses a button the error dialog.
 	private boolean showErrorDialog(ErrorWizardPage page) {
 		RefactoringStatusDialog dialog= new RefactoringStatusDialog(getShell(), page,
 				fWizard.internalShowBackButtonOnStatusDialog(InternalAPI.INSTANCE));
@@ -717,6 +726,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		okButton.setFocus();
 	}
 
+	//CODINGSPECTATOR: Pass the preview button object to the event handler "nextOrPreviewPressed" so that CodingSpectator can tell that the user has pressed "preview" and not "next". 
 	private void createPreviewButton(Composite parent) {
 		if (!(fCurrentPage instanceof PreviewWizardPage) && fWizard.internalHasPreviewPage(InternalAPI.INSTANCE)) {
 			final Button preview= createButton(parent, PREVIEW_ID, RefactoringUIMessages.RefactoringWizardDialog2_buttons_preview_label, false);
@@ -760,6 +770,8 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 				backPressed();
 			}
 		});
+
+		//CODINGSPECTATOR: Pass the "next" button object to the event handler "nextOrPreviewPressed" so that CodingSpectator can tell that the user has pressed "next" and not "preview". 
 		final Button nextButton= createButton(composite, IDialogConstants.NEXT_ID, IDialogConstants.NEXT_LABEL, false);
 		nextButton.addSelectionListener(new SelectionAdapter() {
 
