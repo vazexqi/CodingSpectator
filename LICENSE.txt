@@ -85,3 +85,6 @@ under the TMate Open Source License.
 * CodingSpectator depends on the JCommander library. JCommander is licensed
 under the Apache License - Version 2.0, and is available at
 http://jcommander.org/.
+
+* CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
+the Mozilla Public License and is available at http://saxon.sourceforge.net/
