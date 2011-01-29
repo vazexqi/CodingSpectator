@@ -30,7 +30,9 @@ import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 public class RefactoringWizardDialog extends WizardDialog {
 
 	private static final String DIALOG_SETTINGS= "RefactoringWizard"; //$NON-NLS-1$
+
 	private static final String WIDTH= "width"; //$NON-NLS-1$
+
 	private static final String HEIGHT= "height"; //$NON-NLS-1$
 
 	private IDialogSettings fSettings;
@@ -44,7 +46,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 
 	/**
 	 * Creates a new refactoring wizard dialog with the given wizard.
-	 *
+	 * 
 	 * @param parent the parent shell
 	 * @param wizard the refactoring wizard
 	 */
@@ -59,7 +61,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 		int width= 600;
 		int height= 400;
 
-		String settingsSectionId= DIALOG_SETTINGS + '.'+ wizard.getRefactoring().getName();
+		String settingsSectionId= DIALOG_SETTINGS + '.' + wizard.getRefactoring().getName();
 		fSettings= settings.getSection(settingsSectionId);
 		if (fSettings == null) {
 			fSettings= new DialogSettings(settingsSectionId);
@@ -67,11 +69,11 @@ public class RefactoringWizardDialog extends WizardDialog {
 			fSettings.put(WIDTH, width);
 			fSettings.put(HEIGHT, height);
 		} else {
-    		try {
-    			width= fSettings.getInt(WIDTH);
-    			height= fSettings.getInt(HEIGHT);
-    		} catch (NumberFormatException e) {
-    		}
+			try {
+				width= fSettings.getInt(WIDTH);
+				height= fSettings.getInt(HEIGHT);
+			} catch (NumberFormatException e) {
+			}
 		}
 		setMinimumPageSize(width, height);
 	}
@@ -111,7 +113,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 	private void storeCurrentSize() {
 		IWizardPage page= getCurrentPage();
 		Control control= page.getControl().getParent();
-		Point size = control.getSize();
+		Point size= control.getSize();
 		fSettings.put(WIDTH, size.x);
 		fSettings.put(HEIGHT, size.y);
 	}
@@ -121,7 +123,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 	 */
 	public void updateButtons() {
 		super.updateButtons();
-		if (! fMakeNextButtonDefault)
+		if (!fMakeNextButtonDefault)
 			return;
 		if (getShell() == null)
 			return;

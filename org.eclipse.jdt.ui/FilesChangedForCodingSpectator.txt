@@ -50,6 +50,11 @@ ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/RenameLinkedMode.ja
 ui/org/eclipse/jdt/internal/ui/text/correction/proposals/RenameRefactoringProposal.java
 ui/org/eclipse/jdt/ui/refactoring/RenameSupport.java
 
+# For capturing pull up refactoring
+ui/org/eclipse/jdt/ui/actions/PullUpAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/PullUpMethodPage.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/PullUpMemberPage.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/PullUpRefactoringProcessor.java
 
 Added Files
 ===========
