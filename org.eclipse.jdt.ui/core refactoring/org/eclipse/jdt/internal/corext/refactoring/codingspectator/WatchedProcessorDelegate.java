@@ -74,6 +74,12 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	private IJavaElement getJavaElementIfPossible() {
+		if (getElements() == null) {
+			return null;
+		}
+		if (getElements().length == 0) {
+			return null;
+		}
 		if (getElements()[0] instanceof IJavaElement)
 			return ((IJavaElement)getElements()[0]);
 		return null;

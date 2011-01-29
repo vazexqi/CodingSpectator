@@ -1179,12 +1179,12 @@ public final class MoveStaticMembersProcessor extends WatchedJavaMoveProcessor i
 	}
 
 	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedMoveStaticMembersProcessor(this);
+		return new WatchedMoveStaticMembersProcessorDelegate(this);
 	}
 
-	public class WatchedMoveStaticMembersProcessor extends WatchedProcessorDelegate {
+	public class WatchedMoveStaticMembersProcessorDelegate extends WatchedProcessorDelegate {
 
-		public WatchedMoveStaticMembersProcessor(IWatchedJavaProcessor watchedProcessor) {
+		public WatchedMoveStaticMembersProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
 			super(watchedProcessor);
 		}
 

@@ -22,10 +22,14 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
 /**
  * A dialog to host refactoring wizards.
+ * 
+ * @author Mohsen Vakilian, nchen - Recorded the navigation history of the refactoring wizard.
+ * 
  */
 public class RefactoringWizardDialog extends WizardDialog {
 
@@ -99,6 +103,10 @@ public class RefactoringWizardDialog extends WizardDialog {
 	 */
 	protected void cancelPressed() {
 		storeCurrentSize();
+
+		//CODINGSPECTATOR: Record the time of pressing the cancel button.
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.CANCEL_LABEL));
+
 		super.cancelPressed();
 	}
 
@@ -107,6 +115,10 @@ public class RefactoringWizardDialog extends WizardDialog {
 	 */
 	protected void finishPressed() {
 		storeCurrentSize();
+
+		//CODINGSPECTATOR: Record the time of pressing the finish button.
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.FINISH_LABEL));
+
 		super.finishPressed();
 	}
 
@@ -148,4 +160,27 @@ public class RefactoringWizardDialog extends WizardDialog {
 	private RefactoringWizard getRefactoringWizard() {
 		return (RefactoringWizard)getWizard();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * FIXME: We don't know if this method ever gets invoked.
+	 */
+	protected void okPressed() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.OK_LABEL));
+		super.okPressed();
+	}
+
+	protected void nextPressed() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.NEXT_LABEL));
+		super.nextPressed();
+	}
+
+	protected void backPressed() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.BACK_LABEL));
+		super.backPressed();
+	}
+
 }

@@ -9,7 +9,7 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-public class InValidMoveInstanceMethodTest extends MoveInstanceMethodTest {
+public class InvalidMoveInstanceMethodTest extends MoveInstanceMethodTest {
 
 	@Override
 	public void selectElementToRefactor() {

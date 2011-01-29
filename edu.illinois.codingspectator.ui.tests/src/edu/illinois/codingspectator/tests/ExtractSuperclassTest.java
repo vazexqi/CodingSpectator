@@ -3,18 +3,14 @@
  */
 package edu.illinois.codingspectator.tests;
 
-import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
-import org.junit.runner.RunWith;
-
 /**
  * 
  * @author Mohsen Vakilian
  * @author nchen
  * 
  */
-@RunWith(SWTBotJunit4ClassRunner.class)
 public class ExtractSuperclassTest extends CodingSpectatorTest {
-	// This is an unusual title for the dialog box - maybe JDT forgot to set it properly
+// This is an unusual title for the dialog box - maybe JDT forgot to set it properly
 	private static final String EXTRACT_SUPERCLASS_DIALOG_NAME= "Refactoring";
 
 	private static final String SUPERCLASS_NAME_LABEL= "Superclass name:";
@@ -65,6 +61,5 @@ public class ExtractSuperclassTest extends CodingSpectatorTest {
 	public void verifyPerformedRefactoringBehavior() {
 		// Do nothing
 	}
-
 
 }

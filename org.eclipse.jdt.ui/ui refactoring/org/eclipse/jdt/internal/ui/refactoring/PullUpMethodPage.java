@@ -57,6 +57,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 import org.eclipse.jdt.core.IJavaProject;
@@ -88,6 +89,10 @@ import org.eclipse.jdt.internal.ui.util.SWTUtil;
 /**
  * Wizard page for pull up refactoring wizards which allows to specify the methods to be deleted in
  * subtypes after pull up.
+ * 
+ * @author Mohsen Vakilian, nchen - Changed the class such that whenever the user changes some
+ *         option of the refactoring, it updates the underlying processor object. See
+ *         {@link #updateRefactoringProcessor()}.
  * 
  * @since 3.2
  */
@@ -308,6 +313,9 @@ public class PullUpMethodPage extends UserInputWizardPage {
 			public void widgetSelected(final SelectionEvent e) {
 				checkPulledUp();
 				updateSelectionLabel();
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 	}
@@ -322,6 +330,9 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 		Dialog.applyDialogFont(composite);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IJavaHelpContextIds.PULL_UP_WIZARD_PAGE);
+
+		//CODINGSPECTATOR:
+		updateRefactoringProcessor();
 	}
 
 	private void createHierarchyTreeComposite(final Composite parent) {
@@ -399,12 +410,18 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 			public void selectionChanged(final SelectionChangedEvent event) {
 				treeViewerSelectionChanged(event);
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 		fTreeViewer.addCheckStateListener(new ICheckStateListener() {
 
 			public void checkStateChanged(final CheckStateChangedEvent event) {
 				updateSelectionLabel();
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 	}
@@ -456,6 +473,9 @@ public class PullUpMethodPage extends UserInputWizardPage {
 	}
 
 	private void initializeRefactoring() {
+		//CODINGSPECTATOR
+		Logger.logDebug("PullUpMethodPage.initializeRefactoring()");
+
 		fProcessor.setDeletedMethods(getCheckedMethods());
 	}
 
@@ -573,4 +593,17 @@ public class PullUpMethodPage extends UserInputWizardPage {
 		fSelectionLabel.setText(text);
 
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * Whenever the user changes the parameters of the refactoring, we have to update the underlying
+	 * processor object so that we get a valid descriptor.
+	 */
+	private void updateRefactoringProcessor() {
+		initializeRefactoring();
+	}
+
 }

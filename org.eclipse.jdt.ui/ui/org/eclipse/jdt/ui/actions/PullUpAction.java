@@ -23,6 +23,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
@@ -50,6 +52,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
+ * 
+ * @author Mohsen Vakilian, nchen - Logged unavailability of the refactoring.
  * 
  * @since 2.0
  * 
@@ -138,6 +142,12 @@ public class PullUpAction extends SelectionDispatchAction {
 			if (member != null && RefactoringAvailabilityTester.isPullUpAvailable(array)) {
 				RefactoringExecutionStarter.startPullUpRefactoring(array, getShell());
 			} else {
+				//CODINGSPECTATOR: Log the unavailability of the refactoring before showing the error message.
+				IJavaElement elementAtOffset= SelectionConverter.getElementAtOffset(fEditor);
+				String javaProject= elementAtOffset.getJavaProject().getElementName();
+				String selectionIfAny= elementAtOffset.getElementName();
+				Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
+
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PullUpAction_unavailable);
 			}
 		} catch (JavaModelException e) {

@@ -176,6 +176,17 @@ public abstract class CodingSpectatorTest {
 
 	abstract protected String refactoringMenuItemName();
 
+	/**
+	 * Selects part of the given line from the given column number for the specified length.
+	 * 
+	 * @param line The line number to be selected. This number is zero-based.
+	 * @param column The column number of the beginning of the selection. This number is zero-based.
+	 *            If you use Eclipse editor to find the column number, you should be aware that the
+	 *            Eclipse editor displays offsets of the caret by expanding tabs into spaces. So, to
+	 *            get the column number from Eclipse editor safely, convert the tabs to spaces
+	 *            first.
+	 * @param length The length of the selection.
+	 */
 	protected void selectElementToRefactor(int line, int column, int length) {
 		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileFullName()).toTextEditor();
 
