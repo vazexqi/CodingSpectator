@@ -25,7 +25,7 @@ public class RenameLocalVariableTest extends CodingSpectatorTest {
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(9, 12, 0);
+		selectElementToRefactor(8, 12, 28 - 12);
 	}
 
 	@Override

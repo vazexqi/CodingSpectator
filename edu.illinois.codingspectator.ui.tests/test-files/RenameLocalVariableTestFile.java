@@ -6,8 +6,7 @@ package edu.illinois.codingspectator;
 public class RenameLocalVariableTestFile {
 	
     public static void main(String[] args) {
-    	   	
-    	int originalVariable = 0;
+        int originalVariable;
     }
 
 }
