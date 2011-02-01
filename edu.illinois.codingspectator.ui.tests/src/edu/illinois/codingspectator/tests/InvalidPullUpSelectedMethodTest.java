@@ -17,13 +17,26 @@ public class InvalidPullUpSelectedMethodTest extends PullUpTest {
 	}
 
 	@Override
-	protected String[] getRefactoringDialogApplyButtonSequence() {
-		return new String[] { FINISH_BUTTON_LABEL };
-	}
-
-	@Override
 	protected String getTestFileName() {
 		return "InvalidPullUpMethodTestFile";
 	}
 
+	@Override
+	protected void cancelRefactoring() {
+		bot.button(NEXT_BUTTON_LABEL).click();
+		bot.button(NEXT_BUTTON_LABEL).click();
+		bot.button(CANCEL_BUTTON_LABEL).click();
+	}
+
+	@Override
+	protected void performRefactoring() {
+		bot.button(FINISH_BUTTON_LABEL).click();
+		bot.button(OK_BUTTON_LABEL).click();
+	}
+
+	@Override
+	public void verifyPerformedRefactoringBehavior() {
+		super.verifyPerformedRefactoringBehavior();
+		reportProblemsWithTest("Pulling up a method to class that already has a method with the same signature produces an exception. We need to either record it as a cancelld refactoring or a performed refactoring with a severe status. See issue #22 for more details.");
+	}
 }

@@ -232,7 +232,7 @@ public abstract class CodingSpectatorTest {
 		activateRefactoringDialog();
 	}
 
-	private void performRefactoring() {
+	protected void performRefactoring() {
 		activateRefactoringDialog();
 		for (String applyButtonName : getRefactoringDialogApplyButtonSequence()) {
 			bot.button(applyButtonName).click();
@@ -245,6 +245,10 @@ public abstract class CodingSpectatorTest {
 
 	protected String getTestFileFullName() {
 		return getTestFileName() + ".java";
+	}
+
+	protected void reportProblemsWithTest(String message) {
+		System.out.println(message);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
