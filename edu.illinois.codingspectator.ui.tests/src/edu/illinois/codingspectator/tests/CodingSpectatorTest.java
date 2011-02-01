@@ -250,7 +250,7 @@ public abstract class CodingSpectatorTest {
 	protected void reportProblemsWithTest(String message) {
 		System.out.println(message);
 	}
-
+	
 	///////////////////////////////////////////////////////////////////////////
 	//
 	// SWTBot tests run in order which is why we can take advantage of this
