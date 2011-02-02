@@ -16,7 +16,7 @@ public class RenameNonOverriddenMethodTest extends CodingSpectatorTest {
 
 	private static final String RENAME_VARIABLE_MENU_ITEM= "Rename...";
 
-	static final String TEST_FILE_NAME= "RenameNonOverRiddenMethodTestFile";
+	static final String TEST_FILE_NAME= "RenameNonOverriddenMethodTestFile";
 
 	@Override
 	protected String getRefactoringDialogName() {
