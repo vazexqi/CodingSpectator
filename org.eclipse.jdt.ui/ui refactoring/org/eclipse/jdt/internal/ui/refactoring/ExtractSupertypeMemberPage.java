@@ -73,9 +73,9 @@ import org.eclipse.jdt.internal.ui.viewsupport.AppearanceAwareLabelProvider;
 import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
 
 /**
- * Wizard page for the extract supertype refactoring, which, apart from pull up
- * facilities, also allows to specify the types where to extract the supertype.
- *
+ * Wizard page for the extract supertype refactoring, which, apart from pull up facilities, also
+ * allows to specify the types where to extract the supertype.
+ * 
  * @since 3.2
  */
 public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
@@ -88,9 +88,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 		/**
 		 * Creates a new supertype selection dialog.
-		 *
-		 * @param shell
-		 *            the parent shell
+		 * 
+		 * @param shell the parent shell
 		 */
 		public SupertypeSelectionDialog(final Shell shell) {
 			super(shell);
@@ -111,7 +110,7 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 		protected Control createDialogArea(final Composite composite) {
 			Assert.isNotNull(composite);
 			setMessage(RefactoringMessages.ExtractSupertypeMemberPage_choose_type_message);
-			final Composite control= (Composite) super.createDialogArea(composite);
+			final Composite control= (Composite)super.createDialogArea(composite);
 			createMessageArea(control);
 			fViewer= new TableViewer(control, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 			fViewer.setLabelProvider(createLabelProvider());
@@ -119,12 +118,12 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 			fViewer.setComparator(new SupertypeSelectionViewerSorter());
 			fViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 				public void selectionChanged(final SelectionChangedEvent event) {
-					performSelectionChanged(((IStructuredSelection) fViewer.getSelection()).toArray());
+					performSelectionChanged(((IStructuredSelection)fViewer.getSelection()).toArray());
 				}
 			});
 			fViewer.addDoubleClickListener(new IDoubleClickListener() {
 				public void doubleClick(final DoubleClickEvent event) {
-					performSelectionChanged(((IStructuredSelection) fViewer.getSelection()).toArray());
+					performSelectionChanged(((IStructuredSelection)fViewer.getSelection()).toArray());
 					close();
 				}
 			});
@@ -144,9 +143,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 		/**
 		 * Sets the input of this dialog.
-		 *
-		 * @param input
-		 *            the input elements
+		 * 
+		 * @param input the input elements
 		 */
 		public void setInput(final Object[] input) {
 			fViewer.setInput(input);
@@ -162,11 +160,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 		/**
 		 * Creates a new supertype selection label provider.
-		 *
-		 * @param textFlags
-		 *            the text flags
-		 * @param imageFlags
-		 *            the image flags
+		 * 
+		 * @param textFlags the text flags
+		 * @param imageFlags the image flags
 		 */
 		public SupertypeSelectionLabelProvider(final long textFlags, final int imageFlags) {
 			super(textFlags, imageFlags);
@@ -194,15 +190,15 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 		 * {@inheritDoc}
 		 */
 		public int compare(final Viewer viewer, final Object first, final Object second) {
-			final IType predecessor= (IType) first;
-			final IType successor= (IType) second;
+			final IType predecessor= (IType)first;
+			final IType successor= (IType)second;
 			return getComparator().compare(predecessor.getElementName(), successor.getElementName());
 		}
 	}
 
 	/**
 	 * Creates a label provider for a type list.
-	 *
+	 * 
 	 * @return a label provider
 	 */
 	private static ILabelProvider createLabelProvider() {
@@ -220,13 +216,10 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Creates a new extract supertype member page.
-	 *
-	 * @param name
-	 *            the page name
-	 * @param page
-	 *            the method page
-	 * @param processor
-	 * 	           the processor
+	 * 
+	 * @param name the page name
+	 * @param page the method page
+	 * @param processor the processor
 	 */
 	public ExtractSupertypeMemberPage(final String name, final ExtractSupertypeMethodPage page, ExtractSupertypeProcessor processor) {
 		super(name, page, processor);
@@ -251,9 +244,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Computes the candidate types.
-	 *
-	 * @throws InterruptedException
-	 *             if the computation has been interrupted
+	 * 
+	 * @throws InterruptedException if the computation has been interrupted
 	 */
 	protected void computeCandidateTypes() throws InterruptedException {
 		if (fCandidateTypes != null && fCandidateTypes.length > 0)
@@ -281,9 +273,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Creates the button composite.
-	 *
-	 * @param parent
-	 *            the parent control
+	 * 
+	 * @param parent the parent control
 	 */
 	protected void createButtonComposite(final Composite parent) {
 		final Composite buttons= new Composite(parent, SWT.NONE);
@@ -307,9 +298,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 				}
 				final LinkedList list= new LinkedList(Arrays.asList(fCandidateTypes));
 				for (final Iterator outer= list.iterator(); outer.hasNext();) {
-					final IType first= (IType) outer.next();
+					final IType first= (IType)outer.next();
 					for (final Iterator inner= fTypesToExtract.iterator(); inner.hasNext();) {
-						final IType second= (IType) inner.next();
+						final IType second= (IType)inner.next();
 						if (second.getFullyQualifiedName().equals(first.getFullyQualifiedName()))
 							outer.remove();
 					}
@@ -339,7 +330,7 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 		removeButton.addSelectionListener(new SelectionAdapter() {
 
 			public void widgetSelected(final SelectionEvent event) {
-				final IStructuredSelection selection= (IStructuredSelection) fTableViewer.getSelection();
+				final IStructuredSelection selection= (IStructuredSelection)fTableViewer.getSelection();
 				if (!selection.isEmpty()) {
 					final IType declaring= getDeclaringType();
 					for (final Iterator iterator= selection.iterator(); iterator.hasNext();) {
@@ -355,7 +346,7 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			public void selectionChanged(final SelectionChangedEvent event) {
-				final IStructuredSelection selection= (IStructuredSelection) fTableViewer.getSelection();
+				final IStructuredSelection selection= (IStructuredSelection)fTableViewer.getSelection();
 				if (selection.isEmpty()) {
 					removeButton.setEnabled(false);
 					return;
@@ -410,9 +401,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Creates the super type field.
-	 *
-	 * @param parent
-	 *            the parent control
+	 * 
+	 * @param parent the parent control
 	 */
 	protected void createSuperTypeField(final Composite parent) {
 		final Label label= new Label(parent, SWT.NONE);
@@ -432,9 +422,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Creates the super type list.
-	 *
-	 * @param parent
-	 *            the parent control
+	 * 
+	 * @param parent the parent control
 	 * @throws JavaModelException
 	 */
 	protected void createSuperTypeList(final Composite parent) throws JavaModelException {
@@ -485,7 +474,7 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Returns the declaring type.
-	 *
+	 * 
 	 * @return the declaring type
 	 */
 	public IType getDeclaringType() {
@@ -515,11 +504,11 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Returns the refactoring processor.
-	 *
+	 * 
 	 * @return the refactoring processor
 	 */
 	protected ExtractSupertypeProcessor getProcessor() {
-		return (ExtractSupertypeProcessor) getPullUpRefactoringProcessor();
+		return (ExtractSupertypeProcessor)getPullUpRefactoringProcessor();
 	}
 
 	/**
@@ -545,9 +534,8 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 
 	/**
 	 * Handles the name changed event.
-	 *
-	 * @param name
-	 *            the name
+	 * 
+	 * @param name the name
 	 */
 	protected void handleNameChanged(final String name) {
 		if (name != null)
@@ -559,7 +547,7 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 	 * Handles the types changed event.
 	 */
 	protected void handleTypesChanged() {
-		getProcessor().setTypesToExtract((IType[]) fTypesToExtract.toArray(new IType[fTypesToExtract.size()]));
+		getProcessor().setTypesToExtract((IType[])fTypesToExtract.toArray(new IType[fTypesToExtract.size()]));
 	}
 
 	/**
