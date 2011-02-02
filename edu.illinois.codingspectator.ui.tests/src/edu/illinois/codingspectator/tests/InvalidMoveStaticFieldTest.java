@@ -27,7 +27,7 @@ public class InvalidMoveStaticFieldTest extends MoveStaticMemberTest {
 	}
 
 	@Override
-	protected String[] getRefactoringDialogApplyButtonSequence() {
+	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { OK_BUTTON_LABEL, CONTINUE_BUTTON_LABEL };
 	}
 

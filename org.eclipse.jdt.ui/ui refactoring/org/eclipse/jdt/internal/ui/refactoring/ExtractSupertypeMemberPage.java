@@ -76,6 +76,10 @@ import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
  * Wizard page for the extract supertype refactoring, which, apart from pull up facilities, also
  * allows to specify the types where to extract the supertype.
  * 
+ * @author Mohsen Vakilian, nchen - Changed the class such that whenever the user changes some
+ *         option of the refactoring, it updates the underlying processor object. See
+ *         {@link #updateRefactoringProcessor()}.
+ * 
  * @since 3.2
  */
 public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
@@ -319,6 +323,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 						handleTypesChanged();
 					}
 				}
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 
@@ -340,6 +347,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 					}
 					fTableViewer.setInput(fTypesToExtract.toArray());
 					handleTypesChanged();
+
+					//CODINGSPECTATOR
+					updateRefactoringProcessor();
 				}
 			}
 		});
@@ -358,6 +368,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 					}
 				}
 				removeButton.setEnabled(true);
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 	}
@@ -386,6 +399,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 		initializeEnablement();
 		initializeCheckboxes();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IJavaHelpContextIds.EXTRACT_SUPERTYPE_WIZARD_PAGE);
+
+		//CODINGSPECTATOR
+		updateRefactoringProcessor();
 	}
 
 	/**
@@ -541,6 +557,9 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 		if (name != null)
 			getProcessor().setTypeName(name);
 		checkPageCompletionStatus(true);
+
+		//CODINGSPECTATOR
+		updateRefactoringProcessor();
 	}
 
 	/**
@@ -560,4 +579,14 @@ public final class ExtractSupertypeMemberPage extends PullUpMemberPage {
 			getProcessor().resetChanges();
 		}
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	protected void updateRefactoringProcessor() {
+		super.updateRefactoringProcessor();
+		handleTypesChanged();
+	}
+
 }

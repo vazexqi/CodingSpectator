@@ -1064,7 +1064,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 	 * Whenever the user changes the parameters of the refactoring, we have to update the underlying
 	 * processor object so that we get a valid descriptor.
 	 */
-	private void updateRefactoringProcessor() {
+	protected void updateRefactoringProcessor() {
 		initializeRefactoring();
 	}
 

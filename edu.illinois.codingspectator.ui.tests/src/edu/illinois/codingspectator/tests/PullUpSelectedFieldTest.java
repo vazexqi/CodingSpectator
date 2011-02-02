@@ -17,7 +17,7 @@ public class PullUpSelectedFieldTest extends PullUpTest {
 	}
 
 	@Override
-	protected String[] getRefactoringDialogApplyButtonSequence() {
+	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { NEXT_BUTTON_LABEL, FINISH_BUTTON_LABEL };
 	}
 

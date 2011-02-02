@@ -14,8 +14,8 @@ public class ValidMoveCusTest extends MoveTest {
 	}
 
 	@Override
-	protected void configureRefactoring() {
-		super.configureRefactoring();
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
 		bot.button("Create Package...").click();
 		bot.textWithLabel("Name:").setText("edu.illinois.codingspectator.subpackage");
 		bot.button("Finish").click();

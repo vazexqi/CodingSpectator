@@ -9,14 +9,8 @@ package edu.illinois.codingspectator.tests;
  * @author nchen
  * 
  */
-public class PullUpSelectedFieldByFinishTest extends PullUpTest {
+public class ValidExtractSuperclassUsingFinishTest extends ValidExtractSuperclassTest {
 
-	@Override
-	protected void selectElementToRefactor() {
-		selectElementToRefactor(11, 11, 6);
-	}
-
-	@Override
 	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { FINISH_BUTTON_LABEL };
 	}

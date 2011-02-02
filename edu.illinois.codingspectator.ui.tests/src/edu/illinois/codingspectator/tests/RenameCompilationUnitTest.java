@@ -19,7 +19,7 @@ public class RenameCompilationUnitTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	protected String[] getRefactoringDialogApplyButtonSequence() {
+	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { FINISH_BUTTON_LABEL };
 	}
 
@@ -30,8 +30,8 @@ public class RenameCompilationUnitTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	protected void configureRefactoring() {
-		super.configureRefactoring();
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
 		bot.textWithLabel("New name:").setText("Renamed" + getTestFileName());
 	}
 

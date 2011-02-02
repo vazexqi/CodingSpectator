@@ -30,8 +30,8 @@ abstract public class ExtractMethodTest extends CodingSpectatorTest {
 	}
 
 	@Override
-	protected void configureRefactoring() {
-		super.configureRefactoring();
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
 		bot.textWithLabel(METHOD_NAME_LABEL).setText(getExtractedMethodName());
 	}
 

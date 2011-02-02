@@ -26,10 +26,4 @@ public abstract class PullUpTest extends CodingSpectatorTest {
 		return "Refactoring";
 	}
 
-	@Override
-	protected void selectElementToRefactor() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

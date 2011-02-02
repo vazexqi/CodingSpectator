@@ -223,24 +223,36 @@ public abstract class CodingSpectatorTest {
 		bot.shell(getRefactoringDialogName()).activate();
 	}
 
-	protected void cancelRefactoring() {
-		activateRefactoringDialog();
-		bot.button(CANCEL_BUTTON_LABEL).click();
+	protected void clickButtons(String[] buttonNames) {
+		for (String buttonName : buttonNames) {
+			bot.button(buttonName).click();
+		}
 	}
 
-	protected void configureRefactoring() {
+	protected void cancelRefactoring() {
+		activateRefactoringDialog();
+		clickButtons(getRefactoringDialogCancelButtonSequence());
+	}
+
+	protected void configureRefactoringToPerform() {
+		activateRefactoringDialog();
+	}
+
+	protected void configureRefactoringToCancel() {
 		activateRefactoringDialog();
 	}
 
 	protected void performRefactoring() {
 		activateRefactoringDialog();
-		for (String applyButtonName : getRefactoringDialogApplyButtonSequence()) {
-			bot.button(applyButtonName).click();
-		}
+		clickButtons(getRefactoringDialogPerformButtonSequence());
 	}
 
-	protected String[] getRefactoringDialogApplyButtonSequence() {
+	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { OK_BUTTON_LABEL };
+	}
+
+	protected String[] getRefactoringDialogCancelButtonSequence() {
+		return new String[] { CANCEL_BUTTON_LABEL };
 	}
 
 	protected String getTestFileFullName() {
@@ -250,7 +262,7 @@ public abstract class CodingSpectatorTest {
 	protected void reportProblemsWithTest(String message) {
 		System.out.println(message);
 	}
-	
+
 	///////////////////////////////////////////////////////////////////////////
 	//
 	// SWTBot tests run in order which is why we can take advantage of this
@@ -283,6 +295,7 @@ public abstract class CodingSpectatorTest {
 	@Test
 	public void shouldCaptureCancelledRefactoring() {
 		prepareRefactoring();
+		configureRefactoringToCancel();
 		cancelRefactoring();
 	}
 
@@ -301,7 +314,7 @@ public abstract class CodingSpectatorTest {
 	@Test
 	public void shouldCapturePerformedRefactoring() throws Exception {
 		prepareRefactoring();
-		configureRefactoring();
+		configureRefactoringToPerform();
 		performRefactoring();
 	}
 

@@ -2081,6 +2081,10 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 		return descriptor;
 	}
 
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedPullUpRefactoringProcessorDelegate(this);
+	}
+
 	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
 	protected WatchedProcessorDelegate watchedProcessorDelegate;
 
@@ -2100,10 +2104,6 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 		if (watchedProcessorDelegate == null)
 			watchedProcessorDelegate= instantiateDelegate();
 		return watchedProcessorDelegate;
-	}
-
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedPullUpRefactoringProcessorDelegate(this);
 	}
 
 }

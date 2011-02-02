@@ -17,13 +17,13 @@ public class PullUpSelectedClassTest extends PullUpTest {
 	}
 
 	@Override
-	protected String[] getRefactoringDialogApplyButtonSequence() {
+	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { NEXT_BUTTON_LABEL, FINISH_BUTTON_LABEL };
 	}
 
 	@Override
-	protected void configureRefactoring() {
-		super.configureRefactoring();
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
 		bot.button("Select All").click();
 	}
 

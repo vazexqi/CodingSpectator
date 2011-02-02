@@ -25,8 +25,8 @@ abstract public class MoveStaticMemberTest extends MoveTest {
 	}
 
 	@Override
-	protected void configureRefactoring() {
-		super.configureRefactoring();
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
 		bot.comboBoxWithLabel(getDestinationLabel()).setText(getDestinationType());
 	}
 

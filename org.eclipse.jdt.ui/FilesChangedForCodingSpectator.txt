@@ -56,6 +56,10 @@ ui refactoring/org/eclipse/jdt/internal/ui/refactoring/PullUpMethodPage.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/PullUpMemberPage.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/PullUpRefactoringProcessor.java
 
+# For capturing the extract supertype refactoring
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractSupertypeMemberPage.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/ExtractSupertypeProcessor.java
+
 Added Files
 ===========
 
