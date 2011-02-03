@@ -7,8 +7,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 /**
  * 
- * @author Mohsen Vakilian
- * @author nchen
+ * @author Balaji Ambresh Rajkumar
  * 
  */
 public class RenameJavaProjectTest extends CodingSpectatorTest {
