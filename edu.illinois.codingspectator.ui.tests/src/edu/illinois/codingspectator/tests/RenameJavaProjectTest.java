@@ -6,9 +6,7 @@ package edu.illinois.codingspectator.tests;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
 /**
- * 
  * @author Balaji Ambresh Rajkumar
- * 
  */
 public class RenameJavaProjectTest extends CodingSpectatorTest {
 	
