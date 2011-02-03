@@ -41,10 +41,10 @@ public class RenameLocalVariableTest extends CodingSpectatorTest {
 		bot.textWithLabel("New name:").setText("renamed_" + originalVariableName);
 	}
 	
-	@Override
 	/**
 	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename dialog.
 	 */
+	@Override
 	protected void invokeRefactoring() {
 		super.invokeRefactoring();
 		super.invokeRefactoring();
