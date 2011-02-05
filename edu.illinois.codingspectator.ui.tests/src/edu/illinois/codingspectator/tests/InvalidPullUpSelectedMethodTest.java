@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingspectator.tests;
 
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+
 /**
  * 
  * @author Mohsen Vakilian
@@ -31,7 +33,12 @@ public class InvalidPullUpSelectedMethodTest extends PullUpTest {
 	@Override
 	protected void performRefactoring() {
 		bot.button(FINISH_BUTTON_LABEL).click();
-		bot.button(OK_BUTTON_LABEL).click();
+		try {
+			bot.button(OK_BUTTON_LABEL).click();
+		} catch (WidgetNotFoundException exception) {
+			// FIXME: On my machine i.e. Mac, the second dialog box does not appear so SWTBot can't click on OK.
+			bot.button(FINISH_BUTTON_LABEL).click();
+		}
 	}
 
 	@Override
