@@ -25,7 +25,7 @@ public class RenameNonVirtualMethod extends CodingSpectatorTest {
 
 	@Override
 	public void selectElementToRefactor() {
-		selectElementToRefactor(7, 16, 32 - 16);
+		selectElementToRefactor(7, 15, 31 - 15);
 	}
 
 	@Override
