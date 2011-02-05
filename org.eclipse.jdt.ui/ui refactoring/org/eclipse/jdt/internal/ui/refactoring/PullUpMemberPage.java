@@ -870,7 +870,8 @@ public class PullUpMemberPage extends UserInputWizardPage {
 	private boolean isDestinationInterface() {
 		IType destination= getDestinationType();
 		try {
-			if (destination != null && destination.isInterface()) {
+			// CODINGSPECTATOR: Added check of destination.exists() (see Issue #144)
+			if (destination != null && destination.exists() && destination.isInterface()) {
 				return true;
 			}
 		} catch (JavaModelException exception) {
