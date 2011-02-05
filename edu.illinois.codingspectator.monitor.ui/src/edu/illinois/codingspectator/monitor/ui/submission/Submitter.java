@@ -98,6 +98,7 @@ public class Submitter {
 			svnManager.doCommit();
 			notifyPostSubmit();
 		} catch (SVNException e) {
+			notifySubmissionException();
 			throw new SubmissionException(e);
 		}
 	}
@@ -129,6 +130,13 @@ public class Submitter {
 		Collection<SubmitterListener> submitterListeners= lookupExtensions();
 		for (SubmitterListener submitterListener : submitterListeners) {
 			submitterListener.postSubmit();
+		}
+	}
+
+	private void notifySubmissionException() {
+		Collection<SubmitterListener> submitterListeners= lookupExtensions();
+		for (SubmitterListener submitterListener : submitterListeners) {
+			submitterListener.failedToSubmit();
 		}
 	}
 

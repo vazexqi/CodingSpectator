@@ -23,4 +23,9 @@ public class LoggerSubmitterListener extends BasicListener implements SubmitterL
 		eventLogger.commitCompleted();
 	}
 
+	@Override
+	public void failedToSubmit() {
+		// FIXME: @Stas is there anything that you need to do when it fails to submit?
+	}
+
 }

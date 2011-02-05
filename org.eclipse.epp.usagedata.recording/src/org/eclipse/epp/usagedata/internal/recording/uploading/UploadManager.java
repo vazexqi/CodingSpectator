@@ -11,7 +11,6 @@
 package org.eclipse.epp.usagedata.internal.recording.uploading;
 
 import java.io.File;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.CoreException;
@@ -208,7 +207,7 @@ public class UploadManager implements SubmitterListener {
 	 * The submitter and the UDC data transferrer should acquire the watched directory's lock in
 	 * order to write into or upload the contents of the watched directory.
 	 */
-	public final static Lock watchedDirectoryLock= new ReentrantLock();
+	public final static ReentrantLock watchedDirectoryLock= new ReentrantLock();
 
 	public int startTransferToCodingSpectator() {
 		int preparationValue= prepareUploadData();
@@ -234,5 +233,10 @@ public class UploadManager implements SubmitterListener {
 
 	public void postSubmit() {
 		watchedDirectoryLock.unlock();
+	}
+
+	public void failedToSubmit() {
+		if (watchedDirectoryLock.isLocked())
+			watchedDirectoryLock.unlock();
 	}
 }

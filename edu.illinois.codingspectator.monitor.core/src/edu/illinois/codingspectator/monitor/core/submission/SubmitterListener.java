@@ -16,4 +16,6 @@ public interface SubmitterListener {
 
 	public void postSubmit();
 
+	public void failedToSubmit();
+
 }
