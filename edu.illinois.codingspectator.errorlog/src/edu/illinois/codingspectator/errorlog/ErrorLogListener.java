@@ -17,9 +17,11 @@ public class ErrorLogListener implements ILogListener {
 
 	@Override
 	public void logging(IStatus status, String plugin) {
-		System.out.println("status = " + status);
-		System.out.println("plugin = " + plugin);
-
+		System.err.println("status = " + status);
+		System.err.println("stack trace = ");
+		status.getException().printStackTrace();
+		System.err.println("plugin = " + plugin);
+		System.err.println("timestamp = " + System.currentTimeMillis());
 	}
 
 }
