@@ -14,8 +14,6 @@ public interface SubmitterListener {
 
 	public void preSubmit();
 
-	public void postSubmit();
-
-	public void failedToSubmit();
+	public void postSubmit(boolean succeeded);
 
 }
