@@ -2,7 +2,11 @@
 %
 \usepackage{hevea}
 %
-\usepackage{url}
+%\usepackage{url}
+%
+%\input{urlhref.hva}
+%
+\usepackage{hyperref}
 %
 \usepackage{ifpdf}
 %
@@ -19,7 +23,8 @@
 %
 \title{\codspec's User Guide}
 %
-\author{\codspec\ Team\\codingspectator@gmail.com}
+\author{\codspec\
+Team\\\href{mailto:codingspectator@gmail.com}{codingspectator@gmail.com}}
 %
 \begin{document}
 %
@@ -149,11 +154,11 @@ If you provide the wrong username/password, our plug-in will prompt you again:
 
 If you wish, you may also click on the \uiref{Save password (could trigger
 secure storage)} checkbox. This will ask Eclipse to store your username and
-password using its underlying Secure Storage mechanism
-(\url{http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/secure_storage_dev.htm}).
-If you decide to save your password, it will proceed to ask you to create a
-master password. Please follow the instructions on screen as they are
-OS-dependent.
+password using its underlying
+\href{http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/secure_storage_dev.htm}{Secure
+Storage mechanism}. If you decide to save your password, it will proceed to ask
+you to create a master password. Please follow the instructions on screen as
+they are OS-dependent.
 
 Additionally, if you decide to save your password, on subsequent uploads of our
 plug-in, you will no longer see the dialog above but one of the following ones:

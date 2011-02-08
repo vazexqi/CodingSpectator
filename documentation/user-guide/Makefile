@@ -4,8 +4,8 @@ all : $(TARGET).html
 #all : $(TARGET).pdf $(TARGET).html 
 
 $(TARGET).html: $(TARGET).tex
-	hevea $(TARGET).tex
-	hevea $(TARGET).tex
+	hevea $(TARGET)
+	hevea $(TARGET)
 
 $(TARGET).pdf: $(TARGET).tex
 	pdflatex $(TARGET).tex
