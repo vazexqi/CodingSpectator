@@ -27,6 +27,8 @@ import org.osgi.framework.Bundle;
  */
 public class CodingSpectatorBot {
 
+	public static final String CONTINUE_LABEL= "Continue";
+
 	static final String PLUGIN_NAME= "edu.illinois.codingspectator.ui.tests";
 
 	static final String PACKAGE_NAME= "edu.illinois.codingspectator";

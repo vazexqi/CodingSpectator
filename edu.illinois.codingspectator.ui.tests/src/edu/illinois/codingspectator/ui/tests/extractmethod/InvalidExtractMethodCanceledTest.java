@@ -18,7 +18,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class ExtractMethodCanceledTest extends RefactoringTest {
+public class InvalidExtractMethodCanceledTest extends RefactoringTest {
 
 	protected static final String EXTRACT_METHOD_MENU_ITEM_NAME= "Extract Method...";
 
@@ -26,7 +26,7 @@ public class ExtractMethodCanceledTest extends RefactoringTest {
 
 	@Override
 	protected String getTestFileName() {
-		return "ValidExtractMethodTestFile";
+		return "InvalidExtractMethodTestFile";
 	}
 
 	@Override
@@ -41,8 +41,9 @@ public class ExtractMethodCanceledTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 10, 8, "System.out.println(CONSTANT);".length());
+		bot.selectElementToRefactor(getTestFileName(), 8, 8, "System.out.println(\"main\");".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
+		bot.fillTextField("Method name:", "invalidExtractedMethod");
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 

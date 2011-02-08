@@ -34,6 +34,8 @@ public class RefactoringLog {
 
 	private static final String PERFORMED_REFACTORINGS= "refactorings/performed";
 
+	private static final String UNAVAILABLE_REFACTORINGS= "refactorings/unavailable";
+
 	private static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
 
 	private static Map<LogType, String> logTypeToDirectory= new HashMap<LogType, String>();
@@ -41,6 +43,7 @@ public class RefactoringLog {
 	static {
 		logTypeToDirectory.put(LogType.CANCELLED, CANCELED_REFACTORINGS);
 		logTypeToDirectory.put(LogType.PERFORMED, PERFORMED_REFACTORINGS);
+		logTypeToDirectory.put(LogType.UNAVAILABLE, UNAVAILABLE_REFACTORINGS);
 	}
 
 	public RefactoringLog(LogType logType) {

@@ -9,11 +9,11 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
-public class ExtractMethodPerformedTest extends RefactoringTest {
+public class ValidExtractMethodUnavailableTest extends RefactoringTest {
 
 	protected static final String EXTRACT_METHOD_MENU_ITEM_NAME= "Extract Method...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.UNAVAILABLE);
 
 	@Override
 	protected String getTestFileName() {
@@ -32,10 +32,8 @@ public class ExtractMethodPerformedTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 10, 8, "System.out.println(CONSTANT);".length());
+		bot.selectElementToRefactor(getTestFileName(), 9, 23, "main".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
-
-		bot.fillTextField("Method name:", "extractedMethod");
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
