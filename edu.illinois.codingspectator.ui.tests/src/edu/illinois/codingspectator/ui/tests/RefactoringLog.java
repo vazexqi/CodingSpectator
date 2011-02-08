@@ -30,7 +30,9 @@ public class RefactoringLog {
 
 	private static final String GENERIC_VERSION_NUMBER= "1.0.0.qualifier";
 
-	public static final String CANCELED_REFACTORINGS= "refactorings/canceled";
+	private static final String CANCELED_REFACTORINGS= "refactorings/canceled";
+
+	private static final String PERFORMED_REFACTORINGS= "refactorings/performed";
 
 	private static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
 
@@ -38,6 +40,7 @@ public class RefactoringLog {
 
 	static {
 		logTypeToDirectory.put(LogType.CANCELLED, CANCELED_REFACTORINGS);
+		logTypeToDirectory.put(LogType.PERFORMED, PERFORMED_REFACTORINGS);
 	}
 
 	public RefactoringLog(LogType logType) {

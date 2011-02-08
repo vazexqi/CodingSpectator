@@ -69,6 +69,7 @@ public abstract class RefactoringTest {
 
 	@Test
 	public void refactoringShouldBeLogged() {
+		bot.sleep();
 		doRefactoringShouldBeLogged();
 	}
 

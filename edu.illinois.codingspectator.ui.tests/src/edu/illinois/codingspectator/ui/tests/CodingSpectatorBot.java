@@ -146,4 +146,8 @@ public class CodingSpectatorBot {
 		editor.setFocus();
 		editor.selectRange(line, column, length);
 	}
+
+	public void fillTextField(String textFieldLabel, String textFieldValue) {
+		bot.textWithLabel(textFieldLabel).setText(textFieldValue);
+	}
 }
