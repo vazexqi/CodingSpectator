@@ -1,0 +1,2 @@
+\newcommand{\fig}[1]{\imgsrc{#1.png}}
+

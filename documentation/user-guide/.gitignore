@@ -8,5 +8,6 @@ hevea.sty
 *.haux
 *.htoc
 *log
+*.out
 *.image.tex
 

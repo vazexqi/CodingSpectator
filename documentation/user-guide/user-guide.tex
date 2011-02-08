@@ -2,16 +2,13 @@
 %
 \usepackage{hevea}
 %
-%\usepackage{url}
-%
-%\input{urlhref.hva}
+\usepackage{fullpage}
 %
 \usepackage{hyperref}
 %
-\usepackage{ifpdf}
+\usepackage[pdftex]{graphicx}
 %
-%TODO: Define this command only when hevea is run not pdflatex.
-\newcommand{\includegraphics}[1]{\imgsrc{#1.png}}
+\newcommand\fig[1]{\includegraphics[scale=0.49]{#1}}
 %
 \newcommand\codspec{CodingSpectator}
 %
@@ -19,7 +16,10 @@
 %
 \newcommand\infonote[1]{\textbf{Note: }#1}
 %
-\newcommand\uiref[1]{"\texttt{#1}"}
+\newcommand\uiref[1]{\texttt{#1}}
+%
+% The following disables hevea advertisement from the footer of the HTML.
+%HEVEA \footerfalse
 %
 \title{\codspec's User Guide}
 %
@@ -61,7 +61,7 @@ shown below. Then, click \uiref{OK}.
 %
 \centering
 %
-\includegraphics{figs/add_site}
+\fig{figs/add_site}
 %
 \end{figure}
 
@@ -71,7 +71,7 @@ shown below. Then, click \uiref{OK}.
 %
 \centering
 %
-\includegraphics{figs/select_features}
+\fig{figs/select_features}
 %
 \end{figure}
 
@@ -93,7 +93,7 @@ not signed for this research study. Click \uiref{OK}.
 %
 \centering
 %
-\includegraphics{figs/warning}
+\fig{figs/warning}
 %
 \end{figure}
 
@@ -138,7 +138,7 @@ provide your UIUC netid and AD password when prompted.
 %
 \centering
 %
-\includegraphics{figs/login}
+\fig{figs/login}
 %
 \end{figure}
 
@@ -148,7 +148,7 @@ If you provide the wrong username/password, our plug-in will prompt you again:
 %
 \centering
 %
-\includegraphics{figs/prompt}
+\fig{figs/prompt}
 %
 \end{figure}
 
@@ -167,11 +167,11 @@ plug-in, you will no longer see the dialog above but one of the following ones:
 %
 \centering
 %
-\includegraphics{figs/keychain}
+\fig{figs/keychain}
 %
-\includegraphics{figs/windows}
+\fig{figs/windows}
 %
-\includegraphics{figs/LinuxMasterPasswordDialog}
+\fig{figs/LinuxMasterPasswordDialog}
 %
 \end{figure}
 
@@ -192,7 +192,7 @@ OS X). Click on the \uiref{\codspec} section.
 %
 \centering
 %
-\includegraphics{figs/preferences}
+\fig{figs/preferences}
 %
 \end{figure}
 
@@ -234,7 +234,7 @@ Platform} on the list on the left.
 %
 \centering
 %
-\includegraphics{figs/target_step1}
+\fig{figs/target_step1}
 %
 \end{figure}
 %
@@ -247,7 +247,7 @@ Default target for running platform}.
 %
 \centering
 %
-\includegraphics{figs/target_step2}
+\fig{figs/target_step2}
 %
 \end{figure}
 
@@ -265,7 +265,7 @@ the list of plug-ins. \textbf{Deselect} the following (and only the following):
 %
 \centering
 %
-\includegraphics{figs/target_step3}
+\fig{figs/target_step3}
 %
 \end{figure}
 %
@@ -278,7 +278,7 @@ Platform} that you have just created.
 %
 \centering
 %
-\includegraphics{figs/target_step4}
+\fig{figs/target_step4}
 %
 \end{figure}
 %
@@ -299,7 +299,7 @@ for Updates} in the Eclipse application.
 %
 \centering
 %
-\includegraphics{figs/updates}
+\fig{figs/updates}
 %
 \end{figure}
 %
@@ -316,7 +316,7 @@ Windows.
 %
 \centering
 %
-\includegraphics{figs/uninstall_step1}
+\fig{figs/uninstall_step1}
 %
 \end{figure}
 %
@@ -329,7 +329,7 @@ installed.
 %
 \centering
 %
-\includegraphics{figs/uninstall_step2}
+\fig{figs/uninstall_step2}
 %
 \end{figure}
 %
@@ -343,7 +343,7 @@ a while, it will show the dialog below.
 %
 \centering
 %
-\includegraphics{figs/uninstall_step3}
+\fig{figs/uninstall_step3}
 %
 \end{figure}
 %
@@ -357,7 +357,7 @@ effect. Click \uiref{Restart Now}.
 %
 \centering
 %
-\includegraphics{figs/uninstall_step4}
+\fig{figs/uninstall_step4}
 %
 \end{figure}
 %
