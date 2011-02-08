@@ -32,42 +32,52 @@ public class RenameVirtualMethodTest extends CodingSpectatorTest {
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}
-	
+
 	@Override
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
+		configureRefactoring();
+	};
+
+	@Override
+	protected void configureRefactoringToCancel() {
+		super.configureRefactoringToCancel();
+		configureRefactoring();
+	}
+
 	protected void configureRefactoring() {
-		super.configureRefactoring();
-		
-		final String originalVariableName = bot.textWithLabel("New name:").getText();
+		final String originalVariableName= bot.textWithLabel("New name:").getText();
 		bot.textWithLabel("New name:").setText("renamed_" + originalVariableName);
 	}
-	
+
 	/**
 	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename dialog.
-	 * Since we're focussing on renaming the overridden function at the derived class, a warning dialog
-	 * pops up. Dismiss this dialg before moving to the actual refactoring.
+	 * Since we're focussing on renaming the overridden function at the derived class, a warning
+	 * dialog pops up. Dismiss this dialg before moving to the actual refactoring.
 	 */
 	@Override
 	protected void invokeRefactoring() {
 		forceDerivedClassMethodRename();
 		dismissWarningDialog();
 	}
-	
+
 	/**
-	 * Dismiss the warning dialog that comes up when we try renaming the method from the
-	 * derived class.
+	 * Dismiss the warning dialog that comes up when we try renaming the method from the derived
+	 * class.
 	 */
 	private void dismissWarningDialog() {
 		bot.shell("Rename Refactoring").activate();
 		bot.button(YES_BUTTON_LABEL).click();
 	}
-	
+
 	/**
-	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename warning dialog.
+	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename warning
+	 * dialog.
 	 */
 	private void forceDerivedClassMethodRename() {
 		super.invokeRefactoring();
 		super.invokeRefactoring();
-		
+
 	}
 
 	@Override

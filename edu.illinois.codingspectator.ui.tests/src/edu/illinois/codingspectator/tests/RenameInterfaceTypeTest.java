@@ -32,18 +32,27 @@ public class RenameInterfaceTypeTest extends CodingSpectatorTest {
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}
-	
+
 	@Override
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
+		configureRefactoring();
+	};
+
+	@Override
+	protected void configureRefactoringToCancel() {
+		super.configureRefactoringToCancel();
+		configureRefactoring();
+	}
+
 	protected void configureRefactoring() {
-		super.configureRefactoring();
-		
-		final String originalInterfaceName = bot.textWithLabel("New name:").getText();
+		final String originalInterfaceName= bot.textWithLabel("New name:").getText();
 		// the lower case is on purpose so that a warning dialog would come up for renaming an interface
 		// starting with a lower case. 
 		bot.textWithLabel("New name:").setText("renamed_" + originalInterfaceName);
 	}
-	
-	
+
+
 	/**
 	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename dialog.
 	 */
@@ -52,7 +61,7 @@ public class RenameInterfaceTypeTest extends CodingSpectatorTest {
 		super.invokeRefactoring();
 		super.invokeRefactoring();
 	}
-	
+
 	@Override
 	protected String refactoringMenuItemName() {
 		return RENAME_TYPE_MENU_ITEM;

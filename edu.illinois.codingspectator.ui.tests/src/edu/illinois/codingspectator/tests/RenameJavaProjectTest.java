@@ -9,13 +9,13 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
  * @author Balaji Ambresh Rajkumar
  */
 public class RenameJavaProjectTest extends CodingSpectatorTest {
-	
+
 	/**
-	 * The project name has to be static since the new project name should be retained as long as the test is running
-	 * i.e. till closeCurrentProject() completes.
+	 * The project name has to be static since the new project name should be retained as long as
+	 * the test is running i.e. till closeCurrentProject() completes.
 	 */
 	private static String newProjectName;
-	
+
 	@Override
 	protected String refactoringMenuItemName() {
 		return "Rename...";
@@ -28,18 +28,22 @@ public class RenameJavaProjectTest extends CodingSpectatorTest {
 	}
 
 	@Override
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
+		configureRefactoring();
+	};
+
 	protected void configureRefactoring() {
-		super.configureRefactoring();
-		newProjectName = "renamed-" + bot.textWithLabel("New name:").getText();
+		newProjectName= "renamed-" + bot.textWithLabel("New name:").getText();
 		bot.textWithLabel("New name:").setText(newProjectName);
 	}
-	
+
 	/**
 	 * Always return the current project name. The project name changes as part of this refactoring.
 	 */
 	@Override
 	public String getProjectName() {
-		if(newProjectName == null) {
+		if (newProjectName == null) {
 			return super.getProjectName();
 		}
 		return newProjectName;

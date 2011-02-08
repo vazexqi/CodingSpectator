@@ -32,15 +32,24 @@ public class RenameNonVirtualMethod extends CodingSpectatorTest {
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}
-	
+
 	@Override
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
+		configureRefactoring();
+	};
+
+	@Override
+	protected void configureRefactoringToCancel() {
+		super.configureRefactoringToCancel();
+		configureRefactoring();
+	}
+
 	protected void configureRefactoring() {
-		super.configureRefactoring();
-		
-		final String originalVariableName = bot.textWithLabel("New name:").getText();
+		final String originalVariableName= bot.textWithLabel("New name:").getText();
 		bot.textWithLabel("New name:").setText("renamed_" + originalVariableName);
 	}
-	
+
 	/**
 	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename dialog.
 	 */

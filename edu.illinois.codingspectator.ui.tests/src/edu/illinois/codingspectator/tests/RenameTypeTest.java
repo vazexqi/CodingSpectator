@@ -32,22 +32,31 @@ public class RenameTypeTest extends CodingSpectatorTest {
 	String getTestFileName() {
 		return TEST_FILE_NAME;
 	}
-	
+
 	@Override
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
+		configureRefactoring();
+	};
+
+	@Override
+	protected void configureRefactoringToCancel() {
+		super.configureRefactoringToCancel();
+		configureRefactoring();
+	}
+
 	protected void configureRefactoring() {
-		super.configureRefactoring();
-		
-		final String originalVariableName = bot.textWithLabel("New name:").getText();
+		final String originalVariableName= bot.textWithLabel("New name:").getText();
 		// the lower case is on purpose so that a warning dialog would come up for renaming a class
 		// starting with a lower case. 
 		bot.textWithLabel("New name:").setText("renamed_" + originalVariableName);
 	}
-	
+
 	@Override
-	protected String[] getRefactoringDialogApplyButtonSequence() {
+	protected String[] getRefactoringDialogPerformButtonSequence() {
 		return new String[] { FINISH_BUTTON_LABEL, FINISH_BUTTON_LABEL };
 	}
-	
+
 	/**
 	 * Invoking the Rename menu option twice from the Refactor menu brings up the Rename dialog.
 	 */
@@ -56,7 +65,7 @@ public class RenameTypeTest extends CodingSpectatorTest {
 		super.invokeRefactoring();
 		super.invokeRefactoring();
 	}
-	
+
 	@Override
 	protected String refactoringMenuItemName() {
 		return RENAME_TYPE_MENU_ITEM;

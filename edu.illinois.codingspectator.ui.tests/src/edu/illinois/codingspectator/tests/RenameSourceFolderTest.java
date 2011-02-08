@@ -25,8 +25,18 @@ public class RenameSourceFolderTest extends CodingSpectatorTest {
 	}
 
 	@Override
+	protected void configureRefactoringToPerform() {
+		super.configureRefactoringToPerform();
+		configureRefactoring();
+	};
+
+	@Override
+	protected void configureRefactoringToCancel() {
+		super.configureRefactoringToCancel();
+		configureRefactoring();
+	}
+
 	protected void configureRefactoring() {
-		super.configureRefactoring();
 		bot.textWithLabel("New name:").setText("renamed-src");
 	}
 
