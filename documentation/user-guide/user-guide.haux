@@ -1,8 +1,0 @@
-\@addtocsec{htoc}{1}{0}{\@print{1}\quad{}Prerequisites{}}
-\@addtocsec{htoc}{2}{0}{\@print{2}\quad{}Installing our plug-in{}}
-\@addtocsec{htoc}{3}{0}{\@print{3}\quad{}Running our plug-in{}}
-\@addtocsec{htoc}{4}{0}{\@print{4}\quad{}Automatic upload of data{}}
-\@addtocsec{htoc}{5}{0}{\@print{5}\quad{}Manual upload of data{}}
-\@addtocsec{htoc}{6}{0}{\@print{6}\quad{}Developing Photran plug-ins{}}
-\@addtocsec{htoc}{7}{0}{\@print{7}\quad{}Updating our plug-in{}}
-\@addtocsec{htoc}{8}{0}{\@print{8}\quad{}Uninstalling our plug-in{}}
