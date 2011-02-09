@@ -1,0 +1,8 @@
+\contentsline {section}{\numberline {1}Prerequisites}{1}{section.1}
+\contentsline {section}{\numberline {2}Installing our plug-in}{1}{section.2}
+\contentsline {section}{\numberline {3}Running our plug-in}{3}{section.3}
+\contentsline {section}{\numberline {4}Automatic upload of data}{3}{section.4}
+\contentsline {section}{\numberline {5}Manual upload of data}{5}{section.5}
+\contentsline {section}{\numberline {6}Developing Photran plug-ins}{6}{section.6}
+\contentsline {section}{\numberline {7}Updating our plug-in}{9}{section.7}
+\contentsline {section}{\numberline {8}Uninstalling our plug-in}{11}{section.8}
