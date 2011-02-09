@@ -1,3 +1,6 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.ui.tests.extractmethod;
 
 import static org.junit.Assert.assertFalse;
@@ -9,15 +12,21 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
-public class ValidExtractMethodUnavailableTest extends RefactoringTest {
+/**
+ * 
+ * @author Mohsen Vakilian
+ * @author nchen
+ * 
+ */
+public class InvalidCanceledExtractMethodTest extends RefactoringTest {
 
 	protected static final String EXTRACT_METHOD_MENU_ITEM_NAME= "Extract Method...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.UNAVAILABLE);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
-		return "ValidExtractMethodTestFile";
+		return "InvalidExtractMethodTestFile";
 	}
 
 	@Override
@@ -32,9 +41,10 @@ public class ValidExtractMethodUnavailableTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 9, 23, "main".length());
+		bot.selectElementToRefactor(getTestFileName(), 8, 8, "System.out.println(\"main\");".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
-		bot.clickButtons(IDialogConstants.OK_LABEL);
+		bot.fillTextField("Method name:", "invalidExtractedMethod");
+		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override

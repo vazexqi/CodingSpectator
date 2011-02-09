@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -19,15 +18,15 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class InvalidExtractMethodPerformedTest extends RefactoringTest {
+public class ValidCanceledExtractMethodTest extends RefactoringTest {
 
 	protected static final String EXTRACT_METHOD_MENU_ITEM_NAME= "Extract Method...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
-		return "InvalidExtractMethodTestFile";
+		return "ValidExtractMethodTestFile";
 	}
 
 	@Override
@@ -42,10 +41,9 @@ public class InvalidExtractMethodPerformedTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 8, 8, "System.out.println(\"main\");".length());
+		bot.selectElementToRefactor(getTestFileName(), 10, 8, "System.out.println(CONSTANT);".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
-		bot.fillTextField("Method name:", "invalidExtractedMethod");
-		bot.clickButtons(IDialogConstants.OK_LABEL, CodingSpectatorBot.CONTINUE_LABEL);
+		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override
