@@ -41,7 +41,7 @@ public class CancelledInvalidMultiStepPullUpMethod extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 14, 9, "m".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 14, 9, "m".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
 	}

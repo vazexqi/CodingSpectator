@@ -17,6 +17,7 @@ import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.osgi.framework.Bundle;
 
 /**
@@ -38,10 +39,6 @@ public class CodingSpectatorBot {
 	protected static final int SLEEPTIME= 1500;
 
 	SWTWorkbenchBot bot= new SWTWorkbenchBot();
-
-	private String getTestFileFullName(String testFileName) {
-		return testFileName + ".java";
-	}
 
 	public void dismissWelcomeScreenIfPresent() {
 		try {
@@ -74,7 +71,7 @@ public class CodingSpectatorBot {
 	}
 
 	public void createANewJavaClass(String projectName, String testFileName) throws Exception {
-		selectCurrentJavaProject(projectName);
+		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();
 
@@ -86,7 +83,7 @@ public class CodingSpectatorBot {
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 	}
 
-	public SWTBotTree selectCurrentJavaProject(String projectName) {
+	public SWTBotTree selectJavaProject(String projectName) {
 		SWTBotView packageExplorerView= bot.viewByTitle("Package Explorer");
 		packageExplorerView.show();
 
@@ -98,17 +95,17 @@ public class CodingSpectatorBot {
 		return tree.select(projectName);
 	}
 
-	public void prepareJavaTextInEditor(String testInputLocation, String testFileName) throws Exception {
+	public void prepareJavaTextInEditor(String testInputLocation, String testFileFullName) throws Exception {
 		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
-		String contents= FileUtils.read(bundle.getEntry("test-files-new/" + testInputLocation + "/" + getTestFileFullName(testFileName)));
+		String contents= FileUtils.read(bundle.getEntry("test-files-new/" + testInputLocation + "/" + testFileFullName));
 
-		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileFullName(testFileName)).toTextEditor();
+		SWTBotEclipseEditor editor= bot.editorByTitle(testFileFullName).toTextEditor();
 		editor.setText(contents);
 		editor.save();
 	}
 
 	public void closeProject(String projectName) {
-		selectCurrentJavaProject(projectName).contextMenu("Close Project").click();
+		selectJavaProject(projectName).contextMenu("Close Project").click();
 	}
 
 	public void sleep() {
@@ -142,8 +139,8 @@ public class CodingSpectatorBot {
 	 *            first.
 	 * @param length The length of the selection.
 	 */
-	public void selectElementToRefactor(String testFileName, int line, int column, int length) {
-		SWTBotEclipseEditor editor= bot.editorByTitle(getTestFileFullName(testFileName)).toTextEditor();
+	public void selectElementToRefactor(String testFileFullName, int line, int column, int length) {
+		SWTBotEclipseEditor editor= bot.editorByTitle(testFileFullName).toTextEditor();
 
 		editor.setFocus();
 		editor.selectRange(line, column, length);
@@ -151,5 +148,25 @@ public class CodingSpectatorBot {
 
 	public void fillTextField(String textFieldLabel, String textFieldValue) {
 		bot.textWithLabel(textFieldLabel).setText(textFieldValue);
+	}
+
+	public void setComboBox(String label, String value) {
+		bot.comboBoxWithLabel(label).setText(value);
+	}
+
+	/**
+	 * Selects the element at the given path from the package explorer view.
+	 */
+	public void selectFromPackageExplorer(String projectName, String... pathElements) {
+		SWTBotTree tree= selectJavaProject(projectName);
+		SWTBotTreeItem treeItem= tree.getTreeItem(projectName).expand();
+
+		for (int i= 0; i < pathElements.length - 1; i++) {
+			treeItem= treeItem.expandNode(pathElements[i]);
+		}
+
+		if (pathElements.length > 0) {
+			treeItem.select(pathElements[pathElements.length - 1]);
+		}
 	}
 }

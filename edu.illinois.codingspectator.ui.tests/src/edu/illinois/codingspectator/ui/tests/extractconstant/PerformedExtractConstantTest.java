@@ -41,7 +41,7 @@ public class PerformedExtractConstantTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 8, 27, "\"Test0\"".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 8, 27, "\"Test0\"".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_CONSTANT_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}

@@ -27,6 +27,10 @@ public abstract class RefactoringTest {
 
 	protected abstract String getTestFileName();
 
+	protected String getTestFileFullName() {
+		return getTestFileName() + ".java";
+	}
+
 	protected abstract String getTestInputLocation();
 
 	protected void doRefactoringLogShouldBeEmpty() {
@@ -53,7 +57,7 @@ public abstract class RefactoringTest {
 	public void canSetupProject() throws Exception {
 		bot.createANewJavaProject(getProjectName());
 		bot.createANewJavaClass(getProjectName(), getTestFileName());
-		bot.prepareJavaTextInEditor(getTestInputLocation(), getTestFileName());
+		bot.prepareJavaTextInEditor(getTestInputLocation(), getTestFileFullName());
 	}
 
 	@Test
@@ -63,7 +67,7 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public void shouldExecuteRefac() {
+	public void shouldExecuteRefactoring() {
 		doExecuteRefactoring();
 	}
 

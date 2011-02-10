@@ -42,7 +42,7 @@ public class InvalidPerformedExtractMethodTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 8, 8, "System.out.println(\"main\");".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 8, 8, "System.out.println(\"main\");".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 		bot.fillTextField("Method name:", "invalidExtractedMethod");
 		bot.clickButtons(IDialogConstants.OK_LABEL, CodingSpectatorBot.CONTINUE_LABEL);

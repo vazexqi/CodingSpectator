@@ -41,7 +41,7 @@ public class CancelledValidMultiStepPullUpClass extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 9, 6, "Child".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 9, 6, "Child".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
 		bot.clickButtons("Select All");
 		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);

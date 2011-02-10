@@ -39,7 +39,7 @@ public class PerformedInlineConstantTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 7, 24, "CONSTANT".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 7, 24, "CONSTANT".length());
 		bot.invokeRefactoringFromMenu(INLINE_CONSTANT_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}

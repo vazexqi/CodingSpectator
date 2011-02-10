@@ -41,7 +41,7 @@ public class ValidCanceledExtractMethodTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 10, 8, "System.out.println(CONSTANT);".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 10, 8, "System.out.println(CONSTANT);".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}

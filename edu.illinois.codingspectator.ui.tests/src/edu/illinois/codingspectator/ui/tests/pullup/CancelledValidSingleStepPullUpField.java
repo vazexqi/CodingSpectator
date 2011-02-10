@@ -41,7 +41,7 @@ public class CancelledValidSingleStepPullUpField extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 11, 11, "object".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 11, 11, "object".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}

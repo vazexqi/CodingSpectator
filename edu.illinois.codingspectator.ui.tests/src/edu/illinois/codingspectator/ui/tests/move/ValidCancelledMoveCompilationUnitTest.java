@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests.extractsuperclass;
+package edu.illinois.codingspectator.ui.tests.move;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,27 +13,21 @@ import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
- * 
  * @author Mohsen Vakilian
  * @author nchen
- * 
  */
-public class PerformedValidMultiStepExtractSuperclassTest extends RefactoringTest {
+public class ValidCancelledMoveCompilationUnitTest extends RefactoringTest {
 
-	private static final String EXTRACT_SUPERCLASS_MENU_ITEM= "Extract Superclass...";
-
-	protected static final String SUPERCLASS_NAME_LABEL= "Superclass name:";
-
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
-		return "ExtractSuperclassTestFile";
+		return "MoveCusTestFile";
 	}
 
 	@Override
 	protected String getTestInputLocation() {
-		return "extract-superclass";
+		return "move";
 	}
 
 	@Override
@@ -43,10 +37,11 @@ public class PerformedValidMultiStepExtractSuperclassTest extends RefactoringTes
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 11, 16, "methodToBePulledUp".length());
-		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
-		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName() + "Parent");
-		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.FINISH_LABEL);
+		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator", getTestFileFullName());
+		bot.invokeRefactoringFromMenu("Move...");
+		bot.clickButtons("Create Package...");
+		bot.fillTextField("Name:", "edu.illinois.codingspectator.subpackage");
+		bot.clickButtons(IDialogConstants.FINISH_LABEL, IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override

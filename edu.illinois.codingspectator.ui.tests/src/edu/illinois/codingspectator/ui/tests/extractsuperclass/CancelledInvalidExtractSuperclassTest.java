@@ -46,7 +46,7 @@ public class CancelledInvalidExtractSuperclassTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 9, 6, "Child".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 9, 6, "Child".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName());
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);

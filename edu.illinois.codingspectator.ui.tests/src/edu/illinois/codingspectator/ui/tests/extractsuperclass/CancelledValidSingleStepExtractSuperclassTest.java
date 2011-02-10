@@ -43,7 +43,7 @@ public class CancelledValidSingleStepExtractSuperclassTest extends RefactoringTe
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 11, 16, "methodToBePulledUp".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 11, 16, "methodToBePulledUp".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName() + "Parent");
 		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
