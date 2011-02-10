@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests.inlineconstant;
+package edu.illinois.codingspectator.ui.tests.inline;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -29,7 +29,7 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 
 	@Override
 	protected String getTestInputLocation() {
-		return "inline-constant";
+		return "inline";
 	}
 
 	@Override
