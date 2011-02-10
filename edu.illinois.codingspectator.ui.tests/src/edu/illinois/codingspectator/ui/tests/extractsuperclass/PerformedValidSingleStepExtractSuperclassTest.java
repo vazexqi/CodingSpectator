@@ -18,13 +18,13 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTest {
+public class PerformedValidSingleStepExtractSuperclassTest extends RefactoringTest {
 
 	private static final String EXTRACT_SUPERCLASS_MENU_ITEM= "Extract Superclass...";
 
 	protected static final String SUPERCLASS_NAME_LABEL= "Superclass name:";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
 
 	@Override
 	protected String getTestFileName() {
@@ -46,7 +46,7 @@ public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTes
 		bot.selectElementToRefactor(getTestFileName(), 11, 16, "methodToBePulledUp".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName() + "Parent");
-		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
+		bot.clickButtons(IDialogConstants.FINISH_LABEL);
 	}
 
 	@Override

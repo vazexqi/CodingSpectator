@@ -14,11 +14,14 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
  * 
+ * This class only attempts to cancel the refactoring. It is based on the scenario described in
+ * issue #144.
+ * 
  * @author Mohsen Vakilian
  * @author nchen
  * 
  */
-public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTest {
+public class CancelledInvalidExtractSuperclassTest extends RefactoringTest {
 
 	private static final String EXTRACT_SUPERCLASS_MENU_ITEM= "Extract Superclass...";
 
@@ -28,7 +31,7 @@ public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTes
 
 	@Override
 	protected String getTestFileName() {
-		return "ExtractSuperclassTestFile";
+		return "InvalidExtractSuperclassTestFile";
 	}
 
 	@Override
@@ -43,9 +46,9 @@ public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTes
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileName(), 11, 16, "methodToBePulledUp".length());
+		bot.selectElementToRefactor(getTestFileName(), 9, 6, "Child".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
-		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName() + "Parent");
+		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName());
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
