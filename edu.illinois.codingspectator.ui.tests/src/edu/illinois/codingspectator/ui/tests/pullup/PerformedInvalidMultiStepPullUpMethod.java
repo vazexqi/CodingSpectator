@@ -51,6 +51,8 @@ public class PerformedInvalidMultiStepPullUpMethod extends RefactoringTest {
 			// FIXME: On my machine i.e. Mac, the second dialog box does not appear so SWTBot can't click on OK.
 			bot.clickButtons(IDialogConstants.FINISH_LABEL);
 		}
+		System.err
+				.println("This test throws the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
 	}
 
 	@Override

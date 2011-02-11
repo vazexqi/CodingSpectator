@@ -44,6 +44,8 @@ public class CancelledInvalidMultiStepPullUpMethod extends RefactoringTest {
 		bot.selectElementToRefactor(getTestFileFullName(), 14, 9, "m".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
+		System.err
+				.println("This test throws the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
 	}
 
 	@Override

@@ -97,7 +97,7 @@ public class CodingSpectatorBot {
 
 	public void prepareJavaTextInEditor(String testInputLocation, String testFileFullName) throws Exception {
 		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
-		String contents= FileUtils.read(bundle.getEntry("test-files-new/" + testInputLocation + "/" + testFileFullName));
+		String contents= FileUtils.read(bundle.getEntry("test-files/" + testInputLocation + "/" + testFileFullName));
 
 		SWTBotEclipseEditor editor= bot.editorByTitle(testFileFullName).toTextEditor();
 		editor.setText(contents);
