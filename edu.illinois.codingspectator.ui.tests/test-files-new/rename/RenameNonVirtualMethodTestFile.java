@@ -5,12 +5,7 @@ package edu.illinois.codingspectator;
 
 public class RenameNonVirtualMethodTestFile {
 
-    final void nonVirtualMethod() {
-    	System.out.println("Non overridden method");
+    static void nonVirtualMethod() {
     }
 	
-    public static void main(String[] args) {
-        new RenameNonVirtualMethodTestFile().nonVirtualMethod();
-    }
-
 }

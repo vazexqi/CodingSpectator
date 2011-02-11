@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 public class RenameTypeTestFile {
 	
-    public static void main(String[] args) {
+    public void m() {
         List<RenameTypeTestFile> aCollection = new LinkedList<RenameTypeTestFile>();
     }
 
