@@ -18,7 +18,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class CancelledValidMultiStepPullUpField extends RefactoringTest {
+public class InvalidCancelledMultiStepPullUpMethod extends RefactoringTest {
 
 	private static final String PULL_UP_MENU_ITEM= "Pull Up...";
 
@@ -26,7 +26,7 @@ public class CancelledValidMultiStepPullUpField extends RefactoringTest {
 
 	@Override
 	protected String getTestFileName() {
-		return "ValidPullUpFieldTestFile";
+		return "InvalidPullUpMethodTestFile";
 	}
 
 	@Override
@@ -41,9 +41,11 @@ public class CancelledValidMultiStepPullUpField extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 11, 11, "object".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 14, 9, "m".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
-		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
+		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
+		System.err
+				.println("This test throws the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
 	}
 
 	@Override
