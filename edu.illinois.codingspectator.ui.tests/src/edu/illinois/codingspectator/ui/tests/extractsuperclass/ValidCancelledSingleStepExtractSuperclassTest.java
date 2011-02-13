@@ -18,7 +18,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTest {
+public class ValidCancelledSingleStepExtractSuperclassTest extends RefactoringTest {
 
 	private static final String EXTRACT_SUPERCLASS_MENU_ITEM= "Extract Superclass...";
 
@@ -46,7 +46,7 @@ public class CancelledValidMultiStepExtractSuperclassTest extends RefactoringTes
 		bot.selectElementToRefactor(getTestFileFullName(), 11, 16, "methodToBePulledUp".length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, getTestFileName() + "Parent");
-		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
+		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override
