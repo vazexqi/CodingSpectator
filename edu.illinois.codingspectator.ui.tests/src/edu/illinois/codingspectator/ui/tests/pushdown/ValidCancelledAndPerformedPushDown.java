@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.ui.tests.pushdown;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -51,8 +52,8 @@ public class ValidCancelledAndPerformedPushDown extends RefactoringTest {
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
-//		assertTrue(performedRefactoringLog.exists());
-//		assertTrue(cancelledRefactoringLog.exists());
+		assertTrue(performedRefactoringLog.exists());
+		assertTrue(cancelledRefactoringLog.exists());
 	}
 
 	@Override

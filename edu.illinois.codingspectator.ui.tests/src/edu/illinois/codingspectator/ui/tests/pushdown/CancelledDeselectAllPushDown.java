@@ -14,8 +14,9 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
  */
-public class InvalidValidSingleFieldPushDown extends RefactoringTest {
+public class CancelledDeselectAllPushDown extends RefactoringTest {
 
 	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 
@@ -23,7 +24,7 @@ public class InvalidValidSingleFieldPushDown extends RefactoringTest {
 
 	@Override
 	protected String getTestFileName() {
-		return "PushDownSingleFieldTestFile";
+		return "PushDownMethodTestFile.java";
 	}
 
 	@Override
@@ -38,14 +39,15 @@ public class InvalidValidSingleFieldPushDown extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 7, 16, "field2".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 6, 17, "m1".length());
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
-		bot.clickButtons(IDialogConstants.OK_LABEL, "Continue");
+		bot.clickButtons("Deselect All", IDialogConstants.OK_LABEL);
 	}
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		assertTrue(refactoringLog.exists());
+		System.err.println("The list of selected members in the captured refactoring should be empty.");
 	}
 
 	@Override
