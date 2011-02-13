@@ -1072,6 +1072,16 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 		} catch (JavaModelException exception) {
 			JavaPlugin.log(exception);
 		}
+
+		//CODINGSPECTATOR: Added this to force an update to fMembersToMove to reflect the changes in the UI page.
+		// This is called in checkFinalCondition with a bunch of checks so we are unsure what are the consequences if we don't call those checks
+		List members= new ArrayList(fMemberInfos.length);
+		for (int index= 0; index < fMemberInfos.length; index++) {
+			if (fMemberInfos[index].getAction() != MemberActionInfo.NO_ACTION)
+				members.add(fMemberInfos[index].getMember());
+		}
+		fMembersToMove= (IMember[])members.toArray(new IMember[members.size()]);
+
 		final String description= fMembersToMove.length == 1 ? Messages.format(RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short_multi,
 					BasicElementLabels.getJavaElementName(fMembersToMove[0].getElementName())) : RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short;
 		final String header= fMembersToMove.length == 1 ? Messages.format(
