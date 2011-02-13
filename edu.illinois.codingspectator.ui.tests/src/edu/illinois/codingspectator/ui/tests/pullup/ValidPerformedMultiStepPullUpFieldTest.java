@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -19,7 +18,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class InvalidPerformedMultiStepPullUpMethod extends RefactoringTest {
+public class ValidPerformedMultiStepPullUpFieldTest extends RefactoringTest {
 
 	private static final String PULL_UP_MENU_ITEM= "Pull Up...";
 
@@ -27,7 +26,7 @@ public class InvalidPerformedMultiStepPullUpMethod extends RefactoringTest {
 
 	@Override
 	protected String getTestFileName() {
-		return "InvalidPullUpMethodTestFile";
+		return "ValidPullUpFieldTestFile";
 	}
 
 	@Override
@@ -42,17 +41,9 @@ public class InvalidPerformedMultiStepPullUpMethod extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 14, 9, "m".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 11, 11, "object".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
-		bot.clickButtons(IDialogConstants.FINISH_LABEL);
-		try {
-			bot.clickButtons(IDialogConstants.OK_LABEL);
-		} catch (WidgetNotFoundException exception) {
-			// FIXME: On my machine i.e. Mac, the second dialog box does not appear so SWTBot can't click on OK.
-			bot.clickButtons(IDialogConstants.FINISH_LABEL);
-		}
-		System.err
-				.println("This test throws the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
+		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.FINISH_LABEL);
 	}
 
 	@Override

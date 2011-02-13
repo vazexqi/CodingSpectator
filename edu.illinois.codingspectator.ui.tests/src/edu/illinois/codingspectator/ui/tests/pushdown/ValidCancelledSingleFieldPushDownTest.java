@@ -15,13 +15,11 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 /**
  * @author Balaji Ambresh Rajkumar
  */
-public class ValidCancelledAndPerformedPushDown extends RefactoringTest {
+public class ValidCancelledSingleFieldPushDownTest extends RefactoringTest {
 
 	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 
-	RefactoringLog performedRefactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
-
-	RefactoringLog cancelledRefactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
@@ -35,31 +33,25 @@ public class ValidCancelledAndPerformedPushDown extends RefactoringTest {
 
 	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(performedRefactoringLog.exists());
-		assertFalse(cancelledRefactoringLog.exists());
+		assertFalse(refactoringLog.exists());
 	}
 
 	@Override
 	protected void doExecuteRefactoring() {
 		bot.selectElementToRefactor(getTestFileFullName(), 6, 16, "fieldToBePushedDown".length());
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
+		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 
-		bot.clickButtons("Preview >", IDialogConstants.CANCEL_LABEL);
-
-		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
-		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
-		assertTrue(performedRefactoringLog.exists());
-		assertTrue(cancelledRefactoringLog.exists());
+		assertTrue(refactoringLog.exists());
 	}
 
 	@Override
 	protected void doCleanRefactoringHistory() throws CoreException {
-		performedRefactoringLog.clean();
-		cancelledRefactoringLog.clean();
+		refactoringLog.clean();
 	}
 
 }

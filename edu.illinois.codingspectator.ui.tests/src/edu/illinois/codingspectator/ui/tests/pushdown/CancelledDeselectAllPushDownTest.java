@@ -14,12 +14,13 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
  */
-public class InvalidSingleMethodPushDown extends RefactoringTest {
+public class CancelledDeselectAllPushDownTest extends RefactoringTest {
 
 	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
@@ -38,14 +39,15 @@ public class InvalidSingleMethodPushDown extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 7, 17, "m2".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 6, 17, "m1".length());
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
-		bot.clickButtons(IDialogConstants.OK_LABEL, "Continue");
+		bot.clickButtons("Deselect All", IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		assertTrue(refactoringLog.exists());
+		System.err.println("The list of selected members in the captured refactoring should be empty.");
 	}
 
 	@Override

@@ -15,7 +15,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 /**
  * @author Balaji Ambresh Rajkumar
  */
-public class ValidPerformedMultiFieldPushDown extends RefactoringTest {
+public class ValidPerformedMultiFieldPushDownTest extends RefactoringTest {
 
 	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 

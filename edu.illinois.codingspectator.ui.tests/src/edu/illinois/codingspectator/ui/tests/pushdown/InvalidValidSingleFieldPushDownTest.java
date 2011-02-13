@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests.pullup;
+package edu.illinois.codingspectator.ui.tests.pushdown;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,25 +13,22 @@ import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
- * 
- * @author Mohsen Vakilian
- * @author nchen
- * 
+ * @author Balaji Ambresh Rajkumar
  */
-public class ValidPerformedMultiStepPullUpClass extends RefactoringTest {
+public class InvalidValidSingleFieldPushDownTest extends RefactoringTest {
 
-	private static final String PULL_UP_MENU_ITEM= "Pull Up...";
+	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
 
 	@Override
 	protected String getTestFileName() {
-		return "ValidPullUpFieldTestFile";
+		return "PushDownSingleFieldTestFile";
 	}
 
 	@Override
 	protected String getTestInputLocation() {
-		return "pull-up";
+		return "push-down";
 	}
 
 	@Override
@@ -41,10 +38,9 @@ public class ValidPerformedMultiStepPullUpClass extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 9, 6, "Child".length());
-		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
-		bot.clickButtons("Select All");
-		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.FINISH_LABEL);
+		bot.selectElementToRefactor(getTestFileFullName(), 7, 16, "field2".length());
+		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
+		bot.clickButtons(IDialogConstants.OK_LABEL, "Continue");
 	}
 
 	@Override

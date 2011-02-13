@@ -15,15 +15,17 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 /**
  * @author Balaji Ambresh Rajkumar
  */
-public class ValidPerformedSingleMethodPushDown extends RefactoringTest {
+public class ValidCancelledAndPerformedPushDownTest extends RefactoringTest {
 
 	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog performedRefactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+
+	RefactoringLog cancelledRefactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
-		return "PushDownMethodTestFile";
+		return "PushDownSingleFieldTestFile";
 	}
 
 	@Override
@@ -33,24 +35,31 @@ public class ValidPerformedSingleMethodPushDown extends RefactoringTest {
 
 	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(refactoringLog.exists());
+		assertFalse(performedRefactoringLog.exists());
+		assertFalse(cancelledRefactoringLog.exists());
 	}
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 6, 17, "m1".length());
+		bot.selectElementToRefactor(getTestFileFullName(), 6, 16, "fieldToBePushedDown".length());
+		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
+
+		bot.clickButtons("Preview >", IDialogConstants.CANCEL_LABEL);
+
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
-		assertTrue(refactoringLog.exists());
+		assertTrue(performedRefactoringLog.exists());
+		assertTrue(cancelledRefactoringLog.exists());
 	}
 
 	@Override
 	protected void doCleanRefactoringHistory() throws CoreException {
-		refactoringLog.clean();
+		performedRefactoringLog.clean();
+		cancelledRefactoringLog.clean();
 	}
 
 }

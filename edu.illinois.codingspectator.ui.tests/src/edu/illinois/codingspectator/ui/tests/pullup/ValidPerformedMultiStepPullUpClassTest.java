@@ -18,11 +18,11 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  * 
  */
-public class ValidCancelledMultiStepPullUpClass extends RefactoringTest {
+public class ValidPerformedMultiStepPullUpClassTest extends RefactoringTest {
 
 	private static final String PULL_UP_MENU_ITEM= "Pull Up...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
 
 	@Override
 	protected String getTestFileName() {
@@ -44,7 +44,7 @@ public class ValidCancelledMultiStepPullUpClass extends RefactoringTest {
 		bot.selectElementToRefactor(getTestFileFullName(), 9, 6, "Child".length());
 		bot.invokeRefactoringFromMenu(PULL_UP_MENU_ITEM);
 		bot.clickButtons("Select All");
-		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
+		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.FINISH_LABEL);
 	}
 
 	@Override

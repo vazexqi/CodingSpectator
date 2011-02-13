@@ -14,9 +14,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
  * @author Balaji Ambresh Rajkumar
- * @author Mohsen Vakilian
  */
-public class CancelledDeselectAllPushDown extends RefactoringTest {
+public class ValidPerformedSingleMethodPushDownTest extends RefactoringTest {
 
 	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
 
@@ -24,7 +23,7 @@ public class CancelledDeselectAllPushDown extends RefactoringTest {
 
 	@Override
 	protected String getTestFileName() {
-		return "PushDownMethodTestFile.java";
+		return "PushDownMethodTestFile";
 	}
 
 	@Override
@@ -41,13 +40,12 @@ public class CancelledDeselectAllPushDown extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		bot.selectElementToRefactor(getTestFileFullName(), 6, 17, "m1".length());
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
-		bot.clickButtons("Deselect All", IDialogConstants.OK_LABEL);
+		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		assertTrue(refactoringLog.exists());
-		System.err.println("The list of selected members in the captured refactoring should be empty.");
 	}
 
 	@Override
