@@ -14,6 +14,6 @@ public interface SubmitterListener {
 
 	public void preSubmit();
 
-	public void postSubmit();
+	public void postSubmit(boolean succeeded);
 
 }
