@@ -165,11 +165,11 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
 				if (typeRoot != null) {
 					String javaProject= typeRoot.getJavaProject().getElementName();
-					String selectionIfAny= "CODGINSPECTATOR: Selection is not avaialabe.";
+					String selectionIfAny= "CODINGSPECTATOR: Selection is not available."; //$NON-NLS-1$
 					if (member != null) {
 						selectionIfAny= member.toString();
 					}
-					Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_SUPERCLASS, javaProject, selectionIfAny, RefactoringMessages.OpenRefactoringWizardAction_unavailable);
+					Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_SUPERCLASS, javaProject, selectionIfAny, RefactoringMessages.ExtractSuperTypeAction_unavailable);
 				}
 			}
 		} catch (JavaModelException exception) {
