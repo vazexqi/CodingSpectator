@@ -473,12 +473,7 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 				monitor.worked(1);
 			if (result.hasFatalError())
 				return result;
-			List members= new ArrayList(fMemberInfos.length);
-			for (int index= 0; index < fMemberInfos.length; index++) {
-				if (fMemberInfos[index].getAction() != MemberActionInfo.NO_ACTION)
-					members.add(fMemberInfos[index].getMember());
-			}
-			fMembersToMove= (IMember[])members.toArray(new IMember[members.size()]);
+			updateMembersToMove();
 			fChangeManager= createChangeManager(new SubProgressMonitor(monitor, 1), result);
 			if (result.hasFatalError())
 				return result;
@@ -683,17 +678,22 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 		}
 	}
 
+	//CODINGSPECTATOR - Marker to check if we are in the process of creating a change already
+	boolean creatingChange;
+
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * CODINGSPECTATOR: Extracted createRefactoringDescriptor from this method.
 	 */
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+		creatingChange= true;
 		try {
 			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.PushDownRefactoring_change_name, fChangeManager.getAllChanges());
 		} finally {
 			pm.done();
 			clearCaches();
+			creatingChange= false;
 		}
 	}
 
@@ -1074,13 +1074,10 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 		}
 
 		//CODINGSPECTATOR: Added this to force an update to fMembersToMove to reflect the changes in the UI page.
-		// This is called in checkFinalCondition with a bunch of checks so we are unsure what are the consequences if we don't call those checks
-		List members= new ArrayList(fMemberInfos.length);
-		for (int index= 0; index < fMemberInfos.length; index++) {
-			if (fMemberInfos[index].getAction() != MemberActionInfo.NO_ACTION)
-				members.add(fMemberInfos[index].getMember());
-		}
-		fMembersToMove= (IMember[])members.toArray(new IMember[members.size()]);
+		// The UI page is modified by selecting rows in the table. See the inner class of org.eclipse.jface.viewers.ICheckStateListener
+		// in org.eclipse.jdt.internal.ui.refactoring.PushDownWizard.PushDownInputPage.createMemberTable(Composite)
+		if (!creatingChange) // If we are not in the process of creating a change, we can force an update
+			updateMembersToMove();
 
 		final String description= fMembersToMove.length == 1 ? Messages.format(RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short_multi,
 					BasicElementLabels.getJavaElementName(fMembersToMove[0].getElementName())) : RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short;
@@ -1114,6 +1111,15 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 			}
 		}
 		return descriptor;
+	}
+
+	private void updateMembersToMove() {
+		List members= new ArrayList(fMemberInfos.length);
+		for (int index= 0; index < fMemberInfos.length; index++) {
+			if (fMemberInfos[index].getAction() != MemberActionInfo.NO_ACTION)
+				members.add(fMemberInfos[index].getMember());
+		}
+		fMembersToMove= (IMember[])members.toArray(new IMember[members.size()]);
 	}
 
 }
