@@ -19,7 +19,7 @@ public class LoggerSubmitterListener extends BasicListener implements SubmitterL
 	}
 
 	@Override
-	public void postSubmit() {
+	public void postSubmit(boolean succeeded) {
 		eventLogger.commitCompleted();
 	}
 
