@@ -23,10 +23,14 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
@@ -139,6 +143,17 @@ public class PushDownAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startPushDownRefactoring(array, getShell());
 			} else {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PushDownAction_To_activate);
+
+				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
+				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+				if (typeRoot != null) {
+					String javaProject= typeRoot.getJavaProject().getElementName();
+					String selectionIfAny= "CODINGSPECTATOR: Selection is not available."; //$NON-NLS-1$
+					if (member != null) {
+						selectionIfAny= member.toString();
+					}
+					Logger.logUnavailableRefactoringEvent(IJavaRefactorings.PUSH_DOWN, javaProject, selectionIfAny, RefactoringMessages.PushDownAction_To_activate);
+				}
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
