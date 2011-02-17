@@ -10,9 +10,17 @@
 %
 \usepackage{hyperref}
 %
-\usepackage[pdftex]{graphicx}
+\usepackage{ifthen}
 %
-\newcommand\fig[1]{\includegraphics[scale=0.49]{#1}}
+\ifthenelse{\boolean{hevea}}{%
+\newcommand{\todo}[1]{\textbf{#1}}%
+}{\usepackage{todonotes}}
+%
+\ifthenelse{\boolean{hevea}}{%
+\newcommand{\fig}[1]{\imgsrc{#1.png}}
+}{%
+\newcommand\fig[1]{\includegraphics[scale=0.49]{#1}}%
+}
 %
 \newcommand\codspec{CodingSpectator}
 %
@@ -72,7 +80,8 @@ shown in Figure~\ref{FigAddSite}. Then, click \uiref{OK}.
 %
 \end{figure}
 
-\item After adding our update-site, select the \codspec\ features:
+\item After adding the update site of \codspec, select the \codspec\ features as
+shown in Figure~\ref{FigSelectFeatures}.
 
 \begin{figure}
 %
@@ -80,27 +89,41 @@ shown in Figure~\ref{FigAddSite}. Then, click \uiref{OK}.
 %
 \fig{figs/select_features}
 %
+\caption{\label{FigSelectFeatures}Select all the features of \codspec\ to
+install}
+%
 \end{figure}
 
 \item Click \uiref{Next} to proceed.
 
 \item You will now be presented with the \uiref{Install Details} dialog window
-listing the items that will be installed. Ensure that our \codspec\ plug-in and
+listing the items that will be installed. Ensure that the \codspec\ plug-in and
 all its components are selected. Click \uiref{Next}.
 
 \item You will now be presented with the \uiref{Review Licenses} dialog window
 detailing the licenses of the plug-ins that will be installed. Take a moment to
 review them, and if you agree, proceed by clicking \uiref{Finish}.
 
-\item There will be a dialog (like the one below) warning you that you are
-installing unsigned content. Do not be alarmed by this; our plug-ins are simply
-not signed for this research study. Click \uiref{OK}.
+\item Eclipse should open a dialog asking you to confirm that you accept our
+certificate. Please accept our certificate to install \codspec\todo{Add the
+screen shot for this dialog}.
+
+\item If Eclipse cannot retrieve the installation files of \codspec, it will
+open a dialog such as the one shown in Figure~\ref{FigUnsignedWarning} warning
+you that you are installing unsigned content. If you see this dialog, it means
+that Eclipse has failed to install \codspec\ correctly. Click \uiref{OK} to
+dismiss the dialog.  Then, uninstall \codspec\ (See
+Section~\ref{SecUninstallation}), and try to install it again. If the problem
+persists, please contact us.
 
 \begin{figure}
 %
 \centering
 %
 \fig{figs/warning}
+%
+\caption{\label{FigUnsignedWarning}The dialog that warns about unsigned content
+implies that Eclipse has failed to install \codspec.}
 %
 \end{figure}
 
@@ -310,7 +333,7 @@ for Updates} in the Eclipse application.
 %
 \end{figure}
 %
-\section{Uninstalling our plug-in}
+\section{\label{SecUninstallation}Uninstalling \codspec}
 
 \begin{enumerate}
 %
