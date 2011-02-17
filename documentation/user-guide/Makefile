@@ -4,10 +4,10 @@ TARGET=user-guide
 all : $(TARGET).pdf $(TARGET).html 
 
 $(TARGET).html: $(TARGET).tex
-	hevea $(TARGET)
-	hevea $(TARGET)
+	hevea $(TARGET) -fix
 
 $(TARGET).pdf: $(TARGET).tex
+	pdflatex $(TARGET).tex
 	pdflatex $(TARGET).tex
 
 clean:
