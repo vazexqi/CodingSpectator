@@ -81,13 +81,11 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	private static final String IDENTIFIER= "org.eclipse.jdt.ui.useSuperTypeProcessor"; //$NON-NLS-1$
 
 	/**
-	 * Finds the type with the given fully qualified name (generic type
-	 * parameters included) in the hierarchy.
-	 *
-	 * @param type
-	 *            The hierarchy type to find the super type in
-	 * @param name
-	 *            The fully qualified name of the super type
+	 * Finds the type with the given fully qualified name (generic type parameters included) in the
+	 * hierarchy.
+	 * 
+	 * @param type The hierarchy type to find the super type in
+	 * @param name The fully qualified name of the super type
 	 * @return The found super type, or <code>null</code>
 	 */
 	protected static ITypeBinding findTypeInHierarchy(final ITypeBinding type, final String name) {
@@ -124,9 +122,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates a new super type processor.
-	 *
-	 * @param subType
-	 *            the subtype to replace its occurrences
+	 * 
+	 * @param subType the subtype to replace its occurrences
 	 */
 	public UseSuperTypeProcessor(final IType subType) {
 		super(null);
@@ -136,11 +133,9 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates a new super type processor.
-	 *
-	 * @param subType
-	 *            the subtype to replace its occurrences
-	 * @param superType
-	 *            the supertype as replacement
+	 * 
+	 * @param subType the subtype to replace its occurrences
+	 * @param superType the supertype as replacement
 	 */
 	public UseSuperTypeProcessor(final IType subType, final IType superType) {
 		super(null);
@@ -151,11 +146,9 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates a new super type processor from refactoring arguments.
-	 *
-	 * @param arguments
-	 *            the refactoring arguments
-	 * @param status
-	 *            the resulting status
+	 * 
+	 * @param arguments the refactoring arguments
+	 * @param status the resulting status
 	 */
 	public UseSuperTypeProcessor(JavaRefactoringArguments arguments, RefactoringStatus status) {
 		super(null);
@@ -225,10 +218,15 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 					JavaPlugin.log(exception);
 				}
 				final String name= project != null ? project.getElementName() : null;
-				final String description= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fSuperType.getElementName()));
-				final String header= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description, new String[] { JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED), JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+				final String description= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description_short,
+						BasicElementLabels.getJavaElementName(fSuperType.getElementName()));
+				final String header= Messages.format(
+						RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description,
+						new String[] { JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED),
+								JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
 				final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(name, this, header);
-				comment.addSetting(Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_refactored_element_pattern, JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+				comment.addSetting(Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_refactored_element_pattern,
+						JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
 				addSuperTypeSettings(comment, false);
 				final UseSupertypeDescriptor descriptor= RefactoringSignatureDescriptorFactory.createUseSupertypeDescriptor();
 				descriptor.setProject(name);
@@ -249,16 +247,12 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates the text change manager for this processor.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param status
-	 *            the refactoring status
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param status the refactoring status
 	 * @return the created text change manager
-	 * @throws JavaModelException
-	 *             if the method declaration could not be found
-	 * @throws CoreException
-	 *             if the changes could not be generated
+	 * @throws JavaModelException if the method declaration could not be found
+	 * @throws CoreException if the changes could not be generated
 	 */
 	protected final TextEditBasedChangeManager createChangeManager(final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException, CoreException {
 		Assert.isNotNull(status);
@@ -276,7 +270,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 			if (fSubType.isBinary() || fSubType.isReadOnly()) {
 				final IBinding[] bindings= parser.createBindings(new IJavaElement[] { fSubType, fSuperType }, new SubProgressMonitor(monitor, 50));
 				if (bindings != null && bindings.length == 2 && bindings[0] instanceof ITypeBinding && bindings[1] instanceof ITypeBinding) {
-					solveSuperTypeConstraints(null, null, fSubType, (ITypeBinding) bindings[0], (ITypeBinding) bindings[1], new SubProgressMonitor(monitor, 100), status);
+					solveSuperTypeConstraints(null, null, fSubType, (ITypeBinding)bindings[0], (ITypeBinding)bindings[1], new SubProgressMonitor(monitor, 100), status);
 					if (!status.hasFatalError())
 						rewriteTypeOccurrences(manager, null, null, null, null, new HashSet(), status, new SubProgressMonitor(monitor, 150));
 				}
@@ -327,9 +321,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	}
 
 	/**
-	 * Returns the number of files that are affected from the last change
-	 * generation.
-	 *
+	 * Returns the number of files that are affected from the last change generation.
+	 * 
 	 * @return The number of files which are affected
 	 */
 	public final int getChanges() {
@@ -359,7 +352,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Returns the subtype to be replaced.
-	 *
+	 * 
 	 * @return The subtype to be replaced
 	 */
 	public final IType getSubType() {
@@ -368,7 +361,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Returns the supertype as replacement.
-	 *
+	 * 
 	 * @return The supertype as replacement
 	 */
 	public final IType getSuperType() {
@@ -382,7 +375,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 			if (element == null || !element.exists() || element.getElementType() != IJavaElement.TYPE)
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.USE_SUPER_TYPE);
 			else
-				fSubType= (IType) element;
+				fSubType= (IType)element;
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
 		handle= extended.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + 1);
@@ -391,7 +384,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 			if (element == null || !element.exists() || element.getElementType() != IJavaElement.TYPE)
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getProcessorName(), IJavaRefactorings.USE_SUPER_TYPE);
 			else
-				fSuperType= (IType) element;
+				fSuperType= (IType)element;
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + 1));
 		final String instance= extended.getAttribute(ATTRIBUTE_INSTANCEOF);
@@ -406,7 +399,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#isApplicable()
 	 */
 	public final boolean isApplicable() throws CoreException {
-		return Checks.isAvailable(fSubType) && Checks.isAvailable(fSuperType) && !fSubType.isAnonymous() && !fSubType.isAnnotation() && !fSuperType.isAnonymous() && !fSuperType.isAnnotation() && !fSuperType.isEnum();
+		return Checks.isAvailable(fSubType) && Checks.isAvailable(fSuperType) && !fSubType.isAnonymous() && !fSubType.isAnnotation() && !fSuperType.isAnonymous() && !fSuperType.isAnnotation()
+				&& !fSuperType.isEnum();
 	}
 
 	/*
@@ -419,11 +413,12 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	/**
 	 * {@inheritDoc}
 	 */
-	protected final void rewriteTypeOccurrences(final TextEditBasedChangeManager manager, final ASTRequestor requestor, final CompilationUnitRewrite rewrite, final ICompilationUnit unit, final CompilationUnit node, final Set replacements, final IProgressMonitor monitor) throws CoreException {
+	protected final void rewriteTypeOccurrences(final TextEditBasedChangeManager manager, final ASTRequestor requestor, final CompilationUnitRewrite rewrite, final ICompilationUnit unit,
+			final CompilationUnit node, final Set replacements, final IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask("", 100); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.ExtractInterfaceProcessor_creating);
-			final Collection collection= (Collection) fTypeOccurrences.get(unit);
+			final Collection collection= (Collection)fTypeOccurrences.get(unit);
 			if (collection != null && !collection.isEmpty()) {
 				final IProgressMonitor subMonitor= new SubProgressMonitor(monitor, 100);
 				try {
@@ -438,12 +433,13 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 					else
 						currentRewrite= new CompilationUnitRewrite(fOwner, unit, node);
 					for (final Iterator iterator= collection.iterator(); iterator.hasNext();) {
-						variable= (ISourceConstraintVariable) iterator.next();
-						estimate= (TType) variable.getData(SuperTypeConstraintsSolver.DATA_TYPE_ESTIMATE);
+						variable= (ISourceConstraintVariable)iterator.next();
+						estimate= (TType)variable.getData(SuperTypeConstraintsSolver.DATA_TYPE_ESTIMATE);
 						if (estimate != null && variable instanceof ITypeConstraintVariable) {
-							final ASTNode result= NodeFinder.perform(node, ((ITypeConstraintVariable) variable).getRange().getSourceRange());
+							final ASTNode result= NodeFinder.perform(node, ((ITypeConstraintVariable)variable).getRange().getSourceRange());
 							if (result != null)
-								rewriteTypeOccurrence(estimate, currentRewrite, result, currentRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.SuperTypeRefactoringProcessor_update_type_occurrence, SET_SUPER_TYPE));
+								rewriteTypeOccurrence(estimate, currentRewrite, result,
+										currentRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.SuperTypeRefactoringProcessor_update_type_occurrence, SET_SUPER_TYPE));
 						}
 						subMonitor.worked(10);
 					}
@@ -463,9 +459,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Sets the supertype as replacement.
-	 *
-	 * @param type
-	 *            The supertype to set
+	 * 
+	 * @param type The supertype to set
 	 */
 	public final void setSuperType(final IType type) {
 		Assert.isNotNull(type);
