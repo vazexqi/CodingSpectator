@@ -59,6 +59,12 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen, Balaji Ambresh Rajkumar - Forced the processor update the
+ *         selection when the tree view changes.
+ * 
+ */
 public class UseSupertypeWizard extends RefactoringWizard {
 
 	/* package */static final String DIALOG_SETTING_SECTION= "UseSupertypeWizard"; //$NON-NLS-1$
@@ -202,6 +208,9 @@ public class UseSupertypeWizard extends RefactoringWizard {
 
 			Dialog.applyDialogFont(composite);
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IJavaHelpContextIds.USE_SUPERTYPE_WIZARD_PAGE);
+
+			//CODINGSPECTATOR: Update underlying processor to be in sync with the wizard.
+			initializeRefactoring();
 		}
 
 		private void addTreeViewer(Composite composite) {
@@ -244,6 +253,9 @@ public class UseSupertypeWizard extends RefactoringWizard {
 						setPageComplete(true);
 					}
 					fTreeViewer.refresh();
+
+					//CODINGSPECTATOR: Forcing the selection to be updated in the processor when the tree view changes.
+					initializeRefactoring();
 				}
 			});
 			try {

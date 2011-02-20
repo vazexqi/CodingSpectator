@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.corext.refactoring.structure;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
@@ -56,6 +57,8 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsModel;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeRefactoringProcessor;
@@ -75,8 +78,10 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * Refactoring processor to replace type occurrences by a super type.
+ * 
+ * @author Mohsen Vakilian, nchen, Balaji Ambresh Rajkumar - Instrumented the refactoring.
  */
-public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
+public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor implements IWatchedJavaProcessor {
 
 	private static final String IDENTIFIER= "org.eclipse.jdt.ui.useSuperTypeProcessor"; //$NON-NLS-1$
 
@@ -467,4 +472,90 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 		fSuperType= type;
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private class WatchedUseSuperTypeRefactoringProcessorDelegate extends WatchedProcessorDelegate {
+
+		public WatchedUseSuperTypeRefactoringProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
+		}
+
+		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+			return RefactoringSignatureDescriptorFactory.createUseSupertypeDescriptor(project, description, comment, arguments, flags);
+		}
+
+	}
+
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedUseSuperTypeRefactoringProcessorDelegate(this);
+	}
+
+	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
+	protected WatchedProcessorDelegate watchedProcessorDelegate;
+
+	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
+		if (watchedProcessorDelegate == null)
+			watchedProcessorDelegate= instantiateDelegate();
+		return watchedProcessorDelegate;
+	}
+
+	public String getSelection() {
+		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.USE_SUPER_TYPE;
+	}
+
+	public String getJavaProjectName() {
+		return getWatchedProcessorDelegate().getJavaProjectName();
+	}
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	/**
+	 * This method is based on {@link #createChange }. We ignored fChanges and fChangeManager because
+	 * fChangeManager may not be available, and we always want to return a non null refactoring
+	 * descriptor.
+	 * 
+	 */
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+
+		IJavaProject project= null;
+		if (!fSubType.isBinary())
+			project= fSubType.getJavaProject();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		try {
+			if (fSubType.isLocal() || fSubType.isAnonymous())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String name= project != null ? project.getElementName() : null;
+		final String description= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description_short,
+					BasicElementLabels.getJavaElementName(fSuperType.getElementName()));
+		final String header= Messages.format(
+					RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description,
+					new String[] { JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED),
+							JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(name, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_refactored_element_pattern,
+					JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		addSuperTypeSettings(comment, false);
+		final UseSupertypeDescriptor descriptor= RefactoringSignatureDescriptorFactory.createUseSupertypeDescriptor();
+		descriptor.setProject(name);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment.asString());
+		descriptor.setFlags(flags);
+		descriptor.setSubtype(getSubType());
+		descriptor.setSupertype(getSuperType());
+		descriptor.setReplaceInstanceof(fInstanceOf);
+		return descriptor;
+	}
+
 }
