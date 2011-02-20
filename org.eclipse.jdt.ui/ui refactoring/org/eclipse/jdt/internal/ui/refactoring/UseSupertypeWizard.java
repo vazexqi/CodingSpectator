@@ -59,9 +59,10 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
-public class UseSupertypeWizard extends RefactoringWizard{
+public class UseSupertypeWizard extends RefactoringWizard {
 
-	/* package */ static final String DIALOG_SETTING_SECTION= "UseSupertypeWizard"; //$NON-NLS-1$
+	/* package */static final String DIALOG_SETTING_SECTION= "UseSupertypeWizard"; //$NON-NLS-1$
+
 	private final UseSuperTypeProcessor fProcessor;
 
 	public UseSupertypeWizard(UseSuperTypeProcessor processor, Refactoring ref) {
@@ -70,11 +71,11 @@ public class UseSupertypeWizard extends RefactoringWizard{
 		setDefaultPageTitle(RefactoringMessages.UseSupertypeWizard_Use_Super_Type_Where_Possible);
 	}
 
-	protected void addUserInputPages(){
+	protected void addUserInputPages() {
 		addPage(new UseSupertypeInputPage(fProcessor));
 	}
 
-	private static class UseSupertypeInputPage extends UserInputWizardPage{
+	private static class UseSupertypeInputPage extends UserInputWizardPage {
 
 		private class UseSupertypeContentProvider implements ITreeContentProvider {
 
@@ -86,14 +87,14 @@ public class UseSupertypeWizard extends RefactoringWizard{
 				return getDirectSuperTypes((IType)element).toArray();
 			}
 
-			public Set/*<IType>*/ getDirectSuperTypes(IType type){
-				Set/*<IType>*/ result= new HashSet();
+			public Set/*<IType>*/getDirectSuperTypes(IType type) {
+				Set/*<IType>*/result= new HashSet();
 				final IType superclass= fHierarchy.getSuperclass(type);
 				if (superclass != null) {
 					result.add(superclass);
 				}
 				IType[] superInterface= fHierarchy.getSuperInterfaces(type);
-				for (int i=0; i < superInterface.length; i++){
+				for (int i= 0; i < superInterface.length; i++) {
 					result.add(superInterface[i]);
 				}
 				try {
@@ -109,7 +110,7 @@ public class UseSupertypeWizard extends RefactoringWizard{
 
 			public Object[] getElements(Object element) {
 				if (element instanceof ITypeHierarchy)
-					return getChildren(((ITypeHierarchy) element).getType());
+					return getChildren(((ITypeHierarchy)element).getType());
 				return new Object[0];
 			}
 
@@ -127,19 +128,26 @@ public class UseSupertypeWizard extends RefactoringWizard{
 
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				if (newInput instanceof ITypeHierarchy)
-					fHierarchy= (ITypeHierarchy) newInput;
+					fHierarchy= (ITypeHierarchy)newInput;
 				else
 					fHierarchy= null;
 			}
 		}
 
-		private static final String REWRITE_INSTANCEOF= "rewriteInstanceOf";  //$NON-NLS-1$
+		private static final String REWRITE_INSTANCEOF= "rewriteInstanceOf"; //$NON-NLS-1$
+
 		public static final String PAGE_NAME= "UseSupertypeInputPage";//$NON-NLS-1$
+
 		private TreeViewer fTreeViewer;
-		private final Map fFileCount;  //IType -> Integer
+
+		private final Map fFileCount; //IType -> Integer
+
 		private final static String MESSAGE= RefactoringMessages.UseSupertypeInputPage_Select_supertype;
+
 		private JavaElementLabelProvider fLabelProvider;
+
 		private IDialogSettings fSettings;
+
 		private UseSuperTypeProcessor fProcessor;
 
 		public UseSupertypeInputPage(UseSuperTypeProcessor processor) {
@@ -181,7 +189,7 @@ public class UseSupertypeWizard extends RefactoringWizard{
 			checkbox.setText(RefactoringMessages.UseSupertypeInputPage_Use_in_instanceof);
 			checkbox.setLayoutData(new GridData());
 			checkbox.setSelection(getUseSupertypeProcessor().isInstanceOf());
-			checkbox.addSelectionListener(new SelectionAdapter(){
+			checkbox.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					getUseSupertypeProcessor().setInstanceOf(checkbox.getSelection());
 					fSettings.put(REWRITE_INSTANCEOF, checkbox.getSelection());
@@ -225,10 +233,10 @@ public class UseSupertypeWizard extends RefactoringWizard{
 					return getComparator().compare(type1.getElementName(), type2.getElementName());
 				}
 			});
-			fTreeViewer.addSelectionChangedListener(new ISelectionChangedListener(){
+			fTreeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 				public void selectionChanged(SelectionChangedEvent event) {
 					IStructuredSelection ss= (IStructuredSelection)event.getSelection();
-					if (new Integer(0).equals(fFileCount.get(ss.getFirstElement()))){
+					if (new Integer(0).equals(fFileCount.get(ss.getFirstElement()))) {
 						setMessage(RefactoringMessages.UseSupertypeInputPage_No_updates, IMessageProvider.INFORMATION);
 						setPageComplete(false);
 					} else {
@@ -246,7 +254,7 @@ public class UseSupertypeWizard extends RefactoringWizard{
 			fTreeViewer.expandAll();
 			final TreeItem[] items= tree.getItems();
 			if (items.length > 0)
-				tree.setSelection(new TreeItem[] {items[0]});
+				tree.setSelection(new TreeItem[] { items[0] });
 		}
 
 		public IWizardPage getNextPage() {
@@ -265,7 +273,7 @@ public class UseSupertypeWizard extends RefactoringWizard{
 				setPageComplete(false);
 			}
 			fTreeViewer.refresh();
-			if (noSupertypeCanBeUsed()){
+			if (noSupertypeCanBeUsed()) {
 				setMessage(RefactoringMessages.UseSupertypeWizard_10, IMessageProvider.INFORMATION);
 				setPageComplete(false);
 			}
@@ -289,10 +297,10 @@ public class UseSupertypeWizard extends RefactoringWizard{
 			return (IType)ss.getFirstElement();
 		}
 
-		public boolean performFinish(){
+		public boolean performFinish() {
 			initializeRefactoring();
 			boolean superFinish= super.performFinish();
-			if (! superFinish)
+			if (!superFinish)
 				return false;
 			final int count= getUseSupertypeProcessor().getChanges();
 			if (count == 0) {
@@ -314,24 +322,26 @@ public class UseSupertypeWizard extends RefactoringWizard{
 			super.dispose();
 		}
 
-		private static class UseSupertypeLabelProvider extends JavaElementLabelProvider{
+		private static class UseSupertypeLabelProvider extends JavaElementLabelProvider {
 			private final Map fFileCount;
-			private UseSupertypeLabelProvider(Map fileCount){
+
+			private UseSupertypeLabelProvider(Map fileCount) {
 				fFileCount= fileCount;
 			}
+
 			public String getText(Object element) {
 				String superText= super.getText(element);
-				if  (! fFileCount.containsKey(element))
+				if (!fFileCount.containsKey(element))
 					return superText;
 				int count= ((Integer)fFileCount.get(element)).intValue();
-				if (count == 0){
-					String[] keys= {superText};
+				if (count == 0) {
+					String[] keys= { superText };
 					return Messages.format(RefactoringMessages.UseSupertypeInputPage_no_possible_updates, keys);
-				} else if (count == 1){
-					String [] keys= {superText};
+				} else if (count == 1) {
+					String[] keys= { superText };
 					return Messages.format(RefactoringMessages.UseSupertypeInputPage_updates_possible_in_file, keys);
-				}	else {
-					String[] keys= {superText, String.valueOf(count)};
+				} else {
+					String[] keys= { superText, String.valueOf(count) };
 					return Messages.format(RefactoringMessages.UseSupertypeInputPage_updates_possible_in_files, keys);
 				}
 			}
