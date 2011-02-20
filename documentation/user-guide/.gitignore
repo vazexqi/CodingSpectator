@@ -1,0 +1,13 @@
+hevea.sty
+*.pdf
+*.ps
+*.dvi
+*.html
+*.toc
+*.aux
+*.haux
+*.htoc
+*log
+*.out
+*.image.tex
+
