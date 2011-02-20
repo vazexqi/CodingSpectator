@@ -47,6 +47,10 @@ public class CodingSpectatorBot {
 			// The welcome screen might not be shown so just ignore
 		}
 	}
+	
+	public SWTWorkbenchBot getBot() {
+		return bot;
+	}
 
 	public void createANewJavaProject(String projectName) throws Exception {
 		bot.menu("File").menu("New").menu("Project...").click();
