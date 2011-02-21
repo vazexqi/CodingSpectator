@@ -8,8 +8,7 @@ v1.0.0.201102192319
 - Provided the user's guide in PDF and HTML formats, and updated it for users outside the university ([issue #147](https://github.com/vazexqi/CodingSpectator/issues/147)).
 - Instrumented the push down refactoring to capture performed, cancelled and unavailable invocations ([issue #153](https://github.com/vazexqi/CodingSpectator/issues/153)).
 - Added tests for all kinds of the rename refactoring ([issue #124](https://github.com/vazexqi/CodingSpectator/issues/124)).
-- Reorganized the tests by separating the tests for performed refactorings from those for cancelled ones ([issue
-#141](https://github.com/vazexqi/CodingSpectator/issues/141)).
+- Reorganized the tests by separating the tests for performed refactorings from those for cancelled ones ([issue #141](https://github.com/vazexqi/CodingSpectator/issues/141)).
 
 v1.0.0.201101161822
 ===================
