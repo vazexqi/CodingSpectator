@@ -1,14 +1,15 @@
 v1.0.0.201102192319
 ===================
-- Captured the navigation history in a refactoring wizard. The navigation history includes the time the user presses a navigation button such as "OK", "Next", "Cancel", "Preview" and "Finish" on a page of a refactoring wizard (issue #125).
-- Instrumented the pull up refactoring to capture performed, cancelled and unavailable invocations (issue #22).
-- Instrumented the extract superclass refactoring to capture performed, cancelled and unavailable invocations (issue #44).
-- Fixed instances of [LCK08-J](https://www.securecoding.cert.org/confluence/display/java/LCK08-J.+Ensure+actively+held+locks+are+released+on+exceptional+conditions) in the instrumentation of UDC (issue #139).
-- Updated the user interface messages for users outside the university (issue #155).
-- Provided the user's guide in PDF and HTML formats, and updated it for users outside the university (issue #147).
-- Instrumented the push down refactoring to capture performed, cancelled and unavailable invocations (issue #153).
-- Added tests for all kinds of the rename refactoring (issue #124).
-- Reorganized the tests by separating the tests for performed refactorings from those for cancelled ones (issue #141).
+- Captured the navigation history in a refactoring wizard. The navigation history includes the time the user presses a navigation button such as "OK", "Next", "Cancel", "Preview" and "Finish" on a page of a refactoring wizard ([issue #125](https://github.com/vazexqi/CodingSpectator/issues/125)).
+- Instrumented the pull up refactoring to capture performed, cancelled and unavailable invocations ([issue #22](https://github.com/vazexqi/CodingSpectator/issues/22)).
+- Instrumented the extract superclass refactoring to capture performed, cancelled and unavailable invocations ([issue #44](https://github.com/vazexqi/CodingSpectator/issues/44)).
+- Fixed instances of [LCK08-J](https://www.securecoding.cert.org/confluence/display/java/LCK08-J.+Ensure+actively+held+locks+are+released+on+exceptional+conditions) in the instrumentation of UDC ([issue #139](https://github.com/vazexqi/CodingSpectator/issues/139)).
+- Updated the user interface messages for users outside the university ([issue #155](https://github.com/vazexqi/CodingSpectator/issues/155)).
+- Provided the user's guide in PDF and HTML formats, and updated it for users outside the university ([issue #147](https://github.com/vazexqi/CodingSpectator/issues/147)).
+- Instrumented the push down refactoring to capture performed, cancelled and unavailable invocations ([issue #153](https://github.com/vazexqi/CodingSpectator/issues/153)).
+- Added tests for all kinds of the rename refactoring ([issue #124](https://github.com/vazexqi/CodingSpectator/issues/124)).
+- Reorganized the tests by separating the tests for performed refactorings from those for cancelled ones ([issue
+#141](https://github.com/vazexqi/CodingSpectator/issues/141)).
 
 v1.0.0.201101161822
 ===================
