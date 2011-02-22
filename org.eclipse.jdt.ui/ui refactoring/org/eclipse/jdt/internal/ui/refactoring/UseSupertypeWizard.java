@@ -324,7 +324,9 @@ public class UseSupertypeWizard extends RefactoringWizard {
 
 		private void initializeRefactoring() {
 			IStructuredSelection ss= (IStructuredSelection)fTreeViewer.getSelection();
-			getUseSupertypeProcessor().setSuperType((IType)ss.getFirstElement());
+			IType firstElement= (IType)ss.getFirstElement();
+			if (firstElement != null)
+				getUseSupertypeProcessor().setSuperType(firstElement);
 		}
 
 		public void dispose() {
