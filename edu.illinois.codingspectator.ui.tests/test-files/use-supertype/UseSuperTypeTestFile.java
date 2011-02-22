@@ -3,7 +3,7 @@
  */
 package edu.illinois.codingspectator;
 
-class GrandParent {
+class Grandparent {
     public void m1() {
     }
 
@@ -11,7 +11,7 @@ class GrandParent {
     }
 }
 
-class Parent extends GrandParent {
+class Parent extends Grandparent {
     
     public void m1() {
         Parent p = new Parent();
