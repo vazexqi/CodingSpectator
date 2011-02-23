@@ -64,6 +64,11 @@ ui/org/eclipse/jdt/internal/ui/actions/ExtractSuperClassAction.java
 # For capturing the push down refactoring
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/PushDownRefactoringProcessor.java
 
+# For capturing the use super type refactoring
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperTypeProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/UseSupertypeWizard.java
+ui/org/eclipse/jdt/ui/actions/UseSupertypeAction.java
+
 Added Files
 ===========
 
