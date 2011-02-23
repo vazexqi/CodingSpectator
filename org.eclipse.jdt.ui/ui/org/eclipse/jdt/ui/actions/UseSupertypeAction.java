@@ -41,25 +41,26 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * Tries to use a super type of a class where possible.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
 // Note: The disclaimer about instantiating and subclassing got added in 3.1.
 // Don't make this class final or remove a constructor!
-public class UseSupertypeAction extends SelectionDispatchAction{
+public class UseSupertypeAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public UseSupertypeAction(JavaEditor editor) {
@@ -69,10 +70,10 @@ public class UseSupertypeAction extends SelectionDispatchAction{
 	}
 
 	/**
-	 * Creates a new <code>UseSupertypeAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>UseSupertypeAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public UseSupertypeAction(IWorkbenchSite site) {
@@ -104,7 +105,7 @@ public class UseSupertypeAction extends SelectionDispatchAction{
 		try {
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(selection)) {
 				IType singleSelectedType= getSingleSelectedType(selection);
-				if (! ActionUtil.isEditable(getShell(), singleSelectedType))
+				if (!ActionUtil.isEditable(getShell(), singleSelectedType))
 					return;
 				RefactoringExecutionStarter.startUseSupertypeRefactoring(singleSelectedType, getShell());
 			}
@@ -113,7 +114,7 @@ public class UseSupertypeAction extends SelectionDispatchAction{
 		}
 	}
 
-	private static IType getSingleSelectedType(IStructuredSelection selection) throws JavaModelException{
+	private static IType getSingleSelectedType(IStructuredSelection selection) throws JavaModelException {
 		if (selection.isEmpty() || selection.size() != 1)
 			return null;
 
@@ -127,9 +128,9 @@ public class UseSupertypeAction extends SelectionDispatchAction{
 
 	//---- text selection ------------------------------------------------------
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
 	}
@@ -149,13 +150,13 @@ public class UseSupertypeAction extends SelectionDispatchAction{
 	}
 
 	/*
-     * @see SelectionDispatchAction#run(ITextSelection)
-     */
+	 * @see SelectionDispatchAction#run(ITextSelection)
+	 */
 	public void run(ITextSelection selection) {
 		try {
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(type)) {
-				if (! ActionUtil.isEditable(fEditor, getShell(), type))
+				if (!ActionUtil.isEditable(fEditor, getShell(), type))
 					return;
 				RefactoringExecutionStarter.startUseSupertypeRefactoring(type, getShell());
 			} else {
