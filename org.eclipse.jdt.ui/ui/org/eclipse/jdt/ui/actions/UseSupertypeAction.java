@@ -20,9 +20,13 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
@@ -49,6 +53,9 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @since 2.1
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, Balaji Ambresh Rajkumar, nchen - Captured when the refactoring is
+ *         unavailable.
  */
 // Note: The disclaimer about instantiating and subclassing got added in 3.1.
 // Don't make this class final or remove a constructor!
@@ -161,6 +168,18 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startUseSupertypeRefactoring(type, getShell());
 			} else {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.UseSupertypeAction_to_activate);
+
+				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
+				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+				if (typeRoot != null) {
+					String javaProject= typeRoot.getJavaProject().getElementName();
+					String selectionIfAny= "CODINGSPECTATOR: No text selected."; //$NON-NLS-1$
+					if (selection.getText() != null) {
+						selectionIfAny= selection.getText();
+					}
+					Logger.logUnavailableRefactoringEvent(IJavaRefactorings.USE_SUPER_TYPE, javaProject, selectionIfAny, RefactoringMessages.UseSupertypeAction_to_activate);
+				}
+
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
