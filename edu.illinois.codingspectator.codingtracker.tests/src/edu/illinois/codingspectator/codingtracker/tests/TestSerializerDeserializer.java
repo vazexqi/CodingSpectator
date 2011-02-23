@@ -16,26 +16,24 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
 
 /**
- * Should be executed without monitor.ui (such that the recording of the user actions does not
- * interfere with the test).
  * 
  * @author Stas Negara
  * 
  */
-public class TestDeserializer {
+public class TestSerializerDeserializer extends TestCodingTracker {
 
-	private static final String operationsRecordPath= "test-files/01/codechanges.txt";
+	private static final File operationsRecordFile= new File("test-files/01/codechanges.txt");
 
 	private static final TextRecorder textRecorder= TextRecorder.getInstance();
 
 	@Test
 	public void shouldDeserializeAndSerialize() {
-		String operationsRecord= FileHelper.getFileContent(new File(operationsRecordPath));
+		String operationsRecord= FileHelper.getFileContent(operationsRecordFile);
 		List<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
 		for (UserOperation userOperation : userOperations) {
 			textRecorder.record(userOperation);
 		}
-		String generatedOperationsRecord= FileHelper.getFileContent(new File(TextRecorder.MAIN_RECORD_FILE_PATH.toOSString()));
+		String generatedOperationsRecord= FileHelper.getFileContent(mainRecordFile);
 		assertEquals(operationsRecord, generatedOperationsRecord);
 	}
 

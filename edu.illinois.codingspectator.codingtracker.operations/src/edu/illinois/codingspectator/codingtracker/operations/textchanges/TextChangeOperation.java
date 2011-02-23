@@ -66,6 +66,8 @@ public abstract class TextChangeOperation extends UserOperation {
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
 		currentViewer.revealRange(offset, length > newText.length() ? length : newText.length());
+		//TODO: Would it make changes more visible?
+		//currentViewer.setSelectedRange(offset, length > newText.length() ? length : newText.length());
 		if (!replacedText.equals(currentDocument.get(offset, length))) {
 			throw new RuntimeException("Replaced text is not present in the document: " + this);
 		}

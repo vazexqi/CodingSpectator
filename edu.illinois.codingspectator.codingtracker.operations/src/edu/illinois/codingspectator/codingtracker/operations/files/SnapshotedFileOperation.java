@@ -47,6 +47,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 		fileContent= operationLexer.getNextLexeme();
 	}
 
+	//TODO: Change replay of commit and initially commit to check the content of the file if it already exists.
 	@Override
 	public void replay() throws CoreException {
 		IJavaProject javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
