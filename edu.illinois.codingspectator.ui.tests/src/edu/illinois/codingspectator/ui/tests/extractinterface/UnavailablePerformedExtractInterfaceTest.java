@@ -9,11 +9,11 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
-public class ValidPerformedExtractInterfaceParentMethodTest extends RefactoringTest {
+public class UnavailablePerformedExtractInterfaceTest extends RefactoringTest {
 
 	protected static final String EXTRACT_INTERFACE_ITEM_NAME= "Extract Interface...";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.UNAVAILABLE);
 
 	@Override
 	protected String getTestFileName() {
@@ -32,11 +32,9 @@ public class ValidPerformedExtractInterfaceParentMethodTest extends RefactoringT
 
 	@Override
 	protected void doExecuteRefactoring() {
-		final String selection = "m1";
-		bot.selectElementToRefactor(getTestFileFullName(), 6, 17, selection.length());
+		final String selection = "";
+		bot.selectElementToRefactor(getTestFileFullName(), 17, 1, selection.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_INTERFACE_ITEM_NAME);
-
-		bot.fillTextField("Interface name:", "I" + selection);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
