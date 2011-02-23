@@ -47,7 +47,7 @@ public class CodingSpectatorBot {
 			// The welcome screen might not be shown so just ignore
 		}
 	}
-	
+
 	public SWTWorkbenchBot getBot() {
 		return bot;
 	}
@@ -55,8 +55,9 @@ public class CodingSpectatorBot {
 	public void createANewJavaProject(String projectName) throws Exception {
 		bot.menu("File").menu("New").menu("Project...").click();
 
-		bot.shell("New Project").activate();
-		bot.tree().expandNode("Java").select("Java Project");
+		activateShellWithName("New Project");
+
+		getCurrentTree().expandNode("Java").select("Java Project");
 		bot.button(IDialogConstants.NEXT_LABEL).click();
 
 		bot.textWithLabel("Project name:").setText(projectName);
@@ -64,6 +65,14 @@ public class CodingSpectatorBot {
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
 		dismissJavaPerspectiveIfPresent();
+	}
+
+	public SWTBotTree getCurrentTree() {
+		return bot.tree();
+	}
+
+	public void activateShellWithName(String text) {
+		bot.shell(text).activate();
 	}
 
 	private void dismissJavaPerspectiveIfPresent() {
@@ -79,7 +88,7 @@ public class CodingSpectatorBot {
 
 		bot.menu("File").menu("New").menu("Class").click();
 
-		bot.shell("New Java Class").activate();
+		activateShellWithName("New Java Class");
 
 		bot.textWithLabel("Package:").setText(PACKAGE_NAME);
 		bot.textWithLabel("Name:").setText(testFileName);

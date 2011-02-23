@@ -17,9 +17,9 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author Mohsen Vakilian
  * @author nchen
  */
-public class ValidPerformedUseSuperTypeTwoLevelTest extends RefactoringTest {
+public class ValidCancelledUseSuperTypeTwoLevelTest extends RefactoringTest {
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
+	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
@@ -44,7 +44,7 @@ public class ValidPerformedUseSuperTypeTwoLevelTest extends RefactoringTest {
 		bot.activateShellWithName("Use Super Type Where Possible");
 		bot.getCurrentTree().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance('G'));
 
-		bot.clickButtons(IDialogConstants.OK_LABEL);
+		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override
