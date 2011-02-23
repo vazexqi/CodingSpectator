@@ -58,6 +58,9 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @since 2.1
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, Balaji Ambresh Rajkumar, nchen - Captured when the refactoring is
+ *         unavailable.
  */
 public class PushDownAction extends SelectionDispatchAction {
 
