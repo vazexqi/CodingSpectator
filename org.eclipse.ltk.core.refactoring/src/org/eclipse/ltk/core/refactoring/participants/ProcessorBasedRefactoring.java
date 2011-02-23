@@ -35,10 +35,12 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.IRefactoringCoreStatusCodes;
 import org.eclipse.ltk.core.refactoring.Refactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.internal.core.refactoring.Messages;
 import org.eclipse.ltk.internal.core.refactoring.ParticipantDescriptor;
@@ -62,7 +64,7 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * @author Mohsen Vakilian, nchen - Logged refactorings with fatal errors while checking initial
  *         conditions.
  */
-public class ProcessorBasedRefactoring extends Refactoring {
+public class ProcessorBasedRefactoring extends Refactoring implements IWatchedRefactoring {
 
 	private static final String PERF_CHECK_CONDITIONS= "org.eclipse.ltk.core.refactoring/perf/participants/checkConditions"; //$NON-NLS-1$
 
@@ -456,6 +458,16 @@ public class ProcessorBasedRefactoring extends Refactoring {
 				unsetRefWizOpenOpCheckedInitConds();
 			}
 		}
+	}
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		if (!isWatched())
+			throw new UnsupportedOperationException();
+		return ((IWatchedProcessor)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	public boolean isWatched() {
+		return fProcessor instanceof IWatchedProcessor;
 	}
 
 }

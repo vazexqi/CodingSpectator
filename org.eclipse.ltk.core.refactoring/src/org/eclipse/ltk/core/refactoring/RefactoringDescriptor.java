@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.ltk.core.refactoring;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 
@@ -74,6 +76,9 @@ import org.eclipse.ltk.core.refactoring.history.IRefactoringHistoryService;
  * @see IRefactoringHistoryService
  * 
  * @since 3.2
+ * 
+ * @author Mohsen Vakilian, nchen - Added method stub for subclasses to add more information by cloning an existing
+ *         RefactoringDescriptor
  */
 public abstract class RefactoringDescriptor implements Comparable {
 
@@ -432,5 +437,17 @@ public abstract class RefactoringDescriptor implements Comparable {
 		}
 
 		return buffer.toString();
+	}
+
+	//////////////////
+	// CODINGSPECTATOR
+	//////////////////
+
+	/**
+	 * @param arguments A map of additional arguments
+	 * @return A cloned version of this RefactoringDescriptor
+	 */
+	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
+		return this;
 	}
 }

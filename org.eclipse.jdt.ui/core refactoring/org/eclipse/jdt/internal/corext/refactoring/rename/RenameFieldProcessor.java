@@ -629,7 +629,7 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 	 * @return return the refactoring descriptor for this refactoring
 	 * 
 	 */
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fField.getJavaProject();
 		if (javaProject != null)

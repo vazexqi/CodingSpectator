@@ -1,0 +1,7 @@
+Changed Files
+=============
+
+src/org/eclipse/epp/usagedata/internal/ui/preferences/UsageDataCapturePreferencesPage.java
+src/org/eclipse/epp/usagedata/internal/ui/uploaders/AskUserUploader.java
+src/org/eclipse/epp/usagedata/internal/ui/wizards/SelectActionWizardPage.java
+src/org/eclipse/epp/usagedata/internal/ui/wizards/messages.properties

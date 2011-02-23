@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.Assert;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.codingspectator.IWatched;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 
@@ -67,9 +66,9 @@ public class MoveRefactoring extends ProcessorBasedRefactoring implements IWatch
 	///////////////////////////////////////////////
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		if (!(fProcessor instanceof IWatched))
+		if (!isWatched())
 			throw new UnsupportedOperationException();
-		return ((IWatched)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+		return ((IWatchedProcessor)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
 	public boolean isWatched() {

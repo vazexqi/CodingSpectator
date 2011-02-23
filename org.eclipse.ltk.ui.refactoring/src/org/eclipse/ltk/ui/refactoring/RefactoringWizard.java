@@ -37,6 +37,8 @@ import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory;
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistoryEvent;
 import org.eclipse.ltk.internal.ui.refactoring.ChangeExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.ErrorWizardPage;
@@ -70,7 +72,8 @@ import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
  * Clients may extend this class.
  * </p>
  * 
- * @author Mohsen Vakilian, nchen - Changed performFinish(), performCancel
+ * @author Mohsen Vakilian, nchen - Changed performFinish(), performCancel; Added support for
+ *         storing {@link NavigationHistory}.
  * 
  * @see org.eclipse.ltk.core.refactoring.Refactoring
  * 
@@ -165,6 +168,7 @@ public abstract class RefactoringWizard extends Wizard {
 
 	private IRunnableContext fRunnableContext;
 
+
 	/**
 	 * Creates a new refactoring wizard for the given refactoring.
 	 * 
@@ -186,6 +190,7 @@ public abstract class RefactoringWizard extends Wizard {
 		setChangeCreationCancelable(true);
 		setWindowTitle(RefactoringUIMessages.RefactoringWizard_title);
 		setDefaultPageImageDescriptor(RefactoringPluginImages.DESC_WIZBAN_REFACTOR);
+
 	}
 
 	//---- Setter and Getters ------------------------------------------------------------
@@ -643,11 +648,13 @@ public abstract class RefactoringWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		RefactoringWizardPage page= (RefactoringWizardPage)getContainer().getCurrentPage();
-		//CODINGSPECTATOR: Create the refactoring descriptor before the change is created.
+
+		// Create the refactoring descriptor before the change is created because creating a change for a refactoring could invalidate a lot of the preconditions
 		RefactoringDescriptor refactoringDescriptor= Logger.createRefactoringDescriptor(getConditionCheckingStatus(), getRefactoring());
+
 		boolean performedFinish= page.performFinish();
 		if (performedFinish) {
-			Logger.logRefactoringDescriptor(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, refactoringDescriptor);
+			Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, refactoringDescriptor, navigationHistory);
 		}
 		return performedFinish;
 	}
@@ -656,8 +663,7 @@ public abstract class RefactoringWizard extends Wizard {
 	 * {@inheritDoc}
 	 */
 	public boolean performCancel() {
-		//CODINGSPECTATOR
-		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring);
+		Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED, getConditionCheckingStatus(), fRefactoring, navigationHistory);
 
 		if (fChange != null) {
 			fChange.dispose();
@@ -754,5 +760,17 @@ public abstract class RefactoringWizard extends Wizard {
 
 	private boolean checkActivationOnOpen() {
 		return (fFlags & CHECK_INITIAL_CONDITIONS_ON_OPEN) != 0;
+	}
+
+	//////////////////
+	// CODINGSPECTATOR
+	//////////////////
+
+	NavigationHistory navigationHistory;
+
+	public void addNavigationHistoryItem(NavigationHistoryItem item) {
+		if (navigationHistory == null)
+			navigationHistory= new NavigationHistory();
+		navigationHistory.addItem(item);
 	}
 }

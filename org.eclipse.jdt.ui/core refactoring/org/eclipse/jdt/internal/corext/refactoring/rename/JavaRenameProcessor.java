@@ -18,19 +18,19 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
-import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.ltk.core.refactoring.participants.ValidateEditChecker;
 
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedRenameProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRenameProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedRenameProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
@@ -40,7 +40,7 @@ import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
  * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
  * 
  */
-public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating, IWatchedProcessor {
+public abstract class JavaRenameProcessor extends WatchedJavaRenameProcessor implements INameUpdating {
 
 	private String fNewElementName;
 
@@ -94,39 +94,28 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 	//CODINGSPECTATOR
 	/////////////////
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return new WatchedJavaRenameProcessor().getSimpleRefactoringDescriptor(refactoringStatus);
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedJavaRenameProcessorDelegate(this);
 	}
 
-	public String getSelection() {
-		return new WatchedJavaRenameProcessor().getSelection();
-	}
+	public class WatchedJavaRenameProcessorDelegate extends WatchedRenameProcessorDelegate {
 
-	public String getJavaProjectName() {
-		return new WatchedJavaRenameProcessor().getJavaProjectName();
-	}
+		public WatchedJavaRenameProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
+		}
 
-	abstract protected JavaRefactoringDescriptor createRefactoringDescriptor();
-
-	public class WatchedJavaRenameProcessor extends WatchedRenameProcessor {
-
-		protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+		public JavaRefactoringDescriptor createRefactoringDescriptor() {
 			return JavaRenameProcessor.this.createRefactoringDescriptor();
 		}
 
-		protected Object[] getElements() {
+		public Object[] getElements() {
 			return JavaRenameProcessor.this.getElements();
 		}
 
-		public String getDescriptorID() {
-			throw new UnsupportedOperationException();
-		}
-
-		protected boolean isInvokedByQuickAssist() {
+		public boolean isInvokedByQuickAssist() {
 			return JavaRenameProcessor.this.isInvokedByQuickAssist();
 		}
 
 	}
-
 
 }

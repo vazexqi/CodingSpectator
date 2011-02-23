@@ -24,10 +24,14 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
@@ -45,14 +49,16 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 /**
  * Action to extract a supertype from a class.
  * <p>
- * Action is applicable to selections containing elements of type
- * <code>IType</code> (top-level types only), <code>IField</code> and
- * <code>IMethod</code>.
+ * Action is applicable to selections containing elements of type <code>IType</code> (top-level
+ * types only), <code>IField</code> and <code>IMethod</code>.
  * </p>
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Recorded invocations of the refactoring when it is not
+ *         available.
+ * 
  * @since 3.2
  */
 public class ExtractSuperClassAction extends SelectionDispatchAction {
@@ -60,7 +66,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	/**
 	 * Action definition ID of the refactor -> extract supertype action (value
 	 * <code>"org.eclipse.jdt.ui.edit.text.java.extract.superclass"</code>).
-	 *
+	 * 
 	 * @since 3.2
 	 */
 	public static final String EXTRACT_SUPERTYPE= "org.eclipse.jdt.ui.edit.text.java.extract.superclass"; //$NON-NLS-1$
@@ -68,7 +74,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	/**
 	 * Refactor menu: name of standard Extract Supertype global action (value
 	 * <code>"org.eclipse.jdt.ui.actions.ExtractSuperclass"</code>).
-	 *
+	 * 
 	 * @since 3.2
 	 */
 	public static final String EXTRACT_SUPERTYPES= "org.eclipse.jdt.ui.actions.ExtractSuperclass"; //$NON-NLS-1$
@@ -80,7 +86,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 			try {
 				final IType type= RefactoringAvailabilityTester.getSingleSelectedType(selection);
 				if (type != null)
-					return new IType[] {type};
+					return new IType[] { type };
 			} catch (JavaModelException exception) {
 				JavaPlugin.log(exception);
 			}
@@ -91,18 +97,16 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 		}
 		final Set set= new HashSet();
 		set.addAll(Arrays.asList(selection.toArray()));
-		return (IMember[]) set.toArray(new IMember[set.size()]);
+		return (IMember[])set.toArray(new IMember[set.size()]);
 	}
 
 	/** The java editor */
 	private JavaEditor fEditor;
 
 	/**
-	 * Note: This constructor is for internal use only. Clients should not call
-	 * this constructor.
-	 *
-	 * @param editor
-	 *            the java editor
+	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
+	 * @param editor the java editor
 	 */
 	public ExtractSuperClassAction(final JavaEditor editor) {
 		this(editor.getEditorSite());
@@ -111,12 +115,11 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new extract super type action. The action requires that the
-	 * selection provided by the site's selection provider is of type
+	 * Creates a new extract super type action. The action requires that the selection provided by
+	 * the site's selection provider is of type
 	 * <code>org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
-	 * @param site
-	 *            the workbench site
+	 * 
+	 * @param site the workbench site
 	 */
 	public ExtractSuperClassAction(final IWorkbenchSite site) {
 		super(site);
@@ -125,10 +128,10 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	}
 
 	private IMember getSelectedMemberFromEditor() throws JavaModelException {
-		final IJavaElement element= SelectionConverter.resolveEnclosingElement(fEditor, (ITextSelection) fEditor.getSelectionProvider().getSelection());
+		final IJavaElement element= SelectionConverter.resolveEnclosingElement(fEditor, (ITextSelection)fEditor.getSelectionProvider().getSelection());
 		if (element == null || !(element instanceof IMember))
 			return null;
-		return (IMember) element;
+		return (IMember)element;
 	}
 
 	/**
@@ -149,14 +152,25 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	 */
 	public void run(final ITextSelection selection) {
 		try {
-			if (! ActionUtil.isEditable(fEditor))
+			if (!ActionUtil.isEditable(fEditor))
 				return;
 			final IMember member= getSelectedMemberFromEditor();
-			final IMember[] array= new IMember[] { member};
+			final IMember[] array= new IMember[] { member };
 			if (member != null && RefactoringAvailabilityTester.isExtractSupertypeAvailable(array)) {
 				RefactoringExecutionStarter.startExtractSupertypeRefactoring(array, getShell());
 			} else {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.ExtractSuperTypeAction_unavailable);
+
+				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
+				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+				if (typeRoot != null) {
+					String javaProject= typeRoot.getJavaProject().getElementName();
+					String selectionIfAny= "CODINGSPECTATOR: Selection is not available."; //$NON-NLS-1$
+					if (member != null) {
+						selectionIfAny= member.toString();
+					}
+					Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_SUPERCLASS, javaProject, selectionIfAny, RefactoringMessages.ExtractSuperTypeAction_unavailable);
+				}
 			}
 		} catch (JavaModelException exception) {
 			ExceptionHandler.handle(exception, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

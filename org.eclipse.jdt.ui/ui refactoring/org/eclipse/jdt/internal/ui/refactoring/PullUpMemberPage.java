@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -65,6 +67,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 import org.eclipse.jdt.core.IField;
@@ -88,9 +91,13 @@ import org.eclipse.jdt.internal.ui.util.SWTUtil;
 import org.eclipse.jdt.internal.ui.util.TableLayoutComposite;
 
 /**
- * Wizard page for pull up refactoring wizards which allows to specify the
- * actions on the members to pull up.
- *
+ * Wizard page for pull up refactoring wizards which allows to specify the actions on the members to
+ * pull up.
+ * 
+ * @author Mohsen Vakilian, nchen - Changed the class such that whenever the user changes some
+ *         option of the refactoring, it updates the underlying processor object. See
+ *         {@link #updateRefactoringProcessor()}.
+ * 
  * @since 3.2
  */
 public class PullUpMemberPage extends UserInputWizardPage {
@@ -100,25 +107,25 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		public boolean canModify(final Object element, final String property) {
 			if (!ACTION_PROPERTY.equals(property))
 				return false;
-			return ((MemberActionInfo) element).isEditable();
+			return ((MemberActionInfo)element).isEditable();
 		}
 
 		public Object getValue(final Object element, final String property) {
 			if (!ACTION_PROPERTY.equals(property))
 				return null;
-			final MemberActionInfo info= (MemberActionInfo) element;
+			final MemberActionInfo info= (MemberActionInfo)element;
 			return new Integer(info.getAction());
 		}
 
 		public void modify(final Object element, final String property, final Object value) {
 			if (!ACTION_PROPERTY.equals(property))
 				return;
-			final int action= ((Integer) value).intValue();
+			final int action= ((Integer)value).intValue();
 			MemberActionInfo info;
 			if (element instanceof Item) {
-				info= (MemberActionInfo) ((Item) element).getData();
+				info= (MemberActionInfo)((Item)element).getData();
 			} else
-				info= (MemberActionInfo) element;
+				info= (MemberActionInfo)element;
 			if (!canModify(info, property))
 				return;
 			Assert.isTrue(info.isMethodInfo());
@@ -175,7 +182,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 
 		public String[] getAllowedLabels() {
 			if (isFieldInfo())
-				return new String[] { ""}; //$NON-NLS-1$
+				return new String[] { "" }; //$NON-NLS-1$
 			else if (isMethodInfo())
 				return METHOD_LABELS;
 			else if (isTypeInfo())
@@ -199,7 +206,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 				return false;
 			if (!isMethodInfo())
 				return false;
-			final IMethod method= (IMethod) fMember;
+			final IMethod method= (IMethod)fMember;
 			try {
 				return !JdtFlags.isStatic(method);
 			} catch (JavaModelException e) {
@@ -236,7 +243,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		}
 
 		public Image getColumnImage(final Object element, final int columnIndex) {
-			final MemberActionInfo info= (MemberActionInfo) element;
+			final MemberActionInfo info= (MemberActionInfo)element;
 			switch (columnIndex) {
 				case MEMBER_COLUMN:
 					return fLabelProvider.getImage(info.getMember());
@@ -249,7 +256,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		}
 
 		public String getColumnText(final Object element, final int columnIndex) {
-			final MemberActionInfo info= (MemberActionInfo) element;
+			final MemberActionInfo info= (MemberActionInfo)element;
 			switch (columnIndex) {
 				case MEMBER_COLUMN:
 					return fLabelProvider.getText(info.getMember());
@@ -379,6 +386,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 
 			class GetRequiredMembersRunnable implements IRunnableWithProgress {
 				public IMember[] result;
+
 				public void run(final IProgressMonitor pm) throws InvocationTargetException {
 					try {
 						this.result= fProcessor.getAdditionalRequiredMembersToPullUp(pm);
@@ -501,6 +509,9 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		initializeEnablement();
 		initializeCheckboxes();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IJavaHelpContextIds.PULL_UP_WIZARD_PAGE);
+
+		//CODINGSPECTATOR
+		updateRefactoringProcessor();
 	}
 
 	protected void createInstanceOfCheckbox(final Composite result, final int margin) {
@@ -516,12 +527,18 @@ public class PullUpMemberPage extends UserInputWizardPage {
 
 			public void widgetSelected(final SelectionEvent e) {
 				fProcessor.setInstanceOf(fInstanceofButton.getSelection());
+
+				//CODINGSPECTATOR: Seems to already update the processor. But, for consistency, we update the processor.
+				updateRefactoringProcessor();
 			}
 		});
 		fReplaceButton.addSelectionListener(new SelectionAdapter() {
 
 			public void widgetSelected(final SelectionEvent e) {
 				fInstanceofButton.setEnabled(fReplaceButton.getSelection());
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 	}
@@ -557,13 +574,16 @@ public class PullUpMemberPage extends UserInputWizardPage {
 
 			public void selectionChanged(final SelectionChangedEvent event) {
 				updateButtonEnablement(event.getSelection());
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 		fTableViewer.addCheckStateListener(new ICheckStateListener() {
 
 			public void checkStateChanged(final CheckStateChangedEvent event) {
 				final boolean checked= event.getChecked();
-				final MemberActionInfo info= (MemberActionInfo) event.getElement();
+				final MemberActionInfo info= (MemberActionInfo)event.getElement();
 				if (checked)
 					info.setAction(PULL_UP_ACTION);
 				else
@@ -638,6 +658,15 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		fCreateStubsButton.setLayoutData(data);
 		fCreateStubsButton.setEnabled(false);
 		fCreateStubsButton.setSelection(fProcessor.getCreateMethodStubs());
+
+		//CODINGSPECTATOR: Update the processor whenever the user changes a refactoring option.
+		fCreateStubsButton.addSelectionListener(new SelectionAdapter() {
+
+			public void widgetSelected(SelectionEvent e) {
+				updateRefactoringProcessor();
+			}
+
+		});
 	}
 
 	protected void createSuperTypeCheckbox(final Composite parent) {
@@ -665,6 +694,14 @@ public class PullUpMemberPage extends UserInputWizardPage {
 			fSuperTypesCombo.select(fCandidateTypes.length - 1);
 			fSuperTypesCombo.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		}
+
+		//CODINGSPECTATOR: Update the processor whenever the user changes the destination type.
+		fSuperTypesCombo.addModifyListener(new ModifyListener() {
+
+			public void modifyText(ModifyEvent e) {
+				updateRefactoringProcessor();
+			}
+		});
 	}
 
 	protected void createSuperTypeControl(final Composite parent) {
@@ -708,14 +745,14 @@ public class PullUpMemberPage extends UserInputWizardPage {
 							JavaElementLabels.M_PARAMETER_TYPES))
 					: Messages.format(RefactoringMessages.PullUpInputPage1_Mark_selected_members_plural, String.valueOf(selectedMembers.length));
 			final Map stringMapping= createStringMappingForSelectedMembers();
-			final String[] keys= (String[]) stringMapping.keySet().toArray(new String[stringMapping.keySet().size()]);
+			final String[] keys= (String[])stringMapping.keySet().toArray(new String[stringMapping.keySet().size()]);
 			Arrays.sort(keys);
 			final int initialSelectionIndex= getInitialSelectionIndexForEditDialog(stringMapping, keys);
 			final ComboSelectionDialog dialog= new ComboSelectionDialog(getShell(), shellTitle, labelText, keys, initialSelectionIndex);
 			dialog.setBlockOnOpen(true);
 			if (dialog.open() == Window.CANCEL)
 				return;
-			final int action= ((Integer) stringMapping.get(dialog.getSelectedString())).intValue();
+			final int action= ((Integer)stringMapping.get(dialog.getSelectedString())).intValue();
 			setActionForInfos(selectedMembers, action);
 		} finally {
 			updateWizardPage(preserved, true);
@@ -736,7 +773,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 			if (info.isActive())
 				result.add(info);
 		}
-		return (MemberActionInfo[]) result.toArray(new MemberActionInfo[result.size()]);
+		return (MemberActionInfo[])result.toArray(new MemberActionInfo[result.size()]);
 	}
 
 	private int getCommonActionCodeForSelectedInfos() {
@@ -772,8 +809,8 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		if (commonActionCode == -1)
 			return 0;
 		for (final Iterator iter= stringMapping.keySet().iterator(); iter.hasNext();) {
-			final String key= (String) iter.next();
-			final int action= ((Integer) stringMapping.get(key)).intValue();
+			final String key= (String)iter.next();
+			final int action= ((Integer)stringMapping.get(key)).intValue();
 			if (commonActionCode == action) {
 				for (int i= 0; i < keys.length; i++) {
 					if (key.equals(keys[i]))
@@ -795,19 +832,19 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		for (int index= 0; index < infos.length; index++) {
 			result.add(infos[index].getMember());
 		}
-		return (IMember[]) result.toArray(new IMember[result.size()]);
+		return (IMember[])result.toArray(new IMember[result.size()]);
 	}
 
 	private IMember[] getMembersForAction(final int action) {
 		List result= new ArrayList();
 		getMembersForAction(action, false, result);
-		return (IMember[]) result.toArray(new IMember[result.size()]);
+		return (IMember[])result.toArray(new IMember[result.size()]);
 	}
 
 	private IMethod[] getMethodsForAction(final int action) {
 		List result= new ArrayList();
 		getMembersForAction(action, true, result);
-		return (IMethod[]) result.toArray(new IMethod[result.size()]);
+		return (IMethod[])result.toArray(new IMethod[result.size()]);
 	}
 
 	private void getMembersForAction(int action, boolean onlyMethods, List result) {
@@ -833,11 +870,12 @@ public class PullUpMemberPage extends UserInputWizardPage {
 	private boolean isDestinationInterface() {
 		IType destination= getDestinationType();
 		try {
-			if (destination != null && destination.isInterface()) {
+			// CODINGSPECTATOR: Added check of destination.exists() (see Issue #144)
+			if (destination != null && destination.exists() && destination.isInterface()) {
 				return true;
 			}
 		} catch (JavaModelException exception) {
-		    JavaPlugin.log(exception);
+			JavaPlugin.log(exception);
 		}
 		return false;
 	}
@@ -847,8 +885,8 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		storeDialogSettings();
 		if (getMethodsForAction(PULL_UP_ACTION).length == 0)
 			return computeSuccessorPage();
-        if (isDestinationInterface())
-        	return computeSuccessorPage();
+		if (isDestinationInterface())
+			return computeSuccessorPage();
 		return super.getNextPage();
 	}
 
@@ -866,13 +904,13 @@ public class PullUpMemberPage extends UserInputWizardPage {
 
 	private MemberActionInfo[] getSelectedMembers() {
 		Assert.isTrue(fTableViewer.getSelection() instanceof IStructuredSelection);
-		final IStructuredSelection structured= (IStructuredSelection) fTableViewer.getSelection();
+		final IStructuredSelection structured= (IStructuredSelection)fTableViewer.getSelection();
 		final List result= structured.toList();
-		return (MemberActionInfo[]) result.toArray(new MemberActionInfo[result.size()]);
+		return (MemberActionInfo[])result.toArray(new MemberActionInfo[result.size()]);
 	}
 
 	private MemberActionInfo[] getTableInput() {
-		return (MemberActionInfo[]) fTableViewer.getInput();
+		return (MemberActionInfo[])fTableViewer.getInput();
 	}
 
 	protected int getTableRowCount() {
@@ -902,6 +940,9 @@ public class PullUpMemberPage extends UserInputWizardPage {
 	}
 
 	private void initializeRefactoring() {
+		//CODINGSPECTATOR
+		Logger.logDebug("PullUpMemberPage.initializeRefactoring()");
+
 		fProcessor.setMembersToMove(getMembersForAction(PULL_UP_ACTION));
 		fProcessor.setAbstractMethods(getMethodsForAction(DECLARE_ABSTRACT_ACTION));
 		final IType destination= getDestinationType();
@@ -936,7 +977,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 	private void setupCellEditors(final Table table) {
 		final ComboBoxCellEditor editor= new ComboBoxCellEditor();
 		editor.setStyle(SWT.READ_ONLY);
-		fTableViewer.setCellEditors(new CellEditor[] { null, editor});
+		fTableViewer.setCellEditors(new CellEditor[] { null, editor });
 		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			public void selectionChanged(final SelectionChangedEvent event) {
@@ -945,18 +986,21 @@ public class PullUpMemberPage extends UserInputWizardPage {
 				final ISelection sel= event.getSelection();
 				if (!(sel instanceof IStructuredSelection))
 					return;
-				final IStructuredSelection structured= (IStructuredSelection) sel;
+				final IStructuredSelection structured= (IStructuredSelection)sel;
 				if (structured.size() != 1)
 					return;
-				final MemberActionInfo info= (MemberActionInfo) structured.getFirstElement();
+				final MemberActionInfo info= (MemberActionInfo)structured.getFirstElement();
 				editor.setItems(info.getAllowedLabels());
 				editor.setValue(new Integer(info.getAction()));
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 
 		final ICellModifier cellModifier= new MemberActionCellModifier();
 		fTableViewer.setCellModifier(cellModifier);
-		fTableViewer.setColumnProperties(new String[] { MEMBER_PROPERTY, ACTION_PROPERTY});
+		fTableViewer.setColumnProperties(new String[] { MEMBER_PROPERTY, ACTION_PROPERTY });
 	}
 
 	public void setVisible(final boolean visible) {
@@ -979,7 +1023,7 @@ public class PullUpMemberPage extends UserInputWizardPage {
 
 	private void updateButtonEnablement(final ISelection selection) {
 		if (fEditButton != null)
-			fEditButton.setEnabled(enableEditButton((IStructuredSelection) selection));
+			fEditButton.setEnabled(enableEditButton((IStructuredSelection)selection));
 		fCreateStubsButton.setEnabled(getMethodsForAction(DECLARE_ABSTRACT_ACTION).length != 0);
 		fInstanceofButton.setEnabled(fReplaceButton.getSelection());
 		if (fSelectAllButton != null)
@@ -1008,5 +1052,21 @@ public class PullUpMemberPage extends UserInputWizardPage {
 		checkPageCompletionStatus(displayErrors);
 		updateButtonEnablement(fTableViewer.getSelection());
 		updateStatusLine();
+
+		//CODINGSPECTATOR: 
+		updateRefactoringProcessor();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * Whenever the user changes the parameters of the refactoring, we have to update the underlying
+	 * processor object so that we get a valid descriptor.
+	 */
+	protected void updateRefactoringProcessor() {
+		initializeRefactoring();
+	}
+
 }

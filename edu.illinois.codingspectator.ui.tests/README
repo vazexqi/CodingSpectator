@@ -1,0 +1,3 @@
+To run the tests run the launch configuration for your operating system from the launch-configurations folder.
+
+You have to leave the instance of Eclipse in which the UI tests run in the front.

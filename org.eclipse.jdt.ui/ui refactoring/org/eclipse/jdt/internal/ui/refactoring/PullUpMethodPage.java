@@ -57,6 +57,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 import org.eclipse.jdt.core.IJavaProject;
@@ -86,9 +87,13 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 import org.eclipse.jdt.internal.ui.util.SWTUtil;
 
 /**
- * Wizard page for pull up refactoring wizards which allows to specify the
- * methods to be deleted in subtypes after pull up.
- *
+ * Wizard page for pull up refactoring wizards which allows to specify the methods to be deleted in
+ * subtypes after pull up.
+ * 
+ * @author Mohsen Vakilian, nchen - Changed the class such that whenever the user changes some
+ *         option of the refactoring, it updates the underlying processor object. See
+ *         {@link #updateRefactoringProcessor()}.
+ * 
  * @since 3.2
  */
 public class PullUpMethodPage extends UserInputWizardPage {
@@ -165,28 +170,28 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof IType)
-				return getSubclassesAndMembers((IType) parentElement);
+				return getSubclassesAndMembers((IType)parentElement);
 			else
 				return new Object[0];
 		}
 
 		public Object[] getElements(final Object inputElement) {
 			Assert.isTrue(inputElement == null || inputElement instanceof ITypeHierarchy);
-			return new IType[] { fHierarchy.getType()};
+			return new IType[] { fHierarchy.getType() };
 		}
 
 		private IMember[] getMembers(final IType type) {
 			if (fTypeToMemberArray.containsKey(type))
-				return (IMember[]) (fTypeToMemberArray.get(type));
+				return (IMember[])(fTypeToMemberArray.get(type));
 			else
 				return new IMember[0];
 		}
 
 		public Object getParent(final Object element) {
 			if (element instanceof IType)
-				return fHierarchy.getSuperclass((IType) element);
+				return fHierarchy.getSuperclass((IType)element);
 			if (element instanceof IMember)
-				return ((IMember) element).getDeclaringType();
+				return ((IMember)element).getDeclaringType();
 			Assert.isTrue(false, "Should not get here"); //$NON-NLS-1$
 			return null;
 		}
@@ -207,13 +212,13 @@ public class PullUpMethodPage extends UserInputWizardPage {
 		public boolean hasChildren(final Object element) {
 			if (!(element instanceof IType))
 				return false;
-			final IType type= (IType) element;
+			final IType type= (IType)element;
 			return (fHierarchy.getAllSubtypes(type).length > 0) || fTypeToMemberArray.containsKey(type);
 		}
 
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			Assert.isTrue(newInput == null || newInput instanceof ITypeHierarchy);
-			fHierarchy= (ITypeHierarchy) newInput;
+			fHierarchy= (ITypeHierarchy)newInput;
 		}
 	}
 
@@ -225,9 +230,9 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 		final Map typeToMemberArray= new HashMap();
 		for (final Iterator iter= typeToMemberSet.keySet().iterator(); iter.hasNext();) {
-			final IType type= (IType) iter.next();
-			final Set memberSet= (Set) typeToMemberSet.get(type);
-			final IMember[] memberArray= (IMember[]) memberSet.toArray(new IMember[memberSet.size()]);
+			final IType type= (IType)iter.next();
+			final Set memberSet= (Set)typeToMemberSet.get(type);
+			final IMember[] memberArray= (IMember[])memberSet.toArray(new IMember[memberSet.size()]);
 			typeToMemberArray.put(type, memberArray);
 		}
 		return typeToMemberArray;
@@ -241,7 +246,7 @@ public class PullUpMethodPage extends UserInputWizardPage {
 			final IType type= member.getDeclaringType();
 			if (!typeToMemberSet.containsKey(type))
 				typeToMemberSet.put(type, new HashSet());
-			((Set) typeToMemberSet.get(type)).add(member);
+			((Set)typeToMemberSet.get(type)).add(member);
 		}
 		return typeToMemberSet;
 	}
@@ -308,6 +313,9 @@ public class PullUpMethodPage extends UserInputWizardPage {
 			public void widgetSelected(final SelectionEvent e) {
 				checkPulledUp();
 				updateSelectionLabel();
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 	}
@@ -322,6 +330,9 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 		Dialog.applyDialogFont(composite);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IJavaHelpContextIds.PULL_UP_WIZARD_PAGE);
+
+		//CODINGSPECTATOR:
+		updateRefactoringProcessor();
 	}
 
 	private void createHierarchyTreeComposite(final Composite parent) {
@@ -385,7 +396,7 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 		createHierarchyTreeComposite(composite);
 		createSourceViewerComposite(composite);
-		composite.setWeights(new int[] { 50, 50});
+		composite.setWeights(new int[] { 50, 50 });
 	}
 
 	private void createTreeViewer(final Composite composite) {
@@ -399,12 +410,18 @@ public class PullUpMethodPage extends UserInputWizardPage {
 
 			public void selectionChanged(final SelectionChangedEvent event) {
 				treeViewerSelectionChanged(event);
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 		fTreeViewer.addCheckStateListener(new ICheckStateListener() {
 
 			public void checkStateChanged(final CheckStateChangedEvent event) {
 				updateSelectionLabel();
+
+				//CODINGSPECTATOR
+				updateRefactoringProcessor();
 			}
 		});
 	}
@@ -426,20 +443,20 @@ public class PullUpMethodPage extends UserInputWizardPage {
 			if (checked[i] instanceof IMethod)
 				members.add(checked[i]);
 		}
-		return (IMethod[]) members.toArray(new IMethod[members.size()]);
+		return (IMethod[])members.toArray(new IMethod[members.size()]);
 	}
 
 	private ISourceReference getFirstSelectedSourceReference(final SelectionChangedEvent event) {
 		final ISelection s= event.getSelection();
 		if (!(s instanceof IStructuredSelection))
 			return null;
-		final IStructuredSelection ss= (IStructuredSelection) s;
+		final IStructuredSelection ss= (IStructuredSelection)s;
 		if (ss.size() != 1)
 			return null;
 		final Object first= ss.getFirstElement();
 		if (!(first instanceof ISourceReference))
 			return null;
-		return (ISourceReference) first;
+		return (ISourceReference)first;
 	}
 
 	public IWizardPage getNextPage() {
@@ -452,10 +469,13 @@ public class PullUpMethodPage extends UserInputWizardPage {
 	}
 
 	private ITypeHierarchy getTreeInput() {
-		return (ITypeHierarchy) fTreeViewer.getInput();
+		return (ITypeHierarchy)fTreeViewer.getInput();
 	}
 
 	private void initializeRefactoring() {
+		//CODINGSPECTATOR
+		Logger.logDebug("PullUpMethodPage.initializeRefactoring()");
+
 		fProcessor.setDeletedMethods(getCheckedMethods());
 	}
 
@@ -573,4 +593,17 @@ public class PullUpMethodPage extends UserInputWizardPage {
 		fSelectionLabel.setText(text);
 
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * Whenever the user changes the parameters of the refactoring, we have to update the underlying
+	 * processor object so that we get a valid descriptor.
+	 */
+	private void updateRefactoringProcessor() {
+		initializeRefactoring();
+	}
+
 }

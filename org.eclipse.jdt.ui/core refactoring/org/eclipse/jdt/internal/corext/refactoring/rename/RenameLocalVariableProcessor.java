@@ -369,7 +369,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	}
 
 	//CODINGSPECTATOR: Generalized the return type of createRefactoringDescriptor from RenameJavaElementDescriptor to JavaRefactoringDescriptor. Also, changed the visibility of the method from private to protected.
-	protected JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fCu.getJavaProject();
 		if (javaProject != null)

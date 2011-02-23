@@ -23,6 +23,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
@@ -44,16 +46,17 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 /**
  * Action to pull up method and fields into a superclass.
  * <p>
- * Action is applicable to selections containing elements of type
- * <code>IType</code> (top-level types only), <code>IField</code> and
- * <code>IMethod</code>.
- *
+ * Action is applicable to selections containing elements of type <code>IType</code> (top-level
+ * types only), <code>IField</code> and <code>IMethod</code>.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Logged unavailability of the refactoring.
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class PullUpAction extends SelectionDispatchAction {
@@ -65,7 +68,7 @@ public class PullUpAction extends SelectionDispatchAction {
 			try {
 				final IType type= RefactoringAvailabilityTester.getSingleSelectedType(selection);
 				if (type != null)
-					return new IType[] { type};
+					return new IType[] { type };
 			} catch (JavaModelException exception) {
 				JavaPlugin.log(exception);
 			}
@@ -76,18 +79,16 @@ public class PullUpAction extends SelectionDispatchAction {
 		}
 		Set memberSet= new HashSet();
 		memberSet.addAll(Arrays.asList(selection.toArray()));
-		return (IMember[]) memberSet.toArray(new IMember[memberSet.size()]);
+		return (IMember[])memberSet.toArray(new IMember[memberSet.size()]);
 	}
 
 	private JavaEditor fEditor;
 
 	/**
-	 * Note: This constructor is for internal use only. Clients should not call
-	 * this constructor.
-	 *
-	 * @param editor
-	 *            the java editor
-	 *
+	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
+	 * @param editor the java editor
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public PullUpAction(JavaEditor editor) {
@@ -97,12 +98,11 @@ public class PullUpAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>PullUpAction</code>. The action requires that the
-	 * selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>PullUpAction</code>. The action requires that the selection provided by
+	 * the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
-	 * @param site
-	 *            the site providing context information for this action
+	 * 
+	 * @param site the site providing context information for this action
 	 */
 	public PullUpAction(IWorkbenchSite site) {
 		super(site);
@@ -111,10 +111,10 @@ public class PullUpAction extends SelectionDispatchAction {
 	}
 
 	private IMember getSelectedMemberFromEditor() throws JavaModelException {
-		IJavaElement element= SelectionConverter.resolveEnclosingElement(fEditor, (ITextSelection) fEditor.getSelectionProvider().getSelection());
+		IJavaElement element= SelectionConverter.resolveEnclosingElement(fEditor, (ITextSelection)fEditor.getSelectionProvider().getSelection());
 		if (element == null || !(element instanceof IMember))
 			return null;
-		return (IMember) element;
+		return (IMember)element;
 	}
 
 	/**
@@ -138,10 +138,16 @@ public class PullUpAction extends SelectionDispatchAction {
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IMember member= getSelectedMemberFromEditor();
-			IMember[] array= new IMember[] { member};
+			IMember[] array= new IMember[] { member };
 			if (member != null && RefactoringAvailabilityTester.isPullUpAvailable(array)) {
 				RefactoringExecutionStarter.startPullUpRefactoring(array, getShell());
 			} else {
+				//CODINGSPECTATOR: Log the unavailability of the refactoring before showing the error message.
+				IJavaElement elementAtOffset= SelectionConverter.getElementAtOffset(fEditor);
+				String javaProject= elementAtOffset.getJavaProject().getElementName();
+				String selectionIfAny= elementAtOffset.getElementName();
+				Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
+
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PullUpAction_unavailable);
 			}
 		} catch (JavaModelException e) {

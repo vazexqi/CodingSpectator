@@ -11,7 +11,7 @@
 
    <copyright>
       <![CDATA[University of Illinois/NCSA Open Source License
-Copyright (c) 2008-2010 University of Illinois at Urbana-Champaign.
+Copyright (c) 2008-2011 University of Illinois at Urbana-Champaign.
 All rights reserved.]]>
    </copyright>
 
@@ -21,7 +21,7 @@ All rights reserved.]]>
  
 University of Illinois/NCSA Open Source License
  
-Copyright (c) 2008-2010 University of Illinois at Urbana-Champaign. All rights
+Copyright (c) 2008-2011 University of Illinois at Urbana-Champaign. All rights
 reserved.
  
 Developed by:
@@ -30,7 +30,7 @@ Developed by:
  
     University of Illinois
  
-    http://codingspectator.github.com/
+    http://codingspectator.cs.illinois.edu/
  
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal with
@@ -89,10 +89,13 @@ Eclipse Public License - Version 1.0.
 all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.core.refactoring
   * org.eclipse.ltk.ui.refactoring
+  * org.eclipse.jdt.core.manipulation
   * org.eclipse.jdt.ui
   * org.eclipse.ui.editors
   * org.eclipse.compare
   * org.eclipse.epp.usagedata.recording
+  * org.eclipse.epp.usagedata.gathering
+  * org.eclipse.epp.usagedata.ui
  
 * CodingSpectator depends on a plug-in that contains the binary form of the
 SVNKit library. SVNKit is available at http://www.svnkit.com, and is licensed
@@ -100,7 +103,10 @@ under the TMate Open Source License.
 
 * CodingSpectator depends on the JCommander library. JCommander is licensed
 under the Apache License - Version 2.0, and is available at
-http://beust.com/jcommander/.]]>
+http://jcommander.org/.
+
+* CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
+the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
    </license>
 
 

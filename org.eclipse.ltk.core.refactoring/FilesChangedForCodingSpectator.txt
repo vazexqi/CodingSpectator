@@ -25,3 +25,5 @@ src/org/eclipse/ltk/core/refactoring/codingspectator/IWatchedProcessor.java
 src/org/eclipse/ltk/core/refactoring/codingspectator/IWatchedRefactoring.java
 src/org/eclipse/ltk/core/refactoring/codingspectator/Logger.java
 src/org/eclipse/ltk/core/refactoring/codingspectator/RunningModes.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/NavigationHistory.java
+src/org/eclipse/ltk/core/refactoring/codingspectator/NavigationHistoryItem.java

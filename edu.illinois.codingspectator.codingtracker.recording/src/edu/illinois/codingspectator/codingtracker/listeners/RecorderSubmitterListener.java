@@ -19,7 +19,7 @@ public class RecorderSubmitterListener extends BasicListener implements Submitte
 	}
 
 	@Override
-	public void postSubmit() {
+	public void postSubmit(boolean succeeded) {
 		operationRecorder.commitCompleted();
 	}
 

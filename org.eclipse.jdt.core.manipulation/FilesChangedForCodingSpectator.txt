@@ -1,0 +1,7 @@
+Changed Files
+=============
+
+refactoring/org/eclipse/jdt/core/refactoring/descriptors/JavaRefactoringDescriptor.java
+
+Added Files
+===========

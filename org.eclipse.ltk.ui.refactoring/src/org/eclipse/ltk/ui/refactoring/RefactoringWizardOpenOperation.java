@@ -35,6 +35,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.internal.ui.refactoring.ExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringUIMessages;
 import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
@@ -47,6 +48,9 @@ import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
  * </p>
  * 
  * @since 3.0
+ * 
+ * @author Mohsen Vakilian, nchen - Monitor the initial creation of the refactoring dialog (either
+ *         RefactoringWizardDialog or RefactoringWizardDialog2
  * 
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -176,8 +180,11 @@ public class RefactoringWizardOpenOperation {
 							 * input pages and change creation was cancelled.
 							 */
 							result[0]= Window.CANCEL;
-						else
+						else {
+							// CODINGSPECTATOR: Monitor for initial creation of dialog
+							fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fWizard.getDefaultPageTitle()));
 							result[0]= dialog.open();
+						}
 					}
 				} catch (InterruptedException e) {
 					canceled[0]= e;
