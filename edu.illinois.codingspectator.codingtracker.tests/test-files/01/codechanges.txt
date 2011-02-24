@@ -1,0 +1,69 @@
+l1292117296812#e/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117310265#to##72#1#1292117310265#h#o#72#0#1292117310890#b1292117312609#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117312734#porg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#testo#references#true#version#1.0#1292117312765#b1292117314093#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117314140#uorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#testo#references#true#version#1.0#1292117312765#b1292117315171#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117315218#rorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#testo#references#true#version#1.0#1292117312765#b1292117315609#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117315640#uorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#testo#references#true#version#1.0#1292117312765#t#
+		#77#0#1292117369781#t#s#81#0#1292117369937#t#y#82#0#1292117370062#t#s#83#0#1292117370140#t#o#84#0#1292117371187#t#u#85#0#1292117371390#t#t#86#0#1292117371484#tsysout#System.out.println();#81#6#1292117374656#t#""#100#0#1292117375906#s/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117377281#t#~~#101#0#1292117380171#t#~##102#0#1292117380796#t#~~#103#0#1292117381265#t#~~#104#0#1292117381875#t#~~#105#0#1292117382046#t#~##106#0#1292117382484#t#~##107#0#1292117382656#t#~~#108#0#1292117383015#t#~~#109#0#1292117383171#t#~##110#0#1292117384750#t#~~#111#0#1292117385062#t#~~#112#0#1292117385218#t#~##113#0#1292117386062#t#~~#114#0#1292117386359#t#~~#115#0#1292117386515#t#~##116#0#1292117388218#t#~##117#0#1292117388375#t#~~#118#0#1292117388671#t#~##119#0#1292117389546#t#~##120#0#1292117389703#t#~~#121#0#1292117389968#t#~##122#0#1292117391187#t#~##123#0#1292117391343#t#~##124#0#1292117391515#t#~~#125#0#1292117392953#t#~~#126#0#1292117393140#t#~~#127#0#1292117393312#t#~##128#0#1292117394078#t#~##129#0#1292117394250#t#~##130#0#1292117394421#t#~~#131#0#1292117394921#t#~~#132#0#1292117395109#t#~~#133#0#1292117395265#t#~##134#0#1292117397953#t#~~#135#0#1292117398218#t#~##136#0#1292117398796#t#~~#137#0#1292117399093#t#~~#138#0#1292117399562#t#~##139#0#1292117399828#t#~~#140#0#1292117400125#t#~##141#0#1292117400390#s/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117405093#t#~~~##142#0#1292117407640#t#~#~~#144#0#1292117412687#t#~#~~#146#0#1292117412953#t#~~~#~~#123#0#1292117420359#t~##~~~#~##127#1#1292117425453#t~~~#~#~~#~~~#~#~~#115#4#1292117430468#t~#~~#~~~##124#2#1292117435093#t#~~#107#0#1292117439593#t~##~~~#~~#117#1#1292117445140#t~~~~~#~##~~~#~#~~#134#4#1292117451906#t~~~#~#~~#~#~~~~~~~##150#4#1292117460093#s/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117462187#to##72#1#1292117468656#h#o#72#0#1292117469828#b1292117470171#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117470218#porg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#testo#references#true#version#1.0#1292117470218#b1292117473390#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117473421#uorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#testo#references#true#version#1.0#1292117470218#c/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117482437#gd3e796#/edu.illinois.test2/src/edu/illinois/test2/Test2.java#package edu.illinois.test2;
+
+public class Test2 {
+
+	public void testoo(){
+		
+	}
+}
+#1292117496781#jd3e796#o##72#1#1292117501359#kd3e796##o#72#0#1292117503484#jd3e796##"#81#0#1292117507031#jd3e796##a#82#0#1292117508187#jd3e796##a#83#0#1292117508375#jd3e796##a#84#0#1292117508578#jd3e796##"#85#0#1292117508906#jd3e796#"##85#1#1292117509734#jd3e796#a##84#1#1292117509906#jd3e796##b#84#0#1292117510609#jd3e796##b#85#0#1292117510734#kd3e796#bb##84#2#1292117511781#kd3e796##a"#84#0#1292117512140#kd3e796#"aaa"##81#5#1292117512468#zd3e796#1292117529046#qd3e796#1292117531500#t		
+#		System.out.println("~~~#~~~~~~~#~~~#~~~~~#~~~~~#~~~~~~~#~~~#~~~#~#~~~#~~~~~#~#~~~#~#~~~~~#~#~~~#~~~~~~~#~~~#~~~~~#~~~#~#~~~~~~~#~#~~");
+#79#4#1292117532875#s/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117534812#e/edu.illinois.test2/src/edu/illinois/test2/Test7.java#1292117572000#t#
+	#53#0#1292117572000#t#m#56#0#1292117572828#t#a#57#0#1292117572953#t#i#58#0#1292117573078#t#n#59#0#1292117573234#tmain#public static void main(String[] args) {
+		
+	}#56#4#1292117574296#t#s#100#0#1292117576296#t#y#101#0#1292117576437#t#s#102#0#1292117576546#t#o#103#0#1292117577328#t#u#104#0#1292117577531#t#t#105#0#1292117577625#tsysout#System.out.println();#100#6#1292117577953#t#""#119#0#1292117578937#t#a#120#0#1292117579468#t#b#121#0#1292117579609#t#c#122#0#1292117579765#s/edu.illinois.test2/src/edu/illinois/test2/Test7.java#1292117580703#e/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117588343#t#		System.out.println("~~~#~~~~~~~#~~~#~~~~~#~~~~~#~~~~~~~#~~~#~~~#~#~~~#~~~~~#~#~~~#~#~~~~~#~#~~~#~~~~~~~#~~~#~~~~~#~~~#~#~~~~~~~#~#~~");
+#162#0#1292117588343#t#		System.out.println("~~~#~~~~~~~#~~~#~~~~~#~~~~~#~~~~~~~#~~~#~~~#~#~~~#~~~~~#~#~~~#~#~~~~~#~#~~~#~~~~~~~#~~~#~~~~~#~~~#~#~~~~~~~#~#~~");
+#245#0#1292117588718#t#		System.out.println("~~~#~~~~~~~#~~~#~~~~~#~~~~~#~~~~~~~#~~~#~~~#~#~~~#~~~~~#~#~~~#~#~~~~~#~#~~~#~~~~~~~#~~~#~~~~~#~~~#~#~~~~~~~#~#~~");
+		System.out.println("~~~#~~~~~~~#~~~#~~~~~#~~~~~#~~~~~~~#~~~#~~~#~#~~~#~~~~~#~#~~~#~#~~~~~#~#~~~#~~~~~~~#~~~#~~~~~#~~~#~#~~~~~~~#~#~~");
+		System.out.println("~~~#~~~~~~~#~~~#~~~~~#~~~~~#~~~~~~~#~~~#~~~#~#~~~#~~~~~#~#~~~#~#~~~~~#~#~~~#~~~~~~~#~~~#~~~~~#~~~#~#~~~~~~~#~#~~");
+#328#0#1292117590921#s/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117592843#ts##70#1#1292117596781#te##69#1#1292117596953#h#es#69#0#1292117597281#b1292117597671#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117597718#porg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#ttoo#references#true#version#1.0#1292117597734#t#e#69#0#1292117600468#t#s#70#0#1292117600640#hes##69#2#1292117600890#b1292117601328#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117601390#porg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~ttoo#name#testoo#references#true#version#1.0#1292117601406#b1292117602765#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117602796#uorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~ttoo#name#testoo#references#true#version#1.0#1292117601406#b1292117603875#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117603906#rorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~ttoo#name#testoo#references#true#version#1.0#1292117601406#b1292117604375#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117604406#uorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~ttoo#name#testoo#references#true#version#1.0#1292117601406#b1292117604609#a/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117604656#uorg.eclipse.jdt.ui.rename.method#edu.illinois.test2#589830#6#delegate#false#deprecate#false#input#/src<edu.illinois.test2{Test2.java[Test2~~testoo#name#ttoo#references#true#version#1.0#1292117597734#c/edu.illinois.test2/src/edu/illinois/test2/Test2.java#1292117607765#c/edu.illinois.test2/src/edu/illinois/test2/Test4.java#1292117610312#c/edu.illinois.test2/src/edu/illinois/test2/Test7.java#1292117610312#l1292118146828#o/edu.illinois.test2/src/edu/illinois/test2/Test7.java#package edu.illinois.test2;
+
+public class Test7 {
+
+	public static void main(String[] args) {
+		System.out.println("abc");
+	}
+}
+#1292118202125#m/edu.illinois.test2/src/edu/illinois/test2/Test4.java#1292118216203#f/edu.illinois.test2/src/edu/illinois/test2/Test4.java#package edu.illinois.test2;
+
+public class Test4 {
+	public void method2(){
+		
+	}
+}
+#1292118229875#e/edu.illinois.test2/src/edu/illinois/test2/Test4.java#1292118229875#t#a#80#0#1292118229890#ha##80#1#1292118230296#x/edu.illinois.test2/src/edu/illinois/test2/Test4.java#1292118336156#f/edu.illinois.test2/src/edu/illinois/test2/Test4.java#package edu.illinois.test2;
+
+public class Test4 {
+	public void methood2(){
+		
+	}
+}
+#1292118336171#e/edu.illinois.test2/src/edu/illinois/test2/Test4.java#1292118336187#tpackage edu.illinois.test2;
+
+public class Test4 {
+	public void method2(){
+		
+	}
+}
+#package edu.illinois.test2;
+
+public class Test4 {
+	public void methood2(){
+		
+	}
+}
+#0#89#1292118336187#i/edu.illinois.test2/src/edu/illinois/test2/Test8.java#package edu.illinois.test2;
+
+public class Test8 {
+
+}
+#1292118396125#e/edu.illinois.test2/src/edu/illinois/test2/Test7.java#1292118423500#tc##122#1#1292118423500#h#c#122#0#1292118424734#dc##122#1#1292118425953#h#c#122#0#1292118427828#g862402#/edu.illinois.test2/src/edu/illinois/test2/Test2.java#package edu.illinois.test2;
+
+public class Test2 {
+
+	public void testoo(){
+		
+	}
+}
+#1292118449890#j862402##a#81#0#1292118453218#j862402##b#82#0#1292118453390#j862402##c#83#0#1292118453562#k862402#abc##81#3#1292118454500#j862402##a#81#0#1292118455578#j862402##b#82#0#1292118455750#j862402##c#83#0#1292118455906#j862402#c##83#1#1292118457546#k862402##c#83#0#1292118459000#n862402#c##83#1#1292118460109#k862402##c#83#0#1292118461625#q862402#1292118464859#c/edu.illinois.test2/src/edu/illinois/test2/Test4.java#1292118476421#c/edu.illinois.test2/src/edu/illinois/test2/Test7.java#1292118476437#c/edu.illinois.test2/src/edu/illinois/test2/Test8.java#1292118476453#

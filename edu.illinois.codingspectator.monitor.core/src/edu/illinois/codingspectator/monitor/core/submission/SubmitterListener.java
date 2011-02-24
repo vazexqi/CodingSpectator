@@ -5,6 +5,9 @@ package edu.illinois.codingspectator.monitor.core.submission;
 
 /**
  * 
+ * Note that {@link #postSubmit(boolean)} can be called without a preceding {@link #preSubmit()}
+ * call.
+ * 
  * @author Mohsen Vakilian
  * @author nchen
  * @author Stas Negara

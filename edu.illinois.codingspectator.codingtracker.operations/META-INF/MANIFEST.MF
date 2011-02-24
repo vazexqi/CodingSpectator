@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Operations
+Bundle-SymbolicName: edu.illinois.codingspectator.codingtracker.operations
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: edu.illinois.codingspectator.codingtracker.operations,
+ edu.illinois.codingspectator.codingtracker.operations.conflicteditors,
+ edu.illinois.codingspectator.codingtracker.operations.files,
+ edu.illinois.codingspectator.codingtracker.operations.refactorings,
+ edu.illinois.codingspectator.codingtracker.operations.starts,
+ edu.illinois.codingspectator.codingtracker.operations.textchanges
+Require-Bundle: edu.illinois.codingspectator.codingtracker.helpers;visibility:=reexport,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui,
+ org.eclipse.jdt.ui.tests
