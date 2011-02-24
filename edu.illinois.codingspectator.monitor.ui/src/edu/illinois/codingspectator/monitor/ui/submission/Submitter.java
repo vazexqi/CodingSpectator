@@ -92,13 +92,17 @@ public class Submitter {
 	}
 
 	public void submit() throws SubmissionException {
+		boolean submissionSucceeded= false;
+
 		try {
 			svnManager.doAdd();
 			notifyPreSubmit();
 			svnManager.doCommit();
-			notifyPostSubmit();
+			submissionSucceeded= true;
 		} catch (SVNException e) {
 			throw new SubmissionException(e);
+		} finally {
+			notifyPostSubmit(submissionSucceeded);
 		}
 	}
 
@@ -125,10 +129,10 @@ public class Submitter {
 		}
 	}
 
-	private void notifyPostSubmit() {
+	private void notifyPostSubmit(boolean succeeded) {
 		Collection<SubmitterListener> submitterListeners= lookupExtensions();
 		for (SubmitterListener submitterListener : submitterListeners) {
-			submitterListener.postSubmit();
+			submitterListener.postSubmit(succeeded);
 		}
 	}
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.illinois.codingspectator.monitor.core.submitter">
+      <submitterListener
+            class="edu.illinois.codingspectator.saferecorder.RecorderSubmitterListener"
+            id="edu.illinois.codingspectator.saferecorder.recorderSubmitterListener"
+            name="edu.illinois.codingspectator.saferecorder.recorderSubmitterListener">
+      </submitterListener>
+   </extension>
+
+</plugin>

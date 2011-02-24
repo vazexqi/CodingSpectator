@@ -12,7 +12,7 @@ Developed by:
  
     University of Illinois
  
-    http://codingspectator.github.com/
+    http://codingspectator.cs.illinois.edu/
  
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal with
@@ -71,6 +71,7 @@ Eclipse Public License - Version 1.0.
 all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.core.refactoring
   * org.eclipse.ltk.ui.refactoring
+  * org.eclipse.jdt.core.manipulation
   * org.eclipse.jdt.ui
   * org.eclipse.ui.editors
   * org.eclipse.compare
@@ -87,4 +88,4 @@ under the Apache License - Version 2.0, and is available at
 http://jcommander.org/.
 
 * CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
-the Mozilla Public License and is available at http://saxon.sourceforge.net/
+the Mozilla Public License and is available at http://saxon.sourceforge.net/.

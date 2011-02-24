@@ -31,10 +31,6 @@ public class Messages extends NLS {
 
 	public static String WorkbenchPreferencePage_LastUploadTextField;
 
-	public static String WorkbenchPreferencePage_NetidFieldPreferenceKey;
-
-	public static String WorkbenchPreferencePage_NetidTextField;
-
 	public static String WorkbenchPreferencePage_PluginName;
 
 	public static String WorkbenchPreferencePage_Title;

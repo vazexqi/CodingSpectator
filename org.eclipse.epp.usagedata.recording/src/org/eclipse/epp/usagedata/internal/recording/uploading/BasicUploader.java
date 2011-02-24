@@ -429,15 +429,18 @@ public class BasicUploader extends AbstractUploader {
 
 	public void transferToCodingSpectator(IProgressMonitor monitor) throws CoreException {
 		UploadManager.watchedDirectoryLock.lock();
-		monitor.subTask("Copy UDC files to CodingSpectator");
-		File[] udcFiles= getUploadParameters().getFiles();
-		IFileStore destinationStore= getFreshTimestampDirectory(monitor, EFS.getLocalFileSystem(), getCodingSpectatorUDCPathLazily());
+		try {
+			monitor.subTask("Copy UDC files to CodingSpectator");
+			File[] udcFiles= getUploadParameters().getFiles();
+			IFileStore destinationStore= getFreshTimestampDirectory(monitor, EFS.getLocalFileSystem(), getCodingSpectatorUDCPathLazily());
 
-		for (File udcFile : udcFiles) {
-			IFileStore udcFileStore= EFS.getLocalFileSystem().fromLocalFile(udcFile);
-			udcFileStore.copy(destinationStore.getChild(udcFileStore.getName()), EFS.OVERWRITE, monitor);
+			for (File udcFile : udcFiles) {
+				IFileStore udcFileStore= EFS.getLocalFileSystem().fromLocalFile(udcFile);
+				udcFileStore.copy(destinationStore.getChild(udcFileStore.getName()), EFS.OVERWRITE, monitor);
+			}
+		} finally {
+			UploadManager.watchedDirectoryLock.unlock();
 		}
-		UploadManager.watchedDirectoryLock.unlock();
 	}
 
 	private void copyAndCreateFreshDirectory(IProgressMonitor monitor) throws CoreException {

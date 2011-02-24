@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 
 import org.eclipse.core.resources.IFile;
@@ -97,6 +98,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.saveparticipant.SaveParticipantReg
 import org.eclipse.jdt.internal.ui.preferences.MembersOrderPreferenceCache;
 import org.eclipse.jdt.internal.ui.preferences.formatter.FormatterProfileStore;
 import org.eclipse.jdt.internal.ui.propertiesfileeditor.PropertiesFileDocumentProvider;
+import org.eclipse.jdt.internal.ui.startup.StartupListener;
 import org.eclipse.jdt.internal.ui.text.PreferencesAdapter;
 import org.eclipse.jdt.internal.ui.text.folding.JavaFoldingStructureProviderRegistry;
 import org.eclipse.jdt.internal.ui.text.java.ContentAssistHistory;
@@ -107,13 +109,14 @@ import org.eclipse.jdt.internal.ui.viewsupport.ImagesOnFileSystemRegistry;
 import org.eclipse.jdt.internal.ui.viewsupport.ProblemMarkerManager;
 import org.eclipse.jdt.internal.ui.wizards.buildpaths.ClasspathAttributeConfigurationDescriptors;
 
-
 /**
  * Represents the java plug-in. It provides a series of convenience methods such as access to the
  * workbench, keeps track of elements shared by all editors and viewers of the plug-in such as
  * document providers and find-replace-dialogs.
  * 
- * @author Stas Negara - Changed start(BundleContext) such that it starts CodeChangeTracker
+ * @author Stas Negara - Changed start(BundleContext) such that it calls notifyStartupListeners().
+ *         Added notifyStartupListeners() to notify all interested listeners that jdt.ui is about to
+ *         start.
  */
 public class JavaPlugin extends AbstractUIPlugin {
 
@@ -382,14 +385,32 @@ public class JavaPlugin extends AbstractUIPlugin {
 		fgJavaPlugin= this;
 	}
 
+	/**
+	 * CODINGSPECTATOR: Notifies all registered jdt.ui start up listeners that jdt.ui is about to
+	 * start
+	 */
+	private void notifyStartupListeners() {
+		String extensionPointId= "org.eclipse.jdt.ui.startup"; //$NON-NLS-1$
+
+		IConfigurationElement[] configurationElements= Platform.getExtensionRegistry().getConfigurationElementsFor(extensionPointId);
+		try {
+			for (int i= 0; i < configurationElements.length; i++) {
+				Object executableExtension= configurationElements[i].createExecutableExtension("class"); //$NON-NLS-1$
+				((StartupListener)executableExtension).jdtuiIsAboutToStart();
+			}
+		} catch (CoreException e) {
+			throw new RuntimeException("Failed to create executable extensions for " + extensionPointId, e); //$NON-NLS-1$
+		}
+	}
+
 	/* (non - Javadoc)
 	 * Method declared in plug-in
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 
-		//CODINGSPECTATOR: Start codingtracker when jdt.ui starts up.
-		edu.illinois.codingspectator.codingtracker.CodeChangeTracker.start();
+		//CODINGSPECTATOR: Notify codingtracker.recording when jdt.ui is about to start
+		notifyStartupListeners();
 
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
