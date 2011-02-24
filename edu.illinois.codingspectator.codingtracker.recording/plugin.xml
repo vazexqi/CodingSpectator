@@ -2,14 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="edu.illinois.codingspectator.monitor.core.submitter">
-      <submitterListener
-            class="edu.illinois.codingspectator.codingtracker.listeners.RecorderSubmitterListener"
-            id="edu.illinois.codingspectator.codingtracker.submitterListener"
-            name="edu.illinois.codingspectator.codingtracker.submitterListener">
-      </submitterListener>
-   </extension>
-   <extension
          point="org.eclipse.jdt.ui.startup">
       <startupListener
             class="edu.illinois.codingspectator.codingtracker.listeners.JDTUIStartupListener"

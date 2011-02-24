@@ -94,9 +94,9 @@ public class Submitter {
 	public void submit() throws SubmissionException {
 		boolean submissionSucceeded= false;
 
-		notifyPreSubmit();
 		try {
 			svnManager.doAdd();
+			notifyPreSubmit();
 			svnManager.doCommit();
 			submissionSucceeded= true;
 		} catch (SVNException e) {

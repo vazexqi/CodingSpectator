@@ -16,7 +16,7 @@ import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
  */
 public abstract class TestCodingTracker {
 
-	protected static File mainRecordFile= new File(TextRecorder.MAIN_RECORD_FILE_PATH.toOSString());
+	protected static File mainRecordFile= new File(TextRecorder.getMainRecordFilePath());
 
 	@BeforeClass
 	public static void before() {

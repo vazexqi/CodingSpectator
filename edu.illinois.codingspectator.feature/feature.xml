@@ -147,7 +147,28 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
          unpack="false"/>
 
    <plugin
-         id="edu.illinois.codingspectator.codingtracker"
+         id="edu.illinois.codingspectator.codingtracker.helpers"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.codingtracker.operations"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.codingtracker.recording"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.saferecorder"
          download-size="0"
          install-size="0"
          version="0.0.0"

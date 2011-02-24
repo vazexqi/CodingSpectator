@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.Platform;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 
 /**
  * 
@@ -36,7 +37,7 @@ public class KnownfilesRecorder {
 
 	private static final IPath CODINGTRACKER_PATH= Platform.getStateLocation(Platform.getBundle(Activator.PLUGIN_ID));
 
-	private static final IPath KNOWNFILES_PATH= CODINGTRACKER_PATH.append(TextRecorder.FEATURE_VERSION);
+	private static final IPath KNOWNFILES_PATH= CODINGTRACKER_PATH.append(SafeRecorder.FEATURE_VERSION);
 
 	private static final String KNOWNFILES_FILE_NAME= "knownfiles.txt";
 

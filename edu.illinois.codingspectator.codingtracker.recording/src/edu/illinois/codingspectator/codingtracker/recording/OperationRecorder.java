@@ -55,8 +55,6 @@ public class OperationRecorder {
 
 	private static final KnownfilesRecorder knownfilesRecorder= KnownfilesRecorder.getInstance();
 
-	private static final TextRecorder textRecorder= TextRecorder.getInstance();
-
 	private IFile lastEditedFile= null;
 
 
@@ -68,7 +66,7 @@ public class OperationRecorder {
 	}
 
 	private OperationRecorder() {
-		textRecorder.record(new StartedEclipseOperation());
+		TextRecorder.record(new StartedEclipseOperation());
 	}
 
 	public void recordChangedText(TextEvent textEvent, IFile editedFile, boolean isUndoing, boolean isRedoing) {
@@ -86,7 +84,7 @@ public class OperationRecorder {
 		} else {
 			textChangeOperation= new PerformedTextChangeOperation(textEvent);
 		}
-		textRecorder.record(textChangeOperation);
+		TextRecorder.record(textChangeOperation);
 	}
 
 	public void recordConflictEditorChangedText(TextEvent textEvent, String editorID, boolean isUndoing, boolean isRedoing) {
@@ -98,15 +96,15 @@ public class OperationRecorder {
 		} else {
 			conflictEditorTextChangeOperation= new PerformedConflictEditorTextChangeOperation(editorID, textEvent);
 		}
-		textRecorder.record(conflictEditorTextChangeOperation);
+		TextRecorder.record(conflictEditorTextChangeOperation);
 	}
 
 	private void recordEditedFile() {
-		textRecorder.record(new EditedFileOperation(lastEditedFile));
+		TextRecorder.record(new EditedFileOperation(lastEditedFile));
 	}
 
 	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
-		textRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
+		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
 	}
 
 	public void recordSavedFiles(Set<IFile> savedFiles, boolean isRefactoring) {
@@ -117,25 +115,25 @@ public class OperationRecorder {
 			} else {
 				fileOperation= new SavedFileOperation(file);
 			}
-			textRecorder.record(fileOperation);
+			TextRecorder.record(fileOperation);
 		}
 	}
 
 	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs) {
 		for (String editorID : savedConflictEditorIDs) {
-			textRecorder.record(new SavedConflictEditorOperation(editorID));
+			TextRecorder.record(new SavedConflictEditorOperation(editorID));
 		}
 	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
 		for (IFile file : externallyModifiedFiles) {
-			textRecorder.record(new ExternallyModifiedFileOperation(file));
+			TextRecorder.record(new ExternallyModifiedFileOperation(file));
 		}
 	}
 
 	public void recordUpdatedFiles(Set<IFile> updatedFiles) {
 		for (IFile file : updatedFiles) {
-			textRecorder.record(new UpdatedFileOperation(file));
+			TextRecorder.record(new UpdatedFileOperation(file));
 		}
 	}
 
@@ -149,9 +147,9 @@ public class OperationRecorder {
 		if (committedFiles.size() > 0) {
 			for (IFile file : committedFiles) {
 				if (isInitialCommit) {
-					textRecorder.record(new InitiallyCommittedFileOperation(file));
+					TextRecorder.record(new InitiallyCommittedFileOperation(file));
 				} else {
-					textRecorder.record(new CommittedFileOperation(file));
+					TextRecorder.record(new CommittedFileOperation(file));
 				}
 				knownfilesRecorder.addKnownfile(file);
 			}
@@ -160,15 +158,15 @@ public class OperationRecorder {
 	}
 
 	public void recordClosedFile(IFile file) {
-		textRecorder.record(new ClosedFileOperation(file));
+		TextRecorder.record(new ClosedFileOperation(file));
 	}
 
 	public void recordClosedConflictEditor(String editorID) {
-		textRecorder.record(new ClosedConflictEditorOperation(editorID));
+		TextRecorder.record(new ClosedConflictEditorOperation(editorID));
 	}
 
 	public void recordStartedRefactoring() {
-		textRecorder.record(new StartedRefactoringOperation());
+		TextRecorder.record(new StartedRefactoringOperation());
 	}
 
 	public void recordExecutedRefactoring(RefactoringExecutionEvent event) {
@@ -190,7 +188,7 @@ public class OperationRecorder {
 				Exception e= new RuntimeException();
 				Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + event.getEventType());
 		}
-		textRecorder.record(refactoringOperation);
+		TextRecorder.record(refactoringOperation);
 	}
 
 	public void removeKnownFiles(Set<IFile> files) {
@@ -221,21 +219,13 @@ public class OperationRecorder {
 				hasChanged= true;
 				//save the content of a previously unknown file
 				if (new File(file.getLocation().toOSString()).exists()) { //Actually, should always exist here
-					textRecorder.record(new NewFileOperation(file));
+					TextRecorder.record(new NewFileOperation(file));
 				}
 			}
 		}
 		if (hasChanged) {
 			knownfilesRecorder.recordKnownfiles();
 		}
-	}
-
-	public void commitStarted() {
-		textRecorder.commitStarted();
-	}
-
-	public void commitCompleted() {
-		textRecorder.commitCompleted();
 	}
 
 }

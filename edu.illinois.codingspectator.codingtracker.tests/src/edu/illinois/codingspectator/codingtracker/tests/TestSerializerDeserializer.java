@@ -24,14 +24,12 @@ public class TestSerializerDeserializer extends TestCodingTracker {
 
 	private static final File operationsRecordFile= new File("test-files/01/codechanges.txt");
 
-	private static final TextRecorder textRecorder= TextRecorder.getInstance();
-
 	@Test
 	public void shouldDeserializeAndSerialize() {
 		String operationsRecord= FileHelper.getFileContent(operationsRecordFile);
 		List<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
 		for (UserOperation userOperation : userOperations) {
-			textRecorder.record(userOperation);
+			TextRecorder.record(userOperation);
 		}
 		String generatedOperationsRecord= FileHelper.getFileContent(mainRecordFile);
 		assertEquals(operationsRecord, generatedOperationsRecord);
