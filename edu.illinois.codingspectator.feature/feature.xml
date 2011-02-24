@@ -175,6 +175,13 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
          unpack="false"/>
 
    <plugin
+         id="edu.illinois.codingspectator.errorlog"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
          id="edu.illinois.codingspectator.monitor.core"
          download-size="0"
          install-size="0"

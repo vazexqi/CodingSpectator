@@ -17,9 +17,8 @@ public class EclipseStartup implements IStartup {
 
 	@Override
 	public void earlyStartup() {
-		ILog log = ResourcesPlugin.getPlugin().getLog();
+		ILog log= ResourcesPlugin.getPlugin().getLog();
 		log.addLogListener(new ErrorLogListener());
-		
 	}
 
 }
