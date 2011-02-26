@@ -336,44 +336,7 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		try {
 			monitor.beginTask("", 1); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.ExtractInterfaceProcessor_creating);
-			final Map arguments= new HashMap();
-			String project= null;
-			final IJavaProject javaProject= fSubType.getJavaProject();
-			if (javaProject != null)
-				project= javaProject.getElementName();
-			int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-			try {
-				if (fSubType.isLocal() || fSubType.isAnonymous())
-					flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-			} catch (JavaModelException exception) {
-				JavaPlugin.log(exception);
-			}
-			final IPackageFragment fragment= fSubType.getPackageFragment();
-			final ICompilationUnit cu= fragment.getCompilationUnit(JavaModelUtil.getRenamedCUName(fSubType.getCompilationUnit(), fSuperName));
-			final IType type= cu.getType(fSuperName);
-			final String description= Messages.format(RefactoringCoreMessages.ExtractInterfaceProcessor_description_descriptor_short, BasicElementLabels.getJavaElementName(fSuperName));
-			final String header= Messages
-					.format(RefactoringCoreMessages.ExtractInterfaceProcessor_descriptor_description, new String[] { JavaElementLabels.getElementLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED),
-							JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-			final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-			comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractInterfaceProcessor_refactored_element_pattern,
-					JavaElementLabels.getElementLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-			final String[] settings= new String[fMembers.length];
-			for (int index= 0; index < settings.length; index++)
-				settings[index]= JavaElementLabels.getElementLabel(fMembers[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
-			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractInterfaceProcessor_extracted_members_pattern, settings));
-			addSuperTypeSettings(comment, true);
-			final ExtractInterfaceDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractInterfaceDescriptor(project, description, comment.asString(), arguments, flags);
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fSubType));
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fSuperName);
-			for (int index= 0; index < fMembers.length; index++)
-				arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (index + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembers[index]));
-			arguments.put(ATTRIBUTE_ABSTRACT, Boolean.valueOf(fAbstract).toString());
-			arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fComments).toString());
-			arguments.put(ATTRIBUTE_PUBLIC, Boolean.valueOf(fPublic).toString());
-			arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
-			arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
-			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.ExtractInterfaceRefactoring_name,
+			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.ExtractInterfaceRefactoring_name,
 					fChangeManager.getAllChanges());
 			final IFile file= ResourceUtil.getFile(fSubType.getCompilationUnit());
 			if (fSuperSource != null && fSuperSource.length() > 0)
@@ -1149,10 +1112,11 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 	/**
 	 * Sets the members to be extracted.
 	 * 
+	 * CODINGSPECTATOR: Removed the  throws JavaModelException clause for coding spectator.
+	 *  
 	 * @param members the members to be extracted
-	 * @throws JavaModelException if an error occurs
 	 */
-	public final void setExtractedMembers(final IMember[] members) throws JavaModelException {
+	public final void setExtractedMembers(final IMember[] members) {
 		fMembers= members;
 	}
 
@@ -1218,6 +1182,13 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
+	/**
+	 * Extracted this method from {@link #createChange(IProgressMonitor)} to be used by coding
+	 * spectator and the refactoring processor.
+	 * 
+	 * @return JavaRefactoringDescriptor the section that holds the change that is to be recorded
+	 *         and performed.
+	 */
 	public JavaRefactoringDescriptor createRefactoringDescriptor() {
 		final Map arguments= new HashMap();
 		String project= null;
@@ -1246,7 +1217,17 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 			settings[index]= JavaElementLabels.getElementLabel(fMembers[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
 		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractInterfaceProcessor_extracted_members_pattern, settings));
 		addSuperTypeSettings(comment, true);
-		return RefactoringSignatureDescriptorFactory.createExtractInterfaceDescriptor(project, description, comment.asString(), arguments, flags);
-
+		final ExtractInterfaceDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractInterfaceDescriptor(project, description, comment.asString(), arguments, flags);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fSubType));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fSuperName);
+		for (int index= 0; index < fMembers.length; index++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (index + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembers[index]));
+		arguments.put(ATTRIBUTE_ABSTRACT, Boolean.valueOf(fAbstract).toString());
+		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fComments).toString());
+		arguments.put(ATTRIBUTE_PUBLIC, Boolean.valueOf(fPublic).toString());
+		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
+		arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
+		return descriptor;
 	}
+
 }

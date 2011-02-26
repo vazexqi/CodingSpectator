@@ -140,14 +140,6 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 
 				public void widgetSelected(SelectionEvent e) {
 					fInstanceofCheckbox.setEnabled(fReplaceAllCheckbox.getSelection());
-					//CODINGSPECTATOR
-					// Force the processor to update when the UI changes.
-					try {
-						initializeRefactoring();
-					} catch (JavaModelException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 				}
 			});
 			addDeclareAsPublicCheckbox(result);
@@ -173,13 +165,8 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 			updateUIElementEnablement();
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IJavaHelpContextIds.EXTRACT_INTERFACE_WIZARD_PAGE);
 
-			//CODINGSPECTATOR: Update underlying processor to be in sync with the wizard.
-			try {
-				initializeRefactoring();
-			} catch (JavaModelException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			//CODINGSPECTATOR
+			initializeRefactoring();
 		}
 
 		private void addGenerateAnnotationsCheckbox(Composite result) {
@@ -400,31 +387,21 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 		 * @see org.eclipse.jface.wizard.IWizardPage#getNextPage()
 		 */
 		public IWizardPage getNextPage() {
-			try {
-				initializeRefactoring();
-				storeDialogSettings();
-				return super.getNextPage();
-			} catch (JavaModelException e) {
-				JavaPlugin.log(e);
-				return null;
-			}
+			initializeRefactoring();
+			storeDialogSettings();
+			return super.getNextPage();
 		}
 
 		/*
 		 * @see org.eclipse.jdt.internal.ui.refactoring.RefactoringWizardPage#performFinish()
 		 */
 		public boolean performFinish() {
-			try {
-				initializeRefactoring();
-				storeDialogSettings();
-				return super.performFinish();
-			} catch (JavaModelException e) {
-				JavaPlugin.log(e);
-				return false;
-			}
+			initializeRefactoring();
+			storeDialogSettings();
+			return super.performFinish();
 		}
 
-		private void initializeRefactoring() throws JavaModelException {
+		private void initializeRefactoring() {
 			fProcessor.setTypeName(getText());
 			fProcessor.setReplace(fReplaceAllCheckbox.getSelection());
 			fProcessor.setExtractedMembers(getCheckedMembers());
@@ -474,5 +451,18 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 			settings.put(SETTING_COMMENTS, fGenerateCommentsCheckbox.getSelection());
 			settings.put(SETTING_INSTANCEOF, fInstanceofCheckbox.getSelection());
 		}
+
+		/////////////////
+		//CODINGSPECTATOR
+		/////////////////
+		
+		protected void textModified(String text) {
+			super.textModified(text);
+			// Calling {@link #initializeRefactoring} would throw a NPE because of the order of initialization on
+			// {@link #createControl}. fReplaceAllCheckbox is instantiated after {@link #createTextInputField}.
+			fProcessor.setTypeName(getText());
+		}
+		
+		
 	}
 }
