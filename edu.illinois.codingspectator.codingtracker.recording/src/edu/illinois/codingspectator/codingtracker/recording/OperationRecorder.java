@@ -158,6 +158,9 @@ public class OperationRecorder {
 	}
 
 	public void recordClosedFile(IFile file) {
+		if (file.equals(lastEditedFile)) {
+			lastEditedFile= null;
+		}
 		TextRecorder.record(new ClosedFileOperation(file));
 	}
 
