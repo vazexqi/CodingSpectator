@@ -104,6 +104,8 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.CreateCompilationUnitChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ASTNodeDeleteUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsModel;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
@@ -131,8 +133,10 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * Refactoring processor to extract interfaces.
+ * 
+ * @author Balaji Ambresh Rajkumar - Instrumented the refactoring.
  */
-public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcessor {
+public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcessor implements IWatchedJavaProcessor {
 
 	private static final String ATTRIBUTE_ABSTRACT= "abstract"; //$NON-NLS-1$
 
@@ -1169,5 +1173,80 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 	public final void setTypeName(final String name) {
 		Assert.isNotNull(name);
 		fSuperName= name;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+	private class WatchedExtractInterfaceRefactoringProcessorDelegate extends WatchedProcessorDelegate {
+
+		public WatchedExtractInterfaceRefactoringProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
+			super(watchedProcessor);
+		}
+
+		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+			return RefactoringSignatureDescriptorFactory.createExtractInterfaceDescriptor(project, description, comment, arguments, flags);
+		}
+
+	}
+
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedExtractInterfaceRefactoringProcessorDelegate(this);
+	}
+
+	protected WatchedProcessorDelegate watchedProcessorDelegate;
+
+	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
+		if (watchedProcessorDelegate == null)
+			watchedProcessorDelegate= instantiateDelegate();
+		return watchedProcessorDelegate;
+	}
+
+	public String getSelection() {
+		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.EXTRACT_INTERFACE;
+	}
+
+	public String getJavaProjectName() {
+		return getWatchedProcessorDelegate().getJavaProjectName();
+	}
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		String project= null;
+		final IJavaProject javaProject= fSubType.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		try {
+			if (fSubType.isLocal() || fSubType.isAnonymous())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final IPackageFragment fragment= fSubType.getPackageFragment();
+		final ICompilationUnit cu= fragment.getCompilationUnit(JavaModelUtil.getRenamedCUName(fSubType.getCompilationUnit(), fSuperName));
+		final IType type= cu.getType(fSuperName);
+		final String description= Messages.format(RefactoringCoreMessages.ExtractInterfaceProcessor_description_descriptor_short, BasicElementLabels.getJavaElementName(fSuperName));
+		final String header= Messages
+				.format(RefactoringCoreMessages.ExtractInterfaceProcessor_descriptor_description, new String[] { JavaElementLabels.getElementLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractInterfaceProcessor_refactored_element_pattern,
+				JavaElementLabels.getElementLabel(type, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		final String[] settings= new String[fMembers.length];
+		for (int index= 0; index < settings.length; index++)
+			settings[index]= JavaElementLabels.getElementLabel(fMembers[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
+		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractInterfaceProcessor_extracted_members_pattern, settings));
+		addSuperTypeSettings(comment, true);
+		return RefactoringSignatureDescriptorFactory.createExtractInterfaceDescriptor(project, description, comment.asString(), arguments, flags);
+
 	}
 }
