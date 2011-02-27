@@ -178,7 +178,12 @@ public abstract class RefactoringDescriptor implements Comparable {
 	 * The attribute for the selected text in a refactoring.
 	 */
 	public static final String ATTRIBUTE_SELECTION= "selection"; //$NON-NLS-1$
-
+	
+	/**
+	 * The offset of the selected text within the code snippet that contains it.
+	 */
+	public static final String ATTRIBUTE_SELECTION_OFFSET= "selection-offset"; //$NON-NLS-1$
+	
 	/**
 	 * The attribute for the status of a refactoring. This status contains the error and warning
 	 * messages of the refactoring.

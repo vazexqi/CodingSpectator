@@ -112,7 +112,22 @@ public class Logger {
 	}
 
 	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
-		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
+		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, null, null, errorMessage);
+		logDebug(refactoringDescriptor.toString());
+
+		// Wrap it into a refactoring descriptor proxy
+		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
+
+		// Wrap it into a refactoringdecriptor event using proxy
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
+
+		// Call RefactoringHistorySerializer to persist
+		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+		serializer.historyNotification(event);
+	}
+	
+	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selection, String codeSnippet, String selectionOffset, String errorMessage) {
+		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selection, codeSnippet, selectionOffset, errorMessage);
 		logDebug(refactoringDescriptor.toString());
 
 		// Wrap it into a refactoring descriptor proxy
@@ -126,10 +141,12 @@ public class Logger {
 		serializer.historyNotification(event);
 	}
 
-	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selectionInformation, String errorMessage) {
+	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selection, String codeSnippet, String selectionOffset, String errorMessage) {
 		Map arguments= new HashMap();
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selectionInformation);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selection);
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, codeSnippet);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET, selectionOffset);
 
 		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
 

@@ -12,9 +12,13 @@ package org.eclipse.jdt.ui.actions;
 
 import java.io.CharConversionException;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.IWorkbenchSite;
@@ -25,10 +29,13 @@ import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
@@ -42,17 +49,18 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringActions;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * Extract a new interface from a class and tries to use the interface instead
- * of the concrete class where possible.
+ * Extract a new interface from a class and tries to use the interface instead of the concrete class
+ * where possible.
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
- * @author Balaji Ambresh Rajkumar - Captured when the refactoring is unavailable.
+ * @author Balaji Ambresh Rajkumar nchen, Mohsen Vakilian - Captured when the refactoring is
+ *         unavailable.
  */
 public class ExtractInterfaceAction extends SelectionDispatchAction {
 
@@ -60,8 +68,9 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public ExtractInterfaceAction(JavaEditor editor) {
@@ -71,10 +80,10 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>ExtractInterfaceAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>ExtractInterfaceAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public ExtractInterfaceAction(IWorkbenchSite site) {
@@ -106,7 +115,7 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 		try {
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(selection)) {
 				IType singleSelectedType= RefactoringAvailabilityTester.getSingleSelectedType(selection);
-				if (! ActionUtil.isEditable(getShell(), singleSelectedType))
+				if (!ActionUtil.isEditable(getShell(), singleSelectedType))
 					return;
 				RefactoringExecutionStarter.startExtractInterfaceRefactoring(singleSelectedType, getShell());
 			}
@@ -115,17 +124,18 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 		}
 	}
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
 	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection the Java text selection (internal type)
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
@@ -137,26 +147,84 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	}
 
 	/*
-     * @see SelectionDispatchAction#run(ITextSelection)
-     */
+	 * @see SelectionDispatchAction#run(ITextSelection)
+	 */
 	public void run(ITextSelection selection) {
 		try {
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(type)) {
-				if (! ActionUtil.isEditable(fEditor, getShell(), type))
+				if (!ActionUtil.isEditable(fEditor, getShell(), type))
 					return;
 				RefactoringExecutionStarter.startExtractInterfaceRefactoring(type, getShell());
 			} else {
 				String unavailable= RefactoringMessages.ExtractInterfaceAction_To_activate;
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, unavailable);
-				
+
 				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
 				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
 				String javaProject= typeRoot.getJavaProject().getElementName();
-				Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_INTERFACE, javaProject, selection.getText(), unavailable);
+				ASTNode node= getCodeSnippetNode(typeRoot, selection);
+
+				Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_INTERFACE, javaProject, selection.getText(), getCodeSnippet(typeRoot, selection),
+						getSnippetRelativeOffset(node, selection), unavailable);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
 		}
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private static final String DEFAULT_NULL_ASTNODE_CODE_SNIPPET= "EMPTY CODE SNIPPET"; //$NON-NLS-1$
+
+	private static final String DEFAULT_NULL_RELATIVE_SELECTION= "-1 -1"; //$NON-NLS-1$
+
+	private String getCodeSnippet(ITypeRoot root, ITextSelection selection) {
+		ASTNode node= getCodeSnippetNode(root, selection);
+		IDocument document= fEditor.getDocumentProvider().getDocument(fEditor.getEditorInput());
+
+		if (node != null) {
+			try {
+				return document.get(node.getStartPosition(), node.getLength());
+			} catch (BadLocationException e) {
+				JavaPlugin.log(e);
+			}
+		}
+
+		return DEFAULT_NULL_ASTNODE_CODE_SNIPPET;
+	}
+
+	private ASTNode getCodeSnippetNode(ITypeRoot root, ITextSelection selection) {
+		ASTNode node= findTargetNode(root, selection);
+
+		if (node == null) {
+			return null;
+		}
+
+		final int THRESHOLD= 3200;
+
+		while (node.getParent() != null && node.subtreeBytes() < THRESHOLD) {
+			node= node.getParent();
+		}
+		return node;
+	}
+
+	private String getSnippetRelativeOffset(ASTNode node, ITextSelection selection) {
+		String snippetOffset= DEFAULT_NULL_RELATIVE_SELECTION;
+
+		if (node != null) {
+			snippetOffset= Integer.toString(selection.getOffset() - node.getStartPosition()) + " " + selection.getLength(); //$NON-NLS-1$
+		}
+		return snippetOffset;
+	}
+
+	private ASTNode findTargetNode(ITypeRoot root, ITextSelection selection) {
+
+		ASTNode localNode= RefactoringASTParser.parseWithASTProvider(root, false, new NullProgressMonitor());
+
+		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
+		return NodeFinder.perform(localNode, selection.getOffset(), selection.getLength());
 	}
 }
