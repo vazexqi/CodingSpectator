@@ -70,9 +70,10 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperT
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/UseSupertypeWizard.java
 ui/org/eclipse/jdt/ui/actions/UseSupertypeAction.java
 
-# For capturing the use extract interface refactoring
+# For capturing the extract interface refactoring
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperTypeProcessor.javaExtractInterfaceProcessor.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractInterfaceWizard.java
+ui/org/eclipse/jdt/ui/actions/ExtractInterfaceAction.java
 
 Added Files
 ===========

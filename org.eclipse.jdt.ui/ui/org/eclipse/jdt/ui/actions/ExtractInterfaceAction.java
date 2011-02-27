@@ -20,8 +20,12 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
@@ -47,6 +51,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @since 2.1
  *
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Balaji Ambresh Rajkumar - Captured when the refactoring is unavailable.
  */
 public class ExtractInterfaceAction extends SelectionDispatchAction {
 
@@ -143,6 +149,11 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 			} else {
 				String unavailable= RefactoringMessages.ExtractInterfaceAction_To_activate;
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, unavailable);
+				
+				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
+				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
+				String javaProject= typeRoot.getJavaProject().getElementName();
+				Logger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_INTERFACE, javaProject, selection.getText(), unavailable);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
