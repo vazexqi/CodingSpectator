@@ -27,7 +27,8 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
  */
 public class AuthenticationPrompter implements AuthenticationProvider {
 
-	private final static String PRODUCTION_REPOSITORY_URL= "https://subversion.cs.illinois.edu/svn/CodingSpectatorData/";
+//	private final static String PRODUCTION_REPOSITORY_URL= "https://subversion.cs.illinois.edu/svn/CodingSpectatorData/";
+	private final static String PRODUCTION_REPOSITORY_URL= "https://subversion.cs.illinois.edu/basic/CodingSpectatorData/";
 
 	private final static String TEST_REPOSITORY_URL= "https://subversion.assembla.com/svn/ganje/";
 
