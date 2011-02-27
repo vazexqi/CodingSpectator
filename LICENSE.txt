@@ -63,9 +63,17 @@ Version 1.0.
  
 * CodingSpectator depends on the following projects that are licensed under the
 Eclipse Public License - Version 1.0.
-  * edu.illinois.CodingSpectator.jdt.patch
-  * edu.illinois.CodingSpectator.platform.patch
+  * edu.illinois.codingspectator.jdt.helios.patch
+  * edu.illinois.codingspectator.jdt.heliosSR1.patch
+  * edu.illinois.codingspectator.jdt.heliosSR2.patch
+  * edu.illinois.codingspectator.platform.helios.patch
+  * edu.illinois.codingspectator.platform.heliosSR1.patch
+  * edu.illinois.codingspectator.platform.heliosSR2.patch
   * edu.illinois.codingspectator.epp.usagedata.feature.patch
+  * edu.illinois.codingspectator.epp.usagedata.feature.heliosSR2.patch
+  * org.eclipse.jdt.ui.tests
+  * org.eclipse.test.performance
+  * org.eclipse.text.tests
  
 * CodingSpectator depends on a modified version of the following Eclipse plug-ins
 all redistributed under the Eclipse Public License - Version 1.0.
