@@ -18,9 +18,15 @@ import edu.illinois.codingspectator.codingtracker.operations.files.NewFileOperat
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStartedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLaunchedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedConflictEditorTextChangeOperation;
@@ -121,6 +127,24 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.CONFLICT_EDITOR_TEXT_CHANGE_REDONE_SYMBOL:
 				userOperation= new RedoneConflictEditorTextChangeOperation();
+				break;
+			case OperationSymbols.TEST_SESSION_LAUNCHED_SYMBOL:
+				userOperation= new TestSessionLaunchedOperation();
+				break;
+			case OperationSymbols.TEST_SESSION_STARTED_SYMBOL:
+				userOperation= new TestSessionStartedOperation();
+				break;
+			case OperationSymbols.TEST_SESSION_FINISHED_SYMBOL:
+				userOperation= new TestSessionFinishedOperation();
+				break;
+			case OperationSymbols.TEST_CASE_STARTED_SYMBOL:
+				userOperation= new TestCaseStartedOperation();
+				break;
+			case OperationSymbols.TEST_CASE_FINISHED_SYMBOL:
+				userOperation= new TestCaseFinishedOperation();
+				break;
+			case OperationSymbols.APPLICATION_LAUNCHED_SYMBOL:
+				userOperation= new LaunchedApplicationOperation();
 				break;
 			default:
 				throw new RuntimeException("Unsupported operation symbol: " + operationSymbol);

@@ -29,10 +29,16 @@ import edu.illinois.codingspectator.codingtracker.operations.files.NewFileOperat
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStartedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLaunchedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
@@ -166,6 +172,30 @@ public class OperationRecorder {
 
 	public void recordClosedConflictEditor(String editorID) {
 		TextRecorder.record(new ClosedConflictEditorOperation(editorID));
+	}
+
+	public void recordLaunchedTestSession(String testRunName, String launchedProjectName) {
+		TextRecorder.record(new TestSessionLaunchedOperation(testRunName, launchedProjectName));
+	}
+
+	public void recordStartedTestSession(String testRunName) {
+		TextRecorder.record(new TestSessionStartedOperation(testRunName));
+	}
+
+	public void recordFinishedTestSession(String testRunName) {
+		TextRecorder.record(new TestSessionFinishedOperation(testRunName));
+	}
+
+	public void recordStartedTestCase(String testRunName, String testClassName, String testMethodName) {
+		TextRecorder.record(new TestCaseStartedOperation(testRunName, testClassName, testMethodName));
+	}
+
+	public void recordFinishedTestCase(String testRunName, String result) {
+		TextRecorder.record(new TestCaseFinishedOperation(testRunName, result));
+	}
+
+	public void recordLaunchedApplication(String launchMode, String launchName, String application, String product, boolean useProduct) {
+		TextRecorder.record(new LaunchedApplicationOperation(launchMode, launchName, application, product, useProduct));
 	}
 
 	public void recordStartedRefactoring() {

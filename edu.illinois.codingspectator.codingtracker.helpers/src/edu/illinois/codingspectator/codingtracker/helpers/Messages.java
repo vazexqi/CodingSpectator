@@ -22,6 +22,8 @@ public class Messages extends NLS {
 
 	public static String Recorder_ReadUnknownFileException;
 
+	public static String Recorder_LaunchConfigurationException;
+
 	public static String Recorder_CompleteReadUnknownFileException;
 
 	public static String CodeChangeTracker_FailedToVisitResourceDelta;
