@@ -112,22 +112,7 @@ public class Logger {
 	}
 
 	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
-		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, null, null, errorMessage);
-		logDebug(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
-	}
-	
-	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selection, String codeSnippet, String selectionOffset, String errorMessage) {
-		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selection, codeSnippet, selectionOffset, errorMessage);
+		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
 		logDebug(refactoringDescriptor.toString());
 
 		// Wrap it into a refactoring descriptor proxy
@@ -141,15 +126,44 @@ public class Logger {
 		serializer.historyNotification(event);
 	}
 
-	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selection, String codeSnippet, String selectionOffset, String errorMessage) {
+	public static void logUnavailableRefactoringEvent(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {
+		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, info, errorMessage);
+		logDebug(refactoringDescriptor.toString());
+
+		// Wrap it into a refactoring descriptor proxy
+		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
+
+		// Wrap it into a refactoringdecriptor event using proxy
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
+
+		// Call RefactoringHistorySerializer to persist
+		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
+		serializer.historyNotification(event);
+
+	}
+
+	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {
 		Map arguments= new HashMap();
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selection);
+		info.insertIntoMap(arguments);
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, codeSnippet);
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET, selectionOffset);
 
 		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
 
+		// We used DefaultRefactoringDescriptor instead of a specific JavaRefactoringDescriptor even though we know which Java refactoring it is because it is not always possible to construct 
+		// a JavaRefactoringDescriptor. A JavaRefactoringDescritptor expects more information, and those informations cannot be NULL (it explicitly checks for those and fails on assertion).
 		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
+
+	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selection, String errorMessage) {
+		Map arguments= new HashMap();
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selection);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
+
+		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
+
+		// We used DefaultRefactoringDescriptor instead of a specific JavaRefactoringDescriptor even though we know which Java refactoring it is because it is not always possible to construct 
+		// a JavaRefactoringDescriptor. A JavaRefactoringDescritptor expects more information, and those informations cannot be NULL (it explicitly checks for those and fails on assertion).
+		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
+	}
+
 }
