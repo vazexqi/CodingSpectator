@@ -87,3 +87,5 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/Wat
 
 ui/org/eclipse/jdt/internal/ui/startup/StartupListener.java
 schema/startup.exsd
+
+ui/org/eclipse/jdt/ui/actions/codingspectator/UnavailableRefactoringLogger.java
