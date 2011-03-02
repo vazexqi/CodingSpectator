@@ -6,7 +6,6 @@ package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
-import org.eclipse.jface.text.TextEvent;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
 
@@ -33,11 +32,9 @@ public abstract class TextChangeOperation extends UserOperation {
 		super();
 	}
 
-	public TextChangeOperation(TextEvent textEvent) {
+	public TextChangeOperation(DocumentEvent documentEvent, String replacedText) {
 		super();
-		replacedText= textEvent.getReplacedText() == null ? "" : textEvent.getReplacedText();
-		//Use DocumentEvent to get correct, file-based offsets (which do not depend on expanding/collapsing of import statements,methods,etc.)
-		DocumentEvent documentEvent= textEvent.getDocumentEvent(); //should never be null in this method
+		this.replacedText= replacedText;
 		newText= documentEvent.getText();
 		offset= documentEvent.getOffset();
 		length= documentEvent.getLength();

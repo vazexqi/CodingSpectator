@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
@@ -75,32 +75,32 @@ public class OperationRecorder {
 		TextRecorder.record(new StartedEclipseOperation());
 	}
 
-	public void recordChangedText(TextEvent textEvent, IFile editedFile, boolean isUndoing, boolean isRedoing) {
+	public void recordChangedText(DocumentEvent documentEvent, String replacedText, IFile editedFile, boolean isUndoing, boolean isRedoing) {
 		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
 			lastEditedFile= editedFile;
 			ensureIsKnownFile(lastEditedFile);
 			recordEditedFile();
 		}
-		Debugger.debugTextEvent(textEvent);
+		Debugger.debugDocumentEvent(documentEvent, replacedText);
 		TextChangeOperation textChangeOperation= null;
 		if (isUndoing) {
-			textChangeOperation= new UndoneTextChangeOperation(textEvent);
+			textChangeOperation= new UndoneTextChangeOperation(documentEvent, replacedText);
 		} else if (isRedoing) {
-			textChangeOperation= new RedoneTextChangeOperation(textEvent);
+			textChangeOperation= new RedoneTextChangeOperation(documentEvent, replacedText);
 		} else {
-			textChangeOperation= new PerformedTextChangeOperation(textEvent);
+			textChangeOperation= new PerformedTextChangeOperation(documentEvent, replacedText);
 		}
 		TextRecorder.record(textChangeOperation);
 	}
 
-	public void recordConflictEditorChangedText(TextEvent textEvent, String editorID, boolean isUndoing, boolean isRedoing) {
+	public void recordConflictEditorChangedText(DocumentEvent documentEvent, String replacedText, String editorID, boolean isUndoing, boolean isRedoing) {
 		ConflictEditorTextChangeOperation conflictEditorTextChangeOperation= null;
 		if (isUndoing) {
-			conflictEditorTextChangeOperation= new UndoneConflictEditorTextChangeOperation(editorID, textEvent);
+			conflictEditorTextChangeOperation= new UndoneConflictEditorTextChangeOperation(editorID, documentEvent, replacedText);
 		} else if (isRedoing) {
-			conflictEditorTextChangeOperation= new RedoneConflictEditorTextChangeOperation(editorID, textEvent);
+			conflictEditorTextChangeOperation= new RedoneConflictEditorTextChangeOperation(editorID, documentEvent, replacedText);
 		} else {
-			conflictEditorTextChangeOperation= new PerformedConflictEditorTextChangeOperation(editorID, textEvent);
+			conflictEditorTextChangeOperation= new PerformedConflictEditorTextChangeOperation(editorID, documentEvent, replacedText);
 		}
 		TextRecorder.record(conflictEditorTextChangeOperation);
 	}

@@ -3,7 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -21,8 +21,8 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 		super();
 	}
 
-	public ConflictEditorTextChangeOperation(String editorID, TextEvent textEvent) {
-		super(textEvent);
+	public ConflictEditorTextChangeOperation(String editorID, DocumentEvent documentEvent, String replacedText) {
+		super(documentEvent, replacedText);
 		this.editorID= editorID;
 	}
 

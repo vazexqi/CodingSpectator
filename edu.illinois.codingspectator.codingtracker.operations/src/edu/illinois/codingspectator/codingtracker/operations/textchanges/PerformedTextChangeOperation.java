@@ -4,7 +4,7 @@
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -19,8 +19,8 @@ public class PerformedTextChangeOperation extends TextChangeOperation {
 		super();
 	}
 
-	public PerformedTextChangeOperation(TextEvent textEvent) {
-		super(textEvent);
+	public PerformedTextChangeOperation(DocumentEvent documentEvent, String replacedText) {
+		super(documentEvent, replacedText);
 	}
 
 	@Override
