@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.JavaRefactoringDesc
  * @since 1.1
  * 
  * @author Mohsen Vakilian, nchen - Added ability to add more information by cloning an existing
- *         RefactoringDescriptor
+ *         RefactoringDescriptor. Also, made getArguments public.
  * 
  * @noextend This class is not intended to be subclassed by clients outside JDT.
  */
@@ -287,9 +287,11 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	 * the refactoring framework.
 	 * </p>
 	 * 
+	 * CODINGSPECTATOR: Made the method public.
+	 * 
 	 * @return the argument map (key type: {@link String}, value type: {@link String})
 	 */
-	protected Map getArguments() {
+	public Map getArguments() {
 		populateArgumentMap();
 		return new HashMap(fArguments);
 	}
@@ -403,6 +405,5 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 		augmentedArguments.putAll(arguments);
 		return new JavaRefactoringDescriptor(this.getID(), this.getProject(), this.getDescription(), this.getComment(), augmentedArguments, this.getFlags());
 	}
-
 
 }

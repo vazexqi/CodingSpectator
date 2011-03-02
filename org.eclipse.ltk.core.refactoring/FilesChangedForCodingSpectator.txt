@@ -17,6 +17,8 @@ src/org/eclipse/ltk/core/refactoring/RefactoringDescriptor.java
 src/org/eclipse/ltk/core/refactoring/participants/ProcessorBasedRefactoring.java
 src/org/eclipse/ltk/core/refactoring/participants/RefactoringProcessor.java
 
+src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistoryManager.java
+
 Added Files
 ===========
 

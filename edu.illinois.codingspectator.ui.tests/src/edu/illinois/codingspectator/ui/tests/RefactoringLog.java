@@ -3,14 +3,21 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
+import org.eclipse.ltk.core.refactoring.history.RefactoringHistory;
+import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
@@ -20,6 +27,7 @@ import org.osgi.framework.Version;
  * @author nchen
  * 
  */
+@SuppressWarnings("restriction")
 public class RefactoringLog {
 
 	public enum LogType {
@@ -88,5 +96,16 @@ public class RefactoringLog {
 		}
 
 		return fullDirectory.toString();
+	}
+
+	public Collection<JavaRefactoringDescriptor> getRefactoringDescriptors(String javaProjectName) {
+		RefactoringHistoryManager refactoringHistoryManager= new RefactoringHistoryManager(fileStore.getChild(javaProjectName), javaProjectName);
+		RefactoringHistory refactoringHistory= refactoringHistoryManager.readRefactoringHistory(0, Long.MAX_VALUE, new NullProgressMonitor());
+		RefactoringDescriptorProxy[] refactoringDescriptorProxies= refactoringHistory.getDescriptors();
+		Collection<JavaRefactoringDescriptor> refactoringDescriptors= new ArrayList<JavaRefactoringDescriptor>();
+		for (RefactoringDescriptorProxy refactoringDescriptorProxy : refactoringDescriptorProxies) {
+			refactoringDescriptors.add((JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor()));
+		}
+		return refactoringDescriptors;
 	}
 }
