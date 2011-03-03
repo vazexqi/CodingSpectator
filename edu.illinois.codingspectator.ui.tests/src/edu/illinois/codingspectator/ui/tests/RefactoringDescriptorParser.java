@@ -29,20 +29,68 @@ public class RefactoringDescriptorParser {
 		return descriptor.getArguments();
 	}
 
+	private String getAttribute(String attributeKey) {
+		return (String)getArguments().get(attributeKey);
+	}
+
+	public String getComment() {
+		return descriptor.getComment();
+	}
+
+	public String getDescription() {
+		return descriptor.getDescription();
+	}
+
+	public int getFlags() {
+		return descriptor.getFlags();
+	}
+
+	public String getID() {
+		return descriptor.getID();
+	}
+
+	public String getProject() {
+		return descriptor.getProject();
+	}
+
+	public long getTimestamp() {
+		return descriptor.getTimeStamp();
+	}
+
+	public String getElement() {
+		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_ELEMENT);
+	}
+
+	public String getInput() {
+		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_INPUT);
+	}
+
+	public String getName() {
+		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_NAME);
+	}
+
+	public boolean doesReference() {
+		return Boolean.valueOf(getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_REFERENCES));
+	}
+
 	public String getSelection() {
-		return (String)getArguments().get(RefactoringDescriptor.ATTRIBUTE_SELECTION);
+		return getAttribute(RefactoringDescriptor.ATTRIBUTE_SELECTION);
 	}
 
 	public String getSelectionOffset() {
-		return (String)getArguments().get(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET);
+		return getAttribute(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET);
 	}
 
 	public String getStatus() {
-		return (String)getArguments().get(RefactoringDescriptor.ATTRIBUTE_STATUS);
+		return getAttribute(RefactoringDescriptor.ATTRIBUTE_STATUS);
 	}
 
 	public String getCodeSnippet() {
-		return (String)getArguments().get(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET);
+		return getAttribute(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET);
+	}
+
+	public boolean isInvokedByQuickAssist() {
+		return Boolean.valueOf(getAttribute(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST));
 	}
 
 }

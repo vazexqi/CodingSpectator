@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.JavaRefactoringDesc
  * @since 1.1
  * 
  * @author Mohsen Vakilian, nchen - Added ability to add more information by cloning an existing
- *         RefactoringDescriptor. Also, made getArguments public.
+ *         RefactoringDescriptor. Also, made getArguments and some of the attributes public.
  * 
  * @noextend This class is not intended to be subclassed by clients outside JDT.
  */
@@ -63,8 +63,10 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	 * The element arguments are simply distinguished by appending a number to the argument name,
 	 * e.g. element1. The indices of this argument are one-based.
 	 * </p>
+	 * 
+	 * CODINGSPECTATOR: Made the attribute accessible by edu.illinois.codingspectator.ui.tests.
 	 */
-	protected static final String ATTRIBUTE_ELEMENT= "element"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_ELEMENT= "element"; //$NON-NLS-1$
 
 	/**
 	 * Predefined argument called <code>input</code>.
@@ -74,8 +76,11 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	 * be possible to uniquely identify the input element using the value of this argument in
 	 * conjunction with the values of the other user-defined attributes.
 	 * </p>
+	 * 
+	 * CODINGSPECTATOR: Made the attribute accessible by edu.illinois.codingspectator.ui.tests.
+	 * 
 	 */
-	protected static final String ATTRIBUTE_INPUT= "input"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_INPUT= "input"; //$NON-NLS-1$
 
 	/**
 	 * Predefined argument called <code>name</code>.
@@ -83,8 +88,11 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	 * This argument should be used to name the element being refactored. The value of this argument
 	 * may be shown in the user interface.
 	 * </p>
+	 * 
+	 * CODINGSPECTATOR: Made the attribute accessible by edu.illinois.codingspectator.ui.tests.
+	 * 
 	 */
-	protected static final String ATTRIBUTE_NAME= "name"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_NAME= "name"; //$NON-NLS-1$
 
 	/**
 	 * Predefined argument called <code>references</code>.
@@ -93,8 +101,11 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	 * should be updated as well. The value of this argument is either <code>"true"</code> or
 	 * <code>"false"</code>.
 	 * </p>
+	 * 
+	 * CODINGSPECTATOR: Made the attribute accessible by edu.illinois.codingspectator.ui.tests.
+	 * 
 	 */
-	protected static final String ATTRIBUTE_REFERENCES= "references"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_REFERENCES= "references"; //$NON-NLS-1$
 
 	/**
 	 * Predefined argument called <code>selection</code>.

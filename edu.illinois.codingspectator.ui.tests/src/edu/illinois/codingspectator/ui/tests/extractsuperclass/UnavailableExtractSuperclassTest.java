@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.ui.tests.extractsuperclass;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -62,6 +63,15 @@ public class UnavailableExtractSuperclassTest extends RefactoringTest {
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
 		RefactoringDescriptorParser refactoringDescriptorParser= new RefactoringDescriptorParser(descriptor);
+		assertTrue(refactoringDescriptorParser.getTimestamp() > 0);
+		assertEquals("", refactoringDescriptorParser.getComment());
+		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", refactoringDescriptorParser.getDescription());
+		assertEquals(0, refactoringDescriptorParser.getFlags());
+		assertEquals("org.eclipse.jdt.ui.extract.superclass", refactoringDescriptorParser.getID());
+		assertEquals(getProjectName(), refactoringDescriptorParser.getProject());
+		assertNull(refactoringDescriptorParser.getElement());
+		assertNull(refactoringDescriptorParser.getName());
+		assertFalse(refactoringDescriptorParser.doesReference());
 		assertEquals(SELECTION, refactoringDescriptorParser.getSelection());
 		assertEquals("177 36", refactoringDescriptorParser.getSelectionOffset());
 		assertEquals("To activate this refactoring, please select a non-binary non-inner class or the name of an instance method or field.", refactoringDescriptorParser.getStatus());
