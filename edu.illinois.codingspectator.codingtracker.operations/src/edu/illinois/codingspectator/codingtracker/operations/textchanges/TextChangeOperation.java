@@ -68,7 +68,11 @@ public abstract class TextChangeOperation extends UserOperation {
 		if (!replacedText.equals(currentDocument.get(offset, length))) {
 			throw new RuntimeException("Replaced text is not present in the document: " + this);
 		}
-		replayTextChange();
+		//Timestamp updates are not reproducible, because the corresponding UndoableOperation2ChangeAdapter operation 
+		//is executed as a simple text change
+		if (!isTimestampUpdate()) {
+			replayTextChange();
+		}
 		if (!newText.equals(currentDocument.get(offset, newText.length()))) {
 			throw new RuntimeException("New text does not appear in the document: " + this);
 		}
@@ -83,6 +87,21 @@ public abstract class TextChangeOperation extends UserOperation {
 		sb.append("Length: " + length + "\n");
 		sb.append(super.toString());
 		return sb.toString();
+	}
+
+	@Override
+	public boolean isTestReplayRecorded() {
+		return !isTimestampUpdate();
+	}
+
+	/**
+	 * If a recorded text change operation does not change anything in the document, it is a
+	 * timestamp update (happens when an UndoableOperation2ChangeAdapter is undone/redone)
+	 * 
+	 * @return
+	 */
+	private boolean isTimestampUpdate() {
+		return newText.isEmpty() && replacedText.isEmpty() && offset == 0 && length == 0;
 	}
 
 	protected abstract void replayTextChange() throws BadLocationException, ExecutionException;
