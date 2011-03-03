@@ -5,13 +5,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 
+import edu.illinois.codingspectator.ui.tests.Encryptor;
+import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
+import edu.illinois.codingspectator.ui.tests.RefactoringDescriptorParser;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -45,16 +46,16 @@ public class UnavailablePerformedExtractInterfaceTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
+	protected void doRefactoringShouldBeLogged() throws EncryptionException {
 		assertTrue(refactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		@SuppressWarnings("rawtypes")
-		Map descriptorArguments= descriptor.getArguments();
-		assertEquals("", descriptorArguments.get(RefactoringDescriptor.ATTRIBUTE_SELECTION));
-		assertEquals("332 0", descriptorArguments.get(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET));
-		assertEquals("To activate this refactoring, please select the name of a top level type.", descriptorArguments.get(RefactoringDescriptor.ATTRIBUTE_STATUS));
+		RefactoringDescriptorParser refactoringDescriptorParser= new RefactoringDescriptorParser(descriptor);
+		assertEquals("", refactoringDescriptorParser.getSelection());
+		assertEquals("332 0", refactoringDescriptorParser.getSelectionOffset());
+		assertEquals("To activate this refactoring, please select the name of a top level type.", refactoringDescriptorParser.getStatus());
+		assertEquals("509e14617a2628706da3cb61b4c8cb93", Encryptor.toMD5(refactoringDescriptorParser.getCodeSnippet()));
 	}
 
 	@Override

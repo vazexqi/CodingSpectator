@@ -39,7 +39,7 @@ public abstract class RefactoringTest {
 	protected void doExecuteRefactoring() {
 	}
 
-	protected void doRefactoringShouldBeLogged() {
+	protected void doRefactoringShouldBeLogged() throws Exception {
 	}
 
 	protected void doCleanRefactoringHistory() throws CoreException {
@@ -72,7 +72,7 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public void refactoringShouldBeLogged() {
+	public void refactoringShouldBeLogged() throws Exception {
 		bot.sleep();
 		doRefactoringShouldBeLogged();
 	}
