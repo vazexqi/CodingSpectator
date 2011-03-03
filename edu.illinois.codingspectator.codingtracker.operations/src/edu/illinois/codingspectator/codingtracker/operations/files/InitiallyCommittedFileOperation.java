@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -30,6 +31,17 @@ public class InitiallyCommittedFileOperation extends SnapshotedFileOperation {
 	@Override
 	public String getDescription() {
 		return "Initially committed file";
+	}
+
+	@Override
+	public void replay() throws CoreException {
+		checkSnapshotMatchesTheExistingFile();
+		super.replay();
+	}
+
+	@Override
+	public boolean isTestReplayRecorded() {
+		return false;
 	}
 
 }

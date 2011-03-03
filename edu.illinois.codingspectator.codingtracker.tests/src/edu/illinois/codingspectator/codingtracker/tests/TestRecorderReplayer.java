@@ -17,7 +17,6 @@ import org.junit.Test;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
-import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 
 /**
  * 
@@ -40,8 +39,8 @@ public class TestRecorderReplayer extends TestCodingTracker {
 	private void checkEquivalencyOfUserOperations(List<UserOperation> predefinedUserOperations, List<UserOperation> generatedUserOperations) {
 		Iterator<UserOperation> generatedUserOperationsIterator= generatedUserOperations.iterator();
 		for (UserOperation predefinedUserOperation : predefinedUserOperations) {
-			//Skip Eclipse startups because they are not reproduced by the test
-			if (predefinedUserOperation instanceof StartedEclipseOperation) {
+			//Skip those operations that are not recorded by the test
+			if (!predefinedUserOperation.isTestReplayRecorded()) {
 				continue;
 			}
 			assertTrue(generatedUserOperationsIterator.hasNext());

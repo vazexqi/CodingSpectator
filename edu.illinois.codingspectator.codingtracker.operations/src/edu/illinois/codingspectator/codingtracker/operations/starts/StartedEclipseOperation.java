@@ -53,4 +53,9 @@ public class StartedEclipseOperation extends UserOperation {
 		workspace.setDescription(workspaceDesription);
 	}
 
+	@Override
+	public boolean isTestReplayRecorded() {
+		return false;
+	}
+
 }
