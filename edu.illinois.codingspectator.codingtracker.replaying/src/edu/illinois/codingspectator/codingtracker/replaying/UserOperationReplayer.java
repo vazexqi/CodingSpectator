@@ -18,6 +18,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
@@ -49,6 +50,8 @@ public class UserOperationReplayer {
 
 	private IAction resetAction;
 
+	private IAction findAction;
+
 	private final Collection<IAction> replayActions= new LinkedList<IAction>();
 
 	private List<UserOperation> userOperations;
@@ -79,6 +82,38 @@ public class UserOperationReplayer {
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.SIMULATE), "Simulate", "Simulate the remaining user operations at the user pace", true));
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.FAST), "Fast", "Fast replay of the remaining user operations", true));
 		toolBarManager.add(new Separator());
+		toolBarManager.add(createFindOperationAction());
+		toolBarManager.add(new Separator());
+	}
+
+	private IAction createFindOperationAction() {
+		findAction= new Action() {
+			@Override
+			public void run() {
+				FindOperationDialog dialog= new FindOperationDialog(operationSequenceView.getShell());
+				if (dialog.open() == Window.OK) {
+					UserOperation foundUserOperation= null;
+					for (UserOperation userOperation : userOperations) {
+						if (userOperation.getTime() == dialog.getTimestamp()) {
+							foundUserOperation= userOperation;
+							operationSequenceView.setSelection(new StructuredSelection(foundUserOperation));
+							break;
+						}
+					}
+					if (foundUserOperation == null) {
+						MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
+						messageBox.setMessage("There is no operation with timestamp " + dialog.getTimestamp());
+						messageBox.open();
+					} else if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
+						MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
+						messageBox.setMessage("Operation with timestamp " + dialog.getTimestamp() + " is filtered out");
+						messageBox.open();
+					}
+				}
+			}
+		};
+		ViewerHelper.initAction(findAction, "Find", "Find operation by its timestamp", false, false, false);
+		return findAction;
 	}
 
 	private IAction createLoadOperationSequenceAction() {
@@ -92,6 +127,7 @@ public class UserOperationReplayer {
 					userOperations= OperationDeserializer.getUserOperations(operationsRecord);
 					if (userOperations.size() > 0) {
 						resetAction.setEnabled(true);
+						findAction.setEnabled(true);
 					}
 					breakpoints= new HashSet<UserOperation>();
 					prepareForReplay();
@@ -180,6 +216,7 @@ public class UserOperationReplayer {
 		forcedExecutionStop= false;
 		loadAction.setEnabled(false);
 		resetAction.setEnabled(false);
+		findAction.setEnabled(false);
 		toggleReplayActions(false);
 		executionAction.setEnabled(true);
 		userOperationExecutionThread= new UserOperationExecutionThread(executionAction, replayPace, CustomDelayDialog.getDelay());
@@ -310,6 +347,7 @@ public class UserOperationReplayer {
 			executionAction.setChecked(false);
 			loadAction.setEnabled(true);
 			resetAction.setEnabled(true);
+			findAction.setEnabled(true);
 			updateReplayActionsStateForCurrentUserOperation();
 		}
 
