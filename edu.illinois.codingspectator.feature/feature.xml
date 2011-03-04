@@ -10,13 +10,13 @@
    </description>
 
    <copyright>
-      <![CDATA[University of Illinois/NCSA Open Source License
+      University of Illinois/NCSA Open Source License
 Copyright (c) 2008-2011 University of Illinois at Urbana-Champaign.
-All rights reserved.]]>
+All rights reserved.
    </copyright>
 
    <license>
-      <![CDATA[CodingSpectator Release License
+      CodingSpectator Release License
 ===============================
  
 University of Illinois/NCSA Open Source License
@@ -33,7 +33,7 @@ Developed by:
     http://codingspectator.cs.illinois.edu/
  
 Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal with
+this software and associated documentation files (the &quot;Software&quot;), to deal with
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 the Software, and to permit persons to whom the Software is furnished to do so,
@@ -50,7 +50,7 @@ subject to the following conditions:
   names of its contributors may be used to endorse or promote products derived
   from this Software without specific prior written permission.
  
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
 CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -114,9 +114,8 @@ under the Apache License - Version 2.0, and is available at
 http://jcommander.org/.
 
 * CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
-the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
+the Mozilla Public License and is available at http://saxon.sourceforge.net/.
    </license>
-
 
    <url>
       <update label="CodingSpectator Update Site" url="http://codingspectator.cs.illinois.edu/updates"/>
@@ -224,7 +223,7 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="edu.illinois.codingspectator.monitor.core"
          download-size="0"
@@ -234,6 +233,13 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
 
    <plugin
          id="edu.illinois.codingspectator.monitor.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.data"
          download-size="0"
          install-size="0"
          version="0.0.0"
