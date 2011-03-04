@@ -63,8 +63,7 @@ public abstract class TextChangeOperation extends UserOperation {
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
 		currentViewer.revealRange(offset, length > newText.length() ? length : newText.length());
-		//TODO: Would it make changes more visible?
-		//currentViewer.setSelectedRange(offset, length > newText.length() ? length : newText.length());
+		currentViewer.setSelectedRange(offset, length);
 		if (!replacedText.equals(currentDocument.get(offset, length))) {
 			throw new RuntimeException("Replaced text is not present in the document: " + this);
 		}
@@ -73,6 +72,7 @@ public abstract class TextChangeOperation extends UserOperation {
 		if (!isTimestampUpdate()) {
 			replayTextChange();
 		}
+		currentViewer.setSelectedRange(offset, newText.length());
 		if (!newText.equals(currentDocument.get(offset, newText.length()))) {
 			throw new RuntimeException("New text does not appear in the document: " + this);
 		}

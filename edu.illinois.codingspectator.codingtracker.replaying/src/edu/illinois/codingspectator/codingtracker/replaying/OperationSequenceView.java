@@ -116,6 +116,14 @@ public class OperationSequenceView extends ViewPart {
 				updateCellAppearance(cell);
 			}
 		});
+		TableViewerColumn timestampColumn= createColumn("Timestamp", 90);
+		timestampColumn.setLabelProvider(new StyledCellLabelProvider() {
+			@Override
+			public void update(ViewerCell cell) {
+				cell.setText(String.valueOf(((UserOperation)cell.getElement()).getTime()));
+				updateCellAppearance(cell);
+			}
+		});
 	}
 
 	private void updateCellAppearance(ViewerCell cell) {

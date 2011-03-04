@@ -6,6 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.codingtracker.replaying.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- edu.illinois.codingspectator.codingtracker.operations
+ edu.illinois.codingspectator.codingtracker.operations,
+ org.eclipse.jdt.ui.tests,
+ org.eclipse.jdt.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
