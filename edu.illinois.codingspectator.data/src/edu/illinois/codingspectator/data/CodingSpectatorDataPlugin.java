@@ -46,8 +46,6 @@ public class CodingSpectatorDataPlugin extends Plugin {
 	}
 
 	/**
-	 * Returns the shared instance
-	 * 
 	 * @return the shared instance
 	 */
 	public static CodingSpectatorDataPlugin getDefault() {
@@ -55,8 +53,6 @@ public class CodingSpectatorDataPlugin extends Plugin {
 	}
 
 	/**
-	 * Returns the defaul storage location
-	 * 
 	 * @return The default storage location
 	 */
 	public static IPath getStorageLocation() {

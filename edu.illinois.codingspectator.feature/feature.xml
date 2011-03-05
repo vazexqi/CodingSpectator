@@ -10,13 +10,13 @@
    </description>
 
    <copyright>
-      University of Illinois/NCSA Open Source License
+<![CDATA[University of Illinois/NCSA Open Source License
 Copyright (c) 2008-2011 University of Illinois at Urbana-Champaign.
-All rights reserved.
+All rights reserved.]]>
    </copyright>
 
    <license>
-      CodingSpectator Release License
+<![CDATA[CodingSpectator Release License
 ===============================
  
 University of Illinois/NCSA Open Source License
@@ -33,7 +33,7 @@ Developed by:
     http://codingspectator.cs.illinois.edu/
  
 Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the &quot;Software&quot;), to deal with
+this software and associated documentation files (the "Software"), to deal with
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 the Software, and to permit persons to whom the Software is furnished to do so,
@@ -46,11 +46,12 @@ subject to the following conditions:
   this list of conditions and the following disclaimers in the documentation
   and/or other materials provided with the distribution.
  
-  * Neither the names of the CodingSpectator Team, University of Illinois, nor the
+  * Neither the names of the CodingSpectator Team, University of Illinois, nor
+  * the
   names of its contributors may be used to endorse or promote products derived
   from this Software without specific prior written permission.
  
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
 CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -58,7 +59,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
  
-Copyrights and Licenses for Third Party Software Distributed with CodingSpectator
+Copyrights and Licenses for Third Party Software Distributed with
+CodingSpectator
 =================================================================================
  
 The CodingSpectator software depends on third party software. Such software will
@@ -93,7 +95,8 @@ Eclipse Public License - Version 1.0.
   * org.eclipse.test.performance
   * org.eclipse.text.tests
  
-* CodingSpectator depends on a modified version of the following Eclipse plug-ins
+* CodingSpectator depends on a modified version of the following Eclipse
+* plug-ins
 all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.core.refactoring
   * org.eclipse.ltk.ui.refactoring
@@ -114,7 +117,7 @@ under the Apache License - Version 2.0, and is available at
 http://jcommander.org/.
 
 * CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
-the Mozilla Public License and is available at http://saxon.sourceforge.net/.
+the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
    </license>
 
    <url>
