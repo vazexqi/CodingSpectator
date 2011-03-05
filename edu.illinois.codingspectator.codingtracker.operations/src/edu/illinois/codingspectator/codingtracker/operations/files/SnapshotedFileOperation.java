@@ -12,8 +12,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.testplugin.JavaProjectHelper;
 
+import edu.illinois.codingspectator.codingtracker.eclipse.JavaProjectHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -23,7 +23,6 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public abstract class SnapshotedFileOperation extends FileOperation {
 
 	private String fileContent;
