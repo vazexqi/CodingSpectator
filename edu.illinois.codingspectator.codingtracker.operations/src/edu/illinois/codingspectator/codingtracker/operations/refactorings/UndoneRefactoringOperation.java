@@ -34,8 +34,10 @@ public class UndoneRefactoringOperation extends RefactoringOperation {
 	}
 
 	@Override
-	public void replay() throws CoreException {
-		getRefactoringUndoManager().performUndo(null, null);
+	public void replayRefactoring(RefactoringDescriptor refactoringDescriptor) throws CoreException {
+		if (!unperformedRefactorings.contains(getTime())) {
+			getRefactoringUndoManager().performUndo(null, null);
+		}
 	}
 
 }

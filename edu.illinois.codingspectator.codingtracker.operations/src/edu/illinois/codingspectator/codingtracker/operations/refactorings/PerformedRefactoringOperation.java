@@ -8,7 +8,9 @@ import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.PerformRefactoringOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
+import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
@@ -37,8 +39,16 @@ public class PerformedRefactoringOperation extends RefactoringOperation {
 	}
 
 	@Override
-	public void replay() throws CoreException {
-		Refactoring refactoring= getInitializedRefactoring();
+	public void replayRefactoring(RefactoringDescriptor refactoringDescriptor) throws CoreException {
+		RefactoringStatus initializationStatus= new RefactoringStatus();
+		Refactoring refactoring= refactoringDescriptor.createRefactoring(initializationStatus);
+		if (!initializationStatus.isOK()) {
+			Debugger.debug("***WARNING*** Failed to initialize a refactoring from its descriptor: " + refactoringDescriptor);
+			unperformedRefactorings.add(getTime());
+			return;
+		}
+		//This remove is needed to ensure that multiple replays in the same run do not overlap
+		unperformedRefactorings.remove(getTime());
 		PerformRefactoringOperation performRefactoringOperation= new PerformRefactoringOperation(refactoring, CheckConditionsOperation.ALL_CONDITIONS);
 		performRefactoringOperation.run(null);
 		if (performRefactoringOperation.getConditionStatus().hasFatalError()) {
