@@ -9,10 +9,9 @@ import java.util.Map;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Version;
+import org.eclipse.core.runtime.IPath;
+
+import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
 /**
  * 
@@ -28,15 +27,13 @@ public class RefactoringLog {
 
 	IFileStore fileStore;
 
-	private static final String GENERIC_VERSION_NUMBER= "1.0.0.qualifier";
-
 	private static final String CANCELED_REFACTORINGS= "refactorings/canceled";
 
 	private static final String PERFORMED_REFACTORINGS= "refactorings/performed";
 
 	private static final String UNAVAILABLE_REFACTORINGS= "refactorings/unavailable";
 
-	private static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
+	private static final IPath REFACTORING_HISTORY_LOCATION= CodingSpectatorDataPlugin.getVersionedStorageLocation();
 
 	private static Map<LogType, String> logTypeToDirectory= new HashMap<LogType, String>();
 
@@ -59,34 +56,11 @@ public class RefactoringLog {
 	}
 
 	private IFileStore getFileStore(String logDirectory) {
-		return EFS.getLocalFileSystem().getStore(new Path(getRefactoringStorageLocation(logDirectory)));
+		return EFS.getLocalFileSystem().getStore(getRefactoringStorageLocation(logDirectory));
 	}
 
-	private String getSystemFileSeparator() {
-		return System.getProperty("file.separator");
+	public IPath getRefactoringStorageLocation(String directory) {
+		return REFACTORING_HISTORY_LOCATION.append(directory);
 	}
 
-	private Version getFeatureVersion() {
-		Bundle bundle= Platform.getBundle("edu.illinois.codingspectator.monitor");
-		if (bundle != null)
-			return bundle.getVersion();
-		else
-			return new Version(GENERIC_VERSION_NUMBER);
-	}
-
-	public String getRefactoringStorageLocation(String directory) {
-		StringBuilder fullDirectory= new StringBuilder();
-		fullDirectory.append(REFACTORING_HISTORY_LOCATION);
-		fullDirectory.append(getSystemFileSeparator());
-		fullDirectory.append(getFeatureVersion());
-
-		String directorySeparator= "/";
-		String[] directories= directory.split(directorySeparator);
-		for (int i= 0; i < directories.length; i++) {
-			fullDirectory.append(getSystemFileSeparator());
-			fullDirectory.append(directories[i]);
-		}
-
-		return fullDirectory.toString();
-	}
 }
