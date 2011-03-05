@@ -14,9 +14,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -62,20 +62,20 @@ public class UnavailableExtractSuperclassTest extends RefactoringTest {
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor refactoringDescriptorParser= new CapturedRefactoringDescriptor(descriptor);
-		assertTrue(refactoringDescriptorParser.getTimestamp() > 0);
-		assertEquals("", refactoringDescriptorParser.getComment());
-		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", refactoringDescriptorParser.getDescription());
-		assertEquals(0, refactoringDescriptorParser.getFlags());
-		assertEquals("org.eclipse.jdt.ui.extract.superclass", refactoringDescriptorParser.getID());
-		assertEquals(getProjectName(), refactoringDescriptorParser.getProject());
-		assertNull(refactoringDescriptorParser.getElement());
-		assertNull(refactoringDescriptorParser.getName());
-		assertFalse(refactoringDescriptorParser.doesReference());
-		assertEquals(SELECTION, refactoringDescriptorParser.getSelection());
-		assertEquals("177 36", refactoringDescriptorParser.getSelectionOffset());
-		assertEquals("To activate this refactoring, please select a non-binary non-inner class or the name of an instance method or field.", refactoringDescriptorParser.getStatus());
-		assertEquals("5ab5c15f40fe569ebcad30a57cd08651", Encryptor.toMD5(refactoringDescriptorParser.getCodeSnippet()));
+		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
+		assertTrue(capturedDescriptor.getTimestamp() > 0);
+		assertEquals("", capturedDescriptor.getComment());
+		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", capturedDescriptor.getDescription());
+		assertEquals(0, capturedDescriptor.getFlags());
+		assertEquals("org.eclipse.jdt.ui.extract.superclass", capturedDescriptor.getID());
+		assertEquals(getProjectName(), capturedDescriptor.getProject());
+		assertNull(capturedDescriptor.getElement());
+		assertNull(capturedDescriptor.getName());
+		assertFalse(capturedDescriptor.doesReference());
+		assertEquals(SELECTION, capturedDescriptor.getSelection());
+		assertEquals("177 36", capturedDescriptor.getSelectionOffset());
+		assertEquals("To activate this refactoring, please select a non-binary non-inner class or the name of an instance method or field.", capturedDescriptor.getStatus());
+		assertEquals("5ab5c15f40fe569ebcad30a57cd08651", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 	}
 
 	@Override

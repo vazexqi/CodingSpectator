@@ -11,9 +11,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -53,21 +53,21 @@ public class UnavailableExtractInterfaceTest extends RefactoringTest {
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor refactoringDescriptorParser= new CapturedRefactoringDescriptor(descriptor);
-		assertTrue(refactoringDescriptorParser.getTimestamp() > 0);
-		assertEquals("", refactoringDescriptorParser.getComment());
-		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", refactoringDescriptorParser.getDescription());
-		assertEquals(0, refactoringDescriptorParser.getFlags());
-		assertEquals("org.eclipse.jdt.ui.extract.interface", refactoringDescriptorParser.getID());
-		assertEquals(getProjectName(), refactoringDescriptorParser.getProject());
-		assertNull(refactoringDescriptorParser.getElement());
-		assertNull(refactoringDescriptorParser.getName());
-		assertFalse(refactoringDescriptorParser.doesReference());
-		assertEquals(SELECTION, refactoringDescriptorParser.getSelection());
-		assertEquals("332 0", refactoringDescriptorParser.getSelectionOffset());
-		assertEquals("To activate this refactoring, please select the name of a top level type.", refactoringDescriptorParser.getStatus());
-		assertEquals("509e14617a2628706da3cb61b4c8cb93", Encryptor.toMD5(refactoringDescriptorParser.getCodeSnippet()));
-		assertFalse(refactoringDescriptorParser.isInvokedByQuickAssist());
+		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
+		assertTrue(capturedDescriptor.getTimestamp() > 0);
+		assertEquals("", capturedDescriptor.getComment());
+		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", capturedDescriptor.getDescription());
+		assertEquals(0, capturedDescriptor.getFlags());
+		assertEquals("org.eclipse.jdt.ui.extract.interface", capturedDescriptor.getID());
+		assertEquals(getProjectName(), capturedDescriptor.getProject());
+		assertNull(capturedDescriptor.getElement());
+		assertNull(capturedDescriptor.getName());
+		assertFalse(capturedDescriptor.doesReference());
+		assertEquals(SELECTION, capturedDescriptor.getSelection());
+		assertEquals("332 0", capturedDescriptor.getSelectionOffset());
+		assertEquals("To activate this refactoring, please select the name of a top level type.", capturedDescriptor.getStatus());
+		assertEquals("509e14617a2628706da3cb61b4c8cb93", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 
 	@Override
