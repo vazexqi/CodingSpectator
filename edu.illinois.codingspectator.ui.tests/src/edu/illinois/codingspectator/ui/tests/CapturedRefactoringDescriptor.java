@@ -16,11 +16,11 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
  * @author nchen
  * 
  */
-public class RefactoringDescriptorParser {
+public class CapturedRefactoringDescriptor {
 
 	private JavaRefactoringDescriptor descriptor;
 
-	public RefactoringDescriptorParser(JavaRefactoringDescriptor descriptor) {
+	public CapturedRefactoringDescriptor(JavaRefactoringDescriptor descriptor) {
 		this.descriptor= descriptor;
 	}
 

@@ -16,7 +16,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
-import edu.illinois.codingspectator.ui.tests.RefactoringDescriptorParser;
+import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -62,7 +62,7 @@ public class UnavailableExtractSuperclassTest extends RefactoringTest {
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		RefactoringDescriptorParser refactoringDescriptorParser= new RefactoringDescriptorParser(descriptor);
+		CapturedRefactoringDescriptor refactoringDescriptorParser= new CapturedRefactoringDescriptor(descriptor);
 		assertTrue(refactoringDescriptorParser.getTimestamp() > 0);
 		assertEquals("", refactoringDescriptorParser.getComment());
 		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", refactoringDescriptorParser.getDescription());
