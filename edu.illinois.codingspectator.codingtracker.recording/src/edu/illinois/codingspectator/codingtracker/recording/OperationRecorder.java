@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
@@ -29,10 +29,16 @@ import edu.illinois.codingspectator.codingtracker.operations.files.NewFileOperat
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStartedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLaunchedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
@@ -69,32 +75,32 @@ public class OperationRecorder {
 		TextRecorder.record(new StartedEclipseOperation());
 	}
 
-	public void recordChangedText(TextEvent textEvent, IFile editedFile, boolean isUndoing, boolean isRedoing) {
+	public void recordChangedText(DocumentEvent documentEvent, String replacedText, IFile editedFile, boolean isUndoing, boolean isRedoing) {
 		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
 			lastEditedFile= editedFile;
 			ensureIsKnownFile(lastEditedFile);
 			recordEditedFile();
 		}
-		Debugger.debugTextEvent(textEvent);
+		Debugger.debugDocumentEvent(documentEvent, replacedText);
 		TextChangeOperation textChangeOperation= null;
 		if (isUndoing) {
-			textChangeOperation= new UndoneTextChangeOperation(textEvent);
+			textChangeOperation= new UndoneTextChangeOperation(documentEvent, replacedText);
 		} else if (isRedoing) {
-			textChangeOperation= new RedoneTextChangeOperation(textEvent);
+			textChangeOperation= new RedoneTextChangeOperation(documentEvent, replacedText);
 		} else {
-			textChangeOperation= new PerformedTextChangeOperation(textEvent);
+			textChangeOperation= new PerformedTextChangeOperation(documentEvent, replacedText);
 		}
 		TextRecorder.record(textChangeOperation);
 	}
 
-	public void recordConflictEditorChangedText(TextEvent textEvent, String editorID, boolean isUndoing, boolean isRedoing) {
+	public void recordConflictEditorChangedText(DocumentEvent documentEvent, String replacedText, String editorID, boolean isUndoing, boolean isRedoing) {
 		ConflictEditorTextChangeOperation conflictEditorTextChangeOperation= null;
 		if (isUndoing) {
-			conflictEditorTextChangeOperation= new UndoneConflictEditorTextChangeOperation(editorID, textEvent);
+			conflictEditorTextChangeOperation= new UndoneConflictEditorTextChangeOperation(editorID, documentEvent, replacedText);
 		} else if (isRedoing) {
-			conflictEditorTextChangeOperation= new RedoneConflictEditorTextChangeOperation(editorID, textEvent);
+			conflictEditorTextChangeOperation= new RedoneConflictEditorTextChangeOperation(editorID, documentEvent, replacedText);
 		} else {
-			conflictEditorTextChangeOperation= new PerformedConflictEditorTextChangeOperation(editorID, textEvent);
+			conflictEditorTextChangeOperation= new PerformedConflictEditorTextChangeOperation(editorID, documentEvent, replacedText);
 		}
 		TextRecorder.record(conflictEditorTextChangeOperation);
 	}
@@ -158,11 +164,38 @@ public class OperationRecorder {
 	}
 
 	public void recordClosedFile(IFile file) {
+		if (file.equals(lastEditedFile)) {
+			lastEditedFile= null;
+		}
 		TextRecorder.record(new ClosedFileOperation(file));
 	}
 
 	public void recordClosedConflictEditor(String editorID) {
 		TextRecorder.record(new ClosedConflictEditorOperation(editorID));
+	}
+
+	public void recordLaunchedTestSession(String testRunName, String launchedProjectName) {
+		TextRecorder.record(new TestSessionLaunchedOperation(testRunName, launchedProjectName));
+	}
+
+	public void recordStartedTestSession(String testRunName) {
+		TextRecorder.record(new TestSessionStartedOperation(testRunName));
+	}
+
+	public void recordFinishedTestSession(String testRunName) {
+		TextRecorder.record(new TestSessionFinishedOperation(testRunName));
+	}
+
+	public void recordStartedTestCase(String testRunName, String testClassName, String testMethodName) {
+		TextRecorder.record(new TestCaseStartedOperation(testRunName, testClassName, testMethodName));
+	}
+
+	public void recordFinishedTestCase(String testRunName, String result) {
+		TextRecorder.record(new TestCaseFinishedOperation(testRunName, result));
+	}
+
+	public void recordLaunchedApplication(String launchMode, String launchName, String application, String product, boolean useProduct) {
+		TextRecorder.record(new LaunchedApplicationOperation(launchMode, launchName, application, product, useProduct));
 	}
 
 	public void recordStartedRefactoring() {

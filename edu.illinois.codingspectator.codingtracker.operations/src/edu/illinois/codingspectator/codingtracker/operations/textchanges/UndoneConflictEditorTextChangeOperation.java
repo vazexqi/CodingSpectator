@@ -3,7 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -18,8 +18,8 @@ public class UndoneConflictEditorTextChangeOperation extends ConflictEditorTextC
 		super();
 	}
 
-	public UndoneConflictEditorTextChangeOperation(String editorID, TextEvent textEvent) {
-		super(editorID, textEvent);
+	public UndoneConflictEditorTextChangeOperation(String editorID, DocumentEvent documentEvent, String replacedText) {
+		super(editorID, documentEvent, replacedText);
 	}
 
 	@Override

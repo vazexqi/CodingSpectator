@@ -4,7 +4,7 @@
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
@@ -19,8 +19,8 @@ public class RedoneTextChangeOperation extends TextChangeOperation {
 		super();
 	}
 
-	public RedoneTextChangeOperation(TextEvent textEvent) {
-		super(textEvent);
+	public RedoneTextChangeOperation(DocumentEvent documentEvent, String replacedText) {
+		super(documentEvent, replacedText);
 	}
 
 	@Override

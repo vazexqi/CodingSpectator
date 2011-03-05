@@ -10,13 +10,23 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
+import edu.illinois.codingspectator.codingtracker.eclipse.JavaProjectHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
@@ -29,11 +39,21 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  */
 public class UserOperationReplayer {
 
+	private enum ReplayPace {
+		FAST, SIMULATE, CUSTOM
+	}
+
 	private final OperationSequenceView operationSequenceView;
 
 	private IAction loadAction;
 
+	private IAction resetAction;
+
+	private IAction findAction;
+
 	private final Collection<IAction> replayActions= new LinkedList<IAction>();
+
+	private List<UserOperation> userOperations;
 
 	private Iterator<UserOperation> userOperationsIterator;
 
@@ -43,8 +63,9 @@ public class UserOperationReplayer {
 
 	private Thread userOperationExecutionThread;
 
-	private volatile boolean userStoppedExecution= false;
+	private volatile boolean forcedExecutionStop= false;
 
+	private IEditorPart currentEditor= null;
 
 	public UserOperationReplayer(OperationSequenceView operationSequenceView) {
 		this.operationSequenceView= operationSequenceView;
@@ -53,11 +74,45 @@ public class UserOperationReplayer {
 	void addToolBarActions() {
 		IToolBarManager toolBarManager= operationSequenceView.getToolBarManager();
 		toolBarManager.add(createLoadOperationSequenceAction());
+		toolBarManager.add(createResetOperationSequenceAction());
 		toolBarManager.add(new Separator());
 		toolBarManager.add(createReplayAction(newReplaySingleOperationAction(), "Step", "Replay the current user operation", false));
-		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(true), "Simulate", "Simulate the remaining user operations at the user pace", true));
-		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(false), "Replay", "Fast replay of the remaining user operations", true));
+		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.CUSTOM), "Custom", "Replay the remaining user operations at a custom pace", true));
+		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.SIMULATE), "Simulate", "Simulate the remaining user operations at the user pace", true));
+		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.FAST), "Fast", "Fast replay of the remaining user operations", true));
 		toolBarManager.add(new Separator());
+		toolBarManager.add(createFindOperationAction());
+		toolBarManager.add(new Separator());
+	}
+
+	private IAction createFindOperationAction() {
+		findAction= new Action() {
+			@Override
+			public void run() {
+				FindOperationDialog dialog= new FindOperationDialog(operationSequenceView.getShell());
+				if (dialog.open() == Window.OK) {
+					UserOperation foundUserOperation= null;
+					for (UserOperation userOperation : userOperations) {
+						if (userOperation.getTime() == dialog.getTimestamp()) {
+							foundUserOperation= userOperation;
+							operationSequenceView.setSelection(new StructuredSelection(foundUserOperation));
+							break;
+						}
+					}
+					if (foundUserOperation == null) {
+						MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
+						messageBox.setMessage("There is no operation with timestamp " + dialog.getTimestamp());
+						messageBox.open();
+					} else if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
+						MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
+						messageBox.setMessage("Operation with timestamp " + dialog.getTimestamp() + " is filtered out");
+						messageBox.open();
+					}
+				}
+			}
+		};
+		ViewerHelper.initAction(findAction, "Find", "Find operation by its timestamp", false, false, false);
+		return findAction;
 	}
 
 	private IAction createLoadOperationSequenceAction() {
@@ -68,17 +123,54 @@ public class UserOperationReplayer {
 				String selectedFilePath= fileDialog.open();
 				if (selectedFilePath != null) {
 					String operationsRecord= FileHelper.getFileContent(new File(selectedFilePath));
-					List<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					if (userOperations.size() > 0) {
+						resetAction.setEnabled(true);
+						findAction.setEnabled(true);
+					}
 					breakpoints= new HashSet<UserOperation>();
-					userOperationsIterator= userOperations.iterator();
-					advanceCurrentUserOperation();
-					operationSequenceView.setTableViewerInput(userOperations);
-					updateReplayActionsStateForCurrentUserOperation();
+					prepareForReplay();
 				}
 			}
+
 		};
 		ViewerHelper.initAction(loadAction, "Load", "Load operation sequence from a file", true, false, false);
 		return loadAction;
+	}
+
+	private IAction createResetOperationSequenceAction() {
+		resetAction= new Action() {
+			@Override
+			public void run() {
+				clearWorkspace();
+				prepareForReplay();
+			}
+		};
+		ViewerHelper.initAction(resetAction, "Reset", "Reset operation sequence", false, false, false);
+		return resetAction;
+	}
+
+	private void clearWorkspace() {
+		getActivePage().closeAllEditors(false);
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			try {
+				JavaProjectHelper.delete(project);
+			} catch (CoreException e) {
+				throw new RuntimeException("Could not delete project \"" + project.getName() + "\"", e);
+			}
+		}
+	}
+
+	private IWorkbenchPage getActivePage() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+	}
+
+	private void prepareForReplay() {
+		currentEditor= null;
+		userOperationsIterator= userOperations.iterator();
+		advanceCurrentUserOperation();
+		operationSequenceView.setTableViewerInput(userOperations);
+		updateReplayActionsStateForCurrentUserOperation();
 	}
 
 	private IAction createReplayAction(IAction action, String actionText, String actionToolTipText, boolean isToggable) {
@@ -97,33 +189,53 @@ public class UserOperationReplayer {
 		};
 	}
 
-	private IAction newReplayOperationSequenceAction(final boolean isSimulating) {
+	private IAction newReplayOperationSequenceAction(final ReplayPace replayPace) {
 		return new Action() {
 			@Override
 			public void run() {
 				if (!this.isChecked()) {
-					userStoppedExecution= true;
+					forcedExecutionStop= true;
 					this.setEnabled(false);
 					userOperationExecutionThread.interrupt();
 				} else {
-					replayUserOperationSequence(this, isSimulating);
+					replayUserOperationSequence(this, replayPace);
 				}
 			}
 		};
 	}
 
-	private void replayUserOperationSequence(IAction executionAction, boolean isSimulating) {
-		userStoppedExecution= false;
+	private void replayUserOperationSequence(IAction executionAction, ReplayPace replayPace) {
+		if (replayPace == ReplayPace.CUSTOM) {
+			CustomDelayDialog dialog= new CustomDelayDialog(operationSequenceView.getShell());
+			if (dialog.open() == Window.CANCEL) {
+				executionAction.setChecked(false);
+				return;
+			}
+		}
+		forcedExecutionStop= false;
 		loadAction.setEnabled(false);
+		resetAction.setEnabled(false);
+		findAction.setEnabled(false);
 		toggleReplayActions(false);
 		executionAction.setEnabled(true);
-		userOperationExecutionThread= new UserOperationExecutionThread(executionAction, isSimulating);
+		userOperationExecutionThread= new UserOperationExecutionThread(executionAction, replayPace, CustomDelayDialog.getDelay());
 		userOperationExecutionThread.start();
 	}
 
 	private void replayAndAdvanceCurrentUserOperation() {
 		try {
+			if (currentEditor != null && currentEditor != getActivePage().getActiveEditor()) {
+				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
+					forcedExecutionStop= true;
+					userOperationExecutionThread.interrupt();
+				}
+				MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
+				messageBox.setMessage("The current editor is wrong. Should be: \"" + currentEditor.getTitle() + "\"");
+				messageBox.open();
+				return;
+			}
 			currentUserOperation.replay();
+			currentEditor= getActivePage().getActiveEditor();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -171,11 +283,14 @@ public class UserOperationReplayer {
 
 		private final IAction executionAction;
 
-		private final boolean isSimulating;
+		private final ReplayPace replayPace;
 
-		private UserOperationExecutionThread(IAction executionAction, boolean isSimulating) {
+		private final int customDelayTime;
+
+		private UserOperationExecutionThread(IAction executionAction, ReplayPace replayPace, int customDelayTime) {
 			this.executionAction= executionAction;
-			this.isSimulating= isSimulating;
+			this.replayPace= replayPace;
+			this.customDelayTime= customDelayTime;
 		}
 
 		@Override
@@ -187,10 +302,14 @@ public class UserOperationReplayer {
 				if (shouldStopExecution()) {
 					break;
 				} else {
-					if (isSimulating) {
-						simulateDelay(executedOperationTime, startTime);
+					if (replayPace == ReplayPace.SIMULATE) {
+						long nextOperationTime= currentUserOperation.getTime();
+						long delayTime= nextOperationTime - executedOperationTime;
+						simulateDelay(delayTime, startTime);
+					} else if (replayPace == ReplayPace.CUSTOM) {
+						simulateDelay(customDelayTime, startTime);
 					}
-					if (userStoppedExecution) {
+					if (forcedExecutionStop) {
 						break;
 					}
 				}
@@ -211,10 +330,9 @@ public class UserOperationReplayer {
 			return currentUserOperation == null || breakpoints.contains(currentUserOperation);
 		}
 
-		private void simulateDelay(long executedOperationTime, long startTime) {
+		private void simulateDelay(long delayTime, long startTime) {
 			long finishTime= System.currentTimeMillis();
-			long nextOperationTime= currentUserOperation.getTime();
-			long sleepTime= nextOperationTime - executedOperationTime - (finishTime - startTime);
+			long sleepTime= delayTime - (finishTime - startTime);
 			if (sleepTime > 0) {
 				try {
 					Thread.sleep(sleepTime);
@@ -227,6 +345,8 @@ public class UserOperationReplayer {
 		private void updateToolBarActions() {
 			executionAction.setChecked(false);
 			loadAction.setEnabled(true);
+			resetAction.setEnabled(true);
+			findAction.setEnabled(true);
 			updateReplayActionsStateForCurrentUserOperation();
 		}
 

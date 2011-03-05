@@ -26,10 +26,9 @@ import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 @SuppressWarnings("restriction")
 public class SelectionListener extends BasicListener implements ISelectionListener {
 
-	private ISourceViewer listenedViewer= null;
+	private ISourceViewer currentViewer= null;
 
-	private final TextListener textListener= new TextListener();
-
+	private final DocumentListener documentListener= new DocumentListener();
 
 	public static void register() {
 		Display.getDefault().syncExec(new Runnable() {
@@ -68,12 +67,12 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 				currentFile= newFile;
 				Debugger.debugFilePath("Current file: ", currentFile);
 			}
-			if (listenedViewer != null) {
-				listenedViewer.removeTextListener(textListener);
+			if (currentViewer != null && currentViewer.getDocument() != null) {
+				currentViewer.getDocument().removeDocumentListener(documentListener);
 			}
-			listenedViewer= sourceViewer;
-			if (listenedViewer != null) {
-				listenedViewer.addTextListener(textListener);
+			currentViewer= sourceViewer;
+			if (currentViewer != null && currentViewer.getDocument() != null) {
+				currentViewer.getDocument().addDocumentListener(documentListener);
 			}
 		}
 	}

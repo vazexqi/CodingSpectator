@@ -58,6 +58,10 @@ public abstract class UserOperation {
 		return new Date(timestamp);
 	}
 
+	public boolean isTestReplayRecorded() {
+		return true;
+	}
+
 	protected abstract char getOperationSymbol();
 
 	public abstract String getDescription();
