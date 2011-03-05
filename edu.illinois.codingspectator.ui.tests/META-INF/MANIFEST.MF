@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: edu.illinois.refactorbehvaior.tests
+Bundle-Name: edu.illinois.codingspectator.ui.tests
 Bundle-SymbolicName: edu.illinois.codingspectator.ui.tests;singleton:=true
-Bundle-Version: 1.0.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: University of Illinois
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.swtbot.go,
  org.apache.log4j,
  org.eclipse.core.filesystem,
  org.eclipse.ltk.core.refactoring,
- org.eclipse.jdt.core.manipulation
+ org.eclipse.jdt.core.manipulation,
+ edu.illinois.codingspectator.data
 Eclipse-RegisterBuddy: org.apache.log4j
 
