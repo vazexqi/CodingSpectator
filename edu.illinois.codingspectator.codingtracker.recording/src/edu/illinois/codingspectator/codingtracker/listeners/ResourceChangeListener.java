@@ -47,7 +47,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	private final Set<IFile> svnChangedJavaFiles= new HashSet<IFile>();
 
-	private final Set<String> svnEntriesChangeSet= new HashSet<String>();
+	private final Set<IFile> svnEntriesChangeSet= new HashSet<IFile>();
 
 
 	//Calculated sets:
@@ -209,8 +209,8 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			IResource resource= delta.getResource();
 			if (resource.getType() == IResource.FILE) {
 				IFile file= (IFile)resource;
-				if (file.getName().equals("entries")) {
-					svnEntriesChangeSet.add("yes");
+				if (file.getName().equals("entries") && file.getParent().getName().equals(".svn")) {
+					svnEntriesChangeSet.add(file);
 				} else {
 					String fileExtension= file.getFileExtension(); //may be null
 					if ("java".equals(fileExtension)) {

@@ -34,8 +34,10 @@ public class RedoneRefactoringOperation extends RefactoringOperation {
 	}
 
 	@Override
-	public void replay() throws CoreException {
-		getRefactoringUndoManager().performRedo(null, null);
+	public void replayRefactoring(RefactoringDescriptor refactoringDescriptor) throws CoreException {
+		if (!unperformedRefactorings.contains(getTime())) {
+			getRefactoringUndoManager().performRedo(null, null);
+		}
 	}
 
 }

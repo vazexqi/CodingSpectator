@@ -9,7 +9,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.text.TextEvent;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ui.IWorkbenchPart;
 
@@ -72,11 +72,10 @@ public class Debugger {
 		}
 	}
 
-	public static void debugTextEvent(TextEvent event) {
+	public static void debugDocumentEvent(DocumentEvent documentEvent, String replacedText) {
 		if (isInDebugMode) {
-//			DocumentEvent documentEvent= event.getDocumentEvent();
-//			System.out.println("Replaced text:\"" + (event.getReplacedText() == null ? "" : event.getReplacedText()) +
-//					"\", new text:\"" + documentEvent.getText() + "\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength());
+//			System.out.println("Replaced text:\"" + replacedText + "\", new text:\"" + documentEvent.getText() +
+//								"\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength());
 		}
 	}
 

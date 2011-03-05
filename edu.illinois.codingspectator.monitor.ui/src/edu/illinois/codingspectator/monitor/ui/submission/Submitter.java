@@ -16,6 +16,7 @@ import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
+import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
 import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
@@ -36,10 +37,7 @@ import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
  */
 public class Submitter {
 
-	public static final String LTK_BUNDLE_NAME= "org.eclipse.ltk.core.refactoring";
-
-	public static final String WATCHED_DIRECTORY= Platform.getStateLocation(
-			Platform.getBundle(LTK_BUNDLE_NAME)).toOSString();
+	public static final String WATCHED_DIRECTORY= CodingSpectatorDataPlugin.getStorageLocation().toOSString();
 
 	private SVNManager svnManager;
 

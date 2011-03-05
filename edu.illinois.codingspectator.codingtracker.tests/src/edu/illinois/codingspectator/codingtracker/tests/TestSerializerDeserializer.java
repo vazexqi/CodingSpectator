@@ -6,7 +6,6 @@ package edu.illinois.codingspectator.codingtracker.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -27,8 +26,7 @@ public class TestSerializerDeserializer extends TestCodingTracker {
 	@Test
 	public void shouldDeserializeAndSerialize() {
 		String operationsRecord= FileHelper.getFileContent(operationsRecordFile);
-		List<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
-		for (UserOperation userOperation : userOperations) {
+		for (UserOperation userOperation : OperationDeserializer.getUserOperations(operationsRecord)) {
 			TextRecorder.record(userOperation);
 		}
 		String generatedOperationsRecord= FileHelper.getFileContent(mainRecordFile);

@@ -10,6 +10,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -116,6 +117,14 @@ public class OperationSequenceView extends ViewPart {
 				updateCellAppearance(cell);
 			}
 		});
+		TableViewerColumn timestampColumn= createColumn("Timestamp", 90);
+		timestampColumn.setLabelProvider(new StyledCellLabelProvider() {
+			@Override
+			public void update(ViewerCell cell) {
+				cell.setText(String.valueOf(((UserOperation)cell.getElement()).getTime()));
+				updateCellAppearance(cell);
+			}
+		});
 	}
 
 	private void updateCellAppearance(ViewerCell cell) {
@@ -200,6 +209,14 @@ public class OperationSequenceView extends ViewPart {
 
 	void refreshTableViewer() {
 		tableViewer.refresh();
+	}
+
+	OperationSequenceFilter getOperationSequenceFilter() {
+		return operationSequenceFilter;
+	}
+
+	void setSelection(ISelection selection) {
+		tableViewer.setSelection(selection, true);
 	}
 
 	void removeSelection() {

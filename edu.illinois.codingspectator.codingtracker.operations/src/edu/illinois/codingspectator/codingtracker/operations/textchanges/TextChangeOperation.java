@@ -6,7 +6,6 @@ package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
-import org.eclipse.jface.text.TextEvent;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
 
@@ -33,11 +32,9 @@ public abstract class TextChangeOperation extends UserOperation {
 		super();
 	}
 
-	public TextChangeOperation(TextEvent textEvent) {
+	public TextChangeOperation(DocumentEvent documentEvent, String replacedText) {
 		super();
-		replacedText= textEvent.getReplacedText() == null ? "" : textEvent.getReplacedText();
-		//Use DocumentEvent to get correct, file-based offsets (which do not depend on expanding/collapsing of import statements,methods,etc.)
-		DocumentEvent documentEvent= textEvent.getDocumentEvent(); //should never be null in this method
+		this.replacedText= replacedText;
 		newText= documentEvent.getText();
 		offset= documentEvent.getOffset();
 		length= documentEvent.getLength();
@@ -66,12 +63,16 @@ public abstract class TextChangeOperation extends UserOperation {
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
 		currentViewer.revealRange(offset, length > newText.length() ? length : newText.length());
-		//TODO: Would it make changes more visible?
-		//currentViewer.setSelectedRange(offset, length > newText.length() ? length : newText.length());
+		currentViewer.setSelectedRange(offset, length);
 		if (!replacedText.equals(currentDocument.get(offset, length))) {
 			throw new RuntimeException("Replaced text is not present in the document: " + this);
 		}
-		replayTextChange();
+		//Timestamp updates are not reproducible, because the corresponding UndoableOperation2ChangeAdapter operation 
+		//is executed as a simple text change
+		if (!isTimestampUpdate()) {
+			replayTextChange();
+		}
+		currentViewer.setSelectedRange(offset, newText.length());
 		if (!newText.equals(currentDocument.get(offset, newText.length()))) {
 			throw new RuntimeException("New text does not appear in the document: " + this);
 		}
@@ -86,6 +87,21 @@ public abstract class TextChangeOperation extends UserOperation {
 		sb.append("Length: " + length + "\n");
 		sb.append(super.toString());
 		return sb.toString();
+	}
+
+	@Override
+	public boolean isTestReplayRecorded() {
+		return !isTimestampUpdate();
+	}
+
+	/**
+	 * If a recorded text change operation does not change anything in the document, it is a
+	 * timestamp update (happens when an UndoableOperation2ChangeAdapter is undone/redone)
+	 * 
+	 * @return
+	 */
+	private boolean isTimestampUpdate() {
+		return newText.isEmpty() && replacedText.isEmpty() && offset == 0 && length == 0;
 	}
 
 	protected abstract void replayTextChange() throws BadLocationException, ExecutionException;

@@ -10,7 +10,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
  */
 public abstract class OperationSymbols {
 
-	//Used symbols: 23, remaining symbols: v w y
+	//Used symbols: 26 + 3, remaining symbols: D E F G H I J K L M N O P Q R S T U V W X Y Z
 
 	public static final char ECLIPSE_STARTED_SYMBOL= 'l';
 
@@ -59,5 +59,17 @@ public abstract class OperationSymbols {
 	public static final char CONFLICT_EDITOR_TEXT_CHANGE_UNDONE_SYMBOL= 'k';
 
 	public static final char CONFLICT_EDITOR_TEXT_CHANGE_REDONE_SYMBOL= 'n';
+
+	public static final char TEST_SESSION_LAUNCHED_SYMBOL= 'v';
+
+	public static final char TEST_SESSION_STARTED_SYMBOL= 'w';
+
+	public static final char TEST_SESSION_FINISHED_SYMBOL= 'y';
+
+	public static final char TEST_CASE_STARTED_SYMBOL= 'A';
+
+	public static final char TEST_CASE_FINISHED_SYMBOL= 'B';
+
+	public static final char APPLICATION_LAUNCHED_SYMBOL= 'C';
 
 }

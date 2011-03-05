@@ -6,12 +6,14 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.testplugin.JavaProjectHelper;
 
+import edu.illinois.codingspectator.codingtracker.eclipse.JavaProjectHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -21,7 +23,6 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public abstract class SnapshotedFileOperation extends FileOperation {
 
 	private String fileContent;
@@ -47,7 +48,6 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 		fileContent= operationLexer.getNextLexeme();
 	}
 
-	//TODO: Change replay of commit and initially commit to check the content of the file if it already exists.
 	@Override
 	public void replay() throws CoreException {
 		IJavaProject javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
@@ -62,6 +62,16 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 		sb.append("File content: " + fileContent + "\n");
 		sb.append(super.toString());
 		return sb.toString();
+	}
+
+	protected void checkSnapshotMatchesTheExistingFile() {
+		IResource workspaceResource= ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
+		if (workspaceResource != null) {
+			File existingFile= new File(workspaceResource.getLocation().toPortableString());
+			if (!fileContent.equals(FileHelper.getFileContent(existingFile))) {
+				throw new RuntimeException("The snapshot file does not match the existing file: " + filePath);
+			}
+		}
 	}
 
 }

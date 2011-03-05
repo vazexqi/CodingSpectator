@@ -43,6 +43,10 @@ public class OperationSequenceFilter extends ViewerFilter {
 
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
+		return isShown(element);
+	}
+
+	boolean isShown(Object element) {
 		if (element instanceof TextChangeOperation) {
 			return showTextChanges;
 		}

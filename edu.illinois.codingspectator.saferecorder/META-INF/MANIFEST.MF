@@ -7,7 +7,8 @@ Bundle-Activator: edu.illinois.codingspectator.saferecorder.Activator
 Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
  edu.illinois.codingspectator.codingtracker.helpers,
- edu.illinois.codingspectator.monitor.core
+ edu.illinois.codingspectator.monitor.core,
+ edu.illinois.codingspectator.data;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.saferecorder

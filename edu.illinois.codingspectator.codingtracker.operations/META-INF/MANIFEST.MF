@@ -7,11 +7,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: edu.illinois.codingspectator.codingtracker.operations,
  edu.illinois.codingspectator.codingtracker.operations.conflicteditors,
  edu.illinois.codingspectator.codingtracker.operations.files,
+ edu.illinois.codingspectator.codingtracker.operations.junit,
  edu.illinois.codingspectator.codingtracker.operations.refactorings,
  edu.illinois.codingspectator.codingtracker.operations.starts,
  edu.illinois.codingspectator.codingtracker.operations.textchanges
 Require-Bundle: edu.illinois.codingspectator.codingtracker.helpers;visibility:=reexport,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
- org.eclipse.jdt.ui.tests
+ edu.illinois.codingspectator.codingtracker.eclipse
 Bundle-Vendor: University of Illinois

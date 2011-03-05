@@ -50,6 +50,8 @@ import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UploadSettings;
 import org.osgi.framework.Version;
 
+import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
+
 /**
  * Instances of the {@link BasicUploader} class are responsible for uploading a set of files to the
  * server.
@@ -481,7 +483,7 @@ public class BasicUploader extends AbstractUploader {
 	}
 
 	private IPath getCodingSpectatorWatchedDirectory() {
-		return Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).append(getCodingSpectatorVersion().toString());
+		return CodingSpectatorDataPlugin.getStorageLocation().append(getCodingSpectatorVersion().toString());
 	}
 
 	private Version getCodingSpectatorVersion() {

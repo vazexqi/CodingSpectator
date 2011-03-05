@@ -3,20 +3,21 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.refactorings;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.IUndoManager;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringContribution;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
-import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringContributionManager;
 
+import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
@@ -28,6 +29,8 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  */
 @SuppressWarnings({ "rawtypes", "restriction" })
 public abstract class RefactoringOperation extends UserOperation {
+
+	protected static Set<Long> unperformedRefactorings= new HashSet<Long>();
 
 	private String id;
 
@@ -70,20 +73,6 @@ public abstract class RefactoringOperation extends UserOperation {
 		}
 	}
 
-	protected Refactoring getInitializedRefactoring() throws CoreException {
-		RefactoringStatus initializationStatus= new RefactoringStatus();
-		Refactoring refactoring= getRefactoringDescriptor().createRefactoring(initializationStatus);
-		if (!initializationStatus.isOK()) {
-			throw new RuntimeException("Failed to initialize a refactoring from its descriptor: " + id);
-		}
-		return refactoring;
-	}
-
-	private RefactoringDescriptor getRefactoringDescriptor() {
-		RefactoringContribution refactoringContribution= RefactoringCore.getRefactoringContribution(id);
-		return refactoringContribution.createDescriptor(id, project, "Recorded refactoring", "", arguments, flags);
-	}
-
 	protected IUndoManager getRefactoringUndoManager() {
 		return RefactoringCore.getUndoManager();
 	}
@@ -112,6 +101,17 @@ public abstract class RefactoringOperation extends UserOperation {
 	}
 
 	@Override
+	public void replay() throws CoreException {
+		RefactoringContribution refactoringContribution= RefactoringCore.getRefactoringContribution(id);
+		if (refactoringContribution == null) {
+			Debugger.debug("***WARNING*** Failed to get refactoring contribution for id: " + id);
+			return;
+		}
+		RefactoringDescriptor refactoringDescriptor= refactoringContribution.createDescriptor(id, project.isEmpty() ? null : project, "Recorded refactoring", "", arguments, flags);
+		replayRefactoring(refactoringDescriptor);
+	}
+
+	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("ID: " + id + "\n");
@@ -125,5 +125,7 @@ public abstract class RefactoringOperation extends UserOperation {
 		sb.append(super.toString());
 		return sb.toString();
 	}
+
+	protected abstract void replayRefactoring(RefactoringDescriptor refactoringDescriptor) throws CoreException;
 
 }
