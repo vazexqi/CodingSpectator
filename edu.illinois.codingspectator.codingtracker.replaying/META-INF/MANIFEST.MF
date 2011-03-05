@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Replaying
+Bundle-Name: edu.illinois.codingspectator.codingtracker.replaying
 Bundle-SymbolicName: edu.illinois.codingspectator.codingtracker.replaying; singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.codingtracker.replaying.Activator
@@ -11,3 +11,4 @@ Require-Bundle: org.eclipse.ui,
  edu.illinois.codingspectator.codingtracker.eclipse
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: University of Illinois

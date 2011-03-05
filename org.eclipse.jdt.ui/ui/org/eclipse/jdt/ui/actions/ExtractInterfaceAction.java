@@ -22,10 +22,13 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -38,15 +41,18 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringActions;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * Extract a new interface from a class and tries to use the interface instead
- * of the concrete class where possible.
+ * Extract a new interface from a class and tries to use the interface instead of the concrete class
+ * where possible.
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Balaji Ambresh Rajkumar nchen, Mohsen Vakilian - Captured when the refactoring is
+ *         unavailable.
  */
 public class ExtractInterfaceAction extends SelectionDispatchAction {
 
@@ -54,8 +60,9 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public ExtractInterfaceAction(JavaEditor editor) {
@@ -65,10 +72,10 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>ExtractInterfaceAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>ExtractInterfaceAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public ExtractInterfaceAction(IWorkbenchSite site) {
@@ -100,7 +107,7 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 		try {
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(selection)) {
 				IType singleSelectedType= RefactoringAvailabilityTester.getSingleSelectedType(selection);
-				if (! ActionUtil.isEditable(getShell(), singleSelectedType))
+				if (!ActionUtil.isEditable(getShell(), singleSelectedType))
 					return;
 				RefactoringExecutionStarter.startExtractInterfaceRefactoring(singleSelectedType, getShell());
 			}
@@ -109,17 +116,18 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 		}
 	}
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
 	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection the Java text selection (internal type)
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
@@ -131,21 +139,28 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	}
 
 	/*
-     * @see SelectionDispatchAction#run(ITextSelection)
-     */
+	 * @see SelectionDispatchAction#run(ITextSelection)
+	 */
 	public void run(ITextSelection selection) {
 		try {
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(type)) {
-				if (! ActionUtil.isEditable(fEditor, getShell(), type))
+				if (!ActionUtil.isEditable(fEditor, getShell(), type))
 					return;
 				RefactoringExecutionStarter.startExtractInterfaceRefactoring(type, getShell());
 			} else {
-				String unavailable= RefactoringMessages.ExtractInterfaceAction_To_activate;
-				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, unavailable);
+				//CODINGSPECTATOR
+				String errorMessage= RefactoringMessages.ExtractInterfaceAction_To_activate;
+
+				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
+
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
 		}
 	}
+
+
 }

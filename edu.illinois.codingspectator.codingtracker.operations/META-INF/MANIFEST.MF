@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Operations
+Bundle-Name: edu.illinois.codingspectator.codingtracker.operations
 Bundle-SymbolicName: edu.illinois.codingspectator.codingtracker.operations
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -15,3 +15,4 @@ Require-Bundle: edu.illinois.codingspectator.codingtracker.helpers;visibility:=r
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  edu.illinois.codingspectator.codingtracker.eclipse
+Bundle-Vendor: University of Illinois

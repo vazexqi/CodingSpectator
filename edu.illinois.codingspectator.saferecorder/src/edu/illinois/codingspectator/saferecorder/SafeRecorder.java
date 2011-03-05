@@ -9,12 +9,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class SafeRecorder {
 
 	private final File mainRecordFile;
 
-	private static final IPath WATCHED_PATH= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring"));
+	private static final IPath WATCHED_PATH= CodingSpectatorDataPlugin.getStorageLocation();
 
 	public static final String FEATURE_VERSION= RefactoringHistoryService.getFeatureVersion().toString();
 
