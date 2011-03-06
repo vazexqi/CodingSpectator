@@ -13,6 +13,8 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.ui.tests.Encryptor;
+import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -47,7 +49,7 @@ public class UnavailableExtractMethodTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
+	protected void doRefactoringShouldBeLogged() throws EncryptionException {
 		assertTrue(refactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
@@ -63,9 +65,9 @@ public class UnavailableExtractMethodTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
 		assertEquals(SELECTION, capturedDescriptor.getSelection());
-//		assertEquals("332 0", capturedDescriptor.getSelectionOffset());
+		assertEquals("277 4", capturedDescriptor.getSelectionOffset());
 		assertEquals("Cannot extract new method from selection. Only statements from a method body can be extracted.", capturedDescriptor.getStatus());
-//		assertEquals("509e14617a2628706da3cb61b4c8cb93", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertEquals("4b7e3084104f0f3fe5be59d5b8618565", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 

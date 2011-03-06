@@ -111,6 +111,14 @@ public class Logger {
 		return refactoringDescriptor;
 	}
 
+	/**
+	 * @deprecated
+	 * 
+	 * @param refactoring
+	 * @param project
+	 * @param selectionInformation
+	 * @param errorMessage
+	 */
 	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
 		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
 		logDebug(refactoringDescriptor.toString());
@@ -150,10 +158,20 @@ public class Logger {
 		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
 
 		// We used DefaultRefactoringDescriptor instead of a specific JavaRefactoringDescriptor even though we know which Java refactoring it is because it is not always possible to construct 
-		// a JavaRefactoringDescriptor. A JavaRefactoringDescritptor expects more information, and those informations cannot be NULL (it explicitly checks for those and fails on assertion).
+		// a JavaRefactoringDescriptor. A JavaRefactoringDescritptor expects more information, and that information cannot be NULL (it explicitly checks for those and fails on assertion).
 		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
 
+	/**
+	 * 
+	 * @deprecated
+	 * 
+	 * @param refactoring
+	 * @param project
+	 * @param selection
+	 * @param errorMessage
+	 * @return
+	 */
 	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selection, String errorMessage) {
 		Map arguments= new HashMap();
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selection);
@@ -162,7 +180,7 @@ public class Logger {
 		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
 
 		// We used DefaultRefactoringDescriptor instead of a specific JavaRefactoringDescriptor even though we know which Java refactoring it is because it is not always possible to construct 
-		// a JavaRefactoringDescriptor. A JavaRefactoringDescritptor expects more information, and those informations cannot be NULL (it explicitly checks for those and fails on assertion).
+		// a JavaRefactoringDescriptor. A JavaRefactoringDescriptor expects more information, and that information cannot be NULL (it explicitly checks for those and fails on assertion).
 		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
 
