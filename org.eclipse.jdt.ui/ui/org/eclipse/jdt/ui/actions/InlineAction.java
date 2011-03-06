@@ -26,6 +26,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 
@@ -132,7 +133,7 @@ public class InlineAction extends SelectionDispatchAction {
 		//CODINGSPECTATOR
 		String javaProject= typeRoot.getJavaProject().getElementName();
 		String selectionIfAny= typeRoot.getElementName();
-		Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.InlineAction_select);
+		Logger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE_CONSTANT, javaProject, selectionIfAny, RefactoringMessages.InlineAction_select);
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}
 
