@@ -3,16 +3,22 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Version;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
+import org.eclipse.ltk.core.refactoring.history.RefactoringHistory;
+import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryManager;
+
+import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
 /**
  * 
@@ -20,6 +26,7 @@ import org.osgi.framework.Version;
  * @author nchen
  * 
  */
+@SuppressWarnings("restriction")
 public class RefactoringLog {
 
 	public enum LogType {
@@ -28,15 +35,13 @@ public class RefactoringLog {
 
 	IFileStore fileStore;
 
-	private static final String GENERIC_VERSION_NUMBER= "1.0.0.qualifier";
-
 	private static final String CANCELED_REFACTORINGS= "refactorings/canceled";
 
 	private static final String PERFORMED_REFACTORINGS= "refactorings/performed";
 
 	private static final String UNAVAILABLE_REFACTORINGS= "refactorings/unavailable";
 
-	private static final String REFACTORING_HISTORY_LOCATION= Platform.getStateLocation(Platform.getBundle("org.eclipse.ltk.core.refactoring")).toOSString();
+	private static final IPath REFACTORING_HISTORY_LOCATION= CodingSpectatorDataPlugin.getVersionedStorageLocation();
 
 	private static Map<LogType, String> logTypeToDirectory= new HashMap<LogType, String>();
 
@@ -59,34 +64,21 @@ public class RefactoringLog {
 	}
 
 	private IFileStore getFileStore(String logDirectory) {
-		return EFS.getLocalFileSystem().getStore(new Path(getRefactoringStorageLocation(logDirectory)));
+		return EFS.getLocalFileSystem().getStore(getRefactoringStorageLocation(logDirectory));
 	}
 
-	private String getSystemFileSeparator() {
-		return System.getProperty("file.separator");
+	public IPath getRefactoringStorageLocation(String directory) {
+		return REFACTORING_HISTORY_LOCATION.append(directory);
 	}
 
-	private Version getFeatureVersion() {
-		Bundle bundle= Platform.getBundle("edu.illinois.codingspectator.monitor");
-		if (bundle != null)
-			return bundle.getVersion();
-		else
-			return new Version(GENERIC_VERSION_NUMBER);
-	}
-
-	public String getRefactoringStorageLocation(String directory) {
-		StringBuilder fullDirectory= new StringBuilder();
-		fullDirectory.append(REFACTORING_HISTORY_LOCATION);
-		fullDirectory.append(getSystemFileSeparator());
-		fullDirectory.append(getFeatureVersion());
-
-		String directorySeparator= "/";
-		String[] directories= directory.split(directorySeparator);
-		for (int i= 0; i < directories.length; i++) {
-			fullDirectory.append(getSystemFileSeparator());
-			fullDirectory.append(directories[i]);
+	public Collection<JavaRefactoringDescriptor> getRefactoringDescriptors(String javaProjectName) {
+		RefactoringHistoryManager refactoringHistoryManager= new RefactoringHistoryManager(fileStore.getChild(javaProjectName), javaProjectName);
+		RefactoringHistory refactoringHistory= refactoringHistoryManager.readRefactoringHistory(0, Long.MAX_VALUE, new NullProgressMonitor());
+		RefactoringDescriptorProxy[] refactoringDescriptorProxies= refactoringHistory.getDescriptors();
+		Collection<JavaRefactoringDescriptor> refactoringDescriptors= new ArrayList<JavaRefactoringDescriptor>();
+		for (RefactoringDescriptorProxy refactoringDescriptorProxy : refactoringDescriptorProxies) {
+			refactoringDescriptors.add((JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor()));
 		}
-
-		return fullDirectory.toString();
+		return refactoringDescriptors;
 	}
 }

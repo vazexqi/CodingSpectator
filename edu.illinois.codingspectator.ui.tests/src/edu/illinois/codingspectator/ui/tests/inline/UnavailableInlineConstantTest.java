@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests.pushdown;
+package edu.illinois.codingspectator.ui.tests.inline;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,34 +16,29 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.Encryptor;
-import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
- * 
  * @author Mohsen Vakilian
  * @author nchen
- * @author Balaji Ambresh Rajkumar
- * 
  */
-public class UnavailablePushDownFieldTest extends RefactoringTest {
+public class UnavailableInlineConstantTest extends RefactoringTest {
 
-	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
+	private static final String INLINE_CONSTANT_MENU_ITEM= "Inline...";
 
-	private static final String SELECTION= "Child2";
+	private static final String SELECTION= "InlineConstantTestFile";
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.UNAVAILABLE);
 
 	@Override
 	protected String getTestFileName() {
-		return "PushDownSingleFieldTestFile";
+		return "InlineConstantTestFile";
 	}
 
 	@Override
 	protected String getTestInputLocation() {
-		return "push-down";
+		return "inline";
 	}
 
 	@Override
@@ -53,13 +48,13 @@ public class UnavailablePushDownFieldTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 14, 6, SELECTION.length());
-		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
+		bot.selectElementToRefactor(getTestFileFullName(), 5, 13, SELECTION.length());
+		bot.invokeRefactoringFromMenu(INLINE_CONSTANT_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() throws EncryptionException {
+	protected void doRefactoringShouldBeLogged() {
 		assertTrue(refactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
@@ -69,15 +64,15 @@ public class UnavailablePushDownFieldTest extends RefactoringTest {
 		assertEquals("", capturedDescriptor.getComment());
 		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", capturedDescriptor.getDescription());
 		assertEquals(0, capturedDescriptor.getFlags());
-		assertEquals(IJavaRefactorings.PUSH_DOWN, capturedDescriptor.getID());
+		assertEquals(IJavaRefactorings.INLINE_CONSTANT, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals("300 6", capturedDescriptor.getSelectionOffset());
-		assertEquals("To activate this refactoring, please select the name of a non-binary instance method or field.", capturedDescriptor.getStatus());
-		assertEquals("ef78dac63bfd63f8a78d2e274433849e", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+//		assertEquals(SELECTION, capturedDescriptor.getSelection());
+//		assertEquals(String.format("223 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals("Select a method declaration, a method invocation, a static final field or a local variable that you want to inline.", capturedDescriptor.getStatus());
+//		assertEquals("ef03a6850277ef0f1c7cfcd0c6a663ef", /*Encryptor.toMD5*/(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 

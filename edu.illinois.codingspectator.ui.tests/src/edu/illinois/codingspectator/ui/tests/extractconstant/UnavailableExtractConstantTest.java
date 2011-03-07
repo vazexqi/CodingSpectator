@@ -1,7 +1,4 @@
-/**
- * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
- */
-package edu.illinois.codingspectator.ui.tests.pushdown;
+package edu.illinois.codingspectator.ui.tests.extractconstant;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,29 +18,24 @@ import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
-/**
- * 
- * @author Mohsen Vakilian
- * @author nchen
- * @author Balaji Ambresh Rajkumar
- * 
- */
-public class UnavailablePushDownFieldTest extends RefactoringTest {
+public class UnavailableExtractConstantTest extends RefactoringTest {
 
-	private static final String PUSH_DOWN_MENU_ITEM= "Push Down...";
+	private static final String EXTRACT_CONSTANT_MENU_ITEM= "Extract Constant...";
 
-	private static final String SELECTION= "Child2";
+	private static final String TEST_FILE_NAME= "ExtractConstantTestFile";
+
+	private final String SELECTION= "main";
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.UNAVAILABLE);
 
 	@Override
 	protected String getTestFileName() {
-		return "PushDownSingleFieldTestFile";
+		return TEST_FILE_NAME;
 	}
 
 	@Override
 	protected String getTestInputLocation() {
-		return "push-down";
+		return "extract-constant";
 	}
 
 	@Override
@@ -53,8 +45,8 @@ public class UnavailablePushDownFieldTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 14, 6, SELECTION.length());
-		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
+		bot.selectElementToRefactor(getTestFileFullName(), 7, 23, SELECTION.length());
+		bot.invokeRefactoringFromMenu(EXTRACT_CONSTANT_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
@@ -69,15 +61,15 @@ public class UnavailablePushDownFieldTest extends RefactoringTest {
 		assertEquals("", capturedDescriptor.getComment());
 		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", capturedDescriptor.getDescription());
 		assertEquals(0, capturedDescriptor.getFlags());
-		assertEquals(IJavaRefactorings.PUSH_DOWN, capturedDescriptor.getID());
+		assertEquals(IJavaRefactorings.EXTRACT_CONSTANT, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
 		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals("300 6", capturedDescriptor.getSelectionOffset());
-		assertEquals("To activate this refactoring, please select the name of a non-binary instance method or field.", capturedDescriptor.getStatus());
-		assertEquals("ef78dac63bfd63f8a78d2e274433849e", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertEquals("223 4", capturedDescriptor.getSelectionOffset());
+		assertEquals("An expression must be selected to activate this refactoring.", capturedDescriptor.getStatus());
+		assertEquals("ef03a6850277ef0f1c7cfcd0c6a663ef", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 
@@ -85,5 +77,6 @@ public class UnavailablePushDownFieldTest extends RefactoringTest {
 	protected void doCleanRefactoringHistory() throws CoreException {
 		refactoringLog.clean();
 	}
+
 
 }

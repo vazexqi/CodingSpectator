@@ -4,8 +4,10 @@
 package edu.illinois.codingspectator.data;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -57,6 +59,14 @@ public class CodingSpectatorDataPlugin extends Plugin {
 	 */
 	public static IPath getStorageLocation() {
 		return getDefault().getStateLocation();
+	}
+
+	public static Version getCodingSpectatorVersion() {
+		return Platform.getBundle(PLUGIN_ID).getVersion();
+	}
+
+	public static IPath getVersionedStorageLocation() {
+		return getStorageLocation().append(getCodingSpectatorVersion().toString());
 	}
 
 }

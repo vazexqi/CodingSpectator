@@ -1086,8 +1086,6 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 		return descriptor;
 	}
 
-
-
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		String project= getJavaProjectName();
 		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
@@ -1114,13 +1112,17 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 
 	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fSelectionCu));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+//		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
 		arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemoveDeclaration).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllReferences).toString());
 	}
 
 	protected ITypeRoot getJavaTypeRoot() {
 		return fSelectionCu;
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.INLINE_CONSTANT;
 	}
 
 }

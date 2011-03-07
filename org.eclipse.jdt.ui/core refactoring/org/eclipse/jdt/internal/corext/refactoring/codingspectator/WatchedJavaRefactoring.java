@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
@@ -77,7 +78,6 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		return null;
 	}
 
-
 	private String getCodeSnippet() {
 		ASTNode node= findTargetNode();
 
@@ -105,7 +105,8 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
 		if (isRefWizOpenOpCheckedInitConds()) {
-			Logger.logUnavailableRefactoringEvent(getDescriptorID(), getJavaProjectName(), getSelection(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+			CodeSnippetInformation codeSnippetInformation= new CodeSnippetInformationExtractor(getJavaTypeRoot(), fSelectionStart, fSelectionLength).extractCodeSnippetInformation();
+			Logger.logUnavailableRefactoringEvent(getDescriptorID(), getJavaProjectName(), codeSnippetInformation, refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
 			unsetRefWizOpenOpCheckedInitConds();
 		}
 	}

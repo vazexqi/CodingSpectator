@@ -3,32 +3,35 @@
  */
 package edu.illinois.codingspectator.errorlog;
 
-import org.eclipse.core.runtime.ILogListener;
+import java.io.StringWriter;
+import java.io.Writer;
+
+import org.eclipse.core.internal.runtime.PlatformLogWriter;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.adaptor.EclipseLog;
 
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 
 /**
- * TODO: We need to write the reported error into a file.
- * 
- * Depending on how we resolve issue #149, we might be able to reuse classes EclipseLog and
- * PlatformLogWriter to output the errors into our own file.
  * 
  * @author Mohsen Vakilian
  * @author Balaji Ambresh Rajkumar
  * @author Stas Negara
  * 
  */
-public class ErrorLogListener implements ILogListener {
+@SuppressWarnings("restriction")
+public class ErrorLogListener extends PlatformLogWriter {
 
-	private static final SafeRecorder safeRecorder= new SafeRecorder("error-log.txt");
+	private static final SafeRecorder safeRecorder= new SafeRecorder("error.log");
 
-	@Override
-	public void logging(IStatus status, String plugin) {
-		safeRecorder.record("status = " + status + "\n");
-//		safeRecorder.record("stack trace = " + "\n");
-//		status.getException().printStackTrace();
-		safeRecorder.record("plugin = " + plugin + "\n");
-		safeRecorder.record("timestamp = " + System.currentTimeMillis() + "\n");
+	public ErrorLogListener() {
+		super(null);
 	}
+
+	public synchronized void logging(IStatus status, String plugin) {
+		Writer writer= new StringWriter();
+		new EclipseLog(writer).log(getLog(status));
+		safeRecorder.record(writer.toString());
+	}
+
 }
