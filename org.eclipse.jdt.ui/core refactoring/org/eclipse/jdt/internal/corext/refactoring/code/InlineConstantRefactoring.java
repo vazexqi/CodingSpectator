@@ -733,6 +733,10 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 		return fField;
 	}
 
+	/*
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial
+	 * conditions.
+	 */
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask("", 3); //$NON-NLS-1$
@@ -742,22 +746,38 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 						RefactoringStatusCodes.SYNTAX_ERRORS, null);
 
 			RefactoringStatus result= checkStaticFinalConstantNameSelected();
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 
 			result.merge(findField());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 			pm.worked(1);
 
 			result.merge(findDeclaration());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 			pm.worked(1);
 
 			result.merge(checkInitializer());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 			pm.worked(1);
 
 			return result;
