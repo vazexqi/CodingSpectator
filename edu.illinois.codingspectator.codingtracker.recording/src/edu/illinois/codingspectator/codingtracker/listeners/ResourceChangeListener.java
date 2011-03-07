@@ -3,10 +3,14 @@
  */
 package edu.illinois.codingspectator.codingtracker.listeners;
 
+import java.io.File;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.compare.internal.CompareEditor;
+import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -23,7 +27,9 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 
 /**
  * 
@@ -34,6 +40,8 @@ import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 public class ResourceChangeListener extends BasicListener implements IResourceChangeListener {
 
 	private final IResourceDeltaVisitor resourceDeltaVisitor= new ResourceDeltaVisitor();
+
+	private final KnownfilesRecorder knownfilesRecorder= KnownfilesRecorder.getInstance();
 
 	//Populated sets:
 
@@ -49,6 +57,9 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	private final Set<IFile> svnEntriesChangeSet= new HashSet<IFile>();
 
+	private final Set<IFile> cvsEntriesAddedSet= new HashSet<IFile>();
+
+	private final Set<IFile> cvsEntriesChangedOrRemovedSet= new HashSet<IFile>();
 
 	//Calculated sets:
 
@@ -61,9 +72,13 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	private final Set<IFile> updatedJavaFiles= new HashSet<IFile>();
 
-	private final Set<IFile> initiallyCommittedJavaFiles= new HashSet<IFile>();
+	private final Set<IFile> svnInitiallyCommittedJavaFiles= new HashSet<IFile>();
 
-	private final Set<IFile> committedJavaFiles= new HashSet<IFile>();
+	private final Set<IFile> cvsInitiallyCommittedJavaFiles= new HashSet<IFile>();
+
+	private final Set<IFile> svnCommittedJavaFiles= new HashSet<IFile>();
+
+	private final Set<IFile> cvsCommittedJavaFiles= new HashSet<IFile>();
 
 
 	public static void register() {
@@ -89,12 +104,16 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		svnAddedJavaFiles.clear();
 		svnChangedJavaFiles.clear();
 		svnEntriesChangeSet.clear();
+		cvsEntriesAddedSet.clear();
+		cvsEntriesChangedOrRemovedSet.clear();
 		savedJavaFiles.clear();
 		savedConflictEditorIDs.clear();
 		externallyModifiedJavaFiles.clear();
 		updatedJavaFiles.clear();
-		initiallyCommittedJavaFiles.clear();
-		committedJavaFiles.clear();
+		svnInitiallyCommittedJavaFiles.clear();
+		cvsInitiallyCommittedJavaFiles.clear();
+		svnCommittedJavaFiles.clear();
+		cvsCommittedJavaFiles.clear();
 	}
 
 	private void populateSets(IResourceDelta delta) {
@@ -108,9 +127,107 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	private void calculateSets() {
 		//should be done only in this order
+		calculateCVSSets();
 		calculateSVNSets();
 		calculateSavedConflictEditorIDs();
 		calculateSavedAndExternallyModifiedJavaFiles();
+	}
+
+	private void calculateCVSSets() {
+		processAddedCVSEntriesFiles();
+		processChangedOrRemovedCVSEntriesFiles();
+	}
+
+	private void processAddedCVSEntriesFiles() {
+		boolean hasChangedKnownFiles= false;
+		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
+			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
+			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(new File(cvsEntriesFile.getLocation().toOSString()), relativePath);
+			boolean isInitialCommit= false;
+			for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
+				IFile entryFile= newEntry.getKey();
+				if (changedJavaFiles.contains(entryFile)) {
+					updatedJavaFiles.add(entryFile);
+				} else if (!addedJavaFiles.contains(entryFile)) {
+					cvsInitiallyCommittedJavaFiles.add(entryFile);
+					isInitialCommit= true;
+				}
+			}
+			if (isInitialCommit || doesContainKnownFiles(relativePath)) {
+				knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile);
+				hasChangedKnownFiles= true;
+			}
+		}
+		if (hasChangedKnownFiles) {
+			knownfilesRecorder.recordKnownfiles();
+		}
+	}
+
+	private boolean doesContainKnownFiles(IPath path) {
+		IResource resource= FileHelper.findWorkspaceMemeber(path);
+		if (resource instanceof Folder) {
+			Folder containerFolder= (Folder)resource;
+			try {
+				IResource[] members= containerFolder.members();
+				for (IResource member : members) {
+					if (member instanceof IFile && knownfilesRecorder.isFileKnown((IFile)member)) {
+						return true;
+					}
+				}
+			} catch (CoreException e) {
+				Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSFolderMembersFailure);
+			}
+		}
+		return false;
+	}
+
+	private void processChangedOrRemovedCVSEntriesFiles() {
+		boolean hasChangedKnownFiles= false;
+		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
+			if (cvsEntriesFile.exists()) {
+				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
+				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(new File(cvsEntriesFile.getLocation().toOSString()), relativePath);
+				File trackedCVSEntriesFile= knownfilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
+				if (trackedCVSEntriesFile.exists()) {
+					Map<IFile, String> previousVersions= FileHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
+					processCVSVersionsDifference(newVersions, previousVersions);
+					knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile); //overwrite the existing tracked entries file with the new one
+					hasChangedKnownFiles= true;
+				} else {
+					for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
+						IFile entryFile= newEntry.getKey();
+						if (changedJavaFiles.contains(entryFile)) {
+							updatedJavaFiles.add(entryFile);
+						}
+					}
+				}
+			} else {
+				// CVS entries file was deleted, so stop tracking it
+				knownfilesRecorder.removeKnownfile(cvsEntriesFile);
+				hasChangedKnownFiles= true;
+			}
+		}
+		if (hasChangedKnownFiles) {
+			knownfilesRecorder.recordKnownfiles();
+		}
+	}
+
+	private void processCVSVersionsDifference(Map<IFile, String> newVersions, Map<IFile, String> previousVersions) {
+		for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
+			IFile entryFile= newEntry.getKey();
+			String previousVersion= previousVersions.get(entryFile);
+			if (previousVersion == null) {
+				if (!addedJavaFiles.contains(entryFile)) {
+					cvsInitiallyCommittedJavaFiles.add(entryFile);
+				}
+			} else if (!previousVersion.equals(newEntry.getValue())) {
+				if (changedJavaFiles.contains(entryFile)) {
+					updatedJavaFiles.add(entryFile);
+				} else {
+					cvsCommittedJavaFiles.add(entryFile);
+				}
+			}
+		}
 	}
 
 	private void calculateSVNSets() {
@@ -118,12 +235,12 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			if (changedJavaFiles.contains(file)) {
 				updatedJavaFiles.add(file); //if both the java file and its svn storage have changed, then its an update
 			} else {
-				committedJavaFiles.add(file); //if only svn storage of a java file has changed, its a commit
+				svnCommittedJavaFiles.add(file); //if only svn storage of a java file has changed, its a commit
 			}
 		}
 		for (IFile file : svnAddedJavaFiles) {
 			if (!addedJavaFiles.contains(file)) { //if only svn storage was added for a file, its an initial commit
-				initiallyCommittedJavaFiles.add(file);
+				svnInitiallyCommittedJavaFiles.add(file);
 			}
 		}
 	}
@@ -149,10 +266,10 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void calculateSavedAndExternallyModifiedJavaFiles() {
-		boolean isSVNEntriesChanged= svnEntriesChangeSet.size() > 0;
+		boolean isVersionControlEntriesChanged= !svnEntriesChangeSet.isEmpty() || !cvsEntriesChangedOrRemovedSet.isEmpty() || !cvsEntriesAddedSet.isEmpty();
 		for (IFile file : changedJavaFiles) {
 			if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
-				if (isRefactoring || dirtyFiles.contains(file) && !isSVNEntriesChanged) {
+				if (isRefactoring || dirtyFiles.contains(file) && !isVersionControlEntriesChanged) {
 					savedJavaFiles.add(file);
 				} else {
 					externallyModifiedJavaFiles.add(file);
@@ -166,8 +283,10 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		operationRecorder.recordSavedConflictEditors(savedConflictEditorIDs);
 		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
 		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
-		operationRecorder.recordCommittedFiles(initiallyCommittedJavaFiles, true);
-		operationRecorder.recordCommittedFiles(committedJavaFiles, false);
+		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFiles, true, true);
+		operationRecorder.recordCommittedFiles(cvsInitiallyCommittedJavaFiles, true, false);
+		operationRecorder.recordCommittedFiles(svnCommittedJavaFiles, false, true);
+		operationRecorder.recordCommittedFiles(cvsCommittedJavaFiles, false, false);
 	}
 
 	private void updateDirtyAndKnownFiles() {
@@ -211,6 +330,12 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 				IFile file= (IFile)resource;
 				if (file.getName().equals("entries") && file.getParent().getName().equals(".svn")) {
 					svnEntriesChangeSet.add(file);
+				} else if (file.getName().equals("Entries") && file.getParent().getName().equals("CVS")) {
+					if (delta.getKind() == IResourceDelta.ADDED) {
+						cvsEntriesAddedSet.add(file);
+					} else {
+						cvsEntriesChangedOrRemovedSet.add(file);
+					}
 				} else {
 					String fileExtension= file.getFileExtension(); //may be null
 					if ("java".equals(fileExtension)) {

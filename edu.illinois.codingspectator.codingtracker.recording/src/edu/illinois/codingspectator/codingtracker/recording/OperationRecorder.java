@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
@@ -15,20 +17,23 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
+import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.CommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.InitiallyCommittedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.NewFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
@@ -148,14 +153,23 @@ public class OperationRecorder {
 	 * 
 	 * @param committedFiles
 	 * @param isInitialCommit
+	 * @param isSVNCommit
 	 */
-	public void recordCommittedFiles(Set<IFile> committedFiles, boolean isInitialCommit) {
+	public void recordCommittedFiles(Set<IFile> committedFiles, boolean isInitialCommit, boolean isSVNCommit) {
 		if (committedFiles.size() > 0) {
 			for (IFile file : committedFiles) {
 				if (isInitialCommit) {
-					TextRecorder.record(new InitiallyCommittedFileOperation(file));
+					if (isSVNCommit) {
+						TextRecorder.record(new SVNInitiallyCommittedFileOperation(file));
+					} else {
+						TextRecorder.record(new CVSInitiallyCommittedFileOperation(file));
+					}
 				} else {
-					TextRecorder.record(new CommittedFileOperation(file));
+					if (isSVNCommit) {
+						TextRecorder.record(new SVNCommittedFileOperation(file));
+					} else {
+						TextRecorder.record(new CVSCommittedFileOperation(file));
+					}
 				}
 				knownfilesRecorder.addKnownfile(file);
 			}
@@ -247,6 +261,12 @@ public class OperationRecorder {
 	public void ensureAreKnownFiles(Set<IFile> files) {
 		boolean hasChanged= false;
 		for (IFile file : files) {
+			//TODO: Is it possible to have a known file, whose CVS/Entries is not known? If not, merge the following two if statements.
+			IFile cvsEntriesFile= getCVSEntriesForFile(file);
+			if (cvsEntriesFile != null && !knownfilesRecorder.isFileKnown(cvsEntriesFile)) {
+				knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile);
+				hasChanged= true;
+			}
 			if (!knownfilesRecorder.isFileKnown(file)) {
 				knownfilesRecorder.addKnownfile(file);
 				hasChanged= true;
@@ -259,6 +279,15 @@ public class OperationRecorder {
 		if (hasChanged) {
 			knownfilesRecorder.recordKnownfiles();
 		}
+	}
+
+	private IFile getCVSEntriesForFile(IFile file) {
+		IPath cvsEntriesPath= file.getFullPath().removeLastSegments(1).append("CVS").append("Entries");
+		IResource cvsEntriesResource= FileHelper.findWorkspaceMemeber(cvsEntriesPath);
+		if (cvsEntriesResource != null) {
+			return (IFile)cvsEntriesResource;
+		}
+		return null;
 	}
 
 }

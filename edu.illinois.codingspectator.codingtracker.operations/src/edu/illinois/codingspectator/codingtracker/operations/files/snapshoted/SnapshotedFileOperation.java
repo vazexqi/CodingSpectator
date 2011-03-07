@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.operations.files;
+package edu.illinois.codingspectator.codingtracker.operations.files.snapshoted;
 
 import java.io.File;
 
@@ -17,6 +17,7 @@ import edu.illinois.codingspectator.codingtracker.eclipse.JavaProjectHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
 
 /**
  * 

@@ -10,7 +10,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
  */
 public abstract class OperationSymbols {
 
-	//Used symbols: 26 + 3, remaining symbols: D E F G H I J K L M N O P Q R S T U V W X Y Z
+	//Used symbols: 26 + 5, remaining symbols: D E F G H J K L M N P Q R S T U V W X Y Z
 
 	public static final char ECLIPSE_STARTED_SYMBOL= 'l';
 
@@ -38,9 +38,13 @@ public abstract class OperationSymbols {
 
 	public static final char FILE_UPDATED_SYMBOL= 'm';
 
-	public static final char FILE_INITIALLY_COMMITTED_SYMBOL= 'i';
+	public static final char FILE_SVN_INITIALLY_COMMITTED_SYMBOL= 'i';
 
-	public static final char FILE_COMMITTED_SYMBOL= 'o';
+	public static final char FILE_CVS_INITIALLY_COMMITTED_SYMBOL= 'I';
+
+	public static final char FILE_SVN_COMMITTED_SYMBOL= 'o';
+
+	public static final char FILE_CVS_COMMITTED_SYMBOL= 'O';
 
 	public static final char FILE_REFACTORED_SAVED_SYMBOL= 'a';
 
