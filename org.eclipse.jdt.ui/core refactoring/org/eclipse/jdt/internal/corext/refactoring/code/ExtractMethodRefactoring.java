@@ -324,7 +324,9 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		IFile[] changedFiles= ResourceUtil.getFiles(new ICompilationUnit[] { fCUnit });
 		result.merge(Checks.validateModifiesFiles(changedFiles, getValidationContext()));
 		if (result.hasFatalError()) {
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(result);
+
 			return result;
 		}
 		result.merge(ResourceChangeChecker.checkFilesToBeChanged(changedFiles, new SubProgressMonitor(pm, 1)));
@@ -339,7 +341,9 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 		result.merge(fAnalyzer.checkInitialConditions(fImportRewriter));
 		if (result.hasFatalError()) {
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(result);
+
 			return result;
 		}
 		if (fVisibility == -1) {
