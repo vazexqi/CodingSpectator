@@ -30,6 +30,10 @@ public class Messages extends NLS {
 
 	public static String Recorder_UnsynchronizedDocumentNotifications;
 
+	public static String Recorder_CVSEntriesCopyFailure;
+
+	public static String Recorder_CVSFolderMembersFailure;
+
 	public static String CodeChangeTracker_FailedToVisitResourceDelta;
 
 	static {

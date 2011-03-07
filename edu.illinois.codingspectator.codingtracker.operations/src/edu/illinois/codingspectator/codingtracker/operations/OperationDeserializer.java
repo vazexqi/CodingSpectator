@@ -10,14 +10,16 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Clo
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.CommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.InitiallyCommittedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.NewFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
@@ -95,11 +97,17 @@ public class OperationDeserializer {
 			case OperationSymbols.FILE_UPDATED_SYMBOL:
 				userOperation= new UpdatedFileOperation();
 				break;
-			case OperationSymbols.FILE_INITIALLY_COMMITTED_SYMBOL:
-				userOperation= new InitiallyCommittedFileOperation();
+			case OperationSymbols.FILE_SVN_INITIALLY_COMMITTED_SYMBOL:
+				userOperation= new SVNInitiallyCommittedFileOperation();
 				break;
-			case OperationSymbols.FILE_COMMITTED_SYMBOL:
-				userOperation= new CommittedFileOperation();
+			case OperationSymbols.FILE_CVS_INITIALLY_COMMITTED_SYMBOL:
+				userOperation= new CVSInitiallyCommittedFileOperation();
+				break;
+			case OperationSymbols.FILE_SVN_COMMITTED_SYMBOL:
+				userOperation= new SVNCommittedFileOperation();
+				break;
+			case OperationSymbols.FILE_CVS_COMMITTED_SYMBOL:
+				userOperation= new CVSCommittedFileOperation();
 				break;
 			case OperationSymbols.FILE_REFACTORED_SAVED_SYMBOL:
 				userOperation= new RefactoredSavedFileOperation();

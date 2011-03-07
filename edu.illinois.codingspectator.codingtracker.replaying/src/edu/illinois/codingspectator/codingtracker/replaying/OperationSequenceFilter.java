@@ -11,7 +11,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.SnapshotedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.TextChangeOperation;

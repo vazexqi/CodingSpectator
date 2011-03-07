@@ -44,7 +44,7 @@ public class KnownfilesRecorder {
 	private static final IPath KNOWNFILES_FILE_PATH= KNOWNFILES_PATH.append(KNOWNFILES_FILE_NAME);
 
 
-	static KnownfilesRecorder getInstance() {
+	public static KnownfilesRecorder getInstance() {
 		if (recorderInstance == null) {
 			recorderInstance= new KnownfilesRecorder();
 		}
@@ -83,7 +83,7 @@ public class KnownfilesRecorder {
 		}
 	}
 
-	synchronized void recordKnownfiles() {
+	public synchronized void recordKnownfiles() {
 		Debugger.debug("recordKnownfiles");
 		BufferedWriter knownfilesFileWriter= null;
 		try {
@@ -102,7 +102,7 @@ public class KnownfilesRecorder {
 		}
 	}
 
-	boolean isFileKnown(IFile file) {
+	public boolean isFileKnown(IFile file) {
 		return knownfiles.containsKey(FileHelper.getPortableFilePath(file));
 	}
 
@@ -110,8 +110,34 @@ public class KnownfilesRecorder {
 		knownfiles.setProperty(FileHelper.getPortableFilePath(file), String.valueOf(System.currentTimeMillis()));
 	}
 
-	Object removeKnownfile(IFile file) {
+	public Object removeKnownfile(IFile file) {
 		return knownfiles.remove(FileHelper.getPortableFilePath(file));
+	}
+
+	public synchronized void addCVSEntriesFile(IFile cvsEntriesSourceFile) {
+		addKnownfile(cvsEntriesSourceFile);
+		File cvsEntriesDestinationFile= getTrackedCVSEntriesFile(cvsEntriesSourceFile);
+		cvsEntriesDestinationFile.getParentFile().mkdirs();
+		BufferedWriter cvsEntriesDestinationFileWriter= null;
+		try {
+			cvsEntriesDestinationFileWriter= new BufferedWriter(new FileWriter(cvsEntriesDestinationFile, false));
+			cvsEntriesDestinationFileWriter.append(FileHelper.getFileContent(new File(cvsEntriesSourceFile.getLocation().toOSString())));
+			cvsEntriesDestinationFileWriter.flush();
+		} catch (IOException e) {
+			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSEntriesCopyFailure);
+		} finally {
+			if (cvsEntriesDestinationFileWriter != null) {
+				try {
+					cvsEntriesDestinationFileWriter.close();
+				} catch (IOException e) {
+					//do nothing
+				}
+			}
+		}
+	}
+
+	public File getTrackedCVSEntriesFile(IFile cvsEntriesSourceFile) {
+		return new File(KNOWNFILES_PATH.append(cvsEntriesSourceFile.getFullPath()).toOSString());
 	}
 
 }
