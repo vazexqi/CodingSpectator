@@ -45,11 +45,11 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * Inlines a constant.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  */
 public class InlineConstantAction extends SelectionDispatchAction {
 
@@ -57,7 +57,7 @@ public class InlineConstantAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
-	 *
+	 * 
 	 * @param editor the java editor
 	 */
 	public InlineConstantAction(JavaEditor editor) {
@@ -98,7 +98,7 @@ public class InlineConstantAction extends SelectionDispatchAction {
 			Object first= selection.getFirstElement();
 			Assert.isTrue(first instanceof IField);
 
-			IField field= (IField) first;
+			IField field= (IField)first;
 			run(field.getNameRange().getOffset(), field.getNameRange().getLength(), field.getCompilationUnit());
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, getShell(), RefactoringMessages.InlineConstantAction_dialog_title, RefactoringMessages.InlineConstantAction_unexpected_exception);
@@ -107,15 +107,16 @@ public class InlineConstantAction extends SelectionDispatchAction {
 
 	//---- text selection -----------------------------------------------
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
-    }
+	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
