@@ -16,6 +16,8 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.ui.tests.Encryptor;
+import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -23,7 +25,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author Mohsen Vakilian
  * @author nchen
  */
-public class UnavailableInlineConstantTest extends RefactoringTest {
+public class UnavailableInlineTest extends RefactoringTest {
 
 	private static final String INLINE_CONSTANT_MENU_ITEM= "Inline...";
 
@@ -54,7 +56,7 @@ public class UnavailableInlineConstantTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
+	protected void doRefactoringShouldBeLogged() throws EncryptionException {
 		assertTrue(refactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
@@ -64,15 +66,15 @@ public class UnavailableInlineConstantTest extends RefactoringTest {
 		assertEquals("", capturedDescriptor.getComment());
 		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", capturedDescriptor.getDescription());
 		assertEquals(0, capturedDescriptor.getFlags());
-		assertEquals(IJavaRefactorings.INLINE_CONSTANT, capturedDescriptor.getID());
+		assertEquals(IJavaRefactorings.INLINE, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-//		assertEquals(SELECTION, capturedDescriptor.getSelection());
-//		assertEquals(String.format("223 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelection());
+		assertEquals(String.format("173 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
 		assertEquals("Select a method declaration, a method invocation, a static final field or a local variable that you want to inline.", capturedDescriptor.getStatus());
-//		assertEquals("ef03a6850277ef0f1c7cfcd0c6a663ef", /*Encryptor.toMD5*/(capturedDescriptor.getCodeSnippet()));
+		assertEquals("8532f1d6de06a9519645fde01f082b3b", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 

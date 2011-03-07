@@ -5456,6 +5456,12 @@
       <contribution
             class="org.eclipse.jdt.internal.corext.refactoring.scripting.InlineConstantRefactoringContribution"
             id="org.eclipse.jdt.ui.inline.constant"/>
+
+      <!-- CODINGSPECTATOR: Added an extension point for the unknown inline refactoring. This extension point enables the deserialization of this custom refactoring descriptor. -->
+      <contribution
+            class="org.eclipse.jdt.internal.corext.refactoring.scripting.codingspectator.InlineRefactoringContribution"
+            id="org.eclipse.jdt.ui.inline"/>
+            
       <contribution
             class="org.eclipse.jdt.internal.corext.refactoring.scripting.ExtractMethodRefactoringContribution"
             id="org.eclipse.jdt.ui.extract.method"/>

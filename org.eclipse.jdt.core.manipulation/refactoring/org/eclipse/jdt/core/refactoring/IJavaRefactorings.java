@@ -65,6 +65,9 @@ import org.eclipse.jdt.core.refactoring.descriptors.UseSupertypeDescriptor;
  * @since 1.1
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
+ * 
+ * @author Mohsen Vakiian, nchen - Added a descriptor for the generic inline refactoring.
+ * 
  */
 public interface IJavaRefactorings {
 
@@ -455,4 +458,18 @@ public interface IJavaRefactorings {
 	 * </p>
 	 */
 	public static final String USE_SUPER_TYPE= "org.eclipse.jdt.ui.use.supertype"; //$NON-NLS-1$
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * Refactoring id of the unknown inline refactoring (value:
+	 * <code>org.eclipse.jdt.ui.inline</code>).
+	 * <p>
+	 * Clients may safely cast the obtained refactoring descriptor to {@link InlineDescriptor}.
+	 * </p>
+	 */
+	public static final String INLINE= "org.eclipse.jdt.ui.inline"; //$NON-NLS-1$
+
 }
