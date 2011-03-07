@@ -103,6 +103,8 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 /**
  * 
  * @author nchen - Extended WatchedRefactoring.
+ * @author Mohsen Vakilian - Added CODINGSPECTATOR markers. And, implemented
+ *         WatchedJavaRefactoring#getDescriptorID.
  * 
  */
 public class InlineTempRefactoring extends WatchedJavaRefactoring {
@@ -198,6 +200,9 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 	}
 
 	/*
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial
+	 * conditions.
+	 * 
 	 * @see Refactoring#checkActivation(IProgressMonitor)
 	 */
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
@@ -205,14 +210,22 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 			pm.beginTask("", 1); //$NON-NLS-1$
 
 			RefactoringStatus result= Checks.validateModifiesFiles(ResourceUtil.getFiles(new ICompilationUnit[] { fCu }), getValidationContext());
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 
 			VariableDeclaration declaration= getVariableDeclaration();
 
 			result.merge(checkSelection(declaration));
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 
 			result.merge(checkInitializer(declaration));
 			return result;
@@ -277,6 +290,7 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 
 	//----- changes
 
+	//CODINGSPECTATOR: Extracted getRefactoringDescriptor.
 	public Change createChange(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineTempRefactoring_preview, 2);
@@ -293,65 +307,6 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 		} finally {
 			pm.done();
 		}
-	}
-
-	private InlineLocalVariableDescriptor getRefactoringDescriptor() {
-		String project= getJavaProjectName();
-
-		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
-		String text= null;
-		final IMethodBinding method= binding.getDeclaringMethod();
-		if (method != null)
-			text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
-		else
-			text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
-		final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
-		final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description,
-				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-
-		final Map arguments= new HashMap();
-		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
-				RefactoringDescriptor.NONE);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
-		String text= null;
-		final IMethodBinding method= binding.getDeclaringMethod();
-		if (method != null)
-			text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
-		else
-			text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
-		final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
-		final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description,
-				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
-				RefactoringDescriptor.NONE);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fCu;
 	}
 
 	private void inlineTemp(CompilationUnitRewrite cuRewrite) throws JavaModelException {
@@ -520,6 +475,71 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
 		return new RefactoringStatus();
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private InlineLocalVariableDescriptor getRefactoringDescriptor() {
+		String project= getJavaProjectName();
+
+		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
+		String text= null;
+		final IMethodBinding method= binding.getDeclaringMethod();
+		if (method != null)
+			text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
+		else
+			text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
+		final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
+		final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description,
+				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+
+		final Map arguments= new HashMap();
+		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
+				RefactoringDescriptor.NONE);
+		populateRefactoringSpecificFields(project, arguments);
+
+		return descriptor;
+	}
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		String project= getJavaProjectName();
+
+		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
+		String text= null;
+		final IMethodBinding method= binding.getDeclaringMethod();
+		if (method != null)
+			text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
+		else
+			text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
+		final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
+		final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description,
+				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+
+		final Map arguments= populateInstrumentationData(refactoringStatus);
+		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
+				RefactoringDescriptor.NONE);
+		populateRefactoringSpecificFields(project, arguments);
+
+		return descriptor;
+	}
+
+	protected void populateRefactoringSpecificFields(String project, Map arguments) {
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
+//		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
+	}
+
+	protected ITypeRoot getJavaTypeRoot() {
+		return fCu;
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.INLINE_LOCAL_VARIABLE;
 	}
 
 }
