@@ -35,7 +35,6 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInsta
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
 
 # For capturing disallowed refactorings
-
 ui/org/eclipse/jdt/ui/actions/InlineAction.java
 ui/org/eclipse/jdt/ui/actions/MoveAction.java
 ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
@@ -74,6 +73,9 @@ ui/org/eclipse/jdt/ui/actions/UseSupertypeAction.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperTypeProcessor.javaExtractInterfaceProcessor.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractInterfaceWizard.java
 ui/org/eclipse/jdt/ui/actions/ExtractInterfaceAction.java
+
+META-INF/MANIFEST.MF
+plugin.xml
 
 Added Files
 ===========

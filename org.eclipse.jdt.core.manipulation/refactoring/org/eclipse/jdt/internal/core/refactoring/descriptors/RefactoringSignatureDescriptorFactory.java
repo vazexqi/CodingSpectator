@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.UseSupertypeDescriptor;
 
 /**
  * Internal factory for Java refactoring signature descriptors.
- *  
+ * 
  * @since 3.5
  */
 public class RefactoringSignatureDescriptorFactory {
@@ -52,7 +52,7 @@ public class RefactoringSignatureDescriptorFactory {
 	public static ChangeMethodSignatureDescriptor createChangeMethodSignatureDescriptor() {
 		return new ChangeMethodSignatureDescriptor();
 	}
-	
+
 	public static ChangeMethodSignatureDescriptor createChangeMethodSignatureDescriptor(String project, String description, String comment, Map arguments, int flags) {
 		return new ChangeMethodSignatureDescriptor(project, description, comment, arguments, flags);
 	}
