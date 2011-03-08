@@ -15,5 +15,5 @@ Export-Package: edu.illinois.codingspectator.codingtracker.operations,
 Require-Bundle: edu.illinois.codingspectator.codingtracker.helpers;visibility:=reexport,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
- edu.illinois.codingspectator.codingtracker.eclipse
+ edu.illinois.codingtracker.jdt.project.manipulation
 Bundle-Vendor: University of Illinois

@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  edu.illinois.codingspectator.codingtracker.operations,
  org.eclipse.jdt.core,
- edu.illinois.codingspectator.codingtracker.eclipse
+ edu.illinois.codingtracker.jdt.project.manipulation
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: University of Illinois

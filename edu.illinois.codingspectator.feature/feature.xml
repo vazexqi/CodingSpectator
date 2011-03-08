@@ -46,8 +46,7 @@ subject to the following conditions:
   this list of conditions and the following disclaimers in the documentation
   and/or other materials provided with the distribution.
  
-  * Neither the names of the CodingSpectator Team, University of Illinois, nor
-  * the
+  * Neither the names of the CodingSpectator Team, University of Illinois, nor the
   names of its contributors may be used to endorse or promote products derived
   from this Software without specific prior written permission.
  
@@ -59,8 +58,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
  
-Copyrights and Licenses for Third Party Software Distributed with
-CodingSpectator
+Copyrights and Licenses for Third Party Software Distributed with CodingSpectator
 =================================================================================
  
 The CodingSpectator software depends on third party software. Such software will
@@ -91,12 +89,10 @@ Eclipse Public License - Version 1.0.
   * edu.illinois.codingspectator.platform.heliosSR2.patch
   * edu.illinois.codingspectator.epp.usagedata.feature.patch
   * edu.illinois.codingspectator.epp.usagedata.feature.heliosSR2.patch
-  * org.eclipse.jdt.ui.tests
-  * org.eclipse.test.performance
-  * org.eclipse.text.tests
+  * edu.illinois.codingtracker.jdt.project.manipulation.feature
+  * edu.illinois.codingtracker.jdt.project.manipulation
  
-* CodingSpectator depends on a modified version of the following Eclipse
-* plug-ins
+* CodingSpectator depends on a modified version of the following Eclipse plug-ins
 all redistributed under the Eclipse Public License - Version 1.0.
   * org.eclipse.ltk.core.refactoring
   * org.eclipse.ltk.ui.refactoring
@@ -117,7 +113,8 @@ under the Apache License - Version 2.0, and is available at
 http://jcommander.org/.
 
 * CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
-the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
+the Mozilla Public License and is available at http://saxon.sourceforge.net/.
+]]>
    </license>
 
    <url>
@@ -164,29 +161,12 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.]]>
          version="0.0.0"
          optional="true"/>
 
+   <includes
+         id="edu.illinois.codingtracker.jdt.project.manipulation.feature"
+         version="0.0.0"/>
+
    <plugin
          id="org.tmatesoft.svn_1.3.4.eclipse"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.jdt.ui.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.test.performance"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.text.tests"
          download-size="0"
          install-size="0"
          version="0.0.0"

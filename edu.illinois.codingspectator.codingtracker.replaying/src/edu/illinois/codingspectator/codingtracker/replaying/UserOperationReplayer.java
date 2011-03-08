@@ -26,11 +26,11 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import edu.illinois.codingspectator.codingtracker.eclipse.JavaProjectHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 

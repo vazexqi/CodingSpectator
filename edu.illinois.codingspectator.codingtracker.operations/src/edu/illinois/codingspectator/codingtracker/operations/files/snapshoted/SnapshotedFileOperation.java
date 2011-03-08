@@ -13,11 +13,11 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 
-import edu.illinois.codingspectator.codingtracker.eclipse.JavaProjectHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
+import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 

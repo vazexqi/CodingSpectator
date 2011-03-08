@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Helpers
-Bundle-SymbolicName: edu.illinois.codingspectator.codingtracker.eclipse
+Bundle-Name: edu.illinois.codingtracker.jdt.project.manipulation
+Bundle-SymbolicName: edu.illinois.codingtracker.jdt.project.manipulation
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.core.resources,
@@ -11,4 +11,5 @@ Require-Bundle: org.eclipse.core.resources,
  org.junit4,
  org.eclipse.ui.ide,
  org.eclipse.swt
-Export-Package: edu.illinois.codingspectator.codingtracker.eclipse
+Export-Package: edu.illinois.codingtracker.jdt.project.manipulation
+Bundle-Vendor: University of Illinois
