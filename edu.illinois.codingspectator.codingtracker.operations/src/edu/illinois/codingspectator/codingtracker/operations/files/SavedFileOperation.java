@@ -35,7 +35,7 @@ public class SavedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		getFileEditor().doSave(null);
+		getFileEditor(false).doSave(null);
 	}
 
 }

@@ -7,7 +7,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
@@ -25,6 +27,8 @@ public abstract class FileOperation extends UserOperation {
 	private static final String FILE_PATH_SEPARATOR= "/";
 
 	private static final String PACKAGE_NAME_SEPARATOR= ".";
+
+	private static final String ITextEditor= null;
 
 	protected String filePath;
 
@@ -78,9 +82,15 @@ public abstract class FileOperation extends UserOperation {
 		return true;
 	}
 
-	protected ITextEditor getFileEditor() throws CoreException {
+	@SuppressWarnings("restriction")
+	protected ITextEditor getFileEditor(boolean bringToTop) throws CoreException {
+		IEditorPart activeEditor= JavaPlugin.getActivePage().getActiveEditor();
 		IFile file= (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
-		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
+		ITextEditor fileEditor= (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
+		if (!bringToTop && activeEditor != null) {
+			JavaPlugin.getActivePage().activate(activeEditor);
+		}
+		return fileEditor;
 	}
 
 	@Override

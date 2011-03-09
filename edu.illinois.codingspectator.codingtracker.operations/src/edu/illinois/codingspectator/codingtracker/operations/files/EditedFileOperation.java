@@ -36,7 +36,7 @@ public class EditedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)getFileEditor();
+		AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)getFileEditor(true);
 		currentDocument= editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		currentViewer= editor.getHackedViewer();
 	}
