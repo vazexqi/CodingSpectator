@@ -47,7 +47,7 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * Inlines a method.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
@@ -58,6 +58,7 @@ public class InlineMethodAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
 	 */
 	public InlineMethodAction(JavaEditor editor) {
@@ -92,7 +93,7 @@ public class InlineMethodAction extends SelectionDispatchAction {
 	public void run(IStructuredSelection selection) {
 		try {
 			Assert.isTrue(RefactoringAvailabilityTester.isInlineMethodAvailable(selection));
-			IMethod method= (IMethod) selection.getFirstElement();
+			IMethod method= (IMethod)selection.getFirstElement();
 			ISourceRange nameRange= method.getNameRange();
 			run(nameRange.getOffset(), nameRange.getLength(), method.getTypeRoot());
 		} catch (JavaModelException e) {
@@ -125,7 +126,7 @@ public class InlineMethodAction extends SelectionDispatchAction {
 		ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
 		if (typeRoot == null)
 			return;
-		if (! JavaElementUtil.isSourceAvailable(typeRoot))
+		if (!JavaElementUtil.isSourceAvailable(typeRoot))
 			return;
 		run(selection.getOffset(), selection.getLength(), typeRoot);
 	}
