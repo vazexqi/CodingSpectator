@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.refactoring.CompilationUnitChange;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.InlineMethodDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
@@ -259,15 +260,28 @@ public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 		return fTargetProvider.checkActivation();
 	}
 
+	/*
+	 * CODINGSPECTATOR: Log the refactoring if it fails with fatal error while checking initial conditions.
+	 */
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
 		RefactoringStatus result= new RefactoringStatus();
 		if (fSourceProvider == null && Invocations.isInvocation(fInitialNode)) {
 			fSourceProvider= resolveSourceProvider(result, fInitialTypeRoot, fInitialNode);
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 		}
 		result.merge(fSourceProvider.checkActivation());
 		result.merge(fTargetProvider.checkActivation());
+
+		//CODINGSPECTATOR: CodingSpectator should consider capturing an unavailable refactoring before all the return statements in checkInitialConditions.
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
+		}
+
 		return result;
 	}
 
@@ -590,13 +604,17 @@ public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 
 	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fInitialTypeRoot));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+//		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
 		arguments.put(ATTRIBUTE_DELETE, Boolean.valueOf(fDeleteSource).toString());
 		arguments.put(ATTRIBUTE_MODE, new Integer(fCurrentMode == Mode.INLINE_ALL ? 1 : 0).toString());
 	}
 
 	protected ITypeRoot getJavaTypeRoot() {
 		return fInitialTypeRoot;
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.INLINE_METHOD;
 	}
 
 }
