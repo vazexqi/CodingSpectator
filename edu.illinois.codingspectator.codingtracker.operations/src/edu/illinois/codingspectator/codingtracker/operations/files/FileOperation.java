@@ -45,7 +45,6 @@ public abstract class FileOperation extends UserOperation {
 	public FileOperation(IFile file) {
 		super();
 		filePath= FileHelper.getPortableFilePath(file);
-		initFragmentNames();
 	}
 
 	private void initFragmentNames() {
@@ -54,14 +53,29 @@ public abstract class FileOperation extends UserOperation {
 		projectName= filePathFragments[1];
 		sourceFolderName= filePathFragments[2];
 		fileName= filePathFragments[filePathFragments.length - 1];
-		if (filePathFragments.length > 4) { //has package name (i.e. not the default, unnamed package)
+		if (isValidPackageName(filePathFragments)) {
 			packageName= filePathFragments[3];
 			for (int i= 4; i < filePathFragments.length - 1; i++) {
 				packageName= packageName + PACKAGE_NAME_SEPARATOR + filePathFragments[i];
 			}
 		} else {
 			packageName= "";
+			for (int i= 3; i < filePathFragments.length - 1; i++) {
+				sourceFolderName= sourceFolderName + FILE_PATH_SEPARATOR + filePathFragments[i];
+			}
 		}
+	}
+
+	private boolean isValidPackageName(String[] filePathFragments) {
+		if (filePathFragments.length <= 4) {
+			return false;
+		}
+		for (int i= 3; i < filePathFragments.length - 1; i++) {
+			if (!Character.isJavaIdentifierStart(filePathFragments[i].charAt(0))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	protected ITextEditor getFileEditor() throws CoreException {
