@@ -97,3 +97,5 @@ schema/startup.exsd
 ui/org/eclipse/jdt/ui/actions/codingspectator/UnavailableRefactoringLogger.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/InlineRefactoringContribution.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/RenameUnknownJavaElementRefactoringContribution.java
