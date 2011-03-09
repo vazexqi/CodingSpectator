@@ -79,6 +79,7 @@ plugin.xml
 
 # For capturing unavailable inline refactorings
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineConstantAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineMethodAction.java
 
 Added Files
 ===========
