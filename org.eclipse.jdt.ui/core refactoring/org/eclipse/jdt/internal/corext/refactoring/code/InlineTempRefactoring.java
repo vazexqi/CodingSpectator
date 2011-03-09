@@ -228,6 +228,12 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 			}
 
 			result.merge(checkInitializer(declaration));
+
+			//CODINGSPECTATOR: If there are fatal errors before a return statement in the "checkInitialConditions" method, log the refactoring as unavailable.
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
+			}
+
 			return result;
 		} finally {
 			pm.done();
