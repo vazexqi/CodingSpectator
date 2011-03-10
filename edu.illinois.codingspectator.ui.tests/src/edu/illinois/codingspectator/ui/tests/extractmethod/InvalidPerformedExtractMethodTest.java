@@ -130,14 +130,14 @@ public class InvalidPerformedExtractMethodTest extends RefactoringTest {
 	private void javaAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
 		assertTrue(capturedDescriptor.getTimestamp() > 0);
 		assertEquals(
-				String.format("Extract method 'private static void %s()' from 'edu.illinois.codingspectator.%s.main()' to 'edu.illinois.codingspectator.%s'\n", METHOD_NAME, getTestFileName(),
+				String.format("Extract method 'private static void %s()' from '%s.%s.main()' to 'edu.illinois.codingspectator.%s'\n", METHOD_NAME, CodingSpectatorBot.PACKAGE_NAME, getTestFileName(),
 						getTestFileName())
 						+
 						String.format("- Original project: '%s'\n", getProjectName()) +
 						String.format("- Method name: '%s'\n", METHOD_NAME) +
-						String.format("- Destination type: 'edu.illinois.codingspectator.%s'\n", getTestFileName()) +
+						String.format("- Destination type: '%s.%s'\n", CodingSpectatorBot.PACKAGE_NAME, getTestFileName()) +
 						"- Declared visibility: 'private'", capturedDescriptor.getComment());
-		assertEquals(String.format("/src<edu.illinois.codingspectator{%s", getTestFileFullName()), capturedDescriptor.getInput());
+		assertEquals(String.format("/src<%s{%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName()), capturedDescriptor.getInput());
 		assertEquals(String.format("Extract method '%s'", METHOD_NAME), capturedDescriptor.getDescription());
 		assertEquals(786434, capturedDescriptor.getFlags());
 		assertEquals(IJavaRefactorings.EXTRACT_METHOD, capturedDescriptor.getID());
@@ -159,6 +159,7 @@ public class InvalidPerformedExtractMethodTest extends RefactoringTest {
 	@Override
 	protected void doCleanRefactoringHistory() throws CoreException {
 		performedRefactoringLog.clean();
+		eclipseRefactoringLog.clean();
 	}
 
 }

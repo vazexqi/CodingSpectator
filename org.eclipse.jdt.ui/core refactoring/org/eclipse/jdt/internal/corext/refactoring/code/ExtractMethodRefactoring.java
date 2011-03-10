@@ -1247,11 +1247,11 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 //	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		ExtractMethodDescriptor originalDescriptor= getRefactoringDescriptor();
 		final Map arguments= populateInstrumentationData(refactoringStatus);
+		ExtractMethodDescriptor originalDescriptor= getRefactoringDescriptor();
+		arguments.putAll(originalDescriptor.getArguments());
 		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(originalDescriptor.getProject(), originalDescriptor.getDescription(),
 				originalDescriptor.getComment(), arguments, originalDescriptor.getFlags());
-
 		return descriptor;
 	}
 

@@ -20,6 +20,7 @@ import org.hamcrest.text.pattern.PatternComponent;
 import org.hamcrest.text.pattern.PatternMatcher;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
@@ -114,7 +115,7 @@ public class ValidPerformedExtractMethodTest extends RefactoringTest {
 						String.format("- Method name: '%s'\n", METHOD_NAME) +
 						String.format("- Destination type: 'edu.illinois.codingspectator.%s'\n", getTestFileName()) +
 						"- Declared visibility: 'private'", capturedDescriptor.getComment());
-		assertEquals(String.format("/src<edu.illinois.codingspectator{%s", getTestFileFullName()), capturedDescriptor.getInput());
+		assertEquals(String.format("/src<%s{%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName()), capturedDescriptor.getInput());
 		assertEquals(String.format("Extract method '%s'", METHOD_NAME), capturedDescriptor.getDescription());
 		assertEquals(786434, capturedDescriptor.getFlags());
 		assertEquals(IJavaRefactorings.EXTRACT_METHOD, capturedDescriptor.getID());
