@@ -4,6 +4,8 @@
 package edu.illinois.codingspectator.codingtracker.operations.files.snapshoted;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -28,6 +30,8 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	private String fileContent;
 
+	private static Set<IJavaProject> javaProjects= new HashSet<IJavaProject>();
+
 	public SnapshotedFileOperation() {
 		super();
 	}
@@ -51,10 +55,29 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		IJavaProject javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
+		IJavaProject javaProject= getExistingJavaProject();
+		if (javaProject == null) {
+			javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
+			javaProjects.add(javaProject);
+		}
 		IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
 		IPackageFragment packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
 		packageFragment.createCompilationUnit(fileName, fileContent, true, null);
+	}
+
+	private IJavaProject getExistingJavaProject() {
+		for (IJavaProject javaProject : javaProjects) {
+			if (javaProject.getElementName().equals(projectName)) {
+				if (javaProject.exists()) {
+					return javaProject;
+				} else {
+					javaProjects.remove(javaProject);
+					return null;
+				}
+
+			}
+		}
+		return null;
 	}
 
 	@Override

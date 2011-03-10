@@ -9,7 +9,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
@@ -22,13 +25,12 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public abstract class FileOperation extends UserOperation {
 
 	private static final String FILE_PATH_SEPARATOR= "/";
 
 	private static final String PACKAGE_NAME_SEPARATOR= ".";
-
-	private static final String ITextEditor= null;
 
 	protected String filePath;
 
@@ -82,15 +84,27 @@ public abstract class FileOperation extends UserOperation {
 		return true;
 	}
 
-	@SuppressWarnings("restriction")
 	protected ITextEditor getFileEditor(boolean bringToTop) throws CoreException {
-		IEditorPart activeEditor= JavaPlugin.getActivePage().getActiveEditor();
-		IFile file= (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
-		ITextEditor fileEditor= (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
-		if (!bringToTop && activeEditor != null) {
-			JavaPlugin.getActivePage().activate(activeEditor);
+		ITextEditor textEditor= getExistingEditor();
+		if (bringToTop) {
+			if (textEditor != null) {
+				JavaPlugin.getActivePage().activate(textEditor);
+			} else {
+				IFile file= (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
+				textEditor= (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
+			}
 		}
-		return fileEditor;
+		return textEditor;
+	}
+
+	private ITextEditor getExistingEditor() throws PartInitException {
+		for (IEditorReference editorReference : JavaPlugin.getActivePage().getEditorReferences()) {
+			IEditorInput editorInput= editorReference.getEditorInput();
+			if (editorInput instanceof FileEditorInput && ((FileEditorInput)editorInput).getPath().toPortableString().endsWith(filePath)) {
+				return (ITextEditor)editorReference.getEditor(true);
+			}
+		}
+		return null;
 	}
 
 	@Override
