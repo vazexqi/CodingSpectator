@@ -38,7 +38,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	public SnapshotedFileOperation(IFile snapshotedFile) {
 		super(snapshotedFile);
-		fileContent= FileHelper.getFileContent(new File(snapshotedFile.getLocation().toOSString()));
+		fileContent= FileHelper.getFileContent(snapshotedFile.getLocation().toFile());
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	protected void checkSnapshotMatchesTheExistingFile() {
 		IResource workspaceResource= ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
 		if (workspaceResource != null) {
-			File existingFile= new File(workspaceResource.getLocation().toPortableString());
+			File existingFile= workspaceResource.getLocation().toFile();
 			if (!fileContent.equals(FileHelper.getFileContent(existingFile))) {
 				throw new RuntimeException("The snapshot file does not match the existing file: " + filePath);
 			}

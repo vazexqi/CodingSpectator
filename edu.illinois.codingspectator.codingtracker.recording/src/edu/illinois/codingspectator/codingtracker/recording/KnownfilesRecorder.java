@@ -52,7 +52,7 @@ public class KnownfilesRecorder {
 	}
 
 	private KnownfilesRecorder() {
-		knownfilesFile= new File(KNOWNFILES_FILE_PATH.toOSString());
+		knownfilesFile= KNOWNFILES_FILE_PATH.toFile();
 		knownfilesFile.getParentFile().mkdirs();
 		try {
 			if (knownfilesFile.exists()) {
@@ -121,7 +121,7 @@ public class KnownfilesRecorder {
 		BufferedWriter cvsEntriesDestinationFileWriter= null;
 		try {
 			cvsEntriesDestinationFileWriter= new BufferedWriter(new FileWriter(cvsEntriesDestinationFile, false));
-			cvsEntriesDestinationFileWriter.append(FileHelper.getFileContent(new File(cvsEntriesSourceFile.getLocation().toOSString())));
+			cvsEntriesDestinationFileWriter.append(FileHelper.getFileContent(cvsEntriesSourceFile.getLocation().toFile()));
 			cvsEntriesDestinationFileWriter.flush();
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSEntriesCopyFailure);
@@ -137,7 +137,7 @@ public class KnownfilesRecorder {
 	}
 
 	public File getTrackedCVSEntriesFile(IFile cvsEntriesSourceFile) {
-		return new File(KNOWNFILES_PATH.append(cvsEntriesSourceFile.getFullPath()).toOSString());
+		return KNOWNFILES_PATH.append(cvsEntriesSourceFile.getFullPath()).toFile();
 	}
 
 }

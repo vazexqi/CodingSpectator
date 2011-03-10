@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingspectator.codingtracker.recording;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -271,7 +270,7 @@ public class OperationRecorder {
 				knownfilesRecorder.addKnownfile(file);
 				hasChanged= true;
 				//save the content of a previously unknown file
-				if (new File(file.getLocation().toOSString()).exists()) { //Actually, should always exist here
+				if (file.getLocation().toFile().exists()) { //Actually, should always exist here
 					TextRecorder.record(new NewFileOperation(file));
 				}
 			}
