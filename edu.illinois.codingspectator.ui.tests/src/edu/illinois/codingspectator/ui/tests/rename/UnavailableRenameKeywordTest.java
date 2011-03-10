@@ -75,8 +75,8 @@ public class UnavailableRenameKeywordTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals(String.format("167 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals(String.format("167 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("Operation unavailable on the current selection.\n" +
 				"Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable", capturedDescriptor.getStatus());
 		assertEquals("fb11f9579c34707811fee7300323c9b9", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));

@@ -26,8 +26,8 @@ public class CodeSnippetInformation {
 	}
 
 	public void insertIntoMap(Map arguments) {
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selectedText);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, selectedText);
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, codeSnippet);
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET, relativeOffset);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_IN_CODE_SNIPPET, relativeOffset);
 	}
 }

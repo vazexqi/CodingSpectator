@@ -135,15 +135,17 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  */
 public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
-	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
+	// CODINGSPECTATOR: Changed the visibility of the attributes specific to ExtractMethodRefactoring for the first time because of the automated UI tests. 
 
-	private static final String ATTRIBUTE_DESTINATION= "destination"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_COMMENTS= "comments"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_DESTINATION= "destination"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_COMMENTS= "comments"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_EXCEPTIONS= "exceptions"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
+
+	public static final String ATTRIBUTE_EXCEPTIONS= "exceptions"; //$NON-NLS-1$
 
 	ICompilationUnit fCUnit;
 
@@ -1217,28 +1219,38 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 	//CODINGSPECTATOR
 	/////////////////
 
+// Mohsen: I commented the following implementation because it doesn't set all the parts of the comment attribute.
+//	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+//		String project= getJavaProjectName();
+//
+//		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+//		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
+//
+//		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, ""); //$NON-NLS-1$
+//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
+//
+//		String visibility= JdtFlags.getVisibilityString(fVisibility);
+//		if ("".equals(visibility)) //$NON-NLS-1$
+//			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
+//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_visibility_pattern, visibility));
+//		if (fThrowRuntimeExceptions)
+//			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_declare_thrown_exceptions);
+//		if (fReplaceDuplicates)
+//			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_replace_occurrences);
+//		if (fGenerateJavadoc)
+//			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
+//
+//		final Map arguments= populateInstrumentationData(refactoringStatus);
+//		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
+//
+//		return descriptor;
+//	}
+
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
-
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, ""); //$NON-NLS-1$
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
-
-		String visibility= JdtFlags.getVisibilityString(fVisibility);
-		if ("".equals(visibility)) //$NON-NLS-1$
-			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_visibility_pattern, visibility));
-		if (fThrowRuntimeExceptions)
-			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_declare_thrown_exceptions);
-		if (fReplaceDuplicates)
-			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_replace_occurrences);
-		if (fGenerateJavadoc)
-			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
-
+		ExtractMethodDescriptor originalDescriptor= getRefactoringDescriptor();
 		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
+		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(originalDescriptor.getProject(), originalDescriptor.getDescription(),
+				originalDescriptor.getComment(), arguments, originalDescriptor.getFlags());
 
 		return descriptor;
 	}
@@ -1246,7 +1258,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 	protected void populateRefactoringSpecificFields(String project, final Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
-//		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
 		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(fVisibility).toString());
 		arguments.put(ATTRIBUTE_DESTINATION, new Integer(fDestinationIndex).toString());
 		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());

@@ -66,8 +66,8 @@ public class UnavailableExtractConstantTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals("223 4", capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals("223 4", capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("An expression must be selected to activate this refactoring.", capturedDescriptor.getStatus());
 		assertEquals("ef03a6850277ef0f1c7cfcd0c6a663ef", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());

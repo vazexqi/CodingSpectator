@@ -113,8 +113,11 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	 * This argument should be used to describe user input selections within a text file. The value
 	 * of this argument has the format "offset length".
 	 * </p>
+	 * 
+	 * CODINGSPECTATOR: Made the attribute accessible by edu.illinois.codingspectator.ui.tests.
+	 * 
 	 */
-	protected static final String ATTRIBUTE_SELECTION= "selection"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_SELECTION= "selection"; //$NON-NLS-1$
 
 	/** The version attribute */
 	protected static final String ATTRIBUTE_VERSION= "version"; //$NON-NLS-1$

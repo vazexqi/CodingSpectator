@@ -64,8 +64,8 @@ public class UnavailableExtractMethodTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals("277 4", capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals("277 4", capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("Cannot extract new method from selection. Only statements from a method body can be extracted.", capturedDescriptor.getStatus());
 		assertEquals("4b7e3084104f0f3fe5be59d5b8618565", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());

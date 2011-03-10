@@ -6,7 +6,9 @@ package edu.illinois.codingspectator.ui.tests;
 import java.util.Map;
 
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 /**
  * 
@@ -16,6 +18,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
  * @author nchen
  * 
  */
+@SuppressWarnings("restriction")
 public class CapturedRefactoringDescriptor {
 
 	private JavaRefactoringDescriptor descriptor;
@@ -74,11 +77,17 @@ public class CapturedRefactoringDescriptor {
 	}
 
 	public String getSelection() {
-		return getAttribute(RefactoringDescriptor.ATTRIBUTE_SELECTION);
+		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_SELECTION);
 	}
 
-	public String getSelectionOffset() {
-		return getAttribute(RefactoringDescriptor.ATTRIBUTE_SELECTION_OFFSET);
+	// Attributes added by CodingSpectator
+
+	public String getSelectionText() {
+		return getAttribute(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT);
+	}
+
+	public String getSelectionInCodeSnippet() {
+		return getAttribute(RefactoringDescriptor.ATTRIBUTE_SELECTION_IN_CODE_SNIPPET);
 	}
 
 	public String getStatus() {
@@ -91,6 +100,32 @@ public class CapturedRefactoringDescriptor {
 
 	public boolean isInvokedByQuickAssist() {
 		return Boolean.valueOf(getAttribute(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST));
+	}
+
+	public String getNavigationHistory() {
+		return getAttribute(Logger.NAVIGATION_HISTORY_ATTRIBUTE);
+	}
+
+	// Attributes declared in ExtractMethodRefactoring.
+
+	public int getVisibility() {
+		return Integer.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_VISIBILITY));
+	}
+
+	public int getDestination() {
+		return Integer.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_DESTINATION));
+	}
+
+	public boolean getComments() {
+		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_COMMENTS));
+	}
+
+	public boolean getReplace() {
+		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_REPLACE));
+	}
+
+	public boolean getExceptions() {
+		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_EXCEPTIONS));
 	}
 
 }

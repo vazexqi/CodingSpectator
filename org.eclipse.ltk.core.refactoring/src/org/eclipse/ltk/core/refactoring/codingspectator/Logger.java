@@ -24,7 +24,7 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySeria
  */
 public class Logger {
 
-	private static final String NAVIGATION_HISTORY_ATTRIBUTE= "navigationHistory"; //$NON-NLS-1$
+	public static final String NAVIGATION_HISTORY_ATTRIBUTE= "navigation-history"; //$NON-NLS-1$
 
 	private static final String MONITOR_UI= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
 
@@ -174,7 +174,7 @@ public class Logger {
 	 */
 	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selection, String errorMessage) {
 		Map arguments= new HashMap();
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, selection);
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, selection);
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
 
 		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$

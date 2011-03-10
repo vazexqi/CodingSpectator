@@ -73,8 +73,8 @@ public class UnavailableExtractSuperclassTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals("177 36", capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals("177 36", capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("To activate this refactoring, please select a non-binary non-inner class or the name of an instance method or field.", capturedDescriptor.getStatus());
 		assertEquals("5ab5c15f40fe569ebcad30a57cd08651", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 	}

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistory;
+import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryManager;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
@@ -30,7 +31,7 @@ import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 public class RefactoringLog {
 
 	public enum LogType {
-		PERFORMED, CANCELLED, UNAVAILABLE
+		ECLIPSE, PERFORMED, CANCELLED, UNAVAILABLE
 	}
 
 	IFileStore fileStore;
@@ -52,7 +53,11 @@ public class RefactoringLog {
 	}
 
 	public RefactoringLog(LogType logType) {
-		fileStore= getFileStore(logTypeToDirectory.get(logType));
+		if (logType == LogType.ECLIPSE) {
+			fileStore= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(".refactorings");
+		} else {
+			fileStore= getFileStore(logTypeToDirectory.get(logType));
+		}
 	}
 
 	public boolean exists() {

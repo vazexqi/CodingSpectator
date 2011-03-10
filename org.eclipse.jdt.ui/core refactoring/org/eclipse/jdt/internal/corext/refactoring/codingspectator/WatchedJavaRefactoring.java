@@ -52,9 +52,10 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus) {
 		Map arguments= new HashMap();
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelectionText());
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
+		getCodeSnippetInformation().insertIntoMap(arguments);
 		populateRefactoringSpecificFields(getJavaProjectName(), arguments);
 		return arguments;
 	}
@@ -69,7 +70,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		return project;
 	}
 
-	protected String getSelection() {
+	protected String getSelectionText() {
 		try {
 			return getJavaTypeRoot().getBuffer().getText(fSelectionStart, fSelectionLength);
 		} catch (Exception e) {
@@ -105,10 +106,13 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
 		if (isRefWizOpenOpCheckedInitConds()) {
-			CodeSnippetInformation codeSnippetInformation= new CodeSnippetInformationExtractor(getJavaTypeRoot(), fSelectionStart, fSelectionLength).extractCodeSnippetInformation();
-			Logger.logUnavailableRefactoringEvent(getDescriptorID(), getJavaProjectName(), codeSnippetInformation, refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+			Logger.logUnavailableRefactoringEvent(getDescriptorID(), getJavaProjectName(), getCodeSnippetInformation(), refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
 			unsetRefWizOpenOpCheckedInitConds();
 		}
+	}
+
+	private CodeSnippetInformation getCodeSnippetInformation() {
+		return new CodeSnippetInformationExtractor(getJavaTypeRoot(), fSelectionStart, fSelectionLength).extractCodeSnippetInformation();
 	}
 
 	protected String getDescriptorID() {

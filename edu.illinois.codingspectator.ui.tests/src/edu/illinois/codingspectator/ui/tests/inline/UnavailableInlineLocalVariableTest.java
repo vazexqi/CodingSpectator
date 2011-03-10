@@ -77,8 +77,8 @@ public class UnavailableInlineLocalVariableTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals(String.format("271 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals(String.format("271 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals(String.format("Local variable '%s' is not initialized at declaration.", SELECTION), capturedDescriptor.getStatus());
 		assertEquals("af50f656a26fa3a1aa2171e36657bbf8", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
