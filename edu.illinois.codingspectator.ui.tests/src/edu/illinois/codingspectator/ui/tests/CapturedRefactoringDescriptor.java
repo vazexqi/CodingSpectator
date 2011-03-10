@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.code.InlineConstantRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
@@ -106,26 +107,38 @@ public class CapturedRefactoringDescriptor {
 		return getAttribute(Logger.NAVIGATION_HISTORY_ATTRIBUTE);
 	}
 
-	// Attributes declared in ExtractMethodRefactoring.
-
+	// Declared in ExtractMethodRefactoring.
 	public int getVisibility() {
 		return Integer.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_VISIBILITY));
 	}
 
+	// Declared in ExtractMethodRefactoring.
 	public int getDestination() {
 		return Integer.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_DESTINATION));
 	}
 
+	// Declared in ExtractMethodRefactoring.
 	public boolean getComments() {
 		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_COMMENTS));
 	}
 
+	// Declared in ExtractMethodRefactoring and InlineConstantRefactoring.
 	public boolean getReplace() {
-		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_REPLACE));
+		if (!ExtractMethodRefactoring.ATTRIBUTE_REPLACE.equals(InlineConstantRefactoring.ATTRIBUTE_REPLACE)) {
+			throw new RuntimeException("Inconsistent attribute names.");
+		}
+
+		return Boolean.valueOf(getAttribute("replace"));
 	}
 
+	// Declared in ExtractMethodRefactoring.
 	public boolean getExceptions() {
 		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_EXCEPTIONS));
+	}
+
+	// Declared in InlineConstantRefactoring.
+	public boolean getRemove() {
+		return Boolean.valueOf(getAttribute("remove"));
 	}
 
 }

@@ -134,9 +134,12 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  */
 public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 
-	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
+	/**
+	 * CODINGSPECTATOR: Made the attributes public for the first time because of the UI tests.
+	 */
+	public static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_REMOVE= "remove"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_REMOVE= "remove"; //$NON-NLS-1$
 
 	private static class InlineTargetCompilationUnit {
 
