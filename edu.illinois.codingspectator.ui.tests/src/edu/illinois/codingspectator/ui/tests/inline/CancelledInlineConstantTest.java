@@ -100,7 +100,7 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 				"- Replace all references to constant with expression", capturedDescriptor.getComment());
 		assertEquals(String.format("/src<%s{%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName()), capturedDescriptor.getInput());
 		assertEquals(String.format("Inline constant '%s'", SELECTION), capturedDescriptor.getDescription());
-		assertEquals(786434, capturedDescriptor.getFlags());
+		assertEquals(786438, capturedDescriptor.getFlags());
 		assertEquals(IJavaRefactorings.INLINE_CONSTANT, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
