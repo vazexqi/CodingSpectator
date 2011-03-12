@@ -48,6 +48,8 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.JavaRefactoringDesc
  * @since 1.1
  * 
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * 
+ * @author Mohsen Vakilian, Balaji Ambresh Rajkumar - Changed the visibility of logged attributes.
  */
 public final class MoveDescriptor extends JavaRefactoringDescriptor {
 
@@ -55,10 +57,12 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	private static final String ATTRIBUTE_DESTINATION= "destination"; //$NON-NLS-1$
 
 	/** The files attribute */
-	private static final String ATTRIBUTE_FILES= "files"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_FILES= "files"; //$NON-NLS-1$
 
 	/** The folders attribute */
-	private static final String ATTRIBUTE_FOLDERS= "folders"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_FOLDERS= "folders"; //$NON-NLS-1$
 
 	/** The fragments attribute */
 	private static final String ATTRIBUTE_FRAGMENTS= "fragments"; //$NON-NLS-1$
@@ -67,22 +71,27 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	private static final String ATTRIBUTE_MEMBERS= "members"; //$NON-NLS-1$
 
 	/** The patterns attribute */
-	private static final String ATTRIBUTE_PATTERNS= "patterns"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_PATTERNS= "patterns"; //$NON-NLS-1$
 
 	/** The policy attribute */
-	private static final String ATTRIBUTE_POLICY= "policy"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_POLICY= "policy"; //$NON-NLS-1$
 
 	/** The qualified attribute */
-	private static final String ATTRIBUTE_QUALIFIED= "qualified"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_QUALIFIED= "qualified"; //$NON-NLS-1$
 
 	/** The roots attribute */
 	private static final String ATTRIBUTE_ROOTS= "roots"; //$NON-NLS-1$
 
 	/** The target attribute (a resource) */
-	private static final String ATTRIBUTE_TARGET= "target"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_TARGET= "target"; //$NON-NLS-1$
 
 	/** The units attribute */
-	private static final String ATTRIBUTE_UNITS= "units"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_UNITS= "units"; //$NON-NLS-1$
 
 	/** The move members policy */
 	private static final String POLICY_MOVE_MEMBERS= "org.eclipse.jdt.ui.moveMembers"; //$NON-NLS-1$
@@ -91,7 +100,8 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	private static final String POLICY_MOVE_PACKAGES= "org.eclipse.jdt.ui.movePackages"; //$NON-NLS-1$
 
 	/** The move resources policy */
-	private static final String POLICY_MOVE_RESOURCES= "org.eclipse.jdt.ui.moveResources"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String POLICY_MOVE_RESOURCES= "org.eclipse.jdt.ui.moveResources"; //$NON-NLS-1$
 
 	/** The move package fragment roots policy */
 	private static final String POLICY_MOVE_ROOTS= "org.eclipse.jdt.ui.moveRoots"; //$NON-NLS-1$

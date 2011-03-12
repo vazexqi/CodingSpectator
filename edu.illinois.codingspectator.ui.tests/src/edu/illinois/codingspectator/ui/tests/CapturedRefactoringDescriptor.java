@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.ui.tests;
 import java.util.Map;
 
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+import org.eclipse.jdt.core.refactoring.descriptors.MoveDescriptor;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractConstantRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.InlineConstantRefactoring;
@@ -151,5 +152,44 @@ public class CapturedRefactoringDescriptor {
 	public boolean getQualify() {
 		return Boolean.valueOf(getAttribute(ExtractConstantRefactoring.ATTRIBUTE_QUALIFY));
 	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public String getElement(int index) {
+		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_ELEMENT + index);
+	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public boolean getQualified() {
+		return Boolean.valueOf(getAttribute(MoveDescriptor.ATTRIBUTE_QUALIFIED));
+	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public String getTarget() {
+		return getAttribute(MoveDescriptor.ATTRIBUTE_TARGET);
+	}
 
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public int getFiles() {
+		return Integer.parseInt(getAttribute(MoveDescriptor.ATTRIBUTE_FILES));
+	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public int getFolders() {
+		return Integer.parseInt(getAttribute(MoveDescriptor.ATTRIBUTE_FOLDERS));
+	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public String getPolicy() {
+		return getAttribute(MoveDescriptor.ATTRIBUTE_POLICY);
+	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public int getUnits() {
+		return Integer.parseInt(getAttribute(MoveDescriptor.ATTRIBUTE_UNITS));
+	}
+	
+	// Used in MoveFilesFoldersAndCusPolicy.
+	public String getPatterns() {
+		return getAttribute(MoveDescriptor.ATTRIBUTE_PATTERNS);
+	}
 }
