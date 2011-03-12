@@ -496,7 +496,7 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 			RefactoringDescriptor r= createRenameCompilationUnitRefactoringDescriptor();
 			if (r instanceof JavaRefactoringDescriptor) {
 				JavaRefactoringDescriptor d= (JavaRefactoringDescriptor)r;
-				final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
+				final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
 				final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
 						augmentedArguments, d.getFlags());
 				return descriptor;
