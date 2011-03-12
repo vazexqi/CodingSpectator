@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.ui.tests;
 import java.util.Map;
 
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+import org.eclipse.jdt.internal.corext.refactoring.code.ExtractConstantRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.InlineConstantRefactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
@@ -107,8 +108,12 @@ public class CapturedRefactoringDescriptor {
 		return getAttribute(Logger.NAVIGATION_HISTORY_ATTRIBUTE);
 	}
 
-	// Declared in ExtractMethodRefactoring.
+	// Declared in ExtractMethodRefactoring and ExtractConstantRefactoring.
 	public int getVisibility() {
+		if (!"visibility".equals(ExtractMethodRefactoring.ATTRIBUTE_VISIBILITY) || !"visibility".equals(ExtractConstantRefactoring.ATTRIBUTE_VISIBILITY)) {
+			throw new RuntimeException("Inconsistent attribute names.");
+		}
+
 		return Integer.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_VISIBILITY));
 	}
 
@@ -122,9 +127,10 @@ public class CapturedRefactoringDescriptor {
 		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_COMMENTS));
 	}
 
-	// Declared in ExtractMethodRefactoring and InlineConstantRefactoring.
+	// Declared in ExtractMethodRefactoring, InlineConstantRefactoring and ExtractConstantRefactoring.
 	public boolean getReplace() {
-		if (!ExtractMethodRefactoring.ATTRIBUTE_REPLACE.equals(InlineConstantRefactoring.ATTRIBUTE_REPLACE)) {
+		if (!"replace".equals(InlineConstantRefactoring.ATTRIBUTE_REPLACE) || !"replace".equals(ExtractMethodRefactoring.ATTRIBUTE_REPLACE)
+				|| !"replace".equals(ExtractMethodRefactoring.ATTRIBUTE_REPLACE)) {
 			throw new RuntimeException("Inconsistent attribute names.");
 		}
 
@@ -139,6 +145,11 @@ public class CapturedRefactoringDescriptor {
 	// Declared in InlineConstantRefactoring.
 	public boolean getRemove() {
 		return Boolean.valueOf(getAttribute("remove"));
+	}
+
+	// Declared in ExtractConstantRefactoring.
+	public boolean getQualify() {
+		return Boolean.valueOf(getAttribute(ExtractConstantRefactoring.ATTRIBUTE_QUALIFY));
 	}
 
 }
