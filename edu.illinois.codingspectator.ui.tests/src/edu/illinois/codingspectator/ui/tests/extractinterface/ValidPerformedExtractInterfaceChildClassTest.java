@@ -59,6 +59,7 @@ public class ValidPerformedExtractInterfaceChildClassTest extends RefactoringTes
 	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(performedRefactoringLog.exists());
+		assertFalse(eclipseRefactoringLog.exists());
 	}
 
 	@Override
