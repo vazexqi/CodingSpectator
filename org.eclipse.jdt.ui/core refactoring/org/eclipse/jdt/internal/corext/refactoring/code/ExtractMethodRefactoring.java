@@ -1264,6 +1264,12 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
 		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
+
+		
+		for (Iterator iter= fParameterInfos.iterator(); iter.hasNext();) {
+			ParameterInfo parameterInfo= (ParameterInfo)iter.next();
+			arguments.put("parameter" + parameterInfo.getOldIndex(), parameterInfo.getOldTypeName() + " " + parameterInfo.getNewName() + " " + parameterInfo.getOldIndex());
+		}
 	}
 
 	public ITypeRoot getJavaTypeRoot() {
