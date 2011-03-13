@@ -10,6 +10,8 @@ import org.eclipse.jdt.core.refactoring.descriptors.MoveDescriptor;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractConstantRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.InlineConstantRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.structure.ExtractInterfaceProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeRefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
@@ -123,15 +125,19 @@ public class CapturedRefactoringDescriptor {
 		return Integer.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_DESTINATION));
 	}
 
-	// Declared in ExtractMethodRefactoring.
+	// Declared in ExtractMethodRefactoring and ExtractInterfaceProcessor.
 	public boolean getComments() {
-		return Boolean.valueOf(getAttribute(ExtractMethodRefactoring.ATTRIBUTE_COMMENTS));
+		if (!"comments".equals(ExtractMethodRefactoring.ATTRIBUTE_COMMENTS) || !"comments".equals(ExtractInterfaceProcessor.ATTRIBUTE_COMMENTS)) {
+			throw new RuntimeException("Inconsistent attribute names.");
+		}
+
+		return Boolean.valueOf(getAttribute("comments"));
 	}
 
 	// Declared in ExtractMethodRefactoring, InlineConstantRefactoring and ExtractConstantRefactoring.
 	public boolean getReplace() {
 		if (!"replace".equals(InlineConstantRefactoring.ATTRIBUTE_REPLACE) || !"replace".equals(ExtractMethodRefactoring.ATTRIBUTE_REPLACE)
-				|| !"replace".equals(ExtractMethodRefactoring.ATTRIBUTE_REPLACE)) {
+				|| !"replace".equals(ExtractConstantRefactoring.ATTRIBUTE_REPLACE)) {
 			throw new RuntimeException("Inconsistent attribute names.");
 		}
 
@@ -152,17 +158,17 @@ public class CapturedRefactoringDescriptor {
 	public boolean getQualify() {
 		return Boolean.valueOf(getAttribute(ExtractConstantRefactoring.ATTRIBUTE_QUALIFY));
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public String getElement(int index) {
 		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_ELEMENT + index);
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public boolean getQualified() {
 		return Boolean.valueOf(getAttribute(MoveDescriptor.ATTRIBUTE_QUALIFIED));
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public String getTarget() {
 		return getAttribute(MoveDescriptor.ATTRIBUTE_TARGET);
@@ -172,24 +178,40 @@ public class CapturedRefactoringDescriptor {
 	public int getFiles() {
 		return Integer.parseInt(getAttribute(MoveDescriptor.ATTRIBUTE_FILES));
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public int getFolders() {
 		return Integer.parseInt(getAttribute(MoveDescriptor.ATTRIBUTE_FOLDERS));
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public String getPolicy() {
 		return getAttribute(MoveDescriptor.ATTRIBUTE_POLICY);
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public int getUnits() {
 		return Integer.parseInt(getAttribute(MoveDescriptor.ATTRIBUTE_UNITS));
 	}
-	
+
 	// Used in MoveFilesFoldersAndCusPolicy.
 	public String getPatterns() {
 		return getAttribute(MoveDescriptor.ATTRIBUTE_PATTERNS);
 	}
+
+	// Used in ExtractInterfaceProcessor.
+	public boolean getAbstract() {
+		return Boolean.valueOf(getAttribute(ExtractInterfaceProcessor.ATTRIBUTE_ABSTRACT));
+	}
+
+	// Used in ExtractInterfaceProcessor.
+	public boolean getPublic() {
+		return Boolean.valueOf(getAttribute(ExtractInterfaceProcessor.ATTRIBUTE_PUBLIC));
+	}
+
+	// Used in SuperTypeRefactoringProcessor.
+	public boolean getInstanceOf() {
+		return Boolean.valueOf(getAttribute(SuperTypeRefactoringProcessor.ATTRIBUTE_INSTANCEOF));
+	}
+
 }

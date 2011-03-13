@@ -81,6 +81,9 @@ plugin.xml
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineConstantAction.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineMethodAction.java
 
+# For verifying captured extract interface refactorings.
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/constraints/SuperTypeRefactoringProcessor.java
+
 Added Files
 ===========
 
