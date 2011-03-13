@@ -36,7 +36,7 @@ public class CodingSpectatorBot {
 
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
-	protected static final int SLEEPTIME= 2000;
+	protected static final int SLEEPTIME= 2500;
 
 	SWTWorkbenchBot bot= new SWTWorkbenchBot();
 
