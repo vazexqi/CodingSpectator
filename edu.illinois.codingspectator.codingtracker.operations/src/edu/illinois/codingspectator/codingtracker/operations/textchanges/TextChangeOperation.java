@@ -28,6 +28,9 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	protected int length;
 
+	//This field is computed during replay, do not serialize/deserialize it!
+	private boolean isRecordedWhileRefactoring= false;
+
 	public TextChangeOperation() {
 		super();
 	}
@@ -62,19 +65,23 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
-		currentViewer.revealRange(offset, length > newText.length() ? length : newText.length());
-		currentViewer.setSelectedRange(offset, length);
-		if (!replacedText.equals(currentDocument.get(offset, length))) {
-			throw new RuntimeException("Replaced text is not present in the document: " + this);
-		}
-		//Timestamp updates are not reproducible, because the corresponding UndoableOperation2ChangeAdapter operation 
-		//is executed as a simple text change
-		if (!isTimestampUpdate()) {
-			replayTextChange();
-		}
-		currentViewer.setSelectedRange(offset, newText.length());
-		if (!newText.equals(currentDocument.get(offset, newText.length()))) {
-			throw new RuntimeException("New text does not appear in the document: " + this);
+		if (isRefactoring) {
+			isRecordedWhileRefactoring= true;
+		} else {
+			currentViewer.revealRange(offset, length > newText.length() ? length : newText.length());
+			currentViewer.setSelectedRange(offset, length);
+			if (!replacedText.equals(currentDocument.get(offset, length))) {
+				throw new RuntimeException("Replaced text is not present in the document: " + this);
+			}
+			//Timestamp updates are not reproducible, because the corresponding UndoableOperation2ChangeAdapter operation 
+			//is executed as a simple text change
+			if (!isTimestampUpdate()) {
+				replayTextChange();
+			}
+			currentViewer.setSelectedRange(offset, newText.length());
+			if (!newText.equals(currentDocument.get(offset, newText.length()))) {
+				throw new RuntimeException("New text does not appear in the document: " + this);
+			}
 		}
 	}
 
@@ -91,7 +98,7 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	@Override
 	public boolean isTestReplayRecorded() {
-		return !isTimestampUpdate();
+		return isRecordedWhileRefactoring || !isTimestampUpdate();
 	}
 
 	/**

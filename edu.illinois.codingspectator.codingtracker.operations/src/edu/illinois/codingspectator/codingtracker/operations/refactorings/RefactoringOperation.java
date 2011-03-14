@@ -102,6 +102,7 @@ public abstract class RefactoringOperation extends UserOperation {
 
 	@Override
 	public void replay() throws CoreException {
+		isRefactoring= false;
 		RefactoringContribution refactoringContribution= RefactoringCore.getRefactoringContribution(id);
 		if (refactoringContribution == null) {
 			Debugger.debug("***WARNING*** Failed to get refactoring contribution for id: " + id);

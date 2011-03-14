@@ -28,31 +28,31 @@ public class DocumentListener extends BasicListener implements IDocumentListener
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
-		if (!isRefactoring) {
-			currentEvent= event;
-			try {
-				replacedText= event.getDocument().get(event.getOffset(), event.getLength());
-			} catch (BadLocationException e) {
-				handleException(e, event, Messages.Recorder_BadDocumentLocation);
-			}
+//		if (!isRefactoring) {
+		currentEvent= event;
+		try {
+			replacedText= event.getDocument().get(event.getOffset(), event.getLength());
+		} catch (BadLocationException e) {
+			handleException(e, event, Messages.Recorder_BadDocumentLocation);
 		}
+//		}
 	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		if (!isRefactoring) {
-			if (currentEvent != event) {
-				handleException(new RuntimeException(), event, Messages.Recorder_UnsynchronizedDocumentNotifications);
-			}
-			if (EditorHelper.isConflictEditor(currentEditor)) {
-				CompareEditor compareEditor= (CompareEditor)currentEditor;
-				dirtyConflictEditors.add(compareEditor);
-				operationRecorder.recordConflictEditorChangedText(event, replacedText, EditorHelper.getConflictEditorID(compareEditor), isUndoing, isRedoing);
-			} else {
-				dirtyFiles.add(currentFile);
-				operationRecorder.recordChangedText(event, replacedText, currentFile, isUndoing, isRedoing);
-			}
+//		if (!isRefactoring) {
+		if (currentEvent != event) {
+			handleException(new RuntimeException(), event, Messages.Recorder_UnsynchronizedDocumentNotifications);
 		}
+		if (EditorHelper.isConflictEditor(currentEditor)) {
+			CompareEditor compareEditor= (CompareEditor)currentEditor;
+			dirtyConflictEditors.add(compareEditor);
+			operationRecorder.recordConflictEditorChangedText(event, replacedText, EditorHelper.getConflictEditorID(compareEditor), isUndoing, isRedoing);
+		} else {
+			dirtyFiles.add(currentFile);
+			operationRecorder.recordChangedText(event, replacedText, currentFile, isUndoing, isRedoing);
+		}
+//		}
 	}
 
 	private void handleException(Exception ex, DocumentEvent event, String message) {
