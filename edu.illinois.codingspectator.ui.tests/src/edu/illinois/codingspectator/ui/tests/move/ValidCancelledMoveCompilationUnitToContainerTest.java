@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests.inline;
+package edu.illinois.codingspectator.ui.tests.move;
 
 import static org.hamcrest.text.pattern.Patterns.anyCharacterInCategory;
 import static org.hamcrest.text.pattern.Patterns.oneOrMore;
@@ -18,6 +18,7 @@ import java.util.Collection;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+import org.eclipse.jdt.core.refactoring.descriptors.MoveDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.hamcrest.text.pattern.PatternComponent;
 import org.hamcrest.text.pattern.PatternMatcher;
@@ -25,30 +26,27 @@ import org.hamcrest.text.pattern.PatternMatcher;
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
-import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
+import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 
 /**
- * @author Mohsen Vakilian
- * @author nchen
+ * @author Balaji Ambresh Rajkumar
  */
-public class CancelledInlineConstantTest extends RefactoringTest {
+public class ValidCancelledMoveCompilationUnitToContainerTest extends RefactoringTest {
 
-	private static final String INLINE_CONSTANT_MENU_ITEM= "Inline...";
-
-	private static final String SELECTION= "CONSTANT";
+	private static final String TARGET_CONTAINER= ".settings";
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
-		return "InlineConstantTestFile";
+		return "MoveCusTestFile";
 	}
 
 	@Override
 	protected String getTestInputLocation() {
-		return "inline";
+		return "move";
 	}
 
 	@Override
@@ -58,8 +56,11 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 7, 24, SELECTION.length());
-		bot.invokeRefactoringFromMenu(INLINE_CONSTANT_MENU_ITEM);
+		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator", getTestFileFullName());
+		bot.invokeRefactoringFromMenu("Move...");
+		bot.activateShellWithName("Move");
+		bot.getCurrentTree().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance('.'));
+
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
@@ -75,41 +76,52 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 	}
 
 	private void codingspectatorAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {
-		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
-		assertEquals(String.format("223 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
-		assertEquals("<OK\n>", capturedDescriptor.getStatus());
-		assertEquals("8532f1d6de06a9519645fde01f082b3b", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertEquals(getTestFileFullName(), capturedDescriptor.getSelectionText());
+		assertEquals("<INFO\n" + 
+				"	\n" + 
+				"INFO: Java references will not be updated.\n" + 
+				"Context: <Unspecified context>\n" + 
+				"code: none\n" + 
+				"Data: null\n" + 
+				">", capturedDescriptor.getStatus());
+		assertEquals("36ae396c15ffa4c320b98197b46cbfb5", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 		PatternComponent timestampPattern= oneOrMore(anyCharacterInCategory("Digit"));
-		PatternMatcher expectedNavigationHistoryPatternMatcher= new PatternMatcher(sequence(text("{[Inline Constant,BEGIN_REFACTORING,"), timestampPattern, text("],[InlineConstantInputPage,Cancel,"),
+		PatternMatcher expectedNavigationHistoryPatternMatcher= new PatternMatcher(sequence(text("{[Move,BEGIN_REFACTORING,"), timestampPattern, text("],[MoveInputPage,Cancel,"),
 				timestampPattern, text("],}")));
 		assertThat(capturedDescriptor.getNavigationHistory(), expectedNavigationHistoryPatternMatcher);
 	}
 
 	private void capturedRefactoringDescriptorShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {
 		javaAttributesShouldBeCorrect(capturedDescriptor);
-		attributesSpecificToInlineConstantShouldBeCorrect(capturedDescriptor);
+		attributesSpecificToMoveCuToContainerShouldBeCorrect(capturedDescriptor);
 	}
 
 	private void javaAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
 		assertTrue(capturedDescriptor.getTimestamp() > 0);
-		assertEquals(String.format("Inline constant '%s.%s.%s' in '%s.%s'\n", CodingSpectatorBot.PACKAGE_NAME, getTestFileName(), SELECTION, CodingSpectatorBot.PACKAGE_NAME, getTestFileName()) +
-				String.format("- Original project: '%s'\n", getProjectName()) +
-				String.format("- Original element: '%s.%s.%s'\n", CodingSpectatorBot.PACKAGE_NAME, getTestFileName(), SELECTION) +
-				"- Remove constant declaration\n" +
-				"- Replace all references to constant with expression", capturedDescriptor.getComment());
-		assertEquals(String.format("/src<%s{%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName()), capturedDescriptor.getInput());
-		assertEquals(String.format("Inline constant '%s'", SELECTION), capturedDescriptor.getDescription());
-		assertEquals(786438, capturedDescriptor.getFlags());
-		assertEquals(IJavaRefactorings.INLINE_CONSTANT, capturedDescriptor.getID());
+		assertEquals(String.format("Move element '%s' to '%s'\n" +
+				"- Original project: '%s'\n" +
+				"- Destination element: '%s'\n" +
+				"- Original element: '%s.%s'\n" +
+				"- Update references to refactored element", getTestFileFullName(), TARGET_CONTAINER, getProjectName(), TARGET_CONTAINER, CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName())
+				, capturedDescriptor.getComment());
+		assertEquals("Move compilation unit", capturedDescriptor.getDescription());
+		assertEquals(589830, capturedDescriptor.getFlags());
+		assertEquals(IJavaRefactorings.MOVE, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
-		assertEquals(String.format("223 %d", SELECTION.length()), capturedDescriptor.getSelection());
 	}
 
-	private void attributesSpecificToInlineConstantShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
-		assertTrue(capturedDescriptor.getReplace());
-		assertTrue(capturedDescriptor.getRemove());
+	private void attributesSpecificToMoveCuToContainerShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
+		assertEquals(String.format("/src<%s{%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName()), capturedDescriptor.getElement(1));
+		assertTrue(capturedDescriptor.doesReference());
+		assertFalse(capturedDescriptor.getQualified());
+		assertEquals(TARGET_CONTAINER, capturedDescriptor.getTarget());
+		assertEquals(0, capturedDescriptor.getFiles());
+		assertEquals(0, capturedDescriptor.getFolders());
+		assertEquals(MoveDescriptor.POLICY_MOVE_RESOURCES, capturedDescriptor.getPolicy());
+		assertEquals("*", capturedDescriptor.getPatterns());
+
 	}
 
 	@Override

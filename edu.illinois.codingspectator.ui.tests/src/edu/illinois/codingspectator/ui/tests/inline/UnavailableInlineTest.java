@@ -71,8 +71,8 @@ public class UnavailableInlineTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals(String.format("173 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals(String.format("173 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("Select a method declaration, a method invocation, a static final field or a local variable that you want to inline.", capturedDescriptor.getStatus());
 		assertEquals("8532f1d6de06a9519645fde01f082b3b", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());

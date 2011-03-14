@@ -64,8 +64,8 @@ public class UnavailableExtractInterfaceTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals("332 0", capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals("332 0", capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("To activate this refactoring, please select the name of a top level type.", capturedDescriptor.getStatus());
 		assertEquals("509e14617a2628706da3cb61b4c8cb93", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());

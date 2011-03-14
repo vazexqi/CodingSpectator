@@ -467,9 +467,19 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the unknown inline refactoring (value:
 	 * <code>org.eclipse.jdt.ui.inline</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to {@link InlineDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to InlineDescriptor.
 	 * </p>
 	 */
 	public static final String INLINE= "org.eclipse.jdt.ui.inline"; //$NON-NLS-1$
+
+	/**
+	 * Refactoring id of the rename unknown Java element refactoring (value:
+	 * <code>org.eclipse.jdt.ui.rename.unknown.java.element</code>).
+	 * <p>
+	 * Clients may safely cast the obtained refactoring descriptor to
+	 * RenameUnknownJavaElementDescriptor.
+	 * </p>
+	 */
+	public static final String RENAME_UNKNOWN_JAVA_ELEMENT= "org.eclipse.jdt.ui.rename.unknown.java.element"; //$NON-NLS-1$
 
 }

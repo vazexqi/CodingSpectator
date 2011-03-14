@@ -71,8 +71,8 @@ public class UnavailableInlineMethodParameterTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals(String.format("287 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals(String.format("287 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("Cannot inline method parameters.", capturedDescriptor.getStatus());
 		assertEquals("8532f1d6de06a9519645fde01f082b3b", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());

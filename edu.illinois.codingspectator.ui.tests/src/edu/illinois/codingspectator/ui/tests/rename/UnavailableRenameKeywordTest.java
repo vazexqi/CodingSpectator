@@ -1,4 +1,7 @@
-package edu.illinois.codingspectator.ui.tests.extractconstant;
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
+package edu.illinois.codingspectator.ui.tests.rename;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -18,24 +21,30 @@ import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
-public class UnavailableExtractConstantTest extends RefactoringTest {
+/**
+ * 
+ * This test checks that CodingSpectator records the user's attempt to invoke a rename refactoring
+ * on an Java keyword.
+ * 
+ * @author Mohsen Vakilian
+ * @author nchen
+ */
+public class UnavailableRenameKeywordTest extends RefactoringTest {
 
-	private static final String EXTRACT_CONSTANT_MENU_ITEM= "Extract Constant...";
+	private static final String RENAME_MENU_ITEM= "Rename...";
 
-	private static final String TEST_FILE_NAME= "ExtractConstantTestFile";
-
-	private final String SELECTION= "main";
+	private static final String SELECTION= "class";
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.UNAVAILABLE);
 
 	@Override
 	protected String getTestFileName() {
-		return TEST_FILE_NAME;
+		return "RenameKeywordTestFile";
 	}
 
 	@Override
 	protected String getTestInputLocation() {
-		return "extract-constant";
+		return "rename";
 	}
 
 	@Override
@@ -45,8 +54,8 @@ public class UnavailableExtractConstantTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 7, 23, SELECTION.length());
-		bot.invokeRefactoringFromMenu(EXTRACT_CONSTANT_MENU_ITEM);
+		bot.selectElementToRefactor(getTestFileFullName(), 5, 7, SELECTION.length());
+		bot.invokeRefactoringFromMenu(RENAME_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
@@ -61,15 +70,16 @@ public class UnavailableExtractConstantTest extends RefactoringTest {
 		assertEquals("", capturedDescriptor.getComment());
 		assertEquals("CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring", capturedDescriptor.getDescription());
 		assertEquals(0, capturedDescriptor.getFlags());
-		assertEquals(IJavaRefactorings.EXTRACT_CONSTANT, capturedDescriptor.getID());
+		assertEquals(IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
 		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
-		assertEquals("223 4", capturedDescriptor.getSelectionInCodeSnippet());
-		assertEquals("An expression must be selected to activate this refactoring.", capturedDescriptor.getStatus());
-		assertEquals("ef03a6850277ef0f1c7cfcd0c6a663ef", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertEquals(String.format("167 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
+		assertEquals("Operation unavailable on the current selection.\n" +
+				"Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable", capturedDescriptor.getStatus());
+		assertEquals("fb11f9579c34707811fee7300323c9b9", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 
@@ -77,6 +87,5 @@ public class UnavailableExtractConstantTest extends RefactoringTest {
 	protected void doCleanRefactoringHistory() throws CoreException {
 		refactoringLog.clean();
 	}
-
 
 }

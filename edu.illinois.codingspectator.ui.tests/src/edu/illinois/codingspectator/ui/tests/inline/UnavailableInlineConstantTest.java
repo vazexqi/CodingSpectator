@@ -77,8 +77,8 @@ public class UnavailableInlineConstantTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getElement());
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
-		assertEquals(SELECTION, capturedDescriptor.getSelection());
-		assertEquals(String.format("227 %d", SELECTION.length()), capturedDescriptor.getSelectionOffset());
+		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
+		assertEquals(String.format("227 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("Inline Constant cannot inline blank finals.", capturedDescriptor.getStatus());
 		assertEquals("6ba3979805863b2ae20860f375341892", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());

@@ -228,6 +228,12 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 			}
 
 			result.merge(checkInitializer(declaration));
+
+			//CODINGSPECTATOR: If there are fatal errors before a return statement in the "checkInitialConditions" method, log the refactoring as unavailable.
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
+			}
+
 			return result;
 		} finally {
 			pm.done();
@@ -531,7 +537,7 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 
 	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
-//		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
 	}
 
 	protected ITypeRoot getJavaTypeRoot() {

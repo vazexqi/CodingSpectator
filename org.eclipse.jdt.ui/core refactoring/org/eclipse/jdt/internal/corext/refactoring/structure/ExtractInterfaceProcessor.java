@@ -138,11 +138,14 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
  */
 public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcessor implements IWatchedJavaProcessor {
 
-	private static final String ATTRIBUTE_ABSTRACT= "abstract"; //$NON-NLS-1$
+	//CODINGSPECTATOR: Made the attribute name public the first time for using in the UI tests.
+	public static final String ATTRIBUTE_ABSTRACT= "abstract"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_COMMENTS= "comments"; //$NON-NLS-1$
+	//CODINGSPECTATOR: Made the attribute name public the first time for using in the UI tests.
+	public static final String ATTRIBUTE_COMMENTS= "comments"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_PUBLIC= "public"; //$NON-NLS-1$
+	//CODINGSPECTATOR: Made the attribute name public the first time for using in the UI tests.
+	public static final String ATTRIBUTE_PUBLIC= "public"; //$NON-NLS-1$
 
 	/** The identifier of this processor */
 	public static final String IDENTIFIER= "org.eclipse.jdt.ui.extractInterfaceProcessor"; //$NON-NLS-1$
@@ -1112,8 +1115,8 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 	/**
 	 * Sets the members to be extracted.
 	 * 
-	 * CODINGSPECTATOR: Removed the  throws JavaModelException clause for coding spectator.
-	 *  
+	 * CODINGSPECTATOR: Removed the throws JavaModelException clause for coding spectator.
+	 * 
 	 * @param members the members to be extracted
 	 */
 	public final void setExtractedMembers(final IMember[] members) {

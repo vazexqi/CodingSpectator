@@ -112,17 +112,21 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
  */
 public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 
-	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
+	/**
+	 * CODINGSPECTATOR: Made the attributes of the refactoring descriptor of extract constant public
+	 */
+	public static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_QUALIFY= "qualify"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_QUALIFY= "qualify"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 
-	private static final String MODIFIER= "static final"; //$NON-NLS-1$
+	public static final String MODIFIER= "static final"; //$NON-NLS-1$
 
-	private static final String KEY_NAME= "name"; //$NON-NLS-1$
+	public static final String KEY_NAME= "name"; //$NON-NLS-1$
 
-	private static final String KEY_TYPE= "type"; //$NON-NLS-1$
+	public static final String KEY_TYPE= "type"; //$NON-NLS-1$
+
 
 	private CompilationUnitRewrite fCuRewrite;
 
@@ -910,31 +914,38 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 	/////////////////
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		if (JdtFlags.getVisibilityCode(fVisibility) != Modifier.PRIVATE)
-			flags|= RefactoringDescriptor.STRUCTURAL_CHANGE;
-
-		final String expression= ASTNodes.asString(fSelectedExpression.getAssociatedExpression());
-		final String description= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fConstantName));
-		final String header= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fConstantName),
-				BasicElementLabels.getJavaCodeString(expression) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_name_pattern, BasicElementLabels.getJavaElementName(fConstantName)));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_expression_pattern, BasicElementLabels.getJavaCodeString(expression)));
-		String visibility= fVisibility;
-		if ("".equals(visibility)) //$NON-NLS-1$
-			visibility= RefactoringCoreMessages.ExtractConstantRefactoring_default_visibility;
-		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_visibility_pattern, visibility));
-		if (fReplaceAllOccurrences)
-			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_replace_occurrences);
-		if (fQualifyReferencesWithDeclaringClassName)
-			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_qualify_references);
-
+//		String project= getJavaProjectName();
+//
+//		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+//		if (JdtFlags.getVisibilityCode(fVisibility) != Modifier.PRIVATE)
+//			flags|= RefactoringDescriptor.STRUCTURAL_CHANGE;
+//
+//		final String expression= ASTNodes.asString(fSelectedExpression.getAssociatedExpression());
+//		final String description= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fConstantName));
+//		final String header= Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fConstantName),
+//				BasicElementLabels.getJavaCodeString(expression) });
+//		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_name_pattern, BasicElementLabels.getJavaElementName(fConstantName)));
+//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_constant_expression_pattern, BasicElementLabels.getJavaCodeString(expression)));
+//		String visibility= fVisibility;
+//		if ("".equals(visibility)) //$NON-NLS-1$
+//			visibility= RefactoringCoreMessages.ExtractConstantRefactoring_default_visibility;
+//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractConstantRefactoring_visibility_pattern, visibility));
+//		if (fReplaceAllOccurrences)
+//			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_replace_occurrences);
+//		if (fQualifyReferencesWithDeclaringClassName)
+//			comment.addSetting(RefactoringCoreMessages.ExtractConstantRefactoring_qualify_references);
+//
+//		final Map arguments= populateInstrumentationData(refactoringStatus);
+//		ExtractConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractConstantDescriptor(project, description, comment.asString(), arguments, flags);
+//		populateRefactoringSpecificFields(project, arguments);
+//		return descriptor;
 		final Map arguments= populateInstrumentationData(refactoringStatus);
-		ExtractConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractConstantDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
+		ExtractConstantDescriptor originalRefactoringDescriptor= getRefactoringDescriptor();
+		arguments.putAll(originalRefactoringDescriptor.getArguments());
+		final ExtractConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractConstantDescriptor(originalRefactoringDescriptor.getProject(),
+				originalRefactoringDescriptor.getDescription(), originalRefactoringDescriptor.getComment(), arguments, originalRefactoringDescriptor.getFlags());
+
 		return descriptor;
 	}
 

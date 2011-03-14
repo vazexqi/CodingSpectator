@@ -24,7 +24,7 @@ abstract public class WatchedRenameProcessorDelegate extends WatchedProcessorDel
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
+		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
 		final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
 				augmentedArguments, d.getFlags());
 		return descriptor;

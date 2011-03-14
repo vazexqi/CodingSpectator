@@ -4,8 +4,10 @@ Changed Files
 refactoring/org/eclipse/jdt/core/refactoring/descriptors/JavaRefactoringDescriptor.java
 refactoring/org/eclipse/jdt/core/refactoring/IJavaRefactorings.java
 refactoring/org/eclipse/jdt/internal/core/refactoring/descriptors/RefactoringSignatureDescriptorFactory.java
-
+refactoring/org/eclipse/jdt/core/refactoring/descriptors/MoveDescriptor.java
 
 Added Files
 ===========
 refactoring/org/eclipse/jdt/core/refactoring/descriptors/codingspectator/InlineDescriptor.java
+
+refactoring/org/eclipse/jdt/core/refactoring/descriptors/codingspectator/RenameUnknownJavaElementDescriptor.java

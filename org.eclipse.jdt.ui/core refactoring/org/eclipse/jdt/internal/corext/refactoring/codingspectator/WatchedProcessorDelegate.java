@@ -1,7 +1,5 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
@@ -10,8 +8,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
  * Delegate to abstract away some of the common methods between the different classes.
@@ -30,29 +26,29 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		JavaRefactoringDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, getArguments(d));
+		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
 
 		return createRefactoringDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments, d.getFlags());
 	}
 
 	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
 
-	protected Map getArguments(JavaRefactoringDescriptor d) {
-		try {
-			Class c= JavaRefactoringDescriptor.class;
-			Method getArgumentsMethod= c.getDeclaredMethod("getArguments", new Class[] {}); //$NON-NLS-1$
-			getArgumentsMethod.setAccessible(true);
-			return (Map)getArgumentsMethod.invoke(d, new Object[] {});
-		} catch (Exception e) {
-			JavaPlugin.log(e);
-		}
-		return new HashMap();
-
-	}
+	// Mohsen: I've commented this method because we have added org.eclipse.jdt.core.manipulation to the repository and we no longer need to use reflection to access a private method.
+//	protected Map getArguments(JavaRefactoringDescriptor d) {
+//		try {
+//			Class c= JavaRefactoringDescriptor.class;
+//			Method getArgumentsMethod= c.getDeclaredMethod("getArguments", new Class[] {}); //$NON-NLS-1$
+//			getArgumentsMethod.setAccessible(true);
+//			return (Map)getArgumentsMethod.invoke(d, new Object[] {});
+//		} catch (Exception e) {
+//			JavaPlugin.log(e);
+//		}
+//		return new HashMap();
+//	}
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION, getSelection());
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelection());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
 		return basicArguments;

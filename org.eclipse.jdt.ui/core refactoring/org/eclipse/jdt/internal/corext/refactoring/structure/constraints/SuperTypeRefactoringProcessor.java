@@ -111,15 +111,18 @@ import org.eclipse.jdt.ui.CodeGeneration;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
- * Partial implementation of a refactoring processor solving supertype
- * constraint models.
- *
+ * Partial implementation of a refactoring processor solving supertype constraint models.
+ * 
+ * @author Mohsen Vakilian - Made a constant corresponding to an attribute of the refactoring
+ *         descriptor public.
+ * 
  * @since 3.1
  */
 public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor {
 
+	// CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI tests.
 	// TODO: remove
-	protected static final String ATTRIBUTE_INSTANCEOF= "instanceof"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_INSTANCEOF= "instanceof"; //$NON-NLS-1$
 
 	// TODO: remove
 	protected static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
@@ -133,11 +136,9 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Returns a new ast node corresponding to the given type.
-	 *
-	 * @param rewrite
-	 *            the compilation unit rewrite to use
-	 * @param type
-	 *            the specified type
+	 * 
+	 * @param rewrite the compilation unit rewrite to use
+	 * @param type the specified type
 	 * @return A corresponding ast node
 	 */
 	protected static ASTNode createCorrespondingNode(final CompilationUnitRewrite rewrite, final TType type) {
@@ -177,9 +178,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Creates a new supertype refactoring processor.
-	 *
-	 * @param settings
-	 *            the code generation settings, or <code>null</code>
+	 * 
+	 * @param settings the code generation settings, or <code>null</code>
 	 */
 	protected SuperTypeRefactoringProcessor(final CodeGenerationSettings settings) {
 		fSettings= settings;
@@ -187,12 +187,10 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Adds the refactoring settings to the specified comment.
-	 *
-	 * @param comment
-	 *            the java refactoring descriptor comment
-	 * @param addUseSupertype
-	 *            <code>true</code> to add the use supertype setting,
-	 *            <code>false</code> otherwise
+	 * 
+	 * @param comment the java refactoring descriptor comment
+	 * @param addUseSupertype <code>true</code> to add the use supertype setting, <code>false</code>
+	 *            otherwise
 	 */
 	protected void addSuperTypeSettings(final JDTRefactoringDescriptorComment comment, final boolean addUseSupertype) {
 		Assert.isNotNull(comment);
@@ -206,54 +204,40 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Creates the super type constraint solver to solve the model.
-	 *
-	 * @param model
-	 *            the model to create a solver for
+	 * 
+	 * @param model the model to create a solver for
 	 * @return The created super type constraint solver
 	 */
 	protected abstract SuperTypeConstraintsSolver createContraintSolver(SuperTypeConstraintsModel model);
 
 	/**
 	 * Creates the declarations of the new supertype members.
-	 *
-	 * @param sourceRewrite
-	 *            the source compilation unit rewrite
-	 * @param targetRewrite
-	 *            the target rewrite
-	 * @param targetDeclaration
-	 *            the target type declaration
-	 * @throws CoreException
-	 *             if a buffer could not be retrieved
+	 * 
+	 * @param sourceRewrite the source compilation unit rewrite
+	 * @param targetRewrite the target rewrite
+	 * @param targetDeclaration the target type declaration
+	 * @throws CoreException if a buffer could not be retrieved
 	 */
 	protected void createMemberDeclarations(CompilationUnitRewrite sourceRewrite, ASTRewrite targetRewrite, AbstractTypeDeclaration targetDeclaration) throws CoreException {
 		// Do nothing
 	}
 
 	/**
-	 * Creates the declaration of the new supertype, excluding any comments or
-	 * package declaration.
-	 *
-	 * @param sourceRewrite
-	 *            the source compilation unit rewrite
-	 * @param subType
-	 *            the subtype
-	 * @param superName
-	 *            the name of the supertype
-	 * @param sourceDeclaration
-	 *            the type declaration of the source type
-	 * @param buffer
-	 *            the string buffer containing the declaration
-	 * @param isInterface
-	 *            <code>true</code> if the type declaration is an interface,
+	 * Creates the declaration of the new supertype, excluding any comments or package declaration.
+	 * 
+	 * @param sourceRewrite the source compilation unit rewrite
+	 * @param subType the subtype
+	 * @param superName the name of the supertype
+	 * @param sourceDeclaration the type declaration of the source type
+	 * @param buffer the string buffer containing the declaration
+	 * @param isInterface <code>true</code> if the type declaration is an interface,
 	 *            <code>false</code> otherwise
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws CoreException
-	 *             if an error occurs
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to use
+	 * @throws CoreException if an error occurs
 	 */
-	protected final void createTypeDeclaration(final CompilationUnitRewrite sourceRewrite, final IType subType, final String superName, final AbstractTypeDeclaration sourceDeclaration, final StringBuffer buffer, boolean isInterface, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
+	protected final void createTypeDeclaration(final CompilationUnitRewrite sourceRewrite, final IType subType, final String superName, final AbstractTypeDeclaration sourceDeclaration,
+			final StringBuffer buffer, boolean isInterface, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(sourceRewrite);
 		Assert.isNotNull(subType);
 		Assert.isNotNull(superName);
@@ -281,9 +265,9 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 			final IDocument document= new Document(buffer.toString());
 			final ASTParser parser= ASTParser.newParser(AST.JLS3);
 			parser.setSource(document.get().toCharArray());
-			final CompilationUnit unit= (CompilationUnit) parser.createAST(new SubProgressMonitor(monitor, 100));
+			final CompilationUnit unit= (CompilationUnit)parser.createAST(new SubProgressMonitor(monitor, 100));
 			final ASTRewrite targetRewrite= ASTRewrite.create(unit.getAST());
-			final AbstractTypeDeclaration targetDeclaration= (AbstractTypeDeclaration) unit.types().get(0);
+			final AbstractTypeDeclaration targetDeclaration= (AbstractTypeDeclaration)unit.types().get(0);
 			createTypeParameters(targetRewrite, subType, sourceDeclaration, targetDeclaration);
 			createMemberDeclarations(sourceRewrite, targetRewrite, targetDeclaration);
 			final TextEdit edit= targetRewrite.rewriteAST(document, subType.getJavaProject().getOptions(true));
@@ -303,14 +287,11 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Creates the necessary imports for the extracted supertype.
-	 *
-	 * @param unit
-	 *            the working copy of the new supertype
-	 * @param monitor
-	 *            the progress monitor to use
+	 * 
+	 * @param unit the working copy of the new supertype
+	 * @param monitor the progress monitor to use
 	 * @return the generated import declaration
-	 * @throws CoreException
-	 *             if the imports could not be generated
+	 * @throws CoreException if the imports could not be generated
 	 */
 	protected final String createTypeImports(final ICompilationUnit unit, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(unit);
@@ -321,7 +302,7 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 			final ImportRewrite rewrite= StubUtility.createImportRewrite(unit, true);
 			ITypeBinding type= null;
 			for (final Iterator iterator= fTypeBindings.iterator(); iterator.hasNext();) {
-				type= (ITypeBinding) iterator.next();
+				type= (ITypeBinding)iterator.next();
 				if (type.isTypeVariable()) {
 					final ITypeBinding[] bounds= type.getTypeBounds();
 					for (int index= 0; index < bounds.length; index++)
@@ -331,7 +312,7 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 			}
 			IBinding binding= null;
 			for (final Iterator iterator= fStaticBindings.iterator(); iterator.hasNext();) {
-				binding= (IBinding) iterator.next();
+				binding= (IBinding)iterator.next();
 				rewrite.addStaticImport(binding);
 			}
 			final IDocument document= new Document();
@@ -354,15 +335,11 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Creates the type parameters of the new supertype.
-	 *
-	 * @param targetRewrite
-	 *            the target compilation unit rewrite
-	 * @param subType
-	 *            the subtype
-	 * @param sourceDeclaration
-	 *            the type declaration of the source type
-	 * @param targetDeclaration
-	 *            the type declaration of the target type
+	 * 
+	 * @param targetRewrite the target compilation unit rewrite
+	 * @param subType the subtype
+	 * @param sourceDeclaration the type declaration of the source type
+	 * @param targetDeclaration the type declaration of the target type
 	 */
 	protected final void createTypeParameters(final ASTRewrite targetRewrite, final IType subType, final AbstractTypeDeclaration sourceDeclaration, final AbstractTypeDeclaration targetDeclaration) {
 		Assert.isNotNull(targetRewrite);
@@ -371,8 +348,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 		if (sourceDeclaration instanceof TypeDeclaration) {
 			TypeParameter parameter= null;
 			final ListRewrite rewrite= targetRewrite.getListRewrite(targetDeclaration, TypeDeclaration.TYPE_PARAMETERS_PROPERTY);
-			for (final Iterator iterator= ((TypeDeclaration) sourceDeclaration).typeParameters().iterator(); iterator.hasNext();) {
-				parameter= (TypeParameter) iterator.next();
+			for (final Iterator iterator= ((TypeDeclaration)sourceDeclaration).typeParameters().iterator(); iterator.hasNext();) {
+				parameter= (TypeParameter)iterator.next();
 				rewrite.insertLast(ASTNode.copySubtree(targetRewrite.getAST(), parameter), null);
 				ImportRewriteUtil.collectImports(subType.getJavaProject(), sourceDeclaration, fTypeBindings, fStaticBindings, false);
 			}
@@ -381,26 +358,19 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Creates the source for the new compilation unit containing the supertype.
-	 *
-	 * @param copy
-	 *            the working copy of the new supertype
-	 * @param subType
-	 *            the subtype
-	 * @param superName
-	 *            the name of the supertype
-	 * @param sourceRewrite
-	 *            the source compilation unit rewrite
-	 * @param declaration
-	 *            the type declaration
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to display progress
+	 * 
+	 * @param copy the working copy of the new supertype
+	 * @param subType the subtype
+	 * @param superName the name of the supertype
+	 * @param sourceRewrite the source compilation unit rewrite
+	 * @param declaration the type declaration
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to display progress
 	 * @return the source of the new compilation unit, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs
+	 * @throws CoreException if an error occurs
 	 */
-	protected final String createTypeSource(final ICompilationUnit copy, final IType subType, final String superName, final CompilationUnitRewrite sourceRewrite, final AbstractTypeDeclaration declaration, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
+	protected final String createTypeSource(final ICompilationUnit copy, final IType subType, final String superName, final CompilationUnitRewrite sourceRewrite,
+			final AbstractTypeDeclaration declaration, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(copy);
 		Assert.isNotNull(subType);
 		Assert.isNotNull(superName);
@@ -457,26 +427,20 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Creates the type template based on the code generation settings.
-	 *
-	 * @param unit
-	 *            the working copy for the new supertype
-	 * @param imports
-	 *            the generated imports declaration
-	 * @param fileComment
-	 *            the file comment
-	 * @param comment
-	 *            the type comment
-	 * @param content
-	 *            the type content
+	 * 
+	 * @param unit the working copy for the new supertype
+	 * @param imports the generated imports declaration
+	 * @param fileComment the file comment
+	 * @param comment the type comment
+	 * @param content the type content
 	 * @return a template for the supertype, or <code>null</code>
-	 * @throws CoreException
-	 *             if the template could not be evaluated
+	 * @throws CoreException if the template could not be evaluated
 	 */
 	protected final String createTypeTemplate(final ICompilationUnit unit, final String imports, String fileComment, final String comment, final String content) throws CoreException {
 		Assert.isNotNull(unit);
 		Assert.isNotNull(imports);
 		Assert.isNotNull(content);
-		final IPackageFragment fragment= (IPackageFragment) unit.getParent();
+		final IPackageFragment fragment= (IPackageFragment)unit.getParent();
 		final StringBuffer buffer= new StringBuffer();
 		final String delimiter= StubUtility.getLineDelimiterUsed(unit.getJavaProject());
 		if (!fragment.isDefaultPackage()) {
@@ -498,40 +462,33 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 	}
 
 	/**
-	 * Returns the field which corresponds to the specified variable declaration
-	 * fragment
-	 *
-	 * @param fragment
-	 *            the variable declaration fragment
+	 * Returns the field which corresponds to the specified variable declaration fragment
+	 * 
+	 * @param fragment the variable declaration fragment
 	 * @return the corresponding field
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected final IField getCorrespondingField(final VariableDeclarationFragment fragment) throws JavaModelException {
 		final IBinding binding= fragment.getName().resolveBinding();
 		if (binding instanceof IVariableBinding) {
-			final IVariableBinding variable= (IVariableBinding) binding;
+			final IVariableBinding variable= (IVariableBinding)binding;
 			if (variable.isField()) {
 				final ICompilationUnit unit= RefactoringASTParser.getCompilationUnit(fragment);
 				final IJavaElement element= unit.getElementAt(fragment.getStartPosition());
 				if (element instanceof IField)
-					return (IField) element;
+					return (IField)element;
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * Computes the compilation units of fields referencing the specified type
-	 * occurrences.
-	 *
-	 * @param units
-	 *            the compilation unit map (element type:
+	 * Computes the compilation units of fields referencing the specified type occurrences.
+	 * 
+	 * @param units the compilation unit map (element type:
 	 *            <code>&ltIJavaProject, Set&ltICompilationUnit&gt&gt</code>)
-	 * @param nodes
-	 *            the ast nodes representing the type occurrences
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @param nodes the ast nodes representing the type occurrences
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected final void getFieldReferencingCompilationUnits(final Map units, final ASTNode[] nodes) throws JavaModelException {
 		ASTNode node= null;
@@ -543,8 +500,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 			if (project != null) {
 				final List fields= getReferencingFields(node, project);
 				for (int offset= 0; offset < fields.size(); offset++) {
-					field= (IField) fields.get(offset);
-					Set set= (Set) units.get(project);
+					field= (IField)fields.get(offset);
+					Set set= (Set)units.get(project);
 					if (set == null) {
 						set= new HashSet();
 						units.put(project, set);
@@ -558,16 +515,12 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 	}
 
 	/**
-	 * Computes the compilation units of methods referencing the specified type
-	 * occurrences.
-	 *
-	 * @param units
-	 *            the compilation unit map (element type:
+	 * Computes the compilation units of methods referencing the specified type occurrences.
+	 * 
+	 * @param units the compilation unit map (element type:
 	 *            <code>&ltIJavaProject, Set&ltICompilationUnit&gt&gt</code>)
-	 * @param nodes
-	 *            the ast nodes representing the type occurrences
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @param nodes the ast nodes representing the type occurrences
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected final void getMethodReferencingCompilationUnits(final Map units, final ASTNode[] nodes) throws JavaModelException {
 		ASTNode node= null;
@@ -579,7 +532,7 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 			if (project != null) {
 				method= getReferencingMethod(node);
 				if (method != null) {
-					Set set= (Set) units.get(project);
+					Set set= (Set)units.get(project);
 					if (set == null) {
 						set= new HashSet();
 						units.put(project, set);
@@ -594,17 +547,13 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Computes the compilation units referencing the subtype to replace.
-	 *
-	 * @param type
-	 *            the subtype
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param status
-	 *            the refactoring status
+	 * 
+	 * @param type the subtype
+	 * @param monitor the progress monitor to use
+	 * @param status the refactoring status
 	 * @return the referenced compilation units (element type:
 	 *         <code>&ltIJavaProject, Collection&ltSearchResultGroup&gt&gt</code>)
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected final Map getReferencingCompilationUnits(final IType type, final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException {
 		try {
@@ -625,25 +574,22 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Returns the fields which reference the specified ast node.
-	 *
-	 * @param node
-	 *            the ast node
-	 * @param project
-	 *            the java project
+	 * 
+	 * @param node the ast node
+	 * @param project the java project
 	 * @return the referencing fields
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected final List getReferencingFields(final ASTNode node, final IJavaProject project) throws JavaModelException {
 		List result= Collections.EMPTY_LIST;
 		if (node instanceof Type) {
-			final BodyDeclaration parent= (BodyDeclaration) ASTNodes.getParent(node, BodyDeclaration.class);
+			final BodyDeclaration parent= (BodyDeclaration)ASTNodes.getParent(node, BodyDeclaration.class);
 			if (parent instanceof FieldDeclaration) {
-				final List fragments= ((FieldDeclaration) parent).fragments();
+				final List fragments= ((FieldDeclaration)parent).fragments();
 				result= new ArrayList(fragments.size());
 				VariableDeclarationFragment fragment= null;
 				for (final Iterator iterator= fragments.iterator(); iterator.hasNext();) {
-					fragment= (VariableDeclarationFragment) iterator.next();
+					fragment= (VariableDeclarationFragment)iterator.next();
 					final IField field= getCorrespondingField(fragment);
 					if (field != null)
 						result.add(field);
@@ -655,23 +601,21 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Returns the method which references the specified ast node.
-	 *
-	 * @param node
-	 *            the ast node
+	 * 
+	 * @param node the ast node
 	 * @return the referencing method
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * @throws JavaModelException if an error occurs
 	 */
 	protected final IMethod getReferencingMethod(final ASTNode node) throws JavaModelException {
 		if (node instanceof Type) {
-			final BodyDeclaration parent= (BodyDeclaration) ASTNodes.getParent(node, BodyDeclaration.class);
+			final BodyDeclaration parent= (BodyDeclaration)ASTNodes.getParent(node, BodyDeclaration.class);
 			if (parent instanceof MethodDeclaration) {
-				final IMethodBinding binding= ((MethodDeclaration) parent).resolveBinding();
+				final IMethodBinding binding= ((MethodDeclaration)parent).resolveBinding();
 				if (binding != null) {
 					final ICompilationUnit unit= RefactoringASTParser.getCompilationUnit(node);
 					final IJavaElement element= unit.getElementAt(node.getStartPosition());
 					if (element instanceof IMethod)
-						return (IMethod) element;
+						return (IMethod)element;
 				}
 			}
 		}
@@ -691,9 +635,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Returns whether type occurrences in instanceof's should be rewritten.
-	 *
-	 * @return <code>true</code> if they are rewritten, <code>false</code>
-	 *         otherwise
+	 * 
+	 * @return <code>true</code> if they are rewritten, <code>false</code> otherwise
 	 */
 	public final boolean isInstanceOf() {
 		return fInstanceOf;
@@ -701,9 +644,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Should occurrences of the subtype be replaced by the supertype?
-	 *
-	 * @return <code>true</code> if the subtype should be replaced,
-	 *         <code>false</code> otherwise
+	 * 
+	 * @return <code>true</code> if the subtype should be replaced, <code>false</code> otherwise
 	 */
 	public final boolean isReplace() {
 		return fReplace;
@@ -711,29 +653,24 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Performs the first pass of processing the affected compilation units.
-	 *
-	 * @param creator
-	 *            the constraints creator to use
-	 * @param units
-	 *            the compilation unit map (element type:
+	 * 
+	 * @param creator the constraints creator to use
+	 * @param units the compilation unit map (element type:
 	 *            <code>&ltIJavaProject, Set&ltICompilationUnit&gt&gt</code>)
-	 * @param groups
-	 *            the search result group map (element type:
+	 * @param groups the search result group map (element type:
 	 *            <code>&ltICompilationUnit, SearchResultGroup&gt</code>)
-	 * @param unit
-	 *            the compilation unit of the subtype
-	 * @param node
-	 *            the compilation unit node of the subtype
-	 * @param monitor
-	 *            the progress monitor to use
+	 * @param unit the compilation unit of the subtype
+	 * @param node the compilation unit node of the subtype
+	 * @param monitor the progress monitor to use
 	 */
-	protected final void performFirstPass(final SuperTypeConstraintsCreator creator, final Map units, final Map groups, final ICompilationUnit unit, final CompilationUnit node, final IProgressMonitor monitor) {
+	protected final void performFirstPass(final SuperTypeConstraintsCreator creator, final Map units, final Map groups, final ICompilationUnit unit, final CompilationUnit node,
+			final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask("", 100); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
 			node.accept(creator);
 			monitor.worked(20);
-			final SearchResultGroup group= (SearchResultGroup) groups.get(unit);
+			final SearchResultGroup group= (SearchResultGroup)groups.get(unit);
 			if (group != null) {
 				final ASTNode[] nodes= ASTNodeSearchUtil.getAstNodes(group.getSearchResults(), node);
 				try {
@@ -752,15 +689,11 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Performs the second pass of processing the affected compilation units.
-	 *
-	 * @param creator
-	 *            the constraints creator to use
-	 * @param unit
-	 *            the compilation unit of the subtype
-	 * @param node
-	 *            the compilation unit node of the subtype
-	 * @param monitor
-	 *            the progress monitor to use
+	 * 
+	 * @param creator the constraints creator to use
+	 * @param unit the compilation unit of the subtype
+	 * @param node the compilation unit node of the subtype
+	 * @param monitor the progress monitor to use
 	 */
 	protected final void performSecondPass(final SuperTypeConstraintsCreator creator, final ICompilationUnit unit, final CompilationUnit node, final IProgressMonitor monitor) {
 		try {
@@ -790,9 +723,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Resets the working copies.
-	 *
-	 * @param unit
-	 *            the compilation unit to discard
+	 * 
+	 * @param unit the compilation unit to discard
 	 */
 	protected void resetWorkingCopies(final ICompilationUnit unit) {
 		final ICompilationUnit[] units= JavaCore.getWorkingCopies(fOwner);
@@ -815,26 +747,19 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 	}
 
 	/**
-	 * Creates the necessary text edits to replace the subtype occurrence by a
-	 * supertype.
-	 *
-	 * @param range
-	 *            the compilation unit range
-	 * @param estimate
-	 *            the type estimate
-	 * @param requestor
-	 *            the ast requestor to use
-	 * @param rewrite
-	 *            the compilation unit rewrite to use
-	 * @param copy
-	 *            the compilation unit node of the working copy ast
-	 * @param replacements
-	 *            the set of variable binding keys of formal parameters which
-	 *            must be replaced
-	 * @param group
-	 *            the text edit group to use
+	 * Creates the necessary text edits to replace the subtype occurrence by a supertype.
+	 * 
+	 * @param range the compilation unit range
+	 * @param estimate the type estimate
+	 * @param requestor the ast requestor to use
+	 * @param rewrite the compilation unit rewrite to use
+	 * @param copy the compilation unit node of the working copy ast
+	 * @param replacements the set of variable binding keys of formal parameters which must be
+	 *            replaced
+	 * @param group the text edit group to use
 	 */
-	protected final void rewriteTypeOccurrence(final CompilationUnitRange range, final TType estimate, final ASTRequestor requestor, final CompilationUnitRewrite rewrite, final CompilationUnit copy, final Set replacements, final TextEditGroup group) {
+	protected final void rewriteTypeOccurrence(final CompilationUnitRange range, final TType estimate, final ASTRequestor requestor, final CompilationUnitRewrite rewrite, final CompilationUnit copy,
+			final Set replacements, final TextEditGroup group) {
 		ASTNode node= null;
 		IBinding binding= null;
 		final CompilationUnit target= rewrite.getRoot();
@@ -842,33 +767,33 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 		if (node != null) {
 			node= ASTNodes.getNormalizedNode(node).getParent();
 			if (node instanceof VariableDeclaration) {
-				binding= ((VariableDeclaration) node).resolveBinding();
+				binding= ((VariableDeclaration)node).resolveBinding();
 				node= target.findDeclaringNode(binding.getKey());
 				if (node instanceof SingleVariableDeclaration) {
-					rewriteTypeOccurrence(estimate, rewrite, ((SingleVariableDeclaration) node).getType(), group);
+					rewriteTypeOccurrence(estimate, rewrite, ((SingleVariableDeclaration)node).getType(), group);
 					if (node.getParent() instanceof MethodDeclaration) {
-						binding= ((VariableDeclaration) node).resolveBinding();
+						binding= ((VariableDeclaration)node).resolveBinding();
 						if (binding != null)
 							replacements.add(binding.getKey());
 					}
 				}
 			} else if (node instanceof VariableDeclarationStatement) {
-				binding= ((VariableDeclaration) ((VariableDeclarationStatement) node).fragments().get(0)).resolveBinding();
+				binding= ((VariableDeclaration)((VariableDeclarationStatement)node).fragments().get(0)).resolveBinding();
 				node= target.findDeclaringNode(binding.getKey());
 				if (node instanceof VariableDeclarationFragment)
-					rewriteTypeOccurrence(estimate, rewrite, ((VariableDeclarationStatement) ((VariableDeclarationFragment) node).getParent()).getType(), group);
+					rewriteTypeOccurrence(estimate, rewrite, ((VariableDeclarationStatement)((VariableDeclarationFragment)node).getParent()).getType(), group);
 			} else if (node instanceof MethodDeclaration) {
-				binding= ((MethodDeclaration) node).resolveBinding();
+				binding= ((MethodDeclaration)node).resolveBinding();
 				node= target.findDeclaringNode(binding.getKey());
 				if (node instanceof MethodDeclaration)
-					rewriteTypeOccurrence(estimate, rewrite, ((MethodDeclaration) node).getReturnType2(), group);
+					rewriteTypeOccurrence(estimate, rewrite, ((MethodDeclaration)node).getReturnType2(), group);
 			} else if (node instanceof FieldDeclaration) {
-				binding= ((VariableDeclaration) ((FieldDeclaration) node).fragments().get(0)).resolveBinding();
+				binding= ((VariableDeclaration)((FieldDeclaration)node).fragments().get(0)).resolveBinding();
 				node= target.findDeclaringNode(binding.getKey());
 				if (node instanceof VariableDeclarationFragment) {
 					node= node.getParent();
 					if (node instanceof FieldDeclaration)
-						rewriteTypeOccurrence(estimate, rewrite, ((FieldDeclaration) node).getType(), group);
+						rewriteTypeOccurrence(estimate, rewrite, ((FieldDeclaration)node).getType(), group);
 				}
 			} else if (node instanceof ArrayType) {
 				final ASTNode type= node;
@@ -877,9 +802,9 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 				if (node != null) {
 					final int delta= node.getStartPosition() + node.getLength() - type.getStartPosition();
 					if (node instanceof MethodDeclaration)
-						binding= ((MethodDeclaration) node).resolveBinding();
+						binding= ((MethodDeclaration)node).resolveBinding();
 					else if (node instanceof VariableDeclarationFragment)
-						binding= ((VariableDeclarationFragment) node).resolveBinding();
+						binding= ((VariableDeclarationFragment)node).resolveBinding();
 					if (binding != null) {
 						node= target.findDeclaringNode(binding.getKey());
 						if (node instanceof MethodDeclaration || node instanceof VariableDeclarationFragment) {
@@ -896,9 +821,9 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 				if (node != null) {
 					final int delta= node.getStartPosition() + node.getLength() - name.getStartPosition();
 					if (node instanceof MethodDeclaration)
-						binding= ((MethodDeclaration) node).resolveBinding();
+						binding= ((MethodDeclaration)node).resolveBinding();
 					else if (node instanceof VariableDeclarationFragment)
-						binding= ((VariableDeclarationFragment) node).resolveBinding();
+						binding= ((VariableDeclarationFragment)node).resolveBinding();
 					if (binding != null) {
 						node= target.findDeclaringNode(binding.getKey());
 						if (node instanceof SimpleName || node instanceof MethodDeclaration || node instanceof VariableDeclarationFragment) {
@@ -914,12 +839,12 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 					node= node.getParent();
 				if (node != null) {
 					final int delta= node.getStartPosition() + node.getLength() - expression.getStartPosition();
-					binding= ((MethodDeclaration) node).resolveBinding();
+					binding= ((MethodDeclaration)node).resolveBinding();
 					node= target.findDeclaringNode(binding.getKey());
 					if (node instanceof MethodDeclaration) {
 						node= NodeFinder.perform(target, (node.getStartPosition() + node.getLength() - delta), 0);
 						if (node instanceof CastExpression)
-							rewriteTypeOccurrence(estimate, rewrite, ((CastExpression) node).getType(), group);
+							rewriteTypeOccurrence(estimate, rewrite, ((CastExpression)node).getType(), group);
 					}
 				}
 			}
@@ -927,17 +852,12 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 	}
 
 	/**
-	 * Creates the necessary text edits to replace the subtype occurrence by a
-	 * supertype.
-	 *
-	 * @param estimate
-	 *            the type estimate
-	 * @param rewrite
-	 *            the ast rewrite to use
-	 * @param node
-	 *            the ast node to rewrite
-	 * @param group
-	 *            the text edit group to use
+	 * Creates the necessary text edits to replace the subtype occurrence by a supertype.
+	 * 
+	 * @param estimate the type estimate
+	 * @param rewrite the ast rewrite to use
+	 * @param node the ast node to rewrite
+	 * @param group the text edit group to use
 	 */
 	protected final void rewriteTypeOccurrence(final TType estimate, final CompilationUnitRewrite rewrite, final ASTNode node, final TextEditGroup group) {
 		rewrite.getImportRemover().registerRemovedNode(node);
@@ -945,54 +865,36 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 	}
 
 	/**
-	 * Creates the necessary text edits to replace the subtype occurrence by a
-	 * supertype.
-	 *
-	 * @param manager
-	 *            the text change manager to use
-	 * @param requestor
-	 *            the ast requestor to use
-	 * @param rewrite
-	 *            the compilation unit rewrite of the subtype (not in working
-	 *            copy mode)
-	 * @param unit
-	 *            the compilation unit
-	 * @param node
-	 *            the compilation unit node
-	 * @param replacements
-	 *            the set of variable binding keys of formal parameters which
-	 *            must be replaced
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws CoreException
-	 *             if the change could not be generated
+	 * Creates the necessary text edits to replace the subtype occurrence by a supertype.
+	 * 
+	 * @param manager the text change manager to use
+	 * @param requestor the ast requestor to use
+	 * @param rewrite the compilation unit rewrite of the subtype (not in working copy mode)
+	 * @param unit the compilation unit
+	 * @param node the compilation unit node
+	 * @param replacements the set of variable binding keys of formal parameters which must be
+	 *            replaced
+	 * @param monitor the progress monitor to use
+	 * @throws CoreException if the change could not be generated
 	 */
-	protected abstract void rewriteTypeOccurrences(TextEditBasedChangeManager manager, ASTRequestor requestor, CompilationUnitRewrite rewrite, ICompilationUnit unit, CompilationUnit node, Set replacements, IProgressMonitor monitor) throws CoreException;
+	protected abstract void rewriteTypeOccurrences(TextEditBasedChangeManager manager, ASTRequestor requestor, CompilationUnitRewrite rewrite, ICompilationUnit unit, CompilationUnit node,
+			Set replacements, IProgressMonitor monitor) throws CoreException;
 
 	/**
-	 * Creates the necessary text edits to replace the subtype occurrences by a
-	 * supertype.
-	 *
-	 * @param manager
-	 *            the text change manager to use
-	 * @param sourceRewrite
-	 *            the compilation unit rewrite of the subtype (not in working
-	 *            copy mode)
-	 * @param sourceRequestor
-	 *            the ast requestor of the subtype, or <code>null</code>
-	 * @param subUnit
-	 *            the compilation unit of the subtype, or <code>null</code>
-	 * @param subNode
-	 *            the compilation unit node of the subtype, or <code>null</code>
-	 * @param replacements
-	 *            the set of variable binding keys of formal parameters which
-	 *            must be replaced
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to use
+	 * Creates the necessary text edits to replace the subtype occurrences by a supertype.
+	 * 
+	 * @param manager the text change manager to use
+	 * @param sourceRewrite the compilation unit rewrite of the subtype (not in working copy mode)
+	 * @param sourceRequestor the ast requestor of the subtype, or <code>null</code>
+	 * @param subUnit the compilation unit of the subtype, or <code>null</code>
+	 * @param subNode the compilation unit node of the subtype, or <code>null</code>
+	 * @param replacements the set of variable binding keys of formal parameters which must be
+	 *            replaced
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to use
 	 */
-	protected final void rewriteTypeOccurrences(final TextEditBasedChangeManager manager, final ASTRequestor sourceRequestor, final CompilationUnitRewrite sourceRewrite, final ICompilationUnit subUnit, final CompilationUnit subNode, final Set replacements, final RefactoringStatus status, final IProgressMonitor monitor) {
+	protected final void rewriteTypeOccurrences(final TextEditBasedChangeManager manager, final ASTRequestor sourceRequestor, final CompilationUnitRewrite sourceRewrite,
+			final ICompilationUnit subUnit, final CompilationUnit subNode, final Set replacements, final RefactoringStatus status, final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask("", 300); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.ExtractInterfaceProcessor_creating);
@@ -1005,9 +907,9 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 				IJavaProject project= null;
 				ICompilationUnit current= null;
 				for (final Iterator iterator= units.iterator(); iterator.hasNext();) {
-					current= (ICompilationUnit) iterator.next();
+					current= (ICompilationUnit)iterator.next();
 					project= current.getJavaProject();
-					collection= (Collection) projects.get(project);
+					collection= (Collection)projects.get(project);
 					if (collection == null) {
 						collection= new ArrayList();
 						projects.put(project, collection);
@@ -1021,8 +923,8 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 					subMonitor.beginTask("", keySet.size() * 100); //$NON-NLS-1$
 					subMonitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
 					for (final Iterator iterator= keySet.iterator(); iterator.hasNext();) {
-						project= (IJavaProject) iterator.next();
-						collection= (Collection) projects.get(project);
+						project= (IJavaProject)iterator.next();
+						collection= (Collection)projects.get(project);
 						parser.setWorkingCopyOwner(fOwner);
 						parser.setResolveBindings(true);
 						parser.setProject(project);
@@ -1031,7 +933,7 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 						try {
 							subsubMonitor.beginTask("", collection.size() * 100 + 200); //$NON-NLS-1$
 							subsubMonitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
-							parser.createASTs((ICompilationUnit[]) collection.toArray(new ICompilationUnit[collection.size()]), new String[0], new ASTRequestor() {
+							parser.createASTs((ICompilationUnit[])collection.toArray(new ICompilationUnit[collection.size()]), new String[0], new ASTRequestor() {
 
 								public final void acceptAST(final ICompilationUnit unit, final CompilationUnit node) {
 									final IProgressMonitor subsubsubMonitor= new SubProgressMonitor(subsubMonitor, 100);
@@ -1072,22 +974,18 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Determines whether type occurrences in instanceof's should be rewritten.
-	 *
-	 * @param rewrite
-	 *            <code>true</code> to rewrite them, <code>false</code>
-	 *            otherwise
+	 * 
+	 * @param rewrite <code>true</code> to rewrite them, <code>false</code> otherwise
 	 */
 	public final void setInstanceOf(final boolean rewrite) {
 		fInstanceOf= rewrite;
 	}
 
 	/**
-	 * Determines whether occurrences of the subtype should be replaced by the
-	 * supertype.
-	 *
-	 * @param replace
-	 *            <code>true</code> to replace occurrences where possible,
-	 *            <code>false</code> otherwise
+	 * Determines whether occurrences of the subtype should be replaced by the supertype.
+	 * 
+	 * @param replace <code>true</code> to replace occurrences where possible, <code>false</code>
+	 *            otherwise
 	 */
 	public final void setReplace(final boolean replace) {
 		fReplace= replace;
@@ -1095,25 +993,18 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 
 	/**
 	 * Solves the supertype constraints to replace subtype by a supertype.
-	 *
-	 * @param subUnit
-	 *            the compilation unit of the subtype, or <code>null</code>
-	 * @param subNode
-	 *            the compilation unit node of the subtype, or <code>null</code>
-	 * @param subType
-	 *            the java element of the subtype
-	 * @param subBinding
-	 *            the type binding of the subtype to replace
-	 * @param superBinding
-	 *            the type binding of the supertype to use as replacement
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param status
-	 *            the refactoring status
-	 * @throws JavaModelException
-	 *             if an error occurs
+	 * 
+	 * @param subUnit the compilation unit of the subtype, or <code>null</code>
+	 * @param subNode the compilation unit node of the subtype, or <code>null</code>
+	 * @param subType the java element of the subtype
+	 * @param subBinding the type binding of the subtype to replace
+	 * @param superBinding the type binding of the supertype to use as replacement
+	 * @param monitor the progress monitor to use
+	 * @param status the refactoring status
+	 * @throws JavaModelException if an error occurs
 	 */
-	protected final void solveSuperTypeConstraints(final ICompilationUnit subUnit, final CompilationUnit subNode, final IType subType, final ITypeBinding subBinding, final ITypeBinding superBinding, final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException {
+	protected final void solveSuperTypeConstraints(final ICompilationUnit subUnit, final CompilationUnit subNode, final IType subType, final ITypeBinding subBinding, final ITypeBinding superBinding,
+			final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException {
 		Assert.isNotNull(subType);
 		Assert.isNotNull(subBinding);
 		Assert.isNotNull(superBinding);
@@ -1138,18 +1029,18 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 				SearchMatch[] matches= null;
 				final Map groups= new HashMap();
 				for (final Iterator outer= firstPass.keySet().iterator(); outer.hasNext();) {
-					project= (IJavaProject) outer.next();
+					project= (IJavaProject)outer.next();
 					if (level == 3 && !JavaModelUtil.is50OrHigher(project))
 						level= 2;
-					collection= (Collection) firstPass.get(project);
+					collection= (Collection)firstPass.get(project);
 					if (collection != null) {
 						for (final Iterator inner= collection.iterator(); inner.hasNext();) {
-							group= (SearchResultGroup) inner.next();
+							group= (SearchResultGroup)inner.next();
 							matches= group.getSearchResults();
 							for (int index= 0; index < matches.length; index++) {
 								element= matches[index].getElement();
 								if (element instanceof IMember) {
-									current= ((IMember) element).getCompilationUnit();
+									current= ((IMember)element).getCompilationUnit();
 									if (current != null)
 										groups.put(current, group);
 								}
@@ -1168,17 +1059,17 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 					subMonitor.beginTask("", keySet.size() * 100); //$NON-NLS-1$
 					subMonitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
 					for (final Iterator outer= keySet.iterator(); outer.hasNext();) {
-						project= (IJavaProject) outer.next();
-						collection= (Collection) firstPass.get(project);
+						project= (IJavaProject)outer.next();
+						collection= (Collection)firstPass.get(project);
 						if (collection != null) {
 							units= new HashSet(collection.size());
 							for (final Iterator inner= collection.iterator(); inner.hasNext();) {
-								group= (SearchResultGroup) inner.next();
+								group= (SearchResultGroup)inner.next();
 								matches= group.getSearchResults();
 								for (int index= 0; index < matches.length; index++) {
 									element= matches[index].getElement();
 									if (element instanceof IMember) {
-										current= ((IMember) element).getCompilationUnit();
+										current= ((IMember)element).getCompilationUnit();
 										if (current != null)
 											units.add(current);
 									}
@@ -1203,7 +1094,7 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 										final int count= iteration.size();
 										subsubsubMonitor.beginTask("", count * 100); //$NON-NLS-1$
 										subsubsubMonitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
-										parser.createASTs((ICompilationUnit[]) iteration.toArray(new ICompilationUnit[count]), new String[0], new ASTRequestor() {
+										parser.createASTs((ICompilationUnit[])iteration.toArray(new ICompilationUnit[count]), new String[0], new ASTRequestor() {
 
 											public final void acceptAST(final ICompilationUnit unit, final CompilationUnit node) {
 												if (!processed.contains(unit)) {
@@ -1238,10 +1129,10 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 					subMonitor.beginTask("", keySet.size() * 100); //$NON-NLS-1$
 					subMonitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
 					for (final Iterator iterator= keySet.iterator(); iterator.hasNext();) {
-						project= (IJavaProject) iterator.next();
+						project= (IJavaProject)iterator.next();
 						if (level == 3 && !JavaModelUtil.is50OrHigher(project))
 							level= 2;
-						collection= (Collection) secondPass.get(project);
+						collection= (Collection)secondPass.get(project);
 						if (collection != null) {
 							parser.setWorkingCopyOwner(fOwner);
 							parser.setResolveBindings(true);
@@ -1251,7 +1142,7 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 							try {
 								subsubMonitor.beginTask("", collection.size() * 100); //$NON-NLS-1$
 								subsubMonitor.setTaskName(RefactoringCoreMessages.SuperTypeRefactoringProcessor_creating);
-								parser.createASTs((ICompilationUnit[]) collection.toArray(new ICompilationUnit[collection.size()]), new String[0], new ASTRequestor() {
+								parser.createASTs((ICompilationUnit[])collection.toArray(new ICompilationUnit[collection.size()]), new String[0], new ASTRequestor() {
 
 									public final void acceptAST(final ICompilationUnit unit, final CompilationUnit node) {
 										if (!processed.contains(unit))

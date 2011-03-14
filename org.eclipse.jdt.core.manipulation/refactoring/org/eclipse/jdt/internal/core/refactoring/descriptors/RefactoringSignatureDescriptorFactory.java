@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.PushDownDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.UseSupertypeDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.codingspectator.InlineDescriptor;
+import org.eclipse.jdt.core.refactoring.descriptors.codingspectator.RenameUnknownJavaElementDescriptor;
 
 /**
  * Internal factory for Java refactoring signature descriptors.
@@ -297,4 +298,11 @@ public class RefactoringSignatureDescriptorFactory {
 		return new InlineDescriptor(project, description, comment, arguments, flags);
 	}
 
+	public static RenameUnknownJavaElementDescriptor createRenameUnknownJavaElementDescriptor() {
+		return new RenameUnknownJavaElementDescriptor();
+	}
+
+	public static RenameUnknownJavaElementDescriptor createRenameUnknownJavaElementDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		return new RenameUnknownJavaElementDescriptor(project, description, comment, arguments, flags);
+	}
 }

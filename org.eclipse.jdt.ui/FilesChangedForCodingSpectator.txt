@@ -79,6 +79,10 @@ plugin.xml
 
 # For capturing unavailable inline refactorings
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineConstantAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineMethodAction.java
+
+# For verifying captured extract interface refactorings.
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/constraints/SuperTypeRefactoringProcessor.java
 
 Added Files
 ===========
@@ -96,3 +100,5 @@ schema/startup.exsd
 ui/org/eclipse/jdt/ui/actions/codingspectator/UnavailableRefactoringLogger.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/InlineRefactoringContribution.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/RenameUnknownJavaElementRefactoringContribution.java

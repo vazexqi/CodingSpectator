@@ -32,11 +32,11 @@ public class CodingSpectatorBot {
 
 	static final String PLUGIN_NAME= "edu.illinois.codingspectator.ui.tests";
 
-	static final String PACKAGE_NAME= "edu.illinois.codingspectator";
+	public static final String PACKAGE_NAME= "edu.illinois.codingspectator";
 
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
-	protected static final int SLEEPTIME= 1500;
+	protected static final int SLEEPTIME= 3000;
 
 	SWTWorkbenchBot bot= new SWTWorkbenchBot();
 

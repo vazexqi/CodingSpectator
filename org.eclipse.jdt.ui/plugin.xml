@@ -5461,6 +5461,11 @@
       <contribution
             class="org.eclipse.jdt.internal.corext.refactoring.scripting.codingspectator.InlineRefactoringContribution"
             id="org.eclipse.jdt.ui.inline"/>
+     
+      <!-- CODINGSPECTATOR: Added an extension point for the rename unknown Java element refactoring. This extension point enables the deserialization of this custom refactoring descriptor. -->
+      <contribution
+            class="org.eclipse.jdt.internal.corext.refactoring.scripting.codingspectator.RenameUnknownJavaElementRefactoringContribution"
+            id="org.eclipse.jdt.ui.rename.unknown.java.element"/>
             
       <contribution
             class="org.eclipse.jdt.internal.corext.refactoring.scripting.ExtractMethodRefactoringContribution"

@@ -77,8 +77,8 @@ import org.eclipse.ltk.core.refactoring.history.IRefactoringHistoryService;
  * 
  * @since 3.2
  * 
- * @author Mohsen Vakilian, nchen - Added method stub for subclasses to add more information by cloning an existing
- *         RefactoringDescriptor
+ * @author Mohsen Vakilian, nchen - Added method stub for subclasses to add more information by
+ *         cloning an existing RefactoringDescriptor
  */
 public abstract class RefactoringDescriptor implements Comparable {
 
@@ -177,13 +177,13 @@ public abstract class RefactoringDescriptor implements Comparable {
 	/**
 	 * The attribute for the selected text in a refactoring.
 	 */
-	public static final String ATTRIBUTE_SELECTION= "selection"; //$NON-NLS-1$
-	
+	public static final String ATTRIBUTE_SELECTION_TEXT= "selection-text"; //$NON-NLS-1$
+
 	/**
 	 * The offset of the selected text within the code snippet that contains it.
 	 */
-	public static final String ATTRIBUTE_SELECTION_OFFSET= "selection-offset"; //$NON-NLS-1$
-	
+	public static final String ATTRIBUTE_SELECTION_IN_CODE_SNIPPET= "selection-in-code-snippet"; //$NON-NLS-1$
+
 	/**
 	 * The attribute for the status of a refactoring. This status contains the error and warning
 	 * messages of the refactoring.

@@ -134,9 +134,12 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  */
 public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 
-	private static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
+	/**
+	 * CODINGSPECTATOR: Made the attributes public for the first time because of the UI tests.
+	 */
+	public static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 
-	private static final String ATTRIBUTE_REMOVE= "remove"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_REMOVE= "remove"; //$NON-NLS-1$
 
 	private static class InlineTargetCompilationUnit {
 
@@ -1107,32 +1110,35 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-
-		final String description= Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description_short,
-				JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_DEFAULT));
-		final String header= Messages.format(
-				RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description,
-				new String[] { JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_FULLY_QUALIFIED),
-						JavaElementLabels.getElementLabel(fField.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_original_pattern, JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		if (fRemoveDeclaration)
-			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_remove_declaration);
-		if (fReplaceAllReferences)
-			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_replace_references);
+		//Mohsen: I've commented the following piece of code because it's redundant. Besides, it computes a wrong value for the "flags" attribute.
+//		String project= getJavaProjectName();
+//		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+//
+//		final String description= Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description_short,
+//				JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_DEFAULT));
+//		final String header= Messages.format(
+//				RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description,
+//				new String[] { JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_FULLY_QUALIFIED),
+//						JavaElementLabels.getElementLabel(fField.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED) });
+//		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+//		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_original_pattern, JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+//		if (fRemoveDeclaration)
+//			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_remove_declaration);
+//		if (fReplaceAllReferences)
+//			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_replace_references);
 
 		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final InlineConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineConstantDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
+		InlineConstantDescriptor originalRefactoringDescriptor= getRefactoringDescriptor();
+		arguments.putAll(originalRefactoringDescriptor.getArguments());
+		final InlineConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineConstantDescriptor(originalRefactoringDescriptor.getProject(),
+				originalRefactoringDescriptor.getDescription(), originalRefactoringDescriptor.getComment(), arguments, originalRefactoringDescriptor.getFlags());
 
 		return descriptor;
 	}
 
 	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fSelectionCu));
-//		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
 		arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemoveDeclaration).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllReferences).toString());
 	}
