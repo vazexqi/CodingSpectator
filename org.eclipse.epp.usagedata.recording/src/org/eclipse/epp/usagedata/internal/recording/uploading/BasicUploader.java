@@ -412,7 +412,7 @@ public class BasicUploader extends AbstractUploader {
 		if (uploadInProgress)
 			return;
 		uploadInProgress= true;
-		Job job= new Job("Transfering usage data to CodingSpectator...") { //$NON-NLS-1$
+		Job job= new Job("Transferring usage data to CodingSpectator...") { //$NON-NLS-1$
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
