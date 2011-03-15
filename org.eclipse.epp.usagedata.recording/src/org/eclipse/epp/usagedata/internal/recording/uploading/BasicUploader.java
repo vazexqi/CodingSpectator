@@ -42,13 +42,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.epp.usagedata.internal.gathering.events.UsageDataEvent;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.settings.UploadSettings;
-import org.osgi.framework.Version;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
@@ -479,14 +477,7 @@ public class BasicUploader extends AbstractUploader {
 	}
 
 	private IPath getCodingSpectatorUDCRoot() {
-		return getCodingSpectatorWatchedDirectory().append("udc");
+		return CodingSpectatorDataPlugin.getVersionedStorageLocation().append("udc");
 	}
 
-	private IPath getCodingSpectatorWatchedDirectory() {
-		return CodingSpectatorDataPlugin.getStorageLocation().append(getCodingSpectatorVersion().toString());
-	}
-
-	private Version getCodingSpectatorVersion() {
-		return Platform.getBundle("edu.illinois.codingspectator.monitor.core").getVersion();
-	}
 }
