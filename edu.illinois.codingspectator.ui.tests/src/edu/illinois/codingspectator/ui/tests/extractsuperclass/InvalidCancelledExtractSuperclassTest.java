@@ -46,12 +46,18 @@ public class InvalidCancelledExtractSuperclassTest extends RefactoringTest {
 
 	private final static String SELECTION= "Child";
 
-	private final static String NEW_SUPERCLASS_NAME= "NewSuperClassName";
-
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
-	private String getSelectedClassFullQualifiedName() {
+	private String getSelectedClassFullyQualifiedName() {
 		return CodingSpectatorBot.PACKAGE_NAME + "." + SELECTION;
+	}
+
+	private String getNewSuperClassName() {
+		return getTestFileName();
+	}
+
+	private String getNewSuperClassFullyQualifiedName() {
+		return CodingSpectatorBot.PACKAGE_NAME + "." + getTestFileName();
 	}
 
 	@Override
@@ -73,7 +79,7 @@ public class InvalidCancelledExtractSuperclassTest extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		bot.selectElementToRefactor(getTestFileFullName(), 9, 6, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
-		bot.fillTextField(SUPERCLASS_NAME_LABEL, NEW_SUPERCLASS_NAME);
+		bot.fillTextField(SUPERCLASS_NAME_LABEL, getNewSuperClassName());
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
@@ -95,16 +101,17 @@ public class InvalidCancelledExtractSuperclassTest extends RefactoringTest {
 
 	private void javaAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
 		assertTrue(capturedDescriptor.getTimestamp() > 0);
-		assertEquals(String.format("Extract superclass 'CodingSpectatorDefaultDestinationTypeName' from '%s'\n" +
+		assertEquals(String.format("Extract superclass '%s' from '%s'\n" +
 				"- Original project: '%s'\n" +
 				"- Original element: '%s'\n" +
 				"- Sub types:\n" +
 				"     %s\n" +
-				"- Extracted class: 'CodingSpectatorDefaultDestinationTypeName'\n" +
-				"- Use super type where possible", getSelectedClassFullQualifiedName(), getProjectName(), getSelectedClassFullQualifiedName(), getSelectedClassFullQualifiedName()),
+				"- Extracted class: '%s'\n" +
+				"- Use super type where possible", getNewSuperClassFullyQualifiedName(), getSelectedClassFullyQualifiedName(), getProjectName(), getSelectedClassFullyQualifiedName(),
+				getSelectedClassFullyQualifiedName(), getNewSuperClassFullyQualifiedName()),
 				capturedDescriptor.getComment());
 		assertEquals(String.format("/src<%s{%s[%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), SELECTION), capturedDescriptor.getInput());
-		assertEquals(String.format("Extract superclass '%s'", NEW_SUPERCLASS_NAME), capturedDescriptor.getDescription());
+		assertEquals(String.format("Extract superclass '%s'", getNewSuperClassName()), capturedDescriptor.getDescription());
 		assertEquals(589830, capturedDescriptor.getFlags());
 		assertEquals(IJavaRefactorings.EXTRACT_SUPERCLASS, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
@@ -113,7 +120,7 @@ public class InvalidCancelledExtractSuperclassTest extends RefactoringTest {
 	}
 
 	private void attributesSpecificToExtractSuperclassShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
-		assertEquals(NEW_SUPERCLASS_NAME, capturedDescriptor.getName());
+		assertEquals(getNewSuperClassName(), capturedDescriptor.getName());
 		assertTrue(capturedDescriptor.getReplace());
 		assertFalse(capturedDescriptor.getInstanceOf());
 		assertTrue(capturedDescriptor.getStubs());
@@ -127,7 +134,13 @@ public class InvalidCancelledExtractSuperclassTest extends RefactoringTest {
 	private void codingspectatorAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {
 		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
 		assertNull(capturedDescriptor.getSelectionInCodeSnippet());
-		assertEquals("<OK\n>", capturedDescriptor.getStatus());
+		assertEquals(String.format("<FATALERROR\n" +
+				"	\n" +
+				"FATALERROR: Compilation unit '%s' already exists\n" +
+				"Context: <Unspecified context>\n" +
+				"code: none\n" +
+				"Data: null\n" +
+				">", getTestFileFullName()), capturedDescriptor.getStatus());
 		assertEquals("3138c3e9935e3184e6f9da225852f0dc", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 		PatternComponent timestampPattern= oneOrMore(anyCharacterInCategory("Digit"));
