@@ -62,7 +62,7 @@ public class TestRecorderReplayer extends TestCodingTracker {
 
 	private File getGeneratedFile(String fileName) {
 		String workspaceRelativeFilePath= "/edu.illinois.testproject/src/edu/illinois/test/" + fileName;
-		return new File(ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath).getLocation().toPortableString());
+		return ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath).getLocation().toFile();
 	}
 
 	private void checkFilesAreEqual(File file1, File file2) {

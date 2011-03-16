@@ -17,6 +17,8 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
  */
 public abstract class UserOperation {
 
+	protected static boolean isRefactoring= false;
+
 	protected static IDocument currentDocument;
 
 	protected static ISourceViewer currentViewer;

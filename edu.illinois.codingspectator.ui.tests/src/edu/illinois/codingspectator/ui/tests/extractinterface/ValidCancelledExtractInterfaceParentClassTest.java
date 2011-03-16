@@ -32,9 +32,17 @@ public class ValidCancelledExtractInterfaceParentClassTest extends RefactoringTe
 
 	private static final String SELECTION= "Parent";
 
-	private static final String NEW_INTERFACE_NAME= "I" + "Parent";
+	private static final String NEW_INTERFACE_NAME= "I" + SELECTION;
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
+
+	private String getSelectedClassFullQualifiedName() {
+		return CodingSpectatorBot.PACKAGE_NAME + "." + SELECTION;
+	}
+
+	private String getNewInterfaceFullQualifiedName() {
+		return CodingSpectatorBot.PACKAGE_NAME + "." + NEW_INTERFACE_NAME;
+	}
 
 	@Override
 	protected String getTestFileName() {
@@ -49,14 +57,6 @@ public class ValidCancelledExtractInterfaceParentClassTest extends RefactoringTe
 	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(refactoringLog.exists());
-	}
-
-	private String getSelectedClassFullQualifiedName() {
-		return CodingSpectatorBot.PACKAGE_NAME + "." + SELECTION;
-	}
-
-	private String getNewInterfaceFullQualifiedName() {
-		return CodingSpectatorBot.PACKAGE_NAME + "." + NEW_INTERFACE_NAME;
 	}
 
 	@Override

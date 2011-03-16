@@ -7,7 +7,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
@@ -20,6 +25,7 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public abstract class FileOperation extends UserOperation {
 
 	private static final String FILE_PATH_SEPARATOR= "/";
@@ -45,7 +51,6 @@ public abstract class FileOperation extends UserOperation {
 	public FileOperation(IFile file) {
 		super();
 		filePath= FileHelper.getPortableFilePath(file);
-		initFragmentNames();
 	}
 
 	private void initFragmentNames() {
@@ -54,19 +59,52 @@ public abstract class FileOperation extends UserOperation {
 		projectName= filePathFragments[1];
 		sourceFolderName= filePathFragments[2];
 		fileName= filePathFragments[filePathFragments.length - 1];
-		if (filePathFragments.length > 4) { //has package name (i.e. not the default, unnamed package)
+		if (isValidPackageName(filePathFragments)) {
 			packageName= filePathFragments[3];
 			for (int i= 4; i < filePathFragments.length - 1; i++) {
 				packageName= packageName + PACKAGE_NAME_SEPARATOR + filePathFragments[i];
 			}
 		} else {
 			packageName= "";
+			for (int i= 3; i < filePathFragments.length - 1; i++) {
+				sourceFolderName= sourceFolderName + FILE_PATH_SEPARATOR + filePathFragments[i];
+			}
 		}
 	}
 
-	protected ITextEditor getFileEditor() throws CoreException {
-		IFile file= (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
-		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
+	private boolean isValidPackageName(String[] filePathFragments) {
+		if (filePathFragments.length <= 4) {
+			return false;
+		}
+		for (int i= 3; i < filePathFragments.length - 1; i++) {
+			if (!Character.isJavaIdentifierStart(filePathFragments[i].charAt(0))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	protected ITextEditor getFileEditor(boolean bringToTop) throws CoreException {
+		ITextEditor textEditor= getExistingEditor();
+		if (bringToTop) {
+			if (textEditor != null) {
+				JavaPlugin.getActivePage().activate(textEditor);
+			} else {
+				IFile file= (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
+				textEditor= (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
+			}
+		}
+		return textEditor;
+	}
+
+	private ITextEditor getExistingEditor() throws PartInitException {
+		for (IEditorReference editorReference : JavaPlugin.getActivePage().getEditorReferences()) {
+			IEditorInput editorInput= editorReference.getEditorInput();
+			if (editorInput instanceof FileEditorInput && ((FileEditorInput)editorInput).getPath().toPortableString().endsWith(filePath)) {
+				return (ITextEditor)editorReference.getEditor(true);
+			}
+		}
+		return null;
 	}
 
 	@Override

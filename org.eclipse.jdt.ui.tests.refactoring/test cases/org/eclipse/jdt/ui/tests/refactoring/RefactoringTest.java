@@ -313,6 +313,8 @@ public abstract class RefactoringTest extends TestCase {
 		if (fIsPreDeltaTest) {
 			IResourceChangeListener listener= new IResourceChangeListener() {
 				public void resourceChanged(IResourceChangeEvent event) {
+					updateStatus(status, create);
+
 					if (status.isOK() && perform.changeExecuted()) {
 						TestModelProvider.assertTrue(event.getDelta());
 					}
@@ -336,11 +338,7 @@ public abstract class RefactoringTest extends TestCase {
 			}
 		}
 
-		RefactoringStatus createChangeOperationStatus= create.getConditionCheckingStatus();
-		if (createChangeOperationStatus == null) {
-			createChangeOperationStatus= new RefactoringStatus();
-		}
-		status.merge(createChangeOperationStatus);
+		updateStatus(status, create);
 
 		if (!status.isOK())
 			return status;
@@ -353,6 +351,15 @@ public abstract class RefactoringTest extends TestCase {
 			assertNull("Undo manager contains undo but shouldn't", undo);
 		}
 		return null;
+	}
+
+	// CODINGSPECTATOR: Added a method to update the given refactoring status by the result of the supplied CreateChangeOperation object. 
+	private void updateStatus(RefactoringStatus status, CreateChangeOperation create) {
+		RefactoringStatus createChangeOperationStatus= create.getConditionCheckingStatus();
+		if (createChangeOperationStatus == null) {
+			createChangeOperationStatus= new RefactoringStatus();
+		}
+		status.merge(createChangeOperationStatus);
 	}
 
 	protected void executePerformOperation(final PerformChangeOperation perform, IWorkspace workspace) throws CoreException {

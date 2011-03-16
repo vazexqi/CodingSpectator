@@ -227,5 +227,12 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+         
+   <plugin
+         id="edu.illinois.codingspectator.eclipserefactorings.capturing"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

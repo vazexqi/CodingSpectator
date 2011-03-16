@@ -142,7 +142,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		boolean hasChangedKnownFiles= false;
 		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
 			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(new File(cvsEntriesFile.getLocation().toOSString()), relativePath);
+			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile.getLocation().toFile(), relativePath);
 			boolean isInitialCommit= false;
 			for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
 				IFile entryFile= newEntry.getKey();
@@ -186,7 +186,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
 			if (cvsEntriesFile.exists()) {
 				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(new File(cvsEntriesFile.getLocation().toOSString()), relativePath);
+				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile.getLocation().toFile(), relativePath);
 				File trackedCVSEntriesFile= knownfilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
 				if (trackedCVSEntriesFile.exists()) {
 					Map<IFile, String> previousVersions= FileHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);

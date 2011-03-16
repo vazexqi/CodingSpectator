@@ -19,6 +19,7 @@ import org.eclipse.core.filesystem.IFileStore;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.eclipse.core.resources.IProject;
@@ -69,7 +70,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 			case RefactoringHistoryEvent.ADDED:
 			case RefactoringHistoryEvent.PUSHED:
 			case RefactoringHistoryEvent.POPPED:
-				return getFileStore(RefactoringHistoryService.NAME_HISTORY_FOLDER);
+				return getEclipseRefactoringHistoryFileStore();
 		}
 		return null;
 	}
@@ -116,9 +117,14 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 		}
 	}
 
-	//CODINGSPECTATOR: Extracted the method getFileStore(String).
-	private IFileStore getFileStore(String historyFolder) {
-		return EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(historyFolder);
+	//CODINGSPECTATOR: Extracted the method getFileStore().
+	public static IFileStore getEclipseRefactoringHistoryFileStore() {
+		return EFS.getLocalFileSystem().getStore(getEclipseRefactoringHistoryFolder());
+	}
+
+	// CODINGSPECTATOR: Extracted this method from getFileStore().
+	public static IPath getEclipseRefactoringHistoryFolder() {
+		return RefactoringCorePlugin.getDefault().getStateLocation().append(RefactoringHistoryService.NAME_HISTORY_FOLDER);
 	}
 
 	//CODINGSPECTATOR: Serialize these events to the CodingSpectator data folder

@@ -8,9 +8,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService;
-
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
@@ -22,21 +19,16 @@ import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
  * @author Mohsen Vakilian
  * 
  */
-@SuppressWarnings("restriction")
 public class SafeRecorder {
 
 	private File currentRecordFile= null;
 
 	private final File mainRecordFile;
 
-	private static final IPath WATCHED_PATH= CodingSpectatorDataPlugin.getStorageLocation();
-
-	public static final String FEATURE_VERSION= RefactoringHistoryService.getFeatureVersion().toString();
-
 	public final String mainRecordFilePath;
 
 	public SafeRecorder(String relativePathToMainRecordFile) {
-		mainRecordFilePath= WATCHED_PATH.append(FEATURE_VERSION).append(relativePathToMainRecordFile).toOSString();
+		mainRecordFilePath= CodingSpectatorDataPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString();
 		mainRecordFile= new File(mainRecordFilePath);
 		mainRecordFile.getParentFile().mkdirs();
 		try {
