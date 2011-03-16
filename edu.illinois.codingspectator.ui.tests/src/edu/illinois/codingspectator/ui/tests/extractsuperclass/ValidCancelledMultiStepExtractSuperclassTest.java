@@ -55,6 +55,10 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 		return CodingSpectatorBot.PACKAGE_NAME + "." + getSelectedClassName();
 	}
 
+	private String getNewSuperClassFullyQualifiedName() {
+		return CodingSpectatorBot.PACKAGE_NAME + "." + NEW_SUPERCLASS_NAME;
+	}
+
 	@Override
 	protected String getTestFileName() {
 		return "ExtractSuperclassTestFile";
@@ -75,7 +79,7 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 		bot.selectElementToRefactor(getTestFileFullName(), 11, 16, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, NEW_SUPERCLASS_NAME);
-		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
+		bot.clickButtons(IDialogConstants.NEXT_LABEL, IDialogConstants.NEXT_LABEL, IDialogConstants.CANCEL_LABEL);
 	}
 
 	@Override
@@ -96,17 +100,16 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 
 	private void javaAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
 		assertTrue(capturedDescriptor.getTimestamp() > 0);
-		assertEquals(String.format("Extract superclass 'CodingSpectatorDefaultDestinationTypeName' from '%s'\n" +
+		assertEquals(String.format("Extract superclass '%s' from '%s'\n" +
 				"- Original project: '%s'\n" +
 				"- Original element: '%s'\n" +
 				"- Sub types:\n" +
 				"     %s\n" +
-				"- Extracted class: 'CodingSpectatorDefaultDestinationTypeName'\n" +
+				"- Extracted class: '%s'\n" +
 				"- Extracted members:\n" +
 				"     %s.%s()\n" +
-				"- Use super type where possible", getSelectedClassFullyQualifiedName(), getProjectName(), getSelectedClassFullyQualifiedName(), getSelectedClassFullyQualifiedName(),
-				getSelectedClassFullyQualifiedName(), SELECTION),
-				capturedDescriptor.getComment());
+				"- Use super type where possible", getNewSuperClassFullyQualifiedName(), getSelectedClassFullyQualifiedName(), getProjectName(), getSelectedClassFullyQualifiedName(),
+				getSelectedClassFullyQualifiedName(), getNewSuperClassFullyQualifiedName(), getSelectedClassFullyQualifiedName(), SELECTION), capturedDescriptor.getComment());
 		assertEquals(String.format("/src<%s{%s[%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getSelectedClassName()), capturedDescriptor.getInput());
 		assertEquals(String.format("Extract superclass '%s'", NEW_SUPERCLASS_NAME), capturedDescriptor.getDescription());
 		assertEquals(589830, capturedDescriptor.getFlags());
@@ -135,11 +138,12 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 		assertEquals(getSelectedClassName(), capturedDescriptor.getSelectionText());
 		assertNull(capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("<OK\n>", capturedDescriptor.getStatus());
-		assertEquals("a0145c89c792aeb972395ada6007b545", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertEquals("9ee49ca96f7f0ca344eba5b3718ab1e0", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 		PatternComponent timestampPattern= oneOrMore(anyCharacterInCategory("Digit"));
-		PatternMatcher expectedNavigationHistoryPatternMatcher= new PatternMatcher(sequence(text("{[Extract Superclass,BEGIN_REFACTORING,"), timestampPattern,
-				text("],[ExtractSupertypeMemberPage,Cancel,"), timestampPattern, text("],}")));
+		PatternMatcher expectedNavigationHistoryPatternMatcher= new PatternMatcher(
+				sequence(text("{[Extract Superclass,BEGIN_REFACTORING,"), timestampPattern, text("],[ExtractSupertypeMemberPage,&Next >,"), timestampPattern, text("],[PullUpMethodPage,&Next >,"),
+						timestampPattern, text("],[PreviewPage,Cancel,"), timestampPattern, text("],}")));
 		assertThat(capturedDescriptor.getNavigationHistory(), expectedNavigationHistoryPatternMatcher);
 	}
 
