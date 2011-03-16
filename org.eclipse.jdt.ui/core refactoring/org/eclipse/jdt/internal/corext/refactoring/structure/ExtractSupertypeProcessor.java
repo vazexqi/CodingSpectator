@@ -121,11 +121,24 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
  */
 public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor {
 
-	/** The extract attribute */
-	private static final String ATTRIBUTE_EXTRACT= "extract"; //$NON-NLS-1$
+	/**
+	 * The extract attribute
+	 * 
+	 * CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI
+	 * tests.
+	 * 
+	 */
+	public static final String ATTRIBUTE_EXTRACT= "extract"; //$NON-NLS-1$
 
-	/** The types attribute */
-	private static final String ATTRIBUTE_TYPES= "types"; //$NON-NLS-1$
+	/**
+	 * 
+	 * The types attribute
+	 * 
+	 * CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI
+	 * tests.
+	 * 
+	 */
+	public static final String ATTRIBUTE_TYPES= "types"; //$NON-NLS-1$
 
 	/** The extract supertype group category set */
 	private static final GroupCategorySet SET_EXTRACT_SUPERTYPE= new GroupCategorySet(new GroupCategory("org.eclipse.jdt.internal.corext.extractSupertype", //$NON-NLS-1$
