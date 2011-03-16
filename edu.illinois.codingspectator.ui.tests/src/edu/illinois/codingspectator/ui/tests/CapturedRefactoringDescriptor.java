@@ -11,6 +11,8 @@ import org.eclipse.jdt.internal.corext.refactoring.code.ExtractConstantRefactori
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.InlineConstantRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.structure.ExtractInterfaceProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.structure.ExtractSupertypeProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.structure.PullUpRefactoringProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeRefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
@@ -73,6 +75,9 @@ public class CapturedRefactoringDescriptor {
 		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_INPUT);
 	}
 
+	/*
+	 * FIXME: Not all tests verify this attribute.
+	 */
 	public String getName() {
 		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_NAME);
 	}
@@ -134,10 +139,10 @@ public class CapturedRefactoringDescriptor {
 		return Boolean.valueOf(getAttribute("comments"));
 	}
 
-	// Declared in ExtractMethodRefactoring, InlineConstantRefactoring and ExtractConstantRefactoring.
+	// Declared in ExtractMethodRefactoring, InlineConstantRefactoring, ExtractConstantRefactoring and SuperTypeRefactoringProcessor.
 	public boolean getReplace() {
 		if (!"replace".equals(InlineConstantRefactoring.ATTRIBUTE_REPLACE) || !"replace".equals(ExtractMethodRefactoring.ATTRIBUTE_REPLACE)
-				|| !"replace".equals(ExtractConstantRefactoring.ATTRIBUTE_REPLACE)) {
+				|| !"replace".equals(ExtractConstantRefactoring.ATTRIBUTE_REPLACE) || !"replace".equals(SuperTypeRefactoringProcessor.ATTRIBUTE_REPLACE)) {
 			throw new RuntimeException("Inconsistent attribute names.");
 		}
 
@@ -212,6 +217,31 @@ public class CapturedRefactoringDescriptor {
 	// Used in SuperTypeRefactoringProcessor.
 	public boolean getInstanceOf() {
 		return Boolean.valueOf(getAttribute(SuperTypeRefactoringProcessor.ATTRIBUTE_INSTANCEOF));
+	}
+
+	// Used in PullUpRefactoringProcessor.
+	public boolean getStubs() {
+		return Boolean.valueOf(getAttribute(PullUpRefactoringProcessor.ATTRIBUTE_STUBS));
+	}
+
+	// Used in ExtractSupertypeProcessor.
+	public int getExtract() {
+		return Integer.parseInt(getAttribute(ExtractSupertypeProcessor.ATTRIBUTE_EXTRACT));
+	}
+
+	// Used in PullUpRefactoringProcessor.
+	public int getDelete() {
+		return Integer.parseInt(getAttribute(PullUpRefactoringProcessor.ATTRIBUTE_DELETE));
+	}
+
+	// Used in PullUpRefactoringProcessor.
+	public int getIntegerAbstract() {
+		return Integer.parseInt(getAttribute(PullUpRefactoringProcessor.ATTRIBUTE_ABSTRACT));
+	}
+
+	// Used in ExtractSupertypeProcessor.
+	public int getTypes() {
+		return Integer.parseInt(getAttribute(ExtractSupertypeProcessor.ATTRIBUTE_TYPES));
 	}
 
 }

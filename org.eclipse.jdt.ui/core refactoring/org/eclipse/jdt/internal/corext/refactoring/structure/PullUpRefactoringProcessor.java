@@ -262,13 +262,16 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 		}
 	}
 
-	protected static final String ATTRIBUTE_ABSTRACT= "abstract"; //$NON-NLS-1$
+	//CODINGSPECTATOR: Made the name of an attribute public for the first time because of the UI tests. 
+	public static final String ATTRIBUTE_ABSTRACT= "abstract"; //$NON-NLS-1$
 
-	protected static final String ATTRIBUTE_DELETE= "delete"; //$NON-NLS-1$
+	//CODINGSPECTATOR: Made the name of an attribute public for the first time because of the UI tests. 
+	public static final String ATTRIBUTE_DELETE= "delete"; //$NON-NLS-1$
 
 	protected static final String ATTRIBUTE_PULL= "pull"; //$NON-NLS-1$
 
-	protected static final String ATTRIBUTE_STUBS= "stubs"; //$NON-NLS-1$
+	//CODINGSPECTATOR: Made the name of an attribute public for the first time because of the UI tests. 
+	public static final String ATTRIBUTE_STUBS= "stubs"; //$NON-NLS-1$
 
 	private static final String IDENTIFIER= "org.eclipse.jdt.ui.pullUpProcessor"; //$NON-NLS-1$
 

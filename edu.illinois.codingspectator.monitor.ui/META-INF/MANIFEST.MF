@@ -7,11 +7,12 @@ Bundle-Activator: edu.illinois.codingspectator.monitor.ui.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- edu.illinois.codingspectator.monitor.core;bundle-version="1.0.0",
- org.eclipse.equinox.p2.core;bundle-version="2.0.0",
- org.eclipse.equinox.security;bundle-version="1.0.200",
- org.tmatesoft.svn_1.3.4.eclipse;bundle-version="1.0.0",
- edu.illinois.codingspectator.data;bundle-version="1.0.0"
+ org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.security,
+ org.eclipse.ltk.core.refactoring,
+ org.tmatesoft.svn_1.3.4.eclipse,
+ edu.illinois.codingspectator.data,
+ edu.illinois.codingspectator.monitor.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.monitor.ui,

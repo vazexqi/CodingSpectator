@@ -5,12 +5,12 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
-import edu.illinois.codingspectator.monitor.ui.prefs.RunningModes;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
