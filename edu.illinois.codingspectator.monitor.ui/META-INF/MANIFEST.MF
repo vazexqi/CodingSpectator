@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.core.refactoring,
  org.tmatesoft.svn_1.3.4.eclipse,
  edu.illinois.codingspectator.data,
- edu.illinois.codingspectator.monitor.core
+ edu.illinois.codingspectator.monitor.core,
+ org.eclipse.ui.forms;bundle-version="3.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.monitor.ui,
