@@ -125,6 +125,10 @@ public class UserValidationDialog extends Dialog {
 		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		password.setLayoutData(layoutData);
 		password.setText(getPassword());
+		
+		if(!isUsernameEmpty()) {
+			password.setFocus();
+		}
 	}
 
 	private void createUsernameTextField(Composite fieldContainer) {
@@ -137,9 +141,9 @@ public class UserValidationDialog extends Dialog {
 		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		username.setLayoutData(layoutData);
 		username.setText(getUserName());
-		username.setFocus();
 
 		if (isUsernameEmpty()) {
+			username.setFocus();
 			username.setEditable(true);
 			username.setEnabled(true);
 		}
