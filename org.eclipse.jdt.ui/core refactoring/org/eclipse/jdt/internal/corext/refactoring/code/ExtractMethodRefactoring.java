@@ -148,7 +148,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 	public static final String ATTRIBUTE_EXCEPTIONS= "exceptions"; //$NON-NLS-1$
 
 	// CODINGSPECTATOR: Added this new parameter so that we can retain the order of the parameters
-	private static final String ATTRIBUTE_PARAMETER= "parameter"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_PARAMETER= "parameter"; //$NON-NLS-1$
 
 	ICompilationUnit fCUnit;
 
