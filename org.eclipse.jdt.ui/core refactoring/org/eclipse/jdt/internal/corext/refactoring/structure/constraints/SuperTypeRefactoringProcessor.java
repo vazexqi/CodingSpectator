@@ -113,7 +113,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 /**
  * Partial implementation of a refactoring processor solving supertype constraint models.
  * 
- * @author Mohsen Vakilian - Made a constant corresponding to an attribute of the refactoring
+ * @author Mohsen Vakilian - Made constants corresponding to an attribute of the refactoring
  *         descriptor public.
  * 
  * @since 3.1
@@ -124,8 +124,9 @@ public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor
 	// TODO: remove
 	public static final String ATTRIBUTE_INSTANCEOF= "instanceof"; //$NON-NLS-1$
 
+	// CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI tests.
 	// TODO: remove
-	protected static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
+	public static final String ATTRIBUTE_REPLACE= "replace"; //$NON-NLS-1$
 
 	/** The super type group category set */
 	protected static final GroupCategorySet SET_SUPER_TYPE= new GroupCategorySet(new GroupCategory("org.eclipse.jdt.internal.corext.superType", //$NON-NLS-1$

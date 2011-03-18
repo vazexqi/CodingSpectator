@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="%actionSet.label"
+            visible="true"
+            id="edu.illinois.codingspectator.errorlog.trigger.actionSet">
+         <menu
+               label="%menu.label"
+               id="sampleMenu">
+            <separator
+                  name="sampleGroup">
+            </separator>
+         </menu>
+         <action
+               label="%action.label"
+               icon="icons/sample.gif"
+               class="edu.illinois.codingspectator.errorlog.trigger.actions.TriggerErrorLogAction"
+               tooltip="%action.tooltip"
+               menubarPath="sampleMenu/sampleGroup"
+               toolbarPath="sampleGroup"
+               id="edu.illinois.codingspectator.errorlog.trigger.actions.TriggerErrorLogAction">
+         </action>
+      </actionSet>
+   </extension>
+
+</plugin>

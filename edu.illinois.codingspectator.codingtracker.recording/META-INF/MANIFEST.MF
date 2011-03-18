@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  edu.illinois.codingspectator.saferecorder,
  org.eclipse.jdt.junit,
- org.eclipse.debug.core
+ org.eclipse.debug.core,
+ edu.illinois.codingspectator.data
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: University of Ilinois
 Bundle-ActivationPolicy: lazy

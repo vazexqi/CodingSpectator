@@ -3,8 +3,7 @@
  */
 package edu.illinois.codingspectator.errorlog;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.IStartup;
 
 /**
@@ -15,10 +14,12 @@ import org.eclipse.ui.IStartup;
  */
 public class EclipseStartup implements IStartup {
 
+	/**
+	 * @see org.eclipse.ui.internal.views.log.LogView.createPartControl(Composite)
+	 */
 	@Override
 	public void earlyStartup() {
-		ILog log= ResourcesPlugin.getPlugin().getLog();
-		log.addLogListener(new ErrorLogListener());
+		Platform.addLogListener(new ErrorLogListener());
 	}
 
 }

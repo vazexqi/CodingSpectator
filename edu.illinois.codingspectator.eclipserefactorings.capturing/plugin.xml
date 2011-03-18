@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="edu.illinois.codingspectator.monitor.core.submitter">
+      <submitterListener
+            class="edu.illinois.codingspectator.eclipserefactorings.capturing.EclipseRefactoringHistoryCapturer"
+            id="edu.illinois.codingspectator.eclipserefactorings.capturing.EclipseRefactoringHistoryCapturer"
+            name="edu.illinois.codingspectator.eclipserefactorings.capturing.EclipseRefactoringHistoryCapturer">
+      </submitterListener>
+   </extension>
+
+</plugin>

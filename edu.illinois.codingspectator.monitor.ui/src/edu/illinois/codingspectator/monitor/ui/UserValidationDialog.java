@@ -10,6 +10,9 @@
  *******************************************************************************/
 package edu.illinois.codingspectator.monitor.ui;
 
+import java.net.URL;
+
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -23,6 +26,10 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.FormText;
 
 /**
  * core A dialog to prompt the user for login information such as user name and password.
@@ -96,13 +103,37 @@ public class UserValidationDialog extends Dialog {
 		GridData layoutData= new GridData();
 		fieldContainer.setLayoutData(layoutData);
 
-		Label label= new Label(fieldContainer, SWT.WRAP | SWT.LEAD);
-		GridData data= new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 2, 1);
-		data.widthHint= convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
-		label.setLayoutData(data);
-		label.setText(message);
+		createInstructionsSection(fieldContainer);
+		createUsernameTextField(fieldContainer);
+		createPasswordTextField(fieldContainer);
+		createSavePasswordCheckbox(fieldContainer);
+	}
 
+	private void createSavePasswordCheckbox(Composite fieldContainer) {
+		saveButton= new Button(fieldContainer, SWT.CHECK);
+		saveButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 2, 1));
+		saveButton.setText(Messages.UserValidationDialog_SavePassword);
+		saveButton.setSelection(saveResult());
+	}
+
+	private void createPasswordTextField(Composite fieldContainer) {
+		GridData layoutData;
+		Label label;
 		label= new Label(fieldContainer, SWT.NONE);
+		label.setText(Messages.UserValidationDialog_Password);
+		password= new Text(fieldContainer, SWT.PASSWORD | SWT.BORDER);
+		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		password.setLayoutData(layoutData);
+		password.setText(getPassword());
+		
+		if(!isUsernameEmpty()) {
+			password.setFocus();
+		}
+	}
+
+	private void createUsernameTextField(Composite fieldContainer) {
+		GridData layoutData;
+		Label label= new Label(fieldContainer, SWT.NONE);
 		label.setText(Messages.UserValidationDialog_Username);
 		username= new Text(fieldContainer, SWT.BORDER);
 		username.setEnabled(false);
@@ -112,21 +143,27 @@ public class UserValidationDialog extends Dialog {
 		username.setText(getUserName());
 
 		if (isUsernameEmpty()) {
+			username.setFocus();
 			username.setEditable(true);
 			username.setEnabled(true);
 		}
+	}
 
-		label= new Label(fieldContainer, SWT.NONE);
-		label.setText(Messages.UserValidationDialog_Password);
-		password= new Text(fieldContainer, SWT.PASSWORD | SWT.BORDER);
-		layoutData= new GridData(SWT.FILL, SWT.BEGINNING, true, false);
-		password.setLayoutData(layoutData);
-		password.setText(getPassword());
+	private void createInstructionsSection(Composite fieldContainer) {
+		FormText text= new FormText(fieldContainer, SWT.WRAP);
+		text.setText(message, true, true);
+		GridData data= new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 2, 1);
+		data.grabExcessHorizontalSpace= true;
+		data.horizontalAlignment= SWT.FILL;
+		data.widthHint= convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH);
+		text.setLayoutData(data);
+		text.addHyperlinkListener(new HyperlinkAdapter() {
 
-		saveButton= new Button(fieldContainer, SWT.CHECK);
-		saveButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 2, 1));
-		saveButton.setText(Messages.UserValidationDialog_SavePassword);
-		saveButton.setSelection(saveResult());
+			@Override
+			public void linkActivated(HyperlinkEvent event) {
+				browseTo(event.getHref().toString());
+			}
+		});
 	}
 
 	private boolean isUsernameEmpty() {
@@ -158,5 +195,18 @@ public class UserValidationDialog extends Dialog {
 
 	private boolean saveResult() {
 		return result != null ? result.saveResult() : false;
+	}
+
+	/**
+	 * See @{link org.eclipse.epp.usagedata.internal.ui.wizards.SelectActionWizardPage}
+	 * 
+	 * @param url The url to visit
+	 */
+	private void browseTo(String url) {
+		try {
+			PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(url));
+		} catch (Exception e) {
+			Activator.getDefault().getLog().log(new Status(Status.ERROR, Activator.PLUGIN_ID, "Error opening browser", e)); //$NON-NLS-1$
+		}
 	}
 }
