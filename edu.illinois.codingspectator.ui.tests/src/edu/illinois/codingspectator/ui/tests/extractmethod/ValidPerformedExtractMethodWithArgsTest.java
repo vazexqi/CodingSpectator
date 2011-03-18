@@ -26,11 +26,11 @@ import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
-public class ValidPerformedExtractMethodTest extends RefactoringTest {
+public class ValidPerformedExtractMethodWithArgsTest extends RefactoringTest {
 
 	protected static final String EXTRACT_METHOD_MENU_ITEM_NAME= "Extract Method...";
 
-	private static final String SELECTION= "System.out.println(\"main\");";
+	private static final String SELECTION= "System.out.println(args);";
 
 	private static final String METHOD_NAME= "extractedMethod";
 
@@ -56,7 +56,7 @@ public class ValidPerformedExtractMethodTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 8, 8, SELECTION.length());
+		bot.selectElementToRefactor(getTestFileFullName(), 9, 8, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 
 		bot.fillTextField("Method name:", METHOD_NAME);
@@ -81,7 +81,7 @@ public class ValidPerformedExtractMethodTest extends RefactoringTest {
 
 	private void codingspectatorAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {
 		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
-		assertEquals(String.format("256 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
+		assertEquals(String.format("292 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("<OK\n>", capturedDescriptor.getStatus());
 		assertEquals("6d8f9b026c06973cf9266995ab63dbd6", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
@@ -108,7 +108,7 @@ public class ValidPerformedExtractMethodTest extends RefactoringTest {
 	private void javaAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
 		assertTrue(capturedDescriptor.getTimestamp() > 0);
 		assertEquals(
-				String.format("Extract method 'private static void %s()' from 'edu.illinois.codingspectator.%s.main()' to 'edu.illinois.codingspectator.%s'\n", METHOD_NAME, getTestFileName(),
+				String.format("Extract method 'private static void %s(String[] args)' from 'edu.illinois.codingspectator.%s.main()' to 'edu.illinois.codingspectator.%s'\n", METHOD_NAME, getTestFileName(),
 						getTestFileName())
 						+
 						String.format("- Original project: '%s'\n", getProjectName()) +
@@ -121,7 +121,7 @@ public class ValidPerformedExtractMethodTest extends RefactoringTest {
 		assertEquals(IJavaRefactorings.EXTRACT_METHOD, capturedDescriptor.getID());
 		assertEquals(getProjectName(), capturedDescriptor.getProject());
 		assertNull(capturedDescriptor.getElement());
-		assertEquals(String.format("256 %d", SELECTION.length()), capturedDescriptor.getSelection());
+		assertEquals(String.format("292 %d", SELECTION.length()), capturedDescriptor.getSelection());
 	}
 
 	private void attributesSpecificToExtractMethodShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
@@ -132,7 +132,7 @@ public class ValidPerformedExtractMethodTest extends RefactoringTest {
 		assertFalse(capturedDescriptor.getComments());
 		assertEquals(0, capturedDescriptor.getDestination());
 		assertFalse(capturedDescriptor.getExceptions());
-		assertNull(capturedDescriptor.getParameter(1));
+		assertEquals("String[] args args", capturedDescriptor.getParameter(1));
 	}
 
 	@Override

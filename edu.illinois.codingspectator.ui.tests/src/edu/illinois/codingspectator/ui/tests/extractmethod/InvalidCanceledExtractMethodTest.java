@@ -123,6 +123,7 @@ public class InvalidCanceledExtractMethodTest extends RefactoringTest {
 		assertFalse(capturedDescriptor.getComments());
 		assertEquals(0, capturedDescriptor.getDestination());
 		assertFalse(capturedDescriptor.getExceptions());
+		assertNull(capturedDescriptor.getParameter(1));
 	}
 
 	@Override
