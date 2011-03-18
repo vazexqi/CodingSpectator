@@ -53,9 +53,6 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 			}
 			assertTrue(generatedUserOperationsIterator.hasNext());
 			UserOperation generatedUserOperation= generatedUserOperationsIterator.next();
-			if (predefinedUserOperation.getClass() != generatedUserOperation.getClass()) {
-				System.out.println("BAD");
-			}
 			assertTrue(predefinedUserOperation.getClass() == generatedUserOperation.getClass());
 			assertEquals(removeTimestamp(predefinedUserOperation), removeTimestamp(generatedUserOperation));
 		}
