@@ -11,9 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+
+import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 
@@ -59,6 +65,31 @@ public class FileHelper {
 
 	public static IResource findWorkspaceMemeber(IPath memberPath) {
 		return ResourcesPlugin.getWorkspace().getRoot().findMember(memberPath);
+	}
+
+	/**
+	 * Should be called from an UI thread
+	 * 
+	 * @return
+	 */
+	public static void clearWorkspace() {
+		getActivePage().closeAllEditors(false);
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			try {
+				JavaProjectHelper.delete(project);
+			} catch (CoreException e) {
+				throw new RuntimeException("Could not delete project \"" + project.getName() + "\"", e);
+			}
+		}
+	}
+
+	/**
+	 * Should be called from an UI thread
+	 * 
+	 * @return
+	 */
+	public static IWorkbenchPage getActivePage() {
+		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 	}
 
 	public static Map<IFile, String> getEntriesVersions(File cvsEntriesFile, IPath relativePath) {

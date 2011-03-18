@@ -10,9 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -23,14 +20,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
-import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 
@@ -142,27 +136,12 @@ public class UserOperationReplayer {
 		resetAction= new Action() {
 			@Override
 			public void run() {
-				clearWorkspace();
+				FileHelper.clearWorkspace();
 				prepareForReplay();
 			}
 		};
 		ViewerHelper.initAction(resetAction, "Reset", "Reset operation sequence", false, false, false);
 		return resetAction;
-	}
-
-	private void clearWorkspace() {
-		getActivePage().closeAllEditors(false);
-		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-			try {
-				JavaProjectHelper.delete(project);
-			} catch (CoreException e) {
-				throw new RuntimeException("Could not delete project \"" + project.getName() + "\"", e);
-			}
-		}
-	}
-
-	private IWorkbenchPage getActivePage() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 	}
 
 	private void prepareForReplay() {
@@ -224,7 +203,7 @@ public class UserOperationReplayer {
 
 	private void replayAndAdvanceCurrentUserOperation() {
 		try {
-			if (currentEditor != null && currentEditor != getActivePage().getActiveEditor()) {
+			if (currentEditor != null && currentEditor != FileHelper.getActivePage().getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();
@@ -235,7 +214,7 @@ public class UserOperationReplayer {
 				return;
 			}
 			currentUserOperation.replay();
-			currentEditor= getActivePage().getActiveEditor();
+			currentEditor= FileHelper.getActivePage().getActiveEditor();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

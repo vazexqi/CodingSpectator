@@ -23,15 +23,23 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
-public class TestRecorderReplayer extends TestCodingTracker {
+public abstract class RecorderReplayerTest extends CodingTrackerTest {
 
-	private static final File operationsRecordFile= new File("test-files/02/codechanges.txt");
+	private static final String TEST_FILES_FOLDER= "test-files";
+
+	private static final String CODECHANGES_FILE_NAME= "codechanges.txt";
+
+	protected abstract String getTestNumber();
+
+	protected abstract String[] getTestFileNames();
+
+	protected abstract String[] getGeneratedFilePaths();
 
 	@Test
 	public void shouldReplayAndRecord() {
-		List<UserOperation> predefinedUserOperations= loadUserOperationsFromFile(operationsRecordFile);
+		List<UserOperation> predefinedUserOperations= loadTestUserOperations();
 		replayUserOperations(predefinedUserOperations);
-		List<UserOperation> generatedUserOperations= loadUserOperationsFromFile(mainRecordFile);
+		List<UserOperation> generatedUserOperations= loadGeneratedUserOperations();
 		checkEquivalencyOfUserOperations(predefinedUserOperations, generatedUserOperations);
 		checkFinalCode();
 	}
@@ -45,6 +53,9 @@ public class TestRecorderReplayer extends TestCodingTracker {
 			}
 			assertTrue(generatedUserOperationsIterator.hasNext());
 			UserOperation generatedUserOperation= generatedUserOperationsIterator.next();
+			if (predefinedUserOperation.getClass() != generatedUserOperation.getClass()) {
+				System.out.println("BAD");
+			}
 			assertTrue(predefinedUserOperation.getClass() == generatedUserOperation.getClass());
 			assertEquals(removeTimestamp(predefinedUserOperation), removeTimestamp(generatedUserOperation));
 		}
@@ -52,17 +63,13 @@ public class TestRecorderReplayer extends TestCodingTracker {
 	}
 
 	private void checkFinalCode() {
-		File predefinedTest1= new File("test-files/02/Test1.java");
-		File predefinedTest2= new File("test-files/02/Test2.java");
-		File generatedTest1= getGeneratedFile("Test1.java");
-		File generatedTest2= getGeneratedFile("Test2.java");
-		checkFilesAreEqual(predefinedTest1, generatedTest1);
-		checkFilesAreEqual(predefinedTest2, generatedTest2);
-	}
-
-	private File getGeneratedFile(String fileName) {
-		String workspaceRelativeFilePath= "/edu.illinois.testproject/src/edu/illinois/test/" + fileName;
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath).getLocation().toFile();
+		String[] testFileNames= getTestFileNames();
+		String[] generatedFilePaths= getGeneratedFilePaths();
+		for (int i= 0; i < testFileNames.length; i++) {
+			File predefinedFile= getTestFile(testFileNames[i]);
+			File generatedFile= getGeneratedFile(generatedFilePaths[i]);
+			checkFilesAreEqual(predefinedFile, generatedFile);
+		}
 	}
 
 	private void checkFilesAreEqual(File file1, File file2) {
@@ -79,9 +86,26 @@ public class TestRecorderReplayer extends TestCodingTracker {
 		}
 	}
 
+	private List<UserOperation> loadTestUserOperations() {
+		return loadUserOperationsFromFile(getTestFile(CODECHANGES_FILE_NAME));
+	}
+
+	private List<UserOperation> loadGeneratedUserOperations() {
+		return loadUserOperationsFromFile(mainRecordFile);
+	}
+
 	private List<UserOperation> loadUserOperationsFromFile(File recordFile) {
 		String operationsRecord= FileHelper.getFileContent(recordFile);
 		return OperationDeserializer.getUserOperations(operationsRecord);
+	}
+
+	private File getTestFile(String fileName) {
+		String testFileName= TEST_FILES_FOLDER + "/" + getTestNumber() + "/" + fileName;
+		return new File(testFileName);
+	}
+
+	private File getGeneratedFile(String workspaceRelativeFilePath) {
+		return ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath).getLocation().toFile();
 	}
 
 	private String removeTimestamp(UserOperation userOperation) {

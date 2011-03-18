@@ -4,20 +4,20 @@
 package edu.illinois.codingspectator.codingtracker.recording;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
@@ -38,6 +38,8 @@ import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStart
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLaunchedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.options.ProjectOptionsChangedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOptionsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
@@ -215,12 +217,10 @@ public class OperationRecorder {
 		TextRecorder.record(new StartedRefactoringOperation());
 	}
 
-	public void recordExecutedRefactoring(RefactoringExecutionEvent event) {
-		RefactoringDescriptorProxy refactoringDescriptorProxy= event.getDescriptor();
-		RefactoringDescriptor refactoringDescriptor= refactoringDescriptorProxy.requestDescriptor(new NullProgressMonitor());
+	public void recordExecutedRefactoring(RefactoringDescriptor refactoringDescriptor, int eventType) {
 		Debugger.debugRefactoringDescriptor(refactoringDescriptor);
 		RefactoringOperation refactoringOperation= null;
-		switch (event.getEventType()) {
+		switch (eventType) {
 			case RefactoringExecutionEvent.PERFORMED:
 				refactoringOperation= new PerformedRefactoringOperation(refactoringDescriptor);
 				break;
@@ -230,9 +230,6 @@ public class OperationRecorder {
 			case RefactoringExecutionEvent.UNDONE:
 				refactoringOperation= new UndoneRefactoringOperation(refactoringDescriptor);
 				break;
-			default:
-				Exception e= new RuntimeException();
-				Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + event.getEventType());
 		}
 		TextRecorder.record(refactoringOperation);
 	}
@@ -287,6 +284,21 @@ public class OperationRecorder {
 			return (IFile)cvsEntriesResource;
 		}
 		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void ensureOptionsAreCurrent(IJavaProject javaProject) {
+		Map<String, String> workspaceOptions= JavaCore.getOptions();
+		if (!knownfilesRecorder.areWorkspaceOptionsCurrent(workspaceOptions)) {
+			knownfilesRecorder.recordWorkspaceOptions(workspaceOptions);
+			TextRecorder.record(new WorkspaceOptionsChangedOperation(workspaceOptions));
+		}
+		Map<String, String> projectOptions= javaProject.getOptions(false);
+		String projectName= javaProject.getElementName();
+		if (!knownfilesRecorder.areProjectOptionsCurrent(projectName, projectOptions)) {
+			knownfilesRecorder.recordProjectOptions(projectName, projectOptions);
+			TextRecorder.record(new ProjectOptionsChangedOperation(projectName, projectOptions));
+		}
 	}
 
 }

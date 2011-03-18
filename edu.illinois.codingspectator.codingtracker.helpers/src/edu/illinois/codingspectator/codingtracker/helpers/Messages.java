@@ -16,9 +16,9 @@ public class Messages extends NLS {
 
 	public static String CodeChangeTracker_FailedToGetActiveWorkbenchWindow;
 
-	public static String Recorder_OpenKnowfilesFileException;
+	public static String Recorder_ReadPropertiesFromFileException;
 
-	public static String Recorder_WriteKnownfilesFileException;
+	public static String Recorder_WritePropertiesToFileException;
 
 	public static String Recorder_ReadUnknownFileException;
 
