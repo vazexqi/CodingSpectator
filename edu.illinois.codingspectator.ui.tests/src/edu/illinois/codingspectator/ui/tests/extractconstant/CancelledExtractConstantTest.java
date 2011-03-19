@@ -53,7 +53,8 @@ public class CancelledExtractConstantTest extends RefactoringTest {
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName(), getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName(),
+				getProjectName());
 		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
 	}
 

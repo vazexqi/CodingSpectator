@@ -60,13 +60,15 @@ public class PerformedExtractConstantTest extends RefactoringTest {
 
 	private void performedLogShouldBeCorrect() {
 		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(performedRefactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName() + "/performed", getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName()
+				+ "/performed", getProjectName());
 		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
 	}
 
 	private void eclipseLogShouldBeCorrect() {
 		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(eclipseRefactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName() + "/eclipse", getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName()
+				+ "/eclipse", getProjectName());
 		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
 	}
 
