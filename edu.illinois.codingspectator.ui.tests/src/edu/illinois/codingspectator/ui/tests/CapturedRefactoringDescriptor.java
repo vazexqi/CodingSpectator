@@ -3,7 +3,9 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.MoveDescriptor;
@@ -39,7 +41,12 @@ public class CapturedRefactoringDescriptor {
 		return descriptor.getArguments();
 	}
 
-	private String getAttribute(String attributeKey) {
+	@SuppressWarnings({ "unchecked" })
+	public Set<String> getAttributeKeys() {
+		return Collections.unmodifiableSet(getArguments().keySet());
+	}
+
+	public String getAttribute(String attributeKey) {
 		return (String)getArguments().get(attributeKey);
 	}
 

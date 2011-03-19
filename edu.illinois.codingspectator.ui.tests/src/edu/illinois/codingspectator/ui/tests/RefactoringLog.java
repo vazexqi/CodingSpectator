@@ -52,12 +52,12 @@ public class RefactoringLog {
 		logTypeToDirectory.put(LogType.UNAVAILABLE, UNAVAILABLE_REFACTORINGS);
 	}
 
+	public RefactoringLog(IPath pathToHistoryFolder) {
+		fileStore= EFS.getLocalFileSystem().getStore(pathToHistoryFolder);
+	}
+
 	public RefactoringLog(LogType logType) {
-		if (logType == LogType.ECLIPSE) {
-			fileStore= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(".refactorings");
-		} else {
-			fileStore= getFileStore(logTypeToDirectory.get(logType));
-		}
+		this((logType == LogType.ECLIPSE) ? RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings") : getRefactoringStorageLocation(logTypeToDirectory.get(logType)));
 	}
 
 	public boolean exists() {
@@ -68,11 +68,7 @@ public class RefactoringLog {
 		fileStore.delete(EFS.NONE, null);
 	}
 
-	private IFileStore getFileStore(String logDirectory) {
-		return EFS.getLocalFileSystem().getStore(getRefactoringStorageLocation(logDirectory));
-	}
-
-	public IPath getRefactoringStorageLocation(String directory) {
+	public static IPath getRefactoringStorageLocation(String directory) {
 		return REFACTORING_HISTORY_LOCATION.append(directory);
 	}
 

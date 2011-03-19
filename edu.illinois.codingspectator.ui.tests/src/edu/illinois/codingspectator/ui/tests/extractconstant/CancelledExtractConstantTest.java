@@ -13,20 +13,19 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
-import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.hamcrest.text.pattern.PatternComponent;
 import org.hamcrest.text.pattern.PatternMatcher;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
+import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -69,11 +68,11 @@ public class CancelledExtractConstantTest extends RefactoringTest {
 
 	@Override
 	protected void doRefactoringShouldBeLogged() throws EncryptionException {
-		assertTrue(refactoringLog.exists());
-		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
-		assertEquals(1, refactoringDescriptors.size());
-		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
+		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName(), getProjectName());
+
+		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
+
 		capturedRefactoringDescriptorShouldBeCorrect(capturedDescriptor);
 		codingspectatorAttributesShouldBeCorrect(capturedDescriptor);
 	}
