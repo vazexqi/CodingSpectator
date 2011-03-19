@@ -10,7 +10,6 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
-import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -26,8 +25,6 @@ public class CancelledExtractConstantTest extends RefactoringTest {
 	static final String TEST_FILE_NAME= "ExtractConstantTestFile";
 
 	private static final String SELECTION= "\"Test0\"";
-
-	private static final String NEW_CONSTANT_NAME= "TEST0";
 
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
@@ -54,7 +51,7 @@ public class CancelledExtractConstantTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() throws EncryptionException {
+	protected void doRefactoringShouldBeLogged() {
 		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
 		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName(), getProjectName());
 		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
