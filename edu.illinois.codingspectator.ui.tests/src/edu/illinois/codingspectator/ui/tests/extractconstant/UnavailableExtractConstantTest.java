@@ -13,9 +13,11 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 public class UnavailableExtractConstantTest extends RefactoringTest {
@@ -52,6 +54,11 @@ public class UnavailableExtractConstantTest extends RefactoringTest {
 
 	@Override
 	protected void doRefactoringShouldBeLogged() throws EncryptionException {
+		CapturedRefactoringDescriptor capturedDescriptor1= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName(),
+				getProjectName());
+		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor1);
+
 		assertTrue(refactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
