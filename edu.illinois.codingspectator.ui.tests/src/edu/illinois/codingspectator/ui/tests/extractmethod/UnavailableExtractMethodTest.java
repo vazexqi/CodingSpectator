@@ -43,7 +43,7 @@ public class UnavailableExtractMethodTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 9, 23, SELECTION.length());
+		bot.selectElementToRefactor(getTestFileFullName(), 7, 23, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
@@ -65,9 +65,9 @@ public class UnavailableExtractMethodTest extends RefactoringTest {
 		assertNull(capturedDescriptor.getName());
 		assertFalse(capturedDescriptor.doesReference());
 		assertEquals(SELECTION, capturedDescriptor.getSelectionText());
-		assertEquals("277 4", capturedDescriptor.getSelectionInCodeSnippet());
+		assertEquals(String.format("226 %d", SELECTION.length()), capturedDescriptor.getSelectionInCodeSnippet());
 		assertEquals("Cannot extract new method from selection. Only statements from a method body can be extracted.", capturedDescriptor.getStatus());
-		assertEquals("4b7e3084104f0f3fe5be59d5b8618565", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
+		assertEquals("6d8f9b026c06973cf9266995ab63dbd6", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
 		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
 	}
 
