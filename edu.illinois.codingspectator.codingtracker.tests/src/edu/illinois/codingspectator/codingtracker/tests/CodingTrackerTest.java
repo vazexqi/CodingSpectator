@@ -8,6 +8,7 @@ import java.io.File;
 import org.junit.BeforeClass;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
 
 /**
@@ -19,12 +20,33 @@ public abstract class CodingTrackerTest {
 
 	protected static File mainRecordFile= new File(TextRecorder.getMainRecordFilePath());
 
+	private static File knownFilesFolder= new File(KnownfilesRecorder.getKnownFilesPath());
+
 	@BeforeClass
 	public static void before() {
-		//TODO: Consider erasing the content of knownfiles folder, because it could potentially compromise independence of tests. 
-		//First clear workspace, then clear the record. Otherwise, record file may get spurious operations due to closing editors.
+		//First clear workspace, then clear the record (otherwise, the record file may get spurious operations due to closing editors),
+		//and finally reset the knownfiles. 
 		FileHelper.clearWorkspace();
 		mainRecordFile.delete();
+		resetKnownFiles();
+	}
+
+	private static void resetKnownFiles() {
+		KnownfilesRecorder.getInstance().reset();
+		clearFolderRecursively(knownFilesFolder);
+	}
+
+	private static void clearFolderRecursively(File folder) {
+		if (folder.exists()) {
+			for (File file : folder.listFiles()) {
+				if (file.isDirectory()) {
+					clearFolderRecursively(file);
+				} else {
+					file.delete();
+				}
+			}
+			folder.delete();
+		}
 	}
 
 }

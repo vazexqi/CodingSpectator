@@ -46,6 +46,14 @@ public class KnownfilesRecorder {
 
 	private final File workspaceOptionsFile= KNOWNFILES_PATH.append("workspaceOptions.txt").toFile();
 
+	/**
+	 * Very dangerous! Should be used ONLY for testing!
+	 */
+	public void reset() {
+		knownfiles.clear();
+		currentWorkspaceOptions.clear();
+	}
+
 	public static KnownfilesRecorder getInstance() {
 		if (recorderInstance == null) {
 			recorderInstance= new KnownfilesRecorder();
@@ -153,6 +161,10 @@ public class KnownfilesRecorder {
 				}
 			}
 		}
+	}
+
+	public static String getKnownFilesPath() {
+		return KNOWNFILES_PATH.toOSString();
 	}
 
 	public File getTrackedCVSEntriesFile(IFile cvsEntriesSourceFile) {

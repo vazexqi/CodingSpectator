@@ -47,4 +47,21 @@ public class RecorderReplayerTests {
 		}
 	}
 
+	public static class RefactoringsRecorderReplayerTest extends RecorderReplayerTest {
+		@Override
+		protected String getTestNumber() {
+			return "04";
+		}
+
+		@Override
+		protected String[] getTestFileNames() {
+			return new String[] { "BaseClass.java" };
+		}
+
+		@Override
+		protected String[] getGeneratedFilePaths() {
+			return new String[] { "/edu.illinois.test/src/edu/illinois/test/BaseClass.java" };
+		}
+	}
+
 }
