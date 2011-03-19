@@ -24,9 +24,11 @@ import org.hamcrest.text.pattern.PatternMatcher;
 
 import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
+import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
 import edu.illinois.codingspectator.ui.tests.Encryptor;
 import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -76,22 +78,28 @@ public class PerformedExtractConstantTest extends RefactoringTest {
 	}
 
 	private void performedLogShouldBeCorrect() throws EncryptionException {
+		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(performedRefactoringLog, getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName() + "/performed", getProjectName());
+		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
+
 		assertTrue(performedRefactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= performedRefactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
-		capturedRefactoringDescriptorShouldBeCorrect(capturedDescriptor);
-		codingspectatorAttributesShouldBeCorrect(capturedDescriptor);
+		capturedRefactoringDescriptorShouldBeCorrect(new CapturedRefactoringDescriptor(descriptor));
+		codingspectatorAttributesShouldBeCorrect(new CapturedRefactoringDescriptor(descriptor));
 	}
 
 	private void eclipseLogShouldBeCorrect() throws EncryptionException {
+		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(eclipseRefactoringLog, getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getClass().getSimpleName() + "/eclipse", getProjectName());
+		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
+
 		assertTrue(eclipseRefactoringLog.exists());
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= eclipseRefactoringLog.getRefactoringDescriptors(getProjectName());
 		assertEquals(1, refactoringDescriptors.size());
 		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
-		capturedRefactoringDescriptorShouldBeCorrect(capturedDescriptor);
+		capturedRefactoringDescriptorShouldBeCorrect(new CapturedRefactoringDescriptor(descriptor));
 	}
 
 	private void codingspectatorAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {

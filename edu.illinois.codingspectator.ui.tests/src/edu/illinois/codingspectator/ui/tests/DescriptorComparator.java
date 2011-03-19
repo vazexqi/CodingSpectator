@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory;
@@ -29,19 +30,22 @@ public class DescriptorComparator {
 		assertEquals(expectedRefactoringDescriptor.getProject(), actualRefactoringDescriptor.getProject());
 		assertTrue(actualRefactoringDescriptor.getTimestamp() > 0);
 
-		assertEquals(expectedRefactoringDescriptor.getAttributeKeys(), actualRefactoringDescriptor.getAttributeKeys());
+		Set<String> expectedAttributeKeys= expectedRefactoringDescriptor.getAttributeKeys();
+		assertEquals(expectedAttributeKeys, actualRefactoringDescriptor.getAttributeKeys());
 
-		HashSet<String> attributesWithoutTimestamps= new HashSet<String>(expectedRefactoringDescriptor.getAttributeKeys());
+		HashSet<String> attributesWithoutTimestamps= new HashSet<String>(expectedAttributeKeys);
 		attributesWithoutTimestamps.removeAll(Arrays.asList(Logger.NAVIGATION_HISTORY_ATTRIBUTE));
 
 		for (String attribute : attributesWithoutTimestamps) {
 			assertEquals(expectedRefactoringDescriptor.getAttribute(attribute), actualRefactoringDescriptor.getAttribute(attribute));
 		}
 
-		try {
-			assertEquals(getNavigationHistoryWithoutTimestamps(expectedRefactoringDescriptor), getNavigationHistoryWithoutTimestamps(actualRefactoringDescriptor));
-		} catch (ParseException e) {
-			throw new AssertionError(String.format("Failed to parse the value of the %s attribute.\n%s", Logger.NAVIGATION_HISTORY_ATTRIBUTE, e.getMessage()));
+		if (expectedAttributeKeys.contains(Logger.NAVIGATION_HISTORY_ATTRIBUTE)) {
+			try {
+				assertEquals(getNavigationHistoryWithoutTimestamps(expectedRefactoringDescriptor), getNavigationHistoryWithoutTimestamps(actualRefactoringDescriptor));
+			} catch (ParseException e) {
+				throw new AssertionError(String.format("Failed to parse the value of the %s attribute.\n%s", Logger.NAVIGATION_HISTORY_ATTRIBUTE, e.getMessage()));
+			}
 		}
 	}
 
