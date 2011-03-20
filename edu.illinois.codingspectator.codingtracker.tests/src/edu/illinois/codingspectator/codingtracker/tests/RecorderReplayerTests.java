@@ -47,10 +47,10 @@ public class RecorderReplayerTests {
 		}
 	}
 
-	public static class RefactoringsRecorderReplayerTest extends RecorderReplayerTest {
+	public static class ExtractMethodRefactoringRecorderReplayerTest extends RecorderReplayerTest {
 		@Override
 		protected String getTestNumber() {
-			return "04";
+			return "11";
 		}
 
 		@Override
