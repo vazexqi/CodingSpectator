@@ -3,15 +3,13 @@
  */
 package edu.illinois.codingspectator.ui.tests.extractmethod;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -28,8 +26,6 @@ public class InvalidCanceledExtractMethodTest extends RefactoringTest {
 
 	private static final String METHOD_NAME= "invalidExtractedMethod";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
-
 	@Override
 	protected String getTestFileName() {
 		return "InvalidExtractMethodTestFile";
@@ -41,8 +37,8 @@ public class InvalidCanceledExtractMethodTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(refactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.CANCELLED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
@@ -51,20 +47,6 @@ public class InvalidCanceledExtractMethodTest extends RefactoringTest {
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 		bot.fillTextField("Method name:", METHOD_NAME);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
-	}
-
-	@Override
-	protected void doRefactoringShouldBeLogged() {
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName(),
-				getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		refactoringLog.clean();
 	}
 
 }
