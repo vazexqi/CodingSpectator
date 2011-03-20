@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.eclipse.core.runtime.CoreException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,6 +19,8 @@ import org.junit.Test;
 public abstract class RefactoringTest {
 
 	protected static CodingSpectatorBot bot;
+
+	private Collection<RefactoringLogChecker> refactoringLogCheckers= getRefactoringLogCheckers();
 
 	public String getProjectName() {
 		return "TestProject_" + getProjectNameSuffix();
@@ -33,16 +38,29 @@ public abstract class RefactoringTest {
 
 	protected abstract String getTestInputLocation();
 
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList();
+	}
+
 	protected void doRefactoringLogShouldBeEmpty() {
+		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
+			refactoringLogChecker.assertLogIsEmpty();
+		}
 	}
 
 	protected void doExecuteRefactoring() {
 	}
 
-	protected void doRefactoringShouldBeLogged() throws Exception {
+	protected void doRefactoringShouldBeLogged() {
+		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
+			refactoringLogChecker.assertMatch();
+		}
 	}
 
 	protected void doCleanRefactoringHistory() throws CoreException {
+		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
+			refactoringLogChecker.clean();
+		}
 	}
 
 	// SWTBot tests run in the order in which they are declared.
