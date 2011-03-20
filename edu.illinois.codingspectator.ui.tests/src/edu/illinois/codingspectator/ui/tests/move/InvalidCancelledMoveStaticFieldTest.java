@@ -4,12 +4,14 @@
 package edu.illinois.codingspectator.ui.tests.move;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -48,7 +50,10 @@ public class InvalidCancelledMoveStaticFieldTest extends RefactoringTest {
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
-		assertTrue(refactoringLog.exists());
+		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
+		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName(),
+					getProjectName());
+		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
 	}
 
 	@Override
