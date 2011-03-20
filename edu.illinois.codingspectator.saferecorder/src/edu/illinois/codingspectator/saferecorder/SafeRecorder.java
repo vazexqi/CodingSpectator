@@ -30,13 +30,7 @@ public class SafeRecorder {
 	public SafeRecorder(String relativePathToMainRecordFile) {
 		mainRecordFilePath= CodingSpectatorDataPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString();
 		mainRecordFile= new File(mainRecordFilePath);
-		mainRecordFile.getParentFile().mkdirs();
-		try {
-			mainRecordFile.createNewFile();
-			currentRecordFile= mainRecordFile;
-		} catch (IOException e) {
-			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CreateRecordFileException);
-		}
+		currentRecordFile= mainRecordFile;
 		RecorderSubmitterListener.addSafeRecorderInstance(this);
 	}
 
@@ -47,11 +41,6 @@ public class SafeRecorder {
 		Debugger.debug("START COMMIT");
 		String tempRecordFilePath= mainRecordFilePath + "." + System.currentTimeMillis() + ".tmp";
 		currentRecordFile= new File(tempRecordFilePath);
-		try {
-			currentRecordFile.createNewFile();
-		} catch (IOException e) {
-			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CreateTempRecordFileException);
-		}
 	}
 
 	/**
@@ -68,6 +57,7 @@ public class SafeRecorder {
 	}
 
 	public synchronized void record(CharSequence text) {
+		ensureFileExists(currentRecordFile);
 		BufferedWriter recordFileWriter= null;
 		try {
 			Debugger.debugFileSize("Before: ", currentRecordFile);
@@ -76,7 +66,7 @@ public class SafeRecorder {
 			recordFileWriter.flush();
 			Debugger.debugFileSize("After: ", currentRecordFile);
 		} catch (IOException e) {
-			Debugger.logExceptionToErrorLog(e, Messages.Recorder_AppendRecordFileException);
+			Debugger.logExceptionToErrorLog(e, Messages.Recorder_AppendRecordFileException + currentRecordFile.getName());
 		} finally {
 			if (recordFileWriter != null) {
 				try {
@@ -84,6 +74,17 @@ public class SafeRecorder {
 				} catch (IOException e) {
 					//do nothing
 				}
+			}
+		}
+	}
+
+	private void ensureFileExists(File file) {
+		if (!file.exists()) {
+			file.getParentFile().mkdirs();
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				Debugger.logExceptionToErrorLog(e, Messages.Recorder_CreateRecordFileException + file.getName());
 			}
 		}
 	}

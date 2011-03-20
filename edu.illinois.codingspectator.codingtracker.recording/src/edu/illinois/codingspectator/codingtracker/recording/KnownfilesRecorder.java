@@ -110,8 +110,8 @@ public class KnownfilesRecorder {
 	private synchronized void writePropertiesToFile(Properties properties, File file) {
 		BufferedWriter bufferedWriter= null;
 		try {
-			file.getParentFile().mkdirs();
 			if (!file.exists()) {
+				file.getParentFile().mkdirs();
 				file.createNewFile();
 			}
 			bufferedWriter= new BufferedWriter(new FileWriter(file, false));
