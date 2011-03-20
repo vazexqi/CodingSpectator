@@ -1,14 +1,12 @@
 package edu.illinois.codingspectator.ui.tests.extractinterface;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 public class ValidPerformedExtractInterfaceParentMethodTest extends RefactoringTest {
@@ -21,10 +19,6 @@ public class ValidPerformedExtractInterfaceParentMethodTest extends RefactoringT
 
 	private static final String NEW_INTERFACE_NAME= "I" + SELECTED_CLASS;
 
-	RefactoringLog performedRefactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
-
-	RefactoringLog eclipseRefactoringLog= new RefactoringLog(RefactoringLog.LogType.ECLIPSE);
-
 	@Override
 	protected String getTestFileName() {
 		return "ExtractInterfaceTestFile";
@@ -36,9 +30,9 @@ public class ValidPerformedExtractInterfaceParentMethodTest extends RefactoringT
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(performedRefactoringLog.exists());
-		assertFalse(eclipseRefactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
+				getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
@@ -52,29 +46,8 @@ public class ValidPerformedExtractInterfaceParentMethodTest extends RefactoringT
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
+		super.doRefactoringShouldBeLogged();
 		System.err.println("The captured selection text is different from what the test has actullay selected.");
-		performedLogShouldBeCorrect();
-		eclipseLogShouldBeCorrect();
-	}
-
-	private void performedLogShouldBeCorrect() {
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(performedRefactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName()
-				+ "/performed", getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-	}
-
-	private void eclipseLogShouldBeCorrect() {
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(eclipseRefactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName()
-				+ "/eclipse", getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		performedRefactoringLog.clean();
-		eclipseRefactoringLog.clean();
 	}
 
 }

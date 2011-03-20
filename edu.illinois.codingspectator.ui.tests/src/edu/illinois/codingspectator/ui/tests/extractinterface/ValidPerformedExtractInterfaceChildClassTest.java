@@ -1,14 +1,12 @@
 package edu.illinois.codingspectator.ui.tests.extractinterface;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 public class ValidPerformedExtractInterfaceChildClassTest extends RefactoringTest {
@@ -18,10 +16,6 @@ public class ValidPerformedExtractInterfaceChildClassTest extends RefactoringTes
 	private static final String SELECTION= "Child1";
 
 	private static final String NEW_INTERFACE_NAME= "I" + SELECTION;
-
-	RefactoringLog performedRefactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
-
-	RefactoringLog eclipseRefactoringLog= new RefactoringLog(RefactoringLog.LogType.ECLIPSE);
 
 	@Override
 	protected String getTestFileName() {
@@ -34,9 +28,9 @@ public class ValidPerformedExtractInterfaceChildClassTest extends RefactoringTes
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(performedRefactoringLog.exists());
-		assertFalse(eclipseRefactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
+				getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
@@ -46,32 +40,6 @@ public class ValidPerformedExtractInterfaceChildClassTest extends RefactoringTes
 
 		bot.fillTextField("Interface name:", NEW_INTERFACE_NAME);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
-	}
-
-	@Override
-	protected void doRefactoringShouldBeLogged() {
-		performedLogShouldBeCorrect();
-		eclipseLogShouldBeCorrect();
-	}
-
-	private void performedLogShouldBeCorrect() {
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(performedRefactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName()
-				+ "/performed", getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-	}
-
-	private void eclipseLogShouldBeCorrect() {
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(eclipseRefactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName()
-				+ "/eclipse", getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		performedRefactoringLog.clean();
-		eclipseRefactoringLog.clean();
 	}
 
 }
