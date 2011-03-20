@@ -3,15 +3,13 @@
  */
 package edu.illinois.codingspectator.ui.tests.inline;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -24,8 +22,6 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 
 	private static final String SELECTION= "CONSTANT";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
-
 	@Override
 	protected String getTestFileName() {
 		return "InlineConstantTestFile";
@@ -37,8 +33,8 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(refactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.CANCELLED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
@@ -46,19 +42,6 @@ public class CancelledInlineConstantTest extends RefactoringTest {
 		bot.selectElementToRefactor(getTestFileFullName(), 7, 24, SELECTION.length());
 		bot.invokeRefactoringFromMenu(INLINE_CONSTANT_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
-	}
-
-	@Override
-	protected void doRefactoringShouldBeLogged() {
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName(),
-					getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		refactoringLog.clean();
 	}
 
 }
