@@ -19,8 +19,6 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  */
 public class ValidCancelledMoveCompilationUnitToContainerTest extends RefactoringTest {
 
-	private static final String TARGET_CONTAINER= ".settings";
-
 	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
