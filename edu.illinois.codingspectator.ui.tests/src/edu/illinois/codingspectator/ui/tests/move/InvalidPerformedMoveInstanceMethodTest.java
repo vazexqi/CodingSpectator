@@ -4,12 +4,16 @@
 package edu.illinois.codingspectator.ui.tests.move;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -43,8 +47,9 @@ public class InvalidPerformedMoveInstanceMethodTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
-		assertTrue(refactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
+				getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
