@@ -3,15 +3,13 @@
  */
 package edu.illinois.codingspectator.ui.tests.extractsuperclass;
 
-import static org.junit.Assert.assertFalse;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.DescriptorComparator;
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogUtils;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -30,8 +28,6 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 
 	private final static String NEW_SUPERCLASS_NAME= "NewSuperClassName";
 
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
-
 	@Override
 	protected String getTestFileName() {
 		return "ExtractSuperclassTestFile";
@@ -43,8 +39,8 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(refactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.CANCELLED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
@@ -57,16 +53,8 @@ public class ValidCancelledMultiStepExtractSuperclassTest extends RefactoringTes
 
 	@Override
 	protected void doRefactoringShouldBeLogged() {
+		super.doRefactoringShouldBeLogged();
 		System.err.println("The selection is not what the user has exactly selected.");
-		CapturedRefactoringDescriptor capturedDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(refactoringLog, getProjectName());
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleExpectedRefactoringDescriptor(getTestInputLocation() + "/" + getClass().getSimpleName(),
-				getProjectName());
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, capturedDescriptor);
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		refactoringLog.clean();
 	}
 
 }
