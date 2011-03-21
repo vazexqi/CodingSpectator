@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
@@ -289,35 +288,32 @@ public class OperationRecorder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ensureOptionsAreCurrent(IJavaProject javaProject) {
+	public void ensureOptionsAreCurrent(Set<IJavaProject> javaProjects) {
+		ensureWorkspaceOptionsAreCurrent();
+		for (IJavaProject javaProject : javaProjects) {
+			Map<String, String> projectOptions= javaProject.getOptions(false);
+			String projectName= javaProject.getElementName();
+			if (!knownfilesRecorder.areProjectOptionsCurrent(projectName, projectOptions)) {
+				knownfilesRecorder.recordProjectOptions(projectName, projectOptions);
+				TextRecorder.record(new ProjectOptionsChangedOperation(projectName, projectOptions));
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void ensureWorkspaceOptionsAreCurrent() {
 		Map<String, String> workspaceOptions= JavaCore.getOptions();
 		if (!knownfilesRecorder.areWorkspaceOptionsCurrent(workspaceOptions)) {
 			knownfilesRecorder.recordWorkspaceOptions(workspaceOptions);
 			TextRecorder.record(new WorkspaceOptionsChangedOperation(workspaceOptions));
 		}
-		Map<String, String> projectOptions= javaProject.getOptions(false);
-		String projectName= javaProject.getElementName();
-		if (!knownfilesRecorder.areProjectOptionsCurrent(projectName, projectOptions)) {
-			knownfilesRecorder.recordProjectOptions(projectName, projectOptions);
-			TextRecorder.record(new ProjectOptionsChangedOperation(projectName, projectOptions));
-		}
 	}
 
-	public void ensureReferencingProjectsAreCurrent(IProject project) {
-		Set<String> referencingProjectNames= getProjectNames(project.getReferencingProjects());
-		String projectName= project.getName();
+	public void ensureReferencingProjectsAreCurrent(String projectName, Set<String> referencingProjectNames) {
 		if (!knownfilesRecorder.areReferencingProjectsCurrent(projectName, referencingProjectNames)) {
 			knownfilesRecorder.recordReferencingProjects(projectName, referencingProjectNames);
 			TextRecorder.record(new ReferencingProjectsChangedOperation(projectName, referencingProjectNames));
 		}
-	}
-
-	private Set<String> getProjectNames(IProject[] projects) {
-		Set<String> projectNames= new HashSet<String>();
-		for (IProject project : projects) {
-			projectNames.add(project.getName());
-		}
-		return projectNames;
 	}
 
 }

@@ -61,8 +61,6 @@ public class ProjectOptionsChangedOperation extends OptionsChangedOperation {
 			javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
 		}
 		javaProject.setOptions(options);
-		//FIXME: Here and in WorkspaceOptionsChangedOperation listen for the build to complete rather than sleeping for a fixed amount of time
-		Thread.sleep(1000);
 	}
 
 	@Override
