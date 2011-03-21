@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="edu.illinois.codingspectator.feature"
-      label="CodingSpectator"
+      label="CodingSpectator Feature"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description>
-      CodingSpectator collects the user&apos;s interactions with Eclipse. Then, it submits the collected to a central server.
+      CodingSpectator collects the user&apos;s interactions with Eclipse, and submits the collected data to a server.
    </description>
 
    <copyright>
@@ -117,77 +117,8 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
 ]]>
    </license>
 
-   <url>
-      <update label="CodingSpectator Update Site" url="http://codingspectator.cs.illinois.edu/updates"/>
-   </url>
-
-   <includes
-         id="edu.illinois.codingspectator.jdt.helios.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.jdt.heliosSR2.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.platform.helios.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.platform.heliosSR1.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.platform.heliosSR2.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingspectator.epp.usagedata.feature.heliosSR2.patch"
-         version="0.0.0"
-         optional="true"/>
-
-   <includes
-         id="edu.illinois.codingtracker.jdt.project.manipulation.feature"
-         version="0.0.0"/>
-
    <plugin
          id="org.tmatesoft.svn_1.3.4.eclipse"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.codingtracker.helpers"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.codingtracker.operations"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.codingtracker.recording"
          download-size="0"
          install-size="0"
          version="0.0.0"
