@@ -8,16 +8,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 
+import edu.illinois.codingspectator.codingtracker.helpers.CollectionHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
@@ -32,7 +32,7 @@ public class KnownfilesRecorder {
 
 	private static KnownfilesRecorder recorderInstance= null;
 
-	private final Properties knownfiles= new Properties(); //Is thread-safe since SE 6
+	private final Properties knownfiles; //Is thread-safe since SE 6
 
 	private Map<String, String> currentWorkspaceOptions;
 
@@ -62,11 +62,9 @@ public class KnownfilesRecorder {
 	}
 
 	private KnownfilesRecorder() {
-		readPropertiesFromFile(knownfiles, knownfilesFile);
+		knownfiles= readPropertiesFromFile(knownfilesFile);
 		refreshKnownfiles();
-		Properties workspaceOptions= new Properties();
-		readPropertiesFromFile(workspaceOptions, workspaceOptionsFile);
-		currentWorkspaceOptions= getMap(workspaceOptions);
+		currentWorkspaceOptions= CollectionHelper.getMap(readPropertiesFromFile(workspaceOptionsFile));
 	}
 
 	private void refreshKnownfiles() {
@@ -97,14 +95,26 @@ public class KnownfilesRecorder {
 		writePropertiesToFile(knownfiles, knownfilesFile);
 	}
 
-	private synchronized void readPropertiesFromFile(Properties properties, File file) {
+	private synchronized Properties readPropertiesFromFile(File file) {
+		Properties properties= new Properties();
+		FileInputStream fileInputStream= null;
 		try {
 			if (file.exists()) {
-				properties.load(new FileInputStream(file));
+				fileInputStream= new FileInputStream(file);
+				properties.load(fileInputStream);
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_ReadPropertiesFromFileException + file.getName());
+		} finally {
+			if (fileInputStream != null) {
+				try {
+					fileInputStream.close();
+				} catch (IOException e) {
+					//do nothing
+				}
+			}
 		}
+		return properties;
 	}
 
 	private synchronized void writePropertiesToFile(Properties properties, File file) {
@@ -178,36 +188,39 @@ public class KnownfilesRecorder {
 	void recordWorkspaceOptions(Map<String, String> workspaceOptions) {
 		Debugger.debug("recordWorkspaceOptions");
 		currentWorkspaceOptions= workspaceOptions;
-		writePropertiesToFile(getProperties(currentWorkspaceOptions), workspaceOptionsFile);
+		writePropertiesToFile(CollectionHelper.getProperties(currentWorkspaceOptions), workspaceOptionsFile);
 	}
 
 	boolean areProjectOptionsCurrent(String projectName, Map<String, String> projectOptions) {
-		Properties trackedProjectOptions= new Properties();
-		readPropertiesFromFile(trackedProjectOptions, getProjectOptionsFile(projectName));
-		return getMap(trackedProjectOptions).equals(projectOptions);
+		Properties trackedProjectOptions= readPropertiesFromFile(getProjectOptionsFile(projectName));
+		return CollectionHelper.getMap(trackedProjectOptions).equals(projectOptions);
 	}
 
 	void recordProjectOptions(String projectName, Map<String, String> projectOptions) {
 		Debugger.debug("recordProjectOptions: " + projectName);
-		writePropertiesToFile(getProperties(projectOptions), getProjectOptionsFile(projectName));
+		writePropertiesToFile(CollectionHelper.getProperties(projectOptions), getProjectOptionsFile(projectName));
 	}
 
 	private File getProjectOptionsFile(String projectName) {
-		return KNOWNFILES_PATH.append(projectName).append("projectOptions.txt").toFile();
+		return getProjectFile(projectName, "projectOptions.txt");
 	}
 
-	private Properties getProperties(Map<String, String> map) {
-		Properties properties= new Properties();
-		properties.putAll(map);
-		return properties;
+	boolean areReferencingProjectsCurrent(String projectName, Set<String> referencingProjectNames) {
+		Properties trackedReferencingProjects= readPropertiesFromFile(getReferencingProjectsFile(projectName));
+		return trackedReferencingProjects.keySet().equals(referencingProjectNames);
 	}
 
-	private Map<String, String> getMap(Properties properties) {
-		Hashtable<String, String> hashtable= new Hashtable<String, String>();
-		for (Entry<Object, Object> entry : properties.entrySet()) {
-			hashtable.put(entry.getKey().toString(), entry.getValue().toString());
-		}
-		return hashtable;
+	private File getReferencingProjectsFile(String projectName) {
+		return getProjectFile(projectName, "referencingProjects.txt");
+	}
+
+	void recordReferencingProjects(String projectName, Set<String> referencingProjectNames) {
+		Debugger.debug("recordReferencingProjectsForProject: " + projectName);
+		writePropertiesToFile(CollectionHelper.getProperties(referencingProjectNames), getReferencingProjectsFile(projectName));
+	}
+
+	private File getProjectFile(String projectName, String fileName) {
+		return KNOWNFILES_PATH.append(projectName).append(fileName).toFile();
 	}
 
 }

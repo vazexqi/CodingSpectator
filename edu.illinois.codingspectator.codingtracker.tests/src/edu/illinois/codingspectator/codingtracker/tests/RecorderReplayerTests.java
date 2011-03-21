@@ -47,6 +47,25 @@ public class RecorderReplayerTests {
 		}
 	}
 
+	public static class ReferencingProjectsChangesRecorderReplayerTest extends RecorderReplayerTest {
+		@Override
+		protected String getTestNumber() {
+			return "04";
+		}
+
+		@Override
+		protected String[] getTestFileNames() {
+			return new String[] { "BaseClassRenamed5.java", "DerivedClass.java", "OtherDerivedClass.java" };
+		}
+
+		@Override
+		protected String[] getGeneratedFilePaths() {
+			return new String[] { "/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java",
+					"/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java",
+					"/edu.illinois.test2/src/edu/illinois/test2/OtherDerivedClass.java" };
+		}
+	}
+
 	public static class ExtractMethodRefactoringRecorderReplayerTest extends RecorderReplayerTest {
 		@Override
 		protected String getTestNumber() {

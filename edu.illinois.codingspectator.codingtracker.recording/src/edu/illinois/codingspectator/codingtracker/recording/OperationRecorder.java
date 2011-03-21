@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
@@ -44,6 +45,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.Perfor
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
@@ -84,7 +86,7 @@ public class OperationRecorder {
 	public void recordChangedText(DocumentEvent documentEvent, String replacedText, IFile editedFile, boolean isUndoing, boolean isRedoing) {
 		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
 			lastEditedFile= editedFile;
-			ensureIsKnownFile(lastEditedFile);
+			ensureFileIsKnown(lastEditedFile);
 			recordEditedFile();
 		}
 		Debugger.debugDocumentEvent(documentEvent, replacedText);
@@ -247,14 +249,14 @@ public class OperationRecorder {
 		}
 	}
 
-	private void ensureIsKnownFile(IFile file) {
+	private void ensureFileIsKnown(IFile file) {
 		//TODO: Is creating a new HashSet for a single file too expensive?
 		Set<IFile> files= new HashSet<IFile>(1);
 		files.add(file);
-		ensureAreKnownFiles(files);
+		ensureFilesAreKnown(files);
 	}
 
-	public void ensureAreKnownFiles(Set<IFile> files) {
+	public void ensureFilesAreKnown(Set<IFile> files) {
 		boolean hasChanged= false;
 		for (IFile file : files) {
 			//TODO: Is it possible to have a known file, whose CVS/Entries is not known? If not, merge the following two if statements.
@@ -299,6 +301,23 @@ public class OperationRecorder {
 			knownfilesRecorder.recordProjectOptions(projectName, projectOptions);
 			TextRecorder.record(new ProjectOptionsChangedOperation(projectName, projectOptions));
 		}
+	}
+
+	public void ensureReferencingProjectsAreCurrent(IProject project) {
+		Set<String> referencingProjectNames= getProjectNames(project.getReferencingProjects());
+		String projectName= project.getName();
+		if (!knownfilesRecorder.areReferencingProjectsCurrent(projectName, referencingProjectNames)) {
+			knownfilesRecorder.recordReferencingProjects(projectName, referencingProjectNames);
+			TextRecorder.record(new ReferencingProjectsChangedOperation(projectName, referencingProjectNames));
+		}
+	}
+
+	private Set<String> getProjectNames(IProject[] projects) {
+		Set<String> projectNames= new HashSet<String>();
+		for (IProject project : projects) {
+			projectNames.add(project.getName());
+		}
+		return projectNames;
 	}
 
 }

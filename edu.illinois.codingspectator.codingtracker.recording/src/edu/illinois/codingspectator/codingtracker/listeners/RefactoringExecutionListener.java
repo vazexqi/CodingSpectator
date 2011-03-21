@@ -37,6 +37,7 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 			isRefactoring= true;
 			IJavaProject refactoredJavaProject= getRefactoredJavaProject(event);
 			if (refactoredJavaProject != null && refactoredJavaProject.exists()) {
+				operationRecorder.ensureReferencingProjectsAreCurrent(refactoredJavaProject.getProject());
 				operationRecorder.ensureOptionsAreCurrent(refactoredJavaProject);
 			}
 			operationRecorder.recordStartedRefactoring();
