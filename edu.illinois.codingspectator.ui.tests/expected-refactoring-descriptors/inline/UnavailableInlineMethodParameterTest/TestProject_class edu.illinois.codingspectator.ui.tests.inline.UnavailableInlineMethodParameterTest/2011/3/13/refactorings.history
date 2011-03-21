@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring code-snippet="/**&#x0A; * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.&#x0A; */&#x0A;package edu.illinois.codingspectator;&#x0A;&#x0A;public class InlineConstantTestFile {&#x0A;&#x0A;    static final String CONSTANT= &quot;TestConstant&quot;;&#x0A;&#x0A;    public static void main(String[] args) {&#x0A;        System.out.println(CONSTANT);&#x0A;    }&#x0A;&#x0A;}" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.inline.temp" selection-in-code-snippet="287 4" selection-text="args" stamp="1300626567917" status="Cannot inline method parameters."/>
+</session>

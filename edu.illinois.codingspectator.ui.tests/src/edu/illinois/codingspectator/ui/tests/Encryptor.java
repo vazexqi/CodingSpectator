@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
  * @author nchen
  * 
  */
+@Deprecated
 public class Encryptor {
 
 	@SuppressWarnings("serial")

@@ -3,30 +3,13 @@
  */
 package edu.illinois.codingspectator.ui.tests.extractsuperclass;
 
-import static org.hamcrest.text.pattern.Patterns.anyCharacterInCategory;
-import static org.hamcrest.text.pattern.Patterns.oneOrMore;
-import static org.hamcrest.text.pattern.Patterns.sequence;
-import static org.hamcrest.text.pattern.Patterns.text;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
+import java.util.Arrays;
 import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
-import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.hamcrest.text.pattern.PatternComponent;
-import org.hamcrest.text.pattern.PatternMatcher;
 
-import edu.illinois.codingspectator.ui.tests.CapturedRefactoringDescriptor;
-import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
-import edu.illinois.codingspectator.ui.tests.Encryptor;
-import edu.illinois.codingspectator.ui.tests.Encryptor.EncryptionException;
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -45,22 +28,6 @@ public class ValidPerformedSingleStepExtractSuperclassTest extends RefactoringTe
 
 	private final static String NEW_SUPERCLASS_NAME= "NewSuperClassName";
 
-	RefactoringLog performedRefactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
-
-	RefactoringLog eclipseRefactoringLog= new RefactoringLog(RefactoringLog.LogType.ECLIPSE);
-
-	private String getSelectedClassName() {
-		return getTestFileName();
-	}
-
-//	private String getSelectedClassFullyQualifiedName() {
-//		return CodingSpectatorBot.PACKAGE_NAME + "." + getSelectedClassName();
-//	}
-//
-//	private String getNewSuperClassFullyQualifiedName() {
-//		return CodingSpectatorBot.PACKAGE_NAME + "." + NEW_SUPERCLASS_NAME;
-//	}
-
 	@Override
 	protected String getTestFileName() {
 		return "ExtractSuperclassTestFile";
@@ -72,9 +39,9 @@ public class ValidPerformedSingleStepExtractSuperclassTest extends RefactoringTe
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(performedRefactoringLog.exists());
-		assertFalse(eclipseRefactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
+				getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
@@ -83,91 +50,6 @@ public class ValidPerformedSingleStepExtractSuperclassTest extends RefactoringTe
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, NEW_SUPERCLASS_NAME);
 		bot.clickButtons(IDialogConstants.FINISH_LABEL);
-	}
-
-	@Override
-	protected void doRefactoringShouldBeLogged() throws EncryptionException {
-		performedLogShouldBeCorrect();
-		eclipseLogShouldBeCorrect();
-	}
-
-	private void eclipseLogShouldBeCorrect() throws EncryptionException {
-		assertTrue(eclipseRefactoringLog.exists());
-		Collection<JavaRefactoringDescriptor> refactoringDescriptors= eclipseRefactoringLog.getRefactoringDescriptors(getProjectName());
-		assertEquals(1, refactoringDescriptors.size());
-		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
-		capturedRefactoringDescriptorShouldBeCorrect(capturedDescriptor);
-	}
-
-	private void performedLogShouldBeCorrect() throws EncryptionException {
-		assertTrue(performedRefactoringLog.exists());
-		Collection<JavaRefactoringDescriptor> refactoringDescriptors= performedRefactoringLog.getRefactoringDescriptors(getProjectName());
-		assertEquals(1, refactoringDescriptors.size());
-		JavaRefactoringDescriptor descriptor= refactoringDescriptors.iterator().next();
-		CapturedRefactoringDescriptor capturedDescriptor= new CapturedRefactoringDescriptor(descriptor);
-		capturedRefactoringDescriptorShouldBeCorrect(capturedDescriptor);
-		codingspectatorAttributesShouldBeCorrect(capturedDescriptor);
-	}
-
-	private void capturedRefactoringDescriptorShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {
-		javaAttributesShouldBeCorrect(capturedDescriptor);
-		attributesSpecificToExtractSuperclassShouldBeCorrect(capturedDescriptor);
-	}
-
-	private void javaAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
-		assertTrue(capturedDescriptor.getTimestamp() > 0);
-		System.err.println("CodingSpectator may not capture the destination type for extract super class correctly.");
-//		assertEquals(String.format("Extract superclass '%s' from '%s'\n" +
-//				"- Original project: '%s'\n" +
-//				"- Original element: '%s'\n" +
-//				"- Sub types:\n" +
-//				"     %s\n" +
-//				"- Extracted class: '%s'\n" +
-//				"- Extracted members:\n" +
-//				"     %s.%s()\n" +
-//				"- Use super type where possible", getNewSuperClassFullyQualifiedName(), getSelectedClassFullyQualifiedName(), getProjectName(), getSelectedClassFullyQualifiedName(),
-//				getSelectedClassFullyQualifiedName(), getNewSuperClassFullyQualifiedName(), getSelectedClassFullyQualifiedName(), SELECTION), capturedDescriptor.getComment());
-		assertEquals(String.format("/src<%s{%s[%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getSelectedClassName()), capturedDescriptor.getInput());
-		assertEquals(String.format("Extract superclass '%s'", NEW_SUPERCLASS_NAME), capturedDescriptor.getDescription());
-		assertEquals(589830, capturedDescriptor.getFlags());
-		assertEquals(IJavaRefactorings.EXTRACT_SUPERCLASS, capturedDescriptor.getID());
-		assertEquals(getProjectName(), capturedDescriptor.getProject());
-		assertNull(capturedDescriptor.getElement());
-		assertNull(capturedDescriptor.getSelection());
-	}
-
-	private void attributesSpecificToExtractSuperclassShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) {
-		assertEquals(NEW_SUPERCLASS_NAME, capturedDescriptor.getName());
-		assertTrue(capturedDescriptor.getReplace());
-		assertFalse(capturedDescriptor.getInstanceOf());
-		assertTrue(capturedDescriptor.getStubs());
-		assertEquals(1, capturedDescriptor.getExtract());
-		assertEquals(1, capturedDescriptor.getDelete());
-		assertEquals(0, capturedDescriptor.getIntegerAbstract());
-		assertEquals(1, capturedDescriptor.getTypes());
-		assertEquals(String.format("/src<%s{%s[%s~%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getSelectedClassName(), SELECTION), capturedDescriptor.getElement(1));
-		assertEquals(String.format("/src<%s{%s[%s~%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getSelectedClassName(), SELECTION), capturedDescriptor.getElement(2));
-		assertEquals(String.format("/src<%s{%s[%s", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getSelectedClassName()), capturedDescriptor.getElement(3));
-	}
-
-	private void codingspectatorAttributesShouldBeCorrect(CapturedRefactoringDescriptor capturedDescriptor) throws EncryptionException {
-		System.err.println("The selection is not what the user has exactly selected.");
-		assertEquals(getSelectedClassName(), capturedDescriptor.getSelectionText());
-		assertNull(capturedDescriptor.getSelectionInCodeSnippet());
-		assertEquals("<OK\n>", capturedDescriptor.getStatus());
-		assertEquals("95476435739a36c89550c773d945f1a9", Encryptor.toMD5(capturedDescriptor.getCodeSnippet()));
-		assertFalse(capturedDescriptor.isInvokedByQuickAssist());
-		PatternComponent timestampPattern= oneOrMore(anyCharacterInCategory("Digit"));
-		PatternMatcher expectedNavigationHistoryPatternMatcher= new PatternMatcher(sequence(text("{[Extract Superclass,BEGIN_REFACTORING,"), timestampPattern,
-				text("],[ExtractSupertypeMemberPage,&Finish,"), timestampPattern, text("],}")));
-		assertThat(capturedDescriptor.getNavigationHistory(), expectedNavigationHistoryPatternMatcher);
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		performedRefactoringLog.clean();
-		eclipseRefactoringLog.clean();
 	}
 
 }
