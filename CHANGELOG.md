@@ -1,3 +1,29 @@
+v1.0.0.201103210128
+===================
+- Instrumented the use super type refactoring ([issue #158](https://github.com/vazexqi/CodingSpectator/issues/158)).
+- Instrumented the extract interface refactoring (issues [#157](https://github.com/vazexqi/CodingSpectator/issues/157) and [#160](https://github.com/vazexqi/CodingSpectator/issues/160)).
+- Extracted the saferecorder plugin from CodingTracker to safely record data while a submission is in progress ([issue #149](https://github.com/vazexqi/CodingSpectator/issues/149)).
+- Captured the Eclipse error log ([issue #143](https://github.com/vazexqi/CodingSpectator/issues/143)).
+- Captured more information about selections in some of the refactorings ([issue #163](https://github.com/vazexqi/CodingSpectator/issues/163)).
+- Made CodingSpectator support Eclipse 3.6.2 (Helios SR2) ([issue #161](https://github.com/vazexqi/CodingSpectator/issues/161)).
+- Changed the URL of the repository to the one for users outside the university ([issue #159](https://github.com/vazexqi/CodingSpectator/issues/159)).
+- Captured the events for running JUnit tests and applications ([issue #140](https://github.com/vazexqi/CodingSpectator/issues/140)).
+- Captured unavailable inline local variable refactorings (issues [#30](https://github.com/vazexqi/CodingSpectator/issues/30) and [#150](https://github.com/vazexqi/CodingSpectator/issues/150)).
+- Captured unavailable inline constant refactorings ([issues #27](https://github.com/vazexqi/CodingSpectator/issues/27)).
+- Captured the LTK history of refactorings ([issue #167](https://github.com/vazexqi/CodingSpectator/issues/167)).
+- Moved the watched directory of CodingSpectator from ".metadata/.plugins/org.eclipse.ltk.core.refactoring" to ".metadata/.plugins/edu.illinois.codingspectator.data" ([issue #166](https://github.com/vazexqi/CodingSpectator/issues/166)).
+- Made "edu.illinois.codingspectator.data" provide the version number of CodingSpectator ([issue #63](https://github.com/vazexqi/CodingSpectator/issues/63)).
+- Fixed the tests for the rename type refactoring ([issue #164](https://github.com/vazexqi/CodingSpectator/issues/164)).
+- Activated the hyperlink to the CodingSpectator web page on the authentication dialog ([issue #172](https://github.com/vazexqi/CodingSpectator/issues/172)).
+- Extracted a feature for CodingTracker from that of CodingSpectator ([issue #178](https://github.com/vazexqi/CodingSpectator/issues/178)).
+- Restored back the "selection" attribute that had been missing from some of the refactorings whose classes extend `WatchedJavaRefactoring` ([issue #168](https://github.com/vazexqi/CodingSpectator/issues/168)).
+- Improved the replay functionality of CodingTracker ([issue #165](https://github.com/vazexqi/CodingSpectator/issues/165)).
+- Added support for CVS in CodingTracker ([issue #151](https://github.com/vazexqi/CodingSpectator/issues/151)).
+- Fixed the descriptor of the extract method refactoring for replaying ([issue #169](https://github.com/vazexqi/CodingSpectator/issues/169)).
+- Verified the contents of the descriptors of some of the refactorings ([issue #138](https://github.com/vazexqi/CodingSpectator/issues/138)).
+- Captured more unavailable inline method refactorings ([issue #18](https://github.com/vazexqi/CodingSpectator/issues/18)).
+- Added more tests for the move refactoring ([issue #124](https://github.com/vazexqi/CodingSpectator/issues/124)).
+
 v1.0.0.201102192319
 ===================
 - Captured the navigation history in a refactoring wizard. The navigation history includes the time the user presses a navigation button such as "OK", "Next", "Cancel", "Preview" and "Finish" on a page of a refactoring wizard ([issue #125](https://github.com/vazexqi/CodingSpectator/issues/125)).
