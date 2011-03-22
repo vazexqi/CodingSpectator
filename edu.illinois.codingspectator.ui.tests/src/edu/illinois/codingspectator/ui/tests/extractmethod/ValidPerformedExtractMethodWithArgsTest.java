@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
 import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -17,10 +16,6 @@ public class ValidPerformedExtractMethodWithArgsTest extends RefactoringTest {
 	private static final String SELECTION= "System.out.println(args);";
 
 	private static final String METHOD_NAME= "extractedMethod";
-
-	RefactoringLog performedRefactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
-
-	RefactoringLog eclipseRefactoringLog= new RefactoringLog(RefactoringLog.LogType.ECLIPSE);
 
 	@Override
 	protected String getTestFileName() {
