@@ -22,7 +22,7 @@ public class ValidCanceledExtractMethodTest extends RefactoringTest {
 
 	protected static final String EXTRACT_METHOD_MENU_ITEM_NAME= "Extract Method...";
 
-	private static final String SELECTION= "System.out.println(CONSTANT);";
+	private static final String SELECTION= "System.out.println(\"main\");";
 
 	@Override
 	protected String getTestFileName() {
@@ -41,7 +41,7 @@ public class ValidCanceledExtractMethodTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 10, 8, SELECTION.length());
+		bot.selectElementToRefactor(getTestFileFullName(), 8, 8, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}

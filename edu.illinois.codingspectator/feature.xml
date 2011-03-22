@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.illinois.codingspectator.feature"
-      label="CodingSpectator Feature"
+      id="edu.illinois.codingspectator"
+      label="CodingSpectator"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description>
-      CodingSpectator collects the user&apos;s interactions with Eclipse, and submits the collected data to a server.
+    This feature installs CodingSpectator on Eclipse.
    </description>
 
    <copyright>
@@ -117,53 +117,57 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
 ]]>
    </license>
 
-   <plugin
-         id="org.tmatesoft.svn_1.3.4.eclipse"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <url>
+      <update label="CodingSpectator Update Site" url="http://codingspectator.cs.illinois.edu/updates"/>
+   </url>
 
-   <plugin
-         id="edu.illinois.codingspectator.saferecorder"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="edu.illinois.codingspectator.feature"
+         version="0.0.0"/>
 
-   <plugin
-         id="edu.illinois.codingspectator.errorlog"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="edu.illinois.codingtracker.feature"
+         version="0.0.0"/>
 
-   <plugin
-         id="edu.illinois.codingspectator.monitor.core"
-         download-size="0"
-         install-size="0"
+   <includes
+         id="edu.illinois.codingspectator.jdt.helios.patch"
          version="0.0.0"
-         unpack="false"/>
+         optional="true"/>
 
-   <plugin
-         id="edu.illinois.codingspectator.monitor.ui"
-         download-size="0"
-         install-size="0"
+   <includes
+         id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
          version="0.0.0"
-         unpack="false"/>
+         optional="true"/>
 
-   <plugin
-         id="edu.illinois.codingspectator.data"
-         download-size="0"
-         install-size="0"
+   <includes
+         id="edu.illinois.codingspectator.jdt.heliosSR2.patch"
          version="0.0.0"
-         unpack="false"/>
-         
-   <plugin
-         id="edu.illinois.codingspectator.eclipserefactorings.capturing"
-         download-size="0"
-         install-size="0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.helios.patch"
          version="0.0.0"
-         unpack="false"/>
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.heliosSR1.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.platform.heliosSR2.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
+         version="0.0.0"
+         optional="true"/>
+
+   <includes
+         id="edu.illinois.codingspectator.epp.usagedata.feature.heliosSR2.patch"
+         version="0.0.0"
+         optional="true"/>
+
 
 </feature>

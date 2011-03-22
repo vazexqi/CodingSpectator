@@ -19,7 +19,7 @@ import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
  * @author Stas Negara
  * 
  */
-public class TestSerializerDeserializer extends TestCodingTracker {
+public class SerializerDeserializerTest extends CodingTrackerTest {
 
 	private static final File operationsRecordFile= new File("test-files/01/codechanges.txt");
 

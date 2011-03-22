@@ -250,5 +250,10 @@ public class CapturedRefactoringDescriptor {
 	public int getTypes() {
 		return Integer.parseInt(getAttribute(ExtractSupertypeProcessor.ATTRIBUTE_TYPES));
 	}
+	
+	// Used in ExtractMethodRefactoring.
+	public String getParameter(int index) {
+		return getAttribute(ExtractMethodRefactoring.ATTRIBUTE_PARAMETER + index);
+	}
 
 }

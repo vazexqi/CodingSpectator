@@ -25,6 +25,8 @@ import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseStart
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionFinishedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLaunchedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.options.ProjectOptionsChangedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOptionsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
@@ -153,6 +155,12 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.APPLICATION_LAUNCHED_SYMBOL:
 				userOperation= new LaunchedApplicationOperation();
+				break;
+			case OperationSymbols.WORKSPACE_OPTIONS_CHANGED_SYMBOL:
+				userOperation= new WorkspaceOptionsChangedOperation();
+				break;
+			case OperationSymbols.PROJECT_OPTIONS_CHANGED_SYMBOL:
+				userOperation= new ProjectOptionsChangedOperation();
 				break;
 			default:
 				throw new RuntimeException("Unsupported operation symbol: " + operationSymbol);

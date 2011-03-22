@@ -32,7 +32,7 @@ public class UnavailableExtractMethodTest extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 9, 23, SELECTION.length());
+		bot.selectElementToRefactor(getTestFileFullName(), 7, 23, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_METHOD_MENU_ITEM_NAME);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}

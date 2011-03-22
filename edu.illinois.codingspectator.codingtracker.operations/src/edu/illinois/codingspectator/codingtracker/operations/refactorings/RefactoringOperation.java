@@ -39,7 +39,7 @@ public abstract class RefactoringOperation extends UserOperation {
 	private int flags;
 
 	//TreeMap is required for the deterministic behavior that is expected by the tests
-	private Map<String, String> arguments= new TreeMap<String, String>();
+	private final Map<String, String> arguments= new TreeMap<String, String>();
 
 	public RefactoringOperation() {
 		super();

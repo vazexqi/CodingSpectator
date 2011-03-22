@@ -9,6 +9,7 @@ Export-Package: edu.illinois.codingspectator.codingtracker.operations,
  edu.illinois.codingspectator.codingtracker.operations.files,
  edu.illinois.codingspectator.codingtracker.operations.files.snapshoted,
  edu.illinois.codingspectator.codingtracker.operations.junit,
+ edu.illinois.codingspectator.codingtracker.operations.options,
  edu.illinois.codingspectator.codingtracker.operations.refactorings,
  edu.illinois.codingspectator.codingtracker.operations.starts,
  edu.illinois.codingspectator.codingtracker.operations.textchanges

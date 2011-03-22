@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.illinois.codingspectator.feature"
-      label="CodingSpectator Feature"
+      id="edu.illinois.codingtracker.feature"
+      label="CodingTracker Feature"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description>
-      CodingSpectator collects the user&apos;s interactions with Eclipse, and submits the collected data to a server.
+      CodingTracker collects data about the evolution of source files.
    </description>
 
    <copyright>
@@ -117,8 +117,37 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
 ]]>
    </license>
 
+   <includes
+         id="edu.illinois.codingspectator.feature"
+         version="0.0.0"/>
+   
+   <includes
+         id="edu.illinois.codingtracker.jdt.project.manipulation.feature"
+         version="0.0.0"/>
+
    <plugin
-         id="org.tmatesoft.svn_1.3.4.eclipse"
+         id="edu.illinois.codingspectator.codingtracker.helpers"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.codingtracker.operations"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.codingtracker.recording"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.illinois.codingspectator.data"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -132,35 +161,7 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
          unpack="false"/>
 
    <plugin
-         id="edu.illinois.codingspectator.errorlog"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.monitor.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.monitor.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.data"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-         
-   <plugin
-         id="edu.illinois.codingspectator.eclipserefactorings.capturing"
+         id="edu.illinois.codingtracker.jdt.project.manipulation"
          download-size="0"
          install-size="0"
          version="0.0.0"

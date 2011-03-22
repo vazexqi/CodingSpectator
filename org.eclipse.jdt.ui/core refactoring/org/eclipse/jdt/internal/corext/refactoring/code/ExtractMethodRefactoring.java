@@ -147,13 +147,16 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 	public static final String ATTRIBUTE_EXCEPTIONS= "exceptions"; //$NON-NLS-1$
 
+	// CODINGSPECTATOR: Added this new parameter so that we can retain the order of the parameters
+	public static final String ATTRIBUTE_PARAMETER= "parameter"; //$NON-NLS-1$
+
 	ICompilationUnit fCUnit;
 
 	CompilationUnit fRoot;
 
 	private ImportRewrite fImportRewriter;
 
-	//CODINGSPECTATOR: Pulled up 'fSelectionStart' and 'fSelectionLength' to WatchedJavaRefactoring.
+	// CODINGSPECTATOR: Pulled up 'fSelectionStart' and 'fSelectionLength' to WatchedJavaRefactoring.
 
 	private AST fAST;
 
@@ -359,7 +362,8 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 	}
 
 	private ASTVisitor createVisitor() throws CoreException {
-		fAnalyzer= new ExtractMethodAnalyzer(fCUnit, Selection.createFromStartLength(fSelectionStart, fSelectionLength));
+		if (fAnalyzer == null)
+			fAnalyzer= new ExtractMethodAnalyzer(fCUnit, Selection.createFromStartLength(fSelectionStart, fSelectionLength));
 		return fAnalyzer;
 	}
 
@@ -764,8 +768,7 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 	//---- Helper methods ------------------------------------------------------------------------
 
-	private void initializeParameterInfos() {
-		IVariableBinding[] arguments= fAnalyzer.getArguments();
+	private void initializeDefaultParameterValues(IVariableBinding[] arguments) {
 		fParameterInfos= new ArrayList(arguments.length);
 		ASTNode root= fAnalyzer.getEnclosingBodyDeclaration();
 		ParameterInfo vararg= null;
@@ -1212,39 +1215,40 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 		fThrowRuntimeExceptions= Boolean.valueOf(exceptions).booleanValue();
 
+		// CODINGSPECTATOR: Deserialize parameterInfos from XML refactoring descriptor to preserve order and names
+		deserializeParameterInfos(arguments);
+
 		return new RefactoringStatus();
 	}
+
 
 	/////////////////
 	//CODINGSPECTATOR
 	/////////////////
 
-// Mohsen: I commented the following implementation because it doesn't set all the parts of the comment attribute.
-//	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-//		String project= getJavaProjectName();
-//
-//		final int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-//		final String description= Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethodName));
-//
-//		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, ""); //$NON-NLS-1$
-//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_name_pattern, BasicElementLabels.getJavaElementName(fMethodName)));
-//
-//		String visibility= JdtFlags.getVisibilityString(fVisibility);
-//		if ("".equals(visibility)) //$NON-NLS-1$
-//			visibility= RefactoringCoreMessages.ExtractMethodRefactoring_default_visibility;
-//		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractMethodRefactoring_visibility_pattern, visibility));
-//		if (fThrowRuntimeExceptions)
-//			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_declare_thrown_exceptions);
-//		if (fReplaceDuplicates)
-//			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_replace_occurrences);
-//		if (fGenerateJavadoc)
-//			comment.addSetting(RefactoringCoreMessages.ExtractMethodRefactoring_generate_comment);
-//
-//		final Map arguments= populateInstrumentationData(refactoringStatus);
-//		final ExtractMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractMethodDescriptor(project, description, comment.asString(), arguments, flags);
-//
-//		return descriptor;
-//	}
+	private void deserializeParameterInfos(JavaRefactoringArguments arguments) {
+		for (int count= 1;; count++) {
+			String parameterInfo= arguments.getAttribute(ATTRIBUTE_PARAMETER + count);
+			if (parameterInfo != null) {
+
+				if (fParameterInfos == null)
+					fParameterInfos= new ArrayList();
+
+				String delimiter= " "; //$NON-NLS-1$
+				String[] parameters= parameterInfo.split(delimiter);
+
+				String type= parameters[0];
+				String newName= parameters[1];
+				String oldName= parameters[2];
+				ParameterInfo info= new ParameterInfo(type, oldName, count - 1);
+				info.setNewName(newName);
+				fParameterInfos.add(info);
+
+				continue;
+			}
+			break;
+		}
+	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
 		final Map arguments= populateInstrumentationData(refactoringStatus);
@@ -1256,6 +1260,8 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 	}
 
 	protected void populateRefactoringSpecificFields(String project, final Map arguments) {
+		augmentWithParameterInfos(arguments);
+
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUnit));
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
@@ -1264,6 +1270,56 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		arguments.put(ATTRIBUTE_EXCEPTIONS, Boolean.valueOf(fThrowRuntimeExceptions).toString());
 		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceDuplicates).toString());
+	}
+
+	private void augmentWithParameterInfos(final Map arguments) {
+		int count= 1; // We start with #1 following how ChangeSignatureProcessor does it.
+		for (Iterator iter= fParameterInfos.iterator(); iter.hasNext();) {
+			ParameterInfo parameterInfo= (ParameterInfo)iter.next();
+			String parameterXMLAttribute= ATTRIBUTE_PARAMETER + count++;
+			// Serialize as parameterX = "newTypeName newName oldName"
+			arguments.put(parameterXMLAttribute, parameterInfo.getNewTypeName() + " " + parameterInfo.getNewName() + " " + parameterInfo.getOldName()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	//---- Helper methods ------------------------------------------------------------------------
+
+	// CODINGSPECTATOR: Two separate ways to handle initialization based on how the refactoring is invoked
+	private void initializeParameterInfos() {
+		IVariableBinding[] arguments= fAnalyzer.getArguments();
+		if (fParameterInfos == null) {
+			initializeDefaultParameterValues(arguments);
+		} else {
+			initializeFromDescriptor(arguments);
+		}
+	}
+
+	/**
+	 * Here we match an existing ParameterInfo object that we have deserialized
+	 * {@link ExtractMethodRefactoring#deserializeParameterInfos(JavaRefactoringArguments)} and
+	 * patch up the bindings.
+	 * 
+	 * @param arguments The variable bindings for the method
+	 */
+	private void initializeFromDescriptor(IVariableBinding[] arguments) {
+		for (int i= 0; i < arguments.length; i++) {
+			IVariableBinding argument= arguments[i];
+			if (argument == null)
+				continue;
+
+			//Locate an existing parameter info with that variable name
+			updateParameterBinding(argument);
+		}
+	}
+
+	private void updateParameterBinding(IVariableBinding argument) {
+		for (Iterator iterator= fParameterInfos.iterator(); iterator.hasNext();) {
+			ParameterInfo candidate= (ParameterInfo)iterator.next();
+			if (candidate.getOldName().equals(argument.getName())) {
+				candidate.setOldBinding(argument);
+				break;
+			}
+		}
 	}
 
 	public ITypeRoot getJavaTypeRoot() {
