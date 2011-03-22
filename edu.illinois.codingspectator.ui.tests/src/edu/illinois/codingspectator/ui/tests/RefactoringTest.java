@@ -23,11 +23,11 @@ public abstract class RefactoringTest {
 	private Collection<RefactoringLogChecker> refactoringLogCheckers= getRefactoringLogCheckers();
 
 	public String getProjectName() {
-		return "TestProject_" + getProjectNameSuffix();
+		return "Project_" + getProjectNameSuffix();
 	}
 
 	private String getProjectNameSuffix() {
-		return getClass().toString();
+		return getClass().getSimpleName();
 	}
 
 	protected abstract String getTestFileName();

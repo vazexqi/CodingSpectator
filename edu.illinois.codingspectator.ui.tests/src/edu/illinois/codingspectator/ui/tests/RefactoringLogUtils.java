@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 public class RefactoringLogUtils {
 
 	public static RefactoringLog getExpectedRefactoringLog(String expectedRefactoringDescriptorRelativePath) {
-		return new RefactoringLog(new Path("expected-refactoring-descriptors").append(expectedRefactoringDescriptorRelativePath));
+		return new RefactoringLog(new Path("expected-descriptors").append(expectedRefactoringDescriptorRelativePath));
 	}
 
 	public static CapturedRefactoringDescriptor getTheSingleExpectedRefactoringDescriptor(String expectedRefactoringDescriptorRelativePath, String projectName) {
