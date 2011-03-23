@@ -3,13 +3,13 @@
  */
 package edu.illinois.codingspectator.ui.tests.move;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -17,8 +17,6 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  */
 public class ValidCancelledMoveStaticMethodTest extends RefactoringTest {
-
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
@@ -28,11 +26,6 @@ public class ValidCancelledMoveStaticMethodTest extends RefactoringTest {
 	@Override
 	protected String getTestInputLocation() {
 		return "move";
-	}
-
-	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(refactoringLog.exists());
 	}
 
 	@Override
@@ -47,13 +40,8 @@ public class ValidCancelledMoveStaticMethodTest extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
-		assertTrue(refactoringLog.exists());
-	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		refactoringLog.clean();
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.CANCELLED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
 
 }
