@@ -3,21 +3,19 @@
  */
 package edu.illinois.codingspectator.ui.tests.move;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
+import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
+import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
+import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
 
 /**
  * @author Balaji Ambresh Rajkumar
  */
 public class ValidPerformedMoveCompilationUnitToContainerTest extends RefactoringTest {
-
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.PERFORMED);
 
 	@Override
 	protected String getTestFileName() {
@@ -30,11 +28,6 @@ public class ValidPerformedMoveCompilationUnitToContainerTest extends Refactorin
 	}
 
 	@Override
-	protected void doRefactoringLogShouldBeEmpty() {
-		assertFalse(refactoringLog.exists());
-	}
-
-	@Override
 	protected void doExecuteRefactoring() {
 		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator", getTestFileFullName());
 		bot.invokeRefactoringFromMenu("Move...");
@@ -43,15 +36,11 @@ public class ValidPerformedMoveCompilationUnitToContainerTest extends Refactorin
 		
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
+	
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
-		assertTrue(refactoringLog.exists());
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
+		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getTestInputLocation(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
+				getTestInputLocation(), getClass().getSimpleName(), getProjectName()));
 	}
-
-	@Override
-	protected void doCleanRefactoringHistory() throws CoreException {
-		refactoringLog.clean();
-	}
-
 }
