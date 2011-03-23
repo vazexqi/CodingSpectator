@@ -117,8 +117,13 @@ public class CodingSpectatorBot {
 		editor.save();
 	}
 
-	public void closeProject(String projectName) {
-		selectJavaProject(projectName).contextMenu("Close Project").click();
+	public void deleteProject(String projectName) {
+		selectJavaProject(projectName).contextMenu("Delete").click();
+		activateShellWithName("Delete Resources");
+		if (!bot.checkBox().isChecked()) {
+			bot.checkBox().click();
+		}
+		bot.button(IDialogConstants.OK_LABEL).click();
 	}
 
 	public void sleep() {

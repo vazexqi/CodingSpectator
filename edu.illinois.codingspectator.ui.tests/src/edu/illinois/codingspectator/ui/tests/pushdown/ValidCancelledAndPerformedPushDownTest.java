@@ -29,11 +29,6 @@ public class ValidCancelledAndPerformedPushDownTest extends RefactoringTest {
 	}
 
 	@Override
-	protected String getTestInputLocation() {
-		return "push-down";
-	}
-
-	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(performedRefactoringLog.exists());
 		assertFalse(cancelledRefactoringLog.exists());

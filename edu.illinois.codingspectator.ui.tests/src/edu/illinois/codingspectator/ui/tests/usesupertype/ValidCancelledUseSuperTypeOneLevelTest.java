@@ -27,11 +27,6 @@ public class ValidCancelledUseSuperTypeOneLevelTest extends RefactoringTest {
 	}
 
 	@Override
-	protected String getTestInputLocation() {
-		return "use-supertype";
-	}
-
-	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(refactoringLog.exists());
 	}

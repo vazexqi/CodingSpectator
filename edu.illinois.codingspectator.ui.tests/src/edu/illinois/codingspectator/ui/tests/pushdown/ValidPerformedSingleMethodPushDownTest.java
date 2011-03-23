@@ -27,11 +27,6 @@ public class ValidPerformedSingleMethodPushDownTest extends RefactoringTest {
 	}
 
 	@Override
-	protected String getTestInputLocation() {
-		return "push-down";
-	}
-
-	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(refactoringLog.exists());
 	}

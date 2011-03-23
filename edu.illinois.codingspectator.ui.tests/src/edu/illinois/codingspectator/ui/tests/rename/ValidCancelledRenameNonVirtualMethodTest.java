@@ -27,11 +27,6 @@ public class ValidCancelledRenameNonVirtualMethodTest extends RefactoringTest {
 	}
 
 	@Override
-	protected String getTestInputLocation() {
-		return "rename";
-	}
-
-	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(refactoringLog.exists());
 	}

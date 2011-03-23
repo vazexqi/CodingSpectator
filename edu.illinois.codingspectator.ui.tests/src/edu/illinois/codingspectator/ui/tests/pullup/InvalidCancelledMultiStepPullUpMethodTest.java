@@ -30,11 +30,6 @@ public class InvalidCancelledMultiStepPullUpMethodTest extends RefactoringTest {
 	}
 
 	@Override
-	protected String getTestInputLocation() {
-		return "pull-up";
-	}
-
-	@Override
 	protected void doRefactoringLogShouldBeEmpty() {
 		assertFalse(refactoringLog.exists());
 	}

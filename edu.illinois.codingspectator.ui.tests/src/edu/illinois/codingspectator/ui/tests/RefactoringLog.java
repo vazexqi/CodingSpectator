@@ -78,7 +78,10 @@ public class RefactoringLog {
 		RefactoringDescriptorProxy[] refactoringDescriptorProxies= refactoringHistory.getDescriptors();
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= new ArrayList<JavaRefactoringDescriptor>();
 		for (RefactoringDescriptorProxy refactoringDescriptorProxy : refactoringDescriptorProxies) {
-			refactoringDescriptors.add((JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor()));
+			JavaRefactoringDescriptor javaRefactoringDescriptor= (JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor());
+			if (javaRefactoringDescriptor != null) {
+				refactoringDescriptors.add(javaRefactoringDescriptor);
+			}
 		}
 		return refactoringDescriptors;
 	}

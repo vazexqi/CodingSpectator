@@ -6,7 +6,9 @@ package edu.illinois.codingspectator.ui.tests;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,6 +18,7 @@ import org.junit.Test;
  * @author nchen
  * 
  */
+@SuppressWarnings("restriction")
 public abstract class RefactoringTest {
 
 	protected static CodingSpectatorBot bot;
@@ -23,11 +26,7 @@ public abstract class RefactoringTest {
 	private Collection<RefactoringLogChecker> refactoringLogCheckers= getRefactoringLogCheckers();
 
 	public String getProjectName() {
-		return "Project_" + getProjectNameSuffix();
-	}
-
-	private String getProjectNameSuffix() {
-		return getClass().getSimpleName();
+		return "Prj";
 	}
 
 	protected abstract String getTestFileName();
@@ -36,7 +35,11 @@ public abstract class RefactoringTest {
 		return getTestFileName() + ".java";
 	}
 
-	protected abstract String getTestInputLocation();
+	protected String getRefactoringKind() {
+		String packageFullyQualifiedName= getClass().getPackage().getName();
+		String[] subpackages= packageFullyQualifiedName.split("\\.");
+		return subpackages[subpackages.length - 1];
+	}
 
 	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
 		return Arrays.asList();
@@ -75,7 +78,7 @@ public abstract class RefactoringTest {
 	public void canSetupProject() throws Exception {
 		bot.createANewJavaProject(getProjectName());
 		bot.createANewJavaClass(getProjectName(), getTestFileName());
-		bot.prepareJavaTextInEditor(getTestInputLocation(), getTestFileFullName());
+		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
 	@Test
@@ -101,8 +104,15 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public void closeCurrentProject() {
-		bot.closeProject(getProjectName());
+	public void deleteCurrentProject() throws CoreException {
+		bot.deleteProject(getProjectName());
+		bot.sleep();
+		// Deleting a project is a refactoring that gets logged in .refactorings/.workspace.
+		// We need to delete the .refactoring folder after the deletion of the project,
+		// otherwise, the next test fails because it expects the refactoring history folder to be empty initially.
+		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings")).delete(EFS.NONE, null);
+		bot.sleep();
 	}
+
 
 }

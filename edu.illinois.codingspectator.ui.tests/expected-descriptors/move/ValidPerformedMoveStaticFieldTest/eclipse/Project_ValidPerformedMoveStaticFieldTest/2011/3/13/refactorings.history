@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Move &apos;edu.illinois.codingspectator.C1.field&apos; to &apos;edu.illinois.codingspectator.C2&apos;&#x0A;- Original project: &apos;Project_ValidPerformedMoveStaticFieldTest&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.C1.field&apos;&#x0A;- Destination type: &apos;edu.illinois.codingspectator.C2&apos;" delegate="false" deprecate="true" description="Move member &apos;field&apos;" element1="/src&lt;edu.illinois.codingspectator{MoveStaticMemberTestFile.java[C1^field" flags="589830" id="org.eclipse.jdt.ui.move.static" input="/src&lt;edu.illinois.codingspectator{MoveStaticMemberTestFile.java[C2" stamp="1300843774202" version="1.0"/>
-</session>

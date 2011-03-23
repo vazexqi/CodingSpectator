@@ -1,3 +1,59 @@
 To run the tests run the launch configuration for your operating system from the launch-configurations folder.
 
 You have to leave the instance of Eclipse in which the UI tests run in the front.
+
+- extractconstant
+    - T01, PerformedExtractConstantTest
+    - T02, UnavailableExtractConstantTest
+    - T03, CancelledExtractConstantTest
+- move
+    - T01, ValidPerformedMoveStaticFieldTest
+    - T02, InvalidCancelledMoveInstanceMethodTest
+    - T03, ValidPerformedMoveCompilationUnitTest
+    - T04, InvalidPerformedMoveStaticMethodTest
+    - T05, InvalidCancelledMoveStaticMethodTest
+    - T06, ValidPerformedMoveStaticMethodTest
+    - T07, ValidPerformedMoveCompilationUnitToContainerTest
+    - T08, ValidCancelledMoveStaticMethodTest
+    - T09, ValidCancelledMoveInstanceMethodTest
+    - T10, ValidCancelledMoveCompilationUnitToContainerTest
+    - T11, InvalidPerformedMoveStaticFieldTest
+    - T12, InvalidCancelledMoveStaticFieldTest
+    - T13, ValidCancelledMoveStaticFieldTest
+    - T14, InvalidPerformedMoveInstanceMethodTest
+    - T15, ValidPerformedMoveInstanceMethodTest
+    - T16, ValidCancelledMoveCompilationUnitTest
+- extractsuperclass
+    - T01, InvalidCancelledExtractSuperclassTest
+    - T02, UnavailableExtractSuperclassTest
+    - T03, ValidCancelledSingleStepExtractSuperclassTest
+    - T04, ValidCancelledMultiStepExtractSuperclassTest
+    - T05, ValidPerformedMultiStepExtractSuperclassTest
+    - T06, ValidPerformedSingleStepExtractSuperclassTest
+- inline
+    - T01, UnavailableInlineConstantTest
+    - T02, UnavailableInlineLocalVariableTest
+    - T03, UnavailableInlineMethodParameterTest
+    - T04, UnavailableInlineTest
+    - T05, CancelledInlineConstantTest
+    - T06, UnavailableInlineAbstractMethodTest
+    - T07, PerformedInlineConstantTest
+- pushdown
+    - T01, UnavailablePushDownFieldTest
+- extractmethod
+    - T01, ValidCanceledExtractMethodTest
+    - T02, InvalidPerformedExtractMethodTest
+    - T03, ValidPerformedExtractMethodWithArgsTest
+    - T04, InvalidCanceledExtractMethodTest
+    - T05, UnavailableExtractMethodTest
+    - T06, ValidPerformedExtractMethodTest
+- extractinterface
+    - T01, ValidPerformedExtractInterfaceParentMethodTest
+    - T02, ValidPreviewedAndCancelledExtractInterfaceParentClassTest
+    - T03, ValidPerformedExtractInterfaceParentClassTest
+    - T04, UnavailableExtractInterfaceTest
+    - T05, ValidPreviewedAndPerformedExtractInterfaceParentClassTest
+    - T06, ValidPerformedExtractInterfaceChildClassTest
+    - T07, ValidCancelledExtractInterfaceParentClassTest
+- rename
+    - T01, UnavailableRenameKeywordTest

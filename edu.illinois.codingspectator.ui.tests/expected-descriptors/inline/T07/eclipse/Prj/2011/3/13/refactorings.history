@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Inline constant &apos;edu.illinois.codingspectator.InlineConstantTestFile.CONSTANT&apos; in &apos;edu.illinois.codingspectator.InlineConstantTestFile&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.InlineConstantTestFile.CONSTANT&apos;&#x0A;- Remove constant declaration&#x0A;- Replace all references to constant with expression" description="Inline constant &apos;CONSTANT&apos;" flags="786438" id="org.eclipse.jdt.ui.inline.constant" input="/src&lt;edu.illinois.codingspectator{InlineConstantTestFile.java" remove="true" replace="true" selection="223 8" stamp="1300625274712" version="1.0"/>
+</session>

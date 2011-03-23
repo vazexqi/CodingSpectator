@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Extract constant &apos;TEST0&apos; from expression &apos;&quot;Test0&quot;&apos;&#x0A;- Original project: &apos;Project_PerformedExtractConstantTest&apos;&#x0A;- Constant name: &apos;TEST0&apos;&#x0A;- Constant expression: &apos;&quot;Test0&quot;&apos;&#x0A;- Declared visibility: &apos;private&apos;&#x0A;- Replace occurrences of expression with constant" description="Extract constant &apos;TEST0&apos;" flags="786432" id="org.eclipse.jdt.ui.extract.constant" input="/src&lt;edu.illinois.codingspectator{ExtractConstantTestFile.java" name="TEST0" qualify="false" replace="true" selection="272 7" stamp="1300572607176" version="1.0" visibility="2"/>
-</session>
