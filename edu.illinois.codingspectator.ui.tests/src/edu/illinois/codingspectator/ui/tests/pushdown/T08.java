@@ -24,7 +24,6 @@ public class T08 extends RefactoringTest {
 		bot.selectElementToRefactor(getTestFileFullName(), 6, 16, "fieldToBePushedDown".length());
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
-
 	}
 
 }

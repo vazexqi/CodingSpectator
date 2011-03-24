@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;edu.illinois.codingspectator.IType&apos; to &apos;RenamedIType&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.IType&apos;&#x0A;- Renamed element: &apos;edu.illinois.codingspectator.RenamedIType&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;IType&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;edu.illinois.codingspectator{RenameReturnInterfaceType.java[IType" matchStrategy="1" name="RenamedIType" qualified="false" references="true" similarDeclarations="false" stamp="1300975227148" textual="false" version="1.0"/>
+</session>

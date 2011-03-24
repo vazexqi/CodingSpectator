@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename enum constant &apos;RED&apos; of &apos;edu.illinois.codingspectator.Box.Color&apos; to &apos;RENAMED_RED&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.Box.Color.RED&apos;&#x0A;- Renamed element: &apos;edu.illinois.codingspectator.Box.Color.RENAMED_RED&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="false" description="Rename enum constant &apos;RED&apos;" flags="589830" getter="false" id="org.eclipse.jdt.ui.rename.enum.constant" input="/src&lt;edu.illinois.codingspectator{RenameEnumConstantTestFile.java[Box[Color^RED" name="RENAMED_RED" references="true" setter="false" stamp="1300974354760" textual="false" version="1.0"/>
+</session>

@@ -89,7 +89,7 @@ You have to leave the instance of Eclipse in which the UI tests run in the front
     - T22, ValidPerformedRenameTypeParameterTest
     - T23, ValidPerformedRenameTypeTest
     - T24, ValidPerformedRenameVirtualMethodTest
--usesupertype
+- usesupertype
     - T01, UnavailableUseSuperTypeTest
     - T02, ValidCancelledUseSuperTypeOneLevelTest
     - T03, ValidCancelledUseSuperTypeTwoLevelTest

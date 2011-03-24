@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;originalVariable&apos; in &apos;edu.illinois.codingspectator.RenameLocalVariableTestFile.main(...)&apos; to &apos;renamedOriginalVariable&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.RenameLocalVariableTestFile.main(String[]).originalVariable&apos;&#x0A;- Renamed element: &apos;originalVariable&apos;&#x0A;- Update references to refactored element" description="Rename local variable &apos;originalVariable&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;edu.illinois.codingspectator{RenameLocalVariableTestFile.java[RenameLocalVariableTestFile~main~\[QString;@originalVariable!258!278!262!277!I" name="renamedOriginalVariable" references="true" stamp="1300974717394" version="1.0"/>
+</session>

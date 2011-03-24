@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Push down &apos;edu.illinois.codingspectator.Parent.m2()&apos; from &apos;edu.illinois.codingspectator.Parent&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.Parent.m2()&apos;&#x0A;- Pushed members:&#x0A;     edu.illinois.codingspectator.Parent.m2()" description="Push down &apos;m2&apos;" element1="/src&lt;edu.illinois.codingspectator{PushDownMethodTestFile.java[Parent~m2" flags="589830" id="org.eclipse.jdt.ui.push.down" input="/src&lt;edu.illinois.codingspectator{PushDownMethodTestFile.java[Parent" push1="true" stamp="1300967630568" version="1.0"/>
+</session>
