@@ -36,20 +36,37 @@ public class RefactoringLog {
 
 	IFileStore fileStore;
 
-	private static final String CANCELED_REFACTORINGS= "refactorings/canceled";
+	private static final String ECLIPSE_REFACTORINGS= "eclipse";
 
-	private static final String PERFORMED_REFACTORINGS= "refactorings/performed";
+	private static final String CANCELED_REFACTORINGS= "canceled";
 
-	private static final String UNAVAILABLE_REFACTORINGS= "refactorings/unavailable";
+	private static final String PERFORMED_REFACTORINGS= "performed";
+
+	private static final String UNAVAILABLE_REFACTORINGS= "unavailable";
 
 	private static final IPath REFACTORING_HISTORY_LOCATION= CodingSpectatorDataPlugin.getVersionedStorageLocation();
 
-	private static Map<LogType, String> logTypeToDirectory= new HashMap<LogType, String>();
+	private static Map<LogType, String> logTypeToString= new HashMap<LogType, String>();
+
+	private static Map<String, LogType> stringToLogType= new HashMap<String, LogType>();
 
 	static {
-		logTypeToDirectory.put(LogType.CANCELLED, CANCELED_REFACTORINGS);
-		logTypeToDirectory.put(LogType.PERFORMED, PERFORMED_REFACTORINGS);
-		logTypeToDirectory.put(LogType.UNAVAILABLE, UNAVAILABLE_REFACTORINGS);
+		logTypeToString.put(LogType.ECLIPSE, ECLIPSE_REFACTORINGS);
+		logTypeToString.put(LogType.CANCELLED, CANCELED_REFACTORINGS);
+		logTypeToString.put(LogType.PERFORMED, PERFORMED_REFACTORINGS);
+		logTypeToString.put(LogType.UNAVAILABLE, UNAVAILABLE_REFACTORINGS);
+
+		for (Map.Entry<LogType, String> logTypeToStringEntry : logTypeToString.entrySet()) {
+			stringToLogType.put(logTypeToStringEntry.getValue(), logTypeToStringEntry.getKey());
+		}
+	}
+
+	public static LogType toLogType(String logTypeString) {
+		return stringToLogType.get(logTypeString);
+	}
+
+	public static String toString(LogType logType) {
+		return logTypeToString.get(logType);
 	}
 
 	public RefactoringLog(IPath pathToHistoryFolder) {
@@ -57,7 +74,8 @@ public class RefactoringLog {
 	}
 
 	public RefactoringLog(LogType logType) {
-		this((logType == LogType.ECLIPSE) ? RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings") : getRefactoringStorageLocation(logTypeToDirectory.get(logType)));
+		this((logType == LogType.ECLIPSE) ? RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings") : getRefactoringStorageLocation("refactorings/"
+				+ toString(logType)));
 	}
 
 	public boolean exists() {
@@ -78,7 +96,10 @@ public class RefactoringLog {
 		RefactoringDescriptorProxy[] refactoringDescriptorProxies= refactoringHistory.getDescriptors();
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= new ArrayList<JavaRefactoringDescriptor>();
 		for (RefactoringDescriptorProxy refactoringDescriptorProxy : refactoringDescriptorProxies) {
-			refactoringDescriptors.add((JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor()));
+			JavaRefactoringDescriptor javaRefactoringDescriptor= (JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor());
+			if (javaRefactoringDescriptor != null) {
+				refactoringDescriptors.add(javaRefactoringDescriptor);
+			}
 		}
 		return refactoringDescriptors;
 	}
