@@ -7,8 +7,6 @@ import static org.junit.Assert.assertFalse;
 
 import org.eclipse.core.runtime.CoreException;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
-
 /**
  * @author Mohsen Vakilian
  * 
@@ -21,18 +19,18 @@ public class RefactoringLogChecker {
 
 	private RefactoringLog actualRefactoringLog;
 
-	public RefactoringLogChecker(RefactoringLog.LogType logType, String refactoringCategory, String testClassName, String projectName) {
+	public RefactoringLogChecker(RefactoringLog.LogType logType, String refactoringKind, String testName, String projectName) {
 		this.projectName= projectName;
 		actualRefactoringLog= new RefactoringLog(logType);
 
-		String logSubFolder= "";
-
-		if (logType == LogType.ECLIPSE) {
-			logSubFolder= "/eclipse";
-		} else if (logType == LogType.PERFORMED) {
-			logSubFolder= "/performed";
-		}
-		expectedRefactoringLog= RefactoringLogUtils.getExpectedRefactoringLog(refactoringCategory + "/" + testClassName + logSubFolder);
+//		String logSubFolder= "";
+//
+//		if (logType == LogType.ECLIPSE) {
+//			logSubFolder= "/eclipse";
+//		} else if (logType == LogType.PERFORMED) {
+//			logSubFolder= "/performed";
+//		}
+		expectedRefactoringLog= RefactoringLogUtils.getExpectedRefactoringLog(refactoringKind + "/" + testName + "/" + RefactoringLog.toString(logType));
 	}
 
 	public void assertLogIsEmpty() {

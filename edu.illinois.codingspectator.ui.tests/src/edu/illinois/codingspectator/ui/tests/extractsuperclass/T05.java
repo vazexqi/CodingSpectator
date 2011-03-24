@@ -3,13 +3,9 @@
  */
 package edu.illinois.codingspectator.ui.tests.extractsuperclass;
 
-import java.util.Arrays;
-import java.util.Collection;
-
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -34,12 +30,6 @@ public class T05 extends RefactoringTest {
 	}
 
 	@Override
-	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
-		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getRefactoringKind(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
-				getRefactoringKind(), getClass().getSimpleName(), getProjectName()));
-	}
-
-	@Override
 	protected void doExecuteRefactoring() {
 		bot.selectElementToRefactor(getTestFileFullName(), 11, 16, SELECTION.length());
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
@@ -48,7 +38,7 @@ public class T05 extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() {
+	protected void doRefactoringShouldBeLogged() throws CoreException {
 		super.doRefactoringShouldBeLogged();
 		printMessage("The selection is not what the user has exactly selected.");
 	}

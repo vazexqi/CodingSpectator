@@ -3,11 +3,13 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,7 +25,7 @@ public abstract class RefactoringTest {
 
 	protected static CodingSpectatorBot bot;
 
-	private Collection<RefactoringLogChecker> refactoringLogCheckers= getRefactoringLogCheckers();
+	private Collection<RefactoringLogChecker> refactoringLogCheckers;
 
 	public String getProjectName() {
 		return "Prj";
@@ -41,12 +43,30 @@ public abstract class RefactoringTest {
 		return subpackages[subpackages.length - 1];
 	}
 
-	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
-		return Arrays.asList();
+	protected String getTestName() {
+		return getClass().getSimpleName();
 	}
 
-	protected void doRefactoringLogShouldBeEmpty() {
-		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
+	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() throws CoreException {
+		if (refactoringLogCheckers == null) {
+			refactoringLogCheckers= new ArrayList<RefactoringLogChecker>();
+			IFileStore fileStore= EFS.getLocalFileSystem().getStore(new Path(RefactoringLogUtils.EXPECTED_DESCRIPTORS).append(getRefactoringKind()).append(getTestName()));
+
+			if (fileStore.fetchInfo().exists()) {
+				String[] expectedHistoryFolderNames= fileStore.childNames(EFS.NONE, null);
+				for (String expectedHistoryFolderName : expectedHistoryFolderNames) {
+					refactoringLogCheckers.add(new RefactoringLogChecker(RefactoringLog.toLogType(expectedHistoryFolderName), getRefactoringKind(), getTestName(), getProjectName()));
+				}
+			} else {
+				printMessage(String.format("Expected descriptors for %s are missing.", getTestName()));
+			}
+		}
+
+		return refactoringLogCheckers;
+	}
+
+	protected void doRefactoringLogShouldBeEmpty() throws CoreException {
+		for (RefactoringLogChecker refactoringLogChecker : getRefactoringLogCheckers()) {
 			refactoringLogChecker.assertLogIsEmpty();
 		}
 	}
@@ -58,14 +78,14 @@ public abstract class RefactoringTest {
 		System.err.println(getClass() + ": " + message);
 	}
 
-	protected void doRefactoringShouldBeLogged() {
-		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
+	protected void doRefactoringShouldBeLogged() throws CoreException {
+		for (RefactoringLogChecker refactoringLogChecker : getRefactoringLogCheckers()) {
 			refactoringLogChecker.assertMatch();
 		}
 	}
 
 	protected void doCleanRefactoringHistory() throws CoreException {
-		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
+		for (RefactoringLogChecker refactoringLogChecker : getRefactoringLogCheckers()) {
 			refactoringLogChecker.clean();
 		}
 	}
@@ -86,7 +106,7 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public void refactoringLogShouldBeEmpty() {
+	public void refactoringLogShouldBeEmpty() throws CoreException {
 		bot.sleep();
 		doRefactoringLogShouldBeEmpty();
 	}

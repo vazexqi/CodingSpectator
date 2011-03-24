@@ -1,12 +1,7 @@
 package edu.illinois.codingspectator.ui.tests.extractmethod;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 public class T06 extends RefactoringTest {
@@ -20,12 +15,6 @@ public class T06 extends RefactoringTest {
 	@Override
 	protected String getTestFileName() {
 		return "ValidExtractMethodTestFile";
-	}
-
-	@Override
-	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
-		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getRefactoringKind(), getClass().getSimpleName(), getProjectName()), new RefactoringLogChecker(LogType.ECLIPSE,
-				getRefactoringKind(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override

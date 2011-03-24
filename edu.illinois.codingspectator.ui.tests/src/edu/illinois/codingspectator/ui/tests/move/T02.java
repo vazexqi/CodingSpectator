@@ -3,13 +3,8 @@
  */
 package edu.illinois.codingspectator.ui.tests.move;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -28,11 +23,6 @@ public class T02 extends RefactoringTest {
 		bot.selectElementToRefactor(getTestFileFullName(), 11, 9, "m3".length());
 		bot.invokeRefactoringFromMenu("Move...");
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
-	}
-
-	@Override
-	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
-		return Arrays.asList(new RefactoringLogChecker(LogType.CANCELLED, getRefactoringKind(), getClass().getSimpleName(), getProjectName()));
 	}
 
 }

@@ -40,6 +40,15 @@ You have to leave the instance of Eclipse in which the UI tests run in the front
     - T07, PerformedInlineConstantTest
 - pushdown
     - T01, UnavailablePushDownFieldTest
+    - T02, CancelledDeselectAllPushDownTest
+    - T03, InvalidSingleMethodPushDownTest
+    - T04, InvalidValidSingleFieldPushDownTest
+    - T05, ValidCancelledAndPerformedPushDownTest
+    - T06, ValidCancelledSingleFieldPushDownTest
+    - T07, ValidPerformedMultiFieldPushDownTest
+    - T08, ValidPerformedSingleFieldPushDownTest
+    - T09, ValidPerformedSingleMethodPushDownTest
+    - T10, ValidPreviewedAndCancelledSingleFieldPushDownTest
 - extractmethod
     - T01, ValidCanceledExtractMethodTest
     - T02, InvalidPerformedExtractMethodTest
@@ -57,3 +66,32 @@ You have to leave the instance of Eclipse in which the UI tests run in the front
     - T07, ValidCancelledExtractInterfaceParentClassTest
 - rename
     - T01, UnavailableRenameKeywordTest
+    - T02, InvalidCancelledRenameInterfaceTypeTest
+    - T03, InvalidPerformedRenameInterfaceTypeTest
+    - T04, ValidCancelledRenameCompilationUnitTest
+    - T05, ValidCancelledRenameEnumConstTest
+    - T06, ValidCancelledRenameJavaProjectTest
+    - T07, ValidCancelledRenameLocalVariableTest
+    - T08, ValidCancelledRenameNonVirtualMethodTest
+    - T09, ValidCancelledRenamePackageTest
+    - T10, ValidCancelledRenameSourceFolderTest
+    - T11, ValidCancelledRenameTypeParameterTest
+    - T12, ValidCancelledRenameTypeTest
+    - T13, ValidCancelledRenameVirtualMethodTest
+    - T14, ValidPerformedRenameCompilationUnitTest
+    - T15, ValidPerformedRenameEnumConstTest
+    - T16, ValidPerformedRenameJavaProjectTest
+    - T17, ValidPerformedRenameLocalVariableTest
+    - T18, ValidPerformedRenameNonVirtualMethodTest
+    - T19, ValidPerformedRenamePackageTest
+    - T20, ValidPerformedRenameReturnInterfaceTypeTest
+    - T21, ValidPerformedRenameSourceFolderTest
+    - T22, ValidPerformedRenameTypeParameterTest
+    - T23, ValidPerformedRenameTypeTest
+    - T24, ValidPerformedRenameVirtualMethodTest
+-usesupertype
+    - T01, UnavailableUseSuperTypeTest
+    - T02, ValidCancelledUseSuperTypeOneLevelTest
+    - T03, ValidCancelledUseSuperTypeTwoLevelTest
+    - T04, ValidPerformedUseSuperTypeOneLevelTest
+    - T05, ValidPerformedUseSuperTypeTwoLevelTest

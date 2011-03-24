@@ -3,14 +3,9 @@
  */
 package edu.illinois.codingspectator.ui.tests.pullup;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -43,8 +38,4 @@ public class T02 extends RefactoringTest {
 		printMessage("Eclipse (with or without CodingSpectator) fails to perform this refactoring and doesn't log it. This test makes Eclipse throw the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
 	}
 
-	@Override
-	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
-		return Arrays.asList(new RefactoringLogChecker(LogType.PERFORMED, getRefactoringKind(), getClass().getSimpleName(), getProjectName()));
-	}
 }

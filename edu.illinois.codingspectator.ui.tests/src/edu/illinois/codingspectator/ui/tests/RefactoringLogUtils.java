@@ -18,8 +18,10 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
  */
 public class RefactoringLogUtils {
 
+	static final String EXPECTED_DESCRIPTORS= "expected-descriptors";
+
 	public static RefactoringLog getExpectedRefactoringLog(String expectedRefactoringDescriptorRelativePath) {
-		return new RefactoringLog(new Path("expected-descriptors").append(expectedRefactoringDescriptorRelativePath));
+		return new RefactoringLog(new Path(EXPECTED_DESCRIPTORS).append(expectedRefactoringDescriptorRelativePath));
 	}
 
 	public static CapturedRefactoringDescriptor getTheSingleExpectedRefactoringDescriptor(String expectedRefactoringDescriptorRelativePath, String projectName) {

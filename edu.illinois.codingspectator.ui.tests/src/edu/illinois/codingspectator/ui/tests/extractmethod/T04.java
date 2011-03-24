@@ -3,13 +3,8 @@
  */
 package edu.illinois.codingspectator.ui.tests.extractmethod;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog.LogType;
-import edu.illinois.codingspectator.ui.tests.RefactoringLogChecker;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -29,11 +24,6 @@ public class T04 extends RefactoringTest {
 	@Override
 	protected String getTestFileName() {
 		return "InvalidExtractMethodTestFile";
-	}
-
-	@Override
-	protected Collection<RefactoringLogChecker> getRefactoringLogCheckers() {
-		return Arrays.asList(new RefactoringLogChecker(LogType.CANCELLED, getRefactoringKind(), getClass().getSimpleName(), getProjectName()));
 	}
 
 	@Override
