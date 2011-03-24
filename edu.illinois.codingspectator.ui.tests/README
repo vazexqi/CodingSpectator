@@ -57,3 +57,12 @@ You have to leave the instance of Eclipse in which the UI tests run in the front
     - T07, ValidCancelledExtractInterfaceParentClassTest
 - rename
     - T01, UnavailableRenameKeywordTest
+- pullup
+	- T01, InvalidCancelledMultiStepPullUpMethodTest
+	- T02, InvalidPerformedMultiStepPullUpMethodTest
+	- T03, ValidCancelledMultiStepPullUpClassTest
+	- T04, ValidCancelledMultiStepPullUpFieldTest
+	- T05, ValidCancelledSingleStepPullUpFieldTest
+	- T06, ValidPerformedMultiStepPullUpClassTest
+	- T07, ValidPerformedMultiStepPullUpFieldTest
+	- T08, ValidPerformedSingleStepPullUpFieldTest
