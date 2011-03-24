@@ -50,7 +50,7 @@ public class T05 extends RefactoringTest {
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		super.doRefactoringShouldBeLogged();
-		System.err.println("The selection is not what the user has exactly selected.");
+		printMessage("The selection is not what the user has exactly selected.");
 	}
 
 }

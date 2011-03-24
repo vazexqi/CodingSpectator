@@ -54,6 +54,10 @@ public abstract class RefactoringTest {
 	protected void doExecuteRefactoring() {
 	}
 
+	protected void printMessage(String message) {
+		System.err.println(getClass() + ": " + message);
+	}
+
 	protected void doRefactoringShouldBeLogged() {
 		for (RefactoringLogChecker refactoringLogChecker : refactoringLogCheckers) {
 			refactoringLogChecker.assertMatch();

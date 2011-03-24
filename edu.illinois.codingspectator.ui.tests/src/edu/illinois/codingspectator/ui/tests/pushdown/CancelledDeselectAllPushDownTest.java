@@ -42,7 +42,7 @@ public class CancelledDeselectAllPushDownTest extends RefactoringTest {
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		assertTrue(refactoringLog.exists());
-		System.err.println("The list of selected members in the captured refactoring should be empty.");
+		printMessage("The list of selected members in the captured refactoring should be empty.");
 	}
 
 	@Override

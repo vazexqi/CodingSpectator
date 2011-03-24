@@ -42,7 +42,7 @@ public class T01 extends RefactoringTest {
 	@Override
 	protected void doRefactoringShouldBeLogged() {
 		super.doRefactoringShouldBeLogged();
-		System.err.println("The captured selection text is different from what the test has actullay selected.");
+		printMessage("The captured selection text is different from what the test has actullay selected.");
 	}
 
 }

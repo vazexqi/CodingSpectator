@@ -40,8 +40,7 @@ public class T02 extends RefactoringTest {
 			// FIXME: On my machine i.e. Mac, the second dialog box does not appear so SWTBot can't click on OK.
 			bot.clickButtons(IDialogConstants.FINISH_LABEL);
 		}
-		System.err
-				.println("Eclipse (with or without CodingSpectator) fails to perform this refactoring and doesn't log it. This test makes Eclipse throw the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
+		printMessage("Eclipse (with or without CodingSpectator) fails to perform this refactoring and doesn't log it. This test makes Eclipse throw the following exceptions: java.lang.reflect.InvocationTargetException\nCaused by: java.lang.NullPointerException\nRoot exception:\njava.lang.NullPointerException");
 	}
 
 	@Override
