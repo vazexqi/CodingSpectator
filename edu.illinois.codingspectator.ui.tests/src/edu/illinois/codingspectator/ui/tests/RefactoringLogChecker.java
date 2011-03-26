@@ -22,19 +22,11 @@ public class RefactoringLogChecker {
 	public RefactoringLogChecker(RefactoringLog.LogType logType, String refactoringKind, String testName, String projectName) {
 		this.projectName= projectName;
 		actualRefactoringLog= new RefactoringLog(logType);
-
-//		String logSubFolder= "";
-//
-//		if (logType == LogType.ECLIPSE) {
-//			logSubFolder= "/eclipse";
-//		} else if (logType == LogType.PERFORMED) {
-//			logSubFolder= "/performed";
-//		}
 		expectedRefactoringLog= RefactoringLogUtils.getExpectedRefactoringLog(refactoringKind + "/" + testName + "/" + RefactoringLog.toString(logType));
 	}
 
 	public void assertLogIsEmpty() {
-		assertFalse(actualRefactoringLog.exists());
+		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualRefactoringLog.exists());
 	}
 
 	public void assertMatch() {
