@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move package &apos;edu.illinois.codingspectator&apos; to &apos;.settings&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Destination element: &apos;.settings&apos;&#x0A;- Original element: &apos;Prj/src/edu.illinois.codingspectator&apos;&#x0A;- Update references to refactored element" description="Move package" element1="/src&lt;edu.illinois.codingspectator" flags="589830" fragments="1" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.movePackages" stamp="1301260527450" target=".settings" version="1.0"/>
+</session>
