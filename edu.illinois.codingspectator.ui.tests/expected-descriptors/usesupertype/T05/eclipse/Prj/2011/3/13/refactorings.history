@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Use super type &apos;edu.illinois.codingspectator.Grandparent&apos; instead of &apos;edu.illinois.codingspectator.Child&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.Child&apos;&#x0A;- Super type: &apos;edu.illinois.codingspectator.Grandparent&apos;" description="Use super type &apos;Grandparent&apos;" element1="/src&lt;edu.illinois.codingspectator{UseSuperTypeTestFile.java[Grandparent" flags="589830" id="org.eclipse.jdt.ui.use.supertype" input="/src&lt;edu.illinois.codingspectator{UseSuperTypeTestFile.java[Child" instanceof="false" stamp="1300970131755" version="1.0"/>
+</session>

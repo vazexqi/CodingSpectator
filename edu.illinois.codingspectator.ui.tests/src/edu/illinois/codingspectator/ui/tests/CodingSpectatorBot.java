@@ -5,8 +5,11 @@ package edu.illinois.codingspectator.ui.tests;
 
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -24,8 +27,9 @@ import org.osgi.framework.Bundle;
  * 
  * @author Mohsen Vakilian
  * @author nchen
- * 
+ * @author Balaji Ambresh Rajkumar
  */
+@SuppressWarnings("restriction")
 public class CodingSpectatorBot {
 
 	public static final String CONTINUE_LABEL= "Continue";
@@ -52,7 +56,7 @@ public class CodingSpectatorBot {
 		return bot;
 	}
 
-	public void createANewJavaProject(String projectName) throws Exception {
+	public void createANewJavaProject(String projectName) {
 		bot.menu("File").menu("New").menu("Project...").click();
 
 		activateShellWithName("New Project");
@@ -65,6 +69,24 @@ public class CodingSpectatorBot {
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
 		dismissJavaPerspectiveIfPresent();
+	}
+
+	public void deleteEclipseRefactoringLog() throws CoreException {
+		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings")).delete(EFS.NONE, null);
+	}
+	
+	private void deleteProjectSpecificEclipseRefactoringLog(String projectName) throws CoreException {
+		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings").append(projectName)).delete(EFS.NONE, null);
+	}
+
+	public void deleteProject(String projectName) throws CoreException {
+		selectJavaProject(projectName).contextMenu("Delete").click();
+		activateShellWithName("Delete Resources");
+		if (!bot.checkBox().isChecked()) {
+			bot.checkBox().click();
+		}
+		bot.button(IDialogConstants.OK_LABEL).click();
+		deleteProjectSpecificEclipseRefactoringLog(projectName);
 	}
 
 	public SWTBotTree getCurrentTree() {
@@ -115,10 +137,6 @@ public class CodingSpectatorBot {
 		SWTBotEclipseEditor editor= bot.editorByTitle(testFileFullName).toTextEditor();
 		editor.setText(contents);
 		editor.save();
-	}
-
-	public void closeProject(String projectName) {
-		selectJavaProject(projectName).contextMenu("Close Project").click();
 	}
 
 	public void sleep() {

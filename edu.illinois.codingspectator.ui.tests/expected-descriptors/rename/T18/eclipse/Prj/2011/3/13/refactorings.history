@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;edu.illinois.codingspectator.RenameNonVirtualMethodTestFile.nonVirtualMethod()&apos; to &apos;renamedNonVirtualMethod&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.RenameNonVirtualMethodTestFile.nonVirtualMethod()&apos;&#x0A;- Renamed element: &apos;edu.illinois.codingspectator.RenameNonVirtualMethodTestFile.renamedNonVirtualMethod()&apos;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;nonVirtualMethod&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;edu.illinois.codingspectator{RenameNonVirtualMethodTestFile.java[RenameNonVirtualMethodTestFile~nonVirtualMethod" name="renamedNonVirtualMethod" references="true" stamp="1300974951484" version="1.0"/>
+</session>
