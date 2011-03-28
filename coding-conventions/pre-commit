@@ -46,8 +46,7 @@ MAX_LENGTH=200
 # --cached Show only the changes staged for committing
 # --name-only Show only names of changed files (instead of status + name)
 # --diff-filter=A Show only files that are (A)dded
-# -z Leave TAB, LF, and backslash characters in the file alone
-for file in $(git diff --cached --name-only --diff-filter=A -z $against)
+for file in $(git diff --cached --name-only --diff-filter=A $against)
 do
 	length=${#file} # the ${#string} syntax provides the length of the string
 	if [ "$length" -gt "$MAX_LENGTH" ]
