@@ -35,7 +35,13 @@ public class SavedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		getFileEditor(false).doSave(null);
+		getExistingEditor().doSave(null);
+		//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			//do nothing
+		}
 	}
 
 }

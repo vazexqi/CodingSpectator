@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 
 /**
  * 
@@ -58,16 +57,6 @@ public class OperationHistoryListener extends BasicListener implements IOperatio
 			isRedoing= true;
 		} else {
 			isRedoing= false;
-		}
-		if (eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.REDONE) {
-			//note that conflict editors remain dirty until saved
-			if (currentEditor != null && !EditorHelper.isConflictEditor(currentEditor)) {
-				if (currentEditor.isDirty()) {
-					dirtyFiles.add(currentFile);
-				} else {
-					dirtyFiles.remove(currentFile);
-				}
-			}
 		}
 	}
 

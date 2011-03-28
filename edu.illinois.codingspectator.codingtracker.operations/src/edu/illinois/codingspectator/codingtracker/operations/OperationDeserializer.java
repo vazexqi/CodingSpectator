@@ -18,6 +18,7 @@ import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOp
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
@@ -117,6 +118,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.FILE_NEW_SYMBOL:
 				userOperation= new NewFileOperation();
+				break;
+			case OperationSymbols.FILE_REFRESHED_SYMBOL:
+				userOperation= new RefreshedFileOperation();
 				break;
 			case OperationSymbols.FILE_EDITED_SYMBOL:
 				userOperation= new EditedFileOperation();

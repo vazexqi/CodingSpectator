@@ -116,7 +116,7 @@ public class UserOperationReplayer {
 				FileDialog fileDialog= new FileDialog(operationSequenceView.getShell(), SWT.OPEN);
 				String selectedFilePath= fileDialog.open();
 				if (selectedFilePath != null) {
-					String operationsRecord= FileHelper.getFileContent(new File(selectedFilePath));
+					String operationsRecord= FileHelper.readFileContent(new File(selectedFilePath));
 					userOperations= OperationDeserializer.getUserOperations(operationsRecord);
 					if (userOperations.size() > 0) {
 						resetAction.setEnabled(true);

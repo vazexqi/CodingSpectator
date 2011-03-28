@@ -70,7 +70,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private void checkFilesAreEqual(File file1, File file2) {
-		assertEquals(FileHelper.getFileContent(file1), FileHelper.getFileContent(file2));
+		assertEquals(FileHelper.readFileContent(file1), FileHelper.readFileContent(file2));
 	}
 
 	private void replayUserOperations(List<UserOperation> userOperations) {
@@ -92,7 +92,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private List<UserOperation> loadUserOperationsFromFile(File recordFile) {
-		String operationsRecord= FileHelper.getFileContent(recordFile);
+		String operationsRecord= FileHelper.readFileContent(recordFile);
 		return OperationDeserializer.getUserOperations(operationsRecord);
 	}
 
@@ -102,7 +102,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private File getGeneratedFile(String workspaceRelativeFilePath) {
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath).getLocation().toFile();
+		return FileHelper.getFileForResource(ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath));
 	}
 
 	private String removeTimestamp(UserOperation userOperation) {

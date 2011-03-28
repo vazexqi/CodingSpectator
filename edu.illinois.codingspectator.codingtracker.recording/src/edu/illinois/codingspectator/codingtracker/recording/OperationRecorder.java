@@ -31,6 +31,7 @@ import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOp
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
@@ -82,6 +83,12 @@ public class OperationRecorder {
 		TextRecorder.record(new StartedEclipseOperation());
 	}
 
+	public void recordRefreshedFile(IFile refreshedFile, String replacedText) {
+		knownfilesRecorder.addKnownfile(refreshedFile);
+		knownfilesRecorder.recordKnownfiles();
+		TextRecorder.record(new RefreshedFileOperation(refreshedFile, replacedText));
+	}
+
 	public void recordChangedText(DocumentEvent documentEvent, String replacedText, IFile editedFile, boolean isUndoing, boolean isRedoing) {
 		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
 			lastEditedFile= editedFile;
@@ -89,6 +96,10 @@ public class OperationRecorder {
 			recordEditedFile();
 		}
 		Debugger.debugDocumentEvent(documentEvent, replacedText);
+		TextRecorder.record(getTextChangeOperation(documentEvent, replacedText, isUndoing, isRedoing));
+	}
+
+	private TextChangeOperation getTextChangeOperation(DocumentEvent documentEvent, String replacedText, boolean isUndoing, boolean isRedoing) {
 		TextChangeOperation textChangeOperation= null;
 		if (isUndoing) {
 			textChangeOperation= new UndoneTextChangeOperation(documentEvent, replacedText);
@@ -97,7 +108,7 @@ public class OperationRecorder {
 		} else {
 			textChangeOperation= new PerformedTextChangeOperation(documentEvent, replacedText);
 		}
-		TextRecorder.record(textChangeOperation);
+		return textChangeOperation;
 	}
 
 	public void recordConflictEditorChangedText(DocumentEvent documentEvent, String replacedText, String editorID, boolean isUndoing, boolean isRedoing) {
@@ -268,7 +279,7 @@ public class OperationRecorder {
 				knownfilesRecorder.addKnownfile(file);
 				hasChanged= true;
 				//save the content of a previously unknown file
-				if (file.getLocation().toFile().exists()) { //Actually, should always exist here
+				if (file.exists()) { //Actually, should always exist here
 					TextRecorder.record(new NewFileOperation(file));
 				}
 			}
@@ -280,7 +291,7 @@ public class OperationRecorder {
 
 	private IFile getCVSEntriesForFile(IFile file) {
 		IPath cvsEntriesPath= file.getFullPath().removeLastSegments(1).append("CVS").append("Entries");
-		IResource cvsEntriesResource= FileHelper.findWorkspaceMemeber(cvsEntriesPath);
+		IResource cvsEntriesResource= FileHelper.findWorkspaceMember(cvsEntriesPath);
 		if (cvsEntriesResource != null) {
 			return (IFile)cvsEntriesResource;
 		}

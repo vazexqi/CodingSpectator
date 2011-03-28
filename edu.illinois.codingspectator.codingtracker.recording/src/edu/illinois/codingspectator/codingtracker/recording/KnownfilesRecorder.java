@@ -95,6 +95,9 @@ public class KnownfilesRecorder {
 		writePropertiesToFile(knownfiles, knownfilesFile);
 	}
 
+	//TODO: See if reading and writing to Properties in this class, and to a file in FileHelper have sufficient similarities 
+	//to be factored out in common methods.
+
 	private synchronized Properties readPropertiesFromFile(File file) {
 		Properties properties= new Properties();
 		FileInputStream fileInputStream= null;
@@ -120,10 +123,7 @@ public class KnownfilesRecorder {
 	private synchronized void writePropertiesToFile(Properties properties, File file) {
 		BufferedWriter bufferedWriter= null;
 		try {
-			if (!file.exists()) {
-				file.getParentFile().mkdirs();
-				file.createNewFile();
-			}
+			FileHelper.ensureFileExists(file);
 			bufferedWriter= new BufferedWriter(new FileWriter(file, false));
 			properties.store(bufferedWriter, null);
 		} catch (IOException e) {
@@ -158,7 +158,7 @@ public class KnownfilesRecorder {
 		BufferedWriter cvsEntriesDestinationFileWriter= null;
 		try {
 			cvsEntriesDestinationFileWriter= new BufferedWriter(new FileWriter(cvsEntriesDestinationFile, false));
-			cvsEntriesDestinationFileWriter.append(FileHelper.getFileContent(cvsEntriesSourceFile.getLocation().toFile()));
+			cvsEntriesDestinationFileWriter.append(FileHelper.readFileContent(cvsEntriesSourceFile));
 			cvsEntriesDestinationFileWriter.flush();
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSEntriesCopyFailure);

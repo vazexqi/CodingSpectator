@@ -3,8 +3,6 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.files.snapshoted;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -27,7 +25,7 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  */
 public abstract class SnapshotedFileOperation extends FileOperation {
 
-	private String fileContent;
+	protected String fileContent;
 
 	public SnapshotedFileOperation() {
 		super();
@@ -35,7 +33,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	public SnapshotedFileOperation(IFile snapshotedFile) {
 		super(snapshotedFile);
-		fileContent= FileHelper.getFileContent(snapshotedFile.getLocation().toFile());
+		fileContent= FileHelper.readFileContent(snapshotedFile);
 	}
 
 	@Override
@@ -52,10 +50,14 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
+		createCompilationUnit(fileContent);
+	}
+
+	protected void createCompilationUnit(String content) throws CoreException {
 		IJavaProject javaProject= JavaProjectsUpkeeper.findOrCreateJavaProject(projectName);
 		IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
 		IPackageFragment packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
-		packageFragment.createCompilationUnit(fileName, fileContent, true, null);
+		packageFragment.createCompilationUnit(fileName, content, true, null);
 	}
 
 	@Override
@@ -69,8 +71,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	protected void checkSnapshotMatchesTheExistingFile() {
 		IResource workspaceResource= ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
 		if (workspaceResource != null) {
-			File existingFile= workspaceResource.getLocation().toFile();
-			if (!fileContent.equals(FileHelper.getFileContent(existingFile))) {
+			if (!fileContent.equals(FileHelper.readFileContent(workspaceResource))) {
 				throw new RuntimeException("The snapshot file does not match the existing file: " + filePath);
 			}
 		}

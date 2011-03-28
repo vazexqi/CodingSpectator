@@ -29,7 +29,6 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
-import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 
 /**
  * 
@@ -40,8 +39,6 @@ import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 public class ResourceChangeListener extends BasicListener implements IResourceChangeListener {
 
 	private final IResourceDeltaVisitor resourceDeltaVisitor= new ResourceDeltaVisitor();
-
-	private final KnownfilesRecorder knownfilesRecorder= KnownfilesRecorder.getInstance();
 
 	//Populated sets:
 
@@ -62,6 +59,8 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	private final Set<IFile> cvsEntriesChangedOrRemovedSet= new HashSet<IFile>();
 
 	//Calculated sets:
+
+	//TODO: Consider changing from HashSet to TreeSet to make tests deterministic (interestingly, they all are passing so far).
 
 	private final Set<IFile> savedJavaFiles= new HashSet<IFile>();
 
@@ -142,7 +141,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		boolean hasChangedKnownFiles= false;
 		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
 			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile.getLocation().toFile(), relativePath);
+			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile, relativePath);
 			boolean isInitialCommit= false;
 			for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
 				IFile entryFile= newEntry.getKey();
@@ -164,7 +163,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private boolean doesContainKnownFiles(IPath path) {
-		IResource resource= FileHelper.findWorkspaceMemeber(path);
+		IResource resource= FileHelper.findWorkspaceMember(path);
 		if (resource instanceof Folder) {
 			Folder containerFolder= (Folder)resource;
 			try {
@@ -186,7 +185,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
 			if (cvsEntriesFile.exists()) {
 				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile.getLocation().toFile(), relativePath);
+				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile, relativePath);
 				File trackedCVSEntriesFile= knownfilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
 				if (trackedCVSEntriesFile.exists()) {
 					Map<IFile, String> previousVersions= FileHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
@@ -266,10 +265,9 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void calculateSavedAndExternallyModifiedJavaFiles() {
-		boolean isVersionControlEntriesChanged= !svnEntriesChangeSet.isEmpty() || !cvsEntriesChangedOrRemovedSet.isEmpty() || !cvsEntriesAddedSet.isEmpty();
 		for (IFile file : changedJavaFiles) {
 			if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
-				if (isRefactoring || dirtyFiles.contains(file) && !isVersionControlEntriesChanged) {
+				if (isRefactoring || FileHelper.isFileBufferSynchronized(file)) {
 					savedJavaFiles.add(file);
 				} else {
 					externallyModifiedJavaFiles.add(file);
@@ -290,10 +288,6 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void updateDirtyAndKnownFiles() {
-		dirtyFiles.removeAll(removedJavaFiles);
-		//TODO: Removing from dirty files when updated or changed externally may cause subsequent save to be treated as an
-		//external modification. Is it ok (e.g. this can be detected and filtered out during the replay phase)?
-		dirtyFiles.removeAll(changedJavaFiles);
 		removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
 		removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
 		operationRecorder.removeKnownFiles(removedJavaFiles);

@@ -60,6 +60,11 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 			newFile= EditorHelper.getEditedJavaFile(editor);
 			sourceViewer= EditorHelper.getEditingSourceViewer(editor);
 		}
+		updateCurrentState(part, newFile, sourceViewer);
+	}
+
+
+	private void updateCurrentState(IWorkbenchPart part, IFile newFile, ISourceViewer sourceViewer) {
 		if (newFile != null) {
 			currentEditor= (EditorPart)part; //Should be EditorPart if newFile != null
 			addEditor(currentEditor, newFile);
@@ -67,12 +72,16 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 				currentFile= newFile;
 				Debugger.debugFilePath("Current file: ", currentFile);
 			}
-			if (currentViewer != null && currentViewer.getDocument() != null) {
-				currentViewer.getDocument().removeDocumentListener(documentListener);
+			if (currentDocument != null) {
+				currentDocument.removeDocumentListener(documentListener);
+				currentDocument= null;
 			}
 			currentViewer= sourceViewer;
-			if (currentViewer != null && currentViewer.getDocument() != null) {
-				currentViewer.getDocument().addDocumentListener(documentListener);
+			if (currentViewer != null) {
+				currentDocument= currentViewer.getDocument();
+			}
+			if (currentDocument != null) {
+				currentDocument.addDocumentListener(documentListener);
 			}
 		}
 	}

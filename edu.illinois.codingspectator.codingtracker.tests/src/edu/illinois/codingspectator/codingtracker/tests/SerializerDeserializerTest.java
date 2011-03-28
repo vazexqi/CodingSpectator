@@ -25,11 +25,11 @@ public class SerializerDeserializerTest extends CodingTrackerTest {
 
 	@Test
 	public void shouldDeserializeAndSerialize() {
-		String operationsRecord= FileHelper.getFileContent(operationsRecordFile);
+		String operationsRecord= FileHelper.readFileContent(operationsRecordFile);
 		for (UserOperation userOperation : OperationDeserializer.getUserOperations(operationsRecord)) {
 			TextRecorder.record(userOperation);
 		}
-		String generatedOperationsRecord= FileHelper.getFileContent(mainRecordFile);
+		String generatedOperationsRecord= FileHelper.readFileContent(mainRecordFile);
 		assertEquals(operationsRecord, generatedOperationsRecord);
 	}
 

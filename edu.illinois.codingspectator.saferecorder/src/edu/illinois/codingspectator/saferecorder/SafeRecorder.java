@@ -3,9 +3,7 @@
  */
 package edu.illinois.codingspectator.saferecorder;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
@@ -51,42 +49,24 @@ public class SafeRecorder {
 		Debugger.debug("END COMMIT");
 		File tempFile= currentRecordFile;
 		currentRecordFile= mainRecordFile;
-		String tempContent= FileHelper.getFileContent(tempFile);
+		String tempContent= FileHelper.readFileContent(tempFile);
 		record(tempContent);
 		tempFile.delete();
 	}
 
 	public synchronized void record(CharSequence text) {
-		ensureFileExists(currentRecordFile);
-		BufferedWriter recordFileWriter= null;
 		try {
-			Debugger.debugFileSize("Before: ", currentRecordFile);
-			recordFileWriter= new BufferedWriter(new FileWriter(currentRecordFile, true));
-			recordFileWriter.append(text);
-			recordFileWriter.flush();
-			Debugger.debugFileSize("After: ", currentRecordFile);
+			FileHelper.ensureFileExists(currentRecordFile);
+		} catch (IOException e) {
+			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CreateRecordFileException + currentRecordFile.getName());
+		}
+		Debugger.debugFileSize("Before: ", currentRecordFile);
+		try {
+			FileHelper.writeFileContent(currentRecordFile, text, true);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_AppendRecordFileException + currentRecordFile.getName());
-		} finally {
-			if (recordFileWriter != null) {
-				try {
-					recordFileWriter.close();
-				} catch (IOException e) {
-					//do nothing
-				}
-			}
 		}
-	}
-
-	private void ensureFileExists(File file) {
-		if (!file.exists()) {
-			file.getParentFile().mkdirs();
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				Debugger.logExceptionToErrorLog(e, Messages.Recorder_CreateRecordFileException + file.getName());
-			}
-		}
+		Debugger.debugFileSize("After: ", currentRecordFile);
 	}
 
 }

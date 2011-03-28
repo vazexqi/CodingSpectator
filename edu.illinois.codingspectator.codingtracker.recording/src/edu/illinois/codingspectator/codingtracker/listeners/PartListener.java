@@ -94,7 +94,6 @@ public class PartListener extends BasicListener implements IPartListener {
 				}
 			}
 		}
-		dirtyFiles.remove(closedFile);
 		operationRecorder.recordClosedFile(closedFile);
 	}
 
