@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename package &apos;edu.illinois.codingspectator&apos; to &apos;renamed.edu.illinois.codingspectator&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;Prj/src/edu.illinois.codingspectator&apos;&#x0A;- Renamed element: &apos;Prj/src/renamed.edu.illinois.codingspectator&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename package &apos;edu.illinois.codingspectator&apos;" flags="589830" hierarchical="false" id="org.eclipse.jdt.ui.rename.package" input="/src&lt;edu.illinois.codingspectator" name="renamed.edu.illinois.codingspectator" qualified="false" references="true" stamp="1300975122821" textual="false" version="1.0"/>
+</session>

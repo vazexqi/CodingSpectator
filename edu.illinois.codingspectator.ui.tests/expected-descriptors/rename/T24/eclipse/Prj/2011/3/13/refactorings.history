@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;edu.illinois.codingspectator.Base.virtualMethod()&apos; to &apos;renamedVirtualMethod&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.Base.virtualMethod()&apos;&#x0A;- Renamed element: &apos;edu.illinois.codingspectator.Base.renamedVirtualMethod()&apos;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;virtualMethod&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;edu.illinois.codingspectator{RenameVirtualMethodTestFile.java[Base~virtualMethod" name="renamedVirtualMethod" references="true" stamp="1300975785025" version="1.0"/>
+</session>

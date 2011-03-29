@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring code-snippet="&lt;T&gt; [in C [in [Working copy] RenameTypeParameterTestFile.java [in edu.illinois.codingspectator [in src [in Prj]]]]]" comment="Rename type variable &apos;T&apos; of &apos;edu.illinois.codingspectator.C&apos; to &apos;RenamedT&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;T&apos;&#x0A;- Renamed element: &apos;RenamedT&apos;&#x0A;- Update references to refactored element" description="Rename type variable &apos;T&apos;" id="org.eclipse.jdt.ui.rename.type.parameter" input="/src&lt;edu.illinois.codingspectator{RenameTypeParameterTestFile.java[C" invoked-by-quickassist="false" name="RenamedT" navigation-history="{[Rename Type Variable,BEGIN_REFACTORING,1300973665212],[TextInputPage,Cancel,1300973666144],}" parameter="T" references="true" selection-text="T" stamp="1300973666149" status="&lt;OK&#x0A;&gt;" version="1.0"/>
+</session>

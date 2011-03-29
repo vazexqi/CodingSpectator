@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;MoveCusTestFile.java&apos; to &apos;Prj/src/edu.illinois.codingspectator.subpackage&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Destination element: &apos;Prj/src/edu.illinois.codingspectator.subpackage&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.MoveCusTestFile.java&apos;&#x0A;- Update references to refactored element" description="Move compilation unit" destination="/src&lt;edu.illinois.codingspectator.subpackage" element1="/src&lt;edu.illinois.codingspectator{MoveCusTestFile.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" log="/src&lt;edu.illinois.codingspectator&#x09;/src&lt;edu.illinois.codingspectator.subpackage" patterns="*" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1300842172089" units="1" version="1.0"/>
+</session>

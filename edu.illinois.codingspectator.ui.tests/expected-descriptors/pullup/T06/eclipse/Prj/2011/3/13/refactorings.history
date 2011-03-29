@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring abstract="0" comment="Pull up &apos;edu.illinois.codingspectator.Child.object&apos; from &apos;edu.illinois.codingspectator.Child&apos; to &apos;edu.illinois.codingspectator.Parent&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.Child.object&apos;&#x0A;- Destination type: &apos;edu.illinois.codingspectator.Parent&apos;&#x0A;- Use super type where possible" delete="0" description="Pull up &apos;object&apos; to &apos;Parent&apos;" element1="/src&lt;edu.illinois.codingspectator{ValidPullUpFieldTestFile.java[Child^object" flags="589830" id="org.eclipse.jdt.ui.pull.up" input="/src&lt;edu.illinois.codingspectator{ValidPullUpFieldTestFile.java[Parent" instanceof="false" pull="1" replace="true" stamp="1300923706884" stubs="true" version="1.0"/>
+</session>

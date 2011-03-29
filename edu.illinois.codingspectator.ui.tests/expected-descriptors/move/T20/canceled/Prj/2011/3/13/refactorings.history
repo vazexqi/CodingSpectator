@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring code-snippet="src [in Prj]&#x0A;  &lt;default&gt; (...)&#x0A;  edu (...)&#x0A;  edu.illinois (...)&#x0A;  edu.illinois.codingspectator (...)" comment="Move source folder &apos;src&apos; to &apos;.settings&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Destination element: &apos;.settings&apos;&#x0A;- Original element: &apos;Prj/src&apos;&#x0A;- Update references to refactored element" description="Move source folder" element1="/src" flags="6" id="org.eclipse.jdt.ui.move" invoked-by-quickassist="false" navigation-history="{[Move,BEGIN_REFACTORING,1301170589104],[MoveInputPage,Cancel,1301170589785],}" policy="org.eclipse.jdt.ui.moveRoots" roots="1" selection-text="src" stamp="1301170589792" status="&lt;OK&#x0A;&gt;" target="/Prj2/.settings" version="1.0"/>
+</session>

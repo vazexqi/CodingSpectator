@@ -37,7 +37,8 @@ public class DescriptorComparator {
 		attributesWithoutTimestamps.removeAll(Arrays.asList(Logger.NAVIGATION_HISTORY_ATTRIBUTE));
 
 		for (String attribute : attributesWithoutTimestamps) {
-			assertEquals(expectedRefactoringDescriptor.getAttribute(attribute), actualRefactoringDescriptor.getAttribute(attribute));
+			assertEquals(String.format("Expected another value for the attribute \"%s\"", attribute), expectedRefactoringDescriptor.getAttribute(attribute),
+					actualRefactoringDescriptor.getAttribute(attribute));
 		}
 
 		if (expectedAttributeKeys.contains(Logger.NAVIGATION_HISTORY_ATTRIBUTE)) {
