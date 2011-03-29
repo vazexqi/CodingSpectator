@@ -94,13 +94,9 @@ public class UserOperationReplayer {
 						}
 					}
 					if (foundUserOperation == null) {
-						MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
-						messageBox.setMessage("There is no operation with timestamp " + dialog.getTimestamp());
-						messageBox.open();
+						showMessage("There is no operation with timestamp " + dialog.getTimestamp());
 					} else if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
-						MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
-						messageBox.setMessage("Operation with timestamp " + dialog.getTimestamp() + " is filtered out");
-						messageBox.open();
+						showMessage("Operation with timestamp " + dialog.getTimestamp() + " is filtered out");
 					}
 				}
 			}
@@ -162,7 +158,12 @@ public class UserOperationReplayer {
 		return new Action() {
 			@Override
 			public void run() {
-				replayAndAdvanceCurrentUserOperation();
+				try {
+					replayAndAdvanceCurrentUserOperation();
+				} catch (RuntimeException e) {
+					showReplayExceptionMessage();
+					throw e;
+				}
 				updateReplayActionsStateForCurrentUserOperation();
 			}
 		};
@@ -208,9 +209,7 @@ public class UserOperationReplayer {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();
 				}
-				MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
-				messageBox.setMessage("The current editor is wrong. Should be: \"" + currentEditor.getTitle() + "\"");
-				messageBox.open();
+				showMessage("The current editor is wrong. Should be: \"" + currentEditor.getTitle() + "\"");
 				return;
 			}
 			currentUserOperation.replay();
@@ -258,6 +257,16 @@ public class UserOperationReplayer {
 		}
 	}
 
+	private void showMessage(String message) {
+		MessageBox messageBox= new MessageBox(operationSequenceView.getShell());
+		messageBox.setMessage(message);
+		messageBox.open();
+	}
+
+	private void showReplayExceptionMessage() {
+		showMessage("An exception occured while executing the current user operation");
+	}
+
 	private class UserOperationExecutionThread extends Thread {
 
 		private final IAction executionAction;
@@ -300,7 +309,13 @@ public class UserOperationReplayer {
 			operationSequenceView.getDisplay().syncExec(new Runnable() {
 				@Override
 				public void run() {
-					replayAndAdvanceCurrentUserOperation();
+					try {
+						replayAndAdvanceCurrentUserOperation();
+					} catch (RuntimeException e) {
+						showReplayExceptionMessage();
+						updateToolBarActions(); //Before re-throwing the exception, restore the tool bar.
+						throw e;
+					}
 				}
 			});
 		}
