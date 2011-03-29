@@ -133,7 +133,7 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
          id="edu.illinois.codingspectator.jdt.helios.patch"
          version="0.0.0"
          optional="true"/>
-
+<!--
    <includes
          id="edu.illinois.codingspectator.jdt.heliosSR1.patch"
          version="0.0.0"
@@ -143,12 +143,12 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
          id="edu.illinois.codingspectator.jdt.heliosSR2.patch"
          version="0.0.0"
          optional="true"/>
-
+-->
    <includes
          id="edu.illinois.codingspectator.platform.helios.patch"
          version="0.0.0"
          optional="true"/>
-
+<!--
    <includes
          id="edu.illinois.codingspectator.platform.heliosSR1.patch"
          version="0.0.0"
@@ -158,16 +158,16 @@ the Mozilla Public License and is available at http://saxon.sourceforge.net/.
          id="edu.illinois.codingspectator.platform.heliosSR2.patch"
          version="0.0.0"
          optional="true"/>
-
+-->
    <includes
          id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
          version="0.0.0"
          optional="true"/>
-
+<!--
    <includes
          id="edu.illinois.codingspectator.epp.usagedata.feature.heliosSR2.patch"
          version="0.0.0"
          optional="true"/>
-
+-->
 
 </feature>
