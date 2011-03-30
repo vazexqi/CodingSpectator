@@ -1,4 +1,4 @@
-#!/usr/bin/ruby1.9.1
+#!/usr/bin/env ruby
 #This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
 require 'tmpdir'
