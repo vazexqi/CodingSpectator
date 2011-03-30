@@ -1,7 +1,7 @@
+<?xml version="1.0"?>
 <!-- Nick Chen wrote this script based on the script posted at
 http://www.eclipse.org/newsportal/article.php?id=6375&group=eclipse.technology.equinox#6375
 -->
-<?xml version="1.0"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/TR/xhtml1/strict" version="1.0">
 	<xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 	
