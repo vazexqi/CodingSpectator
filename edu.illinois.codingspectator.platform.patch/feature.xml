@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
-      label="Patch for Usage Data Collector"
+      id="edu.illinois.codingspectator.platform.patch"
+      label="Patch for Platform"
       version="1.0.0.qualifier"
       provider-name="University of Illinois">
 
    <description>
-      Patch for Usage Data Collector
+      Patch for Platform
    </description>
 
    <copyright>
@@ -108,25 +108,32 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <requires>
-      <import feature="org.eclipse.epp.usagedata.feature" version="1.3.0.R201005261100" patch="true"/>
+      <import feature="org.eclipse.platform" version="3.6.0.v20100602-9gF78GpqFt6trOGhL60z0oEx3fz-JKNwxPY" patch="true"/>
    </requires>
 
    <plugin
-         id="org.eclipse.epp.usagedata.gathering"
+         id="org.eclipse.ltk.core.refactoring"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.epp.usagedata.recording"
+         id="org.eclipse.ltk.ui.refactoring"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.epp.usagedata.ui"
+         id="org.eclipse.ui.editors"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.compare"
          download-size="0"
          install-size="0"
          version="0.0.0"

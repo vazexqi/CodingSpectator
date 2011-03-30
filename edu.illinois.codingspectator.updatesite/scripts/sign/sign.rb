@@ -1,4 +1,5 @@
 #!/usr/bin/ruby1.9.1
+#This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
 def sign(jar)
   `jarsigner -keystore #{$keystore} -storepass #{$password} -keypass #{$password} -signedjar #{signedCopy(jar)} #{jar} CodingSpectatorAlias`
