@@ -13,6 +13,8 @@ public class Messages extends NLS {
 
 	public static String AuthenticationPrompter_FailureMessage;
 
+	public static String PrefsFacade_ForcedAutomaticUpdateHasBeenSetKey;
+
 	public static String PrefsFacade_LastUploadTimeKey;
 
 	public static String SecureStorage_PasswordKey;
