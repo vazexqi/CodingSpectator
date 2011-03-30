@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby1.9.1
 
 def sign(jar)
   `jarsigner -keystore #{$keystore} -storepass #{$password} -keypass #{$password} -signedjar #{signedCopy(jar)} #{jar} CodingSpectatorAlias`
