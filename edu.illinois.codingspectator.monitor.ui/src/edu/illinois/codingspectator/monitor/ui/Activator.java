@@ -57,11 +57,8 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	private void enableAutomaticCheckForUpdatesPreference() {
 		if (forcedAutoUpdatePrefHasNeverBeenSet()) {
-			final IAgentLocation agentLocation= AutomaticUpdatePlugin.getDefault().getAgentLocation();
-			if (agentLocation == null)
-				return;
-			Preferences pref= new ProfileScope(agentLocation, IProfileRegistry.SELF).getNode(AutomaticUpdatePlugin.PLUGIN_ID);
-			pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, true);
+			AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, true);
+			AutomaticUpdatePlugin.getDefault().savePreferences();
 			setForcedAutoUpdatePref();
 		}
 	}
