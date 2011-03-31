@@ -8,22 +8,29 @@ import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
- * This tests exercises the MoveSubCuElementsPolicy processor. It cancels moving one class inside
- * another class.
+ * This tests exercises the MoveImportDeclarationsPolicy processor. It cancels the refactoring to
+ * move multiple import statements from one source file to another.
  * 
  * @author Balaji Ambresh Rajkumar
  */
-public class T24 extends RefactoringTest {
+public class T25 extends RefactoringTest {
 
 	@Override
 	protected String getTestFileName() {
-		return "MoveCuTestFile";
+		return "MoveImportsTestFile";
 	}
 
 	@Override
-	protected void doExecuteRefactoring() {
-		final String selectedMember= "E";
-		bot.selectElementToRefactor(getTestFileFullName(), 13, 6, selectedMember.length());
+	protected void doExecuteRefactoring() throws Exception {
+
+		final String destinationForImports= "DestinationFile";
+		bot.createANewJavaClass(getProjectName(), destinationForImports);
+		bot.sleep();
+		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName());
+		bot.getBot().menu("Navigate").menu("Open").click();
+		final String selection= "import java.util.ArrayList;\n" +
+										"import java.util.Queue;";
+		bot.selectElementToRefactor(getTestFileFullName(), 5, 0, selection.length());
 		bot.invokeRefactoringFromMenu("Move...");
 		bot.activateShellWithName("Textual Move");
 		bot.getCurrentTree().expandNode(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName());
