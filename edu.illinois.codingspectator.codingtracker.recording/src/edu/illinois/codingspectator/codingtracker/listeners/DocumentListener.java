@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.codingtracker.listeners;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
@@ -21,9 +22,11 @@ import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 @SuppressWarnings("restriction")
 public class DocumentListener extends BasicListener implements IDocumentListener {
 
-	private static final String ERROR_REPLACED_TEXT= ",,,,,";
+	private static final String ERROR_TEXT= ",,,,,";
 
 	private String replacedText= "";
+
+	private String oldDocumentText= "";
 
 	private DocumentEvent currentEvent= null;
 
@@ -32,7 +35,9 @@ public class DocumentListener extends BasicListener implements IDocumentListener
 //		if (!isRefactoring) {
 		currentEvent= event;
 		try {
-			replacedText= event.getDocument().get(event.getOffset(), event.getLength());
+			IDocument document= event.getDocument();
+			replacedText= document.get(event.getOffset(), event.getLength());
+			oldDocumentText= document.get();
 		} catch (BadLocationException e) {
 			handleException(e, event, Messages.Recorder_BadDocumentLocation);
 		}
@@ -53,7 +58,7 @@ public class DocumentListener extends BasicListener implements IDocumentListener
 				dirtyConflictEditors.add(compareEditor);
 				operationRecorder.recordConflictEditorChangedText(event, replacedText, EditorHelper.getConflictEditorID(compareEditor), isUndoing, isRedoing);
 			} else {
-				operationRecorder.recordChangedText(event, replacedText, currentFile, isUndoing, isRedoing);
+				operationRecorder.recordChangedText(event, replacedText, oldDocumentText, currentFile, isUndoing, isRedoing);
 			}
 		}
 //		}
@@ -61,14 +66,14 @@ public class DocumentListener extends BasicListener implements IDocumentListener
 
 	/**
 	 * File is considered to be refreshed when the corresponding document is replaced (which is when
-	 * replacedFile != null), the file is not known and the file's content coincides with the
-	 * current document text and the replacing document text.
+	 * replacedFile != null) and the file's content coincides with the current document text and the
+	 * replacing document text.
 	 * 
 	 * @param documentEvent
 	 * @return
 	 */
 	private boolean isFileRefreshed(DocumentEvent documentEvent) {
-		if (replacedFile != null && !knownfilesRecorder.isFileKnown(replacedFile)) {
+		if (replacedFile != null) {
 			String currentDocumentText= documentEvent.getDocument().get();
 			return currentDocumentText.equals(FileHelper.readFileContent(replacedFile)) && currentDocumentText.equals(documentEvent.getText());
 		}
@@ -77,7 +82,8 @@ public class DocumentListener extends BasicListener implements IDocumentListener
 
 	private void handleException(Exception ex, DocumentEvent event, String message) {
 		Debugger.logExceptionToErrorLog(ex, message + ": offset=" + event.getOffset() + ", length=" + event.getLength());
-		replacedText= ERROR_REPLACED_TEXT;
+		replacedText= ERROR_TEXT;
+		oldDocumentText= ERROR_TEXT;
 	}
 
 }

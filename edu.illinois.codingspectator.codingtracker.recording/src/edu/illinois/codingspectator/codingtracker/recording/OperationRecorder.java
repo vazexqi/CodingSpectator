@@ -23,6 +23,7 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Ope
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
@@ -84,17 +85,26 @@ public class OperationRecorder {
 	}
 
 	public void recordRefreshedFile(IFile refreshedFile, String replacedText) {
-		knownfilesRecorder.addKnownfile(refreshedFile);
-		knownfilesRecorder.recordKnownfiles();
-		TextRecorder.record(new RefreshedFileOperation(refreshedFile, replacedText));
+		boolean isFileKnown= knownfilesRecorder.isFileKnown(refreshedFile);
+		if (!isFileKnown) {
+			ensureFileIsKnown(refreshedFile, false);
+		}
+		TextRecorder.record(new RefreshedFileOperation(refreshedFile, replacedText, isFileKnown));
 	}
 
-	public void recordChangedText(DocumentEvent documentEvent, String replacedText, IFile editedFile, boolean isUndoing, boolean isRedoing) {
-		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
-			lastEditedFile= editedFile;
-			ensureFileIsKnown(lastEditedFile);
-			recordEditedFile();
+	public void recordChangedText(DocumentEvent documentEvent, String replacedText, String oldDocumentText, IFile editedFile,
+									boolean isUndoing, boolean isRedoing) {
+		if (!FileHelper.isFileBufferSynchronized(editedFile)) {
+			if (!editedFile.equals(lastEditedFile)) {
+				recordEditedUnsynchronizedFile(editedFile, oldDocumentText);
+			}
+		} else {
+			ensureFileIsKnown(editedFile, true);
+			if (!editedFile.equals(lastEditedFile)) {
+				recordEditedFile(editedFile);
+			}
 		}
+		lastEditedFile= editedFile;
 		Debugger.debugDocumentEvent(documentEvent, replacedText);
 		TextRecorder.record(getTextChangeOperation(documentEvent, replacedText, isUndoing, isRedoing));
 	}
@@ -123,11 +133,16 @@ public class OperationRecorder {
 		TextRecorder.record(conflictEditorTextChangeOperation);
 	}
 
-	private void recordEditedFile() {
-		TextRecorder.record(new EditedFileOperation(lastEditedFile));
+	private void recordEditedUnsynchronizedFile(IFile editedFile, String editorContent) {
+		TextRecorder.record(new EditedUnsychronizedFileOperation(editedFile, editorContent));
+	}
+
+	private void recordEditedFile(IFile editedFile) {
+		TextRecorder.record(new EditedFileOperation(editedFile));
 	}
 
 	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
+		ensureFileIsKnown(editedFile, true);
 		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
 	}
 
@@ -141,12 +156,16 @@ public class OperationRecorder {
 			}
 			TextRecorder.record(fileOperation);
 		}
+		if (!isRefactoring) {
+			ensureFilesAreKnown(savedFiles, false);
+		}
 	}
 
-	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs) {
+	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs, Set<IFile> savedFiles) {
 		for (String editorID : savedConflictEditorIDs) {
 			TextRecorder.record(new SavedConflictEditorOperation(editorID));
 		}
+		ensureFilesAreKnown(savedFiles, false);
 	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
@@ -259,14 +278,14 @@ public class OperationRecorder {
 		}
 	}
 
-	private void ensureFileIsKnown(IFile file) {
+	private void ensureFileIsKnown(IFile file, boolean snapshotIfWasNotKnown) {
 		//TODO: Is creating a new HashSet for a single file too expensive?
 		Set<IFile> files= new HashSet<IFile>(1);
 		files.add(file);
-		ensureFilesAreKnown(files);
+		ensureFilesAreKnown(files, snapshotIfWasNotKnown);
 	}
 
-	public void ensureFilesAreKnown(Set<IFile> files) {
+	public void ensureFilesAreKnown(Set<IFile> files, boolean snapshotIfWasNotKnown) {
 		boolean hasChanged= false;
 		for (IFile file : files) {
 			//TODO: Is it possible to have a known file, whose CVS/Entries is not known? If not, merge the following two if statements.
@@ -279,7 +298,7 @@ public class OperationRecorder {
 				knownfilesRecorder.addKnownfile(file);
 				hasChanged= true;
 				//save the content of a previously unknown file
-				if (file.exists()) { //Actually, should always exist here
+				if (snapshotIfWasNotKnown && file.exists()) { //Actually, should always exist here
 					TextRecorder.record(new NewFileOperation(file));
 				}
 			}

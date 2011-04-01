@@ -4,30 +4,23 @@
 package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public abstract class FileOperation extends UserOperation {
 
 	private static final String FILE_PATH_SEPARATOR= "/";
@@ -86,44 +79,11 @@ public abstract class FileOperation extends UserOperation {
 		return true;
 	}
 
-	protected ITextEditor openEditor() throws CoreException {
-		ITextEditor fileEditor= getExistingEditor();
-		if (fileEditor != null) {
-			activateEditor(fileEditor);
-		} else {
-			fileEditor= createEditor();
-		}
-		return fileEditor;
-	}
-
-	protected void activateEditor(ITextEditor editor) {
-		JavaPlugin.getActivePage().activate(editor);
-	}
-
-	/**
-	 * Has a side effect of bringing to top the newly created editor.
-	 * 
-	 * @return
-	 * @throws JavaModelException
-	 * @throws PartInitException
-	 */
-	protected ITextEditor createEditor() throws JavaModelException, PartInitException {
-		IFile file= (IFile)ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
-		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
-	}
-
-	protected ITextEditor getExistingEditor() throws PartInitException {
-		for (IEditorReference editorReference : JavaPlugin.getActivePage().getEditorReferences()) {
-			IEditorInput editorInput= editorReference.getEditorInput();
-			if (editorInput instanceof FileEditorInput && ((FileEditorInput)editorInput).getPath().toPortableString().endsWith(filePath)) {
-				return (ITextEditor)editorReference.getEditor(true);
-			}
-		}
-		return null;
-	}
-
-	protected IDocument getEditedDocument(ITextEditor editor) {
-		return editor.getDocumentProvider().getDocument(editor.getEditorInput());
+	protected void createCompilationUnit(String content) throws CoreException {
+		IJavaProject javaProject= JavaProjectsUpkeeper.findOrCreateJavaProject(projectName);
+		IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
+		IPackageFragment packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
+		packageFragment.createCompilationUnit(fileName, content, true, null);
 	}
 
 	@Override

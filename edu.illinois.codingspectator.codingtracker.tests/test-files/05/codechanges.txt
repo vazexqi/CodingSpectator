@@ -30,7 +30,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element1=" + myStringList.get(0));
 	}
 	
-}#1301266270062#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266286468#tSystem.out.println("Element2=" + myStringList.get(0));##347#54#1301266286468#h#System.out.println("Element2=" + myStringList.get(0));#347#0#1301266287562#t2#1#374#1#1301266298500#t#0#375#0#1301266298578#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266315671#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
+}#0#1301266270062#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266286468#tSystem.out.println("Element2=" + myStringList.get(0));##347#54#1301266286468#h#System.out.println("Element2=" + myStringList.get(0));#347#0#1301266287562#t2#1#374#1#1301266298500#t#0#375#0#1301266298578#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266315671#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element10=" + myStringList.get(0));
 	}
 	
-}#1301266315703#tSystem.out.println("Element3=" + myStringList.get(0));##347#54#1301266341984#h#System.out.println("Element3=" + myStringList.get(0));#347#0#1301266343390#hpackage edu.illinois.testt;
+}#0#1301266315703#tSystem.out.println("Element3=" + myStringList.get(0));##347#54#1301266341984#h#System.out.println("Element3=" + myStringList.get(0));#347#0#1301266343390#hpackage edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -222,7 +222,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element3=" + myStringList.get(0));
 	}
 	
-}#1301266476687#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266489578#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
+}#0#1301266476687#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266489578#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -254,7 +254,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element4=" + myStringList.get(0));
 	}
 	
-}#1301266489609#tSystem.out.println("Element5=" + myStringList.get(0));##347#54#1301266496312#h#System.out.println("Element5=" + myStringList.get(0));#347#0#1301266497218#hpackage edu.illinois.testt;
+}#0#1301266489609#tSystem.out.println("Element5=" + myStringList.get(0));##347#54#1301266496312#h#System.out.println("Element5=" + myStringList.get(0));#347#0#1301266497218#hpackage edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -318,7 +318,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element4=" + myStringList.get(0));
 	}
 	
-}#1301266534062#tSystem.out.println("Element6=" + myStringList.get(0));##347#54#1301266537218#h#System.out.println("Element6=" + myStringList.get(0));#347#0#1301266537734#t#0#375#0#1301266559890#t#0#376#0#1301266560250#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266576468#tt600#t#373#4#1301266600828#t#8#374#0#1301266602156#t#8#375#0#1301266602406#t#8#376#0#1301266602937#c/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266628781#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266641984#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266641984#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
+}#0#1301266534062#tSystem.out.println("Element6=" + myStringList.get(0));##347#54#1301266537218#h#System.out.println("Element6=" + myStringList.get(0));#347#0#1301266537734#t#0#375#0#1301266559890#t#0#376#0#1301266560250#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266576468#tt600#t#373#4#1301266600828#t#8#374#0#1301266602156#t#8#375#0#1301266602406#t#8#376#0#1301266602937#c/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266628781#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266641984#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266641984#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -334,7 +334,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element7=" + myStringList.get(0));
 	}
 	
-}##1301266642265#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266695843#t7=#8#374#2#1301266695843#t#8#375#0#1301266696015#t#8#376#0#1301266696140#t#=#377#0#1301266696328#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266727406#t888=#9#374#4#1301266895328#t#=#375#0#1301266895593#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266903781#t9#9#374#1#1301267060046#t#9#375#0#1301267060265#t#9#376#0#1301267060687#t999#8#374#3#1301267086609#t#8#375#0#1301267086796#t#8#376#0#1301267086968#t		System.out.println("Element888=" + myStringList.get(0));#		System.out.println("Element888=" + myStringList.get(0));#345#58#1301267125562#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267131750#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267300703#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
+}##0#1301266642265#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266695843#t7=#8#374#2#1301266695843#t#8#375#0#1301266696015#t#8#376#0#1301266696140#t#=#377#0#1301266696328#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266727406#t888=#9#374#4#1301266895328#t#=#375#0#1301266895593#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301266903781#t9#9#374#1#1301267060046#t#9#375#0#1301267060265#t#9#376#0#1301267060687#t999#8#374#3#1301267086609#t#8#375#0#1301267086796#t#8#376#0#1301267086968#t		System.out.println("Element888=" + myStringList.get(0));#		System.out.println("Element888=" + myStringList.get(0));#345#58#1301267125562#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267131750#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267300703#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -366,7 +366,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element888=" + myStringList.get(0));
 	}
 	
-}#1301267301015#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267300703#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
+}#0#1301267301015#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267300703#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
 
 public class DerivedClass extends BaseClassRenamed5 {
 
@@ -386,7 +386,7 @@ public class DerivedClass extends BaseClassRenamed5 {
 
 
 }
-#1301267301031#t		System.out.println("Element999=" + myStringList.get(0));#		System.out.println("Element999=" + myStringList.get(0));#345#58#1301267318453#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267320890#e/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267326828#t	protected void method4() {#	protected void method4() {#88#27#1301267326828#s/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267329140#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267515578#t9##376#1#1301267515578#t9##375#1#1301267515843#t9##374#1#1301267516125#t#1#374#0#1301267518296#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267538046#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
+#0#1301267301031#t		System.out.println("Element999=" + myStringList.get(0));#		System.out.println("Element999=" + myStringList.get(0));#345#58#1301267318453#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267320890#e/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267326828#t	protected void method4() {#	protected void method4() {#88#27#1301267326828#s/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267329140#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267515578#t9##376#1#1301267515578#t9##375#1#1301267515843#t9##374#1#1301267516125#t#1#374#0#1301267518296#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267538046#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
 
 public class DerivedClass extends BaseClassRenamed5 {
 
@@ -406,7 +406,7 @@ public class DerivedClass extends BaseClassRenamed5 {
 
 
 }
-#1301267538359#t#1#375#0#1301267545609#t#1#376#0#1301267545796#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267559656#e/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267563265#tmethod5() {#method5() {#104#11#1301267563265#s/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267564468#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267878421#t1##376#1#1301267878421#t1##375#1#1301267878593#t1##374#1#1301267878828#t#2#374#0#1301267879250#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267879687#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267904921#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
+#0#1301267538359#t#1#375#0#1301267545609#t#1#376#0#1301267545796#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267559656#e/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267563265#tmethod5() {#method5() {#104#11#1301267563265#s/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267564468#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267878421#t1##376#1#1301267878421#t1##375#1#1301267878593#t1##374#1#1301267878828#t#2#374#0#1301267879250#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267879687#x/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267904921#G/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#package edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -438,7 +438,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element2=" + myStringList.get(0));
 	}
 	
-}#1301267904937#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267909062#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
+}#0#1301267904937#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267909062#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
 
 public class DerivedClass extends BaseClassRenamed5 {
 
@@ -458,7 +458,7 @@ public class DerivedClass extends BaseClassRenamed5 {
 
 
 }
-#1301267909375#t#3#375#0#1301267915062#t		System.out.println("Element33=" + myStringList.get(0));#		System.out.println("Element33=" + myStringList.get(0));#345#57#1301267930015#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267931390#e/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267941218#tmethod6() {##104#11#1301267941218#h#method6() {#104#0#1301267941859#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267994734#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
+#0#1301267909375#t#3#375#0#1301267915062#t		System.out.println("Element33=" + myStringList.get(0));#		System.out.println("Element33=" + myStringList.get(0));#345#57#1301267930015#s/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301267931390#e/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267941218#tmethod6() {##104#11#1301267941218#h#method6() {#104#0#1301267941859#x/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#1301267994734#G/edu.illinois.test/src2/edu/illinois/testt/DerivedClass.java#package edu.illinois.testt;
 
 public class DerivedClass extends BaseClassRenamed5 {
 
@@ -478,7 +478,7 @@ public class DerivedClass extends BaseClassRenamed5 {
 
 
 }
-#1301267994968#hpackage edu.illinois.testt;
+#0#1301267994968#hpackage edu.illinois.testt;
 
 public class DerivedClass extends BaseClassRenamed5 {
 
@@ -530,7 +530,7 @@ public class BaseClassRenamed5 {
 		System.out.println("Element4=" + myStringList.get(0));
 	}
 	
-}#1301268285437#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301268299562#hpackage edu.illinois.testt;
+}#0#1301268285437#e/edu.illinois.test/src2/edu/illinois/testt/BaseClassRenamed5.java#1301268299562#hpackage edu.illinois.testt;
 
 import java.util.LinkedList;
 import java.util.List;

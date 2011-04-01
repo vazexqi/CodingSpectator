@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
@@ -29,13 +30,16 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 
 	private String replacedText;
 
+	private boolean isCausedByConflictEditorSave;
+
 	public RefreshedFileOperation() {
 		super();
 	}
 
-	public RefreshedFileOperation(IFile refreshedFile, String replacedText) {
+	public RefreshedFileOperation(IFile refreshedFile, String replacedText, boolean isCausedByConflictEditorSave) {
 		super(refreshedFile);
 		this.replacedText= replacedText;
+		this.isCausedByConflictEditorSave= isCausedByConflictEditorSave;
 	}
 
 	@Override
@@ -52,26 +56,36 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
 		textChunk.append(replacedText);
+		textChunk.append(isCausedByConflictEditorSave ? 1 : 0);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
 		replacedText= operationLexer.getNextLexeme();
+		isCausedByConflictEditorSave= Integer.valueOf(operationLexer.getNextLexeme()) == 1 ? true : false;
 	}
 
 	@Override
 	public void replay() throws CoreException {
-		ITextEditor fileEditor= getExistingEditor();
-		if (fileEditor != null) {//If file editor exists, check the presence of the replaced text
-			IDocument editedDocument= getEditedDocument(fileEditor);
-			if (!replacedText.equals(editedDocument.get())) {
-				throw new RuntimeException("Replaced text of a refreshed file is not present in the document: " + this);
+		ITextEditor fileEditor= EditorHelper.getExistingEditor(filePath);
+		if (fileEditor != null) { //File editor exists
+			IDocument editedDocument= EditorHelper.getEditedDocument(fileEditor);
+			if (isCausedByConflictEditorSave && !fileEditor.isDirty()) {
+				//Check the presence of the new text 
+				if (!fileContent.equals(editedDocument.get())) {
+					throw new RuntimeException("New text of a refreshed file is not present in the document: " + this);
+				}
+				return; //Nothing else to do, the file was already refreshed by Eclipse
+			} else { //Check the presence of the replaced text
+				if (!replacedText.equals(editedDocument.get())) {
+					throw new RuntimeException("Replaced text of a refreshed file is not present in the document: " + this);
+				}
 			}
 		} else {//If file editor does not exist, create a file with the replaced text and open an editor for it
 			createCompilationUnit(replacedText);
-			createEditor();
-			activateEditor(currentEditor);
+			EditorHelper.createEditor(filePath);
+			EditorHelper.activateEditor(currentEditor);
 		}
 		refresh();
 	}
@@ -79,9 +93,7 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 	private void refresh() throws CoreException {
 		IPath fullFilePath= new Path(filePath);
 		IResource fileResource= FileHelper.findWorkspaceMember(fullFilePath);
-		if (fileResource == null || !fileResource.exists()) {
-			throw new RuntimeException("Unsupported replay. Refreshed file does not exist: " + this);
-		}
+		FileHelper.checkResourceExists(fileResource, "Unsupported replay. Refreshed file does not exist: " + this);
 		try {
 			FileHelper.writeFileContent(FileHelper.getFileForResource(fileResource), fileContent, false);
 		} catch (IOException e) {
@@ -98,6 +110,7 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Replaced text: " + replacedText + "\n");
+		sb.append("Is caused by conflict editor save: " + isCausedByConflictEditorSave + "\n");
 		sb.append(super.toString());
 		return sb.toString();
 	}

@@ -11,6 +11,7 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Ope
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
@@ -124,6 +125,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.FILE_EDITED_SYMBOL:
 				userOperation= new EditedFileOperation();
+				break;
+			case OperationSymbols.FILE_EDITED_UNSYNCHRONIZED_SYMBOL:
+				userOperation= new EditedUnsychronizedFileOperation();
 				break;
 			case OperationSymbols.TEXT_CHANGE_PERFORMED_SYMBOL:
 				userOperation= new PerformedTextChangeOperation();

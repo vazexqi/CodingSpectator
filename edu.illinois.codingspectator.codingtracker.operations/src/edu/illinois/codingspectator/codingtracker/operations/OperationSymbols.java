@@ -10,7 +10,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
  */
 public abstract class OperationSymbols {
 
-	//Used symbols: 26 + 9, remaining symbols: H J K L M N P Q R S T U V W X Y Z
+	//Used symbols: 26 + 10, remaining symbols: J K L M N P Q R S T U V W X Y Z
 
 	public static final char ECLIPSE_STARTED_SYMBOL= 'l';
 
@@ -51,6 +51,8 @@ public abstract class OperationSymbols {
 	public static final char FILE_NEW_SYMBOL= 'f';
 
 	public static final char FILE_EDITED_SYMBOL= 'e';
+
+	public static final char FILE_EDITED_UNSYNCHRONIZED_SYMBOL= 'H';
 
 	public static final char FILE_REFRESHED_SYMBOL= 'G';
 

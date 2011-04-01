@@ -19,6 +19,7 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  */
 public class JavaProjectsUpkeeper {
 
+	//TODO: Should be made empty on reset?
 	private static final Set<IJavaProject> javaProjects= new HashSet<IJavaProject>();
 
 	public static IJavaProject[] getAllJavaProjects() {

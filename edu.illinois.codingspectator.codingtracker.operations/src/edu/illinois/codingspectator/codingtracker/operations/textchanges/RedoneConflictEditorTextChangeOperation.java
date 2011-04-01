@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
@@ -30,6 +31,11 @@ public class RedoneConflictEditorTextChangeOperation extends ConflictEditorTextC
 	@Override
 	public String getDescription() {
 		return "Redone conflict editor text change";
+	}
+
+	@Override
+	protected void replayTextChange() throws ExecutionException {
+		getCurrentDocumentUndoManager().redo();
 	}
 
 }

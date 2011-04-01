@@ -7,16 +7,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
-import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
-import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 
@@ -51,13 +46,6 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	@Override
 	public void replay() throws CoreException {
 		createCompilationUnit(fileContent);
-	}
-
-	protected void createCompilationUnit(String content) throws CoreException {
-		IJavaProject javaProject= JavaProjectsUpkeeper.findOrCreateJavaProject(projectName);
-		IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
-		IPackageFragment packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
-		packageFragment.createCompilationUnit(fileName, content, true, null);
 	}
 
 	@Override

@@ -84,6 +84,24 @@ public class RecorderReplayerTests {
 		}
 	}
 
+	public static class ConflictEditorsRecorderReplayerTest extends RecorderReplayerTest {
+		@Override
+		protected String getTestNumber() {
+			return "06";
+		}
+
+		@Override
+		protected String[] getTestFileNames() {
+			return new String[] { "Test1.java", "Test2.java" };
+		}
+
+		@Override
+		protected String[] getGeneratedFilePaths() {
+			return new String[] { "/edu.illinois.test2/src/edu/illinois/test2/Test1.java",
+					"/edu.illinois.test2/src/edu/illinois/test2/Test2.java" };
+		}
+	}
+
 	public static class ExtractMethodRefactoringRecorderReplayerTest extends RecorderReplayerTest {
 		@Override
 		protected String getTestNumber() {

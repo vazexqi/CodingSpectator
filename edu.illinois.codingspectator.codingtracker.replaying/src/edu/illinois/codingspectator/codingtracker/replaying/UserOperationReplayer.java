@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -31,6 +32,7 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public class UserOperationReplayer {
 
 	private enum ReplayPace {
@@ -204,7 +206,7 @@ public class UserOperationReplayer {
 
 	private void replayAndAdvanceCurrentUserOperation() {
 		try {
-			if (currentEditor != null && currentEditor != FileHelper.getActivePage().getActiveEditor()) {
+			if (currentEditor != null && currentEditor != JavaPlugin.getActivePage().getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();
@@ -213,7 +215,7 @@ public class UserOperationReplayer {
 				return;
 			}
 			currentUserOperation.replay();
-			currentEditor= FileHelper.getActivePage().getActiveEditor();
+			currentEditor= JavaPlugin.getActivePage().getActiveEditor();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

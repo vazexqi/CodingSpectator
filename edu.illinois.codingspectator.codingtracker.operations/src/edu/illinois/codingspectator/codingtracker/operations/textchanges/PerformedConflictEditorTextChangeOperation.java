@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
@@ -30,6 +31,11 @@ public class PerformedConflictEditorTextChangeOperation extends ConflictEditorTe
 	@Override
 	public String getDescription() {
 		return "Performed conflict editor text change";
+	}
+
+	@Override
+	protected void replayTextChange() throws BadLocationException {
+		currentDocument.replace(offset, length, newText);
 	}
 
 }

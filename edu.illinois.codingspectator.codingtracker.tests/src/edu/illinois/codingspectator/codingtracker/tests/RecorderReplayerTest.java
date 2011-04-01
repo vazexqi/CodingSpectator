@@ -54,7 +54,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 			assertTrue(generatedUserOperationsIterator.hasNext());
 			UserOperation generatedUserOperation= generatedUserOperationsIterator.next();
 			assertTrue(predefinedUserOperation.getClass() == generatedUserOperation.getClass());
-			assertEquals(removeTimestamp(predefinedUserOperation), removeTimestamp(generatedUserOperation));
+			assertEquals(removeVolatileParts(predefinedUserOperation), removeVolatileParts(generatedUserOperation));
 		}
 		assertFalse(generatedUserOperationsIterator.hasNext()); //there should be no other generated operations
 	}
@@ -105,10 +105,16 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 		return FileHelper.getFileForResource(ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath));
 	}
 
-	private String removeTimestamp(UserOperation userOperation) {
+	private String removeVolatileParts(UserOperation userOperation) {
 		String userOperationString= userOperation.toString();
 		int timestampIndex= userOperationString.lastIndexOf("Timestamp: ");
-		return userOperationString.substring(0, timestampIndex);
+		String result= userOperationString.substring(0, timestampIndex);
+		int editorIDIndex= result.indexOf("Editor ID: ");
+		if (editorIDIndex != -1) {
+			int newLineIndex= result.indexOf("\n", editorIDIndex);
+			result= result.substring(0, editorIDIndex) + result.substring(newLineIndex);
+		}
+		return result;
 	}
 
 }

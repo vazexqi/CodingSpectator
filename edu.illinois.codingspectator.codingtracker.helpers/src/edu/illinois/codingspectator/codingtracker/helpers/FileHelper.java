@@ -18,11 +18,11 @@ import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
@@ -31,6 +31,7 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public class FileHelper {
 
 	public static String readFileContent(IResource resource) {
@@ -97,7 +98,15 @@ public class FileHelper {
 	}
 
 	public static IResource findWorkspaceMember(IPath memberPath) {
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(memberPath);
+		return getWorkspaceRoot().findMember(memberPath);
+	}
+
+	public static IResource findWorkspaceMember(String memberPath) {
+		return getWorkspaceRoot().findMember(memberPath);
+	}
+
+	private static IWorkspaceRoot getWorkspaceRoot() {
+		return ResourcesPlugin.getWorkspace().getRoot();
 	}
 
 	public static boolean isFileBufferSynchronized(IFile file) {
@@ -109,13 +118,8 @@ public class FileHelper {
 		return FileBuffers.getTextFileBufferManager().getFileBuffer(fullFilePath, LocationKind.IFILE);
 	}
 
-	/**
-	 * Should be called from an UI thread
-	 * 
-	 * @return
-	 */
 	public static void clearWorkspace() {
-		getActivePage().closeAllEditors(false);
+		JavaPlugin.getActivePage().closeAllEditors(false);
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			try {
 				JavaProjectHelper.delete(project);
@@ -123,15 +127,6 @@ public class FileHelper {
 				throw new RuntimeException("Could not delete project \"" + project.getName() + "\"", e);
 			}
 		}
-	}
-
-	/**
-	 * Should be called from an UI thread
-	 * 
-	 * @return
-	 */
-	public static IWorkbenchPage getActivePage() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 	}
 
 	public static Map<IFile, String> getEntriesVersions(IFile cvsEntriesFile, IPath relativePath) {
@@ -156,6 +151,12 @@ public class FileHelper {
 
 	public static File getFileForResource(IResource resource) {
 		return resource.getLocation().toFile();
+	}
+
+	public static void checkResourceExists(IResource resource, String errorMessage) {
+		if (resource == null || !resource.exists()) {
+			throw new RuntimeException(errorMessage);
+		}
 	}
 
 }

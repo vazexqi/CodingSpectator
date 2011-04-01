@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
@@ -35,7 +36,7 @@ public class SavedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		getExistingEditor().doSave(null);
+		EditorHelper.getExistingEditor(filePath).doSave(null);
 		//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
 		try {
 			Thread.sleep(100);

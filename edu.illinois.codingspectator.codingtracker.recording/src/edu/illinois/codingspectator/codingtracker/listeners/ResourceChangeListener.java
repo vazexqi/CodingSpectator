@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.codingtracker.listeners;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,7 +66,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	private final Set<IFile> savedJavaFiles= new HashSet<IFile>();
 
 	//Actually, should not be more than one per resourceChanged notification
-	private final Set<String> savedConflictEditorIDs= new HashSet<String>();
+	private final Map<String, IFile> savedConflictEditors= new HashMap<String, IFile>();
 
 	private final Set<IFile> externallyModifiedJavaFiles= new HashSet<IFile>();
 
@@ -106,7 +107,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		cvsEntriesAddedSet.clear();
 		cvsEntriesChangedOrRemovedSet.clear();
 		savedJavaFiles.clear();
-		savedConflictEditorIDs.clear();
+		savedConflictEditors.clear();
 		externallyModifiedJavaFiles.clear();
 		updatedJavaFiles.clear();
 		svnInitiallyCommittedJavaFiles.clear();
@@ -256,8 +257,9 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 					CompareEditor compareEditor= (CompareEditor)editor;
 					if (dirtyConflictEditors.contains(compareEditor)) {
 						dirtyConflictEditors.remove(compareEditor);
-						savedConflictEditorIDs.add(EditorHelper.getConflictEditorID(compareEditor));
-						changedJavaFiles.remove(EditorHelper.getEditedJavaFile(compareEditor));
+						IFile editedJavaFile= EditorHelper.getEditedJavaFile(compareEditor);
+						savedConflictEditors.put(EditorHelper.getConflictEditorID(compareEditor), editedJavaFile);
+						changedJavaFiles.remove(editedJavaFile);
 					}
 				}
 			}
@@ -278,7 +280,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	private void recordSets() {
 		operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
-		operationRecorder.recordSavedConflictEditors(savedConflictEditorIDs);
+		operationRecorder.recordSavedConflictEditors(savedConflictEditors.keySet(), new HashSet<IFile>(savedConflictEditors.values()));
 		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
 		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
 		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFiles, true, true);

@@ -5,9 +5,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
 
 import java.util.Date;
 
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
+import org.eclipse.ui.IEditorPart;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 
@@ -20,11 +18,7 @@ public abstract class UserOperation {
 
 	protected static boolean isRefactoring= false;
 
-	protected static IDocument currentDocument= null;
-
-	protected static AbstractDecoratedTextEditor currentEditor= null;
-
-	protected static ISourceViewer currentViewer= null;
+	protected static IEditorPart currentEditor= null;
 
 	private long timestamp;
 
