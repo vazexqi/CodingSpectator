@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.use.supertype" selection-text="package" stamp="1300969583431" status="To activate this refactoring, please select the name of a type."/>
+</session>

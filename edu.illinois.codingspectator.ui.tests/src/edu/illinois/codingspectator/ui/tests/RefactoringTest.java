@@ -10,24 +10,27 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
+ * The methods marked with @Test annotation are final because if you override them, the order in
+ * which SWTBot executes the test methods changes. To change the behavior of a SWTBot test method,
+ * override the template method called in that SWTBot test method. The names of these template
+ * methods begin with "do".
  * 
  * @author Mohsen Vakilian
  * @author nchen
+ * @author Balaji Ambresh Rajkumar
  * 
  */
-@SuppressWarnings("restriction")
 public abstract class RefactoringTest {
 
 	protected static CodingSpectatorBot bot;
 
 	private Collection<RefactoringLogChecker> refactoringLogCheckers;
 
-	public String getProjectName() {
+	protected String getProjectName() {
 		return "Prj";
 	}
 
@@ -71,7 +74,7 @@ public abstract class RefactoringTest {
 		}
 	}
 
-	protected void doExecuteRefactoring() {
+	protected void doExecuteRefactoring() throws CoreException {
 	}
 
 	protected void printMessage(String message) {
@@ -99,44 +102,44 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public void canSetupProject() throws Exception {
+	public final void setupProject() throws Exception {
 		bot.createANewJavaProject(getProjectName());
 		bot.createANewJavaClass(getProjectName(), getTestFileName());
 		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
 	@Test
-	public void refactoringLogShouldBeEmpty() throws CoreException {
+	public final void refactoringLogShouldBeEmpty() throws CoreException {
 		bot.sleep();
 		doRefactoringLogShouldBeEmpty();
 	}
 
 	@Test
-	public void shouldExecuteRefactoring() {
+	public final void shouldExecuteRefactoring() throws CoreException {
 		doExecuteRefactoring();
 	}
 
 	@Test
-	public void refactoringShouldBeLogged() throws Exception {
+	public final void refactoringShouldBeLogged() throws CoreException {
 		bot.sleep();
 		doRefactoringShouldBeLogged();
 	}
 
 	@Test
-	public void cleanRefactoringHistory() throws CoreException {
+	public final void cleanRefactoringHistory() throws CoreException {
 		doCleanRefactoringHistory();
 	}
 
 	@Test
-	public void deleteCurrentProject() throws CoreException {
+	public final void deleteCurrentProject() throws CoreException {
 		bot.deleteProject(getProjectName());
 		bot.sleep();
 		// Deleting a project is a refactoring that gets logged in .refactorings/.workspace.
 		// We need to delete the .refactoring folder after the deletion of the project,
 		// otherwise, the next test fails because it expects the refactoring history folder to be empty initially.
-		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings")).delete(EFS.NONE, null);
+		bot.deleteEclipseRefactoringLog();
+		bot.sleep();
+		doRefactoringLogShouldBeEmpty();
 		bot.sleep();
 	}
-
-
 }

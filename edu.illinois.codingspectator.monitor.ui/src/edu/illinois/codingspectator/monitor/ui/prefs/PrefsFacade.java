@@ -24,7 +24,7 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
  */
 public class PrefsFacade {
 
-	private static final String TESTING_UUID= "00000000-0000-0000-0000-000000000000";
+	private static final String TESTING_UUID= "00000000-0000-0000-0000-000000000000"; //$NON-NLS-1$
 
 	// This method of providing a thread safe singleton comes from 
 	// http://www.ibm.com/developerworks/java/library/j-dcl.html
@@ -76,6 +76,14 @@ public class PrefsFacade {
 	public synchronized String getAndSetUUIDLazily() {
 		setUUIDLazily();
 		return getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
+	}
+
+	public synchronized boolean getForcedAutoUpdatePref() {
+		return getPreferenceStore().getBoolean(Messages.PrefsFacade_ForcedAutomaticUpdateHasBeenSetKey);
+	}
+
+	public synchronized void setForcedAutoUpdatePref(boolean value) {
+		getPreferenceStore().setValue(Messages.PrefsFacade_ForcedAutomaticUpdateHasBeenSetKey, value);
 	}
 
 	public synchronized long getLastUploadTime() throws ParseException {

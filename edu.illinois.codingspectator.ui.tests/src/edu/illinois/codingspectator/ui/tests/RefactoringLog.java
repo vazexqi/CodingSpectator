@@ -77,6 +77,10 @@ public class RefactoringLog {
 		this((logType == LogType.ECLIPSE) ? RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings") : getRefactoringStorageLocation("refactorings/"
 				+ toString(logType)));
 	}
+	
+	public String getPathToRefactoringHistoryFolder() {
+		return fileStore.toURI().getPath();
+	}
 
 	public boolean exists() {
 		return fileStore.fetchInfo().exists();
