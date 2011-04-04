@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -46,6 +47,9 @@ public class StartedEclipseOperation extends UserOperation {
 
 	@Override
 	public void replay() throws CoreException {
+		isRefactoring= false;
+		//Close all editors (in case the previous Eclipse session ended abnormally, and thus close editor operations were not recorded).
+		EditorHelper.closeAllEditors();
 		//disable auto build
 		IWorkspace workspace= ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription workspaceDesription= workspace.getDescription();

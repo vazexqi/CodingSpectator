@@ -5,7 +5,6 @@ package edu.illinois.codingspectator.codingtracker.operations.files.snapshoted;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
@@ -57,7 +56,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	}
 
 	protected void checkSnapshotMatchesTheExistingFile() {
-		IResource workspaceResource= ResourcesPlugin.getWorkspace().getRoot().findMember(filePath);
+		IResource workspaceResource= FileHelper.findWorkspaceMember(filePath);
 		if (workspaceResource != null) {
 			if (!fileContent.equals(FileHelper.readFileContent(workspaceResource))) {
 				throw new RuntimeException("The snapshot file does not match the existing file: " + filePath);

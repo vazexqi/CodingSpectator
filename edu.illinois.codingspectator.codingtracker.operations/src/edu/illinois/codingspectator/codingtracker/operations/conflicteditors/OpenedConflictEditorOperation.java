@@ -8,8 +8,8 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
@@ -67,7 +67,7 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 		IResource editedFile= FileHelper.findWorkspaceMember(new Path(editedFilePath));
 		FileHelper.checkResourceExists(editedFile, "Conflict editor file does not exist: " + this);
 		CompareUI.openCompareEditor(new DocumentCompareEditorInput(editedFile, initialContent));
-		CompareEditorsUpkeeper.addEditor(editorID, (CompareEditor)JavaPlugin.getActivePage().getActiveEditor());
+		CompareEditorsUpkeeper.addEditor(editorID, (CompareEditor)EditorHelper.getActiveEditor());
 	}
 
 	@Override

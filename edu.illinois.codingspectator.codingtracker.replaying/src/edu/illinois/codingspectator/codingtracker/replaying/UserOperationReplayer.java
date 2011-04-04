@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -22,6 +21,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
@@ -32,7 +32,6 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public class UserOperationReplayer {
 
 	private enum ReplayPace {
@@ -206,7 +205,7 @@ public class UserOperationReplayer {
 
 	private void replayAndAdvanceCurrentUserOperation() {
 		try {
-			if (currentEditor != null && currentEditor != JavaPlugin.getActivePage().getActiveEditor()) {
+			if (currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();
@@ -215,7 +214,7 @@ public class UserOperationReplayer {
 				return;
 			}
 			currentUserOperation.replay();
-			currentEditor= JavaPlugin.getActivePage().getActiveEditor();
+			currentEditor= EditorHelper.getActiveEditor();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
@@ -31,7 +30,6 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public class FileHelper {
 
 	public static String readFileContent(IResource resource) {
@@ -119,7 +117,7 @@ public class FileHelper {
 	}
 
 	public static void clearWorkspace() {
-		JavaPlugin.getActivePage().closeAllEditors(false);
+		EditorHelper.closeAllEditors();
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			try {
 				JavaProjectHelper.delete(project);

@@ -135,6 +135,14 @@ public class EditorHelper {
 		JavaPlugin.getActivePage().activate(editor);
 	}
 
+	public static IEditorPart getActiveEditor() {
+		return JavaPlugin.getActivePage().getActiveEditor();
+	}
+
+	public static void closeAllEditors() {
+		JavaPlugin.getActivePage().closeAllEditors(false);
+	}
+
 	/**
 	 * Has a side effect of bringing to top the newly created editor.
 	 * 
