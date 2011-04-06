@@ -21,7 +21,7 @@ public class T28 extends RefactoringTest {
 	}
 
 	@Override
-	protected void doExecuteRefactoring() throws Exception {
+	protected void doExecuteRefactoring() {
 
 		final String destinationForImports= "DestinationFile";
 		bot.createANewJavaClass(getProjectName(), destinationForImports);
