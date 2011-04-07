@@ -15,6 +15,8 @@ import org.eclipse.core.commands.operations.OperationHistoryFactory;
 import org.eclipse.core.commands.operations.TriggeredOperations;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
+import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter;
 import org.eclipse.ui.IStartup;
 
@@ -30,8 +32,10 @@ import org.eclipse.ui.IStartup;
  * 
  */
 @SuppressWarnings("restriction")
-public class RefactoringProblemsListener implements IStartup, IOperationHistoryListener {
+public class RefactoringProblemsListener implements IStartup, IOperationHistoryListener, IRefactoringExecutionListener {
 
+	ProblemFinder problemFinder;
+	
 	@Override
 	public void earlyStartup() {
 		OperationHistoryFactory.getOperationHistory().addOperationHistoryListener(new RefactoringProblemsListener());
@@ -39,10 +43,9 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 
 	@Override
 	public void historyNotification(OperationHistoryEvent event) {
-		int eventType= event.getEventType();
-		if (isAboutEvent(eventType)) {
+		if (isAboutEvent(event)) {
 			Set<CompilationUnit> affectedCompilationUnits= getAffectedCompilationUnits(event);
-			ProblemFinder problemFinder= new ProblemFinder(affectedCompilationUnits);
+			problemFinder= new ProblemFinder(affectedCompilationUnits);
 			try {
 				problemFinder.computeProblems();
 			} catch (JavaModelException e) {
@@ -71,9 +74,28 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		return affectedCompilationUnits;
 	}
 
-	private boolean isAboutEvent(int eventType) {
+	private boolean isAboutEvent(OperationHistoryEvent event) {
+		int eventType= event.getEventType();
+
 		return eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
 				eventType == OperationHistoryEvent.ABOUT_TO_UNDO;
+	}
+
+	@Override
+	public void executionNotification(RefactoringExecutionEvent event) {
+		if (isRefactoringPerformedEvent(event)) {
+			try {
+				problemFinder.computeProblems();
+			} catch (JavaModelException e) {
+				//FIXME
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private boolean isRefactoringPerformedEvent(RefactoringExecutionEvent event) {
+		int eventType= event.getEventType();
+		return (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE || eventType == RefactoringExecutionEvent.UNDONE);
 	}
 
 }
