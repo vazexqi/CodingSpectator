@@ -6,10 +6,11 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.refactoringproblems.logger.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.jdt.ui;bundle-version="3.6.0",
- org.eclipse.core.resources;bundle-version="3.6.1",
- org.eclipse.ltk.core.refactoring;bundle-version="3.5.100",
- org.eclipse.ltk.ui.refactoring;bundle-version="3.5.0"
+ org.eclipse.jdt.ui,
+ org.eclipse.core.resources,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.ui.refactoring,
+ org.eclipse.jdt.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: %Bundle-Vendor

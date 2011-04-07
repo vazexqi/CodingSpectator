@@ -4,68 +4,76 @@
 package edu.illinois.codingspectator.refactoringproblems.logger;
 
 
-import org.eclipse.core.internal.events.ResourceChangeEvent;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IMarkerDelta;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jdt.internal.ui.viewsupport.IProblemChangedListener;
-import org.eclipse.ltk.core.refactoring.RefactoringCore;
-import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
-import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.core.commands.operations.IOperationHistoryListener;
+import org.eclipse.core.commands.operations.IUndoableOperation;
+import org.eclipse.core.commands.operations.OperationHistoryEvent;
+import org.eclipse.core.commands.operations.OperationHistoryFactory;
+import org.eclipse.core.commands.operations.TriggeredOperations;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter;
 import org.eclipse.ui.IStartup;
 
 /**
  * 
+ * This class is based on
+ * edu.illinois.codingspectator.codingtracker.listeners.OperationHistoryListener
+ * 
  * @author Balaji Ambresh Rajkumar
  * @author Mohsen Vakilian
  * @author nchen
+ * @author Stas Negara
  * 
  */
 @SuppressWarnings("restriction")
-public class RefactoringProblemsListener implements IStartup, IProblemChangedListener, IResourceChangeListener, IRefactoringExecutionListener {
-
-
-	private RefactoringProblemsLogger logger;
-
-	boolean refactoringInSession;
-
-	public RefactoringProblemsListener() {
-		logger= new RefactoringProblemsLogger();
-	}
+public class RefactoringProblemsListener implements IStartup, IOperationHistoryListener {
 
 	@Override
 	public void earlyStartup() {
-//		JavaPlugin.getDefault().getProblemMarkerManager().addListener(this);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_BUILD);
-		RefactoringCore.getHistoryService().addExecutionListener(this);
+		OperationHistoryFactory.getOperationHistory().addOperationHistoryListener(new RefactoringProblemsListener());
 	}
 
 	@Override
-	public void problemsChanged(IResource[] changedResources, boolean isMarkerChange) {
-//		TODO: Handle the case where "Build Automatically" is turned off
-//		for (IResource resource : changedResources) {
-//			System.err.println(resource);
-//		}
-	}
-
-	@Override
-	public void resourceChanged(IResourceChangeEvent event) {
-		//TODO: Do we need a time out in case the refactoring crashes and never calls RefactoringExecutionEvent.PERFORMED 
-		if (refactoringInSession) {
-			ResourceChangeEvent cEvent= (ResourceChangeEvent)event;
-			IMarkerDelta[] findMarkerDeltas= cEvent.findMarkerDeltas(IMarker.PROBLEM, true);
-			logger.logRefactoringProblems(findMarkerDeltas);
-			refactoringInSession= false;
+	public void historyNotification(OperationHistoryEvent event) {
+		int eventType= event.getEventType();
+		if (isAboutEvent(eventType)) {
+			Set<CompilationUnit> affectedCompilationUnits= getAffectedCompilationUnits(event);
+			ProblemFinder problemFinder= new ProblemFinder(affectedCompilationUnits);
+			try {
+				problemFinder.computeProblems();
+			} catch (JavaModelException e) {
+				//FIXME
+				e.printStackTrace();
+			}
 		}
 	}
 
-	@Override
-	public void executionNotification(RefactoringExecutionEvent event) {
-		//TODO: should we listen to ABOUT_TO_UNDO and ABOUT_TO_REDO
-		if (event.getEventType() == RefactoringExecutionEvent.ABOUT_TO_PERFORM)
-			refactoringInSession= true;
+	private Set<CompilationUnit> getAffectedCompilationUnits(OperationHistoryEvent event) {
+		Set<CompilationUnit> affectedCompilationUnits= new HashSet<CompilationUnit>();
+		IUndoableOperation undoableOperation= event.getOperation();
+		if (undoableOperation instanceof TriggeredOperations) {
+			IUndoableOperation triggeringOperation= ((TriggeredOperations)undoableOperation).getTriggeringOperation();
+			if (triggeringOperation instanceof UndoableOperation2ChangeAdapter) {
+				Object[] affectedObjects= ((UndoableOperation2ChangeAdapter)triggeringOperation).getAllAffectedObjects();
+				if (affectedObjects != null) {
+					for (Object affectedObject : affectedObjects) {
+						if (affectedObject instanceof CompilationUnit) {
+							affectedCompilationUnits.add((CompilationUnit)affectedObject);
+						}
+					}
+				}
+			}
+		}
+		return affectedCompilationUnits;
 	}
+
+	private boolean isAboutEvent(int eventType) {
+		return eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
+				eventType == OperationHistoryEvent.ABOUT_TO_UNDO;
+	}
+
 }

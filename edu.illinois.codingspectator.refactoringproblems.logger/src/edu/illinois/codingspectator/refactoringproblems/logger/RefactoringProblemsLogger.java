@@ -19,17 +19,17 @@ import org.eclipse.core.resources.IMarkerDelta;
  * 
  */
 public class RefactoringProblemsLogger {
-	public void logRefactoringProblems(IMarkerDelta[] deltas) {
-		//TODO: Do we want to use XMLEncoder or write out own format? The format for XMLEncoder is quite verbose
-		//TODO: Make use of SafeRecorder to combine several XML files together
-		for (IMarkerDelta delta : deltas) {
-			XMLEncoder encoder;
-			ByteArrayOutputStream stream= new ByteArrayOutputStream();
-			encoder= new XMLEncoder(stream);
-			RefactoringProblem problem= new RefactoringProblem(delta);
-			encoder.writeObject(problem);
-			encoder.close();
-			System.err.println(stream.toString());
-		}
-	}
+//	public void logRefactoringProblems(IMarkerDelta[] deltas) {
+//		//TODO: Do we want to use XMLEncoder or write out own format? The format for XMLEncoder is quite verbose
+//		//TODO: Make use of SafeRecorder to combine several XML files together
+//		for (IMarkerDelta delta : deltas) {
+//			XMLEncoder encoder;
+//			ByteArrayOutputStream stream= new ByteArrayOutputStream();
+//			encoder= new XMLEncoder(stream);
+//			RefactoringProblem problem= new RefactoringProblem(delta);
+//			encoder.writeObject(problem);
+//			encoder.close();
+//			System.err.println(stream.toString());
+//		}
+//	}
 }
