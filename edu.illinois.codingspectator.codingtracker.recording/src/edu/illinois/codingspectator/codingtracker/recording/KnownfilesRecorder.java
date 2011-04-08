@@ -6,8 +6,10 @@ package edu.illinois.codingspectator.codingtracker.recording;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -100,18 +102,18 @@ public class KnownfilesRecorder {
 
 	private synchronized Properties readPropertiesFromFile(File file) {
 		Properties properties= new Properties();
-		FileInputStream fileInputStream= null;
+		InputStreamReader inputStreamReader= null;
 		try {
 			if (file.exists()) {
-				fileInputStream= new FileInputStream(file);
-				properties.load(fileInputStream);
+				inputStreamReader= new InputStreamReader(new FileInputStream(file), FileHelper.UNIVERSAL_CHARSET);
+				properties.load(inputStreamReader);
 			}
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_ReadPropertiesFromFileException + file.getName());
 		} finally {
-			if (fileInputStream != null) {
+			if (inputStreamReader != null) {
 				try {
-					fileInputStream.close();
+					inputStreamReader.close();
 				} catch (IOException e) {
 					//do nothing
 				}
@@ -124,7 +126,7 @@ public class KnownfilesRecorder {
 		BufferedWriter bufferedWriter= null;
 		try {
 			FileHelper.ensureFileExists(file);
-			bufferedWriter= new BufferedWriter(new FileWriter(file, false));
+			bufferedWriter= new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), FileHelper.UNIVERSAL_CHARSET));
 			properties.store(bufferedWriter, null);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_WritePropertiesToFileException + file.getName());
@@ -154,22 +156,11 @@ public class KnownfilesRecorder {
 	public synchronized void addCVSEntriesFile(IFile cvsEntriesSourceFile) {
 		addKnownfile(cvsEntriesSourceFile);
 		File cvsEntriesDestinationFile= getTrackedCVSEntriesFile(cvsEntriesSourceFile);
-		cvsEntriesDestinationFile.getParentFile().mkdirs();
-		BufferedWriter cvsEntriesDestinationFileWriter= null;
 		try {
-			cvsEntriesDestinationFileWriter= new BufferedWriter(new FileWriter(cvsEntriesDestinationFile, false));
-			cvsEntriesDestinationFileWriter.append(FileHelper.readFileContent(cvsEntriesSourceFile));
-			cvsEntriesDestinationFileWriter.flush();
+			FileHelper.ensureFileExists(cvsEntriesDestinationFile);
+			FileHelper.writeFileContent(cvsEntriesDestinationFile, FileHelper.readFileContent(cvsEntriesSourceFile), false);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSEntriesCopyFailure);
-		} finally {
-			if (cvsEntriesDestinationFileWriter != null) {
-				try {
-					cvsEntriesDestinationFileWriter.close();
-				} catch (IOException e) {
-					//do nothing
-				}
-			}
 		}
 	}
 

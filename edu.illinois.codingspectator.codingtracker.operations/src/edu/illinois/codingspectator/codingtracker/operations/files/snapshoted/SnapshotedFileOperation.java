@@ -58,7 +58,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	protected void checkSnapshotMatchesTheExistingFile() {
 		IResource workspaceResource= FileHelper.findWorkspaceMember(filePath);
 		if (workspaceResource != null) {
-			if (!fileContent.equals(FileHelper.readFileContent(workspaceResource))) {
+			if (!fileContent.equals(FileHelper.readFileContent((IFile)workspaceResource))) {
 				throw new RuntimeException("The snapshot file does not match the existing file: " + filePath);
 			}
 		}

@@ -6,9 +6,11 @@ package edu.illinois.codingspectator.codingtracker.helpers;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,11 +34,43 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  */
 public class FileHelper {
 
-	public static String readFileContent(IResource resource) {
-		return readFileContent(getFileForResource(resource));
+	public static Charset UNIVERSAL_CHARSET= Charset.forName("UTF-8"); //should always exist, should not throw an exception here
+
+	public static Charset getCharsetForFile(IFile file) {
+		String charsetName= null;
+		try {
+			charsetName= file.getCharset();
+		} catch (CoreException e) {
+			//actually, should not happen, but anyway, do nothing
+		}
+		return getCharsetForNameOrDefault(charsetName);
 	}
 
+	private static Charset getCharsetForNameOrDefault(String charsetName) {
+		Charset charset= null;
+		try {
+			charset= Charset.forName(charsetName);
+		} catch (Exception ex) {
+			charset= Charset.defaultCharset();
+		}
+		return charset;
+	}
+
+	public static String readFileContent(IFile workspaceFile) {
+		return readFileContent(getFileForResource(workspaceFile), getCharsetForFile(workspaceFile));
+	}
+
+	/**
+	 * Should be used only for reading the files produced by CodingTracker itself
+	 * 
+	 * @param file
+	 * @return
+	 */
 	public static String readFileContent(File file) {
+		return readFileContent(file, UNIVERSAL_CHARSET);
+	}
+
+	private static String readFileContent(File file, Charset charset) {
 		String fileContent= null;
 		InputStream inputStream= null;
 		try {
@@ -52,7 +86,7 @@ public class FileHelper {
 			if (offset < fileLength) {
 				throw new RuntimeException(Messages.Recorder_CompleteReadUnknownFileException);
 			}
-			fileContent= new String(bytes);
+			fileContent= new String(bytes, charset);
 		} catch (Exception e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_ReadUnknownFileException);
 		} finally {
@@ -70,7 +104,7 @@ public class FileHelper {
 	public static void writeFileContent(File file, CharSequence text, boolean append) throws IOException {
 		BufferedWriter bufferedWriter= null;
 		try {
-			bufferedWriter= new BufferedWriter(new FileWriter(file, append));
+			bufferedWriter= new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, append), UNIVERSAL_CHARSET));
 			bufferedWriter.append(text);
 			bufferedWriter.flush();
 		} finally {
@@ -128,11 +162,22 @@ public class FileHelper {
 	}
 
 	public static Map<IFile, String> getEntriesVersions(IFile cvsEntriesFile, IPath relativePath) {
-		return getEntriesVersions(getFileForResource(cvsEntriesFile), relativePath);
+		return getEntriesVersions(getFileForResource(cvsEntriesFile), relativePath, getCharsetForFile(cvsEntriesFile));
 	}
 
+	/**
+	 * Should be used only for reading the files produced by CodingTracker itself
+	 * 
+	 * @param cvsEntriesFile
+	 * @param relativePath
+	 * @return
+	 */
 	public static Map<IFile, String> getEntriesVersions(File cvsEntriesFile, IPath relativePath) {
-		String[] entries= readFileContent(cvsEntriesFile).split("\n");
+		return getEntriesVersions(cvsEntriesFile, relativePath, UNIVERSAL_CHARSET);
+	}
+
+	private static Map<IFile, String> getEntriesVersions(File cvsEntriesFile, IPath relativePath, Charset charset) {
+		String[] entries= readFileContent(cvsEntriesFile, charset).split("\n");
 		Map<IFile, String> entriesVersions= new HashMap<IFile, String>();
 		for (String entry : entries) {
 			String[] entryElements= entry.split("/");

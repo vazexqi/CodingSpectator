@@ -18,6 +18,7 @@ import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 public class FixEncoding {
 
 	public static void main(String[] args) {
+		//TODO: Might require specifying a particular encoding to read the file, by default it is UTF-8.
 		String originalText= FileHelper.readFileContent(new File(args[0]));
 		try {
 			File outputFile= new File(args[0] + ".fixed");
