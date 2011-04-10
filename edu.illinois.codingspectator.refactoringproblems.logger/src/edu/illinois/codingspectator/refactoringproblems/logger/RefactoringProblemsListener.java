@@ -4,9 +4,7 @@
 package edu.illinois.codingspectator.refactoringproblems.logger;
 
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -17,7 +15,6 @@ import org.eclipse.core.commands.operations.TriggeredOperations;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
@@ -78,7 +75,7 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 
 	private void storeCurrentProblems() throws JavaModelException {
 		makeAffectedCompilationUnitsBecomeWorkingCopies();
-		Set<Map<String, DefaultProblemWrapper[]>> computeProblems= problemsFinder.computeProblems(affectedCompilationUnits);
+		Set<DefaultProblemWrapper> computeProblems= problemsFinder.computeProblems(affectedCompilationUnits);
 		problemsComparer.pushNewProblemsSet(computeProblems);
 	}
 
@@ -113,8 +110,10 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		if (isRefactoringPerformedEvent(event)) {
 			try {
 				storeCurrentProblems();
-				Set<DefaultProblemWrapper> compareProblems= problemsComparer.compareProblems();
-				System.err.println(compareProblems);
+				ProblemChanges problemChanges= problemsComparer.compareProblems();
+
+				//FIXME: Log the problemChanges object into a file called "refactoring-problems.log". 
+				System.err.println(problemChanges);
 			} catch (JavaModelException e) {
 				Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to log compilation problems", e));
 			}
@@ -130,23 +129,28 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 
 class ProblemsComparer {
 
-	private Set<Map<String, DefaultProblemWrapper[]>> previousProblems;
+	private Set<DefaultProblemWrapper> previousProblems;
 
-	private Set<Map<String, DefaultProblemWrapper[]>> currentProblems;
+	private Set<DefaultProblemWrapper> currentProblems;
 
-	public void pushNewProblemsSet(Set<Map<String, DefaultProblemWrapper[]>> problems) {
+	public void pushNewProblemsSet(Set<DefaultProblemWrapper> problems) {
 		previousProblems= currentProblems;
 		currentProblems= problems;
 	}
 
-	public Set<DefaultProblemWrapper> compareProblems() {
-		Set<DefaultProblemWrapper> reportedRefactoringProblems= new HashSet<DefaultProblemWrapper>();
-		currentProblems.removeAll(previousProblems);
-		for (Map<String, DefaultProblemWrapper[]> newProblemsFromPerformedRefactoring : currentProblems) {
-			DefaultProblemWrapper[] defaultProblemWrappers= newProblemsFromPerformedRefactoring.get((IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER));
-			reportedRefactoringProblems.addAll(Arrays.asList(defaultProblemWrappers));
-		}
+	public ProblemChanges compareProblems() {
+		return new ProblemChanges(setDifference(currentProblems, previousProblems), setDifference(previousProblems, currentProblems));
+	}
 
-		return reportedRefactoringProblems;
+	/**
+	 * 
+	 * @param left
+	 * @param right
+	 * @return left - right
+	 */
+	public Set<DefaultProblemWrapper> setDifference(Set<DefaultProblemWrapper> left, Set<DefaultProblemWrapper> right) {
+		Set<DefaultProblemWrapper> copyOfLeft= new HashSet<DefaultProblemWrapper>(left);
+		copyOfLeft.removeAll(right);
+		return copyOfLeft;
 	}
 }

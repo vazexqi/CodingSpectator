@@ -4,13 +4,13 @@
 package edu.illinois.codingspectator.refactoringproblems.logger;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -30,9 +30,16 @@ import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
 @SuppressWarnings("restriction")
 public class ProblemsFinder {
 
-	Set<Map<String, DefaultProblemWrapper[]>> problems;
+	Set<DefaultProblemWrapper> problems;
 
 	Set<CompilationUnit> affectedCompilationUnits;
+
+	private final static Set<String> problemMarkersToReport;
+
+	static {
+		problemMarkersToReport= new HashSet<String>();
+		problemMarkersToReport.add(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+	}
 
 	/**
 	 * 
@@ -49,17 +56,17 @@ public class ProblemsFinder {
 		try {
 			manager.cacheZipFiles(this); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
 			op.runOperation(new NullProgressMonitor());
-			Map<String, CategorizedProblem[]> CUJavaProblems= op.problems;
-			problems.add(convertRepresentationOfProblems(CUJavaProblems));
+			Map<String, CategorizedProblem[]> cuJavaProblems= op.problems;
+			problems.addAll(convertRepresentationOfProblems(cuJavaProblems));
 		} finally {
 			manager.flushZipFiles(this);
 		}
 	}
 
-	public Set<Map<String, DefaultProblemWrapper[]>> computeProblems(Set<CompilationUnit> affectedCompilationUnits) throws JavaModelException {
+	public Set<DefaultProblemWrapper> computeProblems(Set<CompilationUnit> affectedCompilationUnits) throws JavaModelException {
 		this.affectedCompilationUnits= affectedCompilationUnits;
 
-		problems= new HashSet<Map<String, DefaultProblemWrapper[]>>();
+		problems= new HashSet<DefaultProblemWrapper>();
 		for (CompilationUnit compilationUnit : affectedCompilationUnits) {
 			computeProblems(compilationUnit);
 		}
@@ -68,12 +75,14 @@ public class ProblemsFinder {
 	}
 
 
-	private static Map<String, DefaultProblemWrapper[]> convertRepresentationOfProblems(Map<String, CategorizedProblem[]> cUJavaProblems) {
-		Map<String, DefaultProblemWrapper[]> convertedRepresentations= new HashMap<String, DefaultProblemWrapper[]>();
-		for (String key : cUJavaProblems.keySet()) {
-			CategorizedProblem[] defaultProblems= cUJavaProblems.get(key);
-			DefaultProblemWrapper[] convertedRepresentation= DefaultProblemWrapper.initializeFromArrays(defaultProblems);
-			convertedRepresentations.put(key, convertedRepresentation);
+	private static Set<DefaultProblemWrapper> convertRepresentationOfProblems(Map<String, CategorizedProblem[]> cuJavaProblems) {
+		Set<DefaultProblemWrapper> convertedRepresentations= new HashSet<DefaultProblemWrapper>();
+		for (String problemMarker : cuJavaProblems.keySet()) {
+			if (problemMarkersToReport.contains(problemMarker)) {
+				CategorizedProblem[] defaultProblems= cuJavaProblems.get(problemMarker);
+				Set<DefaultProblemWrapper> convertedRepresentation= DefaultProblemWrapper.initializeFromArrays(problemMarker, defaultProblems);
+				convertedRepresentations.addAll(convertedRepresentation);
+			}
 		}
 		return convertedRepresentations;
 	}
@@ -86,6 +95,9 @@ public class ProblemsFinder {
  * 
  */
 class DefaultProblemWrapper {
+
+	private String problemMarker;
+
 	private char[] fileName;
 
 	private String message;
@@ -103,7 +115,8 @@ class DefaultProblemWrapper {
 	private int severity;
 
 	@SuppressWarnings("restriction")
-	public DefaultProblemWrapper(CategorizedProblem problem) {
+	public DefaultProblemWrapper(String problemMarker, CategorizedProblem problem) {
+		this.problemMarker= problemMarker;
 		fileName= problem.getOriginatingFileName();
 		message= problem.getMessage();
 		id= problem.getID();
@@ -114,10 +127,10 @@ class DefaultProblemWrapper {
 		severity= problem.isError() ? ProblemSeverities.Error : ProblemSeverities.Warning;
 	}
 
-	public static DefaultProblemWrapper[] initializeFromArrays(CategorizedProblem[] categorizedProblems) {
-		DefaultProblemWrapper[] wrappers= new DefaultProblemWrapper[categorizedProblems.length];
-		for (int i= 0; i < categorizedProblems.length; i++) {
-			wrappers[i]= new DefaultProblemWrapper(categorizedProblems[i]);
+	public static Set<DefaultProblemWrapper> initializeFromArrays(String problemMarker, CategorizedProblem[] categorizedProblems) {
+		Set<DefaultProblemWrapper> wrappers= new HashSet<DefaultProblemWrapper>(categorizedProblems.length);
+		for (CategorizedProblem categorizedProblem : categorizedProblems) {
+			wrappers.add(new DefaultProblemWrapper(problemMarker, categorizedProblem));
 		}
 		return wrappers;
 	}
@@ -136,6 +149,7 @@ class DefaultProblemWrapper {
 		result= prime * result + id;
 		result= prime * result + line;
 		result= prime * result + ((message == null) ? 0 : message.hashCode());
+		result= prime * result + ((problemMarker == null) ? 0 : problemMarker.hashCode());
 		result= prime * result + severity;
 		result= prime * result + startPosition;
 		return result;
@@ -143,40 +157,58 @@ class DefaultProblemWrapper {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		DefaultProblemWrapper other= (DefaultProblemWrapper)obj;
-		if (!Arrays.equals(arguments, other.arguments))
+		if (!Arrays.equals(arguments, other.arguments)) {
 			return false;
-		if (endPosition != other.endPosition)
+		}
+		if (endPosition != other.endPosition) {
 			return false;
-		if (!Arrays.equals(fileName, other.fileName))
+		}
+		if (!Arrays.equals(fileName, other.fileName)) {
 			return false;
-		if (id != other.id)
+		}
+		if (id != other.id) {
 			return false;
-		if (line != other.line)
+		}
+		if (line != other.line) {
 			return false;
+		}
 		if (message == null) {
-			if (other.message != null)
+			if (other.message != null) {
 				return false;
-		} else if (!message.equals(other.message))
+			}
+		} else if (!message.equals(other.message)) {
 			return false;
-		if (severity != other.severity)
+		}
+		if (problemMarker == null) {
+			if (other.problemMarker != null) {
+				return false;
+			}
+		} else if (!problemMarker.equals(other.problemMarker)) {
 			return false;
-		if (startPosition != other.startPosition)
+		}
+		if (severity != other.severity) {
 			return false;
+		}
+		if (startPosition != other.startPosition) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "DefaultProblemWrapper [fileName=" + Arrays.toString(fileName) + ", message=" + message + ", id=" + id + ", arguments=" + Arrays.toString(arguments) + ", endPosition=" + endPosition
-				+ ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
+		return "DefaultProblemWrapper [problemMarker=" + problemMarker + ", fileName=" + Arrays.toString(fileName) + ", message=" + message + ", id=" + id + ", arguments="
+				+ Arrays.toString(arguments) + ", endPosition=" + endPosition + ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
 	}
-
 
 }
