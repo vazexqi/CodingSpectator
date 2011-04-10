@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter;
@@ -109,11 +110,11 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 	public void executionNotification(RefactoringExecutionEvent event) {
 		if (isRefactoringPerformedEvent(event)) {
 			try {
+
 				storeCurrentProblems();
 				ProblemChanges problemChanges= problemsComparer.compareProblems();
-
-				//FIXME: Log the problemChanges object into a file called "refactoring-problems.log". 
-				System.err.println(problemChanges);
+				Logger.logDebug(problemChanges.toString());
+				problemChanges.log();
 			} catch (JavaModelException e) {
 				Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to log compilation problems", e));
 			}
@@ -129,17 +130,23 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 
 class ProblemsComparer {
 
+	private long previousTimestamp= -1;
+
 	private Set<DefaultProblemWrapper> previousProblems;
+
+	private long currentTimestamp= -1;
 
 	private Set<DefaultProblemWrapper> currentProblems;
 
 	public void pushNewProblemsSet(Set<DefaultProblemWrapper> problems) {
 		previousProblems= currentProblems;
+		previousTimestamp= currentTimestamp;
 		currentProblems= problems;
+		currentTimestamp= System.currentTimeMillis();
 	}
 
 	public ProblemChanges compareProblems() {
-		return new ProblemChanges(setDifference(currentProblems, previousProblems), setDifference(previousProblems, currentProblems));
+		return new ProblemChanges(currentTimestamp, setDifference(currentProblems, previousProblems), previousTimestamp, setDifference(previousProblems, currentProblems));
 	}
 
 	/**

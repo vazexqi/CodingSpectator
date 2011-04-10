@@ -3,11 +3,14 @@
  */
 package edu.illinois.codingspectator.refactoringproblems.logger;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.internal.resources.XMLWriter;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
@@ -215,4 +218,20 @@ class DefaultProblemWrapper {
 				+ ", endPosition=" + endPosition + ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
 	}
 
+	@SuppressWarnings("restriction")
+	public void addTo(XMLWriter xmlWriter) throws UnsupportedEncodingException {
+		HashMap<String, Object> parameters= new HashMap<String, Object>();
+		parameters.put("problemMarker", problemMarker);
+		parameters.put("fileName", fileName);
+		parameters.put("message", message);
+		parameters.put("id", id);
+		parameters.put("arguments", Arrays.toString(arguments));
+		parameters.put("endPosition", endPosition);
+		parameters.put("line", line);
+		parameters.put("startPosition", startPosition);
+		parameters.put("severity", severity);
+
+		xmlWriter.printTag("problem", parameters);
+		xmlWriter.flush();
+	}
 }
