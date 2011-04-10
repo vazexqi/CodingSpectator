@@ -98,7 +98,7 @@ class DefaultProblemWrapper {
 
 	private String problemMarker;
 
-	private char[] fileName;
+	private String fileName;
 
 	private String message;
 
@@ -117,7 +117,7 @@ class DefaultProblemWrapper {
 	@SuppressWarnings("restriction")
 	public DefaultProblemWrapper(String problemMarker, CategorizedProblem problem) {
 		this.problemMarker= problemMarker;
-		fileName= problem.getOriginatingFileName();
+		fileName= new String(problem.getOriginatingFileName());
 		message= problem.getMessage();
 		id= problem.getID();
 		arguments= problem.getArguments();
@@ -145,7 +145,7 @@ class DefaultProblemWrapper {
 		int result= 1;
 		result= prime * result + Arrays.hashCode(arguments);
 		result= prime * result + endPosition;
-		result= prime * result + Arrays.hashCode(fileName);
+		result= prime * result + ((fileName == null) ? 0 : fileName.hashCode());
 		result= prime * result + id;
 		result= prime * result + line;
 		result= prime * result + ((message == null) ? 0 : message.hashCode());
@@ -173,7 +173,11 @@ class DefaultProblemWrapper {
 		if (endPosition != other.endPosition) {
 			return false;
 		}
-		if (!Arrays.equals(fileName, other.fileName)) {
+		if (fileName == null) {
+			if (other.fileName != null) {
+				return false;
+			}
+		} else if (!fileName.equals(other.fileName)) {
 			return false;
 		}
 		if (id != other.id) {
@@ -207,8 +211,8 @@ class DefaultProblemWrapper {
 
 	@Override
 	public String toString() {
-		return "DefaultProblemWrapper [problemMarker=" + problemMarker + ", fileName=" + Arrays.toString(fileName) + ", message=" + message + ", id=" + id + ", arguments="
-				+ Arrays.toString(arguments) + ", endPosition=" + endPosition + ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
+		return "DefaultProblemWrapper [problemMarker=" + problemMarker + ", fileName=" + fileName + ", message=" + message + ", id=" + id + ", arguments=" + Arrays.toString(arguments)
+				+ ", endPosition=" + endPosition + ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
 	}
 
 }
