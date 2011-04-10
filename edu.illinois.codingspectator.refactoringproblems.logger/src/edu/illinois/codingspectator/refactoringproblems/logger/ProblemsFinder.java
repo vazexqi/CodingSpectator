@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
@@ -178,6 +177,6 @@ class DefaultProblemWrapper {
 		return "DefaultProblemWrapper [fileName=" + Arrays.toString(fileName) + ", message=" + message + ", id=" + id + ", arguments=" + Arrays.toString(arguments) + ", endPosition=" + endPosition
 				+ ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
 	}
-	
-	
+
+
 }
