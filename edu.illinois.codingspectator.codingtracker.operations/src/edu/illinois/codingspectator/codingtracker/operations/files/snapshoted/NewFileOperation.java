@@ -18,8 +18,8 @@ public class NewFileOperation extends SnapshotedFileOperation {
 		super();
 	}
 
-	public NewFileOperation(IFile newFile) {
-		super(newFile);
+	public NewFileOperation(IFile newFile, String charsetName) {
+		super(newFile, charsetName);
 	}
 
 	@Override

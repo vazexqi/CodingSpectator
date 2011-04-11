@@ -5,7 +5,7 @@ package edu.illinois.codingspectator.codingtracker.operations.files.snapshoted;
 
 import java.io.IOException;
 
-import org.eclipse.core.filebuffers.IFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -99,11 +99,11 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 		} catch (IOException e) {
 			throw new RuntimeException("Could not write content to the refreshed file: " + this, e);
 		}
-		IFileBuffer fileBuffer= FileHelper.getFileBuffer(fullFilePath);
-		if (fileBuffer == null) {
+		ITextFileBuffer textFileBuffer= FileHelper.getTextFileBuffer(fullFilePath);
+		if (textFileBuffer == null) {
 			throw new RuntimeException("Could not find file buffer for the refreshed file: " + this);
 		}
-		fileBuffer.revert(new NullProgressMonitor());
+		textFileBuffer.revert(new NullProgressMonitor());
 	}
 
 	@Override

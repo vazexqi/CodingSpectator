@@ -32,6 +32,12 @@ import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
  */
 public class KnownfilesRecorder {
 
+	enum FileProperties {
+		ENCODING, TIMESTAMP
+	}
+
+	private static final String PROPERTIES_DELIMETER= ",";
+
 	private static KnownfilesRecorder recorderInstance= null;
 
 	private final Properties knownfiles; //Is thread-safe since SE 6
@@ -74,9 +80,9 @@ public class KnownfilesRecorder {
 		Iterator<Object> keysIterator= knownfiles.keySet().iterator();
 		boolean hasChanged= false;
 		while (keysIterator.hasNext()) {
-			Object key= keysIterator.next();
-			if (!isCVSEntriesPath(key.toString())) {
-				String timestamp= knownfiles.getProperty(key.toString());
+			String key= keysIterator.next().toString();
+			if (!isCVSEntriesPath(key)) {
+				String timestamp= getSpecificProperty(knownfiles.getProperty(key), FileProperties.TIMESTAMP);
 				if (currentTime - Long.valueOf(timestamp) > REFRESH_INTERVAL) {
 					keysIterator.remove();
 					hasChanged= true;
@@ -90,6 +96,17 @@ public class KnownfilesRecorder {
 
 	private boolean isCVSEntriesPath(String filePath) {
 		return filePath.endsWith("/CVS/Entries");
+	}
+
+	private String getSpecificProperty(String propertiesString, FileProperties property) {
+		String[] properties= propertiesString.split(PROPERTIES_DELIMETER);
+		switch (property) {
+			case ENCODING:
+				return properties[0];
+			case TIMESTAMP:
+				return properties[1];
+		}
+		return ""; //should not reach here
 	}
 
 	public void recordKnownfiles() {
@@ -142,11 +159,24 @@ public class KnownfilesRecorder {
 	}
 
 	public boolean isFileKnown(IFile file) {
-		return knownfiles.containsKey(FileHelper.getPortableFilePath(file));
+		return isFileKnown(file, FileHelper.getCharsetNameForFile(file));
 	}
 
-	void addKnownfile(IFile file) {
-		knownfiles.setProperty(FileHelper.getPortableFilePath(file), String.valueOf(System.currentTimeMillis()));
+	public boolean isFileKnown(IFile file, String charsetName) {
+		String key= FileHelper.getPortableFilePath(file);
+		String propertiesString= knownfiles.getProperty(key);
+		if (propertiesString != null) {
+			if (isCVSEntriesPath(key)) {
+				return true;
+			}
+			return getSpecificProperty(propertiesString, FileProperties.ENCODING).equals(charsetName);
+		}
+		return false;
+	}
+
+	void addKnownfile(IFile file, String charsetName) {
+		String propertiesString= charsetName + PROPERTIES_DELIMETER + String.valueOf(System.currentTimeMillis());
+		knownfiles.setProperty(FileHelper.getPortableFilePath(file), propertiesString);
 	}
 
 	public Object removeKnownfile(IFile file) {
@@ -154,7 +184,7 @@ public class KnownfilesRecorder {
 	}
 
 	public synchronized void addCVSEntriesFile(IFile cvsEntriesSourceFile) {
-		addKnownfile(cvsEntriesSourceFile);
+		addKnownfile(cvsEntriesSourceFile, FileHelper.getCharsetNameForFile(cvsEntriesSourceFile));
 		File cvsEntriesDestinationFile= getTrackedCVSEntriesFile(cvsEntriesSourceFile);
 		try {
 			FileHelper.ensureFileExists(cvsEntriesDestinationFile);

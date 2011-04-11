@@ -62,6 +62,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	//Calculated sets:
 
 	//TODO: Consider changing from HashSet to TreeSet to make tests deterministic (interestingly, they all are passing so far).
+	//Maybe the tests are passing because in them these sets contain just a single element. 
 
 	private final Set<IFile> savedJavaFiles= new HashSet<IFile>();
 

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.IFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -36,7 +36,11 @@ public class FileHelper {
 
 	public static Charset UNIVERSAL_CHARSET= Charset.forName("UTF-8"); //should always exist, should not throw an exception here
 
-	public static Charset getCharsetForFile(IFile file) {
+	public static String getCharsetNameForFile(IFile file) {
+		return getCharsetForFile(file).name();
+	}
+
+	private static Charset getCharsetForFile(IFile file) {
 		String charsetName= null;
 		try {
 			charsetName= file.getCharset();
@@ -58,6 +62,10 @@ public class FileHelper {
 
 	public static String readFileContent(IFile workspaceFile) {
 		return readFileContent(getFileForResource(workspaceFile), getCharsetForFile(workspaceFile));
+	}
+
+	public static String readFileContent(IFile workspaceFile, String charsetName) {
+		return readFileContent(getFileForResource(workspaceFile), getCharsetForNameOrDefault(charsetName));
 	}
 
 	/**
@@ -142,12 +150,12 @@ public class FileHelper {
 	}
 
 	public static boolean isFileBufferSynchronized(IFile file) {
-		IFileBuffer fileBuffer= getFileBuffer(file.getFullPath());
-		return fileBuffer != null && fileBuffer.isSynchronized();
+		ITextFileBuffer textFileBuffer= getTextFileBuffer(file.getFullPath());
+		return textFileBuffer != null && textFileBuffer.isSynchronized();
 	}
 
-	public static IFileBuffer getFileBuffer(IPath fullFilePath) {
-		return FileBuffers.getTextFileBufferManager().getFileBuffer(fullFilePath, LocationKind.IFILE);
+	public static ITextFileBuffer getTextFileBuffer(IPath fullFilePath) {
+		return FileBuffers.getTextFileBufferManager().getTextFileBuffer(fullFilePath, LocationKind.IFILE);
 	}
 
 	public static void clearWorkspace() {

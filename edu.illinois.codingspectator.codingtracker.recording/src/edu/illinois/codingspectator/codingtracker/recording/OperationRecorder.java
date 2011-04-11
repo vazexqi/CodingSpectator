@@ -3,10 +3,14 @@
  */
 package edu.illinois.codingspectator.codingtracker.recording;
 
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -99,7 +103,12 @@ public class OperationRecorder {
 				recordEditedUnsynchronizedFile(editedFile, oldDocumentText);
 			}
 		} else {
-			ensureFileIsKnown(editedFile, true);
+			ITextFileBuffer textFileBuffer= FileHelper.getTextFileBuffer(editedFile.getFullPath());
+			if (textFileBuffer != null && textFileBuffer.getEncoding() != null) {
+				ensureFileIsKnown(editedFile, true, textFileBuffer.getEncoding());
+			} else {
+				ensureFileIsKnown(editedFile, true);
+			}
 			if (!editedFile.equals(lastEditedFile)) {
 				recordEditedFile(editedFile);
 			}
@@ -157,7 +166,9 @@ public class OperationRecorder {
 			TextRecorder.record(fileOperation);
 		}
 		if (!isRefactoring) {
-			ensureFilesAreKnown(savedFiles, false);
+			//TODO: Saving does not mean the file is known if its encoding differs from the saved editor encoding
+			//Could look for the cases when the encoding is the same
+			//ensureFilesAreKnown(savedFiles, false);
 		}
 	}
 
@@ -165,7 +176,9 @@ public class OperationRecorder {
 		for (String editorID : savedConflictEditorIDs) {
 			TextRecorder.record(new SavedConflictEditorOperation(editorID));
 		}
-		ensureFilesAreKnown(savedFiles, false);
+		//TODO: Saving does not mean the file is known if its encoding differs from the saved conflict editor encoding
+		//Could look for the cases when the encoding is the same
+		//ensureFilesAreKnown(savedFiles, false);
 	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
@@ -203,7 +216,7 @@ public class OperationRecorder {
 						TextRecorder.record(new CVSCommittedFileOperation(file));
 					}
 				}
-				knownfilesRecorder.addKnownfile(file);
+				knownfilesRecorder.addKnownfile(file, FileHelper.getCharsetNameForFile(file));
 			}
 			knownfilesRecorder.recordKnownfiles();
 		}
@@ -279,27 +292,45 @@ public class OperationRecorder {
 	}
 
 	private void ensureFileIsKnown(IFile file, boolean snapshotIfWasNotKnown) {
-		//TODO: Is creating a new HashSet for a single file too expensive?
-		Set<IFile> files= new HashSet<IFile>(1);
-		files.add(file);
-		ensureFilesAreKnown(files, snapshotIfWasNotKnown);
+		ensureFileIsKnown(file, snapshotIfWasNotKnown, FileHelper.getCharsetNameForFile(file));
+	}
+
+	private void ensureFileIsKnown(IFile file, boolean snapshotIfWasNotKnown, String charsetName) {
+		//TODO: Is creating a new HashMap for a single file too expensive?
+		Map<IFile, String> fileMap= new HashMap<IFile, String>(1);
+		fileMap.put(file, charsetName);
+		ensureFilesAreKnown(fileMap, snapshotIfWasNotKnown);
 	}
 
 	public void ensureFilesAreKnown(Set<IFile> files, boolean snapshotIfWasNotKnown) {
-		boolean hasChanged= false;
+		//TreeMap is needed for deterministic testing
+		Map<IFile, String> fileMap= new TreeMap<IFile, String>(new Comparator<IFile>() {
+			@Override
+			public int compare(IFile file1, IFile file2) {
+				return file1.getFullPath().toString().compareTo(file2.getFullPath().toString());
+			}
+		});
 		for (IFile file : files) {
+			fileMap.put(file, FileHelper.getCharsetNameForFile(file));
+		}
+		ensureFilesAreKnown(fileMap, snapshotIfWasNotKnown);
+	}
+
+	public void ensureFilesAreKnown(Map<IFile, String> fileMap, boolean snapshotIfWasNotKnown) {
+		boolean hasChanged= false;
+		for (Entry<IFile, String> entry : fileMap.entrySet()) {
 			//TODO: Is it possible to have a known file, whose CVS/Entries is not known? If not, merge the following two if statements.
-			IFile cvsEntriesFile= getCVSEntriesForFile(file);
+			IFile cvsEntriesFile= getCVSEntriesForFile(entry.getKey());
 			if (cvsEntriesFile != null && !knownfilesRecorder.isFileKnown(cvsEntriesFile)) {
 				knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile);
 				hasChanged= true;
 			}
-			if (!knownfilesRecorder.isFileKnown(file)) {
-				knownfilesRecorder.addKnownfile(file);
+			if (!knownfilesRecorder.isFileKnown(entry.getKey(), entry.getValue())) {
+				knownfilesRecorder.addKnownfile(entry.getKey(), entry.getValue());
 				hasChanged= true;
 				//save the content of a previously unknown file
-				if (snapshotIfWasNotKnown && file.exists()) { //Actually, should always exist here
-					TextRecorder.record(new NewFileOperation(file));
+				if (snapshotIfWasNotKnown && entry.getKey().exists()) { //Actually, should always exist here
+					TextRecorder.record(new NewFileOperation(entry.getKey(), entry.getValue()));
 				}
 			}
 		}

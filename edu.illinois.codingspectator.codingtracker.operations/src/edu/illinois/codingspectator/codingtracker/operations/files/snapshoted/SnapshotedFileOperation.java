@@ -30,6 +30,11 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 		fileContent= FileHelper.readFileContent(snapshotedFile);
 	}
 
+	public SnapshotedFileOperation(IFile snapshotedFile, String charsetName) {
+		super(snapshotedFile);
+		fileContent= FileHelper.readFileContent(snapshotedFile, charsetName);
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
