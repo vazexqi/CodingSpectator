@@ -7,6 +7,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 /**
@@ -47,13 +48,31 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 //	}
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelection());
+		RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+
+		if (instance.hasData()) {
+			ITypeRoot typeRoot= getEnclosingCompilationUnit();
+			CodeSnippetInformationExtractor extractor= new CodeSnippetInformationExtractor(typeRoot, instance.getSelectionStart(), instance.getSelectionLength());
+			extractor.extractCodeSnippetInformation().insertIntoMap(basicArguments);
+			instance.clearData();
+		} else {
+			basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
+			basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelection());
+		}
+
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
 		return basicArguments;
 	}
 
+	private ITypeRoot getEnclosingCompilationUnit() {
+		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
+		return (ITypeRoot)javaElementIfPossible.getAncestor(IJavaElement.COMPILATION_UNIT);
+	}
+
+	/**
+	 * @deprecated - To be replaced with functionality in CodeSnippetInformationExtractor
+	 */
 	public String getSelection() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
 		if (javaElementIfPossible != null)
@@ -61,7 +80,9 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
 	}
 
-
+	/**
+	 * @deprecated - To be replaced with functionality in CodeSnippetInformationExtractor
+	 */
 	protected String getCodeSnippet() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
 		if (javaElementIfPossible != null)

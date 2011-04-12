@@ -102,3 +102,5 @@ ui/org/eclipse/jdt/ui/actions/codingspectator/UnavailableRefactoringLogger.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/InlineRefactoringContribution.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/RenameUnknownJavaElementRefactoringContribution.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/RefactoringGlobalStore.java
