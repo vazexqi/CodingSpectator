@@ -123,6 +123,11 @@ public class PullUpAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			instance.setStructuredSelection(selection);
+			instance.setInvokedThroughStructuredSelection();
+
 			IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isPullUpAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
 				RefactoringExecutionStarter.startPullUpRefactoring(members, getShell());

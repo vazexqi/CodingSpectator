@@ -66,7 +66,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	private CodeSnippetInformation getCodeSnippetInformation() {
-		return new CodeSnippetInformationExtractor(getJavaTypeRoot(), fSelectionStart, fSelectionLength).extractCodeSnippetInformation();
+		return new TextSelectionCodeSnippetInformationExtractor(getJavaTypeRoot(), fSelectionStart, fSelectionLength).extractCodeSnippetInformation();
 	}
 
 	protected String getDescriptorID() {

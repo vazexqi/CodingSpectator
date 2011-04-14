@@ -7,7 +7,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.ITypeRoot;
 
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.CodeSnippetInformationExtractor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.TextSelectionCodeSnippetInformationExtractor;
 
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
@@ -28,7 +28,7 @@ public class UnavailableRefactoringLogger {
 		if (typeRoot != null) {
 			String javaProject= typeRoot.getJavaProject().getElementName();
 
-			CodeSnippetInformation info= new CodeSnippetInformationExtractor(typeRoot, selectionStart, selectionLength).extractCodeSnippetInformation();
+			CodeSnippetInformation info= new TextSelectionCodeSnippetInformationExtractor(typeRoot, selectionStart, selectionLength).extractCodeSnippetInformation();
 			Logger.logUnavailableRefactoringEvent(RefactoringID, javaProject, info, errorMessage);
 		}
 	}

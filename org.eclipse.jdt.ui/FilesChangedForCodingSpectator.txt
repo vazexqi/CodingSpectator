@@ -104,3 +104,5 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspe
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/RenameUnknownJavaElementRefactoringContribution.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/RefactoringGlobalStore.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/StructuredSelectionCodeSnippetInformationExtractor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/TextSelectionCodeSnippetInformationExtractor.java

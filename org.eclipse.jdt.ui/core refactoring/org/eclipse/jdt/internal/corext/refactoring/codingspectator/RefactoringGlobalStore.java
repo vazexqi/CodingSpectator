@@ -1,6 +1,15 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
+import java.util.List;
+
+import org.eclipse.jface.viewers.IStructuredSelection;
+
 import org.eclipse.jface.text.ITextSelection;
+
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
+
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
  * 
@@ -9,9 +18,13 @@ import org.eclipse.jface.text.ITextSelection;
  * 
  */
 public class RefactoringGlobalStore {
-	final static RefactoringGlobalStore instance= new RefactoringGlobalStore();
+	private static RefactoringGlobalStore instance= new RefactoringGlobalStore();
 
-	ITextSelection selectionInEditor;
+	private ITextSelection selectionInEditor;
+
+	private IStructuredSelection structuredSelection;
+
+	private boolean invokedThroughStructuredSelection;
 
 	private RefactoringGlobalStore() {
 
@@ -38,7 +51,37 @@ public class RefactoringGlobalStore {
 	}
 
 	public void clearData() {
-		selectionInEditor= null;
+		instance= new RefactoringGlobalStore();
+	}
+
+	public void setStructuredSelection(IStructuredSelection selection) {
+		structuredSelection= selection;
+	}
+
+	class CodeSnippetExtractorFactory {
+		public CodeSnippetInformationExtractor createCodeSnippetInformationExtractor(ITypeRoot typeRoot) {
+			if (RefactoringGlobalStore.this.selectionInEditor != null) {
+				return new TextSelectionCodeSnippetInformationExtractor(typeRoot, RefactoringGlobalStore.this.getSelectionStart(), RefactoringGlobalStore.this.getSelectionLength());
+			}
+			if (RefactoringGlobalStore.this.structuredSelection != null) {
+				try {
+					List selectionList= structuredSelection.toList();
+					IJavaElement aSelectedElement= (IJavaElement)selectionList.get(0);
+					return new StructuredSelectionCodeSnippetInformationExtractor(typeRoot, aSelectedElement, selectionList.toString());
+				} catch (ClassCastException e) {
+					JavaPlugin.log(e);
+				}
+			}
+			return null;
+		}
+	}
+
+	public void setInvokedThroughStructuredSelection() {
+		invokedThroughStructuredSelection= true;
+	}
+
+	public boolean isInvokedThroughStructuredSelection() {
+		return invokedThroughStructuredSelection;
 	}
 
 }

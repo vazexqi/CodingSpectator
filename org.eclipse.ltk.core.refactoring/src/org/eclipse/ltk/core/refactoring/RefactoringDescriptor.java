@@ -197,6 +197,13 @@ public abstract class RefactoringDescriptor implements Comparable {
 	public static final String ATTRIBUTE_INVOKED_BY_QUICKASSIST= "invoked-by-quickassist"; //$NON-NLS-1$
 
 	/**
+	 * This attribute is to indicate whether a refactoring has been performed through the structured
+	 * selection i.e. Package View or Outline View.
+	 */
+
+	public static final String ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION= "invoked-through-structured-selection"; //$NON-NLS-1$
+
+	/**
 	 * Creates a new refactoring descriptor.
 	 * 
 	 * @param id the unique id of the refactoring
