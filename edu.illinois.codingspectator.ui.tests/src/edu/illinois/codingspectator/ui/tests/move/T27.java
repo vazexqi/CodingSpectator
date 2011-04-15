@@ -4,12 +4,13 @@
 package edu.illinois.codingspectator.ui.tests.move;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
- * This tests exercises the MoveMembersPolicy processor. It cancels the move of 
- * multiple instance variables from one class to another.
+ * This tests exercises the MoveMembersPolicy processor. It cancels the move of multiple instance
+ * variables from one class to another.
  * 
  * @author Balaji Ambresh Rajkumar
  */
@@ -21,7 +22,7 @@ public class T27 extends RefactoringTest {
 	}
 
 	@Override
-	protected void doExecuteRefactoring() throws Exception {
+	protected void doExecuteRefactoring() {
 
 		final String destinationForImports= "DestinationFile";
 		bot.createANewJavaClass(getProjectName(), destinationForImports);
