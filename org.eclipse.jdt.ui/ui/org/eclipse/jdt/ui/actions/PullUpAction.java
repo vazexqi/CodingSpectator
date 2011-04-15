@@ -54,7 +54,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
  * 
- * @author Mohsen Vakilian, nchen - Logged unavailability of the refactoring.
+ * @author Mohsen Vakilian, nchen - Logged unavailability of the refactoring; captured more precise
+ *         information about selection.
  * 
  * @since 2.0
  * 

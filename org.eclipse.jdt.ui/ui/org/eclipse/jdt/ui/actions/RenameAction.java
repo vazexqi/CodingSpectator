@@ -24,6 +24,8 @@ import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.ITypeRoot;
 
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
+
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
@@ -45,7 +47,8 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RenameResourceAction;
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
- * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability;captured more precise
+ *          information about selection
  */
 public class RenameAction extends SelectionDispatchAction {
 
@@ -116,6 +119,11 @@ public class RenameAction extends SelectionDispatchAction {
 	}
 
 	public void run(IStructuredSelection selection) {
+		// CODINGSPECTATOR: Capture precise selection information
+		RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+		instance.setStructuredSelection(selection);
+		instance.setInvokedThroughStructuredSelection();
+
 		if (fRenameJavaElement.isEnabled())
 			fRenameJavaElement.run(selection);
 		if (fRenameResource != null && fRenameResource.isEnabled())
@@ -123,6 +131,9 @@ public class RenameAction extends SelectionDispatchAction {
 	}
 
 	public void run(ITextSelection selection) {
+		// CODINGSPECTATOR: Capture precise selection information
+		RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+
 		if (fRenameJavaElement.canRunInEditor())
 			fRenameJavaElement.run(selection);
 		else {

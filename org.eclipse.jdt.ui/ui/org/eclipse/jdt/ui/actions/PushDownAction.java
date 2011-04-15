@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
@@ -124,6 +125,11 @@ public class PushDownAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			instance.setStructuredSelection(selection);
+			instance.setInvokedThroughStructuredSelection();
+
 			IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isPushDownAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
 				RefactoringExecutionStarter.startPushDownRefactoring(members, getShell());
@@ -137,6 +143,9 @@ public class PushDownAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IMember member= getSelectedMemberFromEditor();

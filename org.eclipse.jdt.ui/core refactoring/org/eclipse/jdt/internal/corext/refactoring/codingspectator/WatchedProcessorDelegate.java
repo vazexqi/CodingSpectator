@@ -60,6 +60,7 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 			extractor.extractCodeSnippetInformation().insertIntoMap(basicArguments);
 			instance.clearData();
 		} else {
+			//TODO: Do we still need the fall back path?
 			basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
 			basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelection());
 		}

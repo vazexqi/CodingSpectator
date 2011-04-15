@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
@@ -61,7 +62,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
- * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability; captured more precise
+ *          information about selection
  */
 public class MoveAction extends SelectionDispatchAction {
 //TODO: remove duplicate availability checks. Look at
@@ -140,6 +142,12 @@ public class MoveAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			instance.setStructuredSelection(selection);
+			instance.setInvokedThroughStructuredSelection();
+
+
 			if (fMoveInstanceMethodAction.isEnabled() && tryMoveInstanceMethod(selection))
 				return;
 
@@ -160,6 +168,9 @@ public class MoveAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			if (fMoveStaticMembersAction.isEnabled() && tryMoveStaticMembers(selection))

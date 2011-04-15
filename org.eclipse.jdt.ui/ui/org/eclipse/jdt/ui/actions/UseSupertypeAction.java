@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.JavaElementUtil;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
@@ -55,7 +56,7 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @noextend This class is not intended to be subclassed by clients.
  * 
  * @author Mohsen Vakilian, Balaji Ambresh Rajkumar, nchen - Captured when the refactoring is
- *         unavailable.
+ *         unavailable; captured more precise information about selection
  */
 // Note: The disclaimer about instantiating and subclassing got added in 3.1.
 // Don't make this class final or remove a constructor!
@@ -110,6 +111,11 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			instance.setStructuredSelection(selection);
+			instance.setInvokedThroughStructuredSelection();
+
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(selection)) {
 				IType singleSelectedType= getSingleSelectedType(selection);
 				if (!ActionUtil.isEditable(getShell(), singleSelectedType))
@@ -161,6 +167,9 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(type)) {
 				if (!ActionUtil.isEditable(fEditor, getShell(), type))
