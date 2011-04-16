@@ -11,13 +11,22 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.team.internal.ui.mapping.ModelCompareEditorInput;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 /**
  * 
@@ -110,6 +119,46 @@ public class EditorHelper {
 			return true;
 		}
 		return false;
+	}
+
+	public static ITextEditor openEditor(String filePath) throws CoreException {
+		ITextEditor fileEditor= getExistingEditor(filePath);
+		if (fileEditor != null) {
+			activateEditor(fileEditor);
+		} else {
+			fileEditor= createEditor(filePath);
+		}
+		return fileEditor;
+	}
+
+	public static void activateEditor(IEditorPart editor) {
+		JavaPlugin.getActivePage().activate(editor);
+	}
+
+	/**
+	 * Has a side effect of bringing to top the newly created editor.
+	 * 
+	 * @return
+	 * @throws JavaModelException
+	 * @throws PartInitException
+	 */
+	public static ITextEditor createEditor(String filePath) throws JavaModelException, PartInitException {
+		IFile file= (IFile)FileHelper.findWorkspaceMember(filePath);
+		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
+	}
+
+	public static ITextEditor getExistingEditor(String filePath) throws PartInitException {
+		for (IEditorReference editorReference : JavaPlugin.getActivePage().getEditorReferences()) {
+			IEditorInput editorInput= editorReference.getEditorInput();
+			if (editorInput instanceof FileEditorInput && ((FileEditorInput)editorInput).getPath().toPortableString().endsWith(filePath)) {
+				return (ITextEditor)editorReference.getEditor(true);
+			}
+		}
+		return null;
+	}
+
+	public static IDocument getEditedDocument(ITextEditor editor) {
+		return editor.getDocumentProvider().getDocument(editor.getEditorInput());
 	}
 
 }

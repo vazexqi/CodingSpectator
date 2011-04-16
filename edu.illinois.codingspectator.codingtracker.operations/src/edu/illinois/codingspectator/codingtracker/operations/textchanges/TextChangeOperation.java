@@ -3,12 +3,17 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
@@ -18,6 +23,7 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public abstract class TextChangeOperation extends UserOperation {
 
 	protected String replacedText;
@@ -28,7 +34,11 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	protected int length;
 
-	//This field is computed during replay, do not serialize/deserialize it!
+	//The following fields are computed during replay, do not serialize/deserialize them!
+	protected IDocument currentDocument= null;
+
+	protected ISourceViewer currentViewer= null;
+
 	private boolean isRecordedWhileRefactoring= false;
 
 	public TextChangeOperation() {
@@ -68,6 +78,7 @@ public abstract class TextChangeOperation extends UserOperation {
 		if (isRefactoring) {
 			isRecordedWhileRefactoring= true;
 		} else {
+			updateCurrentState();
 			currentViewer.revealRange(offset, length > newText.length() ? length : newText.length());
 			currentViewer.setSelectedRange(offset, length);
 			if (!replacedText.equals(currentDocument.get(offset, length))) {
@@ -83,6 +94,16 @@ public abstract class TextChangeOperation extends UserOperation {
 				throw new RuntimeException("New text does not appear in the document: " + this);
 			}
 		}
+	}
+
+	private void updateCurrentState() {
+		EditorHelper.activateEditor(currentEditor);
+		if (currentEditor instanceof CompareEditor) {
+			currentViewer= EditorHelper.getEditingSourceViewer((CompareEditor)currentEditor);
+		} else if (currentEditor instanceof AbstractDecoratedTextEditor) {
+			currentViewer= EditorHelper.getEditingSourceViewer((AbstractDecoratedTextEditor)currentEditor);
+		}
+		currentDocument= currentViewer.getDocument();
 	}
 
 	@Override

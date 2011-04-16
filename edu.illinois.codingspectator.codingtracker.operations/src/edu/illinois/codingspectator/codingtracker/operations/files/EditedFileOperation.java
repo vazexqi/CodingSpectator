@@ -5,8 +5,8 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
@@ -36,9 +36,7 @@ public class EditedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)getFileEditor(true);
-		currentDocument= editor.getDocumentProvider().getDocument(editor.getEditorInput());
-		currentViewer= editor.getHackedViewer();
+		currentEditor= EditorHelper.openEditor(filePath);
 	}
 
 }

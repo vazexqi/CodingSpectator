@@ -3,8 +3,12 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.textchanges;
 
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.ui.IEditorPart;
 
+import edu.illinois.codingspectator.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 
@@ -39,8 +43,11 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 	}
 
 	@Override
-	protected void replayTextChange() {
-		throw new RuntimeException("Unsupported operation");
+	public void replay() throws ExecutionException, BadLocationException {
+		IEditorPart oldEditor= currentEditor;
+		currentEditor= CompareEditorsUpkeeper.getEditor(editorID);
+		super.replay();
+		currentEditor= oldEditor;
 	}
 
 	@Override

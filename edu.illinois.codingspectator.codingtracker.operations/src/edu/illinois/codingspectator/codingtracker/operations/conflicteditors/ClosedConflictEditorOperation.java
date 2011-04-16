@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.conflicteditors;
 
+import org.eclipse.compare.internal.CompareEditor;
+
+import edu.illinois.codingspectator.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
@@ -10,6 +13,7 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public class ClosedConflictEditorOperation extends ConflictEditorOperation {
 
 	public ClosedConflictEditorOperation() {
@@ -28,6 +32,14 @@ public class ClosedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	public String getDescription() {
 		return "Closed conflict editor";
+	}
+
+	@Override
+	public void replay() {
+		CompareEditor compareEditor= CompareEditorsUpkeeper.getEditor(editorID);
+		//Don't use getEditor().close(false), because it is executed asynchronously 
+		compareEditor.getSite().getPage().closeEditor(compareEditor, false);
+		CompareEditorsUpkeeper.removeEditor(editorID);
 	}
 
 }

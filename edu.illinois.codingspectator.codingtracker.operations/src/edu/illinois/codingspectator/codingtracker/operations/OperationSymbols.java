@@ -10,7 +10,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
  */
 public abstract class OperationSymbols {
 
-	//Used symbols: 26 + 7, remaining symbols: F G H J K L M N P Q R S T U V W X Y Z
+	//Used symbols: 26 + 10, remaining symbols: J K L M N P Q R S T U V W X Y Z
 
 	public static final char ECLIPSE_STARTED_SYMBOL= 'l';
 
@@ -52,6 +52,10 @@ public abstract class OperationSymbols {
 
 	public static final char FILE_EDITED_SYMBOL= 'e';
 
+	public static final char FILE_EDITED_UNSYNCHRONIZED_SYMBOL= 'H';
+
+	public static final char FILE_REFRESHED_SYMBOL= 'G';
+
 	public static final char TEXT_CHANGE_PERFORMED_SYMBOL= 't';
 
 	public static final char TEXT_CHANGE_UNDONE_SYMBOL= 'h';
@@ -79,5 +83,7 @@ public abstract class OperationSymbols {
 	public static final char WORKSPACE_OPTIONS_CHANGED_SYMBOL= 'D';
 
 	public static final char PROJECT_OPTIONS_CHANGED_SYMBOL= 'E';
+
+	public static final char REFERENCING_PROJECTS_CHANGED_SYMBOL= 'F';
 
 }

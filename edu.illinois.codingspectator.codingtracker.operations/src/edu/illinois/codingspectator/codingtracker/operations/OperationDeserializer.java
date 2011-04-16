@@ -11,6 +11,7 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Ope
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
@@ -18,6 +19,7 @@ import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOp
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
@@ -30,6 +32,7 @@ import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOp
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
@@ -117,8 +120,14 @@ public class OperationDeserializer {
 			case OperationSymbols.FILE_NEW_SYMBOL:
 				userOperation= new NewFileOperation();
 				break;
+			case OperationSymbols.FILE_REFRESHED_SYMBOL:
+				userOperation= new RefreshedFileOperation();
+				break;
 			case OperationSymbols.FILE_EDITED_SYMBOL:
 				userOperation= new EditedFileOperation();
+				break;
+			case OperationSymbols.FILE_EDITED_UNSYNCHRONIZED_SYMBOL:
+				userOperation= new EditedUnsychronizedFileOperation();
 				break;
 			case OperationSymbols.TEXT_CHANGE_PERFORMED_SYMBOL:
 				userOperation= new PerformedTextChangeOperation();
@@ -161,6 +170,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.PROJECT_OPTIONS_CHANGED_SYMBOL:
 				userOperation= new ProjectOptionsChangedOperation();
+				break;
+			case OperationSymbols.REFERENCING_PROJECTS_CHANGED_SYMBOL:
+				userOperation= new ReferencingProjectsChangedOperation();
 				break;
 			default:
 				throw new RuntimeException("Unsupported operation symbol: " + operationSymbol);

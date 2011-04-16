@@ -40,6 +40,14 @@ public class PerformedRefactoringOperation extends RefactoringOperation {
 
 	@Override
 	public void replayRefactoring(RefactoringDescriptor refactoringDescriptor) throws CoreException {
+		try {
+			//FIXME: This is a temporary hack. It is required to overcome the problem that sometimes Eclipse does not finish updating 
+			//program's structure yet, and thus, the refactoring can not be properly initialized (i.e. the refactored element is not found).
+			//Find a better solution, e.g. listen for some Eclipse "refreshing" process to complete.
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			//do nothing
+		}
 		RefactoringStatus initializationStatus= new RefactoringStatus();
 		Refactoring refactoring= refactoringDescriptor.createRefactoring(initializationStatus);
 		if (!initializationStatus.isOK()) {

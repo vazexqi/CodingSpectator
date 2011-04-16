@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component name="org.eclipse.ui.workbench.texteditor_3.6.1.r361_v20100714-0800" version="1.2">
+    <plugin id="org.eclipse.ui.workbench.texteditor_3.6.1.r361_v20100714-0800"/>
+    <package name="org.eclipse.ui.texteditor" visibility="1">
+        <type name="DefaultRangeIndicator" restrictions="2"/>
+        <type name="FindNextAction" restrictions="2"/>
+        <type name="FindReplaceAction" restrictions="2"/>
+        <type name="GotoAnnotationAction" restrictions="2"/>
+        <type name="GotoLineAction" restrictions="2"/>
+        <type name="HyperlinkDetectorDescriptor" restrictions="4"/>
+        <type name="HyperlinkDetectorTargetDescriptor" restrictions="4"/>
+        <type name="IAbstractTextEditorHelpContextIds" restrictions="3"/>
+        <type name="ITextEditorActionConstants" restrictions="3"/>
+        <type name="ITextEditorActionDefinitionIds" restrictions="3"/>
+        <type name="ITextEditorDropTargetListener" restrictions="3"/>
+        <type name="IWorkbenchActionDefinitionIds" restrictions="3"/>
+        <type name="IncrementalFindAction" restrictions="2"/>
+        <type name="RevertToSavedAction" restrictions="2"/>
+        <type name="SaveAction" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.ui.texteditor.quickdiff" visibility="1">
+        <type name="QuickDiff" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.ui.texteditor.rulers" visibility="1">
+        <type name="IColumnSupport" restrictions="3"/>
+        <type name="RulerColumnDescriptor" restrictions="4"/>
+        <type name="RulerColumnRegistry" restrictions="4"/>
+    </package>
+    <package name="org.eclipse.ui.texteditor.spelling" visibility="1">
+        <type name="SpellingContext" restrictions="2"/>
+        <type name="SpellingEngineDescriptor" restrictions="2"/>
+        <type name="SpellingService" restrictions="2"/>
+    </package>
+    <package name="org.eclipse.ui.texteditor.templates" visibility="1">
+        <type name="TemplatesView" restrictions="4"/>
+    </package>
+</component>

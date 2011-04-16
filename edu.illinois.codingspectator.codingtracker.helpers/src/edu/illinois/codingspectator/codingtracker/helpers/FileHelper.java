@@ -3,21 +3,26 @@
  */
 package edu.illinois.codingspectator.codingtracker.helpers;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.IFileBuffer;
+import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
@@ -26,9 +31,14 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public class FileHelper {
 
-	public static String getFileContent(File file) {
+	public static String readFileContent(IResource resource) {
+		return readFileContent(getFileForResource(resource));
+	}
+
+	public static String readFileContent(File file) {
 		String fileContent= null;
 		InputStream inputStream= null;
 		try {
@@ -59,21 +69,57 @@ public class FileHelper {
 		return fileContent;
 	}
 
+	public static void writeFileContent(File file, CharSequence text, boolean append) throws IOException {
+		BufferedWriter bufferedWriter= null;
+		try {
+			bufferedWriter= new BufferedWriter(new FileWriter(file, append));
+			bufferedWriter.append(text);
+			bufferedWriter.flush();
+		} finally {
+			if (bufferedWriter != null) {
+				try {
+					bufferedWriter.close();
+				} catch (IOException e) {
+					//do nothing
+				}
+			}
+		}
+	}
+
+	public static void ensureFileExists(File file) throws IOException {
+		if (!file.exists()) {
+			file.getParentFile().mkdirs();
+			file.createNewFile();
+		}
+	}
+
 	public static String getPortableFilePath(IFile file) {
 		return file.getFullPath().toPortableString();
 	}
 
-	public static IResource findWorkspaceMemeber(IPath memberPath) {
-		return ResourcesPlugin.getWorkspace().getRoot().findMember(memberPath);
+	public static IResource findWorkspaceMember(IPath memberPath) {
+		return getWorkspaceRoot().findMember(memberPath);
 	}
 
-	/**
-	 * Should be called from an UI thread
-	 * 
-	 * @return
-	 */
+	public static IResource findWorkspaceMember(String memberPath) {
+		return getWorkspaceRoot().findMember(memberPath);
+	}
+
+	private static IWorkspaceRoot getWorkspaceRoot() {
+		return ResourcesPlugin.getWorkspace().getRoot();
+	}
+
+	public static boolean isFileBufferSynchronized(IFile file) {
+		IFileBuffer fileBuffer= getFileBuffer(file.getFullPath());
+		return fileBuffer != null && fileBuffer.isSynchronized();
+	}
+
+	public static IFileBuffer getFileBuffer(IPath fullFilePath) {
+		return FileBuffers.getTextFileBufferManager().getFileBuffer(fullFilePath, LocationKind.IFILE);
+	}
+
 	public static void clearWorkspace() {
-		getActivePage().closeAllEditors(false);
+		JavaPlugin.getActivePage().closeAllEditors(false);
 		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
 			try {
 				JavaProjectHelper.delete(project);
@@ -83,29 +129,34 @@ public class FileHelper {
 		}
 	}
 
-	/**
-	 * Should be called from an UI thread
-	 * 
-	 * @return
-	 */
-	public static IWorkbenchPage getActivePage() {
-		return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+	public static Map<IFile, String> getEntriesVersions(IFile cvsEntriesFile, IPath relativePath) {
+		return getEntriesVersions(getFileForResource(cvsEntriesFile), relativePath);
 	}
 
 	public static Map<IFile, String> getEntriesVersions(File cvsEntriesFile, IPath relativePath) {
+		String[] entries= readFileContent(cvsEntriesFile).split("\n");
 		Map<IFile, String> entriesVersions= new HashMap<IFile, String>();
-		String[] entries= getFileContent(cvsEntriesFile).split("\n");
 		for (String entry : entries) {
 			String[] entryElements= entry.split("/");
 			if (entryElements.length > 2 && entryElements[0].isEmpty() && entryElements[1].endsWith(".java")) {
 				IPath entryFilePath= relativePath.append(entryElements[1]);
-				IResource entryFile= findWorkspaceMemeber(entryFilePath);
+				IResource entryFile= findWorkspaceMember(entryFilePath);
 				if (entryFile != null) {
 					entriesVersions.put((IFile)entryFile, entryElements[2]);
 				}
 			}
 		}
 		return entriesVersions;
+	}
+
+	public static File getFileForResource(IResource resource) {
+		return resource.getLocation().toFile();
+	}
+
+	public static void checkResourceExists(IResource resource, String errorMessage) {
+		if (resource == null || !resource.exists()) {
+			throw new RuntimeException(errorMessage);
+		}
 	}
 
 }

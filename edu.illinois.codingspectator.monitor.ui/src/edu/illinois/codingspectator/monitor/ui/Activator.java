@@ -1,3 +1,6 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.monitor.ui;
 
 import java.text.MessageFormat;
@@ -5,17 +8,26 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
+import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.PreferenceConstants;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.Preferences;
 
 import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
- * The activator class controls the plug-in life cycle
+ * The activator class controls the plug-in life cycle. The "restriction" warning has to be
+ * suppressed because we are calling methods in the AutoUpdatePlugin to set the preference for
+ * checking for updates in the user's workspace.
  */
+@SuppressWarnings("restriction")
 public class Activator extends AbstractUIPlugin implements IStartup {
 
 	private static final int UPLOAD_PERIOD_MILLISECONDS= 1000 * 60 * 60 * 24 * 1;
@@ -39,6 +51,26 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin= this;
+
+		enableAutomaticCheckForUpdatesPreference();
+	}
+
+	private void enableAutomaticCheckForUpdatesPreference() {
+		if (forcedAutoUpdatePrefHasNeverBeenSet()) {
+			AutomaticUpdatePlugin.getDefault().getPreferenceStore().setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, true);
+			AutomaticUpdatePlugin.getDefault().savePreferences();
+			setForcedAutoUpdatePref();
+		}
+	}
+
+	private void setForcedAutoUpdatePref() {
+		PrefsFacade prefsFacade= PrefsFacade.getInstance();
+		prefsFacade.setForcedAutoUpdatePref(true);
+	}
+
+	private boolean forcedAutoUpdatePrefHasNeverBeenSet() {
+		PrefsFacade prefsFacade= PrefsFacade.getInstance();
+		return prefsFacade.getForcedAutoUpdatePref() == false;
 	}
 
 	/*

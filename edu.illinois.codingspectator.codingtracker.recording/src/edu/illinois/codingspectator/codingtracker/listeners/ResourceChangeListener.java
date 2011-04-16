@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.codingtracker.listeners;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +30,6 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
-import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 
 /**
  * 
@@ -40,8 +40,6 @@ import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 public class ResourceChangeListener extends BasicListener implements IResourceChangeListener {
 
 	private final IResourceDeltaVisitor resourceDeltaVisitor= new ResourceDeltaVisitor();
-
-	private final KnownfilesRecorder knownfilesRecorder= KnownfilesRecorder.getInstance();
 
 	//Populated sets:
 
@@ -63,10 +61,12 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	//Calculated sets:
 
+	//TODO: Consider changing from HashSet to TreeSet to make tests deterministic (interestingly, they all are passing so far).
+
 	private final Set<IFile> savedJavaFiles= new HashSet<IFile>();
 
 	//Actually, should not be more than one per resourceChanged notification
-	private final Set<String> savedConflictEditorIDs= new HashSet<String>();
+	private final Map<String, IFile> savedConflictEditors= new HashMap<String, IFile>();
 
 	private final Set<IFile> externallyModifiedJavaFiles= new HashSet<IFile>();
 
@@ -107,7 +107,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		cvsEntriesAddedSet.clear();
 		cvsEntriesChangedOrRemovedSet.clear();
 		savedJavaFiles.clear();
-		savedConflictEditorIDs.clear();
+		savedConflictEditors.clear();
 		externallyModifiedJavaFiles.clear();
 		updatedJavaFiles.clear();
 		svnInitiallyCommittedJavaFiles.clear();
@@ -142,7 +142,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		boolean hasChangedKnownFiles= false;
 		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
 			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile.getLocation().toFile(), relativePath);
+			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile, relativePath);
 			boolean isInitialCommit= false;
 			for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
 				IFile entryFile= newEntry.getKey();
@@ -164,7 +164,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private boolean doesContainKnownFiles(IPath path) {
-		IResource resource= FileHelper.findWorkspaceMemeber(path);
+		IResource resource= FileHelper.findWorkspaceMember(path);
 		if (resource instanceof Folder) {
 			Folder containerFolder= (Folder)resource;
 			try {
@@ -186,7 +186,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
 			if (cvsEntriesFile.exists()) {
 				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile.getLocation().toFile(), relativePath);
+				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile, relativePath);
 				File trackedCVSEntriesFile= knownfilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
 				if (trackedCVSEntriesFile.exists()) {
 					Map<IFile, String> previousVersions= FileHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
@@ -257,8 +257,9 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 					CompareEditor compareEditor= (CompareEditor)editor;
 					if (dirtyConflictEditors.contains(compareEditor)) {
 						dirtyConflictEditors.remove(compareEditor);
-						savedConflictEditorIDs.add(EditorHelper.getConflictEditorID(compareEditor));
-						changedJavaFiles.remove(EditorHelper.getEditedJavaFile(compareEditor));
+						IFile editedJavaFile= EditorHelper.getEditedJavaFile(compareEditor);
+						savedConflictEditors.put(EditorHelper.getConflictEditorID(compareEditor), editedJavaFile);
+						changedJavaFiles.remove(editedJavaFile);
 					}
 				}
 			}
@@ -266,10 +267,9 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void calculateSavedAndExternallyModifiedJavaFiles() {
-		boolean isVersionControlEntriesChanged= !svnEntriesChangeSet.isEmpty() || !cvsEntriesChangedOrRemovedSet.isEmpty() || !cvsEntriesAddedSet.isEmpty();
 		for (IFile file : changedJavaFiles) {
 			if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
-				if (isRefactoring || dirtyFiles.contains(file) && !isVersionControlEntriesChanged) {
+				if (isRefactoring || FileHelper.isFileBufferSynchronized(file)) {
 					savedJavaFiles.add(file);
 				} else {
 					externallyModifiedJavaFiles.add(file);
@@ -280,7 +280,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 
 	private void recordSets() {
 		operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
-		operationRecorder.recordSavedConflictEditors(savedConflictEditorIDs);
+		operationRecorder.recordSavedConflictEditors(savedConflictEditors.keySet(), new HashSet<IFile>(savedConflictEditors.values()));
 		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
 		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
 		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFiles, true, true);
@@ -290,10 +290,6 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void updateDirtyAndKnownFiles() {
-		dirtyFiles.removeAll(removedJavaFiles);
-		//TODO: Removing from dirty files when updated or changed externally may cause subsequent save to be treated as an
-		//external modification. Is it ok (e.g. this can be detected and filtered out during the replay phase)?
-		dirtyFiles.removeAll(changedJavaFiles);
 		removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
 		removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
 		operationRecorder.removeKnownFiles(removedJavaFiles);

@@ -23,6 +23,7 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Ope
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
@@ -31,6 +32,7 @@ import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOp
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestCaseFinishedOperation;
@@ -44,6 +46,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.Perfor
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
@@ -81,13 +84,32 @@ public class OperationRecorder {
 		TextRecorder.record(new StartedEclipseOperation());
 	}
 
-	public void recordChangedText(DocumentEvent documentEvent, String replacedText, IFile editedFile, boolean isUndoing, boolean isRedoing) {
-		if (!editedFile.equals(lastEditedFile) || !knownfilesRecorder.isFileKnown(editedFile)) {
-			lastEditedFile= editedFile;
-			ensureIsKnownFile(lastEditedFile);
-			recordEditedFile();
+	public void recordRefreshedFile(IFile refreshedFile, String replacedText) {
+		boolean isFileKnown= knownfilesRecorder.isFileKnown(refreshedFile);
+		if (!isFileKnown) {
+			ensureFileIsKnown(refreshedFile, false);
 		}
+		TextRecorder.record(new RefreshedFileOperation(refreshedFile, replacedText, isFileKnown));
+	}
+
+	public void recordChangedText(DocumentEvent documentEvent, String replacedText, String oldDocumentText, IFile editedFile,
+									boolean isUndoing, boolean isRedoing) {
+		if (!FileHelper.isFileBufferSynchronized(editedFile)) {
+			if (!editedFile.equals(lastEditedFile)) {
+				recordEditedUnsynchronizedFile(editedFile, oldDocumentText);
+			}
+		} else {
+			ensureFileIsKnown(editedFile, true);
+			if (!editedFile.equals(lastEditedFile)) {
+				recordEditedFile(editedFile);
+			}
+		}
+		lastEditedFile= editedFile;
 		Debugger.debugDocumentEvent(documentEvent, replacedText);
+		TextRecorder.record(getTextChangeOperation(documentEvent, replacedText, isUndoing, isRedoing));
+	}
+
+	private TextChangeOperation getTextChangeOperation(DocumentEvent documentEvent, String replacedText, boolean isUndoing, boolean isRedoing) {
 		TextChangeOperation textChangeOperation= null;
 		if (isUndoing) {
 			textChangeOperation= new UndoneTextChangeOperation(documentEvent, replacedText);
@@ -96,7 +118,7 @@ public class OperationRecorder {
 		} else {
 			textChangeOperation= new PerformedTextChangeOperation(documentEvent, replacedText);
 		}
-		TextRecorder.record(textChangeOperation);
+		return textChangeOperation;
 	}
 
 	public void recordConflictEditorChangedText(DocumentEvent documentEvent, String replacedText, String editorID, boolean isUndoing, boolean isRedoing) {
@@ -111,11 +133,16 @@ public class OperationRecorder {
 		TextRecorder.record(conflictEditorTextChangeOperation);
 	}
 
-	private void recordEditedFile() {
-		TextRecorder.record(new EditedFileOperation(lastEditedFile));
+	private void recordEditedUnsynchronizedFile(IFile editedFile, String editorContent) {
+		TextRecorder.record(new EditedUnsychronizedFileOperation(editedFile, editorContent));
+	}
+
+	private void recordEditedFile(IFile editedFile) {
+		TextRecorder.record(new EditedFileOperation(editedFile));
 	}
 
 	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
+		ensureFileIsKnown(editedFile, true);
 		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
 	}
 
@@ -129,12 +156,16 @@ public class OperationRecorder {
 			}
 			TextRecorder.record(fileOperation);
 		}
+		if (!isRefactoring) {
+			ensureFilesAreKnown(savedFiles, false);
+		}
 	}
 
-	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs) {
+	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs, Set<IFile> savedFiles) {
 		for (String editorID : savedConflictEditorIDs) {
 			TextRecorder.record(new SavedConflictEditorOperation(editorID));
 		}
+		ensureFilesAreKnown(savedFiles, false);
 	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
@@ -247,14 +278,14 @@ public class OperationRecorder {
 		}
 	}
 
-	private void ensureIsKnownFile(IFile file) {
+	private void ensureFileIsKnown(IFile file, boolean snapshotIfWasNotKnown) {
 		//TODO: Is creating a new HashSet for a single file too expensive?
 		Set<IFile> files= new HashSet<IFile>(1);
 		files.add(file);
-		ensureAreKnownFiles(files);
+		ensureFilesAreKnown(files, snapshotIfWasNotKnown);
 	}
 
-	public void ensureAreKnownFiles(Set<IFile> files) {
+	public void ensureFilesAreKnown(Set<IFile> files, boolean snapshotIfWasNotKnown) {
 		boolean hasChanged= false;
 		for (IFile file : files) {
 			//TODO: Is it possible to have a known file, whose CVS/Entries is not known? If not, merge the following two if statements.
@@ -267,7 +298,7 @@ public class OperationRecorder {
 				knownfilesRecorder.addKnownfile(file);
 				hasChanged= true;
 				//save the content of a previously unknown file
-				if (file.getLocation().toFile().exists()) { //Actually, should always exist here
+				if (snapshotIfWasNotKnown && file.exists()) { //Actually, should always exist here
 					TextRecorder.record(new NewFileOperation(file));
 				}
 			}
@@ -279,7 +310,7 @@ public class OperationRecorder {
 
 	private IFile getCVSEntriesForFile(IFile file) {
 		IPath cvsEntriesPath= file.getFullPath().removeLastSegments(1).append("CVS").append("Entries");
-		IResource cvsEntriesResource= FileHelper.findWorkspaceMemeber(cvsEntriesPath);
+		IResource cvsEntriesResource= FileHelper.findWorkspaceMember(cvsEntriesPath);
 		if (cvsEntriesResource != null) {
 			return (IFile)cvsEntriesResource;
 		}
@@ -287,17 +318,31 @@ public class OperationRecorder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void ensureOptionsAreCurrent(IJavaProject javaProject) {
+	public void ensureOptionsAreCurrent(Set<IJavaProject> javaProjects) {
+		ensureWorkspaceOptionsAreCurrent();
+		for (IJavaProject javaProject : javaProjects) {
+			Map<String, String> projectOptions= javaProject.getOptions(false);
+			String projectName= javaProject.getElementName();
+			if (!knownfilesRecorder.areProjectOptionsCurrent(projectName, projectOptions)) {
+				knownfilesRecorder.recordProjectOptions(projectName, projectOptions);
+				TextRecorder.record(new ProjectOptionsChangedOperation(projectName, projectOptions));
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void ensureWorkspaceOptionsAreCurrent() {
 		Map<String, String> workspaceOptions= JavaCore.getOptions();
 		if (!knownfilesRecorder.areWorkspaceOptionsCurrent(workspaceOptions)) {
 			knownfilesRecorder.recordWorkspaceOptions(workspaceOptions);
 			TextRecorder.record(new WorkspaceOptionsChangedOperation(workspaceOptions));
 		}
-		Map<String, String> projectOptions= javaProject.getOptions(false);
-		String projectName= javaProject.getElementName();
-		if (!knownfilesRecorder.areProjectOptionsCurrent(projectName, projectOptions)) {
-			knownfilesRecorder.recordProjectOptions(projectName, projectOptions);
-			TextRecorder.record(new ProjectOptionsChangedOperation(projectName, projectOptions));
+	}
+
+	public void ensureReferencingProjectsAreCurrent(String projectName, Set<String> referencingProjectNames) {
+		if (!knownfilesRecorder.areReferencingProjectsCurrent(projectName, referencingProjectNames)) {
+			knownfilesRecorder.recordReferencingProjects(projectName, referencingProjectNames);
+			TextRecorder.record(new ReferencingProjectsChangedOperation(projectName, referencingProjectNames));
 		}
 	}
 

@@ -3,9 +3,15 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.conflicteditors;
 
+import org.eclipse.compare.CompareUI;
+import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -15,6 +21,7 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 
 	private String editedFilePath;
@@ -53,6 +60,14 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 		super.initializeFrom(operationLexer);
 		editedFilePath= operationLexer.getNextLexeme();
 		initialContent= operationLexer.getNextLexeme();
+	}
+
+	@Override
+	public void replay() {
+		IResource editedFile= FileHelper.findWorkspaceMember(new Path(editedFilePath));
+		FileHelper.checkResourceExists(editedFile, "Conflict editor file does not exist: " + this);
+		CompareUI.openCompareEditor(new DocumentCompareEditorInput(editedFile, initialContent));
+		CompareEditorsUpkeeper.addEditor(editorID, (CompareEditor)JavaPlugin.getActivePage().getActiveEditor());
 	}
 
 	@Override

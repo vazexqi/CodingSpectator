@@ -14,7 +14,7 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  */
 public abstract class ConflictEditorOperation extends UserOperation {
 
-	private String editorID;
+	protected String editorID;
 
 	public ConflictEditorOperation() {
 		super();
@@ -33,11 +33,6 @@ public abstract class ConflictEditorOperation extends UserOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		editorID= operationLexer.getNextLexeme();
-	}
-
-	@Override
-	public void replay() {
-		throw new RuntimeException("Unsupported operation");
 	}
 
 	@Override

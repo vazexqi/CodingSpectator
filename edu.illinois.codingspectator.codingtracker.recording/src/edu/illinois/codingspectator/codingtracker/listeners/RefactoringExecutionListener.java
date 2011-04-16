@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingspectator.codingtracker.listeners;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -35,10 +38,7 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 		if (eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
 				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO) {
 			isRefactoring= true;
-			IJavaProject refactoredJavaProject= getRefactoredJavaProject(event);
-			if (refactoredJavaProject != null && refactoredJavaProject.exists()) {
-				operationRecorder.ensureOptionsAreCurrent(refactoredJavaProject);
-			}
+			trackProjectsAffectedByRefactoring(event);
 			operationRecorder.recordStartedRefactoring();
 		} else if (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE ||
 				eventType == RefactoringExecutionEvent.UNDONE) {
@@ -51,16 +51,29 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 		}
 	}
 
-	private IJavaProject getRefactoredJavaProject(RefactoringExecutionEvent event) {
-		IJavaProject refactoredJavaProject= null;
+	private void trackProjectsAffectedByRefactoring(RefactoringExecutionEvent event) {
+		IProject refactoredProject= getRefactoredProject(event);
+		if (refactoredProject != null && refactoredProject.exists()) {
+			Set<IJavaProject> affectedJavaProjects= new HashSet<IJavaProject>();
+			affectedJavaProjects.add(getJavaProject(refactoredProject));
+			IProject[] referencingProjects= refactoredProject.getReferencingProjects();
+			for (IProject referencingProject : referencingProjects) {
+				if (referencingProject.exists()) { //Actually, should always exist here
+					affectedJavaProjects.add(getJavaProject(referencingProject));
+				}
+			}
+			operationRecorder.ensureReferencingProjectsAreCurrent(refactoredProject.getName(), getProjectNames(referencingProjects));
+			operationRecorder.ensureOptionsAreCurrent(affectedJavaProjects);
+		}
+	}
+
+	private IProject getRefactoredProject(RefactoringExecutionEvent event) {
+		IProject refactoredProject= null;
 		String projectName= getRefactoringDescriptor(event).getProject();
 		if (projectName != null && Path.EMPTY.isValidSegment(projectName)) {
-			IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-			if (project.exists()) {
-				refactoredJavaProject= JavaCore.create(project);
-			}
+			refactoredProject= ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		}
-		return refactoredJavaProject;
+		return refactoredProject;
 	}
 
 	private RefactoringDescriptor getRefactoringDescriptor(RefactoringExecutionEvent event) {
@@ -69,6 +82,18 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 		//Refactoring descriptor should never be null here (according to how RefactoringExecutionEvent object is constructed in 
 		//RefactoringHistoryService)
 		return refactoringDescriptor;
+	}
+
+	private IJavaProject getJavaProject(IProject project) {
+		return JavaCore.create(project);
+	}
+
+	private Set<String> getProjectNames(IProject[] projects) {
+		Set<String> projectNames= new HashSet<String>();
+		for (IProject project : projects) {
+			projectNames.add(project.getName());
+		}
+		return projectNames;
 	}
 
 }
