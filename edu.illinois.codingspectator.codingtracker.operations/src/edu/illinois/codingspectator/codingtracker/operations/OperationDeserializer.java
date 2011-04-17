@@ -29,6 +29,8 @@ import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLa
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.options.ProjectOptionsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOptionsChangedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.FinishedRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
@@ -68,6 +70,12 @@ public class OperationDeserializer {
 		switch (operationSymbol) {
 			case OperationSymbols.ECLIPSE_STARTED_SYMBOL:
 				userOperation= new StartedEclipseOperation();
+				break;
+			case OperationSymbols.REFACTORING_FINISHED_SYMBOL:
+				userOperation= new FinishedRefactoringOperation();
+				break;
+			case OperationSymbols.NEW_REFACTORING_STARTED_SYMBOL:
+				userOperation= new NewStartedRefactoringOperation();
 				break;
 			case OperationSymbols.REFACTORING_STARTED_SYMBOL:
 				userOperation= new StartedRefactoringOperation();

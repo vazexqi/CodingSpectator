@@ -34,17 +34,30 @@ public class OperationHistoryListener extends BasicListener implements IOperatio
 	public void historyNotification(OperationHistoryEvent event) {
 		int eventType= event.getEventType();
 		updateState(eventType);
-		if (eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
-				eventType == OperationHistoryEvent.ABOUT_TO_UNDO) {
+		if (isBeginOperation(eventType)) {
 			IUndoableOperation undoableOperation= event.getOperation();
 			if (undoableOperation instanceof TriggeredOperations) {
 				IUndoableOperation triggeringOperation= ((TriggeredOperations)undoableOperation).getTriggeringOperation();
 				if (triggeringOperation instanceof UndoableOperation2ChangeAdapter) {
+					//TODO: Ensuring that affected files are known might not be needed after refactorings are recorded on the atomic level
 					Set<IFile> affectedFiles= getAffectedFiles((UndoableOperation2ChangeAdapter)triggeringOperation);
 					operationRecorder.ensureFilesAreKnown(affectedFiles, true);
 				}
 			}
+		} else if (isRefactoring && isFinishOperation(eventType)) {
+			isRefactoring= false;
+			operationRecorder.recordFinishedRefactoring(eventType != OperationHistoryEvent.OPERATION_NOT_OK);
 		}
+	}
+
+	private boolean isBeginOperation(int eventType) {
+		return eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || eventType == OperationHistoryEvent.ABOUT_TO_REDO ||
+				eventType == OperationHistoryEvent.ABOUT_TO_UNDO;
+	}
+
+	private boolean isFinishOperation(int eventType) {
+		return eventType == OperationHistoryEvent.DONE || eventType == OperationHistoryEvent.REDONE ||
+				eventType == OperationHistoryEvent.UNDONE || eventType == OperationHistoryEvent.OPERATION_NOT_OK;
 	}
 
 	private void updateState(int eventType) {

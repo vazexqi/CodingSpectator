@@ -18,9 +18,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
-import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.Messages;
-
 /**
  * 
  * @author Stas Negara
@@ -35,20 +32,26 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 	@Override
 	public void executionNotification(RefactoringExecutionEvent event) {
 		int eventType= event.getEventType();
-		if (eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
-				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO) {
+		if (isBeginRefactoring(eventType)) {
 			isRefactoring= true;
 			trackProjectsAffectedByRefactoring(event);
-			operationRecorder.recordStartedRefactoring();
-		} else if (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE ||
-				eventType == RefactoringExecutionEvent.UNDONE) {
-			isRefactoring= false;
-			operationRecorder.recordExecutedRefactoring(getRefactoringDescriptor(event), eventType);
-		} else {
-			//Actually, should never reach here, as all possible 6 types of events are checked above
-			Exception e= new RuntimeException();
-			Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + eventType);
+			operationRecorder.recordStartedRefactoring(getRefactoringDescriptor(event), eventType);
 		}
+		//TODO: While removing this comment, do not forget to remove Messages.Recorder_UnrecognizedRefactoringType and its data
+//		else if (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE ||
+//				eventType == RefactoringExecutionEvent.UNDONE) {
+//			isRefactoring= false;
+//			operationRecorder.recordExecutedRefactoring(getRefactoringDescriptor(event), eventType);
+//		} else {
+//			//Actually, should never reach here, as all possible 6 types of events are checked above
+//			Exception e= new RuntimeException();
+//			Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + eventType);
+//		}
+	}
+
+	private boolean isBeginRefactoring(int eventType) {
+		return eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
+				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO;
 	}
 
 	private void trackProjectsAffectedByRefactoring(RefactoringExecutionEvent event) {

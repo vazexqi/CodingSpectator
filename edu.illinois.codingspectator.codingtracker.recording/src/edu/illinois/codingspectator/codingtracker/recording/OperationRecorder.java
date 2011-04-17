@@ -46,14 +46,12 @@ import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLa
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.options.ProjectOptionsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOptionsChangedOperation;
-import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
-import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
-import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
-import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.FinishedRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation.Mode;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
-import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedConflictEditorTextChangeOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.PerformedTextChangeOperation;
@@ -257,26 +255,42 @@ public class OperationRecorder {
 		TextRecorder.record(new LaunchedApplicationOperation(launchMode, launchName, application, product, useProduct));
 	}
 
-	public void recordStartedRefactoring() {
-		TextRecorder.record(new StartedRefactoringOperation());
-	}
-
-	public void recordExecutedRefactoring(RefactoringDescriptor refactoringDescriptor, int eventType) {
-		Debugger.debugRefactoringDescriptor(refactoringDescriptor);
-		RefactoringOperation refactoringOperation= null;
+	public void recordStartedRefactoring(RefactoringDescriptor refactoringDescriptor, int eventType) {
+		Mode mode= null;
 		switch (eventType) {
-			case RefactoringExecutionEvent.PERFORMED:
-				refactoringOperation= new PerformedRefactoringOperation(refactoringDescriptor);
+			case RefactoringExecutionEvent.ABOUT_TO_PERFORM:
+				mode= Mode.PERFORM;
 				break;
-			case RefactoringExecutionEvent.REDONE:
-				refactoringOperation= new RedoneRefactoringOperation(refactoringDescriptor);
+			case RefactoringExecutionEvent.ABOUT_TO_REDO:
+				mode= Mode.REDO;
 				break;
-			case RefactoringExecutionEvent.UNDONE:
-				refactoringOperation= new UndoneRefactoringOperation(refactoringDescriptor);
+			case RefactoringExecutionEvent.ABOUT_TO_UNDO:
+				mode= Mode.UNDO;
 				break;
 		}
-		TextRecorder.record(refactoringOperation);
+		TextRecorder.record(new NewStartedRefactoringOperation(mode, refactoringDescriptor));
 	}
+
+	public void recordFinishedRefactoring(boolean success) {
+		TextRecorder.record(new FinishedRefactoringOperation(success));
+	}
+
+//	public void recordExecutedRefactoring(RefactoringDescriptor refactoringDescriptor, int eventType) {
+//		Debugger.debugRefactoringDescriptor(refactoringDescriptor);
+//		RefactoringOperation refactoringOperation= null;
+//		switch (eventType) {
+//			case RefactoringExecutionEvent.PERFORMED:
+//				refactoringOperation= new PerformedRefactoringOperation(refactoringDescriptor);
+//				break;
+//			case RefactoringExecutionEvent.REDONE:
+//				refactoringOperation= new RedoneRefactoringOperation(refactoringDescriptor);
+//				break;
+//			case RefactoringExecutionEvent.UNDONE:
+//				refactoringOperation= new UndoneRefactoringOperation(refactoringDescriptor);
+//				break;
+//		}
+//		TextRecorder.record(refactoringOperation);
+//	}
 
 	public void removeKnownFiles(Set<IFile> files) {
 		boolean hasChanged= false;
