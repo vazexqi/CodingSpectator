@@ -1,3 +1,17 @@
+v1.0.0.201104162211
+===================
+- Enabled the update notification mechanism of Eclipse for every new workspace ([issue #173](https://github.com/vazexqi/CodingSpectator/issues/173)).
+- Shortened the path lengths of the test plug-in ([issue #180](https://github.com/vazexqi/CodingSpectator/issues/180)).
+- Enforced a limit on the lengths of the paths of the repository ([issue #182](https://github.com/vazexqi/CodingSpectator/issues/182).
+- Included the name of the test when reporting an error in automated tests ([issue #183](https://github.com/vazexqi/CodingSpectator/issues/183)).
+- Fixed the failure of some of the reorg tests of JDT ([issue #179](https://github.com/vazexqi/CodingSpectator/issues/179)).
+- Captured the changes to compilation problems due to refactorings ([issue #191](https://github.com/vazexqi/CodingSpectator/issues/191)).
+- Verified the contents of the descriptors of the remaining refactorings ([issue #138](https://github.com/vazexqi/CodingSpectator/issues/138)).
+- Added the remaining tests for the move refactoring ([issue #124](https://github.com/vazexqi/CodingSpectator/issues/124)).
+- Made the patches of Eclipse features more robust ([issue #188](https://github.com/vazexqi/CodingSpectator/issues/188)).
+- Implemented replaying of compare editor operations ([issue #177](https://github.com/vazexqi/CodingSpectator/issues/177)).
+- Fixed encoding problems ([issue #177](https://github.com/vazexqi/CodingSpectator/issues/177)).
+
 v1.0.0.201103210128
 ===================
 - Instrumented the use super type refactoring ([issue #158](https://github.com/vazexqi/CodingSpectator/issues/158)).
