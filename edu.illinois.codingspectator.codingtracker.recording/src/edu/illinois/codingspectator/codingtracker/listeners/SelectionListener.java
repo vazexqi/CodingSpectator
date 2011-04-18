@@ -11,12 +11,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.EditorPart;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.codingtracker.listeners.document.ConflictEditorDocumentListener;
 
 /**
  * 
@@ -25,10 +24,6 @@ import edu.illinois.codingspectator.codingtracker.helpers.Messages;
  */
 @SuppressWarnings("restriction")
 public class SelectionListener extends BasicListener implements ISelectionListener {
-
-	private ISourceViewer currentViewer= null;
-
-	private final DocumentListener documentListener= new DocumentListener();
 
 	public static void register() {
 		Display.getDefault().syncExec(new Runnable() {
@@ -49,54 +44,25 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		Debugger.debugWorkbenchPart("Selected part: ", part);
-		IFile newFile= null;
-		ISourceViewer sourceViewer= null;
-		if (part instanceof CompareEditor) {
+		if (EditorHelper.isConflictEditor(part)) {
 			CompareEditor compareEditor= (CompareEditor)part;
-			newFile= EditorHelper.getEditedJavaFile(compareEditor);
-			sourceViewer= EditorHelper.getEditingSourceViewer(compareEditor);
-		} else if (part instanceof AbstractDecoratedTextEditor) {
-			AbstractDecoratedTextEditor editor= (AbstractDecoratedTextEditor)part;
-			newFile= EditorHelper.getEditedJavaFile(editor);
-			sourceViewer= EditorHelper.getEditingSourceViewer(editor);
-		}
-		updateCurrentState(part, newFile, sourceViewer);
-	}
-
-
-	private void updateCurrentState(IWorkbenchPart part, IFile newFile, ISourceViewer sourceViewer) {
-		if (newFile != null) {
-			currentEditor= (EditorPart)part; //Should be EditorPart if newFile != null
-			addEditor(currentEditor, newFile);
-			if (!newFile.equals(currentFile)) {
-				currentFile= newFile;
-				Debugger.debugFilePath("Current file: ", currentFile);
-			}
-			if (currentDocument != null) {
-				currentDocument.removeDocumentListener(documentListener);
-				currentDocument= null;
-			}
-			currentViewer= sourceViewer;
-			if (currentViewer != null) {
-				currentDocument= currentViewer.getDocument();
-			}
-			if (currentDocument != null) {
-				currentDocument.addDocumentListener(documentListener);
+			IFile editedFile= EditorHelper.getEditedJavaFile(compareEditor);
+			if (editedFile != null) {
+				handleConflictEditorSelection(compareEditor, editedFile, EditorHelper.getEditingSourceViewer(compareEditor));
 			}
 		}
 	}
 
 
-	private void addEditor(EditorPart editor, IFile editedFile) {
-		if (EditorHelper.isConflictEditor(editor)) {
-			CompareEditor compareEditor= (CompareEditor)editor;
-			if (!openConflictEditors.contains(compareEditor)) {
-				openConflictEditors.add(compareEditor);
-				dirtyConflictEditors.add(compareEditor); //conflict editors are always dirty from the start
-				operationRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), editedFile, EditorHelper.getConflictEditorInitialContent(compareEditor));
+	private void handleConflictEditorSelection(CompareEditor compareEditor, IFile newFile, ISourceViewer sourceViewer) {
+		if (!openConflictEditors.contains(compareEditor)) {
+			openConflictEditors.add(compareEditor);
+			dirtyConflictEditors.add(compareEditor); //conflict editors are always dirty from the start
+			operationRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), newFile, EditorHelper.getConflictEditorInitialContent(compareEditor));
+			if (sourceViewer != null && sourceViewer.getDocument() != null) {
+				sourceViewer.getDocument().addDocumentListener(new ConflictEditorDocumentListener(compareEditor));
 			}
 		}
 	}
-
 
 }

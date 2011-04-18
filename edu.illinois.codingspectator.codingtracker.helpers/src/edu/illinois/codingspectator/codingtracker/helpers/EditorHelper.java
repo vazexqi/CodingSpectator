@@ -23,6 +23,7 @@ import org.eclipse.team.internal.ui.mapping.ModelCompareEditorInput;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
@@ -37,12 +38,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
 @SuppressWarnings("restriction")
 public class EditorHelper {
 
-	public static boolean isConflictEditor(IEditorPart editor) {
-		if (!(editor instanceof CompareEditor)) {
+	public static boolean isConflictEditor(IWorkbenchPart part) {
+		if (!(part instanceof CompareEditor)) {
 			return false;
 		}
 		//TODO: Maybe some other inputs (not of a conflict editor) are good for tracking and are not ModelCompareEditorInput
-		if (((CompareEditor)editor).getEditorInput() instanceof ModelCompareEditorInput) {
+		if (((CompareEditor)part).getEditorInput() instanceof ModelCompareEditorInput) {
 			return false;
 		}
 		return true;
