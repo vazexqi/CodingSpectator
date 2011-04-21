@@ -120,9 +120,8 @@ public class RenameAction extends SelectionDispatchAction {
 
 	public void run(IStructuredSelection selection) {
 		// CODINGSPECTATOR: Capture precise selection information
-		RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+		RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
 		instance.setStructuredSelection(selection);
-		instance.setInvokedThroughStructuredSelection();
 
 		if (fRenameJavaElement.isEnabled())
 			fRenameJavaElement.run(selection);
@@ -132,7 +131,7 @@ public class RenameAction extends SelectionDispatchAction {
 
 	public void run(ITextSelection selection) {
 		// CODINGSPECTATOR: Capture precise selection information
-		RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
 
 		if (fRenameJavaElement.canRunInEditor())
 			fRenameJavaElement.run(selection);

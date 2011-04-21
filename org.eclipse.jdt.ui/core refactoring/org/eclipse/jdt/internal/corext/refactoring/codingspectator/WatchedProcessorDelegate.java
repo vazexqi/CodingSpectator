@@ -38,33 +38,11 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
 
-	// Mohsen: I've commented this method because we have added org.eclipse.jdt.core.manipulation to the repository and we no longer need to use reflection to access a private method.
-//	protected Map getArguments(JavaRefactoringDescriptor d) {
-//		try {
-//			Class c= JavaRefactoringDescriptor.class;
-//			Method getArgumentsMethod= c.getDeclaredMethod("getArguments", new Class[] {}); //$NON-NLS-1$
-//			getArgumentsMethod.setAccessible(true);
-//			return (Map)getArgumentsMethod.invoke(d, new Object[] {});
-//		} catch (Exception e) {
-//			JavaPlugin.log(e);
-//		}
-//		return new HashMap();
-//	}
-
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
 		ITypeRoot typeRoot= getEnclosingCompilationUnit();
-		CodeSnippetInformationExtractor extractor= instance.new CodeSnippetExtractorFactory().createCodeSnippetInformationExtractor(typeRoot);
-
-		if (extractor != null) {
-			extractor.extractCodeSnippetInformation().insertIntoMap(basicArguments);
-			instance.clearData();
-		} else {
-			//TODO: Do we still need the fall back path?
-			basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-			basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelection());
-		}
-
+		instance.extractCodeSnippetInformation(typeRoot).insertIntoMap(basicArguments);
+		RefactoringGlobalStore.clearData();
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(instance.isInvokedThroughStructuredSelection()));

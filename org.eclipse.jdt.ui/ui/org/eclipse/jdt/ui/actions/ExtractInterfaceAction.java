@@ -107,9 +107,8 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	public void run(IStructuredSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
 			instance.setStructuredSelection(selection);
-			instance.setInvokedThroughStructuredSelection();
 
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(selection)) {
 				IType singleSelectedType= RefactoringAvailabilityTester.getSingleSelectedType(selection);
@@ -150,7 +149,7 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
 
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(type)) {

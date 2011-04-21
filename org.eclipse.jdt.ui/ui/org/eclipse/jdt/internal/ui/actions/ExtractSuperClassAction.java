@@ -139,9 +139,8 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	public void run(final IStructuredSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
 			instance.setStructuredSelection(selection);
-			instance.setInvokedThroughStructuredSelection();
 
 			final IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isExtractSupertypeAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))

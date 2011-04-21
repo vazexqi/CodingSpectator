@@ -112,7 +112,9 @@ public class Logger {
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated: Use
+	 *              org.eclipse.ltk.core.refactoring.codingspectator.Logger.logUnavailableRefactoringEvent
+	 *              (String, String, CodeSnippetInformation, String) instead of this method.
 	 * 
 	 * @param refactoring
 	 * @param project

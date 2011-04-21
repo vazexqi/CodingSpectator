@@ -1169,6 +1169,9 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		return watchedProcessorDelegate;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
 	}

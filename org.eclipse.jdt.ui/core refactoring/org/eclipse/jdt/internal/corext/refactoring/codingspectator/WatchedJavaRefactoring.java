@@ -3,6 +3,8 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jface.text.TextSelection;
+
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -29,8 +31,11 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected ITypeRoot fCompilationUnit;
 
-	public WatchedJavaRefactoring() {
+	// Cache the global store of refactorings to make sure that "addAttributesFromGlobalRefactoringStore" and "getCodeSnippetInformation" do not interfere with each other by clearing the refactoring global store.
+	private RefactoringGlobalStore cachedRefactoringGlobalStore;
 
+	public WatchedJavaRefactoring() {
+		cachedRefactoringGlobalStore= RefactoringGlobalStore.getInstance().getShallowCopy();
 	}
 
 	public boolean isWatched() {
@@ -41,9 +46,15 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		Map arguments= new HashMap();
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		arguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
-		getCodeSnippetInformation().insertIntoMap(arguments);
+		addAttributesFromGlobalRefactoringStore(arguments);
 		populateRefactoringSpecificFields(getJavaProjectName(), arguments);
 		return arguments;
+	}
+
+	private void addAttributesFromGlobalRefactoringStore(Map arguments) {
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(cachedRefactoringGlobalStore.isInvokedThroughStructuredSelection()));
+		getCodeSnippetInformation().insertIntoMap(arguments);
+		RefactoringGlobalStore.clearData();
 	}
 
 	protected abstract void populateRefactoringSpecificFields(String project, final Map arguments);
@@ -66,7 +77,10 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	private CodeSnippetInformation getCodeSnippetInformation() {
-		return new TextSelectionCodeSnippetInformationExtractor(getJavaTypeRoot(), fSelectionStart, fSelectionLength).extractCodeSnippetInformation();
+		cachedRefactoringGlobalStore.setSelectionInEditor(new TextSelection(fSelectionStart, fSelectionLength));
+		CodeSnippetInformation codeSnippetInformation= cachedRefactoringGlobalStore.extractCodeSnippetInformation(getJavaTypeRoot());
+		RefactoringGlobalStore.clearData();
+		return codeSnippetInformation;
 	}
 
 	protected String getDescriptorID() {

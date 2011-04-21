@@ -126,9 +126,8 @@ public class PushDownAction extends SelectionDispatchAction {
 	public void run(IStructuredSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
 			instance.setStructuredSelection(selection);
-			instance.setInvokedThroughStructuredSelection();
 
 			IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isPushDownAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
@@ -144,7 +143,7 @@ public class PushDownAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
 
 			if (!ActionUtil.isEditable(fEditor))
 				return;

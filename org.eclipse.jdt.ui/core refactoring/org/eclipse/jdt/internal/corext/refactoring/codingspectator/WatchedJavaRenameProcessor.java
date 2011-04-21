@@ -12,6 +12,9 @@ public abstract class WatchedJavaRenameProcessor extends RenameProcessor impleme
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
 	}

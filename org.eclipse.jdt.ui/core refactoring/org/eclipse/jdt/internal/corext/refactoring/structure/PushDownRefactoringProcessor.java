@@ -1042,6 +1042,9 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 		return watchedProcessorDelegate;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
 	}

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
@@ -46,6 +47,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @since 3.0
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Instrumented for CODINGSPECTATOR.
  */
 public class IntroduceFactoryAction extends SelectionDispatchAction {
 
@@ -99,6 +102,9 @@ public class IntroduceFactoryAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			// we have to call this here - no selection changed event is sent after a refactoring but it may still invalidate enablement
 			if (RefactoringAvailabilityTester.isIntroduceFactoryAvailable(selection)) {
 				IMethod method= (IMethod)selection.getFirstElement();

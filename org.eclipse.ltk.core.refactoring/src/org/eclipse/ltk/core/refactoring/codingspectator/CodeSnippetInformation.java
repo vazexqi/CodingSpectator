@@ -28,15 +28,20 @@ public class CodeSnippetInformation {
 		this.codeSnippet= codeSnippet;
 		this.selectedText= selectedText;
 	}
+	
+	public CodeSnippetInformation() {
+	}
 
 	public void insertIntoMap(Map arguments) {
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, selectedText);
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, codeSnippet);
-		if (hasValidRelativeOffsetAttribute())
-			arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_IN_CODE_SNIPPET, relativeOffset);
+		addToArgumentsIfNonNull(arguments, RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, selectedText);
+		addToArgumentsIfNonNull(arguments, RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, codeSnippet);
+		addToArgumentsIfNonNull(arguments, RefactoringDescriptor.ATTRIBUTE_SELECTION_IN_CODE_SNIPPET, relativeOffset);
 	}
 
-	private boolean hasValidRelativeOffsetAttribute() {
-		return relativeOffset != null;
+	private void addToArgumentsIfNonNull(Map arguments, String key, String value) {
+		if (value != null) {
+			arguments.put(key, value);
+		}
 	}
+
 }

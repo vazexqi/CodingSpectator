@@ -502,6 +502,9 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 		return watchedProcessorDelegate;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
 	}
@@ -522,6 +525,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 	 * This method is based on {@link #createChange }. We ignored fChanges and fChangeManager because
 	 * fChangeManager may not be available, and we always want to return a non null refactoring
 	 * descriptor.
+	 * 
 	 * @return The constructed JavaRefactoringDecscriptor
 	 * 
 	 */
