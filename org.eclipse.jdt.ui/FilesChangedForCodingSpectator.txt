@@ -74,6 +74,9 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperT
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractInterfaceWizard.java
 ui/org/eclipse/jdt/ui/actions/ExtractInterfaceAction.java
 
+# For capturing introduce factory refactoring
+ui/org/eclipse/jdt/ui/actions/IntroduceFactoryAction.java
+
 META-INF/MANIFEST.MF
 plugin.xml
 
