@@ -154,6 +154,11 @@ public class FileHelper {
 		return textFileBuffer != null && textFileBuffer.isSynchronized();
 	}
 
+	public static boolean isFileBufferNotSynchronized(IFile file) {
+		ITextFileBuffer textFileBuffer= getTextFileBuffer(file.getFullPath());
+		return textFileBuffer != null && !textFileBuffer.isSynchronized();
+	}
+
 	public static ITextFileBuffer getTextFileBuffer(IPath fullFilePath) {
 		return FileBuffers.getTextFileBufferManager().getTextFileBuffer(fullFilePath, LocationKind.IFILE);
 	}

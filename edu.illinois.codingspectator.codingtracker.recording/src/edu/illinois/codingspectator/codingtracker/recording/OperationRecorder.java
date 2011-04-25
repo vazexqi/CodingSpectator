@@ -96,7 +96,7 @@ public class OperationRecorder {
 
 	public void recordChangedText(DocumentEvent documentEvent, String replacedText, String oldDocumentText, IFile editedFile,
 									boolean isUndoing, boolean isRedoing) {
-		if (!FileHelper.isFileBufferSynchronized(editedFile)) {
+		if (FileHelper.isFileBufferNotSynchronized(editedFile)) {
 			if (!editedFile.equals(lastEditedFile)) {
 				recordEditedUnsynchronizedFile(editedFile, oldDocumentText);
 			}

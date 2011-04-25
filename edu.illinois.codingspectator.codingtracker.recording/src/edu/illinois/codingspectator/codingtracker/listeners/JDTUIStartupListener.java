@@ -33,6 +33,7 @@ public class JDTUIStartupListener implements StartupListener {
 			JUnitListener.register();
 			LaunchListener.register();
 			FileBufferListener.register();
+			DocumentAdapterListener.register();
 		}
 	}
 
