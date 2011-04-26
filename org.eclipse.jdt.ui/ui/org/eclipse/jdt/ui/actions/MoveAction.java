@@ -27,15 +27,16 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
@@ -142,9 +143,8 @@ public class MoveAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
-			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
-			instance.setStructuredSelection(selection);
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
 			if (fMoveInstanceMethodAction.isEnabled() && tryMoveInstanceMethod(selection))
 				return;
@@ -181,10 +181,7 @@ public class MoveAction extends SelectionDispatchAction {
 				return;
 
 			//CODINGSPECTATOR
-			IJavaElement elementAtOffset= SelectionConverter.getElementAtOffset(fEditor);
-			String javaProject= elementAtOffset.getJavaProject().getElementName();
-			String selectionIfAny= elementAtOffset.getElementName();
-			Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE, RefactoringMessages.MoveAction_select);
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveAction_Move, RefactoringMessages.MoveAction_select);
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

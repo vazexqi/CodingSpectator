@@ -8,11 +8,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
  * Delegate to abstract away some of the common methods between the different classes.
@@ -74,19 +70,20 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
 	}
 
-	public String getCodeSnippet(ASTNode node) {
-		if (node != null) {
-			try {
-				return getEnclosingCompilationUnit().getBuffer().getText(node.getStartPosition(), node.getLength());
-			} catch (IndexOutOfBoundsException e) {
-				JavaPlugin.log(e);
-			} catch (JavaModelException e) {
-				JavaPlugin.log(e);
-			}
-		}
-
-		return "DEFAULT";
-	}
+// The following method doesn't seem to be used by anyone.
+//	public String getCodeSnippet(ASTNode node) {
+//		if (node != null) {
+//			try {
+//				return getEnclosingCompilationUnit().getBuffer().getText(node.getStartPosition(), node.getLength());
+//			} catch (IndexOutOfBoundsException e) {
+//				JavaPlugin.log(e);
+//			} catch (JavaModelException e) {
+//				JavaPlugin.log(e);
+//			}
+//		}
+//
+//		return "DEFAULT";
+//	}
 
 	private IJavaElement getJavaElementIfPossible() {
 		if (getElements() == null) {

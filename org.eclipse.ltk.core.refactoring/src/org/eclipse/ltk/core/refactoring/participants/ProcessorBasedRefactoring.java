@@ -449,6 +449,9 @@ public class ProcessorBasedRefactoring extends Refactoring implements IWatchedRe
 	//CODINGSPECTATOR
 	/////////////////
 
+	/**
+	 * @deprecated
+	 */
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
 		if (isRefWizOpenOpCheckedInitConds()) {
 			if (fProcessor instanceof IWatchedProcessor) {

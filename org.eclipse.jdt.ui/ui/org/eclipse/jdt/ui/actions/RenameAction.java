@@ -20,14 +20,13 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
-
-import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
+
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
-import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.refactoring.actions.RenameJavaElementAction;
@@ -119,9 +118,8 @@ public class RenameAction extends SelectionDispatchAction {
 	}
 
 	public void run(IStructuredSelection selection) {
-		// CODINGSPECTATOR: Capture precise selection information
-		RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
-		instance.setStructuredSelection(selection);
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
 		if (fRenameJavaElement.isEnabled())
 			fRenameJavaElement.run(selection);
@@ -137,10 +135,8 @@ public class RenameAction extends SelectionDispatchAction {
 			fRenameJavaElement.run(selection);
 		else {
 			//CODINGSPECTATOR
-			ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
-			String javaProject= typeRoot.getJavaProject().getElementName();
-			String selectionIfAny= selection.getText();
-			Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.RenameAction_unavailable);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameAction_unavailable);
+
 			MessageDialog.openInformation(getShell(), RefactoringMessages.RenameAction_rename, RefactoringMessages.RenameAction_unavailable);
 		}
 	}

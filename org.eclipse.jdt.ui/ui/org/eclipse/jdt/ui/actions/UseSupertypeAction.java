@@ -20,11 +20,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
@@ -33,6 +30,8 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.JavaElementUtil;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -111,9 +110,8 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
-			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
-			instance.setStructuredSelection(selection);
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(selection)) {
 				IType singleSelectedType= getSingleSelectedType(selection);
@@ -175,19 +173,10 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 					return;
 				RefactoringExecutionStarter.startUseSupertypeRefactoring(type, getShell());
 			} else {
-				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.UseSupertypeAction_to_activate);
-
 				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
-				ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
-				if (typeRoot != null) {
-					String javaProject= typeRoot.getJavaProject().getElementName();
-					String selectionIfAny= "CODINGSPECTATOR: No text selected."; //$NON-NLS-1$
-					if (selection.getText() != null) {
-						selectionIfAny= selection.getText();
-					}
-					Logger.logUnavailableRefactoringEvent(IJavaRefactorings.USE_SUPER_TYPE, javaProject, selectionIfAny, RefactoringMessages.UseSupertypeAction_to_activate);
-				}
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.USE_SUPER_TYPE, RefactoringMessages.UseSupertypeAction_to_activate);
 
+				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.UseSupertypeAction_to_activate);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

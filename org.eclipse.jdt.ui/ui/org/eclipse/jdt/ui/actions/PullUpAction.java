@@ -23,17 +23,18 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -124,9 +125,8 @@ public class PullUpAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
-			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
-			instance.setStructuredSelection(selection);
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
 			IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isPullUpAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
@@ -152,10 +152,7 @@ public class PullUpAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startPullUpRefactoring(array, getShell());
 			} else {
 				//CODINGSPECTATOR: Log the unavailability of the refactoring before showing the error message.
-				IJavaElement elementAtOffset= SelectionConverter.getElementAtOffset(fEditor);
-				String javaProject= elementAtOffset.getJavaProject().getElementName();
-				String selectionIfAny= elementAtOffset.getElementName();
-				Logger.logUnavailableRefactoringEvent(getClass().toString(), javaProject, selectionIfAny, RefactoringMessages.MoveAction_select);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.PULL_UP, RefactoringMessages.PullUpAction_unavailable);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PullUpAction_unavailable);
 			}
