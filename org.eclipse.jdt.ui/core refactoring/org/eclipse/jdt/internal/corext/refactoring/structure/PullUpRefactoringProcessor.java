@@ -46,6 +46,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 
 import org.eclipse.jdt.core.Flags;
@@ -2096,10 +2097,14 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated: Use getCodeSnippetInformation() instead.
 	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}
 
 	public String getJavaProjectName() {

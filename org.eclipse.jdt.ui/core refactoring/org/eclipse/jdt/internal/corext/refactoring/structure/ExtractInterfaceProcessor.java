@@ -46,6 +46,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
@@ -1170,10 +1171,14 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated: Use getCodeSnippetInformation() instead.
 	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}
 
 	public String getDescriptorID() {

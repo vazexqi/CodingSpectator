@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
@@ -110,6 +111,9 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 	}
 
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		IJavaElement element= getJavaElement(selection);
 		if (element == null)
 			return;
@@ -179,8 +183,8 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		//CODINGSPECTATOR: What is the best way to capture the selection in this case? Is the selection guaranteed to always be an ITextSelection?
 		ISelection selection= fEditor.getSelectionProvider().getSelection();
 		if (selection instanceof ITextSelection) {
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent((ITextSelection)selection, fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT,
-					RefactoringMessages.RenameJavaElementAction_not_available);
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)selection);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameJavaElementAction_not_available);
 		} else {
 			JavaPlugin.logErrorMessage("Failed to capture the selection for an unavailable rename unknown Java element refactoring.");
 		}

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -21,8 +22,12 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	private IWatchedJavaProcessor watchedProcessor;
 
+	// Cache the global store of refactorings to make sure that "populateInstrumentationData" and "getCodeSnippetInformation" do not interfere with each other by clearing the refactoring global store.
+	private RefactoringGlobalStore cachedRefactoringGlobalStore;
+
 	public WatchedProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
 		this.watchedProcessor= watchedProcessor;
+		cachedRefactoringGlobalStore= RefactoringGlobalStore.getInstance().getShallowCopy();
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
@@ -35,13 +40,11 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
-		RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
-		ITypeRoot typeRoot= getEnclosingCompilationUnit();
-		instance.extractCodeSnippetInformation(typeRoot).insertIntoMap(basicArguments);
+		getCodeSnippetInformation().insertIntoMap(basicArguments);
 		RefactoringGlobalStore.clearData();
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(instance.isInvokedThroughStructuredSelection()));
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(cachedRefactoringGlobalStore.isInvokedThroughStructuredSelection()));
 		return basicArguments;
 	}
 
@@ -51,13 +54,17 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	/**
-	 * @deprecated - To be replaced with functionality in CodeSnippetInformationExtractor
+	 * @deprecated - Use getCodeSnippetInfomration instead.
 	 */
 	public String getSelection() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
 		if (javaElementIfPossible != null)
 			return javaElementIfPossible.getElementName();
 		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return cachedRefactoringGlobalStore.extractCodeSnippetInformation(getEnclosingCompilationUnit());
 	}
 
 	/**

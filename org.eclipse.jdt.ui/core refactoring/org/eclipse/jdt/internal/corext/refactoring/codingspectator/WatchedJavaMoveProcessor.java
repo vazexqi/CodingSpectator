@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 
 /**
@@ -19,10 +20,14 @@ public abstract class WatchedJavaMoveProcessor extends MoveProcessor implements 
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated: Use getCodeSnippetInformation() instead.
 	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}
 
 	public String getJavaProjectName() {

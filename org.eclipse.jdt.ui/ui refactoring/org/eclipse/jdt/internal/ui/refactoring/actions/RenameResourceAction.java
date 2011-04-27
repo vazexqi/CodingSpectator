@@ -19,9 +19,15 @@ import org.eclipse.ui.IWorkbenchSite;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Captured unavailable invocations of the refactoring.
+ * 
+ */
 public class RenameResourceAction extends SelectionDispatchAction {
 
 	public RenameResourceAction(IWorkbenchSite site) {
@@ -37,6 +43,9 @@ public class RenameResourceAction extends SelectionDispatchAction {
 	}
 
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		IResource resource= getResource(selection);
 		if (!RefactoringAvailabilityTester.isRenameAvailable(resource))
 			return;

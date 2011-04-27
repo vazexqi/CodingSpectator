@@ -106,9 +106,8 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
-			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
-			instance.setStructuredSelection(selection);
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(selection)) {
 				IType singleSelectedType= RefactoringAvailabilityTester.getSingleSelectedType(selection);
@@ -159,11 +158,8 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 			} else {
 				//CODINGSPECTATOR
 				String errorMessage= RefactoringMessages.ExtractInterfaceAction_To_activate;
-
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
-
-				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

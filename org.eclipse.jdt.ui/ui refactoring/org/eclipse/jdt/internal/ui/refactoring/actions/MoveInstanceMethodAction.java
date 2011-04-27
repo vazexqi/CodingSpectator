@@ -25,12 +25,15 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -41,6 +44,11 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Captured unavailable invocations of the refactoring.
+ * 
+ */
 public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
@@ -106,6 +114,9 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			Assert.isTrue(RefactoringAvailabilityTester.isMoveMethodAvailable(selection));
 			IMethod method= getSingleSelectedMethod(selection);
 			Assert.isNotNull(method);
@@ -129,6 +140,9 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 	}
 
 	private void run(ITextSelection selection, ICompilationUnit cu) throws JavaModelException {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		Assert.isNotNull(cu);
 		Assert.isTrue(selection.getOffset() >= 0);
 		Assert.isTrue(selection.getLength() >= 0);
@@ -140,6 +154,9 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 		if (method != null) {
 			RefactoringExecutionStarter.startMoveMethodRefactoring(method, getShell());
 		} else {
+			//CODINGSPECTATOR
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE_METHOD, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
+
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
 		}
 	}
