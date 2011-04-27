@@ -27,11 +27,11 @@ public class DocumentAdapter extends Document {
 	private IBuffer buffer;
 	
 	//CODINGSPECTATOR
-	private static IDocumentListenersFactory documentListenersFactory;
+	private static IDocumentListenersFactory documentListenersFactory= null;
 
 	//CODINGSPECTATOR
 	public static void setDocumentListenersFactory(IDocumentListenersFactory newDocumentListenersFactory){
-		documentListenersFactory=newDocumentListenersFactory;
+		documentListenersFactory= newDocumentListenersFactory;
 	}
 	
 	public DocumentAdapter(IBuffer buffer) {
@@ -39,7 +39,7 @@ public class DocumentAdapter extends Document {
 		this.buffer = buffer;
 		//CODINGSPECTATOR
 		IResource underlyingResource = buffer.getUnderlyingResource();
-		if (underlyingResource instanceof IFile && underlyingResource.exists()){
+		if (documentListenersFactory != null && underlyingResource instanceof IFile && underlyingResource.exists()){
 			addDocumentListener(documentListenersFactory.getDocumentListener((IFile) underlyingResource));			
 		}
 	}
