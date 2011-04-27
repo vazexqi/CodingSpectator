@@ -78,7 +78,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	private CodeSnippetInformation getCodeSnippetInformation() {
 		cachedRefactoringGlobalStore.setSelectionInEditor(new TextSelection(fSelectionStart, fSelectionLength));
-		CodeSnippetInformation codeSnippetInformation= cachedRefactoringGlobalStore.extractCodeSnippetInformation(getJavaTypeRoot());
+		CodeSnippetInformation codeSnippetInformation= CodeSnippetInformationFactory.extractCodeSnippetInformation(cachedRefactoringGlobalStore, getJavaTypeRoot());
 		RefactoringGlobalStore.clearData();
 		return codeSnippetInformation;
 	}

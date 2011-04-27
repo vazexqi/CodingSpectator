@@ -113,3 +113,5 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/Ref
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/StructuredSelectionCodeSnippetInformationExtractor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/TextSelectionCodeSnippetInformationExtractor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/NullCodeSnippetInformationExtractor.java
+
+org.eclipse.jdt.internal.corext.refactoring.codingspectator.CodeSnippetInformationFactory

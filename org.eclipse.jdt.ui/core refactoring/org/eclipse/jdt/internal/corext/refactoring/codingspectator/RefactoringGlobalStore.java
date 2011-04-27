@@ -1,17 +1,8 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
-
-import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
-
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ITypeRoot;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
  * 
@@ -24,7 +15,7 @@ public class RefactoringGlobalStore {
 
 	private ITextSelection selectionInEditor;
 
-	private IStructuredSelection structuredSelection;
+	IStructuredSelection structuredSelection;
 
 	private boolean invokedThroughStructuredSelection;
 
@@ -82,27 +73,6 @@ public class RefactoringGlobalStore {
 
 	public boolean isInvokedThroughStructuredSelection() {
 		return invokedThroughStructuredSelection;
-	}
-
-	private class CodeSnippetExtractorFactory {
-		public CodeSnippetInformationExtractor createCodeSnippetInformationExtractor(ITypeRoot typeRoot) {
-			if (isInvokedThroughStructuredSelection()) {
-				try {
-					List selectionList= structuredSelection.toList();
-					IJavaElement aSelectedElement= (IJavaElement)selectionList.get(0);
-					return new StructuredSelectionCodeSnippetInformationExtractor(typeRoot, aSelectedElement, selectionList.toString());
-				} catch (ClassCastException e) {
-					JavaPlugin.log(e);
-					return new NullCodeSnippetInformationExtractor();
-				}
-			} else {
-				return new TextSelectionCodeSnippetInformationExtractor(typeRoot, RefactoringGlobalStore.this.getSelectionStart(), RefactoringGlobalStore.this.getSelectionLength());
-			}
-		}
-	}
-
-	public CodeSnippetInformation extractCodeSnippetInformation(ITypeRoot typeRoot) {
-		return new CodeSnippetExtractorFactory().createCodeSnippetInformationExtractor(typeRoot).extractCodeSnippetInformation();
 	}
 
 }

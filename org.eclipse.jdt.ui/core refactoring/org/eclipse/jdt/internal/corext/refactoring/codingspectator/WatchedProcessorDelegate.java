@@ -64,7 +64,7 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	public CodeSnippetInformation getCodeSnippetInformation() {
-		return cachedRefactoringGlobalStore.extractCodeSnippetInformation(getEnclosingCompilationUnit());
+		return CodeSnippetInformationFactory.extractCodeSnippetInformation(cachedRefactoringGlobalStore, getEnclosingCompilationUnit());
 	}
 
 	/**
