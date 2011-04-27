@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
-public class MoveStaticMembersAction extends SelectionDispatchAction{
+public class MoveStaticMembersAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
 
@@ -103,8 +103,8 @@ public class MoveStaticMembersAction extends SelectionDispatchAction{
 			IMember member= getSelectedMemberFromEditor();
 			if (!ActionUtil.isEditable(fEditor, getShell(), member))
 				return;
-			IMember[] array= new IMember[]{member};
-			if (member != null && RefactoringAvailabilityTester.isMoveStaticMembersAvailable(array)){
+			IMember[] array= new IMember[] { member };
+			if (member != null && RefactoringAvailabilityTester.isMoveStaticMembersAvailable(array)) {
 				RefactoringExecutionStarter.startMoveStaticMembersRefactoring(array, getShell());
 			} else {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.MoveMembersAction_unavailable);
@@ -114,22 +114,22 @@ public class MoveStaticMembersAction extends SelectionDispatchAction{
 		}
 	}
 
-	private static IMember[] getSelectedMembers(IStructuredSelection selection){
+	private static IMember[] getSelectedMembers(IStructuredSelection selection) {
 		if (selection.isEmpty())
 			return null;
 
-		for  (final Iterator iterator= selection.iterator(); iterator.hasNext(); ) {
-			if (! (iterator.next() instanceof IMember))
+		for (final Iterator iterator= selection.iterator(); iterator.hasNext();) {
+			if (!(iterator.next() instanceof IMember))
 				return null;
 		}
 		Set memberSet= new HashSet();
 		memberSet.addAll(Arrays.asList(selection.toArray()));
-		return (IMember[]) memberSet.toArray(new IMember[memberSet.size()]);
+		return (IMember[])memberSet.toArray(new IMember[memberSet.size()]);
 	}
 
-	private IMember getSelectedMemberFromEditor() throws JavaModelException{
+	private IMember getSelectedMemberFromEditor() throws JavaModelException {
 		IJavaElement element= SelectionConverter.getElementAtOffset(fEditor);
-		if (element == null || ! (element instanceof IMember))
+		if (element == null || !(element instanceof IMember))
 			return null;
 		return (IMember)element;
 	}

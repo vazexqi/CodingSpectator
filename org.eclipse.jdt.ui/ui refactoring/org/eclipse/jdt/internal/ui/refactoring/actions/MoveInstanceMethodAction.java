@@ -47,6 +47,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
 	 */
 	public MoveInstanceMethodAction(JavaEditor editor) {
@@ -77,7 +78,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
-    }
+	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
@@ -95,10 +96,11 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 			return null;
 
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IMethod))
+		if (!(first instanceof IMethod))
 			return null;
-		return (IMethod) first;
+		return (IMethod)first;
 	}
+
 	/*
 	 * @see SelectionDispatchAction#run(IStructuredSelection)
 	 */
@@ -113,7 +115,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_unexpected_exception);
 		}
- 	}
+	}
 
 	/* (non-Javadoc)
 	 * Method declared on SelectionDispatchAction
@@ -145,7 +147,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 	private static IMethod getMethod(ICompilationUnit cu, ITextSelection selection) throws JavaModelException {
 		IJavaElement element= SelectionConverter.getElementAtOffset(cu, selection);
 		if (element instanceof IMethod)
-			return (IMethod) element;
+			return (IMethod)element;
 		return null;
 	}
 }
