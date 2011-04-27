@@ -63,21 +63,13 @@ public class Logger {
 		if (refactoringDescriptor == null)
 			return;
 
+		//FIXME: Why does this method check Logger.doesMonitorUIExist()? 
 		if (!Logger.doesMonitorUIExist()) {
 			return;
 		}
 
 		logDebug(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoring descriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
+		serializeRefactoringEvent(refactoringDescriptor, refactoringEventType);
 	}
 
 	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
@@ -140,12 +132,15 @@ public class Logger {
 	public static void logUnavailableRefactoringEvent(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {
 		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, info, errorMessage);
 		logDebug(refactoringDescriptor.toString());
+		serializeRefactoringEvent(refactoringDescriptor, RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE);
+	}
 
+	private static void serializeRefactoringEvent(RefactoringDescriptor refactoringDescriptor, int refactoringEventType) {
 		// Wrap it into a refactoring descriptor proxy
 		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
 		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
 
 		// Call RefactoringHistorySerializer to persist
 		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
