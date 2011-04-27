@@ -58,13 +58,15 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 
 	@Override
 	public void historyNotification(OperationHistoryEvent event) {
-		if (isAboutToRefactor(event) || hasOperationFailed(event)) {
+		if (isAboutToRefactor(event)) {
 			affectedCompilationUnits= getAffectedCompilationUnits(event);
 			try {
 				storeCurrentProblems();
 			} catch (JavaModelException e) {
 				Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to log compilation problems", e));
 			}
+		} else if (hasOperationFailed(event)) {
+			storeAndCompareProblems();
 		}
 	}
 
@@ -105,36 +107,38 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		return eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
 				eventType == OperationHistoryEvent.ABOUT_TO_UNDO;
 	}
-	
+
 	/**
-	 * An operation can fail if the resource does not exist. Create a project,
-	 * say, P1. Create a class in the project, say, C. Create another project,
-	 * say P2. Perform a move refactoring of Class C from P1 to P2. Delete P2.
-	 * Go to the project explorer view and start undoing. First the project P2
-	 * will appear. The next undo will fail. That's the case we're looking for.
+	 * A refactroing can fail in many ways, e.g. if a resource that it expects does not exist.
+	 * Create a project, say, P1. Create a class in the project, say, C. Create another project, say
+	 * P2. Perform a move refactoring of Class C from P1 to P2. Delete P2. Go to the project
+	 * explorer view and start undoing. First the project P2 will appear. The next undo will fail.
+	 * That's the case we're looking for.
 	 * 
-	 * @param event
-	 *            the history event that is in progress.
+	 * @param event the history event that is in progress.
 	 * 
-	 * @return true if the operation history event indicates that it's not
-	 *         possible to performed the operation, false otherwise.
+	 * @return true if the operation history event indicates that it's not possible to performed the
+	 *         operation, false otherwise.
 	 */
-	private boolean hasOperationFailed(OperationHistoryEvent event) {	
+	private boolean hasOperationFailed(OperationHistoryEvent event) {
 		return event.getEventType() == OperationHistoryEvent.OPERATION_NOT_OK;
 	}
 
 	@Override
 	public void executionNotification(RefactoringExecutionEvent event) {
 		if (isRefactoringPerformedEvent(event)) {
-			try {
-			
-				storeCurrentProblems();
-				ProblemChanges problemChanges= problemsComparer.compareProblems();
-				Logger.logDebug(problemChanges.toString());
-				problemChanges.log();
-			} catch (JavaModelException e) {
-				Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to log compilation problems", e));
-			}
+			storeAndCompareProblems();
+		}
+	}
+
+	private void storeAndCompareProblems() {
+		try {
+			storeCurrentProblems();
+			ProblemChanges problemChanges= problemsComparer.compareProblems();
+			Logger.logDebug(problemChanges.toString());
+			problemChanges.log();
+		} catch (JavaModelException e) {
+			Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to log compilation problems", e));
 		}
 	}
 

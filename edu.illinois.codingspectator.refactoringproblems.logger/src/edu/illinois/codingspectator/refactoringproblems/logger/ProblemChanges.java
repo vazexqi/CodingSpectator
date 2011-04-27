@@ -78,6 +78,7 @@ public class ProblemChanges {
 		} catch (UnsupportedEncodingException e) {
 			Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to serialize the compilation problems.", e));
 		}
-		safeRecorder.record(stringOutputStream.toString());
+		final String XMLWriter_XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		safeRecorder.record(stringOutputStream.toString().substring(XMLWriter_XML_VERSION.length()));
 	}
 }
