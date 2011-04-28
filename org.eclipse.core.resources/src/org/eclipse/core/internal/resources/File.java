@@ -11,12 +11,33 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
-import java.io.*;
-import org.eclipse.core.filesystem.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.internal.preferences.EclipsePreferences;
-import org.eclipse.core.internal.utils.*;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.internal.utils.BitMask;
+import org.eclipse.core.internal.utils.FileUtil;
+import org.eclipse.core.internal.utils.Messages;
+import org.eclipse.core.internal.utils.Policy;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFileState;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -24,6 +45,8 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * The standard implementation of {@link IFile}.
+ * 
+ * @author Stas Negara - Added sending notifications about saving a file in method setContents
  */
 public class File extends Resource implements IFile {
 
@@ -342,6 +365,7 @@ public class File extends Resource implements IFile {
 		setContents(content.getContents(), updateFlags, monitor);
 	}
 
+	//CODINGSPECTATOR: introduced variable 'success' and all code that checks/affects it.
 	/* (non-Javadoc)
 	 * @see IFile#setContents(InputStream, int, IProgressMonitor)
 	 */
@@ -353,6 +377,7 @@ public class File extends Resource implements IFile {
 			if (workspace.shouldValidate)
 				workspace.validateSave(this);
 			final ISchedulingRule rule= workspace.getRuleFactory().modifyRule(this);
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				ResourceInfo info= getResourceInfo(false, false);
@@ -360,10 +385,14 @@ public class File extends Resource implements IFile {
 				workspace.beginOperation(true);
 				IFileInfo fileInfo= getStore().fetchInfo();
 				internalSetContents(content, fileInfo, updateFlags, false, Policy.subMonitorFor(monitor, Policy.opWork));
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				if (resourceListener != null) {
+					resourceListener.savedFile(this, success);
+				}
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

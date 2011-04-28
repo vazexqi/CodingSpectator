@@ -25,6 +25,7 @@ public class JDTUIStartupListener implements StartupListener {
 		Debugger.debug("NOTIFIED");
 		if (doesMonitorUIExist()) {
 			Debugger.debug("STARTED");
+			ResourceListener.register();
 			ResourceChangeListener.register();
 			OperationHistoryListener.register();
 			RefactoringExecutionListener.register();

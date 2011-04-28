@@ -105,7 +105,7 @@ public abstract class RefactoringOperation extends UserOperation {
 		isRefactoring= false;
 		RefactoringContribution refactoringContribution= RefactoringCore.getRefactoringContribution(id);
 		if (refactoringContribution == null) {
-			Debugger.debug("***WARNING*** Failed to get refactoring contribution for id: " + id);
+			Debugger.debugWarning("Failed to get refactoring contribution for id: " + id);
 			return;
 		}
 		RefactoringDescriptor refactoringDescriptor= refactoringContribution.createDescriptor(id, project.isEmpty() ? null : project, "Recorded refactoring", "", arguments, flags);

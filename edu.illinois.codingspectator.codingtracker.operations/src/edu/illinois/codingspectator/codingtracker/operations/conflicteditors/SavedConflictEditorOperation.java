@@ -3,8 +3,11 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.conflicteditors;
 
+import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.operations.CompareEditorsUpkeeper;
+import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
+import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 
 /**
  * 
@@ -13,12 +16,16 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
  */
 public class SavedConflictEditorOperation extends ConflictEditorOperation {
 
+	//TODO: Code that involves 'success' is very similar to the one from BreakableFileOperation
+	private boolean success;
+
 	public SavedConflictEditorOperation() {
 		super();
 	}
 
-	public SavedConflictEditorOperation(String editorID) {
+	public SavedConflictEditorOperation(String editorID, boolean success) {
 		super(editorID);
+		this.success= success;
 	}
 
 	@Override
@@ -31,16 +38,40 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 		return "Saved conflict editor";
 	}
 
+	@Override
+	protected void populateTextChunk(OperationTextChunk textChunk) {
+		super.populateTextChunk(textChunk);
+		textChunk.append(success ? 1 : 0);
+	}
+
+	@Override
+	protected void initializeFrom(OperationLexer operationLexer) {
+		super.initializeFrom(operationLexer);
+		success= Integer.valueOf(operationLexer.getNextLexeme()) == 1 ? true : false;
+	}
+
 	@SuppressWarnings("restriction")
 	@Override
 	public void replay() {
-		CompareEditorsUpkeeper.getEditor(editorID).doSave(null);
-		//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			//do nothing
+		if (success) {
+			CompareEditorsUpkeeper.getEditor(editorID).doSave(null);
+			//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//do nothing
+			}
+		} else {
+			Debugger.debugWarning("Ignored unsuccessful save of the conflict editor: " + this);
 		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("Success: " + success + "\n");
+		sb.append(super.toString());
+		return sb.toString();
 	}
 
 }

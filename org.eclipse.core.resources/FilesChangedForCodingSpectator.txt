@@ -1,0 +1,11 @@
+Changed Files
+=============
+
+src/org/eclipse/core/internal/resources/File.java
+src/org/eclipse/core/internal/resources/Resource.java
+
+
+Added Files
+===========
+
+src/org/eclipse/core/internal/resources/IResourceListener.java

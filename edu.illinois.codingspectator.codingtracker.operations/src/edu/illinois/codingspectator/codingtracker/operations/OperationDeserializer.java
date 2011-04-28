@@ -14,8 +14,8 @@ import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOpe
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.breakable.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;

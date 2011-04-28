@@ -280,8 +280,8 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void recordSets() {
-		operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
-		operationRecorder.recordSavedConflictEditors(savedConflictEditors.keySet(), new HashSet<IFile>(savedConflictEditors.values()));
+		//operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
+		//operationRecorder.recordSavedConflictEditors(savedConflictEditors.keySet(), new HashSet<IFile>(savedConflictEditors.values()));
 		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
 		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
 		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFiles, true, true);

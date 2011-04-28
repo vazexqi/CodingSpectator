@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -21,6 +22,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
@@ -29,10 +31,8 @@ import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOpe
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.breakable.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
@@ -66,6 +66,7 @@ import edu.illinois.codingspectator.codingtracker.operations.textchanges.UndoneT
  * @author Stas Negara
  * 
  */
+@SuppressWarnings("restriction")
 public class OperationRecorder {
 
 	private static volatile OperationRecorder recorderInstance= null;
@@ -153,31 +154,45 @@ public class OperationRecorder {
 		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
 	}
 
-	public void recordSavedFiles(Set<IFile> savedFiles, boolean isRefactoring) {
-		for (IFile file : savedFiles) {
-			FileOperation fileOperation= null;
-			if (isRefactoring) {
-				fileOperation= new RefactoredSavedFileOperation(file);
-			} else {
-				fileOperation= new SavedFileOperation(file);
-			}
-			TextRecorder.record(fileOperation);
-		}
-		if (!isRefactoring) {
-			//TODO: Saving does not mean the file is known if its encoding differs from the saved editor encoding
-			//Could look for the cases when the encoding is the same
-			//ensureFilesAreKnown(savedFiles, false);
-		}
+//	public void recordSavedFiles(Set<IFile> savedFiles, boolean isRefactoring) {
+//		for (IFile file : savedFiles) {
+//			FileOperation fileOperation= null;
+//			if (isRefactoring) {
+//				fileOperation= new RefactoredSavedFileOperation(file);
+//			} else {
+//				fileOperation= new SavedFileOperation(file);
+//			}
+//			TextRecorder.record(fileOperation);
+//		}
+//		if (!isRefactoring) {
+//			//TODO: Saving does not mean the file is known if its encoding differs from the saved editor encoding
+//			//Could look for the cases when the encoding is the same
+//			//ensureFilesAreKnown(savedFiles, false);
+//		}
+//	}
+
+	public void recordSavedFile(IFile savedFile, boolean success) {
+		TextRecorder.record(new SavedFileOperation(savedFile, success));
+		//TODO: Saving does not mean the file is known if its encoding differs from the saved editor encoding
+		//But, could look for the cases when the encoding is the same
+		//ensureFileIsKnown(savedFile, false);
 	}
 
-	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs, Set<IFile> savedFiles) {
-		for (String editorID : savedConflictEditorIDs) {
-			TextRecorder.record(new SavedConflictEditorOperation(editorID));
-		}
+	public void recordSavedCompareEditor(CompareEditor compareEditor, boolean success) {
+		TextRecorder.record(new SavedConflictEditorOperation(EditorHelper.getConflictEditorID(compareEditor), success));
 		//TODO: Saving does not mean the file is known if its encoding differs from the saved conflict editor encoding
-		//Could look for the cases when the encoding is the same
-		//ensureFilesAreKnown(savedFiles, false);
+		//But, could look for the cases when the encoding is the same
+		//ensureFileIsKnown(EditorHelper.getEditedJavaFile(compareEditor), false);
 	}
+
+//	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs, Set<IFile> savedFiles) {
+//		for (String editorID : savedConflictEditorIDs) {
+//			TextRecorder.record(new SavedConflictEditorOperation(editorID));
+//		}
+//		//TODO: Saving does not mean the file is known if its encoding differs from the saved conflict editor encoding
+//		//Could look for the cases when the encoding is the same
+//		//ensureFilesAreKnown(savedFiles, false);
+//	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
 		for (IFile file : externallyModifiedFiles) {
