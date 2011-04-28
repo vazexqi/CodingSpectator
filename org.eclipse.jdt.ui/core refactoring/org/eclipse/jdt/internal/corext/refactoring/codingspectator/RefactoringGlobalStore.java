@@ -4,14 +4,21 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.IClearable;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
 /**
  * 
  * @author Mohsen Vakilian
  * @author nchen
  * 
  */
-public class RefactoringGlobalStore {
-	private static RefactoringGlobalStore instance= new RefactoringGlobalStore();
+public class RefactoringGlobalStore implements IClearable {
+	private static RefactoringGlobalStore instance;
+
+	static {
+		resetInstance();
+	}
 
 	private ITextSelection selectionInEditor;
 
@@ -21,6 +28,11 @@ public class RefactoringGlobalStore {
 
 	private RefactoringGlobalStore() {
 
+	}
+
+	private static void resetInstance() {
+		instance= new RefactoringGlobalStore();
+		Logger.clearable= instance;
 	}
 
 	private RefactoringGlobalStore(ITextSelection selectionInEditor, IStructuredSelection structuredSelection, boolean invokedThroughStructuredSelection) {
@@ -34,7 +46,7 @@ public class RefactoringGlobalStore {
 	}
 
 	public static RefactoringGlobalStore getNewInstance() {
-		clearData();
+		resetInstance();
 		return getInstance();
 	}
 
@@ -58,8 +70,8 @@ public class RefactoringGlobalStore {
 		return selectionInEditor != null;
 	}
 
-	public static void clearData() {
-		instance= new RefactoringGlobalStore();
+	public void clearData() {
+		resetInstance();
 	}
 
 	public void setStructuredSelection(IStructuredSelection selection) {

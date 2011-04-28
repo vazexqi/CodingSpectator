@@ -24,6 +24,8 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySeria
  */
 public class Logger {
 
+	public static IClearable clearable= new NullClearable();
+
 	public static final String NAVIGATION_HISTORY_ATTRIBUTE= "navigation-history"; //$NON-NLS-1$
 
 	private static final String MONITOR_UI= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
@@ -145,6 +147,8 @@ public class Logger {
 		// Call RefactoringHistorySerializer to persist
 		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
 		serializer.historyNotification(event);
+
+		clearable.clearData();
 	}
 
 	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {

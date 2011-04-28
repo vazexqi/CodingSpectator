@@ -22,12 +22,8 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	private IWatchedJavaProcessor watchedProcessor;
 
-	// Cache the global store of refactorings to make sure that "populateInstrumentationData" and "getCodeSnippetInformation" do not interfere with each other by clearing the refactoring global store.
-	private RefactoringGlobalStore cachedRefactoringGlobalStore;
-
 	public WatchedProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
 		this.watchedProcessor= watchedProcessor;
-		cachedRefactoringGlobalStore= RefactoringGlobalStore.getInstance().getShallowCopy();
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
@@ -41,10 +37,9 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		getCodeSnippetInformation().insertIntoMap(basicArguments);
-		RefactoringGlobalStore.clearData();
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(cachedRefactoringGlobalStore.isInvokedThroughStructuredSelection()));
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(RefactoringGlobalStore.getInstance().isInvokedThroughStructuredSelection()));
 		return basicArguments;
 	}
 
@@ -64,7 +59,7 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	public CodeSnippetInformation getCodeSnippetInformation() {
-		return CodeSnippetInformationFactory.extractCodeSnippetInformation(cachedRefactoringGlobalStore, getEnclosingCompilationUnit());
+		return CodeSnippetInformationFactory.extractCodeSnippetInformation(getEnclosingCompilationUnit());
 	}
 
 	/**

@@ -31,7 +31,7 @@ public class CodeSnippetInformationFactory {
 		}
 	}
 
-	public static CodeSnippetInformation extractCodeSnippetInformation(RefactoringGlobalStore store, ITypeRoot typeRoot) {
+	private static CodeSnippetInformation extractCodeSnippetInformation(RefactoringGlobalStore store, ITypeRoot typeRoot) {
 		return createCodeSnippetInformationExtractor(store, typeRoot).extractCodeSnippetInformation();
 	}
 

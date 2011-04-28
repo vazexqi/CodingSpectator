@@ -31,13 +31,6 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 
 	protected ITypeRoot fCompilationUnit;
 
-	// Cache the global store of refactorings to make sure that "addAttributesFromGlobalRefactoringStore" and "getCodeSnippetInformation" do not interfere with each other by clearing the refactoring global store.
-	private RefactoringGlobalStore cachedRefactoringGlobalStore;
-
-	public WatchedJavaRefactoring() {
-		cachedRefactoringGlobalStore= RefactoringGlobalStore.getInstance().getShallowCopy();
-	}
-
 	public boolean isWatched() {
 		return true;
 	}
@@ -52,9 +45,8 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	private void addAttributesFromGlobalRefactoringStore(Map arguments) {
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(cachedRefactoringGlobalStore.isInvokedThroughStructuredSelection()));
+		arguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(RefactoringGlobalStore.getInstance().isInvokedThroughStructuredSelection()));
 		getCodeSnippetInformation().insertIntoMap(arguments);
-		RefactoringGlobalStore.clearData();
 	}
 
 	protected abstract void populateRefactoringSpecificFields(String project, final Map arguments);
@@ -77,9 +69,8 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	private CodeSnippetInformation getCodeSnippetInformation() {
-		cachedRefactoringGlobalStore.setSelectionInEditor(new TextSelection(fSelectionStart, fSelectionLength));
-		CodeSnippetInformation codeSnippetInformation= CodeSnippetInformationFactory.extractCodeSnippetInformation(cachedRefactoringGlobalStore, getJavaTypeRoot());
-		RefactoringGlobalStore.clearData();
+		RefactoringGlobalStore.getInstance().setSelectionInEditor(new TextSelection(fSelectionStart, fSelectionLength));
+		CodeSnippetInformation codeSnippetInformation= CodeSnippetInformationFactory.extractCodeSnippetInformation(getJavaTypeRoot());
 		return codeSnippetInformation;
 	}
 
