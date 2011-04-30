@@ -390,9 +390,7 @@ public class File extends Resource implements IFile {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				if (resourceListener != null) {
-					resourceListener.savedFile(this, success);
-				}
+				resourceListener.savedFile(this, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

@@ -77,13 +77,23 @@ import org.eclipse.osgi.util.NLS;
 /**
  * 
  * 
- * @author Stas Negara - Added field resourceListener.
+ * @author Stas Negara - Added field resourceListener and assigned a default stub to it.
  * 
  */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
 
 	//CODINGSPECTATOR
-	public static IResourceListener resourceListener;
+	public static IResourceListener resourceListener= new IResourceListener() { //default stub that does nothing
+
+		public void savedFile(IFile file, boolean success) {
+		}
+
+		public void aboutToSaveCompareEditor(Object compareEditor) {
+		}
+
+		public void savedCompareEditor(Object compareEditor) {
+		}
+	};
 
 	/* package */IPath path;
 

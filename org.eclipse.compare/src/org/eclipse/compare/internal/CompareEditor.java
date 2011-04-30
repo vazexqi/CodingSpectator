@@ -550,15 +550,11 @@ public class CompareEditor extends EditorPart implements IReusableEditor, ISavea
 			public void execute(IProgressMonitor pm) throws CoreException {
 				if (input instanceof CompareEditorInput) {
 					//CODINGSPECTATOR: added code that accesses Resource.resourceListener and try/finally block
-					if (Resource.resourceListener != null) {
-						Resource.resourceListener.aboutToSaveCompareEditor(CompareEditor.this);
-					}
+					Resource.resourceListener.aboutToSaveCompareEditor(CompareEditor.this);
 					try {
 						((CompareEditorInput)input).saveChanges(pm);
 					} finally {
-						if (Resource.resourceListener != null) {
-							Resource.resourceListener.savedCompareEditor(CompareEditor.this);
-						}
+						Resource.resourceListener.savedCompareEditor(CompareEditor.this);
 					}
 				}
 			}
