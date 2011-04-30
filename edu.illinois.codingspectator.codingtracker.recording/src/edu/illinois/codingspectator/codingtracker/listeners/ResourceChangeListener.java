@@ -28,7 +28,7 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 
 /**
@@ -143,7 +143,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		boolean hasChangedKnownFiles= false;
 		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
 			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-			Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile, relativePath);
+			Map<IFile, String> newVersions= ResourceHelper.getEntriesVersions(cvsEntriesFile, relativePath);
 			boolean isInitialCommit= false;
 			for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
 				IFile entryFile= newEntry.getKey();
@@ -165,7 +165,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private boolean doesContainKnownFiles(IPath path) {
-		IResource resource= FileHelper.findWorkspaceMember(path);
+		IResource resource= ResourceHelper.findWorkspaceMember(path);
 		if (resource instanceof Folder) {
 			Folder containerFolder= (Folder)resource;
 			try {
@@ -187,10 +187,10 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
 			if (cvsEntriesFile.exists()) {
 				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-				Map<IFile, String> newVersions= FileHelper.getEntriesVersions(cvsEntriesFile, relativePath);
+				Map<IFile, String> newVersions= ResourceHelper.getEntriesVersions(cvsEntriesFile, relativePath);
 				File trackedCVSEntriesFile= knownfilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
 				if (trackedCVSEntriesFile.exists()) {
-					Map<IFile, String> previousVersions= FileHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
+					Map<IFile, String> previousVersions= ResourceHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
 					processCVSVersionsDifference(newVersions, previousVersions);
 					knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile); //overwrite the existing tracked entries file with the new one
 					hasChangedKnownFiles= true;
@@ -270,7 +270,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	private void calculateSavedAndExternallyModifiedJavaFiles() {
 		for (IFile file : changedJavaFiles) {
 			if (!updatedJavaFiles.contains(file)) { //updated files are neither saved nor externally modified
-				if (isRefactoring || FileHelper.isFileBufferSynchronized(file)) {
+				if (isRefactoring || ResourceHelper.isFileBufferSynchronized(file)) {
 					savedJavaFiles.add(file);
 				} else {
 					externallyModifiedJavaFiles.add(file);

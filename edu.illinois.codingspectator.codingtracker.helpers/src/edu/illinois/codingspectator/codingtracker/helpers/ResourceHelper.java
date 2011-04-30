@@ -32,7 +32,7 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  * @author Stas Negara
  * 
  */
-public class FileHelper {
+public class ResourceHelper {
 
 	public static Charset UNIVERSAL_CHARSET= Charset.forName("UTF-8"); //should always exist, should not throw an exception here
 
@@ -133,8 +133,8 @@ public class FileHelper {
 		}
 	}
 
-	public static String getPortableFilePath(IFile file) {
-		return file.getFullPath().toPortableString();
+	public static String getPortableResourcePath(IResource resource) {
+		return resource.getFullPath().toPortableString();
 	}
 
 	public static IResource findWorkspaceMember(IPath memberPath) {

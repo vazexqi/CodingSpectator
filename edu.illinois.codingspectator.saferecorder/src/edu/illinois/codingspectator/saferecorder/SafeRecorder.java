@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
@@ -49,20 +49,20 @@ public class SafeRecorder {
 		Debugger.debug("END COMMIT");
 		File tempFile= currentRecordFile;
 		currentRecordFile= mainRecordFile;
-		String tempContent= FileHelper.readFileContent(tempFile);
+		String tempContent= ResourceHelper.readFileContent(tempFile);
 		record(tempContent);
 		tempFile.delete();
 	}
 
 	public synchronized void record(CharSequence text) {
 		try {
-			FileHelper.ensureFileExists(currentRecordFile);
+			ResourceHelper.ensureFileExists(currentRecordFile);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CreateRecordFileException + currentRecordFile.getName());
 		}
 		Debugger.debugFileSize("Before: ", currentRecordFile);
 		try {
-			FileHelper.writeFileContent(currentRecordFile, text, true);
+			ResourceHelper.writeFileContent(currentRecordFile, text, true);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_AppendRecordFileException + currentRecordFile.getName());
 		}

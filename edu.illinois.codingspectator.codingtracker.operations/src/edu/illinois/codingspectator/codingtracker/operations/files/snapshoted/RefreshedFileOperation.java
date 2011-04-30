@@ -16,7 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -68,7 +68,7 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		ITextEditor fileEditor= EditorHelper.getExistingEditor(filePath);
+		ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
 		if (fileEditor != null) { //File editor exists
 			IDocument editedDocument= EditorHelper.getEditedDocument(fileEditor);
 			if (isCausedByConflictEditorSave && !fileEditor.isDirty()) {
@@ -84,22 +84,22 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 			}
 		} else {//If file editor does not exist, create a file with the replaced text and open an editor for it
 			createCompilationUnit(replacedText);
-			EditorHelper.createEditor(filePath);
+			EditorHelper.createEditor(resourcePath);
 			EditorHelper.activateEditor(currentEditor);
 		}
 		refresh();
 	}
 
 	private void refresh() throws CoreException {
-		IPath fullFilePath= new Path(filePath);
-		IResource fileResource= FileHelper.findWorkspaceMember(fullFilePath);
-		FileHelper.checkResourceExists(fileResource, "Unsupported replay. Refreshed file does not exist: " + this);
+		IPath fullFilePath= new Path(resourcePath);
+		IResource fileResource= ResourceHelper.findWorkspaceMember(fullFilePath);
+		ResourceHelper.checkResourceExists(fileResource, "Unsupported replay. Refreshed file does not exist: " + this);
 		try {
-			FileHelper.writeFileContent(FileHelper.getFileForResource(fileResource), fileContent, false);
+			ResourceHelper.writeFileContent(ResourceHelper.getFileForResource(fileResource), fileContent, false);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not write content to the refreshed file: " + this, e);
 		}
-		ITextFileBuffer textFileBuffer= FileHelper.getTextFileBuffer(fullFilePath);
+		ITextFileBuffer textFileBuffer= ResourceHelper.getTextFileBuffer(fullFilePath);
 		if (textFileBuffer == null) {
 			throw new RuntimeException("Could not find file buffer for the refreshed file: " + this);
 		}

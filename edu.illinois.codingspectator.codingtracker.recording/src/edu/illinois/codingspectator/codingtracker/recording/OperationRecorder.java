@@ -23,7 +23,7 @@ import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
@@ -31,8 +31,8 @@ import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOpe
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.breakable.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSInitiallyCommittedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.NewFileOperation;
@@ -97,12 +97,12 @@ public class OperationRecorder {
 
 	public void recordChangedText(DocumentEvent documentEvent, String replacedText, String oldDocumentText, IFile editedFile,
 									boolean isUndoing, boolean isRedoing) {
-		if (FileHelper.isFileBufferNotSynchronized(editedFile)) {
+		if (ResourceHelper.isFileBufferNotSynchronized(editedFile)) {
 			if (!editedFile.equals(lastEditedFile)) {
 				recordEditedUnsynchronizedFile(editedFile, oldDocumentText);
 			}
 		} else {
-			ITextFileBuffer textFileBuffer= FileHelper.getTextFileBuffer(editedFile.getFullPath());
+			ITextFileBuffer textFileBuffer= ResourceHelper.getTextFileBuffer(editedFile.getFullPath());
 			if (textFileBuffer != null && textFileBuffer.getEncoding() != null) {
 				ensureFileIsKnown(editedFile, true, textFileBuffer.getEncoding());
 			} else {
@@ -229,7 +229,7 @@ public class OperationRecorder {
 						TextRecorder.record(new CVSCommittedFileOperation(file));
 					}
 				}
-				knownfilesRecorder.addKnownfile(file, FileHelper.getCharsetNameForFile(file));
+				knownfilesRecorder.addKnownfile(file, ResourceHelper.getCharsetNameForFile(file));
 			}
 			knownfilesRecorder.recordKnownfiles();
 		}
@@ -321,7 +321,7 @@ public class OperationRecorder {
 	}
 
 	private void ensureFileIsKnown(IFile file, boolean snapshotIfWasNotKnown) {
-		ensureFileIsKnown(file, snapshotIfWasNotKnown, FileHelper.getCharsetNameForFile(file));
+		ensureFileIsKnown(file, snapshotIfWasNotKnown, ResourceHelper.getCharsetNameForFile(file));
 	}
 
 	private void ensureFileIsKnown(IFile file, boolean snapshotIfWasNotKnown, String charsetName) {
@@ -340,7 +340,7 @@ public class OperationRecorder {
 			}
 		});
 		for (IFile file : files) {
-			fileMap.put(file, FileHelper.getCharsetNameForFile(file));
+			fileMap.put(file, ResourceHelper.getCharsetNameForFile(file));
 		}
 		ensureFilesAreKnown(fileMap, snapshotIfWasNotKnown);
 	}
@@ -370,7 +370,7 @@ public class OperationRecorder {
 
 	private IFile getCVSEntriesForFile(IFile file) {
 		IPath cvsEntriesPath= file.getFullPath().removeLastSegments(1).append("CVS").append("Entries");
-		IResource cvsEntriesResource= FileHelper.findWorkspaceMember(cvsEntriesPath);
+		IResource cvsEntriesResource= ResourceHelper.findWorkspaceMember(cvsEntriesPath);
 		if (cvsEntriesResource != null) {
 			return (IFile)cvsEntriesResource;
 		}

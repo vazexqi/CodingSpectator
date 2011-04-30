@@ -16,7 +16,7 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
  */
 public class SavedConflictEditorOperation extends ConflictEditorOperation {
 
-	//TODO: Code that involves 'success' is very similar to the one from BreakableFileOperation
+	//TODO: Code that involves 'success' is very similar to the one from BreakableResourceOperation
 	private boolean success;
 
 	public SavedConflictEditorOperation() {

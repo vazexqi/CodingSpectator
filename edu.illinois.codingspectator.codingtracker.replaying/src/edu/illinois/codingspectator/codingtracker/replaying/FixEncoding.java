@@ -6,7 +6,7 @@ package edu.illinois.codingspectator.codingtracker.replaying;
 import java.io.File;
 import java.io.IOException;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 
 /**
  * This class fixes encoding in the operation sequences produced by the old versions of
@@ -19,13 +19,13 @@ public class FixEncoding {
 
 	public static void main(String[] args) {
 		//TODO: Might require specifying a particular encoding to read the file, by default it is UTF-8.
-		String originalText= FileHelper.readFileContent(new File(args[0]));
+		String originalText= ResourceHelper.readFileContent(new File(args[0]));
 		try {
 			File outputFile= new File(args[0] + ".fixed");
 			if (outputFile.exists()) {
 				throw new RuntimeException("Output file already exists: " + outputFile.getName());
 			}
-			FileHelper.writeFileContent(outputFile, normalizeEncoding(originalText), false);
+			ResourceHelper.writeFileContent(outputFile, normalizeEncoding(originalText), false);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

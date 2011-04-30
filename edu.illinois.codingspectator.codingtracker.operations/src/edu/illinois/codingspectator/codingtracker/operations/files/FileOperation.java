@@ -9,11 +9,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
-import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
-import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
@@ -21,13 +20,11 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  * @author Stas Negara
  * 
  */
-public abstract class FileOperation extends UserOperation {
+public abstract class FileOperation extends ResourceOperation {
 
 	private static final String FILE_PATH_SEPARATOR= "/";
 
 	private static final String PACKAGE_NAME_SEPARATOR= ".";
-
-	protected String filePath;
 
 	//All the following fields are calculated, so do not serialize/deserialize them
 
@@ -45,11 +42,11 @@ public abstract class FileOperation extends UserOperation {
 
 	public FileOperation(IFile file) {
 		super();
-		filePath= FileHelper.getPortableFilePath(file);
+		resourcePath= ResourceHelper.getPortableResourcePath(file);
 	}
 
 	private void initFragmentNames() {
-		String[] filePathFragments= filePath.split(FILE_PATH_SEPARATOR);
+		String[] filePathFragments= resourcePath.split(FILE_PATH_SEPARATOR);
 		//ignore filePathFragments[0] which is an empty string, because the file path starts with '/'
 		projectName= filePathFragments[1];
 		sourceFolderName= filePathFragments[2];
@@ -87,22 +84,9 @@ public abstract class FileOperation extends UserOperation {
 	}
 
 	@Override
-	protected void populateTextChunk(OperationTextChunk textChunk) {
-		textChunk.append(filePath);
-	}
-
-	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		filePath= operationLexer.getNextLexeme();
+		super.initializeFrom(operationLexer);
 		initFragmentNames();
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer sb= new StringBuffer();
-		sb.append("File path: " + filePath + "\n");
-		sb.append(super.toString());
-		return sb.toString();
 	}
 
 }

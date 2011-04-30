@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.Platform;
 
 import edu.illinois.codingspectator.codingtracker.helpers.CollectionHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
@@ -122,7 +122,7 @@ public class KnownfilesRecorder {
 		InputStreamReader inputStreamReader= null;
 		try {
 			if (file.exists()) {
-				inputStreamReader= new InputStreamReader(new FileInputStream(file), FileHelper.UNIVERSAL_CHARSET);
+				inputStreamReader= new InputStreamReader(new FileInputStream(file), ResourceHelper.UNIVERSAL_CHARSET);
 				properties.load(inputStreamReader);
 			}
 		} catch (IOException e) {
@@ -142,8 +142,8 @@ public class KnownfilesRecorder {
 	private synchronized void writePropertiesToFile(Properties properties, File file) {
 		BufferedWriter bufferedWriter= null;
 		try {
-			FileHelper.ensureFileExists(file);
-			bufferedWriter= new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), FileHelper.UNIVERSAL_CHARSET));
+			ResourceHelper.ensureFileExists(file);
+			bufferedWriter= new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), ResourceHelper.UNIVERSAL_CHARSET));
 			properties.store(bufferedWriter, null);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_WritePropertiesToFileException + file.getName());
@@ -159,11 +159,11 @@ public class KnownfilesRecorder {
 	}
 
 	public boolean isFileKnown(IFile file) {
-		return isFileKnown(file, FileHelper.getCharsetNameForFile(file));
+		return isFileKnown(file, ResourceHelper.getCharsetNameForFile(file));
 	}
 
 	public boolean isFileKnown(IFile file, String charsetName) {
-		String key= FileHelper.getPortableFilePath(file);
+		String key= ResourceHelper.getPortableResourcePath(file);
 		String propertiesString= knownfiles.getProperty(key);
 		if (propertiesString != null) {
 			if (isCVSEntriesPath(key)) {
@@ -176,19 +176,19 @@ public class KnownfilesRecorder {
 
 	void addKnownfile(IFile file, String charsetName) {
 		String propertiesString= charsetName + PROPERTIES_DELIMETER + String.valueOf(System.currentTimeMillis());
-		knownfiles.setProperty(FileHelper.getPortableFilePath(file), propertiesString);
+		knownfiles.setProperty(ResourceHelper.getPortableResourcePath(file), propertiesString);
 	}
 
 	public Object removeKnownfile(IFile file) {
-		return knownfiles.remove(FileHelper.getPortableFilePath(file));
+		return knownfiles.remove(ResourceHelper.getPortableResourcePath(file));
 	}
 
 	public synchronized void addCVSEntriesFile(IFile cvsEntriesSourceFile) {
-		addKnownfile(cvsEntriesSourceFile, FileHelper.getCharsetNameForFile(cvsEntriesSourceFile));
+		addKnownfile(cvsEntriesSourceFile, ResourceHelper.getCharsetNameForFile(cvsEntriesSourceFile));
 		File cvsEntriesDestinationFile= getTrackedCVSEntriesFile(cvsEntriesSourceFile);
 		try {
-			FileHelper.ensureFileExists(cvsEntriesDestinationFile);
-			FileHelper.writeFileContent(cvsEntriesDestinationFile, FileHelper.readFileContent(cvsEntriesSourceFile), false);
+			ResourceHelper.ensureFileExists(cvsEntriesDestinationFile);
+			ResourceHelper.writeFileContent(cvsEntriesDestinationFile, ResourceHelper.readFileContent(cvsEntriesSourceFile), false);
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSEntriesCopyFailure);
 		}

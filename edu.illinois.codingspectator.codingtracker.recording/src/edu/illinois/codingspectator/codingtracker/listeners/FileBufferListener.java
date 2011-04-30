@@ -12,7 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.listeners.document.FileDocumentListener;
 
 /**
@@ -45,7 +45,7 @@ public class FileBufferListener extends BasicListener implements IFileBufferList
 
 	private void addDocumentListener(ITextFileBuffer textFileBuffer) {
 		//TODO: Check that there is no need to listen to buffers without the corresponding workspace resources.
-		IResource bufferResource= FileHelper.findWorkspaceMember(textFileBuffer.getLocation());
+		IResource bufferResource= ResourceHelper.findWorkspaceMember(textFileBuffer.getLocation());
 		if (bufferResource instanceof IFile && bufferResource.exists()) {
 			IDocument textFileBufferDocument= textFileBuffer.getDocument();
 			textFileBufferDocument.addDocumentListener(new FileDocumentListener((IFile)bufferResource));

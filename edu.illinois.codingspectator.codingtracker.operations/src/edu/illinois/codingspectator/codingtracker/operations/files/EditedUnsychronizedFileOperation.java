@@ -10,7 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -57,7 +57,7 @@ public class EditedUnsychronizedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		ITextEditor fileEditor= EditorHelper.getExistingEditor(filePath);
+		ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
 		if (fileEditor != null) { //File editor exists
 			EditorHelper.activateEditor(fileEditor);
 			IDocument editedDocument= EditorHelper.getEditedDocument(fileEditor);
@@ -65,11 +65,11 @@ public class EditedUnsychronizedFileOperation extends FileOperation {
 				throw new RuntimeException("The text of the unsychronized editor is wrong: " + this);
 			}
 		} else {
-			IResource editedFile= FileHelper.findWorkspaceMember(filePath);
+			IResource editedFile= ResourceHelper.findWorkspaceMember(resourcePath);
 			if (editedFile == null || !editedFile.exists()) {
 				createCompilationUnit(editorContent);
 			}
-			fileEditor= EditorHelper.openEditor(filePath);
+			fileEditor= EditorHelper.openEditor(resourcePath);
 			EditorHelper.getEditedDocument(fileEditor).set(editorContent);
 		}
 		currentEditor= fileEditor;

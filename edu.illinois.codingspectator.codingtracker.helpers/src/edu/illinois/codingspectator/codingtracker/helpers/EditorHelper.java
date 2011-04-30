@@ -152,7 +152,7 @@ public class EditorHelper {
 	 * @throws PartInitException
 	 */
 	public static ITextEditor createEditor(String filePath) throws JavaModelException, PartInitException {
-		IFile file= (IFile)FileHelper.findWorkspaceMember(filePath);
+		IFile file= (IFile)ResourceHelper.findWorkspaceMember(filePath);
 		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
 	}
 

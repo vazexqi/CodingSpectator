@@ -6,7 +6,7 @@ package edu.illinois.codingspectator.codingtracker.listeners.document;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.DocumentEvent;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class FileDocumentListener extends DocumentListener {
 	private boolean isFileRefreshed(DocumentEvent documentEvent) {
 		if (isBufferContentAboutToBeReplaced) {
 			String currentDocumentText= documentEvent.getDocument().get();
-			return currentDocumentText.equals(FileHelper.readFileContent(documentFile)) && currentDocumentText.equals(documentEvent.getText());
+			return currentDocumentText.equals(ResourceHelper.readFileContent(documentFile)) && currentDocumentText.equals(documentEvent.getText());
 		}
 		return false;
 	}

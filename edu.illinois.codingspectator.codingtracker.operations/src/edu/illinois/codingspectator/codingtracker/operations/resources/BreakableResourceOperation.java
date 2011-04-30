@@ -1,31 +1,30 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.codingtracker.operations.files.breakable;
+package edu.illinois.codingspectator.codingtracker.operations.resources;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
-import edu.illinois.codingspectator.codingtracker.operations.files.FileOperation;
 
 /**
  * 
  * @author Stas Negara
  * 
  */
-public abstract class BreakableFileOperation extends FileOperation {
+public abstract class BreakableResourceOperation extends ResourceOperation {
 
 	private boolean success;
 
-	public BreakableFileOperation() {
+	public BreakableResourceOperation() {
 		super();
 	}
 
-	public BreakableFileOperation(IFile file, boolean success) {
-		super(file);
+	public BreakableResourceOperation(IResource resource, boolean success) {
+		super(resource);
 		this.success= success;
 	}
 
@@ -44,9 +43,9 @@ public abstract class BreakableFileOperation extends FileOperation {
 	@Override
 	public void replay() throws CoreException {
 		if (success) {
-			replayBreakableFileOperation();
+			replayBreakableResourceOperation();
 		} else {
-			Debugger.debugWarning("Ignored unsuccessful file operation: " + this);
+			Debugger.debugWarning("Ignored unsuccessful resource operation: " + this);
 		}
 	}
 
@@ -58,6 +57,6 @@ public abstract class BreakableFileOperation extends FileOperation {
 		return sb.toString();
 	}
 
-	protected abstract void replayBreakableFileOperation() throws CoreException;
+	protected abstract void replayBreakableResourceOperation() throws CoreException;
 
 }

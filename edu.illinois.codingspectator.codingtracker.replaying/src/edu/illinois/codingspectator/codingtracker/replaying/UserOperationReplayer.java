@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
 
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
@@ -113,7 +113,7 @@ public class UserOperationReplayer {
 				FileDialog fileDialog= new FileDialog(operationSequenceView.getShell(), SWT.OPEN);
 				String selectedFilePath= fileDialog.open();
 				if (selectedFilePath != null) {
-					String operationsRecord= FileHelper.readFileContent(new File(selectedFilePath));
+					String operationsRecord= ResourceHelper.readFileContent(new File(selectedFilePath));
 					userOperations= OperationDeserializer.getUserOperations(operationsRecord);
 					if (userOperations.size() > 0) {
 						resetAction.setEnabled(true);
@@ -133,7 +133,7 @@ public class UserOperationReplayer {
 		resetAction= new Action() {
 			@Override
 			public void run() {
-				FileHelper.clearWorkspace();
+				ResourceHelper.clearWorkspace();
 				prepareForReplay();
 			}
 		};
