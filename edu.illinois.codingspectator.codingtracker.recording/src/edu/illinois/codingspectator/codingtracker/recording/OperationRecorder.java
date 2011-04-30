@@ -50,6 +50,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.Finish
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation.Mode;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
@@ -152,6 +153,10 @@ public class OperationRecorder {
 	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
 		ensureFileIsKnown(editedFile, true);
 		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
+	}
+
+	public void recordMovedResource(IResource movedResource, IPath destination, int updateFlags, boolean success) {
+		TextRecorder.record(new MovedResourceOperation(movedResource, destination, updateFlags, success));
 	}
 
 //	public void recordSavedFiles(Set<IFile> savedFiles, boolean isRefactoring) {

@@ -82,8 +82,10 @@ public class OperationHistoryListener extends BasicListener implements IOperatio
 					IResource resource= ((CompilationUnit)affectedObject).getResource();
 					if (resource instanceof IFile) { //Could it be something else?
 						IFile file= (IFile)resource;
-						Debugger.debugFilePath("File affected by refactoring: ", file);
-						affectedFiles.add(file);
+						boolean wasAdded= affectedFiles.add(file);
+						if (wasAdded) {
+							Debugger.debugFilePath("File affected by refactoring: ", file);
+						}
 					}
 				}
 			}

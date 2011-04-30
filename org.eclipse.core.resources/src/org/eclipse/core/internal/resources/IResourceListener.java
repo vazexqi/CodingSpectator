@@ -1,6 +1,8 @@
 package org.eclipse.core.internal.resources;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 
 /**
  * 
@@ -8,6 +10,8 @@ import org.eclipse.core.resources.IFile;
  * 
  */
 public interface IResourceListener {
+
+	public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success);
 
 	public void savedFile(IFile file, boolean success);
 

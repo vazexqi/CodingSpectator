@@ -15,17 +15,54 @@
 package org.eclipse.core.internal.resources;
 
 import java.net.URI;
-import java.util.*;
-import org.eclipse.core.filesystem.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.internal.events.LifecycleEvent;
-import org.eclipse.core.internal.utils.*;
-import org.eclipse.core.resources.*;
+import org.eclipse.core.internal.utils.FileUtil;
+import org.eclipse.core.internal.utils.Messages;
+import org.eclipse.core.internal.utils.Policy;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.ISaveContext;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.team.IMoveDeleteHook;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IPluginDescriptor;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * 
+ * @author Stas Negara - Added sending a notification about moving the project in method move.
+ * 
+ */
 public class Project extends Container implements IProject {
 
 	/**
@@ -912,11 +949,15 @@ public class Project extends Container implements IProject {
 				IMoveDeleteHook hook= workspace.getMoveDeleteHook();
 				workspace.broadcastEvent(LifecycleEvent.newEvent(LifecycleEvent.PRE_PROJECT_MOVE, this, destination, updateFlags));
 				int depth= 0;
+				//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+				boolean success= false;
 				try {
 					depth= workManager.beginUnprotected();
 					if (!hook.moveProject(tree, this, description, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2)))
 						tree.standardMoveProject(this, description, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2));
+					success= true;
 				} finally {
+					Resource.resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
 					workManager.endUnprotected(depth);
 				}
 				// Invalidate the tree for further use by clients.

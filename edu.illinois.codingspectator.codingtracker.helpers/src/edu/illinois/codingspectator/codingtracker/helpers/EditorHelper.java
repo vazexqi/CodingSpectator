@@ -75,7 +75,7 @@ public class EditorHelper {
 					IResource resource= resourceNode.getResource();
 					if (resource instanceof IFile) {
 						IFile file= (IFile)resource;
-						if (isJavaFile(file)) {
+						if (ResourceHelper.isJavaFile(file)) {
 							javaFile= file;
 						}
 					}
@@ -90,7 +90,7 @@ public class EditorHelper {
 		IEditorInput editorInput= editor.getEditorInput();
 		if (editorInput instanceof FileEditorInput) {
 			IFile file= ((FileEditorInput)editorInput).getFile();
-			if (isJavaFile(file)) {
+			if (ResourceHelper.isJavaFile(file)) {
 				javaFile= file;
 			}
 		}
@@ -112,14 +112,6 @@ public class EditorHelper {
 
 	public static ISourceViewer getEditingSourceViewer(AbstractDecoratedTextEditor editor) {
 		return editor.getHackedViewer();
-	}
-
-	private static boolean isJavaFile(IFile file) {
-		String fileExtension= file.getFileExtension();
-		if (fileExtension != null && fileExtension.equals("java")) {
-			return true;
-		}
-		return false;
 	}
 
 	public static ITextEditor openEditor(String filePath) throws CoreException {

@@ -215,4 +215,8 @@ public class ResourceHelper {
 		}
 	}
 
+	public static boolean isJavaFile(IFile file) {
+		return "java".equals(file.getFileExtension());
+	}
+
 }

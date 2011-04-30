@@ -7,6 +7,10 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.internal.resources.IResourceListener;
 import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 
 
 /**
@@ -26,8 +30,13 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	@Override
+	public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
+		operationRecorder.recordMovedResource(resource, destination, updateFlags, success);
+	}
+
+	@Override
 	public void savedFile(IFile file, boolean success) {
-		if ("java".equals(file.getFileExtension())) {
+		if (ResourceHelper.isJavaFile(file)) {
 			lastSavedFileSuccess= success;
 			if (!isSavingCompareEditor) { //compare editor saving is handled in a different method
 				operationRecorder.recordSavedFile(file, success);

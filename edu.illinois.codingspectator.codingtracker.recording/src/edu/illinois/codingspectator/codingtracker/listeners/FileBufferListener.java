@@ -47,8 +47,11 @@ public class FileBufferListener extends BasicListener implements IFileBufferList
 		//TODO: Check that there is no need to listen to buffers without the corresponding workspace resources.
 		IResource bufferResource= ResourceHelper.findWorkspaceMember(textFileBuffer.getLocation());
 		if (bufferResource instanceof IFile && bufferResource.exists()) {
-			IDocument textFileBufferDocument= textFileBuffer.getDocument();
-			textFileBufferDocument.addDocumentListener(new FileDocumentListener((IFile)bufferResource));
+			IFile bufferFile= (IFile)bufferResource;
+			if (ResourceHelper.isJavaFile(bufferFile)) {
+				IDocument textFileBufferDocument= textFileBuffer.getDocument();
+				textFileBufferDocument.addDocumentListener(new FileDocumentListener(bufferFile));
+			}
 		}
 	}
 

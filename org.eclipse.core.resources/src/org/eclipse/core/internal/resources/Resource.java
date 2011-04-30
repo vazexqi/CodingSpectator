@@ -77,13 +77,16 @@ import org.eclipse.osgi.util.NLS;
 /**
  * 
  * 
- * @author Stas Negara - Added field resourceListener and assigned a default stub to it.
+ * @author Stas Negara - Added field resourceListener and assigned a default stub to it. Added event
+ *         notifications for move.
  * 
  */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
 
 	//CODINGSPECTATOR
 	public static IResourceListener resourceListener= new IResourceListener() { //default stub that does nothing
+		public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
+		}
 
 		public void savedFile(IFile file, boolean success) {
 		}
@@ -1648,6 +1651,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 					depth= workManager.beginUnprotected();
 					success= unprotectedMove(tree, destResource, updateFlags, monitor);
 				} finally {
+					//CODINGSPECTATOR
+					resourceListener.movedResource(this, destination, updateFlags, success);
 					workManager.endUnprotected(depth);
 				}
 				// Invalidate the tree for further use by clients.
