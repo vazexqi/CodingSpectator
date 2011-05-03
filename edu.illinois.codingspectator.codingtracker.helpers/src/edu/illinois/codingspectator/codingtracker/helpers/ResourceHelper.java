@@ -18,14 +18,11 @@ import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
-import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 
@@ -145,7 +142,7 @@ public class ResourceHelper {
 		return getWorkspaceRoot().findMember(memberPath);
 	}
 
-	private static IWorkspaceRoot getWorkspaceRoot() {
+	public static IWorkspaceRoot getWorkspaceRoot() {
 		return ResourcesPlugin.getWorkspace().getRoot();
 	}
 
@@ -161,17 +158,6 @@ public class ResourceHelper {
 
 	public static ITextFileBuffer getTextFileBuffer(IPath fullFilePath) {
 		return FileBuffers.getTextFileBufferManager().getTextFileBuffer(fullFilePath, LocationKind.IFILE);
-	}
-
-	public static void clearWorkspace() {
-		EditorHelper.closeAllEditors();
-		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-			try {
-				JavaProjectHelper.delete(project);
-			} catch (CoreException e) {
-				throw new RuntimeException("Could not delete project \"" + project.getName() + "\"", e);
-			}
-		}
 	}
 
 	public static Map<IFile, String> getEntriesVersions(IFile cvsEntriesFile, IPath relativePath) {

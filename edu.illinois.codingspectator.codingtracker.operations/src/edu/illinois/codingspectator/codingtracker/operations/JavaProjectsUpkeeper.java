@@ -3,12 +3,13 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 
@@ -19,35 +20,37 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  */
 public class JavaProjectsUpkeeper {
 
-	//TODO: Should be made empty on reset?
-	private static final Set<IJavaProject> javaProjects= new HashSet<IJavaProject>();
-
 	public static IJavaProject[] getAllJavaProjects() {
-		return javaProjects.toArray(new IJavaProject[javaProjects.size()]);
+		IProject[] projects= getAllProjects();
+		IJavaProject[] javaProjects= new IJavaProject[projects.length]; //assumes that during replay all projects are Java projects
+		for (int i= 0; i < projects.length; i++) {
+			javaProjects[i]= JavaCore.create(projects[i]);
+		}
+		return javaProjects;
 	}
 
 	public static IJavaProject findOrCreateJavaProject(String projectName) throws CoreException {
-		IJavaProject javaProject= findExistingJavaProject(projectName);
-		if (javaProject == null) {
-			javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
-			javaProjects.add(javaProject);
+		IProject project= ResourceHelper.getWorkspaceRoot().getProject(projectName);
+		if (project.exists()) {
+			return JavaCore.create(project);
+		} else {
+			return JavaProjectHelper.createJavaProject(projectName, "bin");
 		}
-		return javaProject;
 	}
 
-	private static IJavaProject findExistingJavaProject(String projectName) {
-		for (IJavaProject javaProject : javaProjects) {
-			if (javaProject.getElementName().equals(projectName)) {
-				if (javaProject.exists()) {
-					return javaProject;
-				} else {
-					javaProjects.remove(javaProject);
-					return null;
-				}
-
+	public static void clearWorkspace() {
+		EditorHelper.closeAllEditors();
+		for (IProject project : getAllProjects()) {
+			try {
+				JavaProjectHelper.delete(project);
+			} catch (CoreException e) {
+				throw new RuntimeException("Could not delete project \"" + project.getName() + "\"", e);
 			}
 		}
-		return null;
+	}
+
+	private static IProject[] getAllProjects() {
+		return ResourceHelper.getWorkspaceRoot().getProjects();
 	}
 
 }

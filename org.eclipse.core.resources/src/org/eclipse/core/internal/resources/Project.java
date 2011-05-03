@@ -641,6 +641,7 @@ public class Project extends Container implements IProject {
 		info.setSyncInfo(null);
 	}
 
+	//CODINGSPECTATOR - Note: No need to record this event directly, because copying of children will be recorded in Resource.copy(IPath...).
 	protected void internalCopy(IProjectDescription destDesc, int updateFlags, IProgressMonitor monitor) throws CoreException {
 		monitor= Policy.monitorFor(monitor);
 		try {

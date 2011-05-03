@@ -7,7 +7,7 @@ import java.io.File;
 
 import org.junit.BeforeClass;
 
-import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
 import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
 
@@ -26,7 +26,7 @@ public abstract class CodingTrackerTest {
 	public static void before() {
 		//First clear workspace, then clear the record (otherwise, the record file may get spurious operations due to closing editors),
 		//and finally reset the knownfiles. 
-		ResourceHelper.clearWorkspace();
+		JavaProjectsUpkeeper.clearWorkspace();
 		mainRecordFile.delete();
 		resetKnownFiles();
 	}

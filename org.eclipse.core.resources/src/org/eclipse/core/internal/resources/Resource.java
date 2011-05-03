@@ -78,7 +78,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  * 
  * @author Stas Negara - Added field resourceListener and assigned a default stub to it. Added event
- *         notifications for move.
+ *         notifications for move and copy.
  * 
  */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
@@ -86,6 +86,9 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 	//CODINGSPECTATOR
 	public static IResourceListener resourceListener= new IResourceListener() { //default stub that does nothing
 		public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
+		}
+
+		public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
 		}
 
 		public void savedFile(IFile file, boolean success) {
@@ -595,6 +598,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			checkValidPath(destination, getType(), false);
 			Resource destResource= workspace.newResource(destination, getType());
 			final ISchedulingRule rule= workspace.getRuleFactory().copyRule(this, destResource);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.copy API
@@ -602,10 +607,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				assertCopyRequirements(destination, getType(), updateFlags);
 				workspace.beginOperation(true);
 				getLocalManager().copy(this, destResource, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork));
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.copiedResource(this, destination, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -621,6 +628,7 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		copy(destDesc, updateFlags, monitor);
 	}
 
+	//CODINGSPECTATOR - Note: Did not find the callers of this method. Anyway, copying of children will be recorded in copy(IPath...).
 	/* (non-Javadoc)
 	 * Used when a folder is to be copied to a project.
 	 * @see IResource#copy(IProjectDescription, int, IProgressMonitor)

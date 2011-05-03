@@ -24,6 +24,7 @@ import org.eclipse.ui.IEditorPart;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
+import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
@@ -133,7 +134,7 @@ public class UserOperationReplayer {
 		resetAction= new Action() {
 			@Override
 			public void run() {
-				ResourceHelper.clearWorkspace();
+				JavaProjectsUpkeeper.clearWorkspace();
 				prepareForReplay();
 			}
 		};

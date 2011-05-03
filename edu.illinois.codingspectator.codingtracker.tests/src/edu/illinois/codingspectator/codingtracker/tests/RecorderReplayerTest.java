@@ -11,7 +11,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.junit.Test;
 
 import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
@@ -102,7 +101,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private File getGeneratedFile(String workspaceRelativeFilePath) {
-		return ResourceHelper.getFileForResource(ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath));
+		return ResourceHelper.getFileForResource(ResourceHelper.findWorkspaceMember(workspaceRelativeFilePath));
 	}
 
 	private String removeVolatileParts(UserOperation userOperation) {

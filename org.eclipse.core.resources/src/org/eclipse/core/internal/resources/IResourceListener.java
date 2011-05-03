@@ -13,6 +13,8 @@ public interface IResourceListener {
 
 	public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success);
 
+	public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success);
+
 	public void savedFile(IFile file, boolean success);
 
 	public void aboutToSaveCompareEditor(Object compareEditor);

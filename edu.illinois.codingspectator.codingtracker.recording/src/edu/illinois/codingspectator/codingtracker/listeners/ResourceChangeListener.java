@@ -28,8 +28,8 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 
 /**
  * 
@@ -312,7 +312,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			if (parentDir.equals("text-base")) {
 				String javaSourceFileName= fileName.substring(0, fileName.lastIndexOf("."));
 				IPath javaSourceFilePath= fileFullPath.removeLastSegments(3).append(javaSourceFileName);
-				javaSourceFile= ResourcesPlugin.getWorkspace().getRoot().getFile(javaSourceFilePath);
+				javaSourceFile= ResourceHelper.getWorkspaceRoot().getFile(javaSourceFilePath);
 			}
 		}
 		return javaSourceFile;

@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
@@ -17,6 +16,8 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
+
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 
 /**
  * 
@@ -74,7 +75,7 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 		IProject refactoredProject= null;
 		String projectName= getRefactoringDescriptor(event).getProject();
 		if (projectName != null && Path.EMPTY.isValidSegment(projectName)) {
-			refactoredProject= ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			refactoredProject= ResourceHelper.getWorkspaceRoot().getProject(projectName);
 		}
 		return refactoredProject;
 	}
