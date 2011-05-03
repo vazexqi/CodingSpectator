@@ -80,6 +80,12 @@ ui/org/eclipse/jdt/ui/actions/ExtractInterfaceAction.java
 # For capturing introduce factory refactoring
 ui/org/eclipse/jdt/ui/actions/IntroduceFactoryAction.java
 
+# For initializing the global store of refactorings
+ui/org/eclipse/jdt/ui/actions/ExtractConstantAction.java
+ui/org/eclipse/jdt/ui/actions/ExtractTempAction.java
+ui/org/eclipse/jdt/ui/actions/InlineTempAction.java
+ui/org/eclipse/jdt/ui/actions/ConvertLocalToFieldAction.java
+
 META-INF/MANIFEST.MF
 plugin.xml
 
