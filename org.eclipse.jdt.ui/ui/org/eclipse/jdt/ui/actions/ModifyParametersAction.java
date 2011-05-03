@@ -146,7 +146,7 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
 
 			if (!ActionUtil.isEditable(fEditor))
 				return;

@@ -129,7 +129,7 @@ public class RenameAction extends SelectionDispatchAction {
 
 	public void run(ITextSelection selection) {
 		// CODINGSPECTATOR: Capture precise selection information
-		RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
 
 		if (fRenameJavaElement.canRunInEditor())
 			fRenameJavaElement.run(selection);

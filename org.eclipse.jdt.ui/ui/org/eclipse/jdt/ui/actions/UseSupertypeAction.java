@@ -165,7 +165,7 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)fEditor.getSelectionProvider().getSelection());
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
 
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(type)) {
