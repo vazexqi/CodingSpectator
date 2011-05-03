@@ -90,7 +90,7 @@ public class OperationRecorder {
 	}
 
 	public void recordRefreshedFile(IFile refreshedFile, String replacedText) {
-		boolean isFileKnown= knownfilesRecorder.isFileKnown(refreshedFile);
+		boolean isFileKnown= knownfilesRecorder.isFileKnown(refreshedFile, true);
 		if (!isFileKnown) {
 			ensureFileIsKnown(refreshedFile, false);
 		}
@@ -360,11 +360,11 @@ public class OperationRecorder {
 		for (Entry<IFile, String> entry : fileMap.entrySet()) {
 			//TODO: Is it possible to have a known file, whose CVS/Entries is not known? If not, merge the following two if statements.
 			IFile cvsEntriesFile= getCVSEntriesForFile(entry.getKey());
-			if (cvsEntriesFile != null && !knownfilesRecorder.isFileKnown(cvsEntriesFile)) {
+			if (cvsEntriesFile != null && !knownfilesRecorder.isFileKnown(cvsEntriesFile, false)) {
 				knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile);
 				hasChanged= true;
 			}
-			if (!knownfilesRecorder.isFileKnown(entry.getKey(), entry.getValue())) {
+			if (!knownfilesRecorder.isFileKnown(entry.getKey(), entry.getValue(), true)) {
 				knownfilesRecorder.addKnownfile(entry.getKey(), entry.getValue());
 				hasChanged= true;
 				//save the content of a previously unknown file

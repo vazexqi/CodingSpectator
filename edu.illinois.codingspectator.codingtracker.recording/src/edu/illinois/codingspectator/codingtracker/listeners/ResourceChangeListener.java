@@ -171,7 +171,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			try {
 				IResource[] members= containerFolder.members();
 				for (IResource member : members) {
-					if (member instanceof IFile && knownfilesRecorder.isFileKnown((IFile)member)) {
+					if (member instanceof IFile && knownfilesRecorder.isFileKnown((IFile)member, false)) {
 						return true;
 					}
 				}

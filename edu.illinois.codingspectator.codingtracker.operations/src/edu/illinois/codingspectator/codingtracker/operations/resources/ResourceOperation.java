@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.codingtracker.operations.resources;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -24,7 +25,7 @@ import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
  */
 public abstract class ResourceOperation extends UserOperation {
 
-	private static final String FILE_PATH_SEPARATOR= "/";
+	private static final String FILE_PATH_SEPARATOR= String.valueOf(IPath.SEPARATOR);
 
 	private static final String PACKAGE_NAME_SEPARATOR= ".";
 

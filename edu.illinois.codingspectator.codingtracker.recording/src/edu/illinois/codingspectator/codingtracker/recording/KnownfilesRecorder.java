@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.Platform;
 
 import edu.illinois.codingspectator.codingtracker.helpers.CollectionHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 
 /**
@@ -158,18 +158,19 @@ public class KnownfilesRecorder {
 		}
 	}
 
-	public boolean isFileKnown(IFile file) {
-		return isFileKnown(file, ResourceHelper.getCharsetNameForFile(file));
+	public boolean isFileKnown(IFile file, boolean shouldMatchEncoding) {
+		return isFileKnown(file, ResourceHelper.getCharsetNameForFile(file), shouldMatchEncoding);
 	}
 
-	public boolean isFileKnown(IFile file, String charsetName) {
+	public boolean isFileKnown(IFile file, String charsetName, boolean shouldMatchEncoding) {
 		String key= ResourceHelper.getPortableResourcePath(file);
 		String propertiesString= knownfiles.getProperty(key);
 		if (propertiesString != null) {
-			if (isCVSEntriesPath(key)) {
+			if (shouldMatchEncoding) {
+				return getSpecificProperty(propertiesString, FileProperties.ENCODING).equals(charsetName);
+			} else {
 				return true;
 			}
-			return getSpecificProperty(propertiesString, FileProperties.ENCODING).equals(charsetName);
 		}
 		return false;
 	}
