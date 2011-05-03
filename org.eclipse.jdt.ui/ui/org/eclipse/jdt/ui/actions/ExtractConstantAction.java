@@ -16,6 +16,7 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractConstantRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
@@ -39,6 +40,9 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringStarter;
  * @since 2.1
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
  */
 public class ExtractConstantAction extends SelectionDispatchAction {
 
@@ -81,6 +85,9 @@ public class ExtractConstantAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		ExtractConstantRefactoring refactoring= new ExtractConstantRefactoring(SelectionConverter.getInputAsCompilationUnit(fEditor), selection.getOffset(), selection.getLength());

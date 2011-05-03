@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
@@ -43,6 +44,9 @@ import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
  * @since 2.0
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
  */
 public class InlineTempAction extends SelectionDispatchAction {
 
@@ -94,6 +98,9 @@ public class InlineTempAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		ICompilationUnit input= SelectionConverter.getInputAsCompilationUnit(fEditor);
 		if (!ActionUtil.isEditable(fEditor))
 			return;

@@ -140,6 +140,9 @@ public class IntroduceFactoryAction extends SelectionDispatchAction {
 	}
 
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		RefactoringExecutionStarter.startIntroduceFactoryRefactoring(SelectionConverter.getInputAsCompilationUnit(fEditor), selection, getShell());

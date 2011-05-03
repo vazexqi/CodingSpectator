@@ -133,6 +133,9 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			run(selection, SelectionConverter.getInputAsCompilationUnit(fEditor));
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_unexpected_exception);
@@ -140,9 +143,6 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 	}
 
 	private void run(ITextSelection selection, ICompilationUnit cu) throws JavaModelException {
-		//CODINGSPECTATOR
-		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
-
 		Assert.isNotNull(cu);
 		Assert.isTrue(selection.getOffset() >= 0);
 		Assert.isTrue(selection.getLength() >= 0);

@@ -18,6 +18,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
@@ -44,7 +45,8 @@ import org.eclipse.jdt.internal.ui.refactoring.code.ExtractMethodWizard;
  * @noextend This class is not intended to be subclassed by clients.
  * 
  * @author Mohsen Vakilian, nchen - Made the extract method refactoring menu item always enabled in
- *         testing mode. This is a hack to circumvent a bug in SWTBot.
+ *         testing mode. This is a hack to circumvent a bug in SWTBot. Also, initialized the global
+ *         store of refactorings at the beginning of the run methods.
  */
 public class ExtractMethodAction extends SelectionDispatchAction {
 
@@ -90,6 +92,9 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		ExtractMethodRefactoring refactoring= new ExtractMethodRefactoring(SelectionConverter.getInputAsCompilationUnit(fEditor), selection.getOffset(), selection.getLength());

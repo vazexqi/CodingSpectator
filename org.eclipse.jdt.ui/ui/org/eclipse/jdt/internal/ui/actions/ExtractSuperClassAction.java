@@ -138,9 +138,8 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	 */
 	public void run(final IStructuredSelection selection) {
 		try {
-			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore instance= RefactoringGlobalStore.getNewInstance();
-			instance.setStructuredSelection(selection);
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
 			final IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isExtractSupertypeAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
@@ -155,6 +154,9 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	 */
 	public void run(final ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			final IMember member= getSelectedMemberFromEditor();
@@ -168,7 +170,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
 			}
 		} catch (JavaModelException exception) {
 			ExceptionHandler.handle(exception, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

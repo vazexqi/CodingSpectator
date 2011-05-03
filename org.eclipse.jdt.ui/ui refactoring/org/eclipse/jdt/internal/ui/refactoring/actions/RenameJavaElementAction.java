@@ -150,8 +150,9 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 	}
 
 	public void doRun() {
-		//CODINGSPECTATOR: What is the best way to capture the selection in this case? Is the selection guaranteed to always be an ITextSelection?
 		ISelection selection= fEditor.getSelectionProvider().getSelection();
+		//Initialize the global store in doRun as opposed to run(ITextSelection) because doRun 
+		//is also invoked in org.eclipse.jdt.internal.ui.text.correction.proposals.RenameRefactoringProposal.apply(IDocument)
 		RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)selection);
 
 		RenameLinkedMode activeLinkedMode= RenameLinkedMode.getActiveLinkedMode();

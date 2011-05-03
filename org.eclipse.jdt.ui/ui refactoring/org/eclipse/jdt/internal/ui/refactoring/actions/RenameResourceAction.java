@@ -25,7 +25,8 @@ import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Captured unavailable invocations of the refactoring.
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
  * 
  */
 public class RenameResourceAction extends SelectionDispatchAction {

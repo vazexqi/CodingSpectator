@@ -3,8 +3,6 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jface.text.TextSelection;
-
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -69,7 +67,6 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	private CodeSnippetInformation getCodeSnippetInformation() {
-		RefactoringGlobalStore.getInstance().setSelectionInEditor(new TextSelection(fSelectionStart, fSelectionLength));
 		CodeSnippetInformation codeSnippetInformation= CodeSnippetInformationFactory.extractCodeSnippetInformation(getJavaTypeRoot());
 		return codeSnippetInformation;
 	}
