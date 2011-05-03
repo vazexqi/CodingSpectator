@@ -290,6 +290,7 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 		return fExcludedVariableNames;
 	}
 
+	//CODINGSPECTATOR: Captured the cases where the refactoring is unavailable.
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask("", 7); //$NON-NLS-1$
