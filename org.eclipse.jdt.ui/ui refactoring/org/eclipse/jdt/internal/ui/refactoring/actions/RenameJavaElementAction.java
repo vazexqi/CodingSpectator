@@ -150,6 +150,10 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 	}
 
 	public void doRun() {
+		//CODINGSPECTATOR: What is the best way to capture the selection in this case? Is the selection guaranteed to always be an ITextSelection?
+		ISelection selection= fEditor.getSelectionProvider().getSelection();
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)selection);
+
 		RenameLinkedMode activeLinkedMode= RenameLinkedMode.getActiveLinkedMode();
 		if (activeLinkedMode != null) {
 			if (activeLinkedMode.isCaretInLinkedPosition()) {
@@ -180,14 +184,8 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			ExceptionHandler.handle(e, RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_exception);
 		}
 
-		//CODINGSPECTATOR: What is the best way to capture the selection in this case? Is the selection guaranteed to always be an ITextSelection?
-		ISelection selection= fEditor.getSelectionProvider().getSelection();
-		if (selection instanceof ITextSelection) {
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)selection);
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameJavaElementAction_not_available);
-		} else {
-			JavaPlugin.logErrorMessage("Failed to capture the selection for an unavailable rename unknown Java element refactoring.");
-		}
+		//CODINGSPECTATOR
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameJavaElementAction_not_available);
 
 		MessageDialog.openInformation(getShell(), RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_not_available);
 	}
