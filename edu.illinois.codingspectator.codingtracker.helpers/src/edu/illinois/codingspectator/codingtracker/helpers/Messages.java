@@ -8,8 +8,6 @@ public class Messages extends NLS {
 
 	public static String Recorder_CreateRecordFileException;
 
-	public static String Recorder_UnrecognizedRefactoringType;
-
 	public static String Recorder_AppendRecordFileException;
 
 	public static String CodeChangeTracker_FailedToGetActiveWorkbenchWindow;

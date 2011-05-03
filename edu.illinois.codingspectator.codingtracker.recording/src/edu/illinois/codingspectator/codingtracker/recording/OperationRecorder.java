@@ -3,12 +3,10 @@
  */
 package edu.illinois.codingspectator.codingtracker.recording;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -338,20 +336,6 @@ public class OperationRecorder {
 		//TODO: Is creating a new HashMap for a single file too expensive?
 		Map<IFile, String> fileMap= new HashMap<IFile, String>(1);
 		fileMap.put(file, charsetName);
-		ensureFilesAreKnown(fileMap, snapshotIfWasNotKnown);
-	}
-
-	public void ensureFilesAreKnown(Set<IFile> files, boolean snapshotIfWasNotKnown) {
-		//TreeMap is needed for deterministic testing
-		Map<IFile, String> fileMap= new TreeMap<IFile, String>(new Comparator<IFile>() {
-			@Override
-			public int compare(IFile file1, IFile file2) {
-				return file1.getFullPath().toString().compareTo(file2.getFullPath().toString());
-			}
-		});
-		for (IFile file : files) {
-			fileMap.put(file, ResourceHelper.getCharsetNameForFile(file));
-		}
 		ensureFilesAreKnown(fileMap, snapshotIfWasNotKnown);
 	}
 

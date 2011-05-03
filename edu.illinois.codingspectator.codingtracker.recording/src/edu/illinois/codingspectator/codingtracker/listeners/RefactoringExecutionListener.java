@@ -38,16 +38,6 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 			trackProjectsAffectedByRefactoring(event);
 			operationRecorder.recordStartedRefactoring(getRefactoringDescriptor(event), eventType);
 		}
-		//TODO: While removing this comment, do not forget to remove Messages.Recorder_UnrecognizedRefactoringType and its data
-//		else if (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE ||
-//				eventType == RefactoringExecutionEvent.UNDONE) {
-//			isRefactoring= false;
-//			operationRecorder.recordExecutedRefactoring(getRefactoringDescriptor(event), eventType);
-//		} else {
-//			//Actually, should never reach here, as all possible 6 types of events are checked above
-//			Exception e= new RuntimeException();
-//			Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + eventType);
-//		}
 	}
 
 	private boolean isBeginRefactoring(int eventType) {
