@@ -10,12 +10,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 
@@ -163,8 +166,7 @@ public class KnownfilesRecorder {
 	}
 
 	public boolean isFileKnown(IFile file, String charsetName, boolean shouldMatchEncoding) {
-		String key= ResourceHelper.getPortableResourcePath(file);
-		String propertiesString= knownfiles.getProperty(key);
+		String propertiesString= knownfiles.getProperty(getKeyForResource(file));
 		if (propertiesString != null) {
 			if (shouldMatchEncoding) {
 				return getSpecificProperty(propertiesString, FileProperties.ENCODING).equals(charsetName);
@@ -177,11 +179,11 @@ public class KnownfilesRecorder {
 
 	void addKnownfile(IFile file, String charsetName) {
 		String propertiesString= charsetName + PROPERTIES_DELIMETER + String.valueOf(System.currentTimeMillis());
-		knownfiles.setProperty(ResourceHelper.getPortableResourcePath(file), propertiesString);
+		knownfiles.setProperty(getKeyForResource(file), propertiesString);
 	}
 
 	public Object removeKnownfile(IFile file) {
-		return knownfiles.remove(ResourceHelper.getPortableResourcePath(file));
+		return knownfiles.remove(getKeyForResource(file));
 	}
 
 	public synchronized void addCVSEntriesFile(IFile cvsEntriesSourceFile) {
@@ -193,6 +195,66 @@ public class KnownfilesRecorder {
 		} catch (IOException e) {
 			Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSEntriesCopyFailure);
 		}
+	}
+
+	public void moveKnownFiles(IResource movedResource, IPath destination, boolean success) {
+		reorganizeKnownFiles(movedResource, destination, success, true);
+	}
+
+	public void copyKnownFiles(IResource copiedResource, IPath destination, boolean success) {
+		reorganizeKnownFiles(copiedResource, destination, success, false);
+	}
+
+	private void reorganizeKnownFiles(IResource reorganizedResource, IPath destination, boolean success, boolean shouldRemoveOldEntry) {
+		String oldKey= getKeyForResource(reorganizedResource);
+		if (reorganizedResource instanceof IFile) {
+			if (knownfiles.containsKey(oldKey)) {
+				reorganizeKnownFile(oldKey, getKeyForPath(destination), success, shouldRemoveOldEntry);
+				recordKnownfiles();
+			}
+		} else { //IContainer
+			String oldPrefix= oldKey + IPath.SEPARATOR;
+			Set<Entry<Object, Object>> reorganizedEntries= getKnownFileEntriesPrefixedBy(oldPrefix);
+			if (!reorganizedEntries.isEmpty()) {
+				String newPrefix= getKeyForPath(destination) + IPath.SEPARATOR;
+				for (Entry<Object, Object> entry : reorganizedEntries) {
+					String oldEntryKey= (String)entry.getKey();
+					reorganizeKnownFile(oldEntryKey, replacePrefix(oldEntryKey, oldPrefix, newPrefix), success, shouldRemoveOldEntry);
+				}
+				recordKnownfiles();
+			}
+		}
+	}
+
+	private void reorganizeKnownFile(String oldKey, String newKey, boolean success, boolean shouldRemoveOldEntry) {
+		if (success) {
+			knownfiles.setProperty(newKey, knownfiles.getProperty(oldKey));
+		}
+		if (shouldRemoveOldEntry) {
+			knownfiles.remove(oldKey); //remove the old entry after the new one is added (to reuse its value above)
+		}
+	}
+
+	private Set<Entry<Object, Object>> getKnownFileEntriesPrefixedBy(String prefix) {
+		Set<Entry<Object, Object>> result= new HashSet<Entry<Object, Object>>();
+		for (Entry<Object, Object> entry : knownfiles.entrySet()) {
+			if (((String)entry.getKey()).startsWith(prefix)) {
+				result.add(entry);
+			}
+		}
+		return result;
+	}
+
+	private String replacePrefix(String str, String oldPrefix, String newPrefix) {
+		return newPrefix + str.substring(oldPrefix.length());
+	}
+
+	private String getKeyForResource(IResource resource) {
+		return ResourceHelper.getPortableResourcePath(resource);
+	}
+
+	private String getKeyForPath(IPath path) {
+		return path.toPortableString();
 	}
 
 	public static String getKnownFilesPath() {

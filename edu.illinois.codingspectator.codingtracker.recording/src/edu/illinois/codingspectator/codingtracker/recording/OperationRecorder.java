@@ -155,29 +155,14 @@ public class OperationRecorder {
 	}
 
 	public void recordMovedResource(IResource movedResource, IPath destination, int updateFlags, boolean success) {
+		knownfilesRecorder.moveKnownFiles(movedResource, destination, success);
 		TextRecorder.record(new MovedResourceOperation(movedResource, destination, updateFlags, success));
 	}
 
-	public void recordCopiedResource(IResource movedResource, IPath destination, int updateFlags, boolean success) {
-		TextRecorder.record(new CopiedResourceOperation(movedResource, destination, updateFlags, success));
+	public void recordCopiedResource(IResource copiedResource, IPath destination, int updateFlags, boolean success) {
+		knownfilesRecorder.copyKnownFiles(copiedResource, destination, success);
+		TextRecorder.record(new CopiedResourceOperation(copiedResource, destination, updateFlags, success));
 	}
-
-	//	public void recordSavedFiles(Set<IFile> savedFiles, boolean isRefactoring) {
-//		for (IFile file : savedFiles) {
-//			FileOperation fileOperation= null;
-//			if (isRefactoring) {
-//				fileOperation= new RefactoredSavedFileOperation(file);
-//			} else {
-//				fileOperation= new SavedFileOperation(file);
-//			}
-//			TextRecorder.record(fileOperation);
-//		}
-//		if (!isRefactoring) {
-//			//TODO: Saving does not mean the file is known if its encoding differs from the saved editor encoding
-//			//Could look for the cases when the encoding is the same
-//			//ensureFilesAreKnown(savedFiles, false);
-//		}
-//	}
 
 	public void recordSavedFile(IFile savedFile, boolean success) {
 		TextRecorder.record(new SavedFileOperation(savedFile, success));
@@ -192,15 +177,6 @@ public class OperationRecorder {
 		//But, could look for the cases when the encoding is the same
 		//ensureFileIsKnown(EditorHelper.getEditedJavaFile(compareEditor), false);
 	}
-
-//	public void recordSavedConflictEditors(Set<String> savedConflictEditorIDs, Set<IFile> savedFiles) {
-//		for (String editorID : savedConflictEditorIDs) {
-//			TextRecorder.record(new SavedConflictEditorOperation(editorID));
-//		}
-//		//TODO: Saving does not mean the file is known if its encoding differs from the saved conflict editor encoding
-//		//Could look for the cases when the encoding is the same
-//		//ensureFilesAreKnown(savedFiles, false);
-//	}
 
 	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
 		for (IFile file : externallyModifiedFiles) {
@@ -297,23 +273,6 @@ public class OperationRecorder {
 	public void recordFinishedRefactoring(boolean success) {
 		TextRecorder.record(new FinishedRefactoringOperation(success));
 	}
-
-//	public void recordExecutedRefactoring(RefactoringDescriptor refactoringDescriptor, int eventType) {
-//		Debugger.debugRefactoringDescriptor(refactoringDescriptor);
-//		RefactoringOperation refactoringOperation= null;
-//		switch (eventType) {
-//			case RefactoringExecutionEvent.PERFORMED:
-//				refactoringOperation= new PerformedRefactoringOperation(refactoringDescriptor);
-//				break;
-//			case RefactoringExecutionEvent.REDONE:
-//				refactoringOperation= new RedoneRefactoringOperation(refactoringDescriptor);
-//				break;
-//			case RefactoringExecutionEvent.UNDONE:
-//				refactoringOperation= new UndoneRefactoringOperation(refactoringDescriptor);
-//				break;
-//		}
-//		TextRecorder.record(refactoringOperation);
-//	}
 
 	public void removeKnownFiles(Set<IFile> files) {
 		boolean hasChanged= false;
