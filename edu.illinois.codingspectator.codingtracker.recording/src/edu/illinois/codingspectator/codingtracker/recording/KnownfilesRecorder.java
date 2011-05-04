@@ -33,7 +33,7 @@ import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
  * @author Stas Negara
  * 
  */
-public class KnownfilesRecorder {
+public class KnownFilesRecorder {
 
 	enum FileProperties {
 		ENCODING, TIMESTAMP
@@ -41,19 +41,19 @@ public class KnownfilesRecorder {
 
 	private static final String PROPERTIES_DELIMETER= ",";
 
-	private static KnownfilesRecorder recorderInstance= null;
+	private static KnownFilesRecorder recorderInstance= null;
 
-	private final Properties knownfiles; //Is thread-safe since SE 6
+	private final Properties knownFiles; //Is thread-safe since SE 6
 
 	private Map<String, String> currentWorkspaceOptions;
 
-	private static final long REFRESH_INTERVAL= 7 * 24 * 60 * 60 * 1000; //Refresh knownfiles every 7 days
+	private static final long REFRESH_INTERVAL= 7 * 24 * 60 * 60 * 1000; //Refresh known files every 7 days
 
 	private static final IPath CODINGTRACKER_PATH= Platform.getStateLocation(Platform.getBundle(Activator.PLUGIN_ID));
 
 	private static final IPath KNOWNFILES_PATH= CODINGTRACKER_PATH.append(CodingSpectatorDataPlugin.getCodingSpectatorVersion().toString());
 
-	private final File knownfilesFile= KNOWNFILES_PATH.append("knownfiles.txt").toFile();
+	private final File knownFilesFile= KNOWNFILES_PATH.append("knownFiles.txt").toFile();
 
 	private final File workspaceOptionsFile= KNOWNFILES_PATH.append("workspaceOptions.txt").toFile();
 
@@ -61,31 +61,31 @@ public class KnownfilesRecorder {
 	 * Very dangerous! Should be used ONLY for testing!
 	 */
 	public void reset() {
-		knownfiles.clear();
+		knownFiles.clear();
 		currentWorkspaceOptions.clear();
 	}
 
-	public static KnownfilesRecorder getInstance() {
+	public static KnownFilesRecorder getInstance() {
 		if (recorderInstance == null) {
-			recorderInstance= new KnownfilesRecorder();
+			recorderInstance= new KnownFilesRecorder();
 		}
 		return recorderInstance;
 	}
 
-	private KnownfilesRecorder() {
-		knownfiles= readPropertiesFromFile(knownfilesFile);
-		refreshKnownfiles();
+	private KnownFilesRecorder() {
+		knownFiles= readPropertiesFromFile(knownFilesFile);
+		refreshKnownFiles();
 		currentWorkspaceOptions= CollectionHelper.getMap(readPropertiesFromFile(workspaceOptionsFile));
 	}
 
-	private void refreshKnownfiles() {
+	private void refreshKnownFiles() {
 		long currentTime= System.currentTimeMillis();
-		Iterator<Object> keysIterator= knownfiles.keySet().iterator();
+		Iterator<Object> keysIterator= knownFiles.keySet().iterator();
 		boolean hasChanged= false;
 		while (keysIterator.hasNext()) {
 			String key= keysIterator.next().toString();
 			if (!isCVSEntriesPath(key)) {
-				String timestamp= getSpecificProperty(knownfiles.getProperty(key), FileProperties.TIMESTAMP);
+				String timestamp= getSpecificProperty(knownFiles.getProperty(key), FileProperties.TIMESTAMP);
 				if (currentTime - Long.valueOf(timestamp) > REFRESH_INTERVAL) {
 					keysIterator.remove();
 					hasChanged= true;
@@ -93,7 +93,7 @@ public class KnownfilesRecorder {
 			}
 		}
 		if (hasChanged) {
-			recordKnownfiles();
+			recordKnownFiles();
 		}
 	}
 
@@ -112,9 +112,9 @@ public class KnownfilesRecorder {
 		return ""; //should not reach here
 	}
 
-	public void recordKnownfiles() {
-		Debugger.debug("recordKnownfiles");
-		writePropertiesToFile(knownfiles, knownfilesFile);
+	public void recordKnownFiles() {
+		Debugger.debug("recordKnownFiles");
+		writePropertiesToFile(knownFiles, knownFilesFile);
 	}
 
 	//TODO: See if reading and writing to Properties in this class, and to a file in FileHelper have sufficient similarities 
@@ -166,7 +166,7 @@ public class KnownfilesRecorder {
 	}
 
 	public boolean isFileKnown(IFile file, String charsetName, boolean shouldMatchEncoding) {
-		String propertiesString= knownfiles.getProperty(getKeyForResource(file));
+		String propertiesString= knownFiles.getProperty(getKeyForResource(file));
 		if (propertiesString != null) {
 			if (shouldMatchEncoding) {
 				return getSpecificProperty(propertiesString, FileProperties.ENCODING).equals(charsetName);
@@ -177,17 +177,30 @@ public class KnownfilesRecorder {
 		return false;
 	}
 
-	void addKnownfile(IFile file, String charsetName) {
+	void addKnownFile(IFile file, String charsetName) {
 		String propertiesString= charsetName + PROPERTIES_DELIMETER + String.valueOf(System.currentTimeMillis());
-		knownfiles.setProperty(getKeyForResource(file), propertiesString);
+		knownFiles.setProperty(getKeyForResource(file), propertiesString);
 	}
 
-	public Object removeKnownfile(IFile file) {
-		return knownfiles.remove(getKeyForResource(file));
+	public Object removeKnownFile(IFile file) {
+		return knownFiles.remove(getKeyForResource(file));
+	}
+
+	public void removeKnownFiles(Set<IFile> files) {
+		boolean hasChanged= false;
+		for (IFile file : files) {
+			Object removed= removeKnownFile(file);
+			if (removed != null) {
+				hasChanged= true;
+			}
+		}
+		if (hasChanged) {
+			recordKnownFiles();
+		}
 	}
 
 	public synchronized void addCVSEntriesFile(IFile cvsEntriesSourceFile) {
-		addKnownfile(cvsEntriesSourceFile, ResourceHelper.getCharsetNameForFile(cvsEntriesSourceFile));
+		addKnownFile(cvsEntriesSourceFile, ResourceHelper.getCharsetNameForFile(cvsEntriesSourceFile));
 		File cvsEntriesDestinationFile= getTrackedCVSEntriesFile(cvsEntriesSourceFile);
 		try {
 			ResourceHelper.ensureFileExists(cvsEntriesDestinationFile);
@@ -208,9 +221,9 @@ public class KnownfilesRecorder {
 	private void reorganizeKnownFiles(IResource reorganizedResource, IPath destination, boolean success, boolean shouldRemoveOldEntry) {
 		String oldKey= getKeyForResource(reorganizedResource);
 		if (reorganizedResource instanceof IFile) {
-			if (knownfiles.containsKey(oldKey)) {
+			if (knownFiles.containsKey(oldKey)) {
 				reorganizeKnownFile(oldKey, getKeyForPath(destination), success, shouldRemoveOldEntry);
-				recordKnownfiles();
+				recordKnownFiles();
 			}
 		} else { //IContainer
 			String oldPrefix= oldKey + IPath.SEPARATOR;
@@ -221,23 +234,23 @@ public class KnownfilesRecorder {
 					String oldEntryKey= (String)entry.getKey();
 					reorganizeKnownFile(oldEntryKey, replacePrefix(oldEntryKey, oldPrefix, newPrefix), success, shouldRemoveOldEntry);
 				}
-				recordKnownfiles();
+				recordKnownFiles();
 			}
 		}
 	}
 
 	private void reorganizeKnownFile(String oldKey, String newKey, boolean success, boolean shouldRemoveOldEntry) {
 		if (success) {
-			knownfiles.setProperty(newKey, knownfiles.getProperty(oldKey));
+			knownFiles.setProperty(newKey, knownFiles.getProperty(oldKey));
 		}
 		if (shouldRemoveOldEntry) {
-			knownfiles.remove(oldKey); //remove the old entry after the new one is added (to reuse its value above)
+			knownFiles.remove(oldKey); //remove the old entry after the new one is added (to reuse its value above)
 		}
 	}
 
 	private Set<Entry<Object, Object>> getKnownFileEntriesPrefixedBy(String prefix) {
 		Set<Entry<Object, Object>> result= new HashSet<Entry<Object, Object>>();
-		for (Entry<Object, Object> entry : knownfiles.entrySet()) {
+		for (Entry<Object, Object> entry : knownFiles.entrySet()) {
 			if (((String)entry.getKey()).startsWith(prefix)) {
 				result.add(entry);
 			}

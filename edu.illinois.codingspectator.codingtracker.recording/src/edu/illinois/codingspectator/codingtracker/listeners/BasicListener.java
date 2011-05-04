@@ -10,7 +10,7 @@ import java.util.Set;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.ui.IWorkbenchWindow;
 
-import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
+import edu.illinois.codingspectator.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingspectator.codingtracker.recording.OperationRecorder;
 
 /**
@@ -21,7 +21,7 @@ import edu.illinois.codingspectator.codingtracker.recording.OperationRecorder;
 @SuppressWarnings("restriction")
 public abstract class BasicListener {
 
-	protected static final KnownfilesRecorder knownfilesRecorder= KnownfilesRecorder.getInstance();
+	protected static final KnownFilesRecorder knownFilesRecorder= KnownFilesRecorder.getInstance();
 
 	protected static final OperationRecorder operationRecorder= OperationRecorder.getInstance();
 

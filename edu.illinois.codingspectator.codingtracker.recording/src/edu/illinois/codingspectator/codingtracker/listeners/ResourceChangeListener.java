@@ -155,12 +155,12 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 				}
 			}
 			if (isInitialCommit || doesContainKnownFiles(relativePath)) {
-				knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile);
+				knownFilesRecorder.addCVSEntriesFile(cvsEntriesFile);
 				hasChangedKnownFiles= true;
 			}
 		}
 		if (hasChangedKnownFiles) {
-			knownfilesRecorder.recordKnownfiles();
+			knownFilesRecorder.recordKnownFiles();
 		}
 	}
 
@@ -171,7 +171,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			try {
 				IResource[] members= containerFolder.members();
 				for (IResource member : members) {
-					if (member instanceof IFile && knownfilesRecorder.isFileKnown((IFile)member, false)) {
+					if (member instanceof IFile && knownFilesRecorder.isFileKnown((IFile)member, false)) {
 						return true;
 					}
 				}
@@ -188,11 +188,11 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 			if (cvsEntriesFile.exists()) {
 				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
 				Map<IFile, String> newVersions= ResourceHelper.getEntriesVersions(cvsEntriesFile, relativePath);
-				File trackedCVSEntriesFile= knownfilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
+				File trackedCVSEntriesFile= knownFilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
 				if (trackedCVSEntriesFile.exists()) {
 					Map<IFile, String> previousVersions= ResourceHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
 					processCVSVersionsDifference(newVersions, previousVersions);
-					knownfilesRecorder.addCVSEntriesFile(cvsEntriesFile); //overwrite the existing tracked entries file with the new one
+					knownFilesRecorder.addCVSEntriesFile(cvsEntriesFile); //overwrite the existing tracked entries file with the new one
 					hasChangedKnownFiles= true;
 				} else {
 					for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
@@ -204,12 +204,12 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 				}
 			} else {
 				// CVS entries file was deleted, so stop tracking it
-				knownfilesRecorder.removeKnownfile(cvsEntriesFile);
+				knownFilesRecorder.removeKnownFile(cvsEntriesFile);
 				hasChangedKnownFiles= true;
 			}
 		}
 		if (hasChangedKnownFiles) {
-			knownfilesRecorder.recordKnownfiles();
+			knownFilesRecorder.recordKnownFiles();
 		}
 	}
 
@@ -293,7 +293,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	private void updateDirtyAndKnownFiles() {
 		removedJavaFiles.addAll(updatedJavaFiles); //updated files become unknown (like removed)
 		removedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
-		operationRecorder.removeKnownFiles(removedJavaFiles);
+		knownFilesRecorder.removeKnownFiles(removedJavaFiles);
 	}
 
 	/**
