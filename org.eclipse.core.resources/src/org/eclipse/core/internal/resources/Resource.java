@@ -1641,6 +1641,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			checkValidPath(destination, getType(), false);
 			Resource destResource= workspace.newResource(destination, getType());
 			final ISchedulingRule rule= workspace.getRuleFactory().moveRule(this, destResource);
+			//CODINGSPECTATOR - added variable 'fullSuccess' and all code accessing it.
+			boolean fullSuccess= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.move API
@@ -1659,8 +1661,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 					depth= workManager.beginUnprotected();
 					success= unprotectedMove(tree, destResource, updateFlags, monitor);
 				} finally {
-					//CODINGSPECTATOR
-					resourceListener.movedResource(this, destination, updateFlags, success);
 					workManager.endUnprotected(depth);
 				}
 				// Invalidate the tree for further use by clients.
@@ -1672,10 +1672,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				}
 				if (!tree.getStatus().isOK())
 					throw new ResourceException(tree.getStatus());
+				fullSuccess= success;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.movedResource(this, destination, updateFlags, fullSuccess);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

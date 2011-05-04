@@ -933,6 +933,8 @@ public class Project extends Container implements IProject {
 			monitor.beginTask(message, Policy.totalWork);
 			IProject destination= workspace.getRoot().getProject(description.getName());
 			final ISchedulingRule rule= workspace.getRuleFactory().moveRule(this, destination);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.move API
@@ -950,25 +952,23 @@ public class Project extends Container implements IProject {
 				IMoveDeleteHook hook= workspace.getMoveDeleteHook();
 				workspace.broadcastEvent(LifecycleEvent.newEvent(LifecycleEvent.PRE_PROJECT_MOVE, this, destination, updateFlags));
 				int depth= 0;
-				//CODINGSPECTATOR - added variable 'success' and all code accessing it.
-				boolean success= false;
 				try {
 					depth= workManager.beginUnprotected();
 					if (!hook.moveProject(tree, this, description, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2)))
 						tree.standardMoveProject(this, description, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork / 2));
-					success= true;
 				} finally {
-					Resource.resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
 					workManager.endUnprotected(depth);
 				}
 				// Invalidate the tree for further use by clients.
 				tree.makeInvalid();
 				if (!tree.getStatus().isOK())
 					throw new ResourceException(tree.getStatus());
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				Resource.resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
