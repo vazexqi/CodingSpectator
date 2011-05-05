@@ -17,7 +17,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.ltk.core.refactoring.ChangeDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
@@ -65,7 +68,7 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 			} catch (JavaModelException e) {
 				Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to log compilation problems", e));
 			}
-		} else if (hasOperationFailed(event)) {
+		} else if (hasRefactoringFailed(event)) {
 			storeAndCompareProblems();
 		}
 	}
@@ -82,30 +85,66 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		problemsComparer.pushNewProblemsSet(computeProblems);
 	}
 
+	private UndoableOperation2ChangeAdapter getUndoableOperation2ChangeAdapter(IUndoableOperation operation) {
+		if (operation instanceof TriggeredOperations) {
+			operation= ((TriggeredOperations)operation).getTriggeringOperation();
+		}
+		if (operation instanceof UndoableOperation2ChangeAdapter) {
+			return (UndoableOperation2ChangeAdapter)operation;
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @see org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryService#getRefactoringDescriptor(IUndoableOperation)
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	private RefactoringDescriptor getRefactoringDescriptor(IUndoableOperation operation) {
+		UndoableOperation2ChangeAdapter o= getUndoableOperation2ChangeAdapter(operation);
+		if (o == null) {
+			return null;
+		}
+		ChangeDescriptor changeDescriptor= o.getChangeDescriptor();
+		if (changeDescriptor instanceof RefactoringChangeDescriptor) {
+			return ((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+		}
+		return null;
+	}
+
 	private Set<CompilationUnit> getAffectedCompilationUnits(OperationHistoryEvent event) {
 		Set<CompilationUnit> affectedCompilationUnits= new HashSet<CompilationUnit>();
-		IUndoableOperation undoableOperation= event.getOperation();
-		if (undoableOperation instanceof TriggeredOperations) {
-			IUndoableOperation triggeringOperation= ((TriggeredOperations)undoableOperation).getTriggeringOperation();
-			if (triggeringOperation instanceof UndoableOperation2ChangeAdapter) {
-				Object[] affectedObjects= ((UndoableOperation2ChangeAdapter)triggeringOperation).getAllAffectedObjects();
-				if (affectedObjects != null) {
-					for (Object affectedObject : affectedObjects) {
-						if (affectedObject instanceof CompilationUnit) {
-							affectedCompilationUnits.add((CompilationUnit)affectedObject);
-						}
+		UndoableOperation2ChangeAdapter o= getUndoableOperation2ChangeAdapter(event.getOperation());
+		if (o != null) {
+			Object[] affectedObjects= o.getAllAffectedObjects();
+			if (affectedObjects != null) {
+				for (Object affectedObject : affectedObjects) {
+					if (affectedObject instanceof CompilationUnit) {
+						affectedCompilationUnits.add((CompilationUnit)affectedObject);
 					}
 				}
 			}
 		}
+
 		return affectedCompilationUnits;
 	}
 
 	private boolean isAboutToRefactor(OperationHistoryEvent event) {
+		if (!isRefactoringEvent(event)) {
+			return false;
+		}
+
 		int eventType= event.getEventType();
 
 		return eventType == OperationHistoryEvent.ABOUT_TO_EXECUTE || (eventType == OperationHistoryEvent.ABOUT_TO_REDO) ||
 				eventType == OperationHistoryEvent.ABOUT_TO_UNDO;
+	}
+
+	private boolean isRefactoringEvent(OperationHistoryEvent event) {
+		RefactoringDescriptor descriptor= getRefactoringDescriptor(event.getOperation());
+		return descriptor != null;
 	}
 
 	/**
@@ -117,11 +156,10 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 	 * 
 	 * @param event the history event that is in progress.
 	 * 
-	 * @return true if the operation history event indicates that it's not possible to performed the
-	 *         operation, false otherwise.
+	 * @return true if the event is about the failure of a refactoring.
 	 */
-	private boolean hasOperationFailed(OperationHistoryEvent event) {
-		return event.getEventType() == OperationHistoryEvent.OPERATION_NOT_OK;
+	private boolean hasRefactoringFailed(OperationHistoryEvent event) {
+		return isRefactoringEvent(event) && event.getEventType() == OperationHistoryEvent.OPERATION_NOT_OK;
 	}
 
 	@Override
