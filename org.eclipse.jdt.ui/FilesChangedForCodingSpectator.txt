@@ -85,6 +85,7 @@ ui/org/eclipse/jdt/ui/actions/ExtractConstantAction.java
 ui/org/eclipse/jdt/ui/actions/ExtractTempAction.java
 ui/org/eclipse/jdt/ui/actions/InlineTempAction.java
 ui/org/eclipse/jdt/ui/actions/ConvertLocalToFieldAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/ReorgMoveAction.java
 
 META-INF/MANIFEST.MF
 plugin.xml
