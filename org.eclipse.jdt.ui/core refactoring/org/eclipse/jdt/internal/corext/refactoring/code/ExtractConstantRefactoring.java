@@ -297,7 +297,9 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 
 			RefactoringStatus result= Checks.validateEdit(fCu, getValidationContext());
 			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
 				logUnavailableRefactoring(result);
+
 				return result;
 			}
 			pm.worked(1);
@@ -311,7 +313,9 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 			result.merge(checkSelection(new SubProgressMonitor(pm, 3)));
 
 			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
 				logUnavailableRefactoring(result);
+
 				return result;
 			}
 
