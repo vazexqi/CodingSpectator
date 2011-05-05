@@ -78,7 +78,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  * 
  * @author Stas Negara - Added field resourceListener and assigned a default stub to it. Added event
- *         notifications for move and copy.
+ *         notifications for move, copy, and delete.
  * 
  */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
@@ -89,6 +89,9 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		}
 
 		public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
+		}
+
+		public void deletedResource(IResource resource, int updateFlags, boolean success) {
 		}
 
 		public void savedFile(IFile file, boolean success) {
@@ -825,6 +828,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			monitor.beginTask("", Policy.totalWork * 1000); //$NON-NLS-1$
 			monitor.subTask(message);
 			final ISchedulingRule rule= workspace.getRuleFactory().deleteRule(this);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// if there is no resource then there is nothing to delete so just return
@@ -867,10 +872,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				//make sure the rule factory is cleared on project deletion
 				if (getType() == PROJECT)
 					((Rules)workspace.getRuleFactory()).setRuleFactory((IProject)this, null);
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.deletedResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork * 1000));
 			}
 		} finally {

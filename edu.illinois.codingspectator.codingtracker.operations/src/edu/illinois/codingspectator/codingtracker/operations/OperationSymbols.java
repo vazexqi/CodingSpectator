@@ -10,7 +10,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
  */
 public abstract class OperationSymbols {
 
-	//Used symbols: 26 + 14, remaining symbols: N P Q R S T U V W X Y Z
+	//Used symbols: 26 + 15, remaining symbols: P Q R S T U V W X Y Z
 
 	public static final char ECLIPSE_STARTED_SYMBOL= 'l';
 
@@ -35,6 +35,8 @@ public abstract class OperationSymbols {
 	public static final char RESOURCE_MOVED_SYMBOL= 'L';
 
 	public static final char RESOURCE_COPIED_SYMBOL= 'M';
+
+	public static final char RESOURCE_DELETED_SYMBOL= 'N';
 
 	public static final char FILE_CLOSED_SYMBOL= 'c';
 

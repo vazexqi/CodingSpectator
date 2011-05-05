@@ -49,6 +49,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewSta
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation.Mode;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
@@ -162,6 +163,11 @@ public class OperationRecorder {
 	public void recordCopiedResource(IResource copiedResource, IPath destination, int updateFlags, boolean success) {
 		knownFilesRecorder.copyKnownFiles(copiedResource, destination, success);
 		TextRecorder.record(new CopiedResourceOperation(copiedResource, destination, updateFlags, success));
+	}
+
+	public void recordDeletedResource(IResource deletedResource, int updateFlags, boolean success) {
+		knownFilesRecorder.removeKnownFilesForDeletedResource(deletedResource);
+		TextRecorder.record(new DeletedResourceOperation(deletedResource, updateFlags, success));
 	}
 
 	public void recordSavedFile(IFile savedFile, boolean success) {

@@ -36,6 +36,7 @@ import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
  * @author Stas Negara
  * 
  */
+//FIXME: Look at RefreshLocalVisitor and FileSystemResourceManager.refresh to detect external resources deletions and modifications
 @SuppressWarnings("restriction")
 public class ResourceChangeListener extends BasicListener implements IResourceChangeListener {
 

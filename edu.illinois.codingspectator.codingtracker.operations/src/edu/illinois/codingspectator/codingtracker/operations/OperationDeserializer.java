@@ -36,6 +36,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.Redone
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
@@ -105,6 +106,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.RESOURCE_COPIED_SYMBOL:
 				userOperation= new CopiedResourceOperation();
+				break;
+			case OperationSymbols.RESOURCE_DELETED_SYMBOL:
+				userOperation= new DeletedResourceOperation();
 				break;
 			case OperationSymbols.FILE_CLOSED_SYMBOL:
 				userOperation= new ClosedFileOperation();

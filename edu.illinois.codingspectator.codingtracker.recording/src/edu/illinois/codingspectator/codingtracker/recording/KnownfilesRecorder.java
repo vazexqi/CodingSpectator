@@ -218,11 +218,15 @@ public class KnownFilesRecorder {
 		reorganizeKnownFiles(copiedResource, destination, success, false);
 	}
 
-	private void reorganizeKnownFiles(IResource reorganizedResource, IPath destination, boolean success, boolean shouldRemoveOldEntry) {
+	public void removeKnownFilesForDeletedResource(IResource resource) {
+		reorganizeKnownFiles(resource, resource.getFullPath(), false, true);
+	}
+
+	private void reorganizeKnownFiles(IResource reorganizedResource, IPath destination, boolean shouldCreateNewEntry, boolean shouldRemoveOldEntry) {
 		String oldKey= getKeyForResource(reorganizedResource);
 		if (reorganizedResource instanceof IFile) {
 			if (knownFiles.containsKey(oldKey)) {
-				reorganizeKnownFile(oldKey, getKeyForPath(destination), success, shouldRemoveOldEntry);
+				reorganizeKnownFile(oldKey, getKeyForPath(destination), shouldCreateNewEntry, shouldRemoveOldEntry);
 				recordKnownFiles();
 			}
 		} else { //IContainer
@@ -232,15 +236,15 @@ public class KnownFilesRecorder {
 				String newPrefix= getKeyForPath(destination) + IPath.SEPARATOR;
 				for (Entry<Object, Object> entry : reorganizedEntries) {
 					String oldEntryKey= (String)entry.getKey();
-					reorganizeKnownFile(oldEntryKey, replacePrefix(oldEntryKey, oldPrefix, newPrefix), success, shouldRemoveOldEntry);
+					reorganizeKnownFile(oldEntryKey, replacePrefix(oldEntryKey, oldPrefix, newPrefix), shouldCreateNewEntry, shouldRemoveOldEntry);
 				}
 				recordKnownFiles();
 			}
 		}
 	}
 
-	private void reorganizeKnownFile(String oldKey, String newKey, boolean success, boolean shouldRemoveOldEntry) {
-		if (success) {
+	private void reorganizeKnownFile(String oldKey, String newKey, boolean shouldCreateNewEntry, boolean shouldRemoveOldEntry) {
+		if (shouldCreateNewEntry) {
 			knownFiles.setProperty(newKey, knownFiles.getProperty(oldKey));
 		}
 		if (shouldRemoveOldEntry) {

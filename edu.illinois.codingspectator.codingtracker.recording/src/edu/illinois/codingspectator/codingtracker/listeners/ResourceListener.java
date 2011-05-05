@@ -40,6 +40,11 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	@Override
+	public void deletedResource(IResource resource, int updateFlags, boolean success) {
+		operationRecorder.recordDeletedResource(resource, updateFlags, success);
+	}
+
+	@Override
 	public void savedFile(IFile file, boolean success) {
 		if (ResourceHelper.isJavaFile(file)) {
 			lastSavedFileSuccess= success;
