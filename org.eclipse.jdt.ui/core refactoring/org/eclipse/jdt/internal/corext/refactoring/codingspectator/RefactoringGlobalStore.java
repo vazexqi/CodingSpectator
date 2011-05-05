@@ -1,11 +1,15 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
+import java.util.List;
+
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ltk.core.refactoring.codingspectator.IClearable;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+
+import org.eclipse.jdt.core.IJavaElement;
 
 /**
  * 
@@ -66,7 +70,7 @@ public class RefactoringGlobalStore implements IClearable {
 		return selectionInEditor.getLength();
 	}
 
-	public boolean hasData() {
+	public boolean doesSelectionInEditorExist() {
 		return selectionInEditor != null;
 	}
 
@@ -86,5 +90,19 @@ public class RefactoringGlobalStore implements IClearable {
 	public boolean isInvokedThroughStructuredSelection() {
 		return invokedThroughStructuredSelection;
 	}
+
+	public boolean doesStructuredSelectionExist() {
+		return structuredSelection != null;
+	}
+
+	public List getStructuredSelectionList() {
+		List selectionList= structuredSelection.toList();
+		return selectionList;
+	}
+
+	public IJavaElement getFirstSelectedJavaElement() {
+		return (IJavaElement)getStructuredSelectionList().get(0);
+	}
+
 
 }

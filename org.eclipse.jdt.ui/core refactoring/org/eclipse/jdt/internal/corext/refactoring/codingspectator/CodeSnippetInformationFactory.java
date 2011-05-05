@@ -1,10 +1,7 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
-import java.util.List;
-
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -17,17 +14,26 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 public class CodeSnippetInformationFactory {
 
 	private static CodeSnippetInformationExtractor createCodeSnippetInformationExtractor(RefactoringGlobalStore store, ITypeRoot typeRoot) {
+		if (typeRoot == null) {
+			return new NullCodeSnippetInformationExtractor();
+		}
 		if (store.isInvokedThroughStructuredSelection()) {
 			try {
-				List selectionList= store.structuredSelection.toList();
-				IJavaElement aSelectedElement= (IJavaElement)selectionList.get(0);
-				return new StructuredSelectionCodeSnippetInformationExtractor(typeRoot, aSelectedElement, selectionList.toString());
+				if (store.doesStructuredSelectionExist()) {
+					return new StructuredSelectionCodeSnippetInformationExtractor(typeRoot, store.getFirstSelectedJavaElement(), store.getStructuredSelectionList().toString());
+				} else {
+					return new NullCodeSnippetInformationExtractor();
+				}
 			} catch (ClassCastException e) {
 				JavaPlugin.log(e);
 				return new NullCodeSnippetInformationExtractor();
 			}
 		} else {
-			return new TextSelectionCodeSnippetInformationExtractor(typeRoot, store.getSelectionStart(), store.getSelectionLength());
+			if (store.doesSelectionInEditorExist()) {
+				return new TextSelectionCodeSnippetInformationExtractor(typeRoot, store.getSelectionStart(), store.getSelectionLength());
+			} else {
+				return new NullCodeSnippetInformationExtractor();
+			}
 		}
 	}
 

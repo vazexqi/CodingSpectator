@@ -45,6 +45,9 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	private ITypeRoot getEnclosingCompilationUnit() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
+		if (javaElementIfPossible == null) {
+			return null;
+		}
 		return (ITypeRoot)javaElementIfPossible.getAncestor(IJavaElement.COMPILATION_UNIT);
 	}
 
