@@ -25,10 +25,14 @@ public class CodeSnippetInformation {
 	}
 
 	public CodeSnippetInformation(String codeSnippet, String selectedText) {
+		this(selectedText);
 		this.codeSnippet= codeSnippet;
+	}
+
+	public CodeSnippetInformation(String selectedText) {
 		this.selectedText= selectedText;
 	}
-	
+
 	public CodeSnippetInformation() {
 	}
 

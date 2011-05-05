@@ -96,8 +96,7 @@ public class RefactoringGlobalStore implements IClearable {
 	}
 
 	public List getStructuredSelectionList() {
-		List selectionList= structuredSelection.toList();
-		return selectionList;
+		return structuredSelection.toList();
 	}
 
 	public IJavaElement getFirstSelectedJavaElement() {

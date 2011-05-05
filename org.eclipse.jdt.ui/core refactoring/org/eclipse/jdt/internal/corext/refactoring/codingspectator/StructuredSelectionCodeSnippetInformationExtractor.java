@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * 
  * @author Mohsen Vakilian
  * @author nchen
- *
+ * 
  */
 public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnippetInformationExtractor {
 
@@ -30,7 +30,34 @@ public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnip
 	}
 
 	public CodeSnippetInformation extractCodeSnippetInformation() {
-		return new CodeSnippetInformation(getCodeSnippet(), selection);
+		if (isSelectedElementInsideACompilationUnit()) {
+			return new CodeSnippetInformation(getCodeSnippet(), selection);
+		} else {
+			return new CodeSnippetInformation(selection);
+		}
+	}
+
+	/**
+	 * 
+	 * @see org.eclipse.jdt.internal.corext.refactoring.structure.ASTNodeSearchUtil#getDeclarationNodes(IJavaElement,
+	 *      CompilationUnit)
+	 * 
+	 * @param javaElement
+	 * @return
+	 */
+	private boolean isSelectedElementInsideACompilationUnit() {
+		switch (selectedElement.getElementType()) {
+			case IJavaElement.FIELD:
+			case IJavaElement.IMPORT_CONTAINER:
+			case IJavaElement.IMPORT_DECLARATION:
+			case IJavaElement.INITIALIZER:
+			case IJavaElement.METHOD:
+			case IJavaElement.PACKAGE_DECLARATION:
+			case IJavaElement.TYPE:
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	protected ASTNode findTargetNode() {
@@ -39,6 +66,9 @@ public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnip
 			declarationNodes= ASTNodeSearchUtil.getDeclarationNodes(selectedElement, getCompilationUnitASTFromTypeRoot());
 		} catch (JavaModelException e) {
 			JavaPlugin.log(e);
+		}
+		if (declarationNodes == null || declarationNodes.length == 0) {
+			return null;
 		}
 		ASTNode node= declarationNodes[0];
 		return node;
