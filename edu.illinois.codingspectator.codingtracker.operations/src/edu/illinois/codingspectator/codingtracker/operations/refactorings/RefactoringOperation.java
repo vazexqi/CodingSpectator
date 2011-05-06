@@ -91,12 +91,12 @@ public abstract class RefactoringOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		id= operationLexer.getNextLexeme();
-		project= operationLexer.getNextLexeme();
-		flags= Integer.valueOf(operationLexer.getNextLexeme());
-		int argumentsCount= Integer.valueOf(operationLexer.getNextLexeme());
+		id= operationLexer.readString();
+		project= operationLexer.readString();
+		flags= operationLexer.readInt();
+		int argumentsCount= operationLexer.readInt();
 		for (int i= 0; i < argumentsCount; i++) {
-			arguments.put(operationLexer.getNextLexeme(), operationLexer.getNextLexeme());
+			arguments.put(operationLexer.readString(), operationLexer.readString());
 		}
 	}
 

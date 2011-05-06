@@ -56,14 +56,14 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
 		textChunk.append(replacedText);
-		textChunk.append(isCausedByConflictEditorSave ? 1 : 0);
+		textChunk.append(isCausedByConflictEditorSave);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		replacedText= operationLexer.getNextLexeme();
-		isCausedByConflictEditorSave= Integer.valueOf(operationLexer.getNextLexeme()) == 1 ? true : false;
+		replacedText= operationLexer.readString();
+		isCausedByConflictEditorSave= operationLexer.readBoolean();
 	}
 
 	@Override

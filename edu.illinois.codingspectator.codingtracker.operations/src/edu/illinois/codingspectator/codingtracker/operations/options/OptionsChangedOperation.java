@@ -40,9 +40,9 @@ public abstract class OptionsChangedOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		int optionsCount= Integer.valueOf(operationLexer.getNextLexeme());
+		int optionsCount= operationLexer.readInt();
 		for (int i= 0; i < optionsCount; i++) {
-			options.put(operationLexer.getNextLexeme(), operationLexer.getNextLexeme());
+			options.put(operationLexer.readString(), operationLexer.readString());
 		}
 	}
 

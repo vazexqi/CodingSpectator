@@ -45,6 +45,11 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	@Override
+	public void externallyModifiedResource(IResource resource, boolean isDeleted) {
+		operationRecorder.recordExternallyModifiedResource(resource, isDeleted);
+	}
+
+	@Override
 	public void savedFile(IFile file, boolean success) {
 		if (ResourceHelper.isJavaFile(file)) {
 			lastSavedFileSuccess= success;

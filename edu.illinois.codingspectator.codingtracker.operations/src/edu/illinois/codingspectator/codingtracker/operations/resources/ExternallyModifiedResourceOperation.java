@@ -6,8 +6,8 @@ package edu.illinois.codingspectator.codingtracker.operations.resources;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
-import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
+import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 
 /**
@@ -15,48 +15,56 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
  * @author Stas Negara
  * 
  */
-public abstract class BreakableResourceOperation extends ResourceOperation {
+public class ExternallyModifiedResourceOperation extends ResourceOperation {
 
-	private boolean success;
+	private boolean isDeleted;
 
-	public BreakableResourceOperation() {
+
+	public ExternallyModifiedResourceOperation() {
 		super();
 	}
 
-	public BreakableResourceOperation(IResource resource, boolean success) {
-		super(resource);
-		this.success= success;
+	public ExternallyModifiedResourceOperation(IResource externallyModifiedResource, boolean isDeleted) {
+		super(externallyModifiedResource);
+		this.isDeleted= isDeleted;
+	}
+
+	@Override
+	protected char getOperationSymbol() {
+		return OperationSymbols.RESOURCE_EXTERNALLY_MODIFIED_SYMBOL;
+	}
+
+	@Override
+	public String getDescription() {
+		return "Externally modified resource";
 	}
 
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
-		textChunk.append(success);
+		textChunk.append(isDeleted);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		success= operationLexer.readBoolean();
+		isDeleted= operationLexer.readBoolean();
 	}
 
 	@Override
 	public void replay() throws CoreException {
-		if (success) {
-			replayBreakableResourceOperation();
-		} else {
-			Debugger.debugWarning("Ignored unsuccessful resource operation: " + this);
+		IResource resource= findResource();
+		if (resource != null) {
+			resource.delete(true, null);
 		}
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
-		sb.append("Success: " + success + "\n");
+		sb.append("Is deleted: " + isDeleted + "\n");
 		sb.append(super.toString());
 		return sb.toString();
 	}
-
-	protected abstract void replayBreakableResourceOperation() throws CoreException;
 
 }

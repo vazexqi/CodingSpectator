@@ -44,7 +44,7 @@ public class TestCaseFinishedOperation extends JUnitOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		result= operationLexer.getNextLexeme();
+		result= operationLexer.readString();
 	}
 
 	@Override

@@ -12,7 +12,6 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Sav
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
@@ -37,6 +36,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.Undone
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
@@ -116,8 +116,8 @@ public class OperationDeserializer {
 			case OperationSymbols.FILE_SAVED_SYMBOL:
 				userOperation= new SavedFileOperation();
 				break;
-			case OperationSymbols.FILE_EXTERNALLY_MODIFIED_SYMBOL:
-				userOperation= new ExternallyModifiedFileOperation();
+			case OperationSymbols.RESOURCE_EXTERNALLY_MODIFIED_SYMBOL:
+				userOperation= new ExternallyModifiedResourceOperation();
 				break;
 			case OperationSymbols.FILE_UPDATED_SYMBOL:
 				userOperation= new UpdatedFileOperation();

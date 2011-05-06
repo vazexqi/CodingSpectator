@@ -32,7 +32,7 @@ public abstract class JUnitOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		testRunName= operationLexer.getNextLexeme();
+		testRunName= operationLexer.readString();
 	}
 
 	@Override

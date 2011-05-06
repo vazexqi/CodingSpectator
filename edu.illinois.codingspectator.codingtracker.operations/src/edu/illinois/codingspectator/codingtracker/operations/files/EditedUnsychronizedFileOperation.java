@@ -52,7 +52,7 @@ public class EditedUnsychronizedFileOperation extends FileOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		editorContent= operationLexer.getNextLexeme();
+		editorContent= operationLexer.readString();
 	}
 
 	@Override

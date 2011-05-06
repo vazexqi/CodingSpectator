@@ -38,7 +38,7 @@ public abstract class ReorganizedResourceOperation extends UpdatedResourceOperat
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		destinationPath= operationLexer.getNextLexeme();
+		destinationPath= operationLexer.readString();
 	}
 
 	@Override

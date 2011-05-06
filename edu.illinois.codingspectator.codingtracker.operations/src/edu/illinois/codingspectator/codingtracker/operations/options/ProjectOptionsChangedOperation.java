@@ -48,7 +48,7 @@ public class ProjectOptionsChangedOperation extends OptionsChangedOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		projectName= operationLexer.getNextLexeme();
+		projectName= operationLexer.readString();
 		super.initializeFrom(operationLexer);
 	}
 

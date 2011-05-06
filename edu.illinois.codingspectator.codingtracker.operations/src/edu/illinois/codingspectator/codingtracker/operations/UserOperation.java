@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.codingtracker.operations;
 
 import java.util.Date;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.ui.IEditorPart;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
@@ -39,9 +40,11 @@ public abstract class UserOperation {
 	}
 
 	public void deserialize(OperationLexer operationLexer) {
-		assert operationLexer.getCurrentOperationSymbol() == getOperationSymbol();
+		if (operationLexer.getCurrentOperationSymbol() != getOperationSymbol()) {
+			throw new AssertionFailedException("Mismatch between lexer current operation symbol and the actual operation");
+		}
 		initializeFrom(operationLexer);
-		timestamp= Long.valueOf(operationLexer.getNextLexeme());
+		timestamp= operationLexer.readLong();
 	}
 
 	@Override

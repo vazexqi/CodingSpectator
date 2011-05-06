@@ -44,7 +44,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		fileContent= operationLexer.getNextLexeme();
+		fileContent= operationLexer.readString();
 	}
 
 	@Override

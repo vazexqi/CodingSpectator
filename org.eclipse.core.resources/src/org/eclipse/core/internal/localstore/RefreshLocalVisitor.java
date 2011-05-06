@@ -10,11 +10,25 @@
  *******************************************************************************/
 package org.eclipse.core.internal.localstore;
 
-import org.eclipse.core.internal.resources.*;
+import org.eclipse.core.internal.resources.Container;
+import org.eclipse.core.internal.resources.File;
+import org.eclipse.core.internal.resources.Folder;
+import org.eclipse.core.internal.resources.ICoreConstants;
+import org.eclipse.core.internal.resources.Resource;
+import org.eclipse.core.internal.resources.ResourceInfo;
+import org.eclipse.core.internal.resources.ResourceStatus;
+import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.internal.utils.Policy;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.osgi.util.NLS;
 
 //
@@ -22,6 +36,9 @@ import org.eclipse.osgi.util.NLS;
  * Visits a unified tree, and synchronizes the file system with the resource tree. After the visit
  * is complete, the file system will be synchronized with the workspace tree with respect to
  * resource existence, gender, and timestamp.
+ * 
+ * @author Stas Negara - Changed methods deleteResource and resourceChanged to send the appropriate
+ *         notifications.
  */
 public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreConstants {
 	/** control constants */
@@ -92,6 +109,8 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 	}
 
 	protected void deleteResource(UnifiedTreeNode node, Resource target) throws CoreException {
+		//CODINGSPECTATOR
+		Resource.resourceListener.externallyModifiedResource(target, true);
 		ResourceInfo info= target.getResourceInfo(false, false);
 		int flags= target.getFlags(info);
 		//don't delete linked resources
@@ -167,6 +186,8 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 	}
 
 	protected void resourceChanged(UnifiedTreeNode node, Resource target) {
+		//CODINGSPECTATOR
+		Resource.resourceListener.externallyModifiedResource(target, false);
 		ResourceInfo info= target.getResourceInfo(false, true);
 		if (info == null)
 			return;

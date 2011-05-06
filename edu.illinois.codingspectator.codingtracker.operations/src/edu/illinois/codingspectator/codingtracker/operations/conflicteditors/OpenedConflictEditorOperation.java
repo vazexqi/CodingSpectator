@@ -58,8 +58,8 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		editedFilePath= operationLexer.getNextLexeme();
-		initialContent= operationLexer.getNextLexeme();
+		editedFilePath= operationLexer.readString();
+		initialContent= operationLexer.readString();
 	}
 
 	@Override

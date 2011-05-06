@@ -3,11 +3,9 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.resources;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
-import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 
@@ -39,19 +37,15 @@ public abstract class UpdatedResourceOperation extends BreakableResourceOperatio
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		updateFlags= Integer.valueOf(operationLexer.getNextLexeme());
+		updateFlags= operationLexer.readInt();
 	}
 
 	@Override
 	public void replayBreakableResourceOperation() throws CoreException {
-		IResource resource= ResourceHelper.findWorkspaceMember(resourcePath);
-		if (resource != null && !isIgnored(resource)) {
+		IResource resource= findResource();
+		if (resource != null) {
 			replayUpdatedResourceOperation(resource);
 		}
-	}
-
-	private boolean isIgnored(IResource resource) {
-		return resource instanceof IFile && !ResourceHelper.isJavaFile((IFile)resource);
 	}
 
 	@Override

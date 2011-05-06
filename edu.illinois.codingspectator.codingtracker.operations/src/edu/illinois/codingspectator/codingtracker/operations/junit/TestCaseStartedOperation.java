@@ -48,8 +48,8 @@ public class TestCaseStartedOperation extends JUnitOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		testClassName= operationLexer.getNextLexeme();
-		testMethodName= operationLexer.getNextLexeme();
+		testClassName= operationLexer.readString();
+		testMethodName= operationLexer.readString();
 	}
 
 	@Override

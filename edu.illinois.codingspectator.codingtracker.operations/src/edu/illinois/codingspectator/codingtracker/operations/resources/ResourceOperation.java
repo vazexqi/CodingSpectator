@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.codingtracker.operations.resources;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -48,7 +49,7 @@ public abstract class ResourceOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		resourcePath= operationLexer.getNextLexeme();
+		resourcePath= operationLexer.readString();
 	}
 
 	protected void createCompilationUnit(String content) throws CoreException {
@@ -96,6 +97,18 @@ public abstract class ResourceOperation extends UserOperation {
 			}
 		}
 		return true;
+	}
+
+	protected IResource findResource() {
+		IResource resource= ResourceHelper.findWorkspaceMember(resourcePath);
+		if (resource != null && !isIgnored(resource)) {
+			return resource;
+		}
+		return null;
+	}
+
+	private boolean isIgnored(IResource resource) {
+		return resource instanceof IFile && !ResourceHelper.isJavaFile((IFile)resource);
 	}
 
 	@Override

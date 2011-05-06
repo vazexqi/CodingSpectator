@@ -18,7 +18,7 @@ public class OperationTextChunk implements CharSequence {
 	}
 
 	public void append(Object obj) {
-		this.append(obj.toString());
+		append(obj.toString());
 	}
 
 	public void append(String str) {
@@ -34,6 +34,10 @@ public class OperationTextChunk implements CharSequence {
 
 	public void append(long num) {
 		text.append(num).append(OperationLexer.DELIMETER_SYMBOL);
+	}
+
+	public void append(boolean val) {
+		append(val ? 1 : 0);
 	}
 
 	@Override

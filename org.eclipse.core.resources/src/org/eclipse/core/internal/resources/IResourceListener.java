@@ -17,6 +17,8 @@ public interface IResourceListener {
 
 	public void deletedResource(IResource resource, int updateFlags, boolean success);
 
+	public void externallyModifiedResource(IResource resource, boolean isDeleted);
+
 	public void savedFile(IFile file, boolean success);
 
 	public void aboutToSaveCompareEditor(Object compareEditor);

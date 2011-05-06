@@ -38,12 +38,12 @@ public class FinishedRefactoringOperation extends UserOperation {
 
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
-		textChunk.append(success ? 1 : 0);
+		textChunk.append(success);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		success= Integer.valueOf(operationLexer.getNextLexeme()) == 1 ? true : false;
+		success= operationLexer.readBoolean();
 	}
 
 	@Override

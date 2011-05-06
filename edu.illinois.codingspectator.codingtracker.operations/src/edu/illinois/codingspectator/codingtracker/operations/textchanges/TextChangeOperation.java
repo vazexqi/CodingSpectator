@@ -67,10 +67,10 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		replacedText= operationLexer.getNextLexeme();
-		newText= operationLexer.getNextLexeme();
-		offset= Integer.valueOf(operationLexer.getNextLexeme());
-		length= Integer.valueOf(operationLexer.getNextLexeme());
+		replacedText= operationLexer.readString();
+		newText= operationLexer.readString();
+		offset= operationLexer.readInt();
+		length= operationLexer.readInt();
 	}
 
 	@Override

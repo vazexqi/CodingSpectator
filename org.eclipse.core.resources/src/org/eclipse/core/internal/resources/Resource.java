@@ -94,6 +94,9 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		public void deletedResource(IResource resource, int updateFlags, boolean success) {
 		}
 
+		public void externallyModifiedResource(IResource resource, boolean isDeleted) {
+		}
+
 		public void savedFile(IFile file, boolean success) {
 		}
 

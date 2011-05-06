@@ -42,9 +42,7 @@ public abstract class OperationSymbols {
 
 	public static final char FILE_SAVED_SYMBOL= 's';
 
-	//Modification outside of Eclipse, or it may be a move/copy refactoring that overwrites a file displayed in a viewer, 
-	//or SVN performs Revert operation, or some dirty file is changed externally and then saved (without refreshing)
-	public static final char FILE_EXTERNALLY_MODIFIED_SYMBOL= 'x';
+	public static final char RESOURCE_EXTERNALLY_MODIFIED_SYMBOL= 'x';
 
 	public static final char FILE_UPDATED_SYMBOL= 'm';
 

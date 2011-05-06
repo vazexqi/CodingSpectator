@@ -28,7 +28,6 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Sav
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.CVSCommittedFileOperation;
@@ -50,6 +49,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewSta
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
@@ -166,8 +166,13 @@ public class OperationRecorder {
 	}
 
 	public void recordDeletedResource(IResource deletedResource, int updateFlags, boolean success) {
-		knownFilesRecorder.removeKnownFilesForDeletedResource(deletedResource);
+		knownFilesRecorder.removeKnownFilesForResource(deletedResource);
 		TextRecorder.record(new DeletedResourceOperation(deletedResource, updateFlags, success));
+	}
+
+	public void recordExternallyModifiedResource(IResource externallyModifiedResource, boolean isDeleted) {
+		knownFilesRecorder.removeKnownFilesForResource(externallyModifiedResource);
+		TextRecorder.record(new ExternallyModifiedResourceOperation(externallyModifiedResource, isDeleted));
 	}
 
 	public void recordSavedFile(IFile savedFile, boolean success) {
@@ -182,12 +187,6 @@ public class OperationRecorder {
 		//TODO: Saving does not mean the file is known if its encoding differs from the saved conflict editor encoding
 		//But, could look for the cases when the encoding is the same
 		//ensureFileIsKnown(EditorHelper.getEditedJavaFile(compareEditor), false);
-	}
-
-	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedFiles) {
-		for (IFile file : externallyModifiedFiles) {
-			TextRecorder.record(new ExternallyModifiedFileOperation(file));
-		}
 	}
 
 	public void recordUpdatedFiles(Set<IFile> updatedFiles) {

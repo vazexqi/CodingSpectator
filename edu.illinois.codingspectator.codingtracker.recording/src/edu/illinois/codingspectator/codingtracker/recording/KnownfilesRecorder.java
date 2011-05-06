@@ -218,7 +218,7 @@ public class KnownFilesRecorder {
 		reorganizeKnownFiles(copiedResource, destination, success, false);
 	}
 
-	public void removeKnownFilesForDeletedResource(IResource resource) {
+	public void removeKnownFilesForResource(IResource resource) {
 		reorganizeKnownFiles(resource, resource.getFullPath(), false, true);
 	}
 
