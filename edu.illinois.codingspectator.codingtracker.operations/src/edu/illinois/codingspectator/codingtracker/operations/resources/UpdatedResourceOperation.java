@@ -4,7 +4,6 @@
 package edu.illinois.codingspectator.codingtracker.operations.resources;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
@@ -41,26 +40,11 @@ public abstract class UpdatedResourceOperation extends BreakableResourceOperatio
 	}
 
 	@Override
-	public void replayBreakableResourceOperation() throws CoreException {
-		IResource resource= findResource();
-		if (resource != null) {
-			replayUpdatedResourceOperation(resource);
-		}
-	}
-
-	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Update flags: " + updateFlags + "\n");
 		sb.append(super.toString());
 		return sb.toString();
 	}
-
-	/**
-	 * 
-	 * @param resource is guaranteed to NOT be null
-	 * @throws CoreException
-	 */
-	protected abstract void replayUpdatedResourceOperation(IResource resource) throws CoreException;
 
 }

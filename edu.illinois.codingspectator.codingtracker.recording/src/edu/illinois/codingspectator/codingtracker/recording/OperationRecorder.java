@@ -48,6 +48,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewSta
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation.Mode;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.CreatedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
@@ -153,6 +154,13 @@ public class OperationRecorder {
 	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
 		ensureFileIsKnown(editedFile, true);
 		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
+	}
+
+	public void recordCreatedResource(IResource createdResource, int updateFlags, boolean success) {
+		if (success && createdResource instanceof IFile) {
+			ensureFileIsKnown((IFile)createdResource, false);
+		}
+		TextRecorder.record(new CreatedResourceOperation(createdResource, updateFlags, success));
 	}
 
 	public void recordMovedResource(IResource movedResource, IPath destination, int updateFlags, boolean success) {
@@ -303,7 +311,7 @@ public class OperationRecorder {
 				knownFilesRecorder.addKnownFile(entry.getKey(), entry.getValue());
 				hasChanged= true;
 				//save the content of a previously unknown file
-				if (snapshotIfWasNotKnown && entry.getKey().exists()) { //Actually, should always exist here
+				if (snapshotIfWasNotKnown && entry.getKey().exists()) { //TODO: Remove after ensured in ResourceHelper: Actually, should always exist here
 					TextRecorder.record(new NewFileOperation(entry.getKey(), entry.getValue()));
 				}
 			}

@@ -30,23 +30,38 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	@Override
+	public void createdResource(IResource resource, int updateFlags, boolean success) {
+		if (isRecordedResource(resource)) {
+			operationRecorder.recordCreatedResource(resource, updateFlags, success);
+		}
+	}
+
+	@Override
 	public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
-		operationRecorder.recordMovedResource(resource, destination, updateFlags, success);
+		if (isRecordedResource(resource)) {
+			operationRecorder.recordMovedResource(resource, destination, updateFlags, success);
+		}
 	}
 
 	@Override
 	public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
-		operationRecorder.recordCopiedResource(resource, destination, updateFlags, success);
+		if (isRecordedResource(resource)) {
+			operationRecorder.recordCopiedResource(resource, destination, updateFlags, success);
+		}
 	}
 
 	@Override
 	public void deletedResource(IResource resource, int updateFlags, boolean success) {
-		operationRecorder.recordDeletedResource(resource, updateFlags, success);
+		if (isRecordedResource(resource)) {
+			operationRecorder.recordDeletedResource(resource, updateFlags, success);
+		}
 	}
 
 	@Override
 	public void externallyModifiedResource(IResource resource, boolean isDeleted) {
-		operationRecorder.recordExternallyModifiedResource(resource, isDeleted);
+		if (isRecordedResource(resource)) {
+			operationRecorder.recordExternallyModifiedResource(resource, isDeleted);
+		}
 	}
 
 	@Override
@@ -69,6 +84,13 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	public void savedCompareEditor(Object compareEditor) {
 		isSavingCompareEditor= false;
 		operationRecorder.recordSavedCompareEditor((CompareEditor)compareEditor, lastSavedFileSuccess);
+	}
+
+	private boolean isRecordedResource(IResource resource) {
+		if (resource instanceof IFile) {
+			return ResourceHelper.isJavaFile((IFile)resource);
+		}
+		return true;
 	}
 
 }

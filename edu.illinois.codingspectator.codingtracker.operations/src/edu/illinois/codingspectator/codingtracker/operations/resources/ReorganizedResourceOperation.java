@@ -42,9 +42,12 @@ public abstract class ReorganizedResourceOperation extends UpdatedResourceOperat
 	}
 
 	@Override
-	public void replayUpdatedResourceOperation(IResource resource) throws CoreException {
-		findOrCreateParent(destinationPath);
-		replayReorganizedResourceOperation(resource);
+	public void replayBreakableResourceOperation() throws CoreException {
+		IResource resource= findResource();
+		if (resource != null) {
+			findOrCreateParent(destinationPath);
+			replayReorganizedResourceOperation(resource);
+		}
 	}
 
 	@Override

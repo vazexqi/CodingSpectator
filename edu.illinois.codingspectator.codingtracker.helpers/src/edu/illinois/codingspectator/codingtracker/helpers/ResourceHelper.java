@@ -57,6 +57,8 @@ public class ResourceHelper {
 		return charset;
 	}
 
+	//TODO: In the following 2 methods check that the file actually exists. 
+
 	public static String readFileContent(IFile workspaceFile) {
 		return readFileContent(getFileForResource(workspaceFile), getCharsetForFile(workspaceFile));
 	}

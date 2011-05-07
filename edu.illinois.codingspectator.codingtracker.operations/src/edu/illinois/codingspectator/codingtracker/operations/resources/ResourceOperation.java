@@ -52,6 +52,11 @@ public abstract class ResourceOperation extends UserOperation {
 		resourcePath= operationLexer.readString();
 	}
 
+	protected void createContainer() throws CoreException {
+		//Simulate one more element to create the whole path as the parent of this added fake element
+		findOrCreateParent(resourcePath + FILE_PATH_SEPARATOR + "fake");
+	}
+
 	protected void createCompilationUnit(String content) throws CoreException {
 		IPackageFragment packageFragment= (IPackageFragment)findOrCreateParent(resourcePath);// for compilation units parent is always package fragment		
 		String[] filePathFragments= resourcePath.split(FILE_PATH_SEPARATOR);

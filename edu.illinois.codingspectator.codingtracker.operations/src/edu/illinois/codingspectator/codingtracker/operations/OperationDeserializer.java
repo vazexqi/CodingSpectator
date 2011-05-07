@@ -35,6 +35,7 @@ import edu.illinois.codingspectator.codingtracker.operations.refactorings.Redone
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.CreatedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
@@ -100,6 +101,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.CONFLICT_EDITOR_SAVED_SYMBOL:
 				userOperation= new SavedConflictEditorOperation();
+				break;
+			case OperationSymbols.RESOURCE_CREATED_SYMBOL:
+				userOperation= new CreatedResourceOperation();
 				break;
 			case OperationSymbols.RESOURCE_MOVED_SYMBOL:
 				userOperation= new MovedResourceOperation();

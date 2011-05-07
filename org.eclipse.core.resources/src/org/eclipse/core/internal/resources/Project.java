@@ -60,7 +60,8 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * 
- * @author Stas Negara - Added sending a notification about moving the project in method move.
+ * @author Stas Negara - Added sending a notification about moving the project in method move, and
+ *         creating the project in method create.
  * 
  */
 public class Project extends Container implements IProject {
@@ -300,6 +301,8 @@ public class Project extends Container implements IProject {
 			monitor.beginTask(Messages.resources_create, Policy.totalWork);
 			checkValidPath(path, PROJECT, false);
 			final ISchedulingRule rule= workspace.getRuleFactory().createRule(this);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				if (description == null) {
@@ -346,10 +349,12 @@ public class Project extends Container implements IProject {
 				if (hasContent)
 					info.set(ICoreConstants.M_CHILDREN_UNKNOWN);
 				workspace.getSaveManager().requestSnapshot();
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.createdResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -968,7 +973,7 @@ public class Project extends Container implements IProject {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				Resource.resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
+				resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

@@ -34,8 +34,11 @@ public class DeletedResourceOperation extends UpdatedResourceOperation {
 	}
 
 	@Override
-	public void replayUpdatedResourceOperation(IResource resource) throws CoreException {
-		resource.delete(updateFlags, null);
+	public void replayBreakableResourceOperation() throws CoreException {
+		IResource resource= findResource();
+		if (resource != null) {
+			resource.delete(updateFlags, null);
+		}
 	}
 
 }

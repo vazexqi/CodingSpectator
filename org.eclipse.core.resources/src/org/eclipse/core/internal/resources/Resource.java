@@ -85,6 +85,10 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 
 	//CODINGSPECTATOR
 	public static IResourceListener resourceListener= new IResourceListener() { //default stub that does nothing
+
+		public void createdResource(IResource resource, int updateFlags, boolean success) {
+		}
+
 		public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
 		}
 

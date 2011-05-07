@@ -11,6 +11,8 @@ import org.eclipse.core.runtime.IPath;
  */
 public interface IResourceListener {
 
+	public void createdResource(IResource resource, int updateFlags, boolean success);
+
 	public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success);
 
 	public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success);
