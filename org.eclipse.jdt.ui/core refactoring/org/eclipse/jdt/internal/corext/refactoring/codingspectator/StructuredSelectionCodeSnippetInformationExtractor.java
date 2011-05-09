@@ -1,15 +1,14 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
+import org.eclipse.core.runtime.CoreException;
+
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import org.eclipse.jdt.internal.corext.refactoring.structure.ASTNodeSearchUtil;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
  * 
@@ -60,13 +59,9 @@ public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnip
 		}
 	}
 
-	protected ASTNode findTargetNode() {
+	protected ASTNode findTargetNode() throws CoreException {
 		ASTNode[] declarationNodes= null;
-		try {
-			declarationNodes= ASTNodeSearchUtil.getDeclarationNodes(selectedElement, getCompilationUnitASTFromTypeRoot());
-		} catch (JavaModelException e) {
-			JavaPlugin.log(e);
-		}
+		declarationNodes= ASTNodeSearchUtil.getDeclarationNodes(selectedElement, getCompilationUnitASTFromTypeRoot());
 		if (declarationNodes == null || declarationNodes.length == 0) {
 			return null;
 		}

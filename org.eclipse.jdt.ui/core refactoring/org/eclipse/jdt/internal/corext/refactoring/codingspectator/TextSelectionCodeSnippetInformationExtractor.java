@@ -57,8 +57,7 @@ public class TextSelectionCodeSnippetInformationExtractor extends CodeSnippetInf
 		return snippetOffset;
 	}
 
-	protected ASTNode findTargetNode() {
-
+	protected ASTNode findTargetNode() throws CoreException {
 		ASTNode localNode= getCompilationUnitASTFromTypeRoot();
 
 		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
