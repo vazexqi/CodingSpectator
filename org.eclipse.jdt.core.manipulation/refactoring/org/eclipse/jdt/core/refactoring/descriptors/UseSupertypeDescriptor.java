@@ -28,17 +28,16 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.JavaRefactoringDesc
  * Refactoring descriptor for the use supertype refactoring.
  * <p>
  * An instance of this refactoring descriptor may be obtained by calling
- * {@link RefactoringContribution#createDescriptor()} on a refactoring
- * contribution requested by invoking
- * {@link RefactoringCore#getRefactoringContribution(String)} with the
- * appropriate refactoring id.
+ * {@link RefactoringContribution#createDescriptor()} on a refactoring contribution requested by
+ * invoking {@link RefactoringCore#getRefactoringContribution(String)} with the appropriate
+ * refactoring id.
  * </p>
  * <p>
  * Note: this class is not intended to be instantiated by clients.
  * </p>
- *
+ * 
  * @since 1.1
- *
+ * 
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class UseSupertypeDescriptor extends JavaRefactoringDescriptor {
@@ -64,32 +63,26 @@ public final class UseSupertypeDescriptor extends JavaRefactoringDescriptor {
 
 	/**
 	 * Creates a new refactoring descriptor.
-	 *
-	 * @param project
-	 *            the non-empty name of the project associated with this
-	 *            refactoring, or <code>null</code> for a workspace
-	 *            refactoring
-	 * @param description
-	 *            a non-empty human-readable description of the particular
-	 *            refactoring instance
-	 * @param comment
-	 *            the human-readable comment of the particular refactoring
-	 *            instance, or <code>null</code> for no comment
-	 * @param arguments
-	 * 			  a map of arguments that will be persisted and describes
-	 * 			  all settings for this refactoring
-	 * @param flags
-	 *            the flags of the refactoring descriptor
-	 *
+	 * 
+	 * @param project the non-empty name of the project associated with this refactoring, or
+	 *            <code>null</code> for a workspace refactoring
+	 * @param description a non-empty human-readable description of the particular refactoring
+	 *            instance
+	 * @param comment the human-readable comment of the particular refactoring instance, or
+	 *            <code>null</code> for no comment
+	 * @param arguments a map of arguments that will be persisted and describes all settings for
+	 *            this refactoring
+	 * @param flags the flags of the refactoring descriptor
+	 * 
 	 * @throws IllegalArgumentException if the argument map contains invalid keys/values
-	 *
+	 * 
 	 * @since 1.2
 	 */
 	public UseSupertypeDescriptor(String project, String description, String comment, Map arguments, int flags) {
 		super(IJavaRefactorings.USE_SUPER_TYPE, project, description, comment, arguments, flags);
 		fInstanceof= JavaRefactoringDescriptorUtil.getBoolean(arguments, ATTRIBUTE_INSTANCEOF, fInstanceof);
-		fSubType= (IType) JavaRefactoringDescriptorUtil.getJavaElement(arguments, ATTRIBUTE_INPUT, project);
-		fSupertype= (IType) JavaRefactoringDescriptorUtil.getJavaElement(arguments, JavaRefactoringDescriptorUtil.getAttributeName(ATTRIBUTE_ELEMENT, 1), project);
+		fSubType= (IType)JavaRefactoringDescriptorUtil.getJavaElement(arguments, ATTRIBUTE_INPUT, project);
+		fSupertype= (IType)JavaRefactoringDescriptorUtil.getJavaElement(arguments, JavaRefactoringDescriptorUtil.getAttributeName(ATTRIBUTE_ELEMENT, 1), project);
 	}
 
 	/**
@@ -103,15 +96,14 @@ public final class UseSupertypeDescriptor extends JavaRefactoringDescriptor {
 	}
 
 	/**
-	 * Determines whether 'instanceof' statements are considered as candidates
-	 * to replace the subtype occurrence by one of its supertypes.
+	 * Determines whether 'instanceof' statements are considered as candidates to replace the
+	 * subtype occurrence by one of its supertypes.
 	 * <p>
 	 * The default is to not replace the subtype occurrence.
 	 * </p>
-	 *
-	 * @param replace
-	 *            <code>true</code> to replace subtype occurrences in
-	 *            'instanceof' statements, <code>false</code> otherwise
+	 * 
+	 * @param replace <code>true</code> to replace subtype occurrences in 'instanceof' statements,
+	 *            <code>false</code> otherwise
 	 */
 	public void setReplaceInstanceof(final boolean replace) {
 		fInstanceof= replace;
@@ -120,12 +112,11 @@ public final class UseSupertypeDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the subtype of the refactoring.
 	 * <p>
-	 * Occurrences of the subtype are replaced by the supertype set by
-	 * {@link #setSupertype(IType)} where possible.
+	 * Occurrences of the subtype are replaced by the supertype set by {@link #setSupertype(IType)}
+	 * where possible.
 	 * </p>
-	 *
-	 * @param type
-	 *            the subtype to set
+	 * 
+	 * @param type the subtype to set
 	 */
 	public void setSubtype(final IType type) {
 		Assert.isNotNull(type);
@@ -135,12 +126,11 @@ public final class UseSupertypeDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the supertype of the refactoring.
 	 * <p>
-	 * Occurrences of the subtype set by {@link #setSubtype(IType)} are replaced
-	 * by the supertype where possible.
+	 * Occurrences of the subtype set by {@link #setSubtype(IType)} are replaced by the supertype
+	 * where possible.
 	 * </p>
-	 *
-	 * @param type
-	 *            the supertype to set
+	 * 
+	 * @param type the supertype to set
 	 */
 	public void setSupertype(final IType type) {
 		Assert.isNotNull(type);
