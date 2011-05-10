@@ -27,6 +27,9 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
  * as temporary storage to transfer refactoring descriptor data.
  * {@link #createRefactoring(RefactoringStatus)} always returns null.
  * 
+ * @author Mohsen Vakilian, nchen - Added ability to add more information by cloning an existing
+ *         descriptor.
+ * 
  * @since 3.2
  */
 public final class DefaultRefactoringDescriptor extends RefactoringDescriptor {
@@ -68,4 +71,14 @@ public final class DefaultRefactoringDescriptor extends RefactoringDescriptor {
 	public Map getArguments() {
 		return fArguments;
 	}
+
+	//////////////////
+	// CODINGSPECTATOR
+	//////////////////
+	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
+		Map augmentedArguments= new HashMap(getArguments());
+		augmentedArguments.putAll(arguments);
+		return new DefaultRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
+	}
+
 }
