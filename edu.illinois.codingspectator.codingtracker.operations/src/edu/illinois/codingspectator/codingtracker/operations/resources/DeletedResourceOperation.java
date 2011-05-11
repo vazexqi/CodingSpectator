@@ -5,7 +5,9 @@ package edu.illinois.codingspectator.codingtracker.operations.resources;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.texteditor.ITextEditor;
 
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
@@ -38,6 +40,14 @@ public class DeletedResourceOperation extends UpdatedResourceOperation {
 		IResource resource= findResource();
 		if (resource != null) {
 			resource.delete(updateFlags, null);
+
+			//Explicitly close the editor of the deleted file such that the replayer does not complain about the wrong editor
+			//Note: this code is duplicated (with minor change) from ClosedFileOperation.replay()
+			ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
+			if (fileEditor != null && fileEditor == currentEditor) {
+				//Don't use getFileEditor().close(false), because it is executed asynchronously 
+				fileEditor.getSite().getPage().closeEditor(fileEditor, false);
+			}
 		}
 	}
 
