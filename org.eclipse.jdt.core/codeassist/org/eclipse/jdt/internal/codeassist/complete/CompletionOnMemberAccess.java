@@ -32,8 +32,14 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * which should be replaced by the completion.
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnMemberAccess extends FieldReference {
 
@@ -42,7 +48,7 @@ public class CompletionOnMemberAccess extends FieldReference {
 	public CompletionOnMemberAccess(char[] source, long pos, boolean isInsideAnnotation) {
 
 		super(source, pos);
-		this.isInsideAnnotation = isInsideAnnotation;
+		this.isInsideAnnotation= isInsideAnnotation;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
@@ -53,22 +59,22 @@ public class CompletionOnMemberAccess extends FieldReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		this.actualReceiverType = this.receiver.resolveType(scope);
+		this.actualReceiverType= this.receiver.resolveType(scope);
 
 		if ((this.actualReceiverType == null || !this.actualReceiverType.isValidBinding()) && this.receiver instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) this.receiver;
-			if(messageSend.receiver instanceof ThisReference) {
-				Expression[] arguments = messageSend.arguments;
-				int length = arguments == null ? 0 : arguments.length;
-				TypeBinding[] argBindings = new TypeBinding[length];
-				for (int i = 0; i < length; i++) {
-					argBindings[i] = arguments[i].resolvedType;
-					if(argBindings[i] == null || !argBindings[i].isValidBinding()) {
+			MessageSend messageSend= (MessageSend)this.receiver;
+			if (messageSend.receiver instanceof ThisReference) {
+				Expression[] arguments= messageSend.arguments;
+				int length= arguments == null ? 0 : arguments.length;
+				TypeBinding[] argBindings= new TypeBinding[length];
+				for (int i= 0; i < length; i++) {
+					argBindings[i]= arguments[i].resolvedType;
+					if (argBindings[i] == null || !argBindings[i].isValidBinding()) {
 						throw new CompletionNodeFound();
 					}
 				}
 
-				ProblemMethodBinding problemMethodBinding = new ProblemMethodBinding(messageSend.selector, argBindings, ProblemReasons.NotFound);
+				ProblemMethodBinding problemMethodBinding= new ProblemMethodBinding(messageSend.selector, argBindings, ProblemReasons.NotFound);
 				throw new CompletionNodeFound(this, problemMethodBinding, scope);
 			}
 		}

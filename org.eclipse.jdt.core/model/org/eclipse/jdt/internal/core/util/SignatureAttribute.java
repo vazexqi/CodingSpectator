@@ -22,24 +22,27 @@ import org.eclipse.jdt.core.util.ISignatureAttribute;
 public class SignatureAttribute extends ClassFileAttribute implements ISignatureAttribute {
 
 	private int signatureIndex;
+
 	private char[] signature;
 
 	SignatureAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		final int index = u2At(classFileBytes, 6, offset);
-		this.signatureIndex = index;
-		IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(index);
+		final int index= u2At(classFileBytes, 6, offset);
+		this.signatureIndex= index;
+		IConstantPoolEntry constantPoolEntry= constantPool.decodeEntry(index);
 		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
-		this.signature = constantPoolEntry.getUtf8Value();
+		this.signature= constantPoolEntry.getUtf8Value();
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.ISignatureAttribute#getSignatureIndex()
 	 */
 	public int getSignatureIndex() {
 		return this.signatureIndex;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.ISignatureAttribute#getSignature()
 	 */

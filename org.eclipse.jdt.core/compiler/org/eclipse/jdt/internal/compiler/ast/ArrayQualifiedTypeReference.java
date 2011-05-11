@@ -12,16 +12,20 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	int dimensions;
 
-	public ArrayQualifiedTypeReference(char[][] sources , int dim, long[] poss) {
+	public ArrayQualifiedTypeReference(char[][] sources, int dim, long[] poss) {
 
-		super( sources , poss);
-		this.dimensions = dim ;
+		super(sources, poss);
+		this.dimensions= dim;
 	}
 
 	public int dimensions() {
@@ -32,18 +36,18 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	/**
 	 * @return char[][]
 	 */
-	public char [][] getParameterizedTypeName(){
-		int dim = this.dimensions;
-		char[] dimChars = new char[dim*2];
-		for (int i = 0; i < dim; i++) {
-			int index = i*2;
-			dimChars[index] = '[';
-			dimChars[index+1] = ']';
+	public char[][] getParameterizedTypeName() {
+		int dim= this.dimensions;
+		char[] dimChars= new char[dim * 2];
+		for (int i= 0; i < dim; i++) {
+			int index= i * 2;
+			dimChars[index]= '[';
+			dimChars[index + 1]= ']';
 		}
-		int length = this.tokens.length;
-		char[][] qParamName = new char[length][];
-		System.arraycopy(this.tokens, 0, qParamName, 0, length-1);
-		qParamName[length-1] = CharOperation.concat(this.tokens[length-1], dimChars);
+		int length= this.tokens.length;
+		char[][] qParamName= new char[length][];
+		System.arraycopy(this.tokens, 0, qParamName, 0, length - 1);
+		qParamName[length - 1]= CharOperation.concat(this.tokens[length - 1], dimChars);
 		return qParamName;
 	}
 
@@ -54,29 +58,29 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if (this.dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		LookupEnvironment env = scope.environment();
+		LookupEnvironment env= scope.environment();
 		try {
-			env.missingClassFileLocation = this;
-			TypeBinding leafComponentType = super.getTypeBinding(scope);
-			return this.resolvedType = scope.createArrayType(leafComponentType, this.dimensions);
+			env.missingClassFileLocation= this;
+			TypeBinding leafComponentType= super.getTypeBinding(scope);
+			return this.resolvedType= scope.createArrayType(leafComponentType, this.dimensions);
 		} catch (AbortCompilation e) {
 			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
 			throw e;
 		} finally {
-			env.missingClassFileLocation = null;
+			env.missingClassFileLocation= null;
 		}
 	}
 
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		super.printExpression(indent, output);
 		if ((this.bits & IsVarArgs) != 0) {
-			for (int i= 0 ; i < this.dimensions - 1; i++) {
+			for (int i= 0; i < this.dimensions - 1; i++) {
 				output.append("[]"); //$NON-NLS-1$
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
-			for (int i= 0 ; i < this.dimensions; i++) {
+			for (int i= 0; i < this.dimensions; i++) {
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}

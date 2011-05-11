@@ -10,25 +10,32 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 
 /**
- * A search participant describes a particular extension to a generic search mechanism, allowing thus to
- * perform combined search actions which will involve all required participants
- *
+ * A search participant describes a particular extension to a generic search mechanism, allowing
+ * thus to perform combined search actions which will involve all required participants
+ * 
  * A search scope defines which participants are involved.
- *
- * A search participant is responsible for holding index files, and selecting the appropriate ones to feed to
- * index queries. It also can map a document path to an actual document (note that documents could live outside
- * the workspace or no exist yet, and thus aren't just resources).
+ * 
+ * A search participant is responsible for holding index files, and selecting the appropriate ones
+ * to feed to index queries. It also can map a document path to an actual document (note that
+ * documents could live outside the workspace or no exist yet, and thus aren't just resources).
  */
 public class JavaSearchParticipant extends SearchParticipant {
 
-	private ThreadLocal indexSelector = new ThreadLocal();
+	private ThreadLocal indexSelector= new ThreadLocal();
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#beginSearching()
@@ -67,7 +74,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 		// TODO must verify that the document + indexPath match, when this is not called from scheduleDocumentIndexing
 		document.removeAllIndexEntries(); // in case the document was already indexed
 
-		String documentPath = document.getPath();
+		String documentPath= document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
 			new SourceIndexer(document).indexDocument();
 		} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
@@ -81,16 +88,17 @@ public class JavaSearchParticipant extends SearchParticipant {
 	public void locateMatches(SearchDocument[] indexMatches, SearchPattern pattern,
 			IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
 
-		MatchLocator matchLocator =
-			new MatchLocator(
-				pattern,
-				requestor,
-				scope,
-				monitor
-		);
+		MatchLocator matchLocator=
+				new MatchLocator(
+						pattern,
+						requestor,
+						scope,
+						monitor
+				);
 
 		/* eliminating false matches and locating them */
-		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+		if (monitor != null && monitor.isCanceled())
+			throw new OperationCanceledException();
 		matchLocator.locateMatches(indexMatches);
 	}
 
@@ -99,9 +107,9 @@ public class JavaSearchParticipant extends SearchParticipant {
 	 */
 	public IPath[] selectIndexes(SearchPattern pattern, IJavaSearchScope scope) {
 
-		IndexSelector selector = (IndexSelector) this.indexSelector.get();
+		IndexSelector selector= (IndexSelector)this.indexSelector.get();
 		if (selector == null) {
-			selector = new IndexSelector(scope, pattern);
+			selector= new IndexSelector(scope, pattern);
 			this.indexSelector.set(selector);
 		}
 		return selector.getIndexLocations();

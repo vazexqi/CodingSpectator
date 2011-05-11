@@ -12,9 +12,9 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Error message used to report potential errors found during the AST parsing
- * or name resolution. Instances of this class are immutable.
- *
+ * Error message used to report potential errors found during the AST parsing or name resolution.
+ * Instances of this class are immutable.
+ * 
  * @since 2.0
  */
 public class Message {
@@ -30,18 +30,18 @@ public class Message {
 	private int startPosition;
 
 	/**
-	 * The length in characters of the original source file indicating
-	 * where the source fragment corresponding to this message ends.
+	 * The length in characters of the original source file indicating where the source fragment
+	 * corresponding to this message ends.
 	 */
 	private int length;
 
 	/**
 	 * Creates a message.
-	 *
+	 * 
 	 * @param message the localized message reported by the compiler
-	 * @param startPosition the 0-based character index into the
-	 *    original source file, or <code>-1</code> if no source position
-	 *    information is to be recorded for this message
+	 * @param startPosition the 0-based character index into the original source file, or
+	 *            <code>-1</code> if no source position information is to be recorded for this
+	 *            message
 	 * @throws IllegalArgumentException if the message is null
 	 * @throws IllegalArgumentException if the startPosition is lower than -1.
 	 */
@@ -52,21 +52,21 @@ public class Message {
 		if (startPosition < -1) {
 			throw new IllegalArgumentException();
 		}
-		this.message = message;
-		this.startPosition = startPosition;
-		this.length = 0;
+		this.message= message;
+		this.startPosition= startPosition;
+		this.length= 0;
 	}
 
 	/**
 	 * Creates a message.
-	 *
+	 * 
 	 * @param message the localized message reported by the compiler
-	 * @param startPosition the 0-based character index into the
-	 *    original source file, or <code>-1</code> if no source position
-	 *    information is to be recorded for this message
-	 * @param length the length in character of the original source file indicating
-	 * 	  where the source fragment corresponding to this message ends. 0 or a negative number
-	 *    if none. A negative number will be converted to a 0-length.
+	 * @param startPosition the 0-based character index into the original source file, or
+	 *            <code>-1</code> if no source position information is to be recorded for this
+	 *            message
+	 * @param length the length in character of the original source file indicating where the source
+	 *            fragment corresponding to this message ends. 0 or a negative number if none. A
+	 *            negative number will be converted to a 0-length.
 	 * @throws IllegalArgumentException if the message is null
 	 * @throws IllegalArgumentException if the startPosition is lower than -1.
 	 */
@@ -77,18 +77,18 @@ public class Message {
 		if (startPosition < -1) {
 			throw new IllegalArgumentException();
 		}
-		this.message = message;
-		this.startPosition = startPosition;
+		this.message= message;
+		this.startPosition= startPosition;
 		if (length <= 0) {
-			this.length = 0;
+			this.length= 0;
 		} else {
-			this.length = length;
+			this.length= length;
 		}
 	}
 
 	/**
 	 * Returns the localized message.
-	 *
+	 * 
 	 * @return the localized message
 	 */
 	public String getMessage() {
@@ -97,10 +97,9 @@ public class Message {
 
 	/**
 	 * Returns the character index into the original source file.
-	 *
-	 * @return the 0-based character index, or <code>-1</code>
-	 *    if no source position information is recorded for this
-	 *    message
+	 * 
+	 * @return the 0-based character index, or <code>-1</code> if no source position information is
+	 *         recorded for this message
 	 * @deprecated Use {@link #getStartPosition()} instead.
 	 * @see #getLength()
 	 */
@@ -110,10 +109,9 @@ public class Message {
 
 	/**
 	 * Returns the character index into the original source file.
-	 *
-	 * @return the 0-based character index, or <code>-1</code>
-	 *    if no source position information is recorded for this
-	 *    message
+	 * 
+	 * @return the 0-based character index, or <code>-1</code> if no source position information is
+	 *         recorded for this message
 	 * @see #getLength()
 	 */
 	public int getStartPosition() {
@@ -121,11 +119,11 @@ public class Message {
 	}
 
 	/**
-	 * Returns the length in characters of the original source file indicating
-	 * where the source fragment corresponding to this message ends.
-	 *
-	 * @return a length, or <code>0</code>
-	 *    if no source length information is recorded for this message
+	 * Returns the length in characters of the original source file indicating where the source
+	 * fragment corresponding to this message ends.
+	 * 
+	 * @return a length, or <code>0</code> if no source length information is recorded for this
+	 *         message
 	 * @see #getStartPosition()
 	 */
 	public int getLength() {

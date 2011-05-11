@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.IJavaElement;
 
 public class ImportContainerInfo extends JavaElementInfo {
 
-	protected IJavaElement[] children = JavaElement.NO_ELEMENTS;
+	protected IJavaElement[] children= JavaElement.NO_ELEMENTS;
 
 	public IJavaElement[] getChildren() {
 		return this.children;

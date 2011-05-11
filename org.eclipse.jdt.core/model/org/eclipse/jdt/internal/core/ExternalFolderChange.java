@@ -22,29 +22,30 @@ import org.eclipse.jdt.core.JavaModelException;
 public class ExternalFolderChange {
 
 	private JavaProject project;
+
 	private IClasspathEntry[] oldResolvedClasspath;
 
 	public ExternalFolderChange(JavaProject project, IClasspathEntry[] oldResolvedClasspath) {
-		this.project = project;
-		this.oldResolvedClasspath = oldResolvedClasspath;
+		this.project= project;
+		this.oldResolvedClasspath= oldResolvedClasspath;
 	}
 
 	/*
 	 * Update external folders
 	 */
 	public void updateExternalFoldersIfNecessary(boolean refreshIfExistAlready, IProgressMonitor monitor) throws JavaModelException {
-		HashSet oldFolders = ExternalFoldersManager.getExternalFolders(this.oldResolvedClasspath);
-		IClasspathEntry[] newResolvedClasspath = this.project.getResolvedClasspath();
-		HashSet newFolders = ExternalFoldersManager.getExternalFolders(newResolvedClasspath);
+		HashSet oldFolders= ExternalFoldersManager.getExternalFolders(this.oldResolvedClasspath);
+		IClasspathEntry[] newResolvedClasspath= this.project.getResolvedClasspath();
+		HashSet newFolders= ExternalFoldersManager.getExternalFolders(newResolvedClasspath);
 		if (newFolders == null)
 			return;
-		ExternalFoldersManager foldersManager = JavaModelManager.getExternalManager();
-		Iterator iterator = newFolders.iterator();
+		ExternalFoldersManager foldersManager= JavaModelManager.getExternalManager();
+		Iterator iterator= newFolders.iterator();
 		while (iterator.hasNext()) {
-			Object folderPath = iterator.next();
+			Object folderPath= iterator.next();
 			if (oldFolders == null || !oldFolders.remove(folderPath)) {
 				try {
-					foldersManager.createLinkFolder((IPath) folderPath, refreshIfExistAlready, monitor);
+					foldersManager.createLinkFolder((IPath)folderPath, refreshIfExistAlready, monitor);
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
 				}
@@ -52,6 +53,7 @@ public class ExternalFolderChange {
 		}
 		// removal of linked folders is done during save
 	}
+
 	public String toString() {
 		return "ExternalFolderChange: " + this.project.getElementName(); //$NON-NLS-1$
 	}

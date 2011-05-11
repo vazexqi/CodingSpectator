@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 public class PathCollector extends IndexQueryRequestor {
 
 	/* a set of resource paths */
-	public HashSet paths = new HashSet(5);
+	public HashSet paths= new HashSet(5);
 
 	/* (non-Javadoc)
 	 * @seeIndexQueryRequestor#acceptIndexMatch(IndexRecord, SearchParticipant, SearchPattern)
@@ -37,10 +37,10 @@ public class PathCollector extends IndexQueryRequestor {
 	 * Returns the paths that have been collected.
 	 */
 	public String[] getPaths() {
-		String[] result = new String[this.paths.size()];
-		int i = 0;
-		for (Iterator iter = this.paths.iterator(); iter.hasNext();) {
-			result[i++] = (String)iter.next();
+		String[] result= new String[this.paths.size()];
+		int i= 0;
+		for (Iterator iter= this.paths.iterator(); iter.hasNext();) {
+			result[i++]= (String)iter.next();
 		}
 		return result;
 	}

@@ -14,50 +14,54 @@ public class NameEnvironmentAnswer {
 
 	// only one of the three can be set
 	IBinaryType binaryType;
+
 	ICompilationUnit compilationUnit;
+
 	ISourceType[] sourceTypes;
+
 	AccessRestriction accessRestriction;
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
-		this.binaryType = binaryType;
-		this.accessRestriction = accessRestriction;
+		this.binaryType= binaryType;
+		this.accessRestriction= accessRestriction;
 	}
 
 	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction) {
-		this.compilationUnit = compilationUnit;
-		this.accessRestriction = accessRestriction;
+		this.compilationUnit= compilationUnit;
+		this.accessRestriction= accessRestriction;
 	}
 
 	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction) {
-		this.sourceTypes = sourceTypes;
-		this.accessRestriction = accessRestriction;
+		this.sourceTypes= sourceTypes;
+		this.accessRestriction= accessRestriction;
 	}
+
 	/**
 	 * Returns the associated access restriction, or null if none.
 	 */
 	public AccessRestriction getAccessRestriction() {
 		return this.accessRestriction;
 	}
+
 	/**
-	 * Answer the resolved binary form for the type or null if the
-	 * receiver represents a compilation unit or source type.
+	 * Answer the resolved binary form for the type or null if the receiver represents a compilation
+	 * unit or source type.
 	 */
 	public IBinaryType getBinaryType() {
 		return this.binaryType;
 	}
 
 	/**
-	 * Answer the compilation unit or null if the
-	 * receiver represents a binary or source type.
+	 * Answer the compilation unit or null if the receiver represents a binary or source type.
 	 */
 	public ICompilationUnit getCompilationUnit() {
 		return this.compilationUnit;
 	}
 
 	/**
-	 * Answer the unresolved source forms for the type or null if the
-	 * receiver represents a compilation unit or binary type.
-	 *
+	 * Answer the unresolved source forms for the type or null if the receiver represents a
+	 * compilation unit or binary type.
+	 * 
 	 * Multiple source forms can be answered in case the originating compilation unit did contain
 	 * several type at once. Then the first type is guaranteed to be the requested type.
 	 */
@@ -96,9 +100,11 @@ public class NameEnvironmentAnswer {
 	 * non-accessible)
 	 */
 	public boolean isBetter(NameEnvironmentAnswer otherAnswer) {
-		if (otherAnswer == null) return true;
-		if (this.accessRestriction == null) return true;
+		if (otherAnswer == null)
+			return true;
+		if (this.accessRestriction == null)
+			return true;
 		return otherAnswer.accessRestriction != null
-			&& this.accessRestriction.getProblemId() < otherAnswer.accessRestriction.getProblemId();
+				&& this.accessRestriction.getProblemId() < otherAnswer.accessRestriction.getProblemId();
 	}
 }

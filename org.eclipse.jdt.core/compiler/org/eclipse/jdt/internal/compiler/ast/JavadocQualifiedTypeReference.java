@@ -23,13 +23,14 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 
 	public int tagSourceStart, tagSourceEnd;
+
 	public PackageBinding packageBinding;
 
 	public JavadocQualifiedTypeReference(char[][] sources, long[] pos, int tagStart, int tagEnd) {
 		super(sources, pos);
-		this.tagSourceStart = tagStart;
-		this.tagSourceEnd = tagEnd;
-		this.bits |= ASTNode.InsideJavadoc;
+		this.tagSourceStart= tagStart;
+		this.tagSourceEnd= tagEnd;
+		this.bits|= ASTNode.InsideJavadoc;
 	}
 
 	/*
@@ -37,19 +38,20 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	 */
 	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 		// handle the error here
-		this.constant = Constant.NotAConstant;
+		this.constant= Constant.NotAConstant;
 		if (this.resolvedType != null) // is a shared type reference which was already resolved
 			return this.resolvedType.isValidBinding() ? this.resolvedType : this.resolvedType.closestMatch(); // already reported error
 
-		TypeBinding type = this.resolvedType = getTypeBinding(scope);
+		TypeBinding type= this.resolvedType= getTypeBinding(scope);
 		// End resolution when getTypeBinding(scope) returns null. This may happen in
 		// certain circumstances, typically when an illegal access is done on a type
 		// variable (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=204749)
-		if (type == null) return null;
+		if (type == null)
+			return null;
 		if (!type.isValidBinding()) {
-			Binding binding = scope.getTypeOrPackage(this.tokens);
+			Binding binding= scope.getTypeOrPackage(this.tokens);
 			if (binding instanceof PackageBinding) {
-				this.packageBinding = (PackageBinding) binding;
+				this.packageBinding= (PackageBinding)binding;
 				// Valid package references are allowed in Javadoc (https://bugs.eclipse.org/bugs/show_bug.cgi?id=281609)
 			} else {
 				reportInvalidType(scope);
@@ -59,14 +61,15 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
 		// raw convert all enclosing types when dealing with Javadoc references
 		if (type.isGenericType() || type.isParameterizedType()) {
-			this.resolvedType = scope.environment().convertToRawType(type, true /*force the conversion of enclosing types*/);
+			this.resolvedType= scope.environment().convertToRawType(type, true /*force the conversion of enclosing types*/);
 		}
 		return this.resolvedType;
 	}
+
 	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}
-	
+
 	protected void reportDeprecatedType(TypeBinding type, Scope scope, int index) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers(), index);
 	}
@@ -74,6 +77,7 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
+
 	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
 		return internalResolveType(blockScope, checkBounds);
 	}

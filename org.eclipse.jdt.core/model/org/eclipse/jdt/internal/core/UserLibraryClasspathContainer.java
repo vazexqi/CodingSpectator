@@ -25,7 +25,7 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 	private String name;
 
 	public UserLibraryClasspathContainer(String name) {
-		this.name = name;
+		this.name= name;
 	}
 
 	/* (non-Javadoc)
@@ -65,7 +65,7 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 	}
 
 	private UserLibrary getUserLibrary() {
-		UserLibrary userLibrary = JavaModelManager.getUserLibraryManager().getUserLibrary(this.name);
+		UserLibrary userLibrary= JavaModelManager.getUserLibraryManager().getUserLibrary(this.name);
 		if (userLibrary == null && (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)) {
 			verbose_no_user_library_found(this.name);
 		}
@@ -74,7 +74,7 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 
 	private void verbose_no_user_library_found(String userLibraryName) {
 		Util.verbose(
-			"UserLibrary INIT - FAILED (no user library found)\n" + //$NON-NLS-1$
-			"	userLibraryName: " + userLibraryName); //$NON-NLS-1$
+				"UserLibrary INIT - FAILED (no user library found)\n" + //$NON-NLS-1$
+						"	userLibraryName: " + userLibraryName); //$NON-NLS-1$
 	}
 }

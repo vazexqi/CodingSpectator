@@ -15,92 +15,86 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Type node for a parameterized type (added in JLS3 API).
- * These nodes are used for type references (as opposed to
- * declarations of parameterized types.)
+ * Type node for a parameterized type (added in JLS3 API). These nodes are used for type references
+ * (as opposed to declarations of parameterized types.)
+ * 
  * <pre>
  * ParameterizedType:
  *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * </pre>
- * The first type may be a simple type or a qualified type;
- * other kinds of types are meaningless.
- *
+ * 
+ * The first type may be a simple type or a qualified type; other kinds of types are meaningless.
+ * 
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class ParameterizedType extends Type {
-    /**
-     * This index represents the position inside a parameterized qualified type.
-     */
-    int index;
+	/**
+	 * This index represents the position inside a parameterized qualified type.
+	 */
+	int index;
 
 	/**
 	 * The "type" structural property of this node type.
 	 */
-	public static final ChildPropertyDescriptor TYPE_PROPERTY =
-		new ChildPropertyDescriptor(ParameterizedType.class, "type", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor TYPE_PROPERTY=
+			new ChildPropertyDescriptor(ParameterizedType.class, "type", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeArguments" structural property of this node type.
 	 */
-	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY =
-		new ChildListPropertyDescriptor(ParameterizedType.class, "typeArguments", Type.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY=
+			new ChildListPropertyDescriptor(ParameterizedType.class, "typeArguments", Type.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(3);
+		List propertyList= new ArrayList(3);
 		createPropertyList(ParameterizedType.class, propertyList);
 		addProperty(TYPE_PROPERTY, propertyList);
 		addProperty(TYPE_ARGUMENTS_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
 	}
 
 	/**
-	 * The type node; lazily initialized; defaults to an unspecfied, but legal,
-	 * type.
+	 * The type node; lazily initialized; defaults to an unspecfied, but legal, type.
 	 */
-	private Type type = null;
+	private Type type= null;
 
 	/**
-	 * The type arguments (element type: <code>Type</code>).
-	 * Defaults to an empty list.
+	 * The type arguments (element type: <code>Type</code>). Defaults to an empty list.
 	 */
-	private ASTNode.NodeList typeArguments =
-		new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
+	private ASTNode.NodeList typeArguments=
+			new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
 
 	/**
-	 * Creates a new unparented node for a parameterized type owned by the
-	 * given AST. By default, an unspecified, but legal, type, and no type
-	 * arguments.
+	 * Creates a new unparented node for a parameterized type owned by the given AST. By default, an
+	 * unspecified, but legal, type, and no type arguments.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	ParameterizedType(AST ast) {
 		super(ast);
-	    unsupportedIn2();
+		unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)
@@ -118,7 +112,7 @@ public class ParameterizedType extends Type {
 			if (get) {
 				return getType();
 			} else {
-				setType((Type) child);
+				setType((Type)child);
 				return null;
 			}
 		}
@@ -148,11 +142,11 @@ public class ParameterizedType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		ParameterizedType result = new ParameterizedType(target);
+		ParameterizedType result= new ParameterizedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setType((Type) ((ASTNode) getType()).clone(target));
+		result.setType((Type)((ASTNode)getType()).clone(target));
 		result.typeArguments().addAll(
-			ASTNode.copySubtrees(target, typeArguments()));
+				ASTNode.copySubtrees(target, typeArguments()));
 		return result;
 	}
 
@@ -168,7 +162,7 @@ public class ParameterizedType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getType());
@@ -179,7 +173,7 @@ public class ParameterizedType extends Type {
 
 	/**
 	 * Returns the type of this parameterized type.
-	 *
+	 * 
 	 * @return the type of this parameterized type
 	 */
 	public Type getType() {
@@ -188,7 +182,7 @@ public class ParameterizedType extends Type {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
+					this.type= new SimpleType(this.ast);
 					postLazyInit(this.type, TYPE_PROPERTY);
 				}
 			}
@@ -198,31 +192,30 @@ public class ParameterizedType extends Type {
 
 	/**
 	 * Sets the type of this parameterized type.
-	 *
+	 * 
 	 * @param type the new type of this parameterized type
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setType(Type type) {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.type;
+		ASTNode oldChild= this.type;
 		preReplaceChild(oldChild, type, TYPE_PROPERTY);
-		this.type = type;
+		this.type= type;
 		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
-	 * Returns the live ordered list of type arguments of this parameterized
-	 * type. For the parameterized type to be plausible, the list should contain
-	 * at least one element and not contain primitive types.
-	 *
-	 * @return the live list of type arguments
-	 *    (element type: <code>Type</code>)
+	 * Returns the live ordered list of type arguments of this parameterized type. For the
+	 * parameterized type to be plausible, the list should contain at least one element and not
+	 * contain primitive types.
+	 * 
+	 * @return the live list of type arguments (element type: <code>Type</code>)
 	 */
 	public List typeArguments() {
 		return this.typeArguments;
@@ -240,10 +233,8 @@ public class ParameterizedType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.type == null ? 0 : getType().treeSize())
-			+ this.typeArguments.listSize();
+		return memSize()
+				+ (this.type == null ? 0 : getType().treeSize())
+				+ this.typeArguments.listSize();
 	}
 }
-

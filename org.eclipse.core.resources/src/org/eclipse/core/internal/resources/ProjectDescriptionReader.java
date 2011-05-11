@@ -127,7 +127,6 @@ public class ProjectDescriptionReader extends DefaultHandler implements IModelOb
 
 	protected int state= S_INITIAL;
 
-
 	/**
 	 * Returns the SAXParser to use when parsing project description files.
 	 * 
@@ -169,7 +168,6 @@ public class ProjectDescriptionReader extends DefaultHandler implements IModelOb
 			return false;
 		}
 	}
-
 
 	public ProjectDescriptionReader() {
 		this.project= null;
@@ -854,7 +852,6 @@ public class ProjectDescriptionReader extends DefaultHandler implements IModelOb
 			state= S_PROJECT_DESC;
 		}
 	}
-
 
 	/**
 	 * @see ErrorHandler#error(SAXParseException)

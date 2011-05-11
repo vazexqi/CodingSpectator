@@ -31,18 +31,21 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * which should be replaced by the completion.
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
 
 	public char[] completionIdentifier;
+
 	public int classStart;
 
 	public CompletionOnClassLiteralAccess(long pos, TypeReference t) {
 
 		super((int)pos, t);
-		this.classStart = (int) (pos >>> 32);
+		this.classStart= (int)(pos >>> 32);
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

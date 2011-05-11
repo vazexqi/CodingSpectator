@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.core.dom.BindingResolver;
-import org.eclipse.jdt.core.dom.IMethodBinding;
 
 /**
  * Member value pair which compose of default values.
@@ -24,8 +22,8 @@ class DefaultValuePairBinding extends MemberValuePairBinding {
 
 	DefaultValuePairBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding, BindingResolver resolver) {
 		super(null, resolver);
-		this.method = binding;
-		this.value = MemberValuePairBinding.buildDOMValue(binding.getDefaultValue(), resolver);
+		this.method= binding;
+		this.value= MemberValuePairBinding.buildDOMValue(binding.getDefaultValue(), resolver);
 	}
 
 	public IMethodBinding getMethodBinding() {

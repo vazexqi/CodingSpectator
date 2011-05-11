@@ -32,32 +32,32 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.text.edits.TextEdit;
 
 /**
- * This operation deletes a collection of elements (and
- * all of their children).
- * If an element does not exist, it is ignored.
- *
- * <p>NOTE: This operation only deletes elements contained within leaf resources -
- * that is, elements within compilation units. To delete a compilation unit or
- * a package, etc (which have an actual resource), a DeleteResourcesOperation
- * should be used.
+ * This operation deletes a collection of elements (and all of their children). If an element does
+ * not exist, it is ignored.
+ * 
+ * <p>
+ * NOTE: This operation only deletes elements contained within leaf resources - that is, elements
+ * within compilation units. To delete a compilation unit or a package, etc (which have an actual
+ * resource), a DeleteResourcesOperation should be used.
  */
 public class DeleteElementsOperation extends MultiOperation {
 	/**
 	 * The elements this operation processes grouped by compilation unit
-	 * @see #processElements() Keys are compilation units,
-	 * values are <code>IRegion</code>s of elements to be processed in each
-	 * compilation unit.
+	 * 
+	 * @see #processElements() Keys are compilation units, values are <code>IRegion</code>s of
+	 *      elements to be processed in each compilation unit.
 	 */
 	protected Map childrenToRemove;
+
 	/**
 	 * The <code>ASTParser</code> used to manipulate the source code of
 	 * <code>ICompilationUnit</code>.
 	 */
 	protected ASTParser parser;
+
 	/**
-	 * When executed, this operation will delete the given elements. The elements
-	 * to delete cannot be <code>null</code> or empty, and must be contained within a
-	 * compilation unit.
+	 * When executed, this operation will delete the given elements. The elements to delete cannot
+	 * be <code>null</code> or empty, and must be contained within a compilation unit.
 	 */
 	public DeleteElementsOperation(IJavaElement[] elementsToDelete, boolean force) {
 		super(elementsToDelete, force);
@@ -68,19 +68,19 @@ public class DeleteElementsOperation extends MultiOperation {
 		// ensure cu is consistent (noop if already consistent)
 		cu.makeConsistent(this.progressMonitor);
 		this.parser.setSource(cu);
-		CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
-		ASTNode node = ((JavaElement) elementToRemove).findNode(astCU);
+		CompilationUnit astCU= (CompilationUnit)this.parser.createAST(this.progressMonitor);
+		ASTNode node= ((JavaElement)elementToRemove).findNode(astCU);
 		if (node == null)
 			Assert.isTrue(false, "Failed to locate " + elementToRemove.getElementName() + " in " + cu.getElementName()); //$NON-NLS-1$//$NON-NLS-2$
-		AST ast = astCU.getAST();
-		ASTRewrite rewriter = ASTRewrite.create(ast);
+		AST ast= astCU.getAST();
+		ASTRewrite rewriter= ASTRewrite.create(ast);
 		rewriter.remove(node, null);
- 		TextEdit edits = rewriter.rewriteAST();
- 		applyTextEdit(cu, edits);
+		TextEdit edits= rewriter.rewriteAST();
+		applyTextEdit(cu, edits);
 	}
 
 	private void initASTParser() {
-		this.parser = ASTParser.newParser(AST.JLS3);
+		this.parser= ASTParser.newParser(AST.JLS3);
 	}
 
 	/**
@@ -89,60 +89,63 @@ public class DeleteElementsOperation extends MultiOperation {
 	protected String getMainTaskName() {
 		return Messages.operation_deleteElementProgress;
 	}
+
 	protected ISchedulingRule getSchedulingRule() {
 		if (this.elementsToProcess != null && this.elementsToProcess.length == 1) {
-			IResource resource = this.elementsToProcess[0].getResource();
+			IResource resource= this.elementsToProcess[0].getResource();
 			if (resource != null)
 				return ResourcesPlugin.getWorkspace().getRuleFactory().modifyRule(resource);
 		}
 		return super.getSchedulingRule();
 	}
+
 	/**
-	 * Groups the elements to be processed by their compilation unit.
-	 * If parent/child combinations are present, children are
-	 * discarded (only the parents are processed). Removes any
-	 * duplicates specified in elements to be processed.
+	 * Groups the elements to be processed by their compilation unit. If parent/child combinations
+	 * are present, children are discarded (only the parents are processed). Removes any duplicates
+	 * specified in elements to be processed.
 	 */
 	protected void groupElements() throws JavaModelException {
-		this.childrenToRemove = new HashMap(1);
-		int uniqueCUs = 0;
-		for (int i = 0, length = this.elementsToProcess.length; i < length; i++) {
-			IJavaElement e = this.elementsToProcess[i];
-			ICompilationUnit cu = getCompilationUnitFor(e);
+		this.childrenToRemove= new HashMap(1);
+		int uniqueCUs= 0;
+		for (int i= 0, length= this.elementsToProcess.length; i < length; i++) {
+			IJavaElement e= this.elementsToProcess[i];
+			ICompilationUnit cu= getCompilationUnitFor(e);
 			if (cu == null) {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, e));
 			} else {
-				IRegion region = (IRegion) this.childrenToRemove.get(cu);
+				IRegion region= (IRegion)this.childrenToRemove.get(cu);
 				if (region == null) {
-					region = new Region();
+					region= new Region();
 					this.childrenToRemove.put(cu, region);
-					uniqueCUs += 1;
+					uniqueCUs+= 1;
 				}
 				region.add(e);
 			}
 		}
-		this.elementsToProcess = new IJavaElement[uniqueCUs];
-		Iterator iter = this.childrenToRemove.keySet().iterator();
-		int i = 0;
+		this.elementsToProcess= new IJavaElement[uniqueCUs];
+		Iterator iter= this.childrenToRemove.keySet().iterator();
+		int i= 0;
 		while (iter.hasNext()) {
-			this.elementsToProcess[i++] = (IJavaElement) iter.next();
+			this.elementsToProcess[i++]= (IJavaElement)iter.next();
 		}
 	}
+
 	/**
 	 * Deletes this element from its compilation unit.
+	 * 
 	 * @see MultiOperation
 	 */
 	protected void processElement(IJavaElement element) throws JavaModelException {
-		ICompilationUnit cu = (ICompilationUnit) element;
+		ICompilationUnit cu= (ICompilationUnit)element;
 
 		// keep track of the import statements - if all are removed, delete
 		// the import container (and report it in the delta)
-		int numberOfImports = cu.getImports().length;
+		int numberOfImports= cu.getImports().length;
 
-		JavaElementDelta delta = new JavaElementDelta(cu);
-		IJavaElement[] cuElements = ((IRegion) this.childrenToRemove.get(cu)).getElements();
-		for (int i = 0, length = cuElements.length; i < length; i++) {
-			IJavaElement e = cuElements[i];
+		JavaElementDelta delta= new JavaElementDelta(cu);
+		IJavaElement[] cuElements= ((IRegion)this.childrenToRemove.get(cu)).getElements();
+		for (int i= 0, length= cuElements.length; i < length; i++) {
+			IJavaElement e= cuElements[i];
 			if (e.exists()) {
 				deleteElement(e, cu);
 				delta.removed(e);
@@ -162,22 +165,23 @@ public class DeleteElementsOperation extends MultiOperation {
 			}
 		}
 	}
+
 	/**
-	 * @see MultiOperation
-	 * This method first group the elements by <code>ICompilationUnit</code>,
-	 * and then processes the <code>ICompilationUnit</code>.
+	 * @see MultiOperation This method first group the elements by <code>ICompilationUnit</code>,
+	 *      and then processes the <code>ICompilationUnit</code>.
 	 */
 	protected void processElements() throws JavaModelException {
 		groupElements();
 		super.processElements();
 	}
+
 	/**
 	 * @see MultiOperation
 	 */
 	protected void verify(IJavaElement element) throws JavaModelException {
-		IJavaElement[] children = ((IRegion) this.childrenToRemove.get(element)).getElements();
-		for (int i = 0; i < children.length; i++) {
-			IJavaElement child = children[i];
+		IJavaElement[] children= ((IRegion)this.childrenToRemove.get(element)).getElements();
+		for (int i= 0; i < children.length; i++) {
+			IJavaElement child= children[i];
 			if (child.getCorrespondingResource() != null)
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
 

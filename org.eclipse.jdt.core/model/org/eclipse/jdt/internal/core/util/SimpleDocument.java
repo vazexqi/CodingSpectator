@@ -28,7 +28,7 @@ public class SimpleDocument implements IDocument {
 
 
 	public SimpleDocument(String source) {
-		this.buffer = new StringBuffer(source);
+		this.buffer= new StringBuffer(source);
 	}
 
 	/* (non-Javadoc)
@@ -113,7 +113,7 @@ public class SimpleDocument implements IDocument {
 	 * @see org.eclipse.jface.text.IDocument#removePositionCategory(java.lang.String)
 	 */
 	public void removePositionCategory(String category) {
-			// defining interface method
+		// defining interface method
 	}
 
 	/* (non-Javadoc)
@@ -355,15 +355,16 @@ public class SimpleDocument implements IDocument {
 	}
 
 	/**
-	 * @see org.eclipse.jface.text.IDocument#search(int, java.lang.String, boolean, boolean, boolean)
+	 * @see org.eclipse.jface.text.IDocument#search(int, java.lang.String, boolean, boolean,
+	 *      boolean)
 	 * @deprecated
 	 */
 	public int search(
-		int startOffset,
-		String findString,
-		boolean forwardSearch,
-		boolean caseSensitive,
-		boolean wholeWord) {
+			int startOffset,
+			String findString,
+			boolean forwardSearch,
+			boolean caseSensitive,
+			boolean wholeWord) {
 		// defining interface method
 		return 0;
 	}

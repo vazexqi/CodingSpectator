@@ -16,12 +16,14 @@ import java.util.List;
 /**
  * Normal annotation node (added in JLS3 API).
  * <p>
+ * 
  * <pre>
  * NormalAnnotation:
  *   <b>@</b> TypeName <b>(</b> [ MemberValuePair { <b>,</b> MemberValuePair } ] <b>)</b>
  * </pre>
+ * 
  * </p>
- *
+ * 
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -30,63 +32,59 @@ public final class NormalAnnotation extends Annotation {
 	/**
 	 * The "typeName" structural property of this node type.
 	 */
-	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY =
-		internalTypeNamePropertyFactory(NormalAnnotation.class);
+	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY=
+			internalTypeNamePropertyFactory(NormalAnnotation.class);
 
 	/**
 	 * The "values" structural property of this node type.
 	 */
-	public static final ChildListPropertyDescriptor VALUES_PROPERTY =
-		new ChildListPropertyDescriptor(NormalAnnotation.class, "values", MemberValuePair.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor VALUES_PROPERTY=
+			new ChildListPropertyDescriptor(NormalAnnotation.class, "values", MemberValuePair.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(3);
+		List propertyList= new ArrayList(3);
 		createPropertyList(NormalAnnotation.class, propertyList);
 		addProperty(TYPE_NAME_PROPERTY, propertyList);
 		addProperty(VALUES_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
 	 * @param apiLevel the API level; one of the AST.JLS* constants
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
 	}
 
 	/**
-	 * The list of member value pairs (element type:
-	 * {@link MemberValuePair}). Defaults to an empty list.
+	 * The list of member value pairs (element type: {@link MemberValuePair}). Defaults to an empty
+	 * list.
 	 */
-	private ASTNode.NodeList values =
-		new ASTNode.NodeList(VALUES_PROPERTY);
+	private ASTNode.NodeList values=
+			new ASTNode.NodeList(VALUES_PROPERTY);
 
 	/**
-	 * Creates a new unparented normal annotation node owned
-	 * by the given AST.  By default, the annotation has an
-	 * unspecified type name and an empty list of member value
-	 * pairs.
+	 * Creates a new unparented normal annotation node owned by the given AST. By default, the
+	 * annotation has an unspecified type name and an empty list of member value pairs.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	NormalAnnotation(AST ast) {
 		super(ast);
-	    unsupportedIn2();
+		unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)
@@ -104,7 +102,7 @@ public final class NormalAnnotation extends Annotation {
 			if (get) {
 				return getTypeName();
 			} else {
-				setTypeName((Name) child);
+				setTypeName((Name)child);
 				return null;
 			}
 		}
@@ -141,9 +139,9 @@ public final class NormalAnnotation extends Annotation {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		NormalAnnotation result = new NormalAnnotation(target);
+		NormalAnnotation result= new NormalAnnotation(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setTypeName((Name) ASTNode.copySubtree(target, getTypeName()));
+		result.setTypeName((Name)ASTNode.copySubtree(target, getTypeName()));
 		result.values().addAll(ASTNode.copySubtrees(target, values()));
 		return result;
 	}
@@ -160,7 +158,7 @@ public final class NormalAnnotation extends Annotation {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getTypeName());
@@ -170,14 +168,12 @@ public final class NormalAnnotation extends Annotation {
 	}
 
 	/**
-	 * Returns the live list of member value pairs in this annotation.
-	 * Adding and removing nodes from this list affects this node
-	 * dynamically. All nodes in this list must be
-	 * {@link MemberValuePair}s; attempts to add any other
-	 * type of node will trigger an exception.
-	 *
-	 * @return the live list of member value pairs in this
-	 *    annotation (element type: <code>MemberValuePair</code>)
+	 * Returns the live list of member value pairs in this annotation. Adding and removing nodes
+	 * from this list affects this node dynamically. All nodes in this list must be
+	 * {@link MemberValuePair}s; attempts to add any other type of node will trigger an exception.
+	 * 
+	 * @return the live list of member value pairs in this annotation (element type:
+	 *         <code>MemberValuePair</code>)
 	 */
 	public List values() {
 		return this.values;
@@ -194,9 +190,8 @@ public final class NormalAnnotation extends Annotation {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.typeName == null ? 0 : getTypeName().treeSize())
-			+ this.values.listSize();
+		return memSize()
+				+ (this.typeName == null ? 0 : getTypeName().treeSize())
+				+ this.values.listSize();
 	}
 }

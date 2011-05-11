@@ -20,11 +20,13 @@ import org.eclipse.jdt.internal.core.JavaElement;
 
 public class AssistInitializer extends Initializer {
 	private Map bindingCache;
+
 	private Map infoCache;
+
 	public AssistInitializer(JavaElement parent, int count, Map bindingCache, Map infoCache) {
 		super(parent, count);
-		this.bindingCache = bindingCache;
-		this.infoCache = infoCache;
+		this.bindingCache= bindingCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
@@ -32,8 +34,8 @@ public class AssistInitializer extends Initializer {
 	}
 
 	public IType getType(String typeName, int count) {
-		AssistSourceType type = new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
-		type.occurrenceCount = count;
+		AssistSourceType type= new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
+		type.occurrenceCount= count;
 		return type;
 	}
 }

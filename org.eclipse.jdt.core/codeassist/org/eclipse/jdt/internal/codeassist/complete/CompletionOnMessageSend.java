@@ -32,38 +32,40 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * before the cursor.
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnMessageSend extends MessageSend {
 
 	public TypeBinding resolveType(BlockScope scope) {
 		if (this.arguments != null) {
-			int argsLength = this.arguments.length;
-			for (int a = argsLength; --a >= 0;)
+			int argsLength= this.arguments.length;
+			for (int a= argsLength; --a >= 0;)
 				this.arguments[a].resolveType(scope);
 		}
 
 		if (this.receiver.isImplicitThis())
 			throw new CompletionNodeFound(this, null, scope);
 
-		this.actualReceiverType = this.receiver.resolveType(scope);
+		this.actualReceiverType= this.receiver.resolveType(scope);
 		if (this.actualReceiverType == null || this.actualReceiverType.isBaseType())
 			throw new CompletionNodeFound();
 
 		if (this.actualReceiverType.isArrayType())
-			this.actualReceiverType = scope.getJavaLangObject();
+			this.actualReceiverType= scope.getJavaLangObject();
 		throw new CompletionNodeFound(this, this.actualReceiverType, scope);
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append("<CompleteOnMessageSend:"); //$NON-NLS-1$
-		if (!this.receiver.isImplicitThis()) this.receiver.printExpression(0, output).append('.');
+		if (!this.receiver.isImplicitThis())
+			this.receiver.printExpression(0, output).append('.');
 		if (this.typeArguments != null) {
 			output.append('<');
-			int max = this.typeArguments.length - 1;
-			for (int j = 0; j < max; j++) {
+			int max= this.typeArguments.length - 1;
+			for (int j= 0; j < max; j++) {
 				this.typeArguments[j].print(0, output);
 				output.append(", ");//$NON-NLS-1$
 			}
@@ -72,8 +74,9 @@ public class CompletionOnMessageSend extends MessageSend {
 		}
 		output.append(this.selector).append('(');
 		if (this.arguments != null) {
-			for (int i = 0; i < this.arguments.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
+			for (int i= 0; i < this.arguments.length; i++) {
+				if (i > 0)
+					output.append(", "); //$NON-NLS-1$
 				this.arguments[i].printExpression(0, output);
 			}
 		}

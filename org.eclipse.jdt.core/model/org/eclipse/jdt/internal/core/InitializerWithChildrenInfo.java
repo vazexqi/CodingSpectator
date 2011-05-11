@@ -15,9 +15,9 @@ import org.eclipse.jdt.core.IJavaElement;
 public class InitializerWithChildrenInfo extends InitializerElementInfo {
 
 	protected IJavaElement[] children;
-	
+
 	public InitializerWithChildrenInfo(IJavaElement[] children) {
-		this.children = children;
+		this.children= children;
 	}
 
 	public IJavaElement[] getChildren() {

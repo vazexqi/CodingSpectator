@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,11 +19,11 @@ public class CharConstant extends Constant {
 	}
 
 	private CharConstant(char value) {
-		this.value = value;
+		this.value= value;
 	}
 
 	public byte byteValue() {
-		return (byte) this.value;
+		return (byte)this.value;
 	}
 
 	public char charValue() {
@@ -47,7 +47,7 @@ public class CharConstant extends Constant {
 	}
 
 	public short shortValue() {
-		return (short) this.value;
+		return (short)this.value;
 	}
 
 	public String stringValue() {
@@ -61,23 +61,5 @@ public class CharConstant extends Constant {
 
 	public int typeID() {
 		return T_char;
-	}
-
-	public int hashCode() {
-		return this.value;
-	}
-
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		CharConstant other = (CharConstant) obj;
-		return this.value == other.value;
 	}
 }

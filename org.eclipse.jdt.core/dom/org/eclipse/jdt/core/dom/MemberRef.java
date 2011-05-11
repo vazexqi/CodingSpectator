@@ -15,15 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AST node for a member reference within a doc comment
- * ({@link Javadoc}). The principal uses of these are in "@see" and "@link"
- * tag elements, for references to field members (and occasionally to method
- * and constructor members).
+ * AST node for a member reference within a doc comment ({@link Javadoc}). The principal uses of
+ * these are in "@see" and "@link" tag elements, for references to field members (and occasionally
+ * to method and constructor members).
+ * 
  * <pre>
  * MemberRef:
  * 		[ Name ] <b>#</b> Identifier
  * </pre>
- *
+ * 
  * @see Javadoc
  * @since 3.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -32,40 +32,40 @@ public class MemberRef extends ASTNode implements IDocElement {
 
 	/**
 	 * The "qualifier" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY =
-		new ChildPropertyDescriptor(MemberRef.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY=
+			new ChildPropertyDescriptor(MemberRef.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "name" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor NAME_PROPERTY =
-		new ChildPropertyDescriptor(MemberRef.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor NAME_PROPERTY=
+			new ChildPropertyDescriptor(MemberRef.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(3);
+		List propertyList= new ArrayList(3);
 		createPropertyList(MemberRef.class, propertyList);
 		addProperty(QUALIFIER_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
 	 * @param apiLevel the API level; one of the AST.JLS* constants
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -75,24 +75,21 @@ public class MemberRef extends ASTNode implements IDocElement {
 	/**
 	 * The optional qualifier; <code>null</code> for none; defaults to none.
 	 */
-	private Name optionalQualifier = null;
+	private Name optionalQualifier= null;
 
 	/**
-	 * The member name; lazily initialized; defaults to a unspecified,
-	 * legal Java method name.
+	 * The member name; lazily initialized; defaults to a unspecified, legal Java method name.
 	 */
-	private SimpleName memberName = null;
+	private SimpleName memberName= null;
 
 	/**
-	 * Creates a new AST node for a member reference owned by the given
-	 * AST. By default, the method reference is for a member with an
-	 * unspecified, but legal, name; and no qualifier.
+	 * Creates a new AST node for a member reference owned by the given AST. By default, the method
+	 * reference is for a member with an unspecified, but legal, name; and no qualifier.
 	 * <p>
-	 * N.B. This constructor is package-private; all subclasses must be
-	 * declared in the same package; clients are unable to declare
-	 * additional subclasses.
+	 * N.B. This constructor is package-private; all subclasses must be declared in the same
+	 * package; clients are unable to declare additional subclasses.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	MemberRef(AST ast) {
@@ -114,7 +111,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 			if (get) {
 				return getQualifier();
 			} else {
-				setQualifier((Name) child);
+				setQualifier((Name)child);
 				return null;
 			}
 		}
@@ -122,7 +119,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 			if (get) {
 				return getName();
 			} else {
-				setName((SimpleName) child);
+				setName((SimpleName)child);
 				return null;
 			}
 		}
@@ -141,10 +138,10 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		MemberRef result = new MemberRef(target);
+		MemberRef result= new MemberRef(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
-		result.setName((SimpleName) ASTNode.copySubtree(target, getName()));
+		result.setQualifier((Name)ASTNode.copySubtree(target, getQualifier()));
+		result.setName((SimpleName)ASTNode.copySubtree(target, getName()));
 		return result;
 	}
 
@@ -160,7 +157,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getQualifier());
@@ -170,9 +167,8 @@ public class MemberRef extends ASTNode implements IDocElement {
 	}
 
 	/**
-	 * Returns the qualifier of this member reference, or
-	 * <code>null</code> if there is none.
-	 *
+	 * Returns the qualifier of this member reference, or <code>null</code> if there is none.
+	 * 
 	 * @return the qualifier name node, or <code>null</code> if there is none
 	 */
 	public Name getQualifier() {
@@ -181,25 +177,24 @@ public class MemberRef extends ASTNode implements IDocElement {
 
 	/**
 	 * Sets or clears the qualifier of this member reference.
-	 *
-	 * @param name the qualifier name node, or <code>null</code> if
-	 *    there is none
+	 * 
+	 * @param name the qualifier name node, or <code>null</code> if there is none
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setQualifier(Name name) {
-		ASTNode oldChild = this.optionalQualifier;
+		ASTNode oldChild= this.optionalQualifier;
 		preReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
-		this.optionalQualifier = name;
+		this.optionalQualifier= name;
 		postReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 	}
 
 	/**
 	 * Returns the name of the referenced member.
-	 *
+	 * 
 	 * @return the member name node
 	 */
 	public SimpleName getName() {
@@ -208,7 +203,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 			synchronized (this) {
 				if (this.memberName == null) {
 					preLazyInit();
-					this.memberName = new SimpleName(this.ast);
+					this.memberName= new SimpleName(this.ast);
 					postLazyInit(this.memberName, NAME_PROPERTY);
 				}
 			}
@@ -218,35 +213,32 @@ public class MemberRef extends ASTNode implements IDocElement {
 
 	/**
 	 * Sets the name of the referenced member to the given name.
-	 *
+	 * 
 	 * @param name the new member name node
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the name is <code>null</code></li>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the name is <code>null</code></li>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setName(SimpleName name) {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.memberName;
+		ASTNode oldChild= this.memberName;
 		preReplaceChild(oldChild, name, NAME_PROPERTY);
-		this.memberName = name;
+		this.memberName= name;
 		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**
-	 * Resolves and returns the binding for the entity referred to by
-	 * this member reference.
+	 * Resolves and returns the binding for the entity referred to by this member reference.
 	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
+	 * Note that bindings are generally unavailable unless requested when the AST is being built.
 	 * </p>
-	 *
-	 * @return the binding, or <code>null</code> if the binding cannot be
-	 *    resolved
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be resolved
 	 */
 	public final IBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveReference(this);
@@ -263,10 +255,8 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize())
-			+ (this.memberName == null ? 0 : getName().treeSize());
+		return memSize()
+				+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize())
+				+ (this.memberName == null ? 0 : getName().treeSize());
 	}
 }
-

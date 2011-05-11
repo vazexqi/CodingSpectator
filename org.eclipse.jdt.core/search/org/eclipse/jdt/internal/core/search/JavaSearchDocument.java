@@ -25,19 +25,23 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class JavaSearchDocument extends SearchDocument {
 
 	private IFile file;
+
 	protected byte[] byteContents;
+
 	protected char[] charContents;
 
 	public JavaSearchDocument(String documentPath, SearchParticipant participant) {
 		super(documentPath, participant);
 	}
+
 	public JavaSearchDocument(java.util.zip.ZipEntry zipEntry, IPath zipFilePath, byte[] contents, SearchParticipant participant) {
 		super(zipFilePath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + zipEntry.getName(), participant);
-		this.byteContents = contents;
+		this.byteContents= contents;
 	}
 
 	public byte[] getByteContents() {
-		if (this.byteContents != null) return this.byteContents;
+		if (this.byteContents != null)
+			return this.byteContents;
 		try {
 			return Util.getResourceContentsAsByteArray(getFile());
 		} catch (JavaModelException e) {
@@ -47,8 +51,10 @@ public class JavaSearchDocument extends SearchDocument {
 			return null;
 		}
 	}
+
 	public char[] getCharContents() {
-		if (this.charContents != null) return this.charContents;
+		if (this.charContents != null)
+			return this.charContents;
 		try {
 			return Util.getResourceContentsAsCharArray(getFile());
 		} catch (JavaModelException e) {
@@ -58,14 +64,14 @@ public class JavaSearchDocument extends SearchDocument {
 			return null;
 		}
 	}
+
 	public String getEncoding() {
 		// Return the encoding of the associated file
-		IFile resource = getFile();
+		IFile resource= getFile();
 		if (resource != null) {
 			try {
 				return resource.getCharset();
-			}
-			catch(CoreException ce) {
+			} catch (CoreException ce) {
 				try {
 					return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
 				} catch (CoreException e) {
@@ -75,11 +81,13 @@ public class JavaSearchDocument extends SearchDocument {
 		}
 		return null;
 	}
+
 	private IFile getFile() {
 		if (this.file == null)
-			this.file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(getPath()));
+			this.file= ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(getPath()));
 		return this.file;
 	}
+
 	public String toString() {
 		return "SearchDocument for " + getPath(); //$NON-NLS-1$
 	}

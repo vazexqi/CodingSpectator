@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnArgumentName extends Argument {
 
-	public SelectionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers){
+	public SelectionOnArgumentName(char[] name, long posNom, TypeReference tr, int modifiers) {
 
 		super(name, posNom, tr, modifiers);
 	}
@@ -33,7 +33,8 @@ public class SelectionOnArgumentName extends Argument {
 
 		printIndent(indent, output);
 		output.append("<SelectionOnArgumentName:"); //$NON-NLS-1$
-		if (this.type != null) this.type.print(0, output).append(' ');
+		if (this.type != null)
+			this.type.print(0, output).append(' ');
 		output.append(this.name);
 		if (this.initialization != null) {
 			output.append(" = ");//$NON-NLS-1$

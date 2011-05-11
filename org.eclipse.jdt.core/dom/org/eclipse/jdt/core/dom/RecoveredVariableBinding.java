@@ -18,34 +18,36 @@ import org.eclipse.jdt.core.IJavaElement;
 class RecoveredVariableBinding implements IVariableBinding {
 
 	private VariableDeclaration variableDeclaration;
+
 	private BindingResolver resolver;
 
 	RecoveredVariableBinding(BindingResolver resolver, VariableDeclaration variableDeclaration) {
-		this.resolver = resolver;
-		this.variableDeclaration = variableDeclaration;
+		this.resolver= resolver;
+		this.variableDeclaration= variableDeclaration;
 	}
+
 	public Object getConstantValue() {
 		return null;
 	}
 
 	public ITypeBinding getDeclaringClass() {
-		ASTNode parent = this.variableDeclaration.getParent();
+		ASTNode parent= this.variableDeclaration.getParent();
 		while (parent != null && parent.getNodeType() != ASTNode.TYPE_DECLARATION) {
-			parent = parent.getParent();
+			parent= parent.getParent();
 		}
 		if (parent != null) {
-			return ((TypeDeclaration) parent).resolveBinding();
+			return ((TypeDeclaration)parent).resolveBinding();
 		}
 		return null;
 	}
 
 	public IMethodBinding getDeclaringMethod() {
-		ASTNode parent = this.variableDeclaration.getParent();
+		ASTNode parent= this.variableDeclaration.getParent();
 		while (parent != null && parent.getNodeType() != ASTNode.METHOD_DECLARATION) {
-			parent = parent.getParent();
+			parent= parent.getParent();
 		}
 		if (parent != null) {
-			return ((MethodDeclaration) parent).resolveBinding();
+			return ((MethodDeclaration)parent).resolveBinding();
 		}
 		return null;
 	}
@@ -87,14 +89,14 @@ class RecoveredVariableBinding implements IVariableBinding {
 	}
 
 	public String getKey() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		buffer.append("Recovered#"); //$NON-NLS-1$
 		if (this.variableDeclaration != null) {
 			buffer
-				.append("variableDeclaration") //$NON-NLS-1$
-				.append(this.variableDeclaration.getClass())
-				.append(this.variableDeclaration.getName().getIdentifier())
-				.append(this.variableDeclaration.getExtraDimensions());
+					.append("variableDeclaration") //$NON-NLS-1$
+					.append(this.variableDeclaration.getClass())
+					.append(this.variableDeclaration.getName().getIdentifier())
+					.append(this.variableDeclaration.getExtraDimensions());
 		}
 		return String.valueOf(buffer);
 	}

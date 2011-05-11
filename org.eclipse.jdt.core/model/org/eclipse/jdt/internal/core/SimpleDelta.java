@@ -20,26 +20,26 @@ public class SimpleDelta {
 	/*
 	 * @see IJavaElementDelta#getKind()
 	 */
-	protected int kind = 0;
+	protected int kind= 0;
 
 	/*
 	 * @see IJavaElementDelta#getFlags()
 	 */
-	protected int changeFlags = 0;
+	protected int changeFlags= 0;
 
 	/*
 	 * Marks this delta as added
 	 */
 	public void added() {
-		this.kind = IJavaElementDelta.ADDED;
+		this.kind= IJavaElementDelta.ADDED;
 	}
 
 	/*
 	 * Marks this delta as changed with the given change flag
 	 */
 	public void changed(int flags) {
-		this.kind = IJavaElementDelta.CHANGED;
-		this.changeFlags |= flags;
+		this.kind= IJavaElementDelta.CHANGED;
+		this.changeFlags|= flags;
 	}
 
 	/*
@@ -67,8 +67,8 @@ public class SimpleDelta {
 	 * Marks this delta as removed
 	 */
 	public void removed() {
-		this.kind = IJavaElementDelta.REMOVED;
-		this.changeFlags = 0;
+		this.kind= IJavaElementDelta.REMOVED;
+		this.changeFlags= 0;
 	}
 
 	/*
@@ -81,16 +81,16 @@ public class SimpleDelta {
 	protected void toDebugString(StringBuffer buffer) {
 		buffer.append("["); //$NON-NLS-1$
 		switch (getKind()) {
-			case IJavaElementDelta.ADDED :
+			case IJavaElementDelta.ADDED:
 				buffer.append('+');
 				break;
-			case IJavaElementDelta.REMOVED :
+			case IJavaElementDelta.REMOVED:
 				buffer.append('-');
 				break;
-			case IJavaElementDelta.CHANGED :
+			case IJavaElementDelta.CHANGED:
 				buffer.append('*');
 				break;
-			default :
+			default:
 				buffer.append('?');
 				break;
 		}
@@ -100,24 +100,24 @@ public class SimpleDelta {
 	}
 
 	protected boolean toDebugString(StringBuffer buffer, int flags) {
-		boolean prev = false;
+		boolean prev= false;
 		if ((flags & IJavaElementDelta.F_MODIFIERS) != 0) {
 			if (prev)
 				buffer.append(" | "); //$NON-NLS-1$
 			buffer.append("MODIFIERS CHANGED"); //$NON-NLS-1$
-			prev = true;
+			prev= true;
 		}
 		if ((flags & IJavaElementDelta.F_SUPER_TYPES) != 0) {
 			if (prev)
 				buffer.append(" | "); //$NON-NLS-1$
 			buffer.append("SUPER TYPES CHANGED"); //$NON-NLS-1$
-			prev = true;
+			prev= true;
 		}
 		return prev;
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		toDebugString(buffer);
 		return buffer.toString();
 	}

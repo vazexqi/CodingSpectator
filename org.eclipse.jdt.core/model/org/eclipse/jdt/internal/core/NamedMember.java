@@ -37,28 +37,29 @@ public abstract class NamedMember extends Member {
 
 	public NamedMember(JavaElement parent, String name) {
 		super(parent);
-		this.name = name;
+		this.name= name;
 	}
 
 	private void appendTypeParameters(StringBuffer buffer) throws JavaModelException {
-		ITypeParameter[] typeParameters = getTypeParameters();
-		int length = typeParameters.length;
-		if (length == 0) return;
+		ITypeParameter[] typeParameters= getTypeParameters();
+		int length= typeParameters.length;
+		if (length == 0)
+			return;
 		buffer.append('<');
-		for (int i = 0; i < length; i++) {
-			ITypeParameter typeParameter = typeParameters[i];
+		for (int i= 0; i < length; i++) {
+			ITypeParameter typeParameter= typeParameters[i];
 			buffer.append(typeParameter.getElementName());
-			String[] bounds = typeParameter.getBounds();
-			int boundsLength = bounds.length;
+			String[] bounds= typeParameter.getBounds();
+			int boundsLength= bounds.length;
 			if (boundsLength > 0) {
 				buffer.append(" extends "); //$NON-NLS-1$
-				for (int j = 0; j < boundsLength; j++) {
+				for (int j= 0; j < boundsLength; j++) {
 					buffer.append(bounds[j]);
-					if (j < boundsLength-1)
+					if (j < boundsLength - 1)
 						buffer.append(" & "); //$NON-NLS-1$
 				}
 			}
-			if (i < length-1)
+			if (i < length - 1)
 				buffer.append(", "); //$NON-NLS-1$
 		}
 		buffer.append('>');
@@ -69,10 +70,10 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getKey(IField field, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuffer key= new StringBuffer();
 
 		// declaring class
-		String declaringKey = getKey((IType) field.getParent(), forceOpen);
+		String declaringKey= getKey((IType)field.getParent(), forceOpen);
 		key.append(declaringKey);
 
 		// field name
@@ -83,33 +84,33 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getKey(IMethod method, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuffer key= new StringBuffer();
 
 		// declaring class
-		String declaringKey = getKey((IType) method.getParent(), forceOpen);
+		String declaringKey= getKey((IType)method.getParent(), forceOpen);
 		key.append(declaringKey);
 
 		// selector
 		key.append('.');
-		String selector = method.getElementName();
+		String selector= method.getElementName();
 		key.append(selector);
 
 		// type parameters
 		if (forceOpen) {
-			ITypeParameter[] typeParameters = method.getTypeParameters();
-			int length = typeParameters.length;
+			ITypeParameter[] typeParameters= method.getTypeParameters();
+			int length= typeParameters.length;
 			if (length > 0) {
 				key.append('<');
-				for (int i = 0; i < length; i++) {
-					ITypeParameter typeParameter = typeParameters[i];
-					String[] bounds = typeParameter.getBounds();
-					int boundsLength = bounds.length;
-					char[][] boundSignatures = new char[boundsLength][];
-					for (int j = 0; j < boundsLength; j++) {
-						boundSignatures[j] = Signature.createCharArrayTypeSignature(bounds[j].toCharArray(), method.isBinary());
+				for (int i= 0; i < length; i++) {
+					ITypeParameter typeParameter= typeParameters[i];
+					String[] bounds= typeParameter.getBounds();
+					int boundsLength= bounds.length;
+					char[][] boundSignatures= new char[boundsLength][];
+					for (int j= 0; j < boundsLength; j++) {
+						boundSignatures[j]= Signature.createCharArrayTypeSignature(bounds[j].toCharArray(), method.isBinary());
 						CharOperation.replace(boundSignatures[j], '.', '/');
 					}
-					char[] sig = Signature.createTypeParameterSignature(typeParameter.getElementName().toCharArray(), boundSignatures);
+					char[] sig= Signature.createTypeParameterSignature(typeParameter.getElementName().toCharArray(), boundSignatures);
 					key.append(sig);
 				}
 				key.append('>');
@@ -118,8 +119,8 @@ public abstract class NamedMember extends Member {
 
 		// parameters
 		key.append('(');
-		String[] parameters = method.getParameterTypes();
-		for (int i = 0, length = parameters.length; i < length; i++)
+		String[] parameters= method.getParameterTypes();
+		for (int i= 0, length= parameters.length; i < length; i++)
 			key.append(parameters[i].replace('.', '/'));
 		key.append(')');
 
@@ -133,21 +134,21 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getKey(IType type, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuffer key= new StringBuffer();
 		key.append('L');
-		String packageName = type.getPackageFragment().getElementName();
+		String packageName= type.getPackageFragment().getElementName();
 		key.append(packageName.replace('.', '/'));
 		if (packageName.length() > 0)
 			key.append('/');
-		String typeQualifiedName = type.getTypeQualifiedName('$');
-		ICompilationUnit cu = (ICompilationUnit) type.getAncestor(IJavaElement.COMPILATION_UNIT);
+		String typeQualifiedName= type.getTypeQualifiedName('$');
+		ICompilationUnit cu= (ICompilationUnit)type.getAncestor(IJavaElement.COMPILATION_UNIT);
 		if (cu != null) {
-			String cuName = cu.getElementName();
-			String mainTypeName = cuName.substring(0, cuName.lastIndexOf('.'));
-			int end = typeQualifiedName.indexOf('$');
+			String cuName= cu.getElementName();
+			String mainTypeName= cuName.substring(0, cuName.lastIndexOf('.'));
+			int end= typeQualifiedName.indexOf('$');
 			if (end == -1)
-				end = typeQualifiedName.length();
-			String topLevelTypeName = typeQualifiedName.substring(0, end);
+				end= typeQualifiedName.length();
+			String topLevelTypeName= typeQualifiedName.substring(0, end);
 			if (!mainTypeName.equals(topLevelTypeName)) {
 				key.append(mainTypeName);
 				key.append('~');
@@ -159,16 +160,17 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, String uniqueKey) throws JavaModelException {
-		String[] typeArguments = new BindingKey(uniqueKey).getTypeArguments();
-		int length = typeArguments.length;
-		if (length == 0) return fullyQualifiedName;
-		StringBuffer buffer = new StringBuffer();
+		String[] typeArguments= new BindingKey(uniqueKey).getTypeArguments();
+		int length= typeArguments.length;
+		if (length == 0)
+			return fullyQualifiedName;
+		StringBuffer buffer= new StringBuffer();
 		buffer.append(fullyQualifiedName);
 		buffer.append('<');
-		for (int i = 0; i < length; i++) {
-			String typeArgument = typeArguments[i];
+		for (int i= 0; i < length; i++) {
+			String typeArgument= typeArguments[i];
 			buffer.append(Signature.toString(typeArgument));
-			if (i < length-1)
+			if (i < length - 1)
 				buffer.append(',');
 		}
 		buffer.append('>');
@@ -180,7 +182,7 @@ public abstract class NamedMember extends Member {
 	}
 
 	public String getFullyQualifiedName(char enclosingTypeSeparator, boolean showParameters) throws JavaModelException {
-		String packageName = getPackageFragment().getElementName();
+		String packageName= getPackageFragment().getElementName();
 		if (packageName.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
 			return getTypeQualifiedName(enclosingTypeSeparator, showParameters);
 		}
@@ -192,41 +194,41 @@ public abstract class NamedMember extends Member {
 		switch (this.parent.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
 				if (showParameters) {
-					StringBuffer buffer = new StringBuffer(this.name);
+					StringBuffer buffer= new StringBuffer(this.name);
 					appendTypeParameters(buffer);
 					return buffer.toString();
 				}
 				return this.name;
 			case IJavaElement.CLASS_FILE:
-				String classFileName = this.parent.getElementName();
+				String classFileName= this.parent.getElementName();
 				String typeName;
 				if (classFileName.indexOf('$') == -1) {
 					// top level class file: name of type is same as name of class file
-					typeName = this.name;
+					typeName= this.name;
 				} else {
 					// anonymous or local class file
-					typeName = classFileName.substring(0, classFileName.lastIndexOf('.'))/*remove .class*/.replace('$', enclosingTypeSeparator);
+					typeName= classFileName.substring(0, classFileName.lastIndexOf('.'))/*remove .class*/.replace('$', enclosingTypeSeparator);
 				}
 				if (showParameters) {
-					StringBuffer buffer = new StringBuffer(typeName);
+					StringBuffer buffer= new StringBuffer(typeName);
 					appendTypeParameters(buffer);
 					return buffer.toString();
 				}
 				return typeName;
 			case IJavaElement.TYPE:
-				declaringType = (NamedMember) this.parent;
+				declaringType= (NamedMember)this.parent;
 				break;
 			case IJavaElement.FIELD:
 			case IJavaElement.INITIALIZER:
 			case IJavaElement.METHOD:
-				declaringType = (NamedMember) ((IMember) this.parent).getDeclaringType();
+				declaringType= (NamedMember)((IMember)this.parent).getDeclaringType();
 				break;
 			default:
 				return null;
 		}
-		StringBuffer buffer = new StringBuffer(declaringType.getTypeQualifiedName(enclosingTypeSeparator, showParameters));
+		StringBuffer buffer= new StringBuffer(declaringType.getTypeQualifiedName(enclosingTypeSeparator, showParameters));
 		buffer.append(enclosingTypeSeparator);
-		String simpleName = this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
+		String simpleName= this.name.length() == 0 ? Integer.toString(this.occurrenceCount) : this.name;
 		buffer.append(simpleName);
 		if (showParameters) {
 			appendTypeParameters(buffer);
@@ -249,50 +251,60 @@ public abstract class NamedMember extends Member {
 	 * @see IType#resolveType(String, WorkingCopyOwner)
 	 */
 	public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
-		JavaProject project = (JavaProject) getJavaProject();
-		SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
+		JavaProject project= (JavaProject)getJavaProject();
+		SearchableEnvironment environment= project.newSearchableNameEnvironment(owner);
 
 		class TypeResolveRequestor implements ISelectionRequestor {
-			String[][] answers = null;
+			String[][] answers= null;
+
 			public void acceptType(char[] packageName, char[] tName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-				String[] answer = new String[]  {new String(packageName), new String(tName) };
+				String[] answer= new String[] { new String(packageName), new String(tName) };
 				if (this.answers == null) {
-					this.answers = new String[][]{ answer };
+					this.answers= new String[][] { answer };
 				} else {
 					// grow
-					int length = this.answers.length;
-					System.arraycopy(this.answers, 0, this.answers = new String[length+1][], 0, length);
-					this.answers[length] = answer;
+					int length= this.answers.length;
+					System.arraycopy(this.answers, 0, this.answers= new String[length + 1][], 0, length);
+					this.answers[length]= answer;
 				}
 			}
+
 			public void acceptError(CategorizedProblem error) {
 				// ignore
 			}
+
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 				// ignore
 			}
-			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[][] typeParameterNames, char[][][] typeParameterBoundNames, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+
+			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames,
+					char[][] parameterTypeNames, String[] parameterSignatures, char[][] typeParameterNames, char[][][] typeParameterBoundNames, boolean isConstructor, boolean isDeclaration,
+					char[] uniqueKey, int start, int end) {
 				// ignore
 			}
-			public void acceptPackage(char[] packageName){
+
+			public void acceptPackage(char[] packageName) {
 				// ignore
 			}
+
 			public void acceptTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] typeParameterName, boolean isDeclaration, int start, int end) {
 				// ignore
 			}
-			public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, int selectorStart, int selcetorEnd, char[] typeParameterName, boolean isDeclaration, int start, int end) {
+
+			public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, int selectorStart, int selcetorEnd, char[] typeParameterName,
+					boolean isDeclaration, int start, int end) {
 				// ignore
 			}
 
 		}
-		TypeResolveRequestor requestor = new TypeResolveRequestor();
-		SelectionEngine engine =
-			new SelectionEngine(environment, requestor, project.getOptions(true), owner);
+		TypeResolveRequestor requestor= new TypeResolveRequestor();
+		SelectionEngine engine=
+				new SelectionEngine(environment, requestor, project.getOptions(true), owner);
 
-		engine.selectType(typeName.toCharArray(), (IType) this);
+		engine.selectType(typeName.toCharArray(), (IType)this);
 		if (NameLookup.VERBOSE) {
-			System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-			System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return requestor.answers;
 	}

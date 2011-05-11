@@ -11,62 +11,69 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class LocalDeclaration extends AbstractVariableDeclaration {
 
 	public LocalVariableBinding binding;
 
 	public LocalDeclaration(
-		char[] name,
-		int sourceStart,
-		int sourceEnd) {
+			char[] name,
+			int sourceStart,
+			int sourceEnd) {
 
-		this.name = name;
-		this.sourceStart = sourceStart;
-		this.sourceEnd = sourceEnd;
-		this.declarationEnd = sourceEnd;
+		this.name= name;
+		this.sourceStart= sourceStart;
+		this.sourceEnd= sourceEnd;
+		this.declarationEnd= sourceEnd;
 	}
 
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	// record variable initialization if any
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-		this.bits |= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
-	}
-	if (this.initialization == null) {
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		// record variable initialization if any
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+			this.bits|= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
+		}
+		if (this.initialization == null) {
+			return flowInfo;
+		}
+		int nullStatus= this.initialization.nullStatus(flowInfo);
+		flowInfo=
+				this.initialization
+						.analyseCode(currentScope, flowContext, flowInfo)
+						.unconditionalInits();
+		if (!flowInfo.isDefinitelyAssigned(this.binding)) {// for local variable debug attributes
+			this.bits|= FirstAssignmentToLocal;
+		} else {
+			this.bits&= ~FirstAssignmentToLocal; // int i = (i = 0);
+		}
+		flowInfo.markAsDefinitelyAssigned(this.binding);
+		if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
+			switch (nullStatus) {
+				case FlowInfo.NULL:
+					flowInfo.markAsDefinitelyNull(this.binding);
+					break;
+				case FlowInfo.NON_NULL:
+					flowInfo.markAsDefinitelyNonNull(this.binding);
+					break;
+				default:
+					flowInfo.markAsDefinitelyUnknown(this.binding);
+			}
+			// no need to inform enclosing try block since its locals won't get
+			// known by the finally block
+		}
 		return flowInfo;
 	}
-	int nullStatus = this.initialization.nullStatus(flowInfo);
-	flowInfo =
-		this.initialization
-			.analyseCode(currentScope, flowContext, flowInfo)
-			.unconditionalInits();
-	if (!flowInfo.isDefinitelyAssigned(this.binding)){// for local variable debug attributes
-		this.bits |= FirstAssignmentToLocal;
-	} else {
-		this.bits &= ~FirstAssignmentToLocal;  // int i = (i = 0);
-	}
-	flowInfo.markAsDefinitelyAssigned(this.binding);
-	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
-		switch(nullStatus) {
-			case FlowInfo.NULL :
-				flowInfo.markAsDefinitelyNull(this.binding);
-				break;
-			case FlowInfo.NON_NULL :
-				flowInfo.markAsDefinitelyNonNull(this.binding);
-				break;
-			default:
-				flowInfo.markAsDefinitelyUnknown(this.binding);
-		}
-		// no need to inform enclosing try block since its locals won't get
-		// known by the finally block
-	}
-	return flowInfo;
-}
 
 	public void checkModifiers() {
 
@@ -76,12 +83,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			//AccAlternateModifierProblem -> duplicate modifier
 			//AccModifierProblem | AccAlternateModifierProblem -> visibility problem"
 
-			this.modifiers = (this.modifiers & ~ExtraCompilerModifiers.AccAlternateModifierProblem) | ExtraCompilerModifiers.AccModifierProblem;
+			this.modifiers= (this.modifiers & ~ExtraCompilerModifiers.AccAlternateModifierProblem) | ExtraCompilerModifiers.AccModifierProblem;
 	}
 
 	/**
-	 * Code generation for a local declaration:
-	 *	i.e.&nbsp;normal assignment to a local variable + unused variable handling
+	 * Code generation for a local declaration: i.e.&nbsp;normal assignment to a local variable +
+	 * unused variable handling
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
@@ -92,7 +99,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
-		int pc = codeStream.position;
+		int pc= codeStream.position;
 
 		// something to initialize?
 		generateInit: {
@@ -109,9 +116,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.initialization.generateCode(currentScope, codeStream, true);
 			// 26903, need extra cast to store null in array local var
 			if (this.binding.type.isArrayType()
-				&& (this.initialization.resolvedType == TypeBinding.NULL	// arrayLoc = null
-					|| ((this.initialization instanceof CastExpression)	// arrayLoc = (type[])null
-						&& (((CastExpression)this.initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
+					&& (this.initialization.resolvedType == TypeBinding.NULL // arrayLoc = null
+					|| ((this.initialization instanceof CastExpression) // arrayLoc = (type[])null
+					&& (((CastExpression)this.initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL)))) {
 				codeStream.checkcast(this.binding.type);
 			}
 			codeStream.store(this.binding, false);
@@ -135,7 +142,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope
-		TypeBinding variableType = this.type.resolveType(scope, true /* check bounds*/);
+		TypeBinding variableType= this.type.resolveType(scope, true /* check bounds*/);
 
 		checkModifiers();
 		if (variableType != null) {
@@ -143,14 +150,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				scope.problemReporter().variableTypeCannotBeVoid(this);
 				return;
 			}
-			if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == TypeBinding.VOID) {
+			if (variableType.isArrayType() && ((ArrayBinding)variableType).leafComponentType == TypeBinding.VOID) {
 				scope.problemReporter().variableTypeCannotBeVoidArray(this);
 				return;
 			}
 		}
 
-		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-		if (existingVariable != null && existingVariable.isValidBinding()){
+		Binding existingVariable= scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
+		if (existingVariable != null && existingVariable.isValidBinding()) {
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineLocal(this);
 			} else {
@@ -158,10 +165,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 
-		if ((this.modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
-			this.modifiers |= ExtraCompilerModifiers.AccBlankFinal;
+		if ((this.modifiers & ClassFileConstants.AccFinal) != 0 && this.initialization == null) {
+			this.modifiers|= ExtraCompilerModifiers.AccBlankFinal;
 		}
-		this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false);
+		this.binding= new LocalVariableBinding(this, variableType, this.modifiers, false);
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);
 		// allow to recursivelly target the binding....
@@ -176,32 +183,32 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// store the constant for final locals
 		if (this.initialization != null) {
 			if (this.initialization instanceof ArrayInitializer) {
-				TypeBinding initializationType = this.initialization.resolveTypeExpecting(scope, variableType);
+				TypeBinding initializationType= this.initialization.resolveTypeExpecting(scope, variableType);
 				if (initializationType != null) {
-					((ArrayInitializer) this.initialization).binding = (ArrayBinding) initializationType;
+					((ArrayInitializer)this.initialization).binding= (ArrayBinding)initializationType;
 					this.initialization.computeConversion(scope, variableType, initializationType);
 				}
 			} else {
-			    this.initialization.setExpectedType(variableType);
-				TypeBinding initializationType = this.initialization.resolveType(scope);
+				this.initialization.setExpectedType(variableType);
+				TypeBinding initializationType= this.initialization.resolveType(scope);
 				if (initializationType != null) {
 					if (variableType != initializationType) // must call before computeConversion() and typeMismatchError()
 						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
 					if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
-						|| initializationType.isCompatibleWith(variableType)) {
+							|| initializationType.isCompatibleWith(variableType)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (initializationType.needsUncheckedConversion(variableType)) {
-						    scope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, variableType);
+							scope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, variableType);
 						}
 						if (this.initialization instanceof CastExpression
 								&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
-							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
+							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression)this.initialization);
 						}
 					} else if (isBoxingCompatible(initializationType, variableType, this.initialization, scope)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (this.initialization instanceof CastExpression
 								&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
-							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
+							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression)this.initialization);
 						}
 					} else {
 						if ((variableType.tagBits & TagBits.HasMissingType) == 0) {
@@ -219,9 +226,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// (the optimization of the constant propagation will be done later on)
 			// cast from constant actual type to variable type
 			this.binding.setConstant(
-				this.binding.isFinal()
-					? this.initialization.constant.castTo((variableType.id << 4) + this.initialization.constant.typeID())
-					: Constant.NotAConstant);
+					this.binding.isFinal()
+							? this.initialization.constant.castTo((variableType.id << 4) + this.initialization.constant.typeID())
+							: Constant.NotAConstant);
 		}
 		// only resolve annotation at the end, for constant to be positioned before (96991)
 		resolveAnnotations(scope, this.annotations, this.binding);
@@ -231,8 +238,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
-				int annotationsLength = this.annotations.length;
-				for (int i = 0; i < annotationsLength; i++)
+				int annotationsLength= this.annotations.length;
+				for (int i= 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, scope);
 			}
 			this.type.traverse(visitor, scope);

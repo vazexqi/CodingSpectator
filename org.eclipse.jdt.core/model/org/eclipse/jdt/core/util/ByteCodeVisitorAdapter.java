@@ -11,9 +11,8 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * Adapter that implements the IBytecodeVisitor. This class is intended to
- * be subclassed by clients.
- *
+ * Adapter that implements the IBytecodeVisitor. This class is intended to be subclassed by clients.
+ * 
  * @since 2.0
  */
 public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
@@ -602,9 +601,9 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_getstatic(int, int, IConstantPoolEntry)
 	 */
 	public void _getstatic(
-		int pc,
-		int index,
-		IConstantPoolEntry constantFieldref) {
+			int pc,
+			int index,
+			IConstantPoolEntry constantFieldref) {
 		// default behavior is to do nothing
 	}
 
@@ -922,6 +921,7 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	public void _instanceof(int pc, int index, IConstantPoolEntry constantClass) {
 		// default behavior is to do nothing
 	}
+
 	/**
 	 * @see IBytecodeVisitor#_invokeinterface(int, int, byte, IConstantPoolEntry)
 	 * @since 3.6
@@ -933,14 +933,15 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 			IConstantPoolEntry descriptorEntry) {
 		// default behavior is to do nothing
 	}
+
 	/**
 	 * @see IBytecodeVisitor#_invokeinterface(int, int, byte, IConstantPoolEntry)
 	 */
 	public void _invokeinterface(
-		int pc,
-		int index,
-		byte nargs,
-		IConstantPoolEntry constantInterfaceMethodref) {
+			int pc,
+			int index,
+			byte nargs,
+			IConstantPoolEntry constantInterfaceMethodref) {
 		// default behavior is to do nothing
 	}
 
@@ -948,9 +949,9 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_invokespecial(int, int, IConstantPoolEntry)
 	 */
 	public void _invokespecial(
-		int pc,
-		int index,
-		IConstantPoolEntry constantMethodref) {
+			int pc,
+			int index,
+			IConstantPoolEntry constantMethodref) {
 		// default behavior is to do nothing
 	}
 
@@ -958,9 +959,9 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_invokestatic(int, int, IConstantPoolEntry)
 	 */
 	public void _invokestatic(
-		int pc,
-		int index,
-		IConstantPoolEntry constantMethodref) {
+			int pc,
+			int index,
+			IConstantPoolEntry constantMethodref) {
 		// default behavior is to do nothing
 	}
 
@@ -968,9 +969,9 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_invokevirtual(int, int, IConstantPoolEntry)
 	 */
 	public void _invokevirtual(
-		int pc,
-		int index,
-		IConstantPoolEntry constantMethodref) {
+			int pc,
+			int index,
+			IConstantPoolEntry constantMethodref) {
 		// default behavior is to do nothing
 	}
 
@@ -1230,10 +1231,10 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_lookupswitch(int, int, int, int[][])
 	 */
 	public void _lookupswitch(
-		int pc,
-		int defaultoffset,
-		int npairs,
-		int[][] offset_pairs) {
+			int pc,
+			int defaultoffset,
+			int npairs,
+			int[][] offset_pairs) {
 		// default behavior is to do nothing
 	}
 
@@ -1346,10 +1347,10 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_multianewarray(int, int, int, IConstantPoolEntry)
 	 */
 	public void _multianewarray(
-		int pc,
-		int index,
-		int dimensions,
-		IConstantPoolEntry constantClass) {
+			int pc,
+			int index,
+			int dimensions,
+			IConstantPoolEntry constantClass) {
 		// default behavior is to do nothing
 	}
 
@@ -1399,9 +1400,9 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_putstatic(int, int, IConstantPoolEntry)
 	 */
 	public void _putstatic(
-		int pc,
-		int index,
-		IConstantPoolEntry constantFieldref) {
+			int pc,
+			int index,
+			IConstantPoolEntry constantFieldref) {
 		// default behavior is to do nothing
 	}
 
@@ -1451,11 +1452,11 @@ public class ByteCodeVisitorAdapter implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_tableswitch(int, int, int, int, int[])
 	 */
 	public void _tableswitch(
-		int pc,
-		int defaultoffset,
-		int low,
-		int high,
-		int[] jump_offsets) {
+			int pc,
+			int defaultoffset,
+			int low,
+			int high,
+			int[] jump_offsets) {
 		// default behavior is to do nothing
 	}
 

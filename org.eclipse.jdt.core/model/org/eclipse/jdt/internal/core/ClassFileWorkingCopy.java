@@ -32,84 +32,88 @@ public class ClassFileWorkingCopy extends CompilationUnit {
 
 	public ClassFile classFile;
 
-public ClassFileWorkingCopy(ClassFile classFile, WorkingCopyOwner owner) {
-	super((PackageFragment) classFile.getParent(), ((BinaryType) classFile.getType()).getSourceFileName(null/*no info available*/), owner);
-	this.classFile = classFile;
-}
-
-public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
-	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
-}
-
-public IBuffer getBuffer() throws JavaModelException {
-	if (isWorkingCopy())
-		return super.getBuffer();
-	else
-		return this.classFile.getBuffer();
-}
-
-public char[] getContents() {
-	try {
-		IBuffer buffer = getBuffer();
-		if (buffer == null) return CharOperation.NO_CHAR;
-		char[] characters = buffer.getCharacters();
-		if (characters == null) return CharOperation.NO_CHAR;
-		return characters;
-	} catch (JavaModelException e) {
-		return CharOperation.NO_CHAR;
+	public ClassFileWorkingCopy(ClassFile classFile, WorkingCopyOwner owner) {
+		super((PackageFragment)classFile.getParent(), ((BinaryType)classFile.getType()).getSourceFileName(null/*no info available*/), owner);
+		this.classFile= classFile;
 	}
-}
 
-public IPath getPath() {
-	return this.classFile.getPath();
-}
+	public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
+	}
 
-public IJavaElement getPrimaryElement(boolean checkOwner) {
-	if (checkOwner && isPrimary()) return this;
-	return new ClassFileWorkingCopy(this.classFile, DefaultWorkingCopyOwner.PRIMARY);
-}
+	public IBuffer getBuffer() throws JavaModelException {
+		if (isWorkingCopy())
+			return super.getBuffer();
+		else
+			return this.classFile.getBuffer();
+	}
 
-public IResource resource(PackageFragmentRoot root) {
-	if (root.isArchive())
-		return root.resource(root);
-	return this.classFile.resource(root);
-}
-
-/**
- * @see Openable#openBuffer(IProgressMonitor, Object)
- */
-protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
-
-	// create buffer
-	IBuffer buffer = this.owner.createBuffer(this);
-	if (buffer == null) return null;
-
-	// set the buffer source
-	if (buffer.getCharacters() == null) {
-		IBuffer classFileBuffer = this.classFile.getBuffer();
-		if (classFileBuffer != null) {
-			buffer.setContents(classFileBuffer.getCharacters());
-		} else {
-			// Disassemble
-			IClassFileReader reader = ToolFactory.createDefaultClassFileReader(this.classFile, IClassFileReader.ALL);
-			Disassembler disassembler = new Disassembler();
-			String contents = disassembler.disassemble(reader, Util.getLineSeparator("", getJavaProject()), ClassFileBytesDisassembler.WORKING_COPY); //$NON-NLS-1$
-			buffer.setContents(contents);
+	public char[] getContents() {
+		try {
+			IBuffer buffer= getBuffer();
+			if (buffer == null)
+				return CharOperation.NO_CHAR;
+			char[] characters= buffer.getCharacters();
+			if (characters == null)
+				return CharOperation.NO_CHAR;
+			return characters;
+		} catch (JavaModelException e) {
+			return CharOperation.NO_CHAR;
 		}
 	}
 
-	// add buffer to buffer cache
-	BufferManager bufManager = getBufferManager();
-	bufManager.addBuffer(buffer);
+	public IPath getPath() {
+		return this.classFile.getPath();
+	}
 
-	// listen to buffer changes
-	buffer.addBufferChangedListener(this);
+	public IJavaElement getPrimaryElement(boolean checkOwner) {
+		if (checkOwner && isPrimary())
+			return this;
+		return new ClassFileWorkingCopy(this.classFile, DefaultWorkingCopyOwner.PRIMARY);
+	}
 
-	return buffer;
-}
+	public IResource resource(PackageFragmentRoot root) {
+		if (root.isArchive())
+			return root.resource(root);
+		return this.classFile.resource(root);
+	}
 
-protected void toStringName(StringBuffer buffer) {
-	buffer.append(this.classFile.getElementName());
-}
+	/**
+	 * @see Openable#openBuffer(IProgressMonitor, Object)
+	 */
+	protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
+
+		// create buffer
+		IBuffer buffer= this.owner.createBuffer(this);
+		if (buffer == null)
+			return null;
+
+		// set the buffer source
+		if (buffer.getCharacters() == null) {
+			IBuffer classFileBuffer= this.classFile.getBuffer();
+			if (classFileBuffer != null) {
+				buffer.setContents(classFileBuffer.getCharacters());
+			} else {
+				// Disassemble
+				IClassFileReader reader= ToolFactory.createDefaultClassFileReader(this.classFile, IClassFileReader.ALL);
+				Disassembler disassembler= new Disassembler();
+				String contents= disassembler.disassemble(reader, Util.getLineSeparator("", getJavaProject()), ClassFileBytesDisassembler.WORKING_COPY); //$NON-NLS-1$
+				buffer.setContents(contents);
+			}
+		}
+
+		// add buffer to buffer cache
+		BufferManager bufManager= getBufferManager();
+		bufManager.addBuffer(buffer);
+
+		// listen to buffer changes
+		buffer.addBufferChangedListener(this);
+
+		return buffer;
+	}
+
+	protected void toStringName(StringBuffer buffer) {
+		buffer.append(this.classFile.getElementName());
+	}
 
 }

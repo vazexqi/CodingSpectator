@@ -25,15 +25,19 @@ public class SaveIndex extends IndexRequest {
 	public SaveIndex(IPath containerPath, IndexManager manager) {
 		super(containerPath, manager);
 	}
+
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled())
+			return true;
 
 		/* ensure no concurrent write access to index */
-		Index index = this.manager.getIndex(this.containerPath, true /*reuse index file*/, false /*don't create if none*/);
-		if (index == null) return true;
-		ReadWriteMonitor monitor = index.monitor;
-		if (monitor == null) return true; // index got deleted since acquired
+		Index index= this.manager.getIndex(this.containerPath, true /*reuse index file*/, false /*don't create if none*/);
+		if (index == null)
+			return true;
+		ReadWriteMonitor monitor= index.monitor;
+		if (monitor == null)
+			return true; // index got deleted since acquired
 
 		try {
 			monitor.enterWrite(); // ask permission to write
@@ -49,6 +53,7 @@ public class SaveIndex extends IndexRequest {
 		}
 		return true;
 	}
+
 	public String toString() {
 		return "saving index for " + this.containerPath; //$NON-NLS-1$
 	}

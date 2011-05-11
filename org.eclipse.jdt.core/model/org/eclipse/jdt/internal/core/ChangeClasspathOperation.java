@@ -24,7 +24,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 
 	public ChangeClasspathOperation(IJavaElement[] elements, boolean canChangeResources) {
 		super(elements);
-		this.canChangeResources = canChangeResources;
+		this.canChangeResources= canChangeResources;
 	}
 
 	protected boolean canModifyRoots() {
@@ -42,7 +42,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 	protected void classpathChanged(ClasspathChange change, boolean refreshExternalFolder) throws JavaModelException {
 		// reset the project's caches early since some clients rely on the project's caches being up-to-date when run inside an IWorkspaceRunnable
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769#c5 )
-		JavaProject project = change.project;
+		JavaProject project= change.project;
 		project.resetCaches();
 
 		if (this.canChangeResources) {
@@ -62,15 +62,15 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			new ExternalFolderChange(project, change.oldResolvedClasspath).updateExternalFoldersIfNecessary(refreshExternalFolder, null);
 
 		} else {
-			DeltaProcessingState state = JavaModelManager.getDeltaState();
-			JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-			int result = change.generateDelta(delta, true/*add classpath change*/);
+			DeltaProcessingState state= JavaModelManager.getDeltaState();
+			JavaElementDelta delta= new JavaElementDelta(getJavaModel());
+			int result= change.generateDelta(delta, true/*add classpath change*/);
 			if ((result & ClasspathChange.HAS_DELTA) != 0) {
 				// create delta
 				addDelta(delta);
 
 				// need to recompute root infos
-				state.rootsAreStale = true;
+				state.rootsAreStale= true;
 
 				// ensure indexes are updated
 				change.requestIndexing();

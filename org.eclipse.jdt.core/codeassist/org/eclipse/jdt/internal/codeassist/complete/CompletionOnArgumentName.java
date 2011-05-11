@@ -20,14 +20,16 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnArgumentName extends Argument {
 
-	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
-	public char[] realName;
-	public boolean isCatchArgument = false;
+	private static final char[] FAKENAMESUFFIX= " ".toCharArray(); //$NON-NLS-1$
 
-	public CompletionOnArgumentName(char[] name , long posNom , TypeReference tr , int modifiers){
+	public char[] realName;
+
+	public boolean isCatchArgument= false;
+
+	public CompletionOnArgumentName(char[] name, long posNom, TypeReference tr, int modifiers) {
 
 		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers);
-		this.realName = name;
+		this.realName= name;
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
@@ -40,7 +42,8 @@ public class CompletionOnArgumentName extends Argument {
 
 		printIndent(indent, output);
 		output.append("<CompleteOnArgumentName:"); //$NON-NLS-1$
-		if (this.type != null) this.type.print(0, output).append(' ');
+		if (this.type != null)
+			this.type.print(0, output).append(' ');
 		output.append(this.realName);
 		if (this.initialization != null) {
 			output.append(" = "); //$NON-NLS-1$
@@ -55,4 +58,3 @@ public class CompletionOnArgumentName extends Argument {
 		throw new CompletionNodeFound(this, scope);
 	}
 }
-

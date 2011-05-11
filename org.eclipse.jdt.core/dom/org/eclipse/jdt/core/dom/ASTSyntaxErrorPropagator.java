@@ -24,59 +24,59 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 	ASTSyntaxErrorPropagator(CategorizedProblem[] problems) {
 		// visit Javadoc.tags() as well
 		super(true);
-		this.problems = problems;
+		this.problems= problems;
 	}
 
 	private boolean checkAndTagAsMalformed(ASTNode node) {
-		boolean tagWithErrors = false;
-		search: for (int i = 0, max = this.problems.length; i < max; i++) {
-			CategorizedProblem problem = this.problems[i];
-			switch(problem.getID()) {
-				case IProblem.ParsingErrorOnKeywordNoSuggestion :
-				case IProblem.ParsingErrorOnKeyword :
-				case IProblem.ParsingError :
-				case IProblem.ParsingErrorNoSuggestion :
-				case IProblem.ParsingErrorInsertTokenBefore :
-				case IProblem.ParsingErrorInsertTokenAfter :
-				case IProblem.ParsingErrorDeleteToken :
-				case IProblem.ParsingErrorDeleteTokens :
-				case IProblem.ParsingErrorMergeTokens :
-				case IProblem.ParsingErrorInvalidToken :
-				case IProblem.ParsingErrorMisplacedConstruct :
-				case IProblem.ParsingErrorReplaceTokens :
-				case IProblem.ParsingErrorNoSuggestionForTokens :
-				case IProblem.ParsingErrorUnexpectedEOF :
-				case IProblem.ParsingErrorInsertToComplete :
-				case IProblem.ParsingErrorInsertToCompleteScope :
-				case IProblem.ParsingErrorInsertToCompletePhrase :
-				case IProblem.EndOfSource :
-				case IProblem.InvalidHexa :
-				case IProblem.InvalidOctal :
-				case IProblem.InvalidCharacterConstant :
-				case IProblem.InvalidEscape :
-				case IProblem.InvalidInput :
-				case IProblem.InvalidUnicodeEscape :
-				case IProblem.InvalidFloat :
-				case IProblem.NullSourceString :
-				case IProblem.UnterminatedString :
-				case IProblem.UnterminatedComment :
-				case IProblem.InvalidDigit :
+		boolean tagWithErrors= false;
+		search: for (int i= 0, max= this.problems.length; i < max; i++) {
+			CategorizedProblem problem= this.problems[i];
+			switch (problem.getID()) {
+				case IProblem.ParsingErrorOnKeywordNoSuggestion:
+				case IProblem.ParsingErrorOnKeyword:
+				case IProblem.ParsingError:
+				case IProblem.ParsingErrorNoSuggestion:
+				case IProblem.ParsingErrorInsertTokenBefore:
+				case IProblem.ParsingErrorInsertTokenAfter:
+				case IProblem.ParsingErrorDeleteToken:
+				case IProblem.ParsingErrorDeleteTokens:
+				case IProblem.ParsingErrorMergeTokens:
+				case IProblem.ParsingErrorInvalidToken:
+				case IProblem.ParsingErrorMisplacedConstruct:
+				case IProblem.ParsingErrorReplaceTokens:
+				case IProblem.ParsingErrorNoSuggestionForTokens:
+				case IProblem.ParsingErrorUnexpectedEOF:
+				case IProblem.ParsingErrorInsertToComplete:
+				case IProblem.ParsingErrorInsertToCompleteScope:
+				case IProblem.ParsingErrorInsertToCompletePhrase:
+				case IProblem.EndOfSource:
+				case IProblem.InvalidHexa:
+				case IProblem.InvalidOctal:
+				case IProblem.InvalidCharacterConstant:
+				case IProblem.InvalidEscape:
+				case IProblem.InvalidInput:
+				case IProblem.InvalidUnicodeEscape:
+				case IProblem.InvalidFloat:
+				case IProblem.NullSourceString:
+				case IProblem.UnterminatedString:
+				case IProblem.UnterminatedComment:
+				case IProblem.InvalidDigit:
 					break;
 				default:
 					continue search;
 			}
-			int position = problem.getSourceStart();
-			int start = node.getStartPosition();
-			int end = start + node.getLength();
+			int position= problem.getSourceStart();
+			int start= node.getStartPosition();
+			int end= start + node.getLength();
 			if ((start <= position) && (position <= end)) {
 				node.setFlags(node.getFlags() | ASTNode.MALFORMED);
 				// clear the bits on parent
-				ASTNode currentNode = node.getParent();
+				ASTNode currentNode= node.getParent();
 				while (currentNode != null) {
 					currentNode.setFlags(currentNode.getFlags() & ~ASTNode.MALFORMED);
-					currentNode = currentNode.getParent();
+					currentNode= currentNode.getParent();
 				}
-				tagWithErrors = true;
+				tagWithErrors= true;
 			}
 		}
 		return tagWithErrors;

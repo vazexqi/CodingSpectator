@@ -20,15 +20,17 @@ import org.eclipse.jdt.internal.core.NameLookup;
 
 /**
  * Batch name environment that is cancelable using a monitor.
+ * 
  * @since 3.6
  */
 class NameEnviromentWithProgress extends FileSystem implements INameEnviromentWithProgress {
 	IProgressMonitor monitor;
-	
+
 	public NameEnviromentWithProgress(Classpath[] paths, String[] initialFileNames, IProgressMonitor monitor) {
 		super(paths, initialFileNames);
 		setMonitor(monitor);
 	}
+
 	private void checkCanceled() {
 		if (this.monitor != null && this.monitor.isCanceled()) {
 			if (NameLookup.VERBOSE) {
@@ -37,20 +39,23 @@ class NameEnviromentWithProgress extends FileSystem implements INameEnviromentWi
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
 		}
 	}
+
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 		checkCanceled();
 		return super.findType(typeName, packageName);
 	}
+
 	public NameEnvironmentAnswer findType(char[][] compoundName) {
 		checkCanceled();
 		return super.findType(compoundName);
 	}
+
 	public boolean isPackage(char[][] compoundName, char[] packageName) {
 		checkCanceled();
 		return super.isPackage(compoundName, packageName);
 	}
-	
+
 	public void setMonitor(IProgressMonitor monitor) {
-		this.monitor = monitor;
+		this.monitor= monitor;
 	}
 }

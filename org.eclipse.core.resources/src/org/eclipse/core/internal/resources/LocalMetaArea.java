@@ -57,7 +57,6 @@ public class LocalMetaArea implements ICoreConstants {
 
 	/* package */static final String F_METADATA= ".metadata"; //$NON-NLS-1$
 
-
 	protected final IPath metaAreaLocation;
 
 	/**

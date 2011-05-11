@@ -10,8 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.Javadoc;
+import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 /**
  * Node representing a Javadoc comment including code selection.
@@ -30,43 +40,43 @@ public class SelectionJavadoc extends Javadoc {
 	public StringBuffer print(int indent, StringBuffer output) {
 		super.print(indent, output);
 		if (this.selectedNode != null) {
-			String selectedString = null;
+			String selectedString= null;
 			if (this.selectedNode instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) this.selectedNode;
+				JavadocFieldReference fieldRef= (JavadocFieldReference)this.selectedNode;
 				if (fieldRef.methodBinding != null) {
-					selectedString = "<SelectOnMethod:"; //$NON-NLS-1$
+					selectedString= "<SelectOnMethod:"; //$NON-NLS-1$
 				} else {
-					selectedString = "<SelectOnField:"; //$NON-NLS-1$
+					selectedString= "<SelectOnField:"; //$NON-NLS-1$
 				}
 			} else if (this.selectedNode instanceof JavadocMessageSend) {
-				selectedString = "<SelectOnMethod:"; //$NON-NLS-1$
+				selectedString= "<SelectOnMethod:"; //$NON-NLS-1$
 			} else if (this.selectedNode instanceof JavadocAllocationExpression) {
-				selectedString = "<SelectOnConstructor:"; //$NON-NLS-1$
+				selectedString= "<SelectOnConstructor:"; //$NON-NLS-1$
 			} else if (this.selectedNode instanceof JavadocSingleNameReference) {
-				selectedString = "<SelectOnLocalVariable:"; //$NON-NLS-1$
+				selectedString= "<SelectOnLocalVariable:"; //$NON-NLS-1$
 			} else if (this.selectedNode instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) this.selectedNode;
+				JavadocSingleTypeReference typeRef= (JavadocSingleTypeReference)this.selectedNode;
 				if (typeRef.packageBinding == null) {
-					selectedString = "<SelectOnType:"; //$NON-NLS-1$
+					selectedString= "<SelectOnType:"; //$NON-NLS-1$
 				}
 			} else if (this.selectedNode instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) this.selectedNode;
+				JavadocQualifiedTypeReference typeRef= (JavadocQualifiedTypeReference)this.selectedNode;
 				if (typeRef.packageBinding == null) {
-					selectedString = "<SelectOnType:"; //$NON-NLS-1$
+					selectedString= "<SelectOnType:"; //$NON-NLS-1$
 				}
 			} else {
-				selectedString = "<SelectOnType:"; //$NON-NLS-1$
+				selectedString= "<SelectOnType:"; //$NON-NLS-1$
 			}
-			int pos = output.length()-3;
-			output.replace(pos-2,pos, selectedString+this.selectedNode+'>');
+			int pos= output.length() - 3;
+			output.replace(pos - 2, pos, selectedString + this.selectedNode + '>');
 		}
 		return output;
 	}
 
 	/**
-	 * Resolve selected node if not null and throw exception to let clients know
-	 * that it has been found.
-	 *
+	 * Resolve selected node if not null and throw exception to let clients know that it has been
+	 * found.
+	 * 
 	 * @throws SelectionNodeFound
 	 */
 	private void internalResolve(Scope scope) {
@@ -79,40 +89,40 @@ public class SelectionJavadoc extends Javadoc {
 					this.selectedNode.resolveType((MethodScope)scope);
 					break;
 			}
-			Binding binding = null;
+			Binding binding= null;
 			if (this.selectedNode instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) this.selectedNode;
-				binding = fieldRef.binding;
+				JavadocFieldReference fieldRef= (JavadocFieldReference)this.selectedNode;
+				binding= fieldRef.binding;
 				if (binding == null && fieldRef.methodBinding != null) {
-					binding = fieldRef.methodBinding;
+					binding= fieldRef.methodBinding;
 				}
 			} else if (this.selectedNode instanceof JavadocMessageSend) {
-				binding = ((JavadocMessageSend) this.selectedNode).binding;
+				binding= ((JavadocMessageSend)this.selectedNode).binding;
 			} else if (this.selectedNode instanceof JavadocAllocationExpression) {
-				binding = ((JavadocAllocationExpression) this.selectedNode).binding;
+				binding= ((JavadocAllocationExpression)this.selectedNode).binding;
 			} else if (this.selectedNode instanceof JavadocSingleNameReference) {
-				binding = ((JavadocSingleNameReference) this.selectedNode).binding;
+				binding= ((JavadocSingleNameReference)this.selectedNode).binding;
 			} else if (this.selectedNode instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) this.selectedNode;
+				JavadocSingleTypeReference typeRef= (JavadocSingleTypeReference)this.selectedNode;
 				if (typeRef.packageBinding == null) {
-					binding = typeRef.resolvedType;
+					binding= typeRef.resolvedType;
 				}
 			} else if (this.selectedNode instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) this.selectedNode;
+				JavadocQualifiedTypeReference typeRef= (JavadocQualifiedTypeReference)this.selectedNode;
 				if (typeRef.packageBinding == null) {
-					binding = typeRef.resolvedType;
+					binding= typeRef.resolvedType;
 				}
 			} else {
-				binding = this.selectedNode.resolvedType;
+				binding= this.selectedNode.resolvedType;
 			}
 			throw new SelectionNodeFound(binding);
 		}
 	}
 
 	/**
-	 * Resolve selected node if not null and throw exception to let clients know
-	 * that it has been found.
-	 *
+	 * Resolve selected node if not null and throw exception to let clients know that it has been
+	 * found.
+	 * 
 	 * @throws SelectionNodeFound
 	 */
 	public void resolve(ClassScope scope) {
@@ -120,9 +130,9 @@ public class SelectionJavadoc extends Javadoc {
 	}
 
 	/**
-	 * Resolve selected node if not null and throw exception to let clients know
-	 * that it has been found.
-	 *
+	 * Resolve selected node if not null and throw exception to let clients know that it has been
+	 * found.
+	 * 
 	 * @throws SelectionNodeFound
 	 */
 	public void resolve(MethodScope scope) {

@@ -11,57 +11,62 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class QualifiedThisReference extends ThisReference {
 
 	public TypeReference qualification;
+
 	ReferenceBinding currentCompatibleType;
 
 	public QualifiedThisReference(TypeReference name, int sourceStart, int sourceEnd) {
 		super(sourceStart, sourceEnd);
-		this.qualification = name;
-		name.bits |= IgnoreRawTypeCheck; // no need to worry about raw type usage
-		this.sourceStart = name.sourceStart;
+		this.qualification= name;
+		name.bits|= IgnoreRawTypeCheck; // no need to worry about raw type usage
+		this.sourceStart= name.sourceStart;
 	}
 
 	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
+			BlockScope currentScope,
+			FlowContext flowContext,
+			FlowInfo flowInfo) {
 
 		return flowInfo;
 	}
 
 	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo,
-		boolean valueRequired) {
+			BlockScope currentScope,
+			FlowContext flowContext,
+			FlowInfo flowInfo,
+			boolean valueRequired) {
 
 		return flowInfo;
 	}
 
 	/**
 	 * Code generation for QualifiedThisReference
-	 *
+	 * 
 	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param valueRequired boolean
 	 */
 	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
+			BlockScope currentScope,
+			CodeStream codeStream,
+			boolean valueRequired) {
 
-		int pc = codeStream.position;
+		int pc= codeStream.position;
 		if (valueRequired) {
 			if ((this.bits & DepthMASK) != 0) {
-				Object[] emulationPath =
-					currentScope.getEmulationPath(this.currentCompatibleType, true /*only exact match*/, false/*consider enclosing arg*/);
+				Object[] emulationPath=
+						currentScope.getEmulationPath(this.currentCompatibleType, true /*only exact match*/, false/*consider enclosing arg*/);
 				codeStream.generateOuterAccess(emulationPath, this, this.currentCompatibleType, currentScope);
 			} else {
 				// nothing particular after all
@@ -73,31 +78,32 @@ public class QualifiedThisReference extends ThisReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		this.constant = Constant.NotAConstant;
+		this.constant= Constant.NotAConstant;
 		// X.this is not a param/raw type as denoting enclosing instance
-		TypeBinding type = this.qualification.resolveType(scope, true /* check bounds*/);
-		if (type == null || !type.isValidBinding()) return null;
+		TypeBinding type= this.qualification.resolveType(scope, true /* check bounds*/);
+		if (type == null || !type.isValidBinding())
+			return null;
 		// X.this is not a param/raw type as denoting enclosing instance
-		type = type.erasure();
+		type= type.erasure();
 
 		// resolvedType needs to be converted to parameterized
 		if (type instanceof ReferenceBinding) {
-			this.resolvedType = scope.environment().convertToParameterizedType((ReferenceBinding) type);
+			this.resolvedType= scope.environment().convertToParameterizedType((ReferenceBinding)type);
 		} else {
 			// error case
-			this.resolvedType = type;
+			this.resolvedType= type;
 		}
 
 		// the qualification MUST exactly match some enclosing type name
 		// It is possible to qualify 'this' by the name of the current class
-		int depth = 0;
-		this.currentCompatibleType = scope.referenceType().binding;
+		int depth= 0;
+		this.currentCompatibleType= scope.referenceType().binding;
 		while (this.currentCompatibleType != null && this.currentCompatibleType != type) {
 			depth++;
-			this.currentCompatibleType = this.currentCompatibleType.isStatic() ? null : this.currentCompatibleType.enclosingType();
+			this.currentCompatibleType= this.currentCompatibleType.isStatic() ? null : this.currentCompatibleType.enclosingType();
 		}
-		this.bits &= ~DepthMASK; // flush previous depth if any
-		this.bits |= (depth & 0xFF) << DepthSHIFT; // encoded depth into 8 bits
+		this.bits&= ~DepthMASK; // flush previous depth if any
+		this.bits|= (depth & 0xFF) << DepthSHIFT; // encoded depth into 8 bits
 
 		if (this.currentCompatibleType == null) {
 			scope.problemReporter().noSuchEnclosingInstance(type, this, false);
@@ -118,8 +124,8 @@ public class QualifiedThisReference extends ThisReference {
 	}
 
 	public void traverse(
-		ASTVisitor visitor,
-		BlockScope blockScope) {
+			ASTVisitor visitor,
+			BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
 			this.qualification.traverse(visitor, blockScope);

@@ -14,24 +14,29 @@ import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IStackMapFrame;
 import org.eclipse.jdt.core.util.IStackMapTableAttribute;
+
 /**
  * Default implementation of IStackMapTableAttribute.
+ * 
  * @see IStackMapTableAttribute
  */
 public class StackMapTableAttribute
-	extends ClassFileAttribute
-	implements IStackMapTableAttribute {
+		extends ClassFileAttribute
+		implements IStackMapTableAttribute {
 
-	private static final IStackMapFrame[] NO_FRAMES = new IStackMapFrame[0];
-	private static final byte[] NO_ENTRIES = new byte[0];
+	private static final IStackMapFrame[] NO_FRAMES= new IStackMapFrame[0];
+
+	private static final byte[] NO_ENTRIES= new byte[0];
 
 	private int numberOfEntries;
+
 	private IStackMapFrame[] frames;
 
 	private byte[] bytes;
 
 	/**
 	 * Constructor for LineNumberAttribute.
+	 * 
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
@@ -44,25 +49,25 @@ public class StackMapTableAttribute
 			throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 
-		final int length = u2At(classFileBytes, 6, offset);
-		this.numberOfEntries = length;
+		final int length= u2At(classFileBytes, 6, offset);
+		this.numberOfEntries= length;
 		if (length != 0) {
-			int readOffset = 8;
-			this.frames = new IStackMapFrame[length];
-			for (int i = 0; i < length; i++) {
-				StackMapFrame frame = new StackMapFrame(classFileBytes, constantPool, offset + readOffset);
-				this.frames[i] = frame;
-				readOffset += frame.sizeInBytes();
+			int readOffset= 8;
+			this.frames= new IStackMapFrame[length];
+			for (int i= 0; i < length; i++) {
+				StackMapFrame frame= new StackMapFrame(classFileBytes, constantPool, offset + readOffset);
+				this.frames[i]= frame;
+				readOffset+= frame.sizeInBytes();
 			}
 		} else {
-			this.frames = NO_FRAMES;
+			this.frames= NO_FRAMES;
 		}
-		final int byteLength = (int) u4At(classFileBytes, 2, offset);
+		final int byteLength= (int)u4At(classFileBytes, 2, offset);
 
 		if (length != 0) {
-			System.arraycopy(classFileBytes, offset + 6, this.bytes = new byte[byteLength], 0, byteLength);
+			System.arraycopy(classFileBytes, offset + 6, this.bytes= new byte[byteLength], 0, byteLength);
 		} else {
-			this.bytes = NO_ENTRIES;
+			this.bytes= NO_ENTRIES;
 		}
 	}
 

@@ -12,16 +12,22 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 
 public class ImportReference extends ASTNode {
 
 	public char[][] tokens;
+
 	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
+
 	public int declarationEnd; // doesn't include an potential trailing comment
+
 	public int declarationSourceStart;
+
 	public int declarationSourceEnd;
+
 	public int modifiers; // 1.5 addition for static imports
+
 	public Annotation[] annotations;
 
 	public ImportReference(
@@ -30,14 +36,14 @@ public class ImportReference extends ASTNode {
 			boolean onDemand,
 			int modifiers) {
 
-		this.tokens = tokens;
-		this.sourcePositions = sourcePositions;
+		this.tokens= tokens;
+		this.sourcePositions= sourcePositions;
 		if (onDemand) {
-			this.bits |= ASTNode.OnDemand;
+			this.bits|= ASTNode.OnDemand;
 		}
-		this.sourceEnd = (int) (sourcePositions[sourcePositions.length-1] & 0x00000000FFFFFFFF);
-		this.sourceStart = (int) (sourcePositions[0] >>> 32);
-		this.modifiers = modifiers;
+		this.sourceEnd= (int)(sourcePositions[sourcePositions.length - 1] & 0x00000000FFFFFFFF);
+		this.sourceStart= (int)(sourcePositions[0] >>> 32);
+		this.modifiers= modifiers;
 	}
 
 	public boolean isStatic() {
@@ -60,8 +66,9 @@ public class ImportReference extends ASTNode {
 	public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {
 
 		/* when withOnDemand is false, only the name is printed */
-		for (int i = 0; i < this.tokens.length; i++) {
-			if (i > 0) output.append('.');
+		for (int i= 0; i < this.tokens.length; i++) {
+			if (i > 0)
+				output.append('.');
 			output.append(this.tokens[i]);
 		}
 		if (withOnDemand && ((this.bits & ASTNode.OnDemand) != 0)) {

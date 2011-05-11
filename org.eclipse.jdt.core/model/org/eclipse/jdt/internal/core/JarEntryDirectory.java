@@ -24,14 +24,14 @@ public class JarEntryDirectory extends JarEntryResource {
 	}
 
 	public JarEntryResource clone(Object newParent) {
-		JarEntryDirectory dir = new JarEntryDirectory(this.simpleName);
+		JarEntryDirectory dir= new JarEntryDirectory(this.simpleName);
 		dir.setParent(newParent);
-		int length = this.children.length;
+		int length= this.children.length;
 		if (length > 0) {
-			IJarEntryResource[] newChildren = new IJarEntryResource[length];
-			for (int i = 0; i < length; i++) {
-				JarEntryResource child = (JarEntryResource) this.children[i];
-				newChildren[i] = child.clone(dir);
+			IJarEntryResource[] newChildren= new IJarEntryResource[length];
+			for (int i= 0; i < length; i++) {
+				JarEntryResource child= (JarEntryResource)this.children[i];
+				newChildren[i]= child.clone(dir);
 			}
 			dir.setChildren(newChildren);
 		}
@@ -51,10 +51,10 @@ public class JarEntryDirectory extends JarEntryResource {
 	}
 
 	public void setChildren(IJarEntryResource[] children) {
-		this.children = children;
+		this.children= children;
 	}
 
 	public String toString() {
-		return "JarEntryDirectory["+getEntryName()+"]"; //$NON-NLS-1$ //$NON-NLS-2$
+		return "JarEntryDirectory[" + getEntryName() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -13,29 +13,30 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 
 public class CompletionOnJavadocAllocationExpression extends JavadocAllocationExpression implements CompletionOnJavadoc {
-	public int completionFlags = JAVADOC;
+	public int completionFlags= JAVADOC;
+
 	public int separatorPosition;
 
 	public CompletionOnJavadocAllocationExpression(JavadocAllocationExpression allocation, int position) {
 		super(allocation.sourceStart, allocation.sourceEnd);
-		this.arguments = allocation.arguments;
-		this.type = allocation.type;
-		this.tagValue = allocation.tagValue;
-		this.sourceEnd = allocation.sourceEnd;
-		this.separatorPosition = position;
-		this.qualification = allocation.qualification;
+		this.arguments= allocation.arguments;
+		this.type= allocation.type;
+		this.tagValue= allocation.tagValue;
+		this.sourceEnd= allocation.sourceEnd;
+		this.separatorPosition= position;
+		this.qualification= allocation.qualification;
 	}
 
 	public CompletionOnJavadocAllocationExpression(JavadocAllocationExpression allocation, int position, int flags) {
 		this(allocation, position);
-		this.completionFlags |= flags;
+		this.completionFlags|= flags;
 	}
 
 	/**
 	 * @param flags The completionFlags to set.
 	 */
 	public void addCompletionFlags(int flags) {
-		this.completionFlags |= flags;
+		this.completionFlags|= flags;
 	}
 
 	public boolean completeAnException() {
@@ -56,7 +57,7 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 
 	/**
 	 * Get completion node flags.
-	 *
+	 * 
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {
@@ -72,32 +73,37 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 		indent++;
 		if (this.completionFlags > 0) {
 			output.append('\n');
-			for (int i=0; i<indent; i++) output.append('\t');
+			for (int i= 0; i < indent; i++)
+				output.append('\t');
 			output.append("infos:"); //$NON-NLS-1$
-			char separator = 0;
+			char separator= 0;
 			if (completeAnException()) {
 				output.append("exception"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeInText()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("text"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeBaseTypes()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("base types"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeFormalReference()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("formal reference"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			output.append('\n');
 		}
 		indent--;
-		for (int i=0; i<indent; i++) output.append('\t');
+		for (int i= 0; i < indent; i++)
+			output.append('\t');
 		return output.append('>');
 	}
 }

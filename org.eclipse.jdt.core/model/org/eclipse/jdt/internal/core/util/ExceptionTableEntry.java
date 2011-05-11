@@ -17,32 +17,37 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionTableEntry;
 
 /**
- * This class describes an entry in the exception table attribute according
- * to the JVM specifications.
+ * This class describes an entry in the exception table attribute according to the JVM
+ * specifications.
  */
 public class ExceptionTableEntry
-	extends ClassFileStruct
-	implements IExceptionTableEntry {
+		extends ClassFileStruct
+		implements IExceptionTableEntry {
 
 	private int startPC;
+
 	private int endPC;
+
 	private int handlerPC;
+
 	private int catchTypeIndex;
+
 	private char[] catchType;
 
 	ExceptionTableEntry(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
-		this.startPC = u2At(classFileBytes, 0, offset);
-		this.endPC = u2At(classFileBytes, 2, offset);
-		this.handlerPC = u2At(classFileBytes, 4, offset);
-		this.catchTypeIndex = u2At(classFileBytes, 6, offset);
+		this.startPC= u2At(classFileBytes, 0, offset);
+		this.endPC= u2At(classFileBytes, 2, offset);
+		this.handlerPC= u2At(classFileBytes, 4, offset);
+		this.catchTypeIndex= u2At(classFileBytes, 6, offset);
 		if (this.catchTypeIndex != 0) {
-			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.catchTypeIndex);
+			IConstantPoolEntry constantPoolEntry= constantPool.decodeEntry(this.catchTypeIndex);
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Class) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 			}
-			this.catchType = constantPoolEntry.getClassInfoName();
+			this.catchType= constantPoolEntry.getClassInfoName();
 		}
 	}
+
 	/**
 	 * @see IExceptionTableEntry#getStartPC()
 	 */

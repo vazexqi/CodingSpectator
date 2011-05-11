@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * Character literal nodes.
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -29,34 +29,32 @@ public class CharacterLiteral extends Expression {
 
 	/**
 	 * The "escapedValue" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final SimplePropertyDescriptor ESCAPED_VALUE_PROPERTY =
-		new SimplePropertyDescriptor(CharacterLiteral.class, "escapedValue", String.class, MANDATORY); //$NON-NLS-1$
+	public static final SimplePropertyDescriptor ESCAPED_VALUE_PROPERTY=
+			new SimplePropertyDescriptor(CharacterLiteral.class, "escapedValue", String.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(2);
+		List properyList= new ArrayList(2);
 		createPropertyList(CharacterLiteral.class, properyList);
 		addProperty(ESCAPED_VALUE_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -64,18 +62,18 @@ public class CharacterLiteral extends Expression {
 	}
 
 	/**
-	 * The literal string, including quotes and escapes; defaults to the
-	 * literal for the character 'X'.
+	 * The literal string, including quotes and escapes; defaults to the literal for the character
+	 * 'X'.
 	 */
-	private String escapedValue = "\'X\'";//$NON-NLS-1$
+	private String escapedValue= "\'X\'";//$NON-NLS-1$
 
 	/**
-	 * Creates a new unparented character literal node owned by the given AST.
-	 * By default, the character literal denotes an unspecified character.
+	 * Creates a new unparented character literal node owned by the given AST. By default, the
+	 * character literal denotes an unspecified character.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	CharacterLiteral(AST ast) {
@@ -97,7 +95,7 @@ public class CharacterLiteral extends Expression {
 			if (get) {
 				return getEscapedValue();
 			} else {
-				setEscapedValue((String) value);
+				setEscapedValue((String)value);
 				return null;
 			}
 		}
@@ -116,7 +114,7 @@ public class CharacterLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		CharacterLiteral result = new CharacterLiteral(target);
+		CharacterLiteral result= new CharacterLiteral(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setEscapedValue(getEscapedValue());
 		return result;
@@ -139,28 +137,25 @@ public class CharacterLiteral extends Expression {
 	}
 
 	/**
-	 * Returns the string value of this literal node. The value is the sequence
-	 * of characters that would appear in the source program, including
-	 * enclosing single quotes and embedded escapes.
-	 *
-	 * @return the escaped string value, including enclosing single quotes
-	 *    and embedded escapes
+	 * Returns the string value of this literal node. The value is the sequence of characters that
+	 * would appear in the source program, including enclosing single quotes and embedded escapes.
+	 * 
+	 * @return the escaped string value, including enclosing single quotes and embedded escapes
 	 */
 	public String getEscapedValue() {
 		return this.escapedValue;
 	}
 
 	/**
-	 * Sets the string value of this literal node. The value is the sequence
-	 * of characters that would appear in the source program, including
-	 * enclosing single quotes and embedded escapes. For example,
+	 * Sets the string value of this literal node. The value is the sequence of characters that
+	 * would appear in the source program, including enclosing single quotes and embedded escapes.
+	 * For example,
 	 * <ul>
 	 * <li><code>'a'</code> <code>setEscapedValue("\'a\'")</code></li>
 	 * <li><code>'\n'</code> <code>setEscapedValue("\'\\n\'")</code></li>
 	 * </ul>
-	 *
-	 * @param value the string value, including enclosing single quotes
-	 *    and embedded escapes
+	 * 
+	 * @param value the string value, including enclosing single quotes and embedded escapes
 	 * @exception IllegalArgumentException if the argument is incorrect
 	 */
 	public void setEscapedValue(String value) {
@@ -168,23 +163,23 @@ public class CharacterLiteral extends Expression {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = this.ast.scanner;
-		char[] source = value.toCharArray();
+		Scanner scanner= this.ast.scanner;
+		char[] source= value.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			int tokenType = scanner.getNextToken();
-			switch(tokenType) {
+			int tokenType= scanner.getNextToken();
+			switch (tokenType) {
 				case TerminalTokens.TokenNameCharacterLiteral:
 					break;
 				default:
 					throw new IllegalArgumentException();
 			}
-		} catch(InvalidInputException e) {
+		} catch (InvalidInputException e) {
 			throw new IllegalArgumentException();
 		}
 		preValueChange(ESCAPED_VALUE_PROPERTY);
-		this.escapedValue = value;
+		this.escapedValue= value;
 		postValueChange(ESCAPED_VALUE_PROPERTY);
 	}
 
@@ -194,7 +189,7 @@ public class CharacterLiteral extends Expression {
 	 */
 	void internalSetEscapedValue(String value) {
 		preValueChange(ESCAPED_VALUE_PROPERTY);
-		this.escapedValue = value;
+		this.escapedValue= value;
 		postValueChange(ESCAPED_VALUE_PROPERTY);
 	}
 
@@ -202,84 +197,85 @@ public class CharacterLiteral extends Expression {
 	 * Returns the value of this literal node.
 	 * <p>
 	 * For example,
+	 * 
 	 * <pre>
 	 * CharacterLiteral s;
 	 * s.setEscapedValue("\'x\'");
 	 * assert s.charValue() == 'x';
 	 * </pre>
+	 * 
 	 * </p>
-	 *
-	 * @return the character value without enclosing quotes and embedded
-	 *    escapes
+	 * 
+	 * @return the character value without enclosing quotes and embedded escapes
 	 * @exception IllegalArgumentException if the literal value cannot be converted
 	 */
 	public char charValue() {
-		Scanner scanner = this.ast.scanner;
-		char[] source = this.escapedValue.toCharArray();
+		Scanner scanner= this.ast.scanner;
+		char[] source= this.escapedValue.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
-		int firstChar = scanner.getNextChar();
-		int secondChar = scanner.getNextChar();
+		int firstChar= scanner.getNextChar();
+		int secondChar= scanner.getNextChar();
 
 		if (firstChar == -1 || firstChar != '\'') {
 			throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 		}
-		char value = (char) secondChar;
-		int nextChar = scanner.getNextChar();
+		char value= (char)secondChar;
+		int nextChar= scanner.getNextChar();
 		if (secondChar == '\\') {
 			if (nextChar == -1) {
 				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 			}
-			switch(nextChar) {
-				case 'b' :
-					value = '\b';
+			switch (nextChar) {
+				case 'b':
+					value= '\b';
 					break;
-				case 't' :
-					value = '\t';
+				case 't':
+					value= '\t';
 					break;
-				case 'n' :
-					value = '\n';
+				case 'n':
+					value= '\n';
 					break;
-				case 'f' :
-					value = '\f';
+				case 'f':
+					value= '\f';
 					break;
-				case 'r' :
-					value = '\r';
+				case 'r':
+					value= '\r';
 					break;
 				case '\"':
-					value = '\"';
+					value= '\"';
 					break;
 				case '\'':
-					value = '\'';
+					value= '\'';
 					break;
 				case '\\':
-					value = '\\';
+					value= '\\';
 					break;
-				default : //octal (well-formed: ended by a ' )
+				default: //octal (well-formed: ended by a ' )
 					try {
-						if (ScannerHelper.isDigit((char) nextChar)) {
-							int number = ScannerHelper.getNumericValue((char) nextChar);
-							nextChar = scanner.getNextChar();
+						if (ScannerHelper.isDigit((char)nextChar)) {
+							int number= ScannerHelper.getNumericValue((char)nextChar);
+							nextChar= scanner.getNextChar();
 							if (nextChar == -1) {
 								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 							}
 							if (nextChar != '\'') {
-								if (!ScannerHelper.isDigit((char) nextChar)) {
+								if (!ScannerHelper.isDigit((char)nextChar)) {
 									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 								}
-								number = (number * 8) + ScannerHelper.getNumericValue((char) nextChar);
-								nextChar = scanner.getNextChar();
+								number= (number * 8) + ScannerHelper.getNumericValue((char)nextChar);
+								nextChar= scanner.getNextChar();
 								if (nextChar == -1) {
 									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 								}
 								if (nextChar != '\'') {
-									if (!ScannerHelper.isDigit((char) nextChar)) {
+									if (!ScannerHelper.isDigit((char)nextChar)) {
 										throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 									}
-									number = (number * 8) + ScannerHelper.getNumericValue((char) nextChar);
+									number= (number * 8) + ScannerHelper.getNumericValue((char)nextChar);
 								}
 							}
-							return (char) number;
+							return (char)number;
 						} else {
 							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 						}
@@ -287,7 +283,7 @@ public class CharacterLiteral extends Expression {
 						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 					}
 			}
-			nextChar = scanner.getNextChar();
+			nextChar= scanner.getNextChar();
 			if (nextChar == -1) {
 				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 			}
@@ -297,38 +293,41 @@ public class CharacterLiteral extends Expression {
 		}
 		return value;
 	}
+
 	/**
 	 * Sets the value of this character literal node to the given character.
 	 * <p>
 	 * For example,
+	 * 
 	 * <pre>
 	 * CharacterLiteral s;
 	 * s.setCharValue('x');
 	 * assert s.charValue() == 'x';
 	 * assert s.getEscapedValue().equals("\'x\'");
 	 * </pre>
+	 * 
 	 * </p>
-	 *
+	 * 
 	 * @param value the character value
 	 */
 	public void setCharValue(char value) {
-		StringBuffer b = new StringBuffer(3);
+		StringBuffer b= new StringBuffer(3);
 
 		b.append('\''); // opening delimiter
-		switch(value) {
-			case '\b' :
+		switch (value) {
+			case '\b':
 				b.append("\\b"); //$NON-NLS-1$
 				break;
-			case '\t' :
+			case '\t':
 				b.append("\\t"); //$NON-NLS-1$
 				break;
-			case '\n' :
+			case '\n':
 				b.append("\\n"); //$NON-NLS-1$
 				break;
-			case '\f' :
+			case '\f':
 				b.append("\\f"); //$NON-NLS-1$
 				break;
-			case '\r' :
+			case '\r':
 				b.append("\\r"); //$NON-NLS-1$
 				break;
 			case '\"':
@@ -340,28 +339,28 @@ public class CharacterLiteral extends Expression {
 			case '\\':
 				b.append("\\\\"); //$NON-NLS-1$
 				break;
-			case '\0' :
+			case '\0':
 				b.append("\\0"); //$NON-NLS-1$
 				break;
-			case '\1' :
+			case '\1':
 				b.append("\\1"); //$NON-NLS-1$
 				break;
-			case '\2' :
+			case '\2':
 				b.append("\\2"); //$NON-NLS-1$
 				break;
-			case '\3' :
+			case '\3':
 				b.append("\\3"); //$NON-NLS-1$
 				break;
-			case '\4' :
+			case '\4':
 				b.append("\\4"); //$NON-NLS-1$
 				break;
-			case '\5' :
+			case '\5':
 				b.append("\\5"); //$NON-NLS-1$
 				break;
-			case '\6' :
+			case '\6':
 				b.append("\\6"); //$NON-NLS-1$
 				break;
-			case '\7' :
+			case '\7':
 				b.append("\\7"); //$NON-NLS-1$
 				break;
 			default:
@@ -375,7 +374,7 @@ public class CharacterLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4 + stringSize(this.escapedValue);
+		int size= BASE_NODE_SIZE + 1 * 4 + stringSize(this.escapedValue);
 		return size;
 	}
 
@@ -386,4 +385,3 @@ public class CharacterLiteral extends Expression {
 		return memSize();
 	}
 }
-

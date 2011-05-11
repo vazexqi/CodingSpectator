@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,10 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -26,18 +29,18 @@ public class TypeParameterLocator extends PatternLocator {
 
 	public TypeParameterLocator(TypeParameterPattern pattern) {
 		super(pattern);
-		this.pattern = pattern;
+		this.pattern= pattern;
 	}
 
 	/*
 	 * Verify whether a type reference matches name pattern.
-	 * Type parameter references (i.e. type arguments) are compiler type reference nodes
+	 * Type parameter references (ie. type arguments) are compiler type reference nodes
 	 */
 	public int match(TypeReference node, MatchingNodeSet nodeSet) {
 		if (this.pattern.findReferences) {
 			if (node instanceof SingleTypeReference) { // Type parameter cannot be qualified
-				if (matchesName(this.pattern.name, ((SingleTypeReference) node).token)) {
-					int level = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				if (matchesName(this.pattern.name, ((SingleTypeReference)node).token)) {
+					int level= this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 					return nodeSet.addMatch(node, level);
 				}
 			}
@@ -52,7 +55,7 @@ public class TypeParameterLocator extends PatternLocator {
 	public int match(TypeParameter node, MatchingNodeSet nodeSet) {
 		if (this.pattern.findDeclarations) {
 			if (matchesName(this.pattern.name, node.name)) {
-				int level = this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				int level= this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				return nodeSet.addMatch(node, level);
 			}
 		}
@@ -76,21 +79,23 @@ public class TypeParameterLocator extends PatternLocator {
 	 * For methods, also look at declaring class and parameters type names
 	 */
 	protected int matchTypeParameter(TypeVariableBinding variable, boolean matchName) {
-		if (variable == null || variable.declaringElement == null) return INACCURATE_MATCH;
+		if (variable == null || variable.declaringElement == null)
+			return INACCURATE_MATCH;
 		if (variable.declaringElement instanceof ReferenceBinding) {
-			ReferenceBinding refBinding  = (ReferenceBinding) variable.declaringElement;
+			ReferenceBinding refBinding= (ReferenceBinding)variable.declaringElement;
 			if (matchesName(refBinding.sourceName, this.pattern.declaringMemberName)) {
 				return ACCURATE_MATCH;
 			}
 		} else if (variable.declaringElement instanceof MethodBinding) {
-			MethodBinding methBinding  = (MethodBinding) variable.declaringElement;
+			MethodBinding methBinding= (MethodBinding)variable.declaringElement;
 			if (matchesName(methBinding.declaringClass.sourceName, this.pattern.methodDeclaringClassName) &&
-				(methBinding.isConstructor() || matchesName(methBinding.selector, this.pattern.declaringMemberName))) {
-				int length = this.pattern.methodArgumentTypes==null ? 0 : this.pattern.methodArgumentTypes.length;
+					(methBinding.isConstructor() || matchesName(methBinding.selector, this.pattern.declaringMemberName))) {
+				int length= this.pattern.methodArgumentTypes == null ? 0 : this.pattern.methodArgumentTypes.length;
 				if (methBinding.parameters == null) {
-					if (length == 0) return ACCURATE_MATCH;
-				} else if (methBinding.parameters.length == length){
-					for (int i=0; i<length; i++) {
+					if (length == 0)
+						return ACCURATE_MATCH;
+				} else if (methBinding.parameters.length == length) {
+					for (int i= 0; i < length; i++) {
 						if (!matchesName(methBinding.parameters[i].shortReadableName(), this.pattern.methodArgumentTypes[i])) {
 							return IMPOSSIBLE_MATCH;
 						}
@@ -114,12 +119,12 @@ public class TypeParameterLocator extends PatternLocator {
 	public int resolveLevel(ASTNode possibleMatchingNode) {
 		if (this.pattern.findReferences) {
 			if (possibleMatchingNode instanceof SingleTypeReference) {
-				return resolveLevel(((SingleTypeReference) possibleMatchingNode).resolvedType);
+				return resolveLevel(((SingleTypeReference)possibleMatchingNode).resolvedType);
 			}
 		}
 		if (this.pattern.findDeclarations) {
 			if (possibleMatchingNode instanceof TypeParameter) {
-				return matchTypeParameter(((TypeParameter) possibleMatchingNode).binding, true);
+				return matchTypeParameter(((TypeParameter)possibleMatchingNode).binding, true);
 			}
 		}
 		return IMPOSSIBLE_MATCH;
@@ -130,10 +135,12 @@ public class TypeParameterLocator extends PatternLocator {
 	 * Only type variable bindings are valid.
 	 */
 	public int resolveLevel(Binding binding) {
-		if (binding == null) return INACCURATE_MATCH;
-		if (!(binding instanceof TypeVariableBinding)) return IMPOSSIBLE_MATCH;
+		if (binding == null)
+			return INACCURATE_MATCH;
+		if (!(binding instanceof TypeVariableBinding))
+			return IMPOSSIBLE_MATCH;
 
-		return matchTypeParameter((TypeVariableBinding) binding, true);
+		return matchTypeParameter((TypeVariableBinding)binding, true);
 	}
 
 	public String toString() {

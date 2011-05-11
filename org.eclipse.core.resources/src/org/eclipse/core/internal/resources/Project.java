@@ -15,55 +15,17 @@
 package org.eclipse.core.internal.resources;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileInfo;
-import org.eclipse.core.filesystem.IFileStore;
+import java.util.*;
+import org.eclipse.core.filesystem.*;
 import org.eclipse.core.internal.events.LifecycleEvent;
-import org.eclipse.core.internal.utils.FileUtil;
-import org.eclipse.core.internal.utils.Messages;
-import org.eclipse.core.internal.utils.Policy;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IProjectNature;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.ISaveContext;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.internal.utils.*;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.team.IMoveDeleteHook;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IPluginDescriptor;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.osgi.util.NLS;
 
-/**
- * 
- * @author Stas Negara - Added sending a notification about moving the project in method move, and
- *         creating the project in method create.
- * 
- */
 public class Project extends Container implements IProject {
 
 	/**
@@ -301,8 +263,6 @@ public class Project extends Container implements IProject {
 			monitor.beginTask(Messages.resources_create, Policy.totalWork);
 			checkValidPath(path, PROJECT, false);
 			final ISchedulingRule rule= workspace.getRuleFactory().createRule(this);
-			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
-			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				if (description == null) {
@@ -349,12 +309,10 @@ public class Project extends Container implements IProject {
 				if (hasContent)
 					info.set(ICoreConstants.M_CHILDREN_UNKNOWN);
 				workspace.getSaveManager().requestSnapshot();
-				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				resourceListener.createdResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -623,7 +581,6 @@ public class Project extends Container implements IProject {
 		}, null, IWorkspace.AVOID_UPDATE, monitor);
 	}
 
-
 	/**
 	 * Closes the project. This is called during restore when there is a failure to read the project
 	 * description. Since it is called during workspace restore, it cannot start any operations.
@@ -646,7 +603,6 @@ public class Project extends Container implements IProject {
 		info.setSyncInfo(null);
 	}
 
-	//CODINGSPECTATOR - Note: No need to record this event directly, because copying of children will be recorded in Resource.copy(IPath...).
 	protected void internalCopy(IProjectDescription destDesc, int updateFlags, IProgressMonitor monitor) throws CoreException {
 		monitor= Policy.monitorFor(monitor);
 		try {
@@ -938,8 +894,6 @@ public class Project extends Container implements IProject {
 			monitor.beginTask(message, Policy.totalWork);
 			IProject destination= workspace.getRoot().getProject(description.getName());
 			final ISchedulingRule rule= workspace.getRuleFactory().moveRule(this, destination);
-			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
-			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.move API
@@ -968,12 +922,10 @@ public class Project extends Container implements IProject {
 				tree.makeInvalid();
 				if (!tree.getStatus().isOK())
 					throw new ResourceException(tree.getStatus());
-				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

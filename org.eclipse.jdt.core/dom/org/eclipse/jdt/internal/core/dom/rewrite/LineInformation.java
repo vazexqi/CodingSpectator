@@ -45,6 +45,7 @@ public abstract class LineInformation {
 			public int getLineOfOffset(int offset) {
 				return astRoot.getLineNumber(offset) - 1;
 			}
+
 			public int getLineOffset(int line) {
 				return astRoot.getPosition(line + 1, 0);
 			}
@@ -54,6 +55,7 @@ public abstract class LineInformation {
 
 
 	public abstract int getLineOfOffset(int offset);
+
 	public abstract int getLineOffset(int line);
 
 }

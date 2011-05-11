@@ -19,9 +19,10 @@ import org.eclipse.jdt.internal.core.ImportDeclaration;
 
 public class AssistImportDeclaration extends ImportDeclaration {
 	private Map infoCache;
+
 	public AssistImportDeclaration(ImportContainer parent, String name, boolean isOnDemand, Map infoCache) {
 		super(parent, name, isOnDemand);
-		this.infoCache = infoCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {

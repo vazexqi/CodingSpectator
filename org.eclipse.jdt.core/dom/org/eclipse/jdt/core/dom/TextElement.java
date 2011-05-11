@@ -18,11 +18,12 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * AST node for a text element within a doc comment.
+ * 
  * <pre>
  * TextElement:
  *     Sequence of characters not including a close comment delimiter <b>*</b><b>/</b>
  * </pre>
- *
+ * 
  * @see Javadoc
  * @since 3.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -31,35 +32,33 @@ public final class TextElement extends ASTNode implements IDocElement {
 
 	/**
 	 * The "text" structural property of this node type.
-	 *
+	 * 
 	 * @since 3.0
 	 */
-	public static final SimplePropertyDescriptor TEXT_PROPERTY =
-		new SimplePropertyDescriptor(TextElement.class, "text", String.class, MANDATORY); //$NON-NLS-1$
+	public static final SimplePropertyDescriptor TEXT_PROPERTY=
+			new SimplePropertyDescriptor(TextElement.class, "text", String.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
+	 * 
 	 * @since 3.0
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(2);
+		List propertyList= new ArrayList(2);
 		createPropertyList(TextElement.class, propertyList);
 		addProperty(TEXT_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -69,17 +68,16 @@ public final class TextElement extends ASTNode implements IDocElement {
 	/**
 	 * The text element; defaults to the empty string.
 	 */
-	private String text = Util.EMPTY_STRING;
+	private String text= Util.EMPTY_STRING;
 
 	/**
-	 * Creates a new AST node for a text element owned by the given AST.
-	 * The new node has an empty text string.
+	 * Creates a new AST node for a text element owned by the given AST. The new node has an empty
+	 * text string.
 	 * <p>
-	 * N.B. This constructor is package-private; all subclasses must be
-	 * declared in the same package; clients are unable to declare
-	 * additional subclasses.
+	 * N.B. This constructor is package-private; all subclasses must be declared in the same
+	 * package; clients are unable to declare additional subclasses.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	TextElement(AST ast) {
@@ -101,7 +99,7 @@ public final class TextElement extends ASTNode implements IDocElement {
 			if (get) {
 				return getText();
 			} else {
-				setText((String) value);
+				setText((String)value);
 				return null;
 			}
 		}
@@ -120,7 +118,7 @@ public final class TextElement extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		TextElement result = new TextElement(target);
+		TextElement result= new TextElement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setText(getText());
 		return result;
@@ -144,7 +142,7 @@ public final class TextElement extends ASTNode implements IDocElement {
 
 	/**
 	 * Returns this node's text.
-	 *
+	 * 
 	 * @return the text of this node
 	 */
 	public String getText() {
@@ -154,15 +152,14 @@ public final class TextElement extends ASTNode implements IDocElement {
 	/**
 	 * Sets the text of this node to the given value.
 	 * <p>
-	 * The text element typically includes leading and trailing
-	 * whitespace that separates it from the immediately preceding
-	 * or following elements. The text element must not include
-	 * a block comment closing delimiter "*"+"/".
+	 * The text element typically includes leading and trailing whitespace that separates it from
+	 * the immediately preceding or following elements. The text element must not include a block
+	 * comment closing delimiter "*"+"/".
 	 * </p>
-	 *
+	 * 
 	 * @param text the text of this node
-	 * @exception IllegalArgumentException if the text is null
-	 * or contains a block comment closing delimiter
+	 * @exception IllegalArgumentException if the text is null or contains a block comment closing
+	 *                delimiter
 	 */
 	public void setText(String text) {
 		if (text == null) {
@@ -172,7 +169,7 @@ public final class TextElement extends ASTNode implements IDocElement {
 			throw new IllegalArgumentException();
 		}
 		preValueChange(TEXT_PROPERTY);
-		this.text = text;
+		this.text= text;
 		postValueChange(TEXT_PROPERTY);
 	}
 
@@ -180,10 +177,10 @@ public final class TextElement extends ASTNode implements IDocElement {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4;
+		int size= BASE_NODE_SIZE + 1 * 4;
 		if (this.text != Util.EMPTY_STRING) {
 			// everything but our empty string costs
-			size += stringSize(this.text);
+			size+= stringSize(this.text);
 		}
 		return size;
 	}
@@ -195,4 +192,3 @@ public final class TextElement extends ASTNode implements IDocElement {
 		return memSize();
 	}
 }
-

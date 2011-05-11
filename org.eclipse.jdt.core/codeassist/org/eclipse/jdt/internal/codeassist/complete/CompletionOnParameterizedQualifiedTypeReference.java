@@ -32,19 +32,24 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class CompletionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
-	public static final int K_TYPE = 0;
-	public static final int K_CLASS = 1;
-	public static final int K_INTERFACE = 2;
-	public static final int K_EXCEPTION = 3;
+	public static final int K_TYPE= 0;
 
-	private int kind = K_TYPE;
+	public static final int K_CLASS= 1;
+
+	public static final int K_INTERFACE= 2;
+
+	public static final int K_EXCEPTION= 3;
+
+	private int kind= K_TYPE;
+
 	public char[] completionIdentifier;
+
 	/**
 	 * @param tokens
 	 * @param typeArguments
 	 * @param positions
 	 */
-	public CompletionOnParameterizedQualifiedTypeReference(char[][] tokens,	TypeReference[][] typeArguments, char[] completionIdentifier, long[] positions) {
+	public CompletionOnParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[][] typeArguments, char[] completionIdentifier, long[] positions) {
 		this(tokens, typeArguments, completionIdentifier, positions, K_TYPE);
 	}
 
@@ -54,25 +59,25 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 	 * @param positions
 	 * @param kind
 	 */
-	public CompletionOnParameterizedQualifiedTypeReference(char[][] tokens,	TypeReference[][] typeArguments, char[] completionIdentifier, long[] positions, int kind) {
+	public CompletionOnParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[][] typeArguments, char[] completionIdentifier, long[] positions, int kind) {
 		super(tokens, typeArguments, 0, positions);
-		this.completionIdentifier = completionIdentifier;
-		this.kind = kind;
+		this.completionIdentifier= completionIdentifier;
+		this.kind= kind;
 	}
 
-	public boolean isClass(){
+	public boolean isClass() {
 		return this.kind == K_CLASS;
 	}
 
-	public boolean isInterface(){
+	public boolean isInterface() {
 		return this.kind == K_INTERFACE;
 	}
 
-	public boolean isException(){
+	public boolean isException() {
 		return this.kind == K_EXCEPTION;
 	}
 
-	public boolean isSuperType(){
+	public boolean isSuperType() {
 		return this.kind == K_CLASS || this.kind == K_INTERFACE;
 	}
 
@@ -88,27 +93,27 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		switch (this.kind) {
-			case K_CLASS :
+			case K_CLASS:
 				output.append("<CompleteOnClass:");//$NON-NLS-1$
 				break;
-			case K_INTERFACE :
+			case K_INTERFACE:
 				output.append("<CompleteOnInterface:");//$NON-NLS-1$
 				break;
-			case K_EXCEPTION :
+			case K_EXCEPTION:
 				output.append("<CompleteOnException:");//$NON-NLS-1$
 				break;
-			default :
+			default:
 				output.append("<CompleteOnType:");//$NON-NLS-1$
 				break;
 		}
-		int length = this.tokens.length;
-		for (int i = 0; i < length - 1; i++) {
+		int length= this.tokens.length;
+		for (int i= 0; i < length - 1; i++) {
 			output.append(this.tokens[i]);
-			TypeReference[] typeArgument = this.typeArguments[i];
+			TypeReference[] typeArgument= this.typeArguments[i];
 			if (typeArgument != null) {
 				output.append('<');
-				int max = typeArgument.length - 1;
-				for (int j = 0; j < max; j++) {
+				int max= typeArgument.length - 1;
+				for (int j= 0; j < max; j++) {
 					typeArgument[j].print(0, output);
 					output.append(", ");//$NON-NLS-1$
 				}
@@ -118,11 +123,11 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 			output.append('.');
 		}
 		output.append(this.tokens[length - 1]);
-		TypeReference[] typeArgument = this.typeArguments[length - 1];
+		TypeReference[] typeArgument= this.typeArguments[length - 1];
 		if (typeArgument != null) {
 			output.append('<');
-			int max = typeArgument.length - 1;
-			for (int j = 0; j < max; j++) {
+			int max= typeArgument.length - 1;
+			for (int j= 0; j < max; j++) {
 				typeArgument[j].print(0, output);
 				output.append(", ");//$NON-NLS-1$
 			}

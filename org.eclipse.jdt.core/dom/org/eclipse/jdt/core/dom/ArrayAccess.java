@@ -16,12 +16,12 @@ import java.util.List;
 
 /**
  * Array access expression AST node type.
- *
+ * 
  * <pre>
  * ArrayAccess:
  *    Expression <b>[</b> Expression <b>]</b>
  * </pre>
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -29,42 +29,41 @@ public class ArrayAccess extends Expression {
 
 	/**
 	 * The "array" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor ARRAY_PROPERTY =
-		new ChildPropertyDescriptor(ArrayAccess.class, "array", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor ARRAY_PROPERTY=
+			new ChildPropertyDescriptor(ArrayAccess.class, "array", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "index" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor INDEX_PROPERTY =
-		new ChildPropertyDescriptor(ArrayAccess.class, "index", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor INDEX_PROPERTY=
+			new ChildPropertyDescriptor(ArrayAccess.class, "index", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(3);
+		List properyList= new ArrayList(3);
 		createPropertyList(ArrayAccess.class, properyList);
 		addProperty(ARRAY_PROPERTY, properyList);
 		addProperty(INDEX_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -72,25 +71,22 @@ public class ArrayAccess extends Expression {
 	}
 
 	/**
-	 * The array expression; lazily initialized; defaults to an unspecified,
-	 * but legal, expression.
+	 * The array expression; lazily initialized; defaults to an unspecified, but legal, expression.
 	 */
-	private Expression arrayExpression = null;
+	private Expression arrayExpression= null;
 
 	/**
-	 * The index expression; lazily initialized; defaults to an unspecified,
-	 * but legal, expression.
+	 * The index expression; lazily initialized; defaults to an unspecified, but legal, expression.
 	 */
-	private Expression indexExpression = null;
+	private Expression indexExpression= null;
 
 	/**
-	 * Creates a new unparented array access expression node owned by the given
-	 * AST. By default, the array and index expresssions are unspecified,
-	 * but legal.
+	 * Creates a new unparented array access expression node owned by the given AST. By default, the
+	 * array and index expresssions are unspecified, but legal.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	ArrayAccess(AST ast) {
@@ -112,7 +108,7 @@ public class ArrayAccess extends Expression {
 			if (get) {
 				return getArray();
 			} else {
-				setArray((Expression) child);
+				setArray((Expression)child);
 				return null;
 			}
 		}
@@ -120,7 +116,7 @@ public class ArrayAccess extends Expression {
 			if (get) {
 				return getIndex();
 			} else {
-				setIndex((Expression) child);
+				setIndex((Expression)child);
 				return null;
 			}
 		}
@@ -139,10 +135,10 @@ public class ArrayAccess extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		ArrayAccess result = new ArrayAccess(target);
+		ArrayAccess result= new ArrayAccess(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setArray((Expression) getArray().clone(target));
-		result.setIndex((Expression) getIndex().clone(target));
+		result.setArray((Expression)getArray().clone(target));
+		result.setIndex((Expression)getIndex().clone(target));
 		return result;
 	}
 
@@ -158,7 +154,7 @@ public class ArrayAccess extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getArray());
@@ -169,7 +165,7 @@ public class ArrayAccess extends Expression {
 
 	/**
 	 * Returns the array expression of this array access expression.
-	 *
+	 * 
 	 * @return the array expression node
 	 */
 	public Expression getArray() {
@@ -178,7 +174,7 @@ public class ArrayAccess extends Expression {
 			synchronized (this) {
 				if (this.arrayExpression == null) {
 					preLazyInit();
-					this.arrayExpression = new SimpleName(this.ast);
+					this.arrayExpression= new SimpleName(this.ast);
 					postLazyInit(this.arrayExpression, ARRAY_PROPERTY);
 				}
 			}
@@ -188,14 +184,14 @@ public class ArrayAccess extends Expression {
 
 	/**
 	 * Sets the array expression of this array access expression.
-	 *
+	 * 
 	 * @param expression the array expression node
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setArray(Expression expression) {
 		if (expression == null) {
@@ -203,15 +199,15 @@ public class ArrayAccess extends Expression {
 		}
 		// an ArrayAccess may occur inside an Expression
 		// must check cycles
-		ASTNode oldChild = this.arrayExpression;
+		ASTNode oldChild= this.arrayExpression;
 		preReplaceChild(oldChild, expression, ARRAY_PROPERTY);
-		this.arrayExpression = expression;
+		this.arrayExpression= expression;
 		postReplaceChild(oldChild, expression, ARRAY_PROPERTY);
 	}
 
 	/**
 	 * Returns the index expression of this array access expression.
-	 *
+	 * 
 	 * @return the index expression node
 	 */
 	public Expression getIndex() {
@@ -220,7 +216,7 @@ public class ArrayAccess extends Expression {
 			synchronized (this) {
 				if (this.indexExpression == null) {
 					preLazyInit();
-					this.indexExpression = new SimpleName(this.ast);
+					this.indexExpression= new SimpleName(this.ast);
 					postLazyInit(this.indexExpression, INDEX_PROPERTY);
 				}
 			}
@@ -230,14 +226,14 @@ public class ArrayAccess extends Expression {
 
 	/**
 	 * Sets the index expression of this array access expression.
-	 *
+	 * 
 	 * @param expression the index expression node
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setIndex(Expression expression) {
 		if (expression == null) {
@@ -245,9 +241,9 @@ public class ArrayAccess extends Expression {
 		}
 		// an ArrayAccess may occur inside an Expression
 		// must check cycles
-		ASTNode oldChild = this.indexExpression;
+		ASTNode oldChild= this.indexExpression;
 		preReplaceChild(oldChild, expression, INDEX_PROPERTY);
-		this.indexExpression = expression;
+		this.indexExpression= expression;
 		postReplaceChild(oldChild, expression, INDEX_PROPERTY);
 	}
 
@@ -262,10 +258,8 @@ public class ArrayAccess extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.arrayExpression == null ? 0 : getArray().treeSize())
-			+ (this.indexExpression == null ? 0 : getIndex().treeSize());
+		return memSize()
+				+ (this.arrayExpression == null ? 0 : getArray().treeSize())
+				+ (this.indexExpression == null ? 0 : getIndex().treeSize());
 	}
 }
-

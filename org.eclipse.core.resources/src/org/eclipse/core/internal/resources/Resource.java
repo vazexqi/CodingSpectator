@@ -19,104 +19,23 @@ package org.eclipse.core.internal.resources;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileInfo;
-import org.eclipse.core.filesystem.IFileStore;
+import java.util.*;
+import org.eclipse.core.filesystem.*;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.filesystem.provider.FileInfo;
 import org.eclipse.core.internal.events.LifecycleEvent;
 import org.eclipse.core.internal.localstore.FileSystemResourceManager;
 import org.eclipse.core.internal.properties.IPropertyManager;
-import org.eclipse.core.internal.utils.FileUtil;
-import org.eclipse.core.internal.utils.Messages;
-import org.eclipse.core.internal.utils.Policy;
-import org.eclipse.core.internal.utils.WrappedRuntimeException;
-import org.eclipse.core.internal.watson.ElementTree;
-import org.eclipse.core.internal.watson.ElementTreeIterator;
-import org.eclipse.core.internal.watson.IElementContentVisitor;
-import org.eclipse.core.internal.watson.IPathRequestor;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IPathVariableManager;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceProxy;
-import org.eclipse.core.resources.IResourceProxyVisitor;
-import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourceAttributes;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.internal.utils.*;
+import org.eclipse.core.internal.watson.*;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.team.IMoveDeleteHook;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.osgi.util.NLS;
 
-/**
- * 
- * 
- * @author Stas Negara - Added field resourceListener and assigned a default stub to it. Added event
- *         notifications to methods move, copy, delete, and refreshLocal.
- * 
- */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
-
-	//CODINGSPECTATOR
-	public static IResourceListener resourceListener= new IResourceListener() { //default stub that does nothing
-
-		public void createdResource(IResource resource, int updateFlags, boolean success) {
-		}
-
-		public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
-		}
-
-		public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success) {
-		}
-
-		public void deletedResource(IResource resource, int updateFlags, boolean success) {
-		}
-
-		public void externallyModifiedResource(IResource resource, boolean isDeleted) {
-		}
-
-		public void externallyCreatedResource(IResource resource) {
-		}
-
-		public void refreshedResource(IResource resource) {
-		}
-
-		public void savedFile(IFile file, boolean success) {
-		}
-
-		public void aboutToSaveCompareEditor(Object compareEditor) {
-		}
-
-		public void savedCompareEditor(Object compareEditor) {
-		}
-	};
-
 	/* package */IPath path;
 
 	/* package */Workspace workspace;
@@ -614,8 +533,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			checkValidPath(destination, getType(), false);
 			Resource destResource= workspace.newResource(destination, getType());
 			final ISchedulingRule rule= workspace.getRuleFactory().copyRule(this, destResource);
-			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
-			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.copy API
@@ -623,12 +540,10 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				assertCopyRequirements(destination, getType(), updateFlags);
 				workspace.beginOperation(true);
 				getLocalManager().copy(this, destResource, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork));
-				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				resourceListener.copiedResource(this, destination, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -644,7 +559,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		copy(destDesc, updateFlags, monitor);
 	}
 
-	//CODINGSPECTATOR - Note: Did not find the callers of this method. Anyway, copying of children will be recorded in copy(IPath...).
 	/* (non-Javadoc)
 	 * Used when a folder is to be copied to a project.
 	 * @see IResource#copy(IProjectDescription, int, IProgressMonitor)
@@ -784,7 +698,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		}
 	}
 
-
 	/* (non-Javadoc)
 	 * @see IResource#createMarker(String)
 	 */
@@ -841,8 +754,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			monitor.beginTask("", Policy.totalWork * 1000); //$NON-NLS-1$
 			monitor.subTask(message);
 			final ISchedulingRule rule= workspace.getRuleFactory().deleteRule(this);
-			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
-			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// if there is no resource then there is nothing to delete so just return
@@ -885,12 +796,10 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				//make sure the rule factory is cleared on project deletion
 				if (getType() == PROJECT)
 					((Rules)workspace.getRuleFactory()).setRuleFactory((IProject)this, null);
-				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				resourceListener.deletedResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork * 1000));
 			}
 		} finally {
@@ -1661,8 +1570,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			checkValidPath(destination, getType(), false);
 			Resource destResource= workspace.newResource(destination, getType());
 			final ISchedulingRule rule= workspace.getRuleFactory().moveRule(this, destResource);
-			//CODINGSPECTATOR - added variable 'fullSuccess' and all code accessing it.
-			boolean fullSuccess= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.move API
@@ -1692,12 +1599,10 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				}
 				if (!tree.getStatus().isOK())
 					throw new ResourceException(tree.getStatus());
-				fullSuccess= success;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				resourceListener.movedResource(this, destination, updateFlags, fullSuccess);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -1742,8 +1647,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				workspace.prepareOperation(rule, monitor);
 				if (!isRoot && !getProject().isAccessible())
 					return;
-				if (!exists() && isFiltered())
-					return;
 				workspace.beginOperation(true);
 				if (getType() == IResource.PROJECT || getType() == IResource.ROOT)
 					workspace.broadcastEvent(LifecycleEvent.newEvent(LifecycleEvent.PRE_REFRESH, this));
@@ -1760,8 +1663,6 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				Policy.log(e);
 				throw e;
 			} finally {
-				//CODINGSPECTATOR
-				resourceListener.refreshedResource(this);
 				workspace.endOperation(rule, build, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

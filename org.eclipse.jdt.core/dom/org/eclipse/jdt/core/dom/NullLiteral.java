@@ -16,34 +16,31 @@ import java.util.List;
 
 /**
  * Null literal node.
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class NullLiteral extends Expression {
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(1);
+		List propertyList= new ArrayList(1);
 		createPropertyList(NullLiteral.class, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -55,7 +52,7 @@ public class NullLiteral extends Expression {
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	NullLiteral(AST ast) {
@@ -80,7 +77,7 @@ public class NullLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		NullLiteral result = new NullLiteral(target);
+		NullLiteral result= new NullLiteral(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		return result;
 	}
@@ -115,4 +112,3 @@ public class NullLiteral extends Expression {
 		return memSize();
 	}
 }
-

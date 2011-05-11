@@ -16,12 +16,12 @@ import java.util.List;
 
 /**
  * Assert statement AST node type.
- *
+ * 
  * <pre>
  * AssertStatement:
  *    <b>assert</b> Expression [ <b>:</b> Expression ] <b>;</b>
  * </pre>
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -29,42 +29,41 @@ public class AssertStatement extends Statement {
 
 	/**
 	 * The "expression" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
-		new ChildPropertyDescriptor(AssertStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY=
+			new ChildPropertyDescriptor(AssertStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "message" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor MESSAGE_PROPERTY =
-		new ChildPropertyDescriptor(AssertStatement.class, "message", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor MESSAGE_PROPERTY=
+			new ChildPropertyDescriptor(AssertStatement.class, "message", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(3);
+		List properyList= new ArrayList(3);
 		createPropertyList(AssertStatement.class, properyList);
 		addProperty(EXPRESSION_PROPERTY, properyList);
 		addProperty(MESSAGE_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -72,24 +71,22 @@ public class AssertStatement extends Statement {
 	}
 
 	/**
-	 * The expression; lazily initialized; defaults to a unspecified, but legal,
-	 * expression.
+	 * The expression; lazily initialized; defaults to a unspecified, but legal, expression.
 	 */
-	private Expression expression = null;
+	private Expression expression= null;
 
 	/**
 	 * The message expression; <code>null</code> for none; defaults to none.
 	 */
-	private Expression optionalMessageExpression = null;
+	private Expression optionalMessageExpression= null;
 
 	/**
-	 * Creates a new unparented assert statement node owned by the given
-	 * AST. By default, the assert statement has an unspecified, but legal,
-	 * expression, and not message expression.
+	 * Creates a new unparented assert statement node owned by the given AST. By default, the assert
+	 * statement has an unspecified, but legal, expression, and not message expression.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	AssertStatement(AST ast) {
@@ -111,7 +108,7 @@ public class AssertStatement extends Statement {
 			if (get) {
 				return getExpression();
 			} else {
-				setExpression((Expression) child);
+				setExpression((Expression)child);
 				return null;
 			}
 		}
@@ -119,7 +116,7 @@ public class AssertStatement extends Statement {
 			if (get) {
 				return getMessage();
 			} else {
-				setMessage((Expression) child);
+				setMessage((Expression)child);
 				return null;
 			}
 		}
@@ -138,13 +135,13 @@ public class AssertStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		AssertStatement result = new AssertStatement(target);
+		AssertStatement result= new AssertStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		result.setExpression(
-			(Expression) ASTNode.copySubtree(target, getExpression()));
+				(Expression)ASTNode.copySubtree(target, getExpression()));
 		result.setMessage(
-			(Expression) ASTNode.copySubtree(target, getMessage()));
+				(Expression)ASTNode.copySubtree(target, getMessage()));
 		return result;
 	}
 
@@ -160,7 +157,7 @@ public class AssertStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
@@ -171,7 +168,7 @@ public class AssertStatement extends Statement {
 
 	/**
 	 * Returns the first expression of this assert statement.
-	 *
+	 * 
 	 * @return the expression node
 	 */
 	public Expression getExpression() {
@@ -180,7 +177,7 @@ public class AssertStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
+					this.expression= new SimpleName(this.ast);
 					postLazyInit(this.expression, EXPRESSION_PROPERTY);
 				}
 			}
@@ -190,32 +187,31 @@ public class AssertStatement extends Statement {
 
 	/**
 	 * Sets the first expression of this assert statement.
-	 *
+	 * 
 	 * @param expression the new expression node
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setExpression(Expression expression) {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
 		// an AssertStatement may occur inside an Expression - must check cycles
-		ASTNode oldChild = this.expression;
+		ASTNode oldChild= this.expression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.expression = expression;
+		this.expression= expression;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
-	 * Returns the message expression of this assert statement, or
-	 * <code>null</code> if there is none.
-	 *
-	 * @return the message expression node, or <code>null</code> if there
-	 *    is none
+	 * Returns the message expression of this assert statement, or <code>null</code> if there is
+	 * none.
+	 * 
+	 * @return the message expression node, or <code>null</code> if there is none
 	 */
 	public Expression getMessage() {
 		return this.optionalMessageExpression;
@@ -223,21 +219,20 @@ public class AssertStatement extends Statement {
 
 	/**
 	 * Sets or clears the message expression of this assert statement.
-	 *
-	 * @param expression the message expression node, or <code>null</code> if
-	 *    there is none
+	 * 
+	 * @param expression the message expression node, or <code>null</code> if there is none
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setMessage(Expression expression) {
 		// an AsertStatement may occur inside an Expression - must check cycles
-		ASTNode oldChild = this.optionalMessageExpression;
+		ASTNode oldChild= this.optionalMessageExpression;
 		preReplaceChild(oldChild, expression, MESSAGE_PROPERTY);
-		this.optionalMessageExpression = expression;
+		this.optionalMessageExpression= expression;
 		postReplaceChild(oldChild, expression, MESSAGE_PROPERTY);
 	}
 
@@ -252,11 +247,9 @@ public class AssertStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.expression == null ? 0 : getExpression().treeSize())
-			+ (this.optionalMessageExpression == null ? 0 : getMessage().treeSize());
+		return memSize()
+				+ (this.expression == null ? 0 : getExpression().treeSize())
+				+ (this.optionalMessageExpression == null ? 0 : getMessage().treeSize());
 
 	}
 }
-

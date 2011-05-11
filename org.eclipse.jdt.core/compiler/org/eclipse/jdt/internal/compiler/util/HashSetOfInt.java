@@ -19,6 +19,7 @@ public final class HashSetOfInt implements Cloneable {
 	public int[] set;
 
 	public int elementSize; // number of elements in the table
+
 	int threshold;
 
 	public HashSetOfInt() {
@@ -27,52 +28,52 @@ public final class HashSetOfInt implements Cloneable {
 
 	public HashSetOfInt(int size) {
 
-		this.elementSize = 0;
-		this.threshold = size; // size represents the expected number of elements
-		int extraRoom = (int) (size * 1.75f);
+		this.elementSize= 0;
+		this.threshold= size; // size represents the expected number of elements
+		int extraRoom= (int)(size * 1.75f);
 		if (this.threshold == extraRoom)
 			extraRoom++;
-		this.set = new int[extraRoom];
+		this.set= new int[extraRoom];
 	}
 
 	public Object clone() throws CloneNotSupportedException {
-		HashSetOfInt result = (HashSetOfInt) super.clone();
-		result.elementSize = this.elementSize;
-		result.threshold = this.threshold;
+		HashSetOfInt result= (HashSetOfInt)super.clone();
+		result.elementSize= this.elementSize;
+		result.threshold= this.threshold;
 
-		int length = this.set.length;
-		result.set = new int[length];
+		int length= this.set.length;
+		result.set= new int[length];
 		System.arraycopy(this.set, 0, result.set, 0, length);
 
 		return result;
 	}
 
 	public boolean contains(int element) {
-		int length = this.set.length;
-		int index = element % length;
+		int length= this.set.length;
+		int index= element % length;
 		int currentElement;
-		while ((currentElement = this.set[index]) != 0) {
+		while ((currentElement= this.set[index]) != 0) {
 			if (currentElement == element)
 				return true;
 			if (++index == length) {
-				index = 0;
+				index= 0;
 			}
 		}
 		return false;
 	}
 
 	public int add(int element) {
-		int length = this.set.length;
-		int index = element % length;
+		int length= this.set.length;
+		int index= element % length;
 		int currentElement;
-		while ((currentElement = this.set[index]) != 0) {
+		while ((currentElement= this.set[index]) != 0) {
 			if (currentElement == element)
-				return this.set[index] = element;
+				return this.set[index]= element;
 			if (++index == length) {
-				index = 0;
+				index= 0;
 			}
 		}
-		this.set[index] = element;
+		this.set[index]= element;
 
 		// assumes the threshold is never equal to the size of the table
 		if (++this.elementSize > this.threshold)
@@ -81,19 +82,19 @@ public final class HashSetOfInt implements Cloneable {
 	}
 
 	public int remove(int element) {
-		int length = this.set.length;
-		int index = element % length;
+		int length= this.set.length;
+		int index= element % length;
 		int currentElement;
-		while ((currentElement = this.set[index]) != 0) {
+		while ((currentElement= this.set[index]) != 0) {
 			if (currentElement == element) {
-				int existing = this.set[index];
+				int existing= this.set[index];
 				this.elementSize--;
-				this.set[index] = 0;
+				this.set[index]= 0;
 				rehash();
 				return existing;
 			}
 			if (++index == length) {
-				index = 0;
+				index= 0;
 			}
 		}
 		return 0;
@@ -101,14 +102,14 @@ public final class HashSetOfInt implements Cloneable {
 
 	private void rehash() {
 
-		HashSetOfInt newHashSet = new HashSetOfInt(this.elementSize * 2);		// double the number of expected elements
+		HashSetOfInt newHashSet= new HashSetOfInt(this.elementSize * 2); // double the number of expected elements
 		int currentElement;
-		for (int i = this.set.length; --i >= 0;)
-			if ((currentElement = this.set[i]) != 0)
+		for (int i= this.set.length; --i >= 0;)
+			if ((currentElement= this.set[i]) != 0)
 				newHashSet.add(currentElement);
 
-		this.set = newHashSet.set;
-		this.threshold = newHashSet.threshold;
+		this.set= newHashSet.set;
+		this.threshold= newHashSet.threshold;
 	}
 
 	public int size() {
@@ -116,12 +117,12 @@ public final class HashSetOfInt implements Cloneable {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		int element;
-		for (int i = 0, length = this.set.length; i < length; i++)
-			if ((element = this.set[i]) != 0) {
+		for (int i= 0, length= this.set.length; i < length; i++)
+			if ((element= this.set[i]) != 0) {
 				buffer.append(element);
-				if (i != length-1)
+				if (i != length - 1)
 					buffer.append('\n');
 			}
 		return buffer.toString();

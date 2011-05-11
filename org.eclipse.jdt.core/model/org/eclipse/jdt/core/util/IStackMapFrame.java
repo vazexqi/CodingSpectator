@@ -12,9 +12,9 @@ package org.eclipse.jdt.core.util;
 
 /**
  * Description of a stack map frame as specified in the JVM specifications.
- *
+ * 
  * This interface may be implemented by clients.
- *
+ * 
  * @since 3.2
  */
 public interface IStackMapFrame {
@@ -55,47 +55,55 @@ public interface IStackMapFrame {
 	 * <td>255</td>
 	 * </tr>
 	 * </table>
-	 *
+	 * 
 	 * @return the frame type for this entry
 	 */
 	int getFrameType();
 
 	/**
 	 * Answer back the offset delta.
-	 * <p>This is not defined only for the frame types SAME and SAME_LOCALS_1_STACK_ITEM.</p>
-	 *
+	 * <p>
+	 * This is not defined only for the frame types SAME and SAME_LOCALS_1_STACK_ITEM.
+	 * </p>
+	 * 
 	 * @return the offset delta
 	 */
 	int getOffsetDelta();
 
 	/**
 	 * Answer back the number of locals.
-	 * <p>This is defined only for the frame type FULL_FRAME.</p>
-	 *
+	 * <p>
+	 * This is defined only for the frame type FULL_FRAME.
+	 * </p>
+	 * 
 	 * @return the number of locals
 	 */
 	int getNumberOfLocals();
 
 	/**
 	 * Answer back verification infos for the defined locals.
-	 * <p>This is defined only for frame types APPEND and FULL_FRAME.
-	 *
+	 * <p>
+	 * This is defined only for frame types APPEND and FULL_FRAME.
+	 * 
 	 * @return verification infos for the defined locals
 	 */
 	IVerificationTypeInfo[] getLocals();
 
 	/**
 	 * Answer back the number of stack items
-	 * <p>This is defined only for the frame types SAME_LOCALS_1_STACK_ITEM, SAME_LOCALS_1_STACK_ITEM_EXTENDED and FULL_FRAME.
-	 * For SAME_LOCALS_1_STACK_ITEM and SAME_LOCALS_1_STACK_ITEM_EXTENDED, the answer is implicitely 1.</p>
-	 *
+	 * <p>
+	 * This is defined only for the frame types SAME_LOCALS_1_STACK_ITEM,
+	 * SAME_LOCALS_1_STACK_ITEM_EXTENDED and FULL_FRAME. For SAME_LOCALS_1_STACK_ITEM and
+	 * SAME_LOCALS_1_STACK_ITEM_EXTENDED, the answer is implicitely 1.
+	 * </p>
+	 * 
 	 * @return the number of stack items
 	 */
 	int getNumberOfStackItems();
 
 	/**
 	 * Answer back the verification infos for the stack items.
-	 *
+	 * 
 	 * @return the verification infos for the stack items
 	 */
 	IVerificationTypeInfo[] getStackItems();

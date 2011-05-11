@@ -54,8 +54,8 @@ public class CancelableNameEnvironment extends SearchableEnvironment implements 
 		checkCanceled();
 		super.findTypes(prefix, findMembers, camelCaseMatch, searchFor, storage, progressMonitor);
 	}
-	
+
 	public void setMonitor(IProgressMonitor monitor) {
-		this.monitor = monitor;
+		this.monitor= monitor;
 	}
 }

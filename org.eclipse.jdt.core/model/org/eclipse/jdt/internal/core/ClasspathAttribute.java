@@ -16,33 +16,35 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ClasspathAttribute implements IClasspathAttribute {
 
 	private String name;
+
 	private String value;
 
 	public ClasspathAttribute(String name, String value) {
-		this.name = name;
-		this.value = value;
+		this.name= name;
+		this.value= value;
 	}
 
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ClasspathAttribute)) return false;
-		ClasspathAttribute other = (ClasspathAttribute) obj;
+		if (!(obj instanceof ClasspathAttribute))
+			return false;
+		ClasspathAttribute other= (ClasspathAttribute)obj;
 		return this.name.equals(other.name) && this.value.equals(other.value);
 	}
 
-    public String getName() {
+	public String getName() {
 		return this.name;
-    }
+	}
 
-    public String getValue() {
+	public String getValue() {
 		return this.value;
-    }
+	}
 
-    public int hashCode() {
-     	return Util.combineHashCodes(this.name.hashCode(), this.value.hashCode());
-    }
+	public int hashCode() {
+		return Util.combineHashCodes(this.name.hashCode(), this.value.hashCode());
+	}
 
-    public String toString() {
-    	return this.name + "=" + this.value; //$NON-NLS-1$
-    }
+	public String toString() {
+		return this.name + "=" + this.value; //$NON-NLS-1$
+	}
 
 }

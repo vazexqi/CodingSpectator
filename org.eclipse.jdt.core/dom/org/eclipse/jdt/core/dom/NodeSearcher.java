@@ -22,78 +22,80 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
 class NodeSearcher extends ASTVisitor {
 	public org.eclipse.jdt.internal.compiler.ast.ASTNode found;
+
 	public TypeDeclaration enclosingType;
+
 	public int position;
 
 	NodeSearcher(int position) {
-		this.position = position;
+		this.position= position;
 	}
 
 	public boolean visit(
-		ConstructorDeclaration constructorDeclaration,
-		ClassScope scope) {
+			ConstructorDeclaration constructorDeclaration,
+			ClassScope scope) {
 
 		if (constructorDeclaration.declarationSourceStart <= this.position
-			&& this.position <= constructorDeclaration.declarationSourceEnd) {
-				this.found = constructorDeclaration;
-				return false;
+				&& this.position <= constructorDeclaration.declarationSourceEnd) {
+			this.found= constructorDeclaration;
+			return false;
 		}
 		return true;
 	}
 
 	public boolean visit(
-		FieldDeclaration fieldDeclaration,
-		MethodScope scope) {
-			if (fieldDeclaration.declarationSourceStart <= this.position
+			FieldDeclaration fieldDeclaration,
+			MethodScope scope) {
+		if (fieldDeclaration.declarationSourceStart <= this.position
 				&& this.position <= fieldDeclaration.declarationSourceEnd) {
-					this.found = fieldDeclaration;
-					return false;
-			}
-			return true;
+			this.found= fieldDeclaration;
+			return false;
+		}
+		return true;
 	}
 
 	public boolean visit(Initializer initializer, MethodScope scope) {
 		if (initializer.declarationSourceStart <= this.position
-			&& this.position <= initializer.declarationSourceEnd) {
-				this.found = initializer;
-				return false;
+				&& this.position <= initializer.declarationSourceEnd) {
+			this.found= initializer;
+			return false;
 		}
 		return true;
 	}
 
 	public boolean visit(
-		TypeDeclaration memberTypeDeclaration,
-		ClassScope scope) {
-			if (memberTypeDeclaration.declarationSourceStart <= this.position
+			TypeDeclaration memberTypeDeclaration,
+			ClassScope scope) {
+		if (memberTypeDeclaration.declarationSourceStart <= this.position
 				&& this.position <= memberTypeDeclaration.declarationSourceEnd) {
-					this.enclosingType = memberTypeDeclaration;
-					return true;
+			this.enclosingType= memberTypeDeclaration;
+			return true;
 
-			}
-			return false;
+		}
+		return false;
 	}
 
 	public boolean visit(
-		MethodDeclaration methodDeclaration,
-		ClassScope scope) {
+			MethodDeclaration methodDeclaration,
+			ClassScope scope) {
 
 		if (methodDeclaration.declarationSourceStart <= this.position
-			&& this.position <= methodDeclaration.declarationSourceEnd) {
-				this.found = methodDeclaration;
-				return false;
+				&& this.position <= methodDeclaration.declarationSourceEnd) {
+			this.found= methodDeclaration;
+			return false;
 		}
 		return true;
 	}
 
 	public boolean visit(
-		TypeDeclaration typeDeclaration,
-		CompilationUnitScope scope) {
-			if (typeDeclaration.declarationSourceStart <= this.position
+			TypeDeclaration typeDeclaration,
+			CompilationUnitScope scope) {
+		if (typeDeclaration.declarationSourceStart <= this.position
 				&& this.position <= typeDeclaration.declarationSourceEnd) {
-					this.enclosingType = typeDeclaration;
-					return true;
-			}
-			return false;
+			this.enclosingType= typeDeclaration;
+			return true;
+		}
+		return false;
 	}
 
 }

@@ -20,48 +20,50 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 public abstract class ClasspathLocation implements FileSystem.Classpath,
 		SuffixConstants {
 
-	public static final int SOURCE = 1;
-	public static final int BINARY = 2;
+	public static final int SOURCE= 1;
+
+	public static final int BINARY= 2;
 
 	String path;
+
 	char[] normalizedPath;
+
 	public AccessRuleSet accessRuleSet;
 
 	public String destinationPath;
-		// destination path for compilation units that are reached through this
-		// classpath location; the coding is consistent with the one of
-		// Main.destinationPath:
-		// == null: unspecified, use whatever value is set by the enclosing
-		//          context, id est Main;
-		// == Main.NONE: absorbent element, do not output class files;
-		// else: use as the path of the directory into which class files must
-		//       be written.
-		// potentially carried by any entry that contains to be compiled files
+
+	// destination path for compilation units that are reached through this
+	// classpath location; the coding is consistent with the one of
+	// Main.destinationPath:
+	// == null: unspecified, use whatever value is set by the enclosing
+	//          context, id est Main;
+	// == Main.NONE: absorbent element, do not output class files;
+	// else: use as the path of the directory into which class files must
+	//       be written.
+	// potentially carried by any entry that contains to be compiled files
 
 	protected ClasspathLocation(AccessRuleSet accessRuleSet,
 			String destinationPath) {
-		this.accessRuleSet = accessRuleSet;
-		this.destinationPath = destinationPath;
+		this.accessRuleSet= accessRuleSet;
+		this.destinationPath= destinationPath;
 	}
 
 	/**
-	 * Return the first access rule which is violated when accessing a given
-	 * type, or null if no 'non accessible' access rule applies.
-	 *
-	 * @param qualifiedBinaryFileName
-	 *            tested type specification, formed as:
-	 *            "org/eclipse/jdt/core/JavaCore.class"; on systems that
-	 *            use \ as File.separator, the
-	 *            "org\eclipse\jdt\core\JavaCore.class" is accepted as well
-	 * @return the first access rule which is violated when accessing a given
-	 *         type, or null if none applies
+	 * Return the first access rule which is violated when accessing a given type, or null if no
+	 * 'non accessible' access rule applies.
+	 * 
+	 * @param qualifiedBinaryFileName tested type specification, formed as:
+	 *            "org/eclipse/jdt/core/JavaCore.class"; on systems that use \ as File.separator,
+	 *            the "org\eclipse\jdt\core\JavaCore.class" is accepted as well
+	 * @return the first access rule which is violated when accessing a given type, or null if none
+	 *         applies
 	 */
 	protected AccessRestriction fetchAccessRestriction(String qualifiedBinaryFileName) {
 		if (this.accessRuleSet == null)
 			return null;
-		char [] qualifiedTypeName = qualifiedBinaryFileName.
-			substring(0, qualifiedBinaryFileName.length() - SUFFIX_CLASS.length)
-			.toCharArray();
+		char[] qualifiedTypeName= qualifiedBinaryFileName.
+				substring(0, qualifiedBinaryFileName.length() - SUFFIX_CLASS.length)
+				.toCharArray();
 		if (File.separatorChar == '\\') {
 			CharOperation.replace(qualifiedTypeName, File.separatorChar, '/');
 		}

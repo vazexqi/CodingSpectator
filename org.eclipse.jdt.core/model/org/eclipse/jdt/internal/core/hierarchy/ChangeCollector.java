@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
-import java.util.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IImportContainer;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -30,22 +34,22 @@ public class ChangeCollector {
 	/*
 	 * A table from ITypes to TypeDeltas
 	 */
-	HashMap changes = new HashMap();
+	HashMap changes= new HashMap();
 
 	TypeHierarchy hierarchy;
 
 	public ChangeCollector(TypeHierarchy hierarchy) {
-		this.hierarchy = hierarchy;
+		this.hierarchy= hierarchy;
 	}
 
 	/*
 	 * Adds the children of the given delta to the list of changes.
 	 */
 	private void addAffectedChildren(IJavaElementDelta delta) throws JavaModelException {
-		IJavaElementDelta[] children = delta.getAffectedChildren();
-		for (int i = 0, length = children.length; i < length; i++) {
-			IJavaElementDelta child = children[i];
-			IJavaElement childElement = child.getElement();
+		IJavaElementDelta[] children= delta.getAffectedChildren();
+		for (int i= 0, length= children.length; i < length; i++) {
+			IJavaElementDelta child= children[i];
+			IJavaElement childElement= child.getElement();
 			switch (childElement.getElementType()) {
 				case IJavaElement.IMPORT_CONTAINER:
 					addChange((IImportContainer)childElement, child);
@@ -69,21 +73,21 @@ public class ChangeCollector {
 	 * Adds the given delta on a compilation unit to the list of changes.
 	 */
 	public void addChange(ICompilationUnit cu, IJavaElementDelta newDelta) throws JavaModelException {
-		int newKind = newDelta.getKind();
+		int newKind= newDelta.getKind();
 		switch (newKind) {
 			case IJavaElementDelta.ADDED:
-				ArrayList allTypes = new ArrayList();
+				ArrayList allTypes= new ArrayList();
 				getAllTypesFromElement(cu, allTypes);
-				for (int i = 0, length = allTypes.size(); i < length; i++) {
-					IType type = (IType)allTypes.get(i);
+				for (int i= 0, length= allTypes.size(); i < length; i++) {
+					IType type= (IType)allTypes.get(i);
 					addTypeAddition(type, (SimpleDelta)this.changes.get(type));
 				}
 				break;
 			case IJavaElementDelta.REMOVED:
-				allTypes = new ArrayList();
+				allTypes= new ArrayList();
 				getAllTypesFromHierarchy((JavaElement)cu, allTypes);
-				for (int i = 0, length = allTypes.size(); i < length; i++) {
-					IType type = (IType)allTypes.get(i);
+				for (int i= 0, length= allTypes.size(); i < length; i++) {
+					IType type= (IType)allTypes.get(i);
 					addTypeRemoval(type, (SimpleDelta)this.changes.get(type));
 				}
 				break;
@@ -94,12 +98,12 @@ public class ChangeCollector {
 	}
 
 	private void addChange(IImportContainer importContainer, IJavaElementDelta newDelta) throws JavaModelException {
-		int newKind = newDelta.getKind();
+		int newKind= newDelta.getKind();
 		if (newKind == IJavaElementDelta.CHANGED) {
 			addAffectedChildren(newDelta);
 			return;
 		}
-		SimpleDelta existingDelta = (SimpleDelta)this.changes.get(importContainer);
+		SimpleDelta existingDelta= (SimpleDelta)this.changes.get(importContainer);
 		if (existingDelta != null) {
 			switch (newKind) {
 				case IJavaElementDelta.ADDED:
@@ -114,10 +118,10 @@ public class ChangeCollector {
 						this.changes.remove(importContainer);
 					}
 					break;
-					// CHANGED handled above
+				// CHANGED handled above
 			}
 		} else {
-			SimpleDelta delta = new SimpleDelta();
+			SimpleDelta delta= new SimpleDelta();
 			switch (newKind) {
 				case IJavaElementDelta.ADDED:
 					delta.added();
@@ -131,8 +135,8 @@ public class ChangeCollector {
 	}
 
 	private void addChange(IImportDeclaration importDecl, IJavaElementDelta newDelta) {
-		SimpleDelta existingDelta = (SimpleDelta)this.changes.get(importDecl);
-		int newKind = newDelta.getKind();
+		SimpleDelta existingDelta= (SimpleDelta)this.changes.get(importDecl);
+		int newKind= newDelta.getKind();
 		if (existingDelta != null) {
 			switch (newKind) {
 				case IJavaElementDelta.ADDED:
@@ -150,7 +154,7 @@ public class ChangeCollector {
 				// CHANGED cannot happen for import declaration
 			}
 		} else {
-			SimpleDelta delta = new SimpleDelta();
+			SimpleDelta delta= new SimpleDelta();
 			switch (newKind) {
 				case IJavaElementDelta.ADDED:
 					delta.added();
@@ -167,21 +171,21 @@ public class ChangeCollector {
 	 * Adds a change for the given member (a method, a field or an initializer) and the types it defines.
 	 */
 	private void addChange(IMember member, IJavaElementDelta newDelta) throws JavaModelException {
-		int newKind = newDelta.getKind();
+		int newKind= newDelta.getKind();
 		switch (newKind) {
 			case IJavaElementDelta.ADDED:
-				ArrayList allTypes = new ArrayList();
+				ArrayList allTypes= new ArrayList();
 				getAllTypesFromElement(member, allTypes);
-				for (int i = 0, length = allTypes.size(); i < length; i++) {
-					IType innerType = (IType)allTypes.get(i);
+				for (int i= 0, length= allTypes.size(); i < length; i++) {
+					IType innerType= (IType)allTypes.get(i);
 					addTypeAddition(innerType, (SimpleDelta)this.changes.get(innerType));
 				}
 				break;
 			case IJavaElementDelta.REMOVED:
-				allTypes = new ArrayList();
+				allTypes= new ArrayList();
 				getAllTypesFromHierarchy((JavaElement)member, allTypes);
-				for (int i = 0, length = allTypes.size(); i < length; i++) {
-					IType type = (IType)allTypes.get(i);
+				for (int i= 0, length= allTypes.size(); i < length; i++) {
+					IType type= (IType)allTypes.get(i);
 					addTypeRemoval(type, (SimpleDelta)this.changes.get(type));
 				}
 				break;
@@ -195,24 +199,24 @@ public class ChangeCollector {
 	 * Adds a change for the given type and the types it defines.
 	 */
 	private void addChange(IType type, IJavaElementDelta newDelta) throws JavaModelException {
-		 int newKind = newDelta.getKind();
-		SimpleDelta existingDelta = (SimpleDelta)this.changes.get(type);
+		int newKind= newDelta.getKind();
+		SimpleDelta existingDelta= (SimpleDelta)this.changes.get(type);
 		switch (newKind) {
 			case IJavaElementDelta.ADDED:
 				addTypeAddition(type, existingDelta);
-				ArrayList allTypes = new ArrayList();
+				ArrayList allTypes= new ArrayList();
 				getAllTypesFromElement(type, allTypes);
-				for (int i = 0, length = allTypes.size(); i < length; i++) {
-					IType innerType = (IType)allTypes.get(i);
+				for (int i= 0, length= allTypes.size(); i < length; i++) {
+					IType innerType= (IType)allTypes.get(i);
 					addTypeAddition(innerType, (SimpleDelta)this.changes.get(innerType));
 				}
 				break;
 			case IJavaElementDelta.REMOVED:
 				addTypeRemoval(type, existingDelta);
-				allTypes = new ArrayList();
+				allTypes= new ArrayList();
 				getAllTypesFromHierarchy((JavaElement)type, allTypes);
-				for (int i = 0, length = allTypes.size(); i < length; i++) {
-					IType innerType = (IType)allTypes.get(i);
+				for (int i= 0, length= allTypes.size(); i < length; i++) {
+					IType innerType= (IType)allTypes.get(i);
 					addTypeRemoval(innerType, (SimpleDelta)this.changes.get(innerType));
 				}
 				break;
@@ -228,29 +232,29 @@ public class ChangeCollector {
 			switch (existingDelta.getKind()) {
 				case IJavaElementDelta.REMOVED:
 					// REMOVED then ADDED
-					boolean hasChange = false;
+					boolean hasChange= false;
 					if (hasSuperTypeChange(type)) {
 						existingDelta.superTypes();
-						hasChange = true;
+						hasChange= true;
 					}
 					if (hasVisibilityChange(type)) {
 						existingDelta.modifiers();
-						hasChange = true;
+						hasChange= true;
 					}
 					if (!hasChange) {
 						this.changes.remove(type);
 					}
 					break;
-					// CHANGED then ADDED
-					// or ADDED then ADDED: should not happen
+				// CHANGED then ADDED
+				// or ADDED then ADDED: should not happen
 			}
 		} else {
 			// check whether the type addition affects the hierarchy
-			String typeName = type.getElementName();
+			String typeName= type.getElementName();
 			if (this.hierarchy.hasSupertype(typeName)
 					|| this.hierarchy.subtypesIncludeSupertypeOf(type)
 					|| this.hierarchy.missingTypes.contains(typeName)) {
-				SimpleDelta delta = new SimpleDelta();
+				SimpleDelta delta= new SimpleDelta();
 				delta.added();
 				this.changes.put(type, delta);
 			}
@@ -262,39 +266,39 @@ public class ChangeCollector {
 			switch (existingDelta.getKind()) {
 				case IJavaElementDelta.CHANGED:
 					// CHANGED then CHANGED
-					int existingFlags = existingDelta.getFlags();
-					boolean hasChange = false;
+					int existingFlags= existingDelta.getFlags();
+					boolean hasChange= false;
 					if ((existingFlags & IJavaElementDelta.F_SUPER_TYPES) != 0
 							&& hasSuperTypeChange(type)) {
 						existingDelta.superTypes();
-						hasChange = true;
+						hasChange= true;
 					}
 					if ((existingFlags & IJavaElementDelta.F_MODIFIERS) != 0
 							&& hasVisibilityChange(type)) {
 						existingDelta.modifiers();
-						hasChange = true;
+						hasChange= true;
 					}
 					if (!hasChange) {
 						// super types and visibility are back to the ones in the existing hierarchy
 						this.changes.remove(type);
 					}
 					break;
-					// ADDED then CHANGED: leave it as ADDED
-					// REMOVED then CHANGED: should not happen
+				// ADDED then CHANGED: leave it as ADDED
+				// REMOVED then CHANGED: should not happen
 			}
 		} else {
 			// check whether the type change affects the hierarchy
-			SimpleDelta typeDelta = null;
+			SimpleDelta typeDelta= null;
 			if ((newFlags & IJavaElementDelta.F_SUPER_TYPES) != 0
 					&& this.hierarchy.includesTypeOrSupertype(type)) {
-				typeDelta = new SimpleDelta();
+				typeDelta= new SimpleDelta();
 				typeDelta.superTypes();
 			}
 			if ((newFlags & IJavaElementDelta.F_MODIFIERS) != 0
 					&& (this.hierarchy.hasSupertype(type.getElementName())
 						|| type.equals(this.hierarchy.focusType))) {
 				if (typeDelta == null) {
-					typeDelta = new SimpleDelta();
+					typeDelta= new SimpleDelta();
 				}
 				typeDelta.modifiers();
 			}
@@ -315,12 +319,12 @@ public class ChangeCollector {
 					// CHANGED then REMOVED
 					existingDelta.removed();
 					break;
-					// REMOVED then REMOVED: should not happen
+				// REMOVED then REMOVED: should not happen
 			}
 		} else {
 			// check whether the type removal affects the hierarchy
 			if (this.hierarchy.contains(type)) {
-				SimpleDelta typeDelta = new SimpleDelta();
+				SimpleDelta typeDelta= new SimpleDelta();
 				typeDelta.removed();
 				this.changes.put(type, typeDelta);
 			}
@@ -333,17 +337,17 @@ public class ChangeCollector {
 	private void getAllTypesFromElement(IJavaElement element, ArrayList allTypes) throws JavaModelException {
 		switch (element.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
-				IType[] types = ((ICompilationUnit)element).getTypes();
-				for (int i = 0, length = types.length; i < length; i++) {
-					IType type = types[i];
+				IType[] types= ((ICompilationUnit)element).getTypes();
+				for (int i= 0, length= types.length; i < length; i++) {
+					IType type= types[i];
 					allTypes.add(type);
 					getAllTypesFromElement(type, allTypes);
 				}
 				break;
 			case IJavaElement.TYPE:
-				types = ((IType)element).getTypes();
-				for (int i = 0, length = types.length; i < length; i++) {
-					IType type = types[i];
+				types= ((IType)element).getTypes();
+				for (int i= 0, length= types.length; i < length; i++) {
+					IType type= types[i];
 					allTypes.add(type);
 					getAllTypesFromElement(type, allTypes);
 				}
@@ -351,9 +355,9 @@ public class ChangeCollector {
 			case IJavaElement.INITIALIZER:
 			case IJavaElement.FIELD:
 			case IJavaElement.METHOD:
-				IJavaElement[] children = ((IMember)element).getChildren();
-				for (int i = 0, length = children.length; i < length; i++) {
-					IType type = (IType)children[i];
+				IJavaElement[] children= ((IMember)element).getChildren();
+				for (int i= 0, length= children.length; i < length; i++) {
+					IType type= (IType)children[i];
 					allTypes.add(type);
 					getAllTypesFromElement(type, allTypes);
 				}
@@ -367,7 +371,7 @@ public class ChangeCollector {
 	private void getAllTypesFromHierarchy(JavaElement element, ArrayList allTypes) {
 		switch (element.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
-				ArrayList types = (ArrayList)this.hierarchy.files.get(element);
+				ArrayList types= (ArrayList)this.hierarchy.files.get(element);
 				if (types != null) {
 					allTypes.addAll(types);
 				}
@@ -376,10 +380,10 @@ public class ChangeCollector {
 			case IJavaElement.INITIALIZER:
 			case IJavaElement.FIELD:
 			case IJavaElement.METHOD:
-				types = (ArrayList)this.hierarchy.files.get(((IMember)element).getCompilationUnit());
+				types= (ArrayList)this.hierarchy.files.get(((IMember)element).getCompilationUnit());
 				if (types != null) {
-					for (int i = 0, length = types.size(); i < length; i++) {
-						IType type = (IType)types.get(i);
+					for (int i= 0, length= types.size(); i < length; i++) {
+						IType type= (IType)types.get(i);
 						if (element.isAncestorOf(type)) {
 							allTypes.add(type);
 						}
@@ -391,21 +395,21 @@ public class ChangeCollector {
 
 	private boolean hasSuperTypeChange(IType type) throws JavaModelException {
 		// check super class
-		IType superclass = this.hierarchy.getSuperclass(type);
-		String existingSuperclassName = superclass == null ? null : superclass.getElementName();
-		String newSuperclassName = type.getSuperclassName();
+		IType superclass= this.hierarchy.getSuperclass(type);
+		String existingSuperclassName= superclass == null ? null : superclass.getElementName();
+		String newSuperclassName= type.getSuperclassName();
 		if (existingSuperclassName != null && !existingSuperclassName.equals(newSuperclassName)) {
 			return true;
 		}
 
 		// check super interfaces
-		IType[] existingSuperInterfaces = this.hierarchy.getSuperInterfaces(type);
-		String[] newSuperInterfaces = type.getSuperInterfaceNames();
+		IType[] existingSuperInterfaces= this.hierarchy.getSuperInterfaces(type);
+		String[] newSuperInterfaces= type.getSuperInterfaceNames();
 		if (existingSuperInterfaces.length != newSuperInterfaces.length) {
 			return true;
 		}
-		for (int i = 0, length = newSuperInterfaces.length; i < length; i++) {
-			String superInterfaceName = newSuperInterfaces[i];
+		for (int i= 0, length= newSuperInterfaces.length; i < length; i++) {
+			String superInterfaceName= newSuperInterfaces[i];
 			if (!superInterfaceName.equals(newSuperInterfaces[i])) {
 				return true;
 			}
@@ -415,8 +419,8 @@ public class ChangeCollector {
 	}
 
 	private boolean hasVisibilityChange(IType type) throws JavaModelException {
-		int existingFlags = this.hierarchy.getCachedFlags(type);
-		int newFlags = type.getFlags();
+		int existingFlags= this.hierarchy.getCachedFlags(type);
+		int newFlags= type.getFlags();
 		return existingFlags != newFlags;
 	}
 
@@ -428,10 +432,10 @@ public class ChangeCollector {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		Iterator iterator = this.changes.entrySet().iterator();
+		StringBuffer buffer= new StringBuffer();
+		Iterator iterator= this.changes.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry entry = (Map.Entry)iterator.next();
+			Map.Entry entry= (Map.Entry)iterator.next();
 			buffer.append(((JavaElement)entry.getKey()).toDebugString());
 			buffer.append(entry.getValue());
 			if (iterator.hasNext()) {

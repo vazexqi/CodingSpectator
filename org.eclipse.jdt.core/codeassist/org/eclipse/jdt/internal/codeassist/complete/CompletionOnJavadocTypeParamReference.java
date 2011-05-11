@@ -15,7 +15,8 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnJavadocTypeParamReference extends JavadocSingleTypeReference implements CompletionOnJavadoc {
-	public int completionFlags = JAVADOC;
+	public int completionFlags= JAVADOC;
+
 	public char[][] missingParams;
 
 	public CompletionOnJavadocTypeParamReference(char[] name, long pos, int start, int end) {
@@ -23,19 +24,19 @@ public class CompletionOnJavadocTypeParamReference extends JavadocSingleTypeRefe
 	}
 
 	public CompletionOnJavadocTypeParamReference(JavadocSingleTypeReference typeRef) {
-		super(typeRef.token, (((long)typeRef.sourceStart)<<32)+typeRef.sourceEnd, typeRef.tagSourceStart, typeRef.tagSourceStart);
+		super(typeRef.token, (((long)typeRef.sourceStart) << 32) + typeRef.sourceEnd, typeRef.tagSourceStart, typeRef.tagSourceStart);
 	}
 
 	/**
 	 * @param flags The completionFlags to set.
 	 */
 	public void addCompletionFlags(int flags) {
-		this.completionFlags |= flags;
+		this.completionFlags|= flags;
 	}
 
 	/**
 	 * Get completion node flags.
-	 *
+	 * 
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {
@@ -47,7 +48,8 @@ public class CompletionOnJavadocTypeParamReference extends JavadocSingleTypeRefe
 	 */
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompletionOnJavadocTypeParamReference:"); //$NON-NLS-1$
-		if (this.token != null) super.printExpression(indent, output);
+		if (this.token != null)
+			super.printExpression(indent, output);
 		return output.append('>');
 	}
 

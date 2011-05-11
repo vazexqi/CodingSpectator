@@ -23,7 +23,7 @@ public class ExternalJavaProject extends JavaProject {
 	/*
 	 * Note this name can be surfaced in the UI (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=128258)
 	 */
-	public static final String EXTERNAL_PROJECT_NAME = " "; //$NON-NLS-1$
+	public static final String EXTERNAL_PROJECT_NAME= " "; //$NON-NLS-1$
 
 	public ExternalJavaProject(IClasspathEntry[] rawClasspath) {
 		super(ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME), JavaModelManager.getJavaModelManager().getJavaModel());

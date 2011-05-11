@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ public class ByteConstant extends Constant {
 	}
 
 	private ByteConstant(byte value) {
-		this.value = value;
+		this.value= value;
 	}
 
 	public byte byteValue() {
@@ -27,7 +27,7 @@ public class ByteConstant extends Constant {
 	}
 
 	public char charValue() {
-		return (char) this.value;
+		return (char)this.value;
 	}
 
 	public double doubleValue() {
@@ -61,23 +61,5 @@ public class ByteConstant extends Constant {
 
 	public int typeID() {
 		return T_byte;
-	}
-
-	public int hashCode() {
-		return this.value;
-	}
-
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		ByteConstant other = (ByteConstant) obj;
-		return this.value == other.value;
 	}
 }

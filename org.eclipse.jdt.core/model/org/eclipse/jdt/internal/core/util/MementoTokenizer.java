@@ -13,29 +13,45 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class MementoTokenizer {
-	private static final String COUNT = Character.toString(JavaElement.JEM_COUNT);
-	private static final String JAVAPROJECT = Character.toString(JavaElement.JEM_JAVAPROJECT);
-	private static final String PACKAGEFRAGMENTROOT = Character.toString(JavaElement.JEM_PACKAGEFRAGMENTROOT);
-	private static final String PACKAGEFRAGMENT = Character.toString(JavaElement.JEM_PACKAGEFRAGMENT);
-	private static final String FIELD = Character.toString(JavaElement.JEM_FIELD);
-	private static final String METHOD = Character.toString(JavaElement.JEM_METHOD);
-	private static final String INITIALIZER = Character.toString(JavaElement.JEM_INITIALIZER);
-	private static final String COMPILATIONUNIT = Character.toString(JavaElement.JEM_COMPILATIONUNIT);
-	private static final String CLASSFILE = Character.toString(JavaElement.JEM_CLASSFILE);
-	private static final String TYPE = Character.toString(JavaElement.JEM_TYPE);
-	private static final String PACKAGEDECLARATION = Character.toString(JavaElement.JEM_PACKAGEDECLARATION);
-	private static final String IMPORTDECLARATION = Character.toString(JavaElement.JEM_IMPORTDECLARATION);
-	private static final String LOCALVARIABLE = Character.toString(JavaElement.JEM_LOCALVARIABLE);
-	private static final String TYPE_PARAMETER = Character.toString(JavaElement.JEM_TYPE_PARAMETER);
-	private static final String ANNOTATION = Character.toString(JavaElement.JEM_ANNOTATION);
+	private static final String COUNT= Character.toString(JavaElement.JEM_COUNT);
+
+	private static final String JAVAPROJECT= Character.toString(JavaElement.JEM_JAVAPROJECT);
+
+	private static final String PACKAGEFRAGMENTROOT= Character.toString(JavaElement.JEM_PACKAGEFRAGMENTROOT);
+
+	private static final String PACKAGEFRAGMENT= Character.toString(JavaElement.JEM_PACKAGEFRAGMENT);
+
+	private static final String FIELD= Character.toString(JavaElement.JEM_FIELD);
+
+	private static final String METHOD= Character.toString(JavaElement.JEM_METHOD);
+
+	private static final String INITIALIZER= Character.toString(JavaElement.JEM_INITIALIZER);
+
+	private static final String COMPILATIONUNIT= Character.toString(JavaElement.JEM_COMPILATIONUNIT);
+
+	private static final String CLASSFILE= Character.toString(JavaElement.JEM_CLASSFILE);
+
+	private static final String TYPE= Character.toString(JavaElement.JEM_TYPE);
+
+	private static final String PACKAGEDECLARATION= Character.toString(JavaElement.JEM_PACKAGEDECLARATION);
+
+	private static final String IMPORTDECLARATION= Character.toString(JavaElement.JEM_IMPORTDECLARATION);
+
+	private static final String LOCALVARIABLE= Character.toString(JavaElement.JEM_LOCALVARIABLE);
+
+	private static final String TYPE_PARAMETER= Character.toString(JavaElement.JEM_TYPE_PARAMETER);
+
+	private static final String ANNOTATION= Character.toString(JavaElement.JEM_ANNOTATION);
 
 	private final char[] memento;
+
 	private final int length;
-	private int index = 0;
+
+	private int index= 0;
 
 	public MementoTokenizer(String memento) {
-		this.memento = memento.toCharArray();
-		this.length = this.memento.length;
+		this.memento= memento.toCharArray();
+		this.length= this.memento.length;
 	}
 
 	public boolean hasMoreTokens() {
@@ -43,13 +59,13 @@ public class MementoTokenizer {
 	}
 
 	public String nextToken() {
-		int start = this.index;
-		StringBuffer buffer = null;
+		int start= this.index;
+		StringBuffer buffer= null;
 		switch (this.memento[this.index++]) {
 			case JavaElement.JEM_ESCAPE:
-				buffer = new StringBuffer();
+				buffer= new StringBuffer();
 				buffer.append(this.memento[this.index]);
-				start = ++this.index;
+				start= ++this.index;
 				break;
 			case JavaElement.JEM_COUNT:
 				return COUNT;
@@ -85,9 +101,10 @@ public class MementoTokenizer {
 		loop: while (this.index < this.length) {
 			switch (this.memento[this.index]) {
 				case JavaElement.JEM_ESCAPE:
-					if (buffer == null) buffer = new StringBuffer();
+					if (buffer == null)
+						buffer= new StringBuffer();
 					buffer.append(this.memento, start, this.index - start);
-					start = ++this.index;
+					start= ++this.index;
 					break;
 				case JavaElement.JEM_COUNT:
 				case JavaElement.JEM_JAVAPROJECT:

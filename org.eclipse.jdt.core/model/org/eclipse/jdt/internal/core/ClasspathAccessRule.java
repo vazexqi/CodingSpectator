@@ -27,7 +27,7 @@ public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	}
 
 	private static int toProblemId(int kind) {
-		boolean ignoreIfBetter = (kind & IAccessRule.IGNORE_IF_BETTER) != 0;
+		boolean ignoreIfBetter= (kind & IAccessRule.IGNORE_IF_BETTER) != 0;
 		switch (kind & ~IAccessRule.IGNORE_IF_BETTER) {
 			case K_NON_ACCESSIBLE:
 				return ignoreIfBetter ? IProblem.ForbiddenReference | AccessRule.IgnoreIfBetter : IProblem.ForbiddenReference;

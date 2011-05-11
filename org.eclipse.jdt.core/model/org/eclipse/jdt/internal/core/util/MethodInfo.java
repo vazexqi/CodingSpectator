@@ -27,16 +27,27 @@ import org.eclipse.jdt.core.util.IModifierConstants;
  */
 public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	private int accessFlags;
+
 	private int attributeBytes;
+
 	private IClassFileAttribute[] attributes;
+
 	private int attributesCount;
+
 	private ICodeAttribute codeAttribute;
+
 	private char[] descriptor;
+
 	private int descriptorIndex;
+
 	private IExceptionAttribute exceptionAttribute;
+
 	private boolean isDeprecated;
+
 	private boolean isSynthetic;
+
 	private char[] name;
+
 	private int nameIndex;
 
 	/**
@@ -46,81 +57,82 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	 * @param decodingFlags int
 	 */
 	public MethodInfo(byte classFileBytes[], IConstantPool constantPool, int offset, int decodingFlags)
-		throws ClassFormatException {
+			throws ClassFormatException {
 
-		boolean no_code_attribute = (decodingFlags & IClassFileReader.METHOD_BODIES) == 0;
-		final int flags = u2At(classFileBytes, 0, offset);
-		this.accessFlags = flags;
+		boolean no_code_attribute= (decodingFlags & IClassFileReader.METHOD_BODIES) == 0;
+		final int flags= u2At(classFileBytes, 0, offset);
+		this.accessFlags= flags;
 		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
-			this.isSynthetic = true;
+			this.isSynthetic= true;
 		}
 
-		this.nameIndex = u2At(classFileBytes, 2, offset);
-		IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.nameIndex);
+		this.nameIndex= u2At(classFileBytes, 2, offset);
+		IConstantPoolEntry constantPoolEntry= constantPool.decodeEntry(this.nameIndex);
 		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
-		this.name = constantPoolEntry.getUtf8Value();
+		this.name= constantPoolEntry.getUtf8Value();
 
-		this.descriptorIndex = u2At(classFileBytes, 4, offset);
-		constantPoolEntry = constantPool.decodeEntry(this.descriptorIndex);
+		this.descriptorIndex= u2At(classFileBytes, 4, offset);
+		constantPoolEntry= constantPool.decodeEntry(this.descriptorIndex);
 		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
-		this.descriptor = constantPoolEntry.getUtf8Value();
+		this.descriptor= constantPoolEntry.getUtf8Value();
 
-		this.attributesCount = u2At(classFileBytes, 6, offset);
-		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
+		this.attributesCount= u2At(classFileBytes, 6, offset);
+		this.attributes= ClassFileAttribute.NO_ATTRIBUTES;
 		if (this.attributesCount != 0) {
 			if (no_code_attribute && !isAbstract() && !isNative()) {
 				if (this.attributesCount != 1) {
-					this.attributes = new IClassFileAttribute[this.attributesCount - 1];
+					this.attributes= new IClassFileAttribute[this.attributesCount - 1];
 				}
 			} else {
-				this.attributes = new IClassFileAttribute[this.attributesCount];
+				this.attributes= new IClassFileAttribute[this.attributesCount];
 			}
 		}
-		int attributesIndex = 0;
-		int readOffset = 8;
-		for (int i = 0; i < this.attributesCount; i++) {
-			constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
+		int attributesIndex= 0;
+		int readOffset= 8;
+		for (int i= 0; i < this.attributesCount; i++) {
+			constantPoolEntry= constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
 			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 			}
-			char[] attributeName = constantPoolEntry.getUtf8Value();
+			char[] attributeName= constantPoolEntry.getUtf8Value();
 			if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
-				this.isDeprecated = true;
-				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.isDeprecated= true;
+				this.attributes[attributesIndex++]= new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-				this.isSynthetic = true;
-				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.isSynthetic= true;
+				this.attributes[attributesIndex++]= new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.CODE)) {
 				if (!no_code_attribute) {
-					this.codeAttribute = new CodeAttribute(classFileBytes, constantPool, offset + readOffset);
-					this.attributes[attributesIndex++] = this.codeAttribute;
+					this.codeAttribute= new CodeAttribute(classFileBytes, constantPool, offset + readOffset);
+					this.attributes[attributesIndex++]= this.codeAttribute;
 				}
 			} else if (equals(attributeName, IAttributeNamesConstants.EXCEPTIONS)) {
-				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
-				this.attributes[attributesIndex++] = this.exceptionAttribute;
+				this.exceptionAttribute= new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= this.exceptionAttribute;
 			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
-				this.attributes[attributesIndex++] = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS)) {
-				this.attributes[attributesIndex++] = new RuntimeVisibleAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new RuntimeVisibleAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS)) {
-				this.attributes[attributesIndex++] = new RuntimeInvisibleAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new RuntimeInvisibleAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS)) {
-				this.attributes[attributesIndex++] = new RuntimeVisibleParameterAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new RuntimeVisibleParameterAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS)) {
-				this.attributes[attributesIndex++] = new RuntimeInvisibleParameterAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new RuntimeInvisibleParameterAnnotationsAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else if (equals(attributeName, IAttributeNamesConstants.ANNOTATION_DEFAULT)) {
-				this.attributes[attributesIndex++] = new AnnotationDefaultAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new AnnotationDefaultAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {
-				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
+				this.attributes[attributesIndex++]= new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
-			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
+			readOffset+= (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
-		this.attributeBytes = readOffset;
+		this.attributeBytes= readOffset;
 	}
+
 	/**
 	 * @see IMethodInfo#getAccessFlags()
 	 */
@@ -134,6 +146,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	public int getAttributeCount() {
 		return this.attributesCount;
 	}
+
 	/**
 	 * @see IMethodInfo#getAttributes()
 	 */

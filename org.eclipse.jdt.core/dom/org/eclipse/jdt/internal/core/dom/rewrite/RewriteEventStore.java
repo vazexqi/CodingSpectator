@@ -10,7 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -21,14 +31,15 @@ import org.eclipse.text.edits.TextEditGroup;
 
 
 /**
- * Stores all rewrite events, descriptions of events and knows which nodes
- * are copy or move sources or tracked.
+ * Stores all rewrite events, descriptions of events and knows which nodes are copy or move sources
+ * or tracked.
  */
 public final class RewriteEventStore {
 
 
 	public static final class PropertyLocation {
 		private final ASTNode parent;
+
 		private final StructuralPropertyDescriptor property;
 
 		public PropertyLocation(ASTNode parent, StructuralPropertyDescriptor property) {
@@ -46,7 +57,7 @@ public final class RewriteEventStore {
 
 		public boolean equals(Object obj) {
 			if (obj != null && obj.getClass().equals(getClass())) {
-				PropertyLocation other= (PropertyLocation) obj;
+				PropertyLocation other= (PropertyLocation)obj;
 				return other.getParent().equals(getParent()) && other.getProperty().equals(getProperty());
 			}
 			return false;
@@ -59,13 +70,14 @@ public final class RewriteEventStore {
 	}
 
 	/**
-	 * Interface that allows to override the way how children are accessed from
-	 * a parent. Use this interface when the rewriter is set up on an already
-	 * modified AST's (as it is the case in the old ASTRewrite infrastructure)
+	 * Interface that allows to override the way how children are accessed from a parent. Use this
+	 * interface when the rewriter is set up on an already modified AST's (as it is the case in the
+	 * old ASTRewrite infrastructure)
 	 */
 	public static interface INodePropertyMapper {
 		/**
 		 * Returns the node attribute for a given property name.
+		 * 
 		 * @param parent The parent node
 		 * @param childProperty The child property to access
 		 * @return The child node at the given property location.
@@ -78,7 +90,9 @@ public final class RewriteEventStore {
 	 */
 	private static class EventHolder {
 		public final ASTNode parent;
+
 		public final StructuralPropertyDescriptor childProperty;
+
 		public final RewriteEvent event;
 
 		public EventHolder(ASTNode parent, StructuralPropertyDescriptor childProperty, RewriteEvent change) {
@@ -98,7 +112,9 @@ public final class RewriteEventStore {
 
 	public static class CopySourceInfo implements Comparable {
 		public final PropertyLocation location; // can be null, only used to mark as removed on move
+
 		private final ASTNode node;
+
 		public final boolean isMove;
 
 		public CopySourceInfo(PropertyLocation location, ASTNode node, boolean isMove) {
@@ -112,7 +128,7 @@ public final class RewriteEventStore {
 		}
 
 		public int compareTo(Object o2) {
-			CopySourceInfo r2= (CopySourceInfo) o2;
+			CopySourceInfo r2= (CopySourceInfo)o2;
 
 			int startDiff= getNode().getStartPosition() - r2.getNode().getStartPosition();
 			if (startDiff != 0) {
@@ -139,9 +155,13 @@ public final class RewriteEventStore {
 
 	private static class NodeRangeInfo implements Comparable {
 		private final ASTNode first;
+
 		private final ASTNode last;
+
 		public final CopySourceInfo copyInfo; // containing the internal placeholder and the 'isMove' flag
+
 		public final ASTNode replacingNode;
+
 		public final TextEditGroup editGroup;
 
 		public NodeRangeInfo(ASTNode parent, StructuralPropertyDescriptor childProperty, ASTNode first, ASTNode last, CopySourceInfo copyInfo, ASTNode replacingNode, TextEditGroup editGroup) {
@@ -165,11 +185,11 @@ public final class RewriteEventStore {
 		}
 
 		public Block getInternalPlaceholder() {
-			return (Block) this.copyInfo.getNode();
+			return (Block)this.copyInfo.getNode();
 		}
 
 		public int compareTo(Object o2) {
-			NodeRangeInfo r2= (NodeRangeInfo) o2;
+			NodeRangeInfo r2= (NodeRangeInfo)o2;
 
 			int startDiff= getStartNode().getStartPosition() - r2.getStartNode().getStartPosition();
 			if (startDiff != 0) {
@@ -198,7 +218,7 @@ public final class RewriteEventStore {
 		public String toString() {
 			StringBuffer buf= new StringBuffer();
 			if (this.first != this.last) {
-				buf.append("range ");  //$NON-NLS-1$
+				buf.append("range "); //$NON-NLS-1$
 			}
 			if (isMove()) {
 				buf.append("move source: "); //$NON-NLS-1$
@@ -220,8 +240,11 @@ public final class RewriteEventStore {
 	private class ParentIterator implements Iterator {
 
 		private Iterator eventIter;
+
 		private Iterator sourceNodeIter;
+
 		private Iterator rangeNodeIter;
+
 		private Iterator trackedNodeIter;
 
 		public ParentIterator() {
@@ -258,10 +281,10 @@ public final class RewriteEventStore {
 				return this.eventIter.next();
 			}
 			if (this.sourceNodeIter.hasNext()) {
-				return ((CopySourceInfo) this.sourceNodeIter.next()).getNode();
+				return ((CopySourceInfo)this.sourceNodeIter.next()).getNode();
 			}
 			if (this.rangeNodeIter.hasNext()) {
-				return ((PropertyLocation) this.rangeNodeIter.next()).getParent();
+				return ((PropertyLocation)this.rangeNodeIter.next()).getParent();
 			}
 			return this.trackedNodeIter.next();
 		}
@@ -275,11 +298,13 @@ public final class RewriteEventStore {
 	}
 
 	public final static int NEW= 1;
+
 	public final static int ORIGINAL= 2;
+
 	public final static int BOTH= NEW | ORIGINAL;
 
 
-	/** all events by parent*/
+	/** all events by parent */
 	final Map eventLookup;
 
 	/** cache for last accessed event */
@@ -288,17 +313,19 @@ public final class RewriteEventStore {
 	/** Maps events to group descriptions */
 	private Map editGroups;
 
-	/** Stores which nodes are source of a copy or move (list of CopySourceInfo)*/
+	/** Stores which nodes are source of a copy or move (list of CopySourceInfo) */
 	List nodeCopySources;
 
-	/** Stores node ranges that are used to copy or move (map of <PropertyLocation, CopyRangeInfo>)*/
+	/** Stores node ranges that are used to copy or move (map of <PropertyLocation, CopyRangeInfo>) */
 	Map nodeRangeInfos;
 
-	/** Stores which nodes are tracked and the corresponding edit group*/
+	/** Stores which nodes are tracked and the corresponding edit group */
 	Map trackedNodes;
 
-	/** Stores which inserted nodes bound to the previous node. If not, a node is
-	 * always bound to the next node */
+	/**
+	 * Stores which inserted nodes bound to the previous node. If not, a node is always bound to the
+	 * next node
+	 */
 	private Set insertBoundToPrevious;
 
 	/** optional mapper to allow fix already modified AST trees */
@@ -322,8 +349,9 @@ public final class RewriteEventStore {
 
 	/**
 	 * Override the default way how to access children from a parent node.
-	 * @param nodePropertyMapper The new <code>INodePropertyMapper</code> or
-	 * <code>null</code>. to use the default.
+	 * 
+	 * @param nodePropertyMapper The new <code>INodePropertyMapper</code> or <code>null</code>. to
+	 *            use the default.
 	 */
 	public void setNodePropertyMapper(INodePropertyMapper nodePropertyMapper) {
 		this.nodePropertyMapper= nodePropertyMapper;
@@ -348,10 +376,10 @@ public final class RewriteEventStore {
 
 		EventHolder holder= new EventHolder(parent, childProperty, event);
 
-		List entriesList = (List) this.eventLookup.get(parent);
+		List entriesList= (List)this.eventLookup.get(parent);
 		if (entriesList != null) {
 			for (int i= 0; i < entriesList.size(); i++) {
-				EventHolder curr= (EventHolder) entriesList.get(i);
+				EventHolder curr= (EventHolder)entriesList.get(i);
 				if (curr.childProperty == childProperty) {
 					entriesList.set(i, holder);
 					this.lastEvent= null;
@@ -372,10 +400,10 @@ public final class RewriteEventStore {
 			return this.lastEvent.event;
 		}
 
-		List entriesList = (List) this.eventLookup.get(parent);
+		List entriesList= (List)this.eventLookup.get(parent);
 		if (entriesList != null) {
 			for (int i= 0; i < entriesList.size(); i++) {
-				EventHolder holder= (EventHolder) entriesList.get(i);
+				EventHolder holder= (EventHolder)entriesList.get(i);
 				if (holder.childProperty == property) {
 					this.lastEvent= holder;
 					return holder.event;
@@ -387,7 +415,7 @@ public final class RewriteEventStore {
 
 	public NodeRewriteEvent getNodeEvent(ASTNode parent, StructuralPropertyDescriptor childProperty, boolean forceCreation) {
 		validateIsNodeProperty(childProperty);
-		NodeRewriteEvent event= (NodeRewriteEvent) getEvent(parent, childProperty);
+		NodeRewriteEvent event= (NodeRewriteEvent)getEvent(parent, childProperty);
 		if (event == null && forceCreation) {
 			Object originalValue= accessOriginalValue(parent, childProperty);
 			event= new NodeRewriteEvent(originalValue, originalValue);
@@ -398,9 +426,9 @@ public final class RewriteEventStore {
 
 	public ListRewriteEvent getListEvent(ASTNode parent, StructuralPropertyDescriptor childProperty, boolean forceCreation) {
 		validateIsListProperty(childProperty);
-		ListRewriteEvent event= (ListRewriteEvent) getEvent(parent, childProperty);
+		ListRewriteEvent event= (ListRewriteEvent)getEvent(parent, childProperty);
 		if (event == null && forceCreation) {
-			List originalValue= (List) accessOriginalValue(parent, childProperty);
+			List originalValue= (List)accessOriginalValue(parent, childProperty);
 			event= new ListRewriteEvent(originalValue);
 			addEvent(parent, childProperty, event);
 		}
@@ -413,10 +441,10 @@ public final class RewriteEventStore {
 
 
 	public boolean hasChangedProperties(ASTNode parent) {
-		List entriesList = (List) this.eventLookup.get(parent);
+		List entriesList= (List)this.eventLookup.get(parent);
 		if (entriesList != null) {
 			for (int i= 0; i < entriesList.size(); i++) {
-				EventHolder holder= (EventHolder) entriesList.get(i);
+				EventHolder holder= (EventHolder)entriesList.get(i);
 				if (holder.event.getChangeKind() != RewriteEvent.UNCHANGED) {
 					return true;
 				}
@@ -427,9 +455,9 @@ public final class RewriteEventStore {
 
 	public PropertyLocation getPropertyLocation(Object value, int kind) {
 		for (Iterator iter= this.eventLookup.values().iterator(); iter.hasNext();) {
-			List events= (List) iter.next();
+			List events= (List)iter.next();
 			for (int i= 0; i < events.size(); i++) {
-				EventHolder holder= (EventHolder) events.get(i);
+				EventHolder holder= (EventHolder)events.get(i);
 				RewriteEvent event= holder.event;
 				if (isNodeInEvent(event, value, kind)) {
 					return new PropertyLocation(holder.parent, holder.childProperty);
@@ -445,7 +473,7 @@ public final class RewriteEventStore {
 			}
 		}
 		if (value instanceof ASTNode) {
-			ASTNode node= (ASTNode) value;
+			ASTNode node= (ASTNode)value;
 			return new PropertyLocation(node.getParent(), node.getLocationInParent());
 		}
 		return null;
@@ -454,15 +482,16 @@ public final class RewriteEventStore {
 
 	/**
 	 * Kind is either ORIGINAL, NEW, or BOTH
+	 * 
 	 * @param value
 	 * @param kind
 	 * @return Returns the event with the given value of <code>null</code>.
 	 */
 	public RewriteEvent findEvent(Object value, int kind) {
 		for (Iterator iter= this.eventLookup.values().iterator(); iter.hasNext();) {
-			List events= (List) iter.next();
+			List events= (List)iter.next();
 			for (int i= 0; i < events.size(); i++) {
-				RewriteEvent event= ((EventHolder) events.get(i)).event;
+				RewriteEvent event= ((EventHolder)events.get(i)).event;
 				if (isNodeInEvent(event, value, kind)) {
 					return event;
 				}
@@ -505,14 +534,14 @@ public final class RewriteEventStore {
 		}
 		return accessOriginalValue(parent, property);
 	}
-	
+
 	public List getChangedPropertieEvents(ASTNode parent) {
-		List changedPropertiesEvent = new ArrayList();
-		
-		List entriesList = (List) this.eventLookup.get(parent);
+		List changedPropertiesEvent= new ArrayList();
+
+		List entriesList= (List)this.eventLookup.get(parent);
 		if (entriesList != null) {
 			for (int i= 0; i < entriesList.size(); i++) {
-				EventHolder holder= (EventHolder) entriesList.get(i);
+				EventHolder holder= (EventHolder)entriesList.get(i);
 				if (holder.event.getChangeKind() != RewriteEvent.UNCHANGED) {
 					changedPropertiesEvent.add(holder.event);
 				}
@@ -545,7 +574,7 @@ public final class RewriteEventStore {
 		if (this.editGroups == null) {
 			return null;
 		}
-		return (TextEditGroup) this.editGroups.get(event);
+		return (TextEditGroup)this.editGroups.get(event);
 	}
 
 	public void setEventEditGroup(RewriteEvent event, TextEditGroup editGroup) {
@@ -558,7 +587,7 @@ public final class RewriteEventStore {
 
 	public final TextEditGroup getTrackedNodeData(ASTNode node) {
 		if (this.trackedNodes != null) {
-			return (TextEditGroup) this.trackedNodes.get(node);
+			return (TextEditGroup)this.trackedNodes.get(node);
 		}
 		return null;
 	}
@@ -573,6 +602,7 @@ public final class RewriteEventStore {
 	/**
 	 * Marks a node as tracked. The edits added to the group editGroup can be used to get the
 	 * position of the node after the rewrite operation.
+	 * 
 	 * @param node The node to track
 	 * @param editGroup Collects the range markers describing the node position.
 	 */
@@ -601,7 +631,8 @@ public final class RewriteEventStore {
 		return node.getProperty(INTERNAL_PLACEHOLDER_PROPERTY) != null;
 	}
 
-	public final CopySourceInfo createRangeCopy(ASTNode parent, StructuralPropertyDescriptor childProperty, ASTNode first, ASTNode last, boolean isMove, ASTNode internalPlaceholder, ASTNode replacingNode, TextEditGroup editGroup) {
+	public final CopySourceInfo createRangeCopy(ASTNode parent, StructuralPropertyDescriptor childProperty, ASTNode first, ASTNode last, boolean isMove, ASTNode internalPlaceholder,
+			ASTNode replacingNode, TextEditGroup editGroup) {
 		CopySourceInfo copyInfo= createCopySourceInfo(null, internalPlaceholder, isMove);
 		internalPlaceholder.setProperty(INTERNAL_PLACEHOLDER_PROPERTY, internalPlaceholder);
 
@@ -626,7 +657,7 @@ public final class RewriteEventStore {
 			this.nodeRangeInfos= new HashMap();
 		}
 		PropertyLocation loc= new PropertyLocation(parent, childProperty);
-		List innerList= (List) this.nodeRangeInfos.get(loc);
+		List innerList= (List)this.nodeRangeInfos.get(loc);
 		if (innerList == null) {
 			innerList= new ArrayList(2);
 			this.nodeRangeInfos.put(loc, innerList);
@@ -650,7 +681,7 @@ public final class RewriteEventStore {
 	public CopySourceInfo[] internalGetCopySources(List copySources, ASTNode node) {
 		ArrayList res= new ArrayList(3);
 		for (int i= 0; i < copySources.size(); i++) {
-			CopySourceInfo curr= (CopySourceInfo) copySources.get(i);
+			CopySourceInfo curr= (CopySourceInfo)copySources.get(i);
 			if (curr.getNode() == node) {
 				res.add(curr);
 			}
@@ -659,7 +690,7 @@ public final class RewriteEventStore {
 			return null;
 		}
 
-		CopySourceInfo[] arr= (CopySourceInfo[]) res.toArray(new CopySourceInfo[res.size()]);
+		CopySourceInfo[] arr= (CopySourceInfo[])res.toArray(new CopySourceInfo[res.size()]);
 		Arrays.sort(arr);
 		return arr;
 	}
@@ -667,7 +698,7 @@ public final class RewriteEventStore {
 
 	private void assertNoOverlap(ListRewriteEvent listEvent, int indexFirst, int indexLast, List innerList) {
 		for (Iterator iter= innerList.iterator(); iter.hasNext();) {
-			NodeRangeInfo curr= (NodeRangeInfo) iter.next();
+			NodeRangeInfo curr= (NodeRangeInfo)iter.next();
 			int currStart= listEvent.getIndex(curr.getStartNode(), ListRewriteEvent.BOTH);
 			int currEnd= listEvent.getIndex(curr.getEndNode(), ListRewriteEvent.BOTH);
 			if (currStart < indexFirst && currEnd < indexLast && currEnd >= indexFirst
@@ -695,19 +726,19 @@ public final class RewriteEventStore {
 
 	private void removeMoveRangePlaceholders() {
 		for (Iterator iter= this.nodeRangeInfos.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry entry= (Map.Entry) iter.next();
+			Map.Entry entry= (Map.Entry)iter.next();
 			Set placeholders= new HashSet(); // collect all placeholders
-			List rangeInfos= (List) entry.getValue(); // list of CopySourceRange
+			List rangeInfos= (List)entry.getValue(); // list of CopySourceRange
 			for (int i= 0; i < rangeInfos.size(); i++) {
-				placeholders.add(((NodeRangeInfo) rangeInfos.get(i)).getInternalPlaceholder());
+				placeholders.add(((NodeRangeInfo)rangeInfos.get(i)).getInternalPlaceholder());
 			}
 
-			PropertyLocation loc= (PropertyLocation) entry.getKey();
+			PropertyLocation loc= (PropertyLocation)entry.getKey();
 
 			RewriteEvent[] children= getListEvent(loc.getParent(), loc.getProperty(), true).getChildren();
 			List revertedChildren= new ArrayList();
 			revertListWithRanges(children, placeholders, revertedChildren);
-			RewriteEvent[] revertedChildrenArr= (RewriteEvent[]) revertedChildren.toArray(new RewriteEvent[revertedChildren.size()]);
+			RewriteEvent[] revertedChildrenArr= (RewriteEvent[])revertedChildren.toArray(new RewriteEvent[revertedChildren.size()]);
 			addEvent(loc.getParent(), loc.getProperty(), new ListRewriteEvent(revertedChildrenArr)); // replace the current edits
 		}
 	}
@@ -715,7 +746,7 @@ public final class RewriteEventStore {
 	private void revertListWithRanges(RewriteEvent[] childEvents, Set placeholders, List revertedChildren) {
 		for (int i= 0; i < childEvents.length; i++) {
 			RewriteEvent event= childEvents[i];
-			ASTNode node= (ASTNode) event.getOriginalValue();
+			ASTNode node= (ASTNode)event.getOriginalValue();
 			if (placeholders.contains(node)) {
 				RewriteEvent[] placeholderChildren= getListEvent(node, Block.STATEMENTS_PROPERTY, false).getChildren();
 				revertListWithRanges(placeholderChildren, placeholders, revertedChildren);
@@ -727,11 +758,11 @@ public final class RewriteEventStore {
 
 	private void prepareNodeRangeCopies(TargetSourceRangeComputer sourceRangeComputer) {
 		for (Iterator iter= this.nodeRangeInfos.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry entry= (Map.Entry) iter.next();
-			List rangeInfos= (List) entry.getValue(); // list of CopySourceRange
+			Map.Entry entry= (Map.Entry)iter.next();
+			List rangeInfos= (List)entry.getValue(); // list of CopySourceRange
 			Collections.sort(rangeInfos); // sort by start index, length, move or copy
 
-			PropertyLocation loc= (PropertyLocation) entry.getKey();
+			PropertyLocation loc= (PropertyLocation)entry.getKey();
 			RewriteEvent[] children= getListEvent(loc.getParent(), loc.getProperty(), true).getChildren();
 
 			RewriteEvent[] newChildren= processListWithRanges(rangeInfos, children, sourceRangeComputer);
@@ -746,11 +777,11 @@ public final class RewriteEventStore {
 		Stack topInfoStack= new Stack();
 
 		Iterator rangeInfoIterator= rangeInfos.iterator();
-		NodeRangeInfo nextInfo= (NodeRangeInfo) rangeInfoIterator.next();
+		NodeRangeInfo nextInfo= (NodeRangeInfo)rangeInfoIterator.next();
 
 		for (int k= 0; k < childEvents.length; k++) {
 			RewriteEvent event= childEvents[k];
-			ASTNode node= (ASTNode) event.getOriginalValue();
+			ASTNode node= (ASTNode)event.getOriginalValue();
 			// check for ranges and add a placeholder for them
 			while (nextInfo != null && node == nextInfo.getStartNode()) { // is this child the beginning of a range?
 				nextInfo.updatePlaceholderSourceRanges(sourceRangeComputer);
@@ -773,21 +804,21 @@ public final class RewriteEventStore {
 				newChildEvents= new ArrayList(childEvents.length);
 				topInfo= nextInfo;
 
-				nextInfo= rangeInfoIterator.hasNext() ? (NodeRangeInfo) rangeInfoIterator.next() : null;
+				nextInfo= rangeInfoIterator.hasNext() ? (NodeRangeInfo)rangeInfoIterator.next() : null;
 			}
 
 			newChildEvents.add(event);
 
 			while (topInfo != null && node == topInfo.getEndNode()) {
-				RewriteEvent[] placeholderChildEvents= (RewriteEvent[]) newChildEvents.toArray(new RewriteEvent[newChildEvents.size()]);
+				RewriteEvent[] placeholderChildEvents= (RewriteEvent[])newChildEvents.toArray(new RewriteEvent[newChildEvents.size()]);
 				Block internalPlaceholder= topInfo.getInternalPlaceholder();
 				addEvent(internalPlaceholder, Block.STATEMENTS_PROPERTY, new ListRewriteEvent(placeholderChildEvents));
 
-				newChildEvents= (List) newChildrenStack.pop();
-				topInfo= (NodeRangeInfo) topInfoStack.pop();
+				newChildEvents= (List)newChildrenStack.pop();
+				topInfo= (NodeRangeInfo)topInfoStack.pop();
 			}
 		}
-		return (RewriteEvent[]) newChildEvents.toArray(new RewriteEvent[newChildEvents.size()]);
+		return (RewriteEvent[])newChildEvents.toArray(new RewriteEvent[newChildEvents.size()]);
 	}
 
 	/**
@@ -795,7 +826,7 @@ public final class RewriteEventStore {
 	 */
 	private void prepareSingleNodeCopies() {
 		for (int i= 0; i < this.nodeCopySources.size(); i++) {
-			CopySourceInfo curr= (CopySourceInfo) this.nodeCopySources.get(i);
+			CopySourceInfo curr= (CopySourceInfo)this.nodeCopySources.get(i);
 			if (curr.isMove && curr.location != null) {
 				doMarkMovedAsRemoved(curr, curr.location.getParent(), curr.location.getProperty());
 			}
@@ -855,8 +886,8 @@ public final class RewriteEventStore {
 
 	public String toString() {
 		StringBuffer buf= new StringBuffer();
-		for (Iterator iter = this.eventLookup.values().iterator(); iter.hasNext();) {
-			List events = (List) iter.next();
+		for (Iterator iter= this.eventLookup.values().iterator(); iter.hasNext();) {
+			List events= (List)iter.next();
 			for (int i= 0; i < events.size(); i++) {
 				buf.append(events.get(i).toString()).append('\n');
 			}

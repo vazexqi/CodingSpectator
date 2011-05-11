@@ -19,9 +19,10 @@ import org.eclipse.jdt.internal.core.JavaElement;
 
 public class AssistAnnotation extends Annotation {
 	private Map infoCache;
+
 	public AssistAnnotation(JavaElement parent, String name, Map infoCache) {
 		super(parent, name);
-		this.infoCache = infoCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {

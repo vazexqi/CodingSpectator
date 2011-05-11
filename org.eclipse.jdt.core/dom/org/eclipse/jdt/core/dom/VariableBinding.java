@@ -34,48 +34,54 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 class VariableBinding implements IVariableBinding {
 
-	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
-		Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT | Modifier.VOLATILE;
+	private static final int VALID_MODIFIERS= Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
+			Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT | Modifier.VOLATILE;
 
 	private org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding;
+
 	private ITypeBinding declaringClass;
+
 	private String key;
+
 	private String name;
+
 	private BindingResolver resolver;
+
 	private ITypeBinding type;
+
 	private IAnnotationBinding[] annotations;
 
 	VariableBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
-		this.resolver = resolver;
-		this.binding = binding;
+		this.resolver= resolver;
+		this.binding= binding;
 	}
 
 	public IAnnotationBinding[] getAnnotations() {
 		if (this.annotations != null) {
 			return this.annotations;
 		}
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
-		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations= this.binding.getAnnotations();
+		int length= internalAnnotations == null ? 0 : internalAnnotations.length;
 		if (length != 0) {
-			IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
-			int convertedAnnotationCount = 0;
-			for (int i = 0; i < length; i++) {
-				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
-				final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
+			IAnnotationBinding[] tempAnnotations= new IAnnotationBinding[length];
+			int convertedAnnotationCount= 0;
+			for (int i= 0; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation= internalAnnotations[i];
+				final IAnnotationBinding annotationInstance= this.resolver.getAnnotationInstance(internalAnnotation);
 				if (annotationInstance == null) {
 					continue;
 				}
-				tempAnnotations[convertedAnnotationCount++] = annotationInstance;
+				tempAnnotations[convertedAnnotationCount++]= annotationInstance;
 			}
 			if (convertedAnnotationCount != length) {
 				if (convertedAnnotationCount == 0) {
-					return this.annotations = AnnotationBinding.NoAnnotations;
+					return this.annotations= AnnotationBinding.NoAnnotations;
 				}
-				System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
+				System.arraycopy(tempAnnotations, 0, (tempAnnotations= new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
 			}
-			return this.annotations = tempAnnotations;
+			return this.annotations= tempAnnotations;
 		}
-		return this.annotations = AnnotationBinding.NoAnnotations;
+		return this.annotations= AnnotationBinding.NoAnnotations;
 	}
 
 	/* (non-Javadoc)
@@ -83,8 +89,9 @@ class VariableBinding implements IVariableBinding {
 	 * @since 3.0
 	 */
 	public Object getConstantValue() {
-		Constant c = this.binding.constant();
-		if (c == null || c == Constant.NotAConstant) return null;
+		Constant c= this.binding.constant();
+		if (c == null || c == Constant.NotAConstant)
+			return null;
 		switch (c.typeID()) {
 			case TypeIds.T_boolean:
 				return Boolean.valueOf(c.booleanValue());
@@ -114,8 +121,8 @@ class VariableBinding implements IVariableBinding {
 	public ITypeBinding getDeclaringClass() {
 		if (isField()) {
 			if (this.declaringClass == null) {
-				FieldBinding fieldBinding = (FieldBinding) this.binding;
-				this.declaringClass = this.resolver.getTypeBinding(fieldBinding.declaringClass);
+				FieldBinding fieldBinding= (FieldBinding)this.binding;
+				this.declaringClass= this.resolver.getTypeBinding(fieldBinding.declaringClass);
 			}
 			return this.declaringClass;
 		} else {
@@ -128,32 +135,32 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public IMethodBinding getDeclaringMethod() {
 		if (!isField()) {
-			ASTNode node = this.resolver.findDeclaringNode(this);
+			ASTNode node= this.resolver.findDeclaringNode(this);
 			while (true) {
 				if (node == null) {
 					if (this.binding instanceof LocalVariableBinding) {
-						LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
-						BlockScope blockScope = localVariableBinding.declaringScope;
+						LocalVariableBinding localVariableBinding= (LocalVariableBinding)this.binding;
+						BlockScope blockScope= localVariableBinding.declaringScope;
 						if (blockScope != null) {
-							ReferenceContext referenceContext = blockScope.referenceContext();
+							ReferenceContext referenceContext= blockScope.referenceContext();
 							if (referenceContext instanceof Initializer) {
 								return null;
 							}
 							if (referenceContext instanceof AbstractMethodDeclaration) {
-								return this.resolver.getMethodBinding(((AbstractMethodDeclaration) referenceContext).binding);
+								return this.resolver.getMethodBinding(((AbstractMethodDeclaration)referenceContext).binding);
 							}
 						}
 					}
 					return null;
 				}
-				switch(node.getNodeType()) {
-					case ASTNode.INITIALIZER :
+				switch (node.getNodeType()) {
+					case ASTNode.INITIALIZER:
 						return null;
-					case ASTNode.METHOD_DECLARATION :
-						MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+					case ASTNode.METHOD_DECLARATION:
+						MethodDeclaration methodDeclaration= (MethodDeclaration)node;
 						return methodDeclaration.resolveBinding();
 					default:
-						node = node.getParent();
+						node= node.getParent();
 				}
 			}
 		}
@@ -164,7 +171,7 @@ class VariableBinding implements IVariableBinding {
 	 * @see IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
-		JavaElement element = getUnresolvedJavaElement();
+		JavaElement element= getUnresolvedJavaElement();
 		if (element == null)
 			return null;
 		return element.resolved(this.binding);
@@ -175,7 +182,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public String getKey() {
 		if (this.key == null) {
-			this.key = new String(this.binding.computeUniqueKey());
+			this.key= new String(this.binding.computeUniqueKey());
 		}
 		return this.key;
 	}
@@ -192,7 +199,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public int getModifiers() {
 		if (isField()) {
-			return ((FieldBinding) this.binding).getAccessFlags() & VALID_MODIFIERS;
+			return ((FieldBinding)this.binding).getAccessFlags() & VALID_MODIFIERS;
 		}
 		if (this.binding.isFinal()) {
 			return IModifierConstants.ACC_FINAL;
@@ -205,7 +212,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public String getName() {
 		if (this.name == null) {
-			this.name = new String(this.binding.name);
+			this.name= new String(this.binding.name);
 		}
 		return this.name;
 	}
@@ -215,7 +222,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public ITypeBinding getType() {
 		if (this.type == null) {
-			this.type = this.resolver.getTypeBinding(this.binding.type);
+			this.type= this.resolver.getTypeBinding(this.binding.type);
 		}
 		return this.type;
 	}
@@ -226,61 +233,67 @@ class VariableBinding implements IVariableBinding {
 		}
 		if (isField()) {
 			if (this.resolver instanceof DefaultBindingResolver) {
-				DefaultBindingResolver defaultBindingResolver = (DefaultBindingResolver) this.resolver;
-				if (!defaultBindingResolver.fromJavaProject) return null;
+				DefaultBindingResolver defaultBindingResolver= (DefaultBindingResolver)this.resolver;
+				if (!defaultBindingResolver.fromJavaProject)
+					return null;
 				return Util.getUnresolvedJavaElement(
-						(FieldBinding) this.binding,
+						(FieldBinding)this.binding,
 						defaultBindingResolver.workingCopyOwner,
 						defaultBindingResolver.getBindingsToNodesMap());
 			}
 			return null;
 		}
 		// local variable
-		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-		DefaultBindingResolver defaultBindingResolver = (DefaultBindingResolver) this.resolver;
-		if (!defaultBindingResolver.fromJavaProject) return null;
-		VariableDeclaration localVar = (VariableDeclaration) defaultBindingResolver.bindingsToAstNodes.get(this);
-		if (localVar == null) return null;
+		if (!(this.resolver instanceof DefaultBindingResolver))
+			return null;
+		DefaultBindingResolver defaultBindingResolver= (DefaultBindingResolver)this.resolver;
+		if (!defaultBindingResolver.fromJavaProject)
+			return null;
+		VariableDeclaration localVar= (VariableDeclaration)defaultBindingResolver.bindingsToAstNodes.get(this);
+		if (localVar == null)
+			return null;
 		int nameStart;
 		int nameLength;
 		int sourceStart;
 		int sourceLength;
 		if (localVar instanceof SingleVariableDeclaration) {
-			sourceStart = localVar.getStartPosition();
-			sourceLength = localVar.getLength();
-			SimpleName simpleName = ((SingleVariableDeclaration) localVar).getName();
-			nameStart = simpleName.getStartPosition();
-			nameLength = simpleName.getLength();
+			sourceStart= localVar.getStartPosition();
+			sourceLength= localVar.getLength();
+			SimpleName simpleName= ((SingleVariableDeclaration)localVar).getName();
+			nameStart= simpleName.getStartPosition();
+			nameLength= simpleName.getLength();
 		} else {
-			nameStart =  localVar.getStartPosition();
-			nameLength = localVar.getLength();
-			ASTNode node = localVar.getParent();
-			sourceStart = node.getStartPosition();
-			sourceLength = node.getLength();
+			nameStart= localVar.getStartPosition();
+			nameLength= localVar.getLength();
+			ASTNode node= localVar.getParent();
+			sourceStart= node.getStartPosition();
+			sourceLength= node.getLength();
 		}
-		int sourceEnd = sourceStart+sourceLength-1;
-		char[] typeSig = this.binding.type.genericTypeSignature();
-		JavaElement parent = null;
-		IMethodBinding declaringMethod = getDeclaringMethod();
+		int sourceEnd= sourceStart + sourceLength - 1;
+		char[] typeSig= this.binding.type.genericTypeSignature();
+		JavaElement parent= null;
+		IMethodBinding declaringMethod= getDeclaringMethod();
 		if (declaringMethod == null) {
-			ReferenceContext referenceContext = ((LocalVariableBinding) this.binding).declaringScope.referenceContext();
-			if (referenceContext instanceof TypeDeclaration){
+			ReferenceContext referenceContext= ((LocalVariableBinding)this.binding).declaringScope.referenceContext();
+			if (referenceContext instanceof TypeDeclaration) {
 				// Local variable is declared inside an initializer
-				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
-				JavaElement typeHandle = null;
-				typeHandle = Util.getUnresolvedJavaElement(
-					typeDeclaration.binding,
-					defaultBindingResolver.workingCopyOwner,
-					defaultBindingResolver.getBindingsToNodesMap());
-				parent = Util.getUnresolvedJavaElement(sourceStart, sourceEnd, typeHandle);
+				TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
+				JavaElement typeHandle= null;
+				typeHandle= Util.getUnresolvedJavaElement(
+						typeDeclaration.binding,
+						defaultBindingResolver.workingCopyOwner,
+						defaultBindingResolver.getBindingsToNodesMap());
+				parent= Util.getUnresolvedJavaElement(sourceStart, sourceEnd, typeHandle);
 			} else {
 				return null;
 			}
 		} else {
-			parent = (JavaElement) declaringMethod.getJavaElement();
+			parent= (JavaElement)declaringMethod.getJavaElement();
 		}
-		if (parent == null) return null;
-		return new LocalVariable(parent, localVar.getName().getIdentifier(), sourceStart, sourceEnd, nameStart, nameStart+nameLength-1, new String(typeSig), ((LocalVariableBinding) this.binding).declaration.annotations);
+		if (parent == null)
+			return null;
+		return new LocalVariable(parent, localVar.getName().getIdentifier(), sourceStart, sourceEnd, nameStart, nameStart + nameLength - 1, new String(typeSig),
+				((LocalVariableBinding)this.binding).declaration.annotations);
 	}
 
 	/*
@@ -289,7 +302,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public IVariableBinding getVariableDeclaration() {
 		if (isField()) {
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
+			FieldBinding fieldBinding= (FieldBinding)this.binding;
 			return this.resolver.getVariableBinding(fieldBinding.original());
 		}
 		return this;
@@ -308,12 +321,13 @@ class VariableBinding implements IVariableBinding {
 	public boolean isParameter() {
 		return (this.binding.tagBits & TagBits.IsArgument) != 0;
 	}
+
 	/*
 	 * @see IBinding#isDeprecated()
 	 */
 	public boolean isDeprecated() {
 		if (isField()) {
-			return ((FieldBinding) this.binding).isDeprecated();
+			return ((FieldBinding)this.binding).isDeprecated();
 		}
 		return false;
 	}
@@ -342,17 +356,17 @@ class VariableBinding implements IVariableBinding {
 		if (!(other instanceof VariableBinding)) {
 			return false;
 		}
-		org.eclipse.jdt.internal.compiler.lookup.VariableBinding otherBinding = ((VariableBinding) other).binding;
+		org.eclipse.jdt.internal.compiler.lookup.VariableBinding otherBinding= ((VariableBinding)other).binding;
 		if (this.binding instanceof FieldBinding) {
 			if (otherBinding instanceof FieldBinding) {
-				return BindingComparator.isEqual((FieldBinding) this.binding, (FieldBinding) otherBinding);
+				return BindingComparator.isEqual((FieldBinding)this.binding, (FieldBinding)otherBinding);
 			} else {
 				return false;
 			}
 		} else {
 			if (BindingComparator.isEqual(this.binding, otherBinding)) {
-				IMethodBinding declaringMethod = getDeclaringMethod();
-				IMethodBinding otherDeclaringMethod = ((VariableBinding) other).getDeclaringMethod();
+				IMethodBinding declaringMethod= getDeclaringMethod();
+				IMethodBinding otherDeclaringMethod= ((VariableBinding)other).getDeclaringMethod();
 				if (declaringMethod == null) {
 					if (otherDeclaringMethod != null) {
 						return false;
@@ -377,7 +391,7 @@ class VariableBinding implements IVariableBinding {
 	 */
 	public boolean isSynthetic() {
 		if (isField()) {
-			return ((FieldBinding) this.binding).isSynthetic();
+			return ((FieldBinding)this.binding).isSynthetic();
 		}
 		return false;
 	}

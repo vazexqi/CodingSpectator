@@ -26,12 +26,12 @@ public class ResourceCompilationUnit extends CompilationUnit {
 
 	public ResourceCompilationUnit(IFile file, URI location) {
 		super(null/*no contents*/, location == null ? file.getFullPath().toString() : location.getPath(), null/*encoding is used only when retrieving the contents*/);
-		this.file = file;
+		this.file= file;
 	}
 
 	public char[] getContents() {
 		if (this.contents != null)
-			return this.contents;   // answer the cached source
+			return this.contents; // answer the cached source
 
 		// otherwise retrieve it
 		try {

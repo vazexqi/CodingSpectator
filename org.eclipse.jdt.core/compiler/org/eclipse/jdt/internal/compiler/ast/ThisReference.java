@@ -11,25 +11,28 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ThisReference extends Reference {
 
-	public static ThisReference implicitThis(){
+	public static ThisReference implicitThis() {
 
-		ThisReference implicitThis = new ThisReference(0, 0);
-		implicitThis.bits |= IsImplicitThis;
+		ThisReference implicitThis= new ThisReference(0, 0);
+		implicitThis.bits|= IsImplicitThis;
 		return implicitThis;
 	}
 
 	public ThisReference(int sourceStart, int sourceEnd) {
 
-		this.sourceStart = sourceStart;
-		this.sourceEnd = sourceEnd;
+		this.sourceStart= sourceStart;
+		this.sourceEnd= sourceEnd;
 	}
 
 	/*
@@ -61,23 +64,24 @@ public class ThisReference extends Reference {
 	 */
 	public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 
-		 // this cannot be assigned
+		// this cannot be assigned
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
-		int pc = codeStream.position;
+		int pc= codeStream.position;
 		if (valueRequired)
 			codeStream.aload_0();
-		if ((this.bits & IsImplicitThis) == 0) codeStream.recordPositionsFrom(pc, this.sourceStart);
+		if ((this.bits & IsImplicitThis) == 0)
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/*
 	 * @see Reference#generateCompoundAssignment(...)
 	 */
-	public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion,  boolean valueRequired) {
+	public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 
-		 // this cannot be assigned
+		// this cannot be assigned
 	}
 
 	/*
@@ -85,7 +89,7 @@ public class ThisReference extends Reference {
 	 */
 	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 
-		 // this cannot be assigned
+		// this cannot be assigned
 	}
 
 	public boolean isImplicitThis() {
@@ -95,26 +99,27 @@ public class ThisReference extends Reference {
 
 	public boolean isThis() {
 
-		return true ;
+		return true;
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {
 		return FlowInfo.NON_NULL;
 	}
 
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
-		if (isImplicitThis()) return output;
+		if (isImplicitThis())
+			return output;
 		return output.append("this"); //$NON-NLS-1$
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		this.constant = Constant.NotAConstant;
-		if (!isImplicitThis() &&!checkAccess(scope.methodScope())) {
+		this.constant= Constant.NotAConstant;
+		if (!isImplicitThis() && !checkAccess(scope.methodScope())) {
 			return null;
 		}
-		return this.resolvedType = scope.enclosingReceiverType();
+		return this.resolvedType= scope.enclosingReceiverType();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
@@ -122,6 +127,7 @@ public class ThisReference extends Reference {
 		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);
 	}
+
 	public void traverse(ASTVisitor visitor, ClassScope blockScope) {
 
 		visitor.visit(this, blockScope);

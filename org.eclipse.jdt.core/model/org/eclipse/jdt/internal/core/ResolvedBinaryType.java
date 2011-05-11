@@ -13,8 +13,8 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * Handle representing a binary type that is resolved.
- * The uniqueKey contains the genericTypeSignature of the resolved type. Use BindingKey to decode it.
+ * Handle representing a binary type that is resolved. The uniqueKey contains the
+ * genericTypeSignature of the resolved type. Use BindingKey to decode it.
  */
 public class ResolvedBinaryType extends BinaryType {
 
@@ -25,7 +25,7 @@ public class ResolvedBinaryType extends BinaryType {
 	 */
 	public ResolvedBinaryType(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
-		this.uniqueKey = uniqueKey;
+		this.uniqueKey= uniqueKey;
 	}
 
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
@@ -59,8 +59,8 @@ public class ResolvedBinaryType extends BinaryType {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryType(this.parent, this.name);
-		handle.occurrenceCount = this.occurrenceCount;
+		SourceRefElement handle= new BinaryType(this.parent, this.name);
+		handle.occurrenceCount= this.occurrenceCount;
 		return handle;
 	}
 }

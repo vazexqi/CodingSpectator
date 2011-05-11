@@ -12,17 +12,12 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
-import org.eclipse.core.runtime.OperationCanceledException;
-
-import org.eclipse.core.filesystem.IFileStore;
-
-import org.eclipse.core.filesystem.EFS;
-
-import java.net.URI;
-
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.zip.*;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.internal.events.*;
 import org.eclipse.core.internal.localstore.*;
 import org.eclipse.core.internal.utils.*;

@@ -30,164 +30,174 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemHandler {
 
-	public final static String[] NoArgument = CharOperation.NO_STRINGS;
+	public final static String[] NoArgument= CharOperation.NO_STRINGS;
 
 	final public IErrorHandlingPolicy policy;
+
 	public final IProblemFactory problemFactory;
+
 	public final CompilerOptions options;
+
 /*
  * Problem handler can be supplied with a policy to specify
  * its behavior in error handling. Also see static methods for
  * built-in policies.
  *
  */
-public ProblemHandler(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
-	this.policy = policy;
-	this.problemFactory = problemFactory;
-	this.options = options;
-}
+	public ProblemHandler(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
+		this.policy= policy;
+		this.problemFactory= problemFactory;
+		this.options= options;
+	}
+
 /*
  * Given the current configuration, answers which category the problem
  * falls into:
  *		Error | Warning | Ignore
  */
-public int computeSeverity(int problemId){
+	public int computeSeverity(int problemId) {
 
-	return ProblemSeverities.Error; // by default all problems are errors
-}
-public CategorizedProblem createProblem(
-	char[] fileName,
-	int problemId,
-	String[] problemArguments,
-	String[] messageArguments,
-	int severity,
-	int problemStartPosition,
-	int problemEndPosition,
-	int lineNumber,
-	int columnNumber) {
+		return ProblemSeverities.Error; // by default all problems are errors
+	}
 
-	return this.problemFactory.createProblem(
-		fileName,
-		problemId,
-		problemArguments,
-		messageArguments,
-		severity,
-		problemStartPosition,
-		problemEndPosition,
-		lineNumber,
-		columnNumber);
-}
-public CategorizedProblem createProblem(
-		char[] fileName,
-		int problemId,
-		String[] problemArguments,
-		int elaborationId,
-		String[] messageArguments,
-		int severity,
-		int problemStartPosition,
-		int problemEndPosition,
-		int lineNumber,
-		int columnNumber) {
-	return this.problemFactory.createProblem(
-		fileName,
-		problemId,
-		problemArguments,
-		elaborationId,
-		messageArguments,
-		severity,
-		problemStartPosition,
-		problemEndPosition,
-		lineNumber,
-		columnNumber);
-}
-public void handle(
-	int problemId,
-	String[] problemArguments,
-	int elaborationId,
-	String[] messageArguments,
-	int severity,
-	int problemStartPosition,
-	int problemEndPosition,
-	ReferenceContext referenceContext,
-	CompilationResult unitResult) {
+	public CategorizedProblem createProblem(
+			char[] fileName,
+			int problemId,
+			String[] problemArguments,
+			String[] messageArguments,
+			int severity,
+			int problemStartPosition,
+			int problemEndPosition,
+			int lineNumber,
+			int columnNumber) {
 
-	if (severity == ProblemSeverities.Ignore)
-		return;
+		return this.problemFactory.createProblem(
+				fileName,
+				problemId,
+				problemArguments,
+				messageArguments,
+				severity,
+				problemStartPosition,
+				problemEndPosition,
+				lineNumber,
+				columnNumber);
+	}
 
-	// if no reference context, we need to abort from the current compilation process
-	if (referenceContext == null) {
-		if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
-			CategorizedProblem problem = this.createProblem(null, problemId, problemArguments, elaborationId, messageArguments, severity, 0, 0, 0, 0);
-			throw new AbortCompilation(null, problem);
-		} else {
-			return; // ignore non reportable warning
+	public CategorizedProblem createProblem(
+			char[] fileName,
+			int problemId,
+			String[] problemArguments,
+			int elaborationId,
+			String[] messageArguments,
+			int severity,
+			int problemStartPosition,
+			int problemEndPosition,
+			int lineNumber,
+			int columnNumber) {
+		return this.problemFactory.createProblem(
+				fileName,
+				problemId,
+				problemArguments,
+				elaborationId,
+				messageArguments,
+				severity,
+				problemStartPosition,
+				problemEndPosition,
+				lineNumber,
+				columnNumber);
+	}
+
+	public void handle(
+			int problemId,
+			String[] problemArguments,
+			int elaborationId,
+			String[] messageArguments,
+			int severity,
+			int problemStartPosition,
+			int problemEndPosition,
+			ReferenceContext referenceContext,
+			CompilationResult unitResult) {
+
+		if (severity == ProblemSeverities.Ignore)
+			return;
+
+		// if no reference context, we need to abort from the current compilation process
+		if (referenceContext == null) {
+			if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
+				CategorizedProblem problem= this.createProblem(null, problemId, problemArguments, elaborationId, messageArguments, severity, 0, 0, 0, 0);
+				throw new AbortCompilation(null, problem);
+			} else {
+				return; // ignore non reportable warning
+			}
+		}
+
+		int[] lineEnds;
+		int lineNumber= problemStartPosition >= 0
+				? Util.getLineNumber(problemStartPosition, lineEnds= unitResult.getLineSeparatorPositions(), 0, lineEnds.length - 1)
+				: 0;
+		int columnNumber= problemStartPosition >= 0
+				? Util.searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)
+				: 0;
+		CategorizedProblem problem=
+				this.createProblem(
+						unitResult.getFileName(),
+						problemId,
+						problemArguments,
+						elaborationId,
+						messageArguments,
+						severity,
+						problemStartPosition,
+						problemEndPosition,
+						lineNumber,
+						columnNumber);
+
+		if (problem == null)
+			return; // problem couldn't be created, ignore
+
+		switch (severity & ProblemSeverities.Error) {
+			case ProblemSeverities.Error:
+				record(problem, unitResult, referenceContext);
+				if ((severity & ProblemSeverities.Fatal) != 0) {
+					referenceContext.tagAsHavingErrors();
+					// should abort ?
+					int abortLevel;
+					if ((abortLevel= this.policy.stopOnFirstError() ? ProblemSeverities.AbortCompilation : severity & ProblemSeverities.Abort) != 0) {
+						referenceContext.abort(abortLevel, problem);
+					}
+				}
+				break;
+			case ProblemSeverities.Warning:
+				record(problem, unitResult, referenceContext);
+				break;
 		}
 	}
 
-	int[] lineEnds;
-	int lineNumber = problemStartPosition >= 0
-			? Util.getLineNumber(problemStartPosition, lineEnds = unitResult.getLineSeparatorPositions(), 0, lineEnds.length-1)
-			: 0;
-	int columnNumber = problemStartPosition >= 0
-			? Util.searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)
-			: 0;
-	CategorizedProblem problem =
-		this.createProblem(
-			unitResult.getFileName(),
-			problemId,
-			problemArguments,
-			elaborationId,
-			messageArguments,
-			severity,
-			problemStartPosition,
-			problemEndPosition,
-			lineNumber,
-			columnNumber);
+	/**
+	 * Standard problem handling API, the actual severity (warning/error/ignore) is deducted from
+	 * the problem ID and the current compiler options.
+	 */
+	public void handle(
+			int problemId,
+			String[] problemArguments,
+			String[] messageArguments,
+			int problemStartPosition,
+			int problemEndPosition,
+			ReferenceContext referenceContext,
+			CompilationResult unitResult) {
 
-	if (problem == null) return; // problem couldn't be created, ignore
-
-	switch (severity & ProblemSeverities.Error) {
-		case ProblemSeverities.Error :
-			record(problem, unitResult, referenceContext);
-			if ((severity & ProblemSeverities.Fatal) != 0) {
-				referenceContext.tagAsHavingErrors();
-				// should abort ?
-				int abortLevel;
-				if ((abortLevel = this.policy.stopOnFirstError() ? ProblemSeverities.AbortCompilation : severity & ProblemSeverities.Abort) != 0) {
-					referenceContext.abort(abortLevel, problem);
-				}
-			}
-			break;
-		case ProblemSeverities.Warning :
-			record(problem, unitResult, referenceContext);
-			break;
+		this.handle(
+				problemId,
+				problemArguments,
+				0, // no message elaboration
+				messageArguments,
+				computeSeverity(problemId), // severity inferred using the ID
+				problemStartPosition,
+				problemEndPosition,
+				referenceContext,
+				unitResult);
 	}
-}
-/**
- * Standard problem handling API, the actual severity (warning/error/ignore) is deducted
- * from the problem ID and the current compiler options.
- */
-public void handle(
-	int problemId,
-	String[] problemArguments,
-	String[] messageArguments,
-	int problemStartPosition,
-	int problemEndPosition,
-	ReferenceContext referenceContext,
-	CompilationResult unitResult) {
 
-	this.handle(
-		problemId,
-		problemArguments,
-		0, // no message elaboration
-		messageArguments,
-		computeSeverity(problemId), // severity inferred using the ID
-		problemStartPosition,
-		problemEndPosition,
-		referenceContext,
-		unitResult);
-}
-public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
-	unitResult.record(problem, referenceContext);
-}
+	public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
+		unitResult.record(problem, referenceContext);
+	}
 }

@@ -20,9 +20,10 @@ import org.eclipse.jdt.internal.core.PackageDeclaration;
 
 public class AssistPackageDeclaration extends PackageDeclaration {
 	private Map infoCache;
+
 	public AssistPackageDeclaration(CompilationUnit parent, String name, Map infoCache) {
 		super(parent, name);
-		this.infoCache = infoCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {

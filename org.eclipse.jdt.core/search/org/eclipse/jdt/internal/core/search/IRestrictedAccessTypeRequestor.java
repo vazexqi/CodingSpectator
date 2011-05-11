@@ -13,8 +13,10 @@ package org.eclipse.jdt.internal.core.search;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 
 /**
- * A <code>IRestrictedAccessTypeRequestor</code> collects search results from a <code>searchAllTypeNames</code>
- * query to a <code>SearchBasicEngine</code> providing restricted access information when a type is accepted.
+ * A <code>IRestrictedAccessTypeRequestor</code> collects search results from a
+ * <code>searchAllTypeNames</code> query to a <code>SearchBasicEngine</code> providing restricted
+ * access information when a type is accepted.
+ * 
  * @see org.eclipse.jdt.core.search.TypeNameRequestor
  */
 public interface IRestrictedAccessTypeRequestor {

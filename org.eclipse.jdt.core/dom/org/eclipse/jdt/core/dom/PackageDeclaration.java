@@ -15,23 +15,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Package declaration AST node type.
- * For JLS2:
+ * Package declaration AST node type. For JLS2:
+ * 
  * <pre>
  * PackageDeclaration:
  *    <b>package</b> Name <b>;</b>
  * </pre>
- * For JLS3, annotations and doc comment
- * were added:
+ * 
+ * For JLS3, annotations and doc comment were added:
+ * 
  * <pre>
  * PackageDeclaration:
  *    [ Javadoc ] { Annotation } <b>package</b> Name <b>;</b>
  * </pre>
- * Note that the standard AST parser only recognizes a Javadoc comment
- * immediately preceding the package declaration when it occurs in the
- * special <code>package-info.java</code> compilation unit (JLS3 7.4.1.1).
- * The Javadoc comment in that file contains the package description.
- *
+ * 
+ * Note that the standard AST parser only recognizes a Javadoc comment immediately preceding the
+ * package declaration when it occurs in the special <code>package-info.java</code> compilation unit
+ * (JLS3 7.4.1.1). The Javadoc comment in that file contains the package description.
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -39,64 +40,65 @@ public class PackageDeclaration extends ASTNode {
 
 	/**
 	 * The "javadoc" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
-		new ChildPropertyDescriptor(PackageDeclaration.class, "javadoc", Javadoc.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY=
+			new ChildPropertyDescriptor(PackageDeclaration.class, "javadoc", Javadoc.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "annotations" structural property of this node type (added in JLS3 API).
+	 * 
 	 * @since 3.1
 	 */
-	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(PackageDeclaration.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY=
+			new ChildListPropertyDescriptor(PackageDeclaration.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "name" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor NAME_PROPERTY =
-		new ChildPropertyDescriptor(PackageDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor NAME_PROPERTY=
+			new ChildPropertyDescriptor(PackageDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
+	 * 
 	 * @since 3.0
 	 */
 	private static final List PROPERTY_DESCRIPTORS_2_0;
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
+	 * 
 	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 
 	static {
-		List propertyList = new ArrayList(2);
+		List propertyList= new ArrayList(2);
 		createPropertyList(PackageDeclaration.class, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS_2_0= reapPropertyList(propertyList);
 
-		propertyList = new ArrayList(4);
+		propertyList= new ArrayList(4);
 		createPropertyList(PackageDeclaration.class, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
 		addProperty(ANNOTATIONS_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS_3_0= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -108,42 +110,41 @@ public class PackageDeclaration extends ASTNode {
 	}
 
 	/**
-	 * The doc comment, or <code>null</code> if none.
-	 * Defaults to none.
+	 * The doc comment, or <code>null</code> if none. Defaults to none.
+	 * 
 	 * @since 3.0
 	 */
-	Javadoc optionalDocComment = null;
+	Javadoc optionalDocComment= null;
 
 	/**
-	 * The annotations (element type: <code>Annotation</code>).
-	 * Null in JLS2. Added in JLS3; defaults to an empty list
-	 * (see constructor).
+	 * The annotations (element type: <code>Annotation</code>). Null in JLS2. Added in JLS3;
+	 * defaults to an empty list (see constructor).
+	 * 
 	 * @since 3.1
 	 */
-	private ASTNode.NodeList annotations = null;
+	private ASTNode.NodeList annotations= null;
 
 	/**
-	 * The package name; lazily initialized; defaults to a unspecified,
-	 * legal Java package identifier.
+	 * The package name; lazily initialized; defaults to a unspecified, legal Java package
+	 * identifier.
 	 */
-	private Name packageName = null;
+	private Name packageName= null;
 
 	/**
-	 * Creates a new AST node for a package declaration owned by the
-	 * given AST. The package declaration initially has an unspecified,
-	 * but legal, Java identifier; and an empty list of annotations.
+	 * Creates a new AST node for a package declaration owned by the given AST. The package
+	 * declaration initially has an unspecified, but legal, Java identifier; and an empty list of
+	 * annotations.
 	 * <p>
-	 * N.B. This constructor is package-private; all subclasses must be
-	 * declared in the same package; clients are unable to declare
-	 * additional subclasses.
+	 * N.B. This constructor is package-private; all subclasses must be declared in the same
+	 * package; clients are unable to declare additional subclasses.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	PackageDeclaration(AST ast) {
 		super(ast);
 		if (ast.apiLevel >= AST.JLS3) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+			this.annotations= new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 		}
 	}
 
@@ -162,7 +163,7 @@ public class PackageDeclaration extends ASTNode {
 			if (get) {
 				return getJavadoc();
 			} else {
-				setJavadoc((Javadoc) child);
+				setJavadoc((Javadoc)child);
 				return null;
 			}
 		}
@@ -170,7 +171,7 @@ public class PackageDeclaration extends ASTNode {
 			if (get) {
 				return getName();
 			} else {
-				setName((Name) child);
+				setName((Name)child);
 				return null;
 			}
 		}
@@ -200,13 +201,13 @@ public class PackageDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		PackageDeclaration result = new PackageDeclaration(target);
+		PackageDeclaration result= new PackageDeclaration(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		if (this.ast.apiLevel >= AST.JLS3) {
-			result.setJavadoc((Javadoc) ASTNode.copySubtree(target, getJavadoc()));
+			result.setJavadoc((Javadoc)ASTNode.copySubtree(target, getJavadoc()));
 			result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
 		}
-		result.setName((Name) getName().clone(target));
+		result.setName((Name)getName().clone(target));
 		return result;
 	}
 
@@ -222,7 +223,7 @@ public class PackageDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			if (this.ast.apiLevel >= AST.JLS3) {
 				acceptChild(visitor, getJavadoc());
@@ -234,13 +235,10 @@ public class PackageDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Returns the live ordered list of annotations of this
-	 * package declaration (added in JLS3 API).
-	 *
-	 * @return the live list of annotations
-	 *    (element type: <code>Annotation</code>)
-	 * @exception UnsupportedOperationException if this operation is used in
-	 * a JLS2 AST
+	 * Returns the live ordered list of annotations of this package declaration (added in JLS3 API).
+	 * 
+	 * @return the live list of annotations (element type: <code>Annotation</code>)
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2 AST
 	 * @since 3.1
 	 */
 	public List annotations() {
@@ -253,10 +251,9 @@ public class PackageDeclaration extends ASTNode {
 
 	/**
 	 * Returns the doc comment node.
-	 *
+	 * 
 	 * @return the doc comment node, or <code>null</code> if none
-	 * @exception UnsupportedOperationException if this operation is used in
-	 * a JLS2 AST
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2 AST
 	 * @since 3.0
 	 */
 	public Javadoc getJavadoc() {
@@ -269,11 +266,10 @@ public class PackageDeclaration extends ASTNode {
 
 	/**
 	 * Sets or clears the doc comment node.
-	 *
+	 * 
 	 * @param docComment the doc comment node, or <code>null</code> if none
 	 * @exception IllegalArgumentException if the doc comment string is invalid
-	 * @exception UnsupportedOperationException if this operation is used in
-	 * a JLS2 AST
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2 AST
 	 * @since 3.0
 	 */
 	public void setJavadoc(Javadoc docComment) {
@@ -281,15 +277,15 @@ public class PackageDeclaration extends ASTNode {
 		if (this.annotations == null) {
 			unsupportedIn2();
 		}
-		ASTNode oldChild = this.optionalDocComment;
+		ASTNode oldChild= this.optionalDocComment;
 		preReplaceChild(oldChild, docComment, JAVADOC_PROPERTY);
-		this.optionalDocComment = docComment;
+		this.optionalDocComment= docComment;
 		postReplaceChild(oldChild, docComment, JAVADOC_PROPERTY);
 	}
 
 	/**
 	 * Returns the package name of this package declaration.
-	 *
+	 * 
 	 * @return the package name node
 	 */
 	public Name getName() {
@@ -298,7 +294,7 @@ public class PackageDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.packageName == null) {
 					preLazyInit();
-					this.packageName = new SimpleName(this.ast);
+					this.packageName= new SimpleName(this.ast);
 					postLazyInit(this.packageName, NAME_PROPERTY);
 				}
 			}
@@ -308,34 +304,31 @@ public class PackageDeclaration extends ASTNode {
 
 	/**
 	 * Sets the package name of this package declaration to the given name.
-	 *
+	 * 
 	 * @param name the new package name
 	 * @exception IllegalArgumentException if`:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setName(Name name) {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.packageName;
+		ASTNode oldChild= this.packageName;
 		preReplaceChild(oldChild, name, NAME_PROPERTY);
-		this.packageName = name;
+		this.packageName= name;
 		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**
-	 * Resolves and returns the binding for the package declared in this package
-	 * declaration.
+	 * Resolves and returns the binding for the package declared in this package declaration.
 	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
+	 * Note that bindings are generally unavailable unless requested when the AST is being built.
 	 * </p>
-	 *
-	 * @return the binding, or <code>null</code> if the binding cannot be
-	 *    resolved
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be resolved
 	 */
 	public IPackageBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolvePackage(this);
@@ -352,11 +345,9 @@ public class PackageDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
-			+ (this.annotations == null ? 0 : this.annotations.listSize())
-			+ (this.packageName == null ? 0 : getName().treeSize());
+		return memSize()
+				+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
+				+ (this.annotations == null ? 0 : this.annotations.listSize())
+				+ (this.packageName == null ? 0 : getName().treeSize());
 	}
 }
-

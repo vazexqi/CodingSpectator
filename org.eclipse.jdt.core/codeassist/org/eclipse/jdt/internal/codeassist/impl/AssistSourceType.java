@@ -26,15 +26,17 @@ import org.eclipse.jdt.internal.core.ResolvedSourceType;
 
 public class AssistSourceType extends ResolvedSourceType {
 	private Map bindingCache;
+
 	private Map infoCache;
 
 	private String uniqueKey;
+
 	private boolean isResolved;
 
 	public AssistSourceType(JavaElement parent, String name, Map bindingCache, Map infoCache) {
 		super(parent, name, null);
-		this.bindingCache = bindingCache;
-		this.infoCache = infoCache;
+		this.bindingCache= bindingCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
@@ -53,14 +55,14 @@ public class AssistSourceType extends ResolvedSourceType {
 	 */
 	public String getKey() {
 		if (this.uniqueKey == null) {
-			Binding binding = (Binding) this.bindingCache.get(this);
+			Binding binding= (Binding)this.bindingCache.get(this);
 			if (binding != null) {
-				this.isResolved = true;
-				this.uniqueKey = new String(binding.computeUniqueKey());
+				this.isResolved= true;
+				this.uniqueKey= new String(binding.computeUniqueKey());
 			} else {
-				this.isResolved = false;
+				this.isResolved= false;
 				try {
-					this.uniqueKey = getKey(this, false/*don't open*/);
+					this.uniqueKey= getKey(this, false/*don't open*/);
 				} catch (JavaModelException e) {
 					// happen only if force open is true
 					return null;
@@ -75,7 +77,7 @@ public class AssistSourceType extends ResolvedSourceType {
 		return this.isResolved;
 	}
 
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info,boolean showResolvedInfo) {
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo && isResolved());
 	}
 
@@ -100,8 +102,8 @@ public class AssistSourceType extends ResolvedSourceType {
 	}
 
 	public IType getType(String typeName, int count) {
-		AssistSourceType type = new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
-		type.occurrenceCount = count;
+		AssistSourceType type= new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
+		type.occurrenceCount= count;
 		return type;
 	}
 

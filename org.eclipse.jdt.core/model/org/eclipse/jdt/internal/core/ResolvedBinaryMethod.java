@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle representing a binary method that is resolved.
- * The uniqueKey contains the genericSignature of the resolved method. Use BindingKey to decode it.
+ * Handle representing a binary method that is resolved. The uniqueKey contains the genericSignature
+ * of the resolved method. Use BindingKey to decode it.
  */
 public class ResolvedBinaryMethod extends BinaryMethod {
 
@@ -23,14 +23,16 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	 */
 	public ResolvedBinaryMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
 		super(parent, name, parameterTypes);
-		this.uniqueKey = uniqueKey;
+		this.uniqueKey= uniqueKey;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.BinaryMethod#getKey()
 	 */
 	public String getKey() {
 		return this.uniqueKey;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IMethod#isResolved()
 	 */
@@ -51,8 +53,8 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryMethod(this.parent, this.name, this.parameterTypes);
-		handle.occurrenceCount = this.occurrenceCount;
+		SourceRefElement handle= new BinaryMethod(this.parent, this.name, this.parameterTypes);
+		handle.occurrenceCount= this.occurrenceCount;
 		return handle;
 	}
 }

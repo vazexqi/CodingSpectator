@@ -22,41 +22,47 @@ import org.eclipse.jdt.core.util.ILocalVariableTableEntry;
 public class LocalVariableTableEntry extends ClassFileStruct implements ILocalVariableTableEntry {
 
 	private int startPC;
+
 	private int length;
+
 	private int nameIndex;
+
 	private int descriptorIndex;
+
 	private char[] name;
+
 	private char[] descriptor;
+
 	private int index;
 
 	/**
 	 * Constructor for LocalVariableTableEntry.
-	 *
+	 * 
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
 	 * @throws ClassFormatException
 	 */
 	public LocalVariableTableEntry(
-		byte[] classFileBytes,
-		IConstantPool constantPool,
-		int offset) throws ClassFormatException {
-			this.startPC = u2At(classFileBytes, 0, offset);
-			this.length = u2At(classFileBytes, 2, offset);
-			this.nameIndex = u2At(classFileBytes, 4, offset);
-			this.descriptorIndex = u2At(classFileBytes, 6, offset);
-			this.index = u2At(classFileBytes, 8, offset);
-			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.nameIndex);
-			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
-				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
-			}
-			this.name = constantPoolEntry.getUtf8Value();
-			constantPoolEntry = constantPool.decodeEntry(this.descriptorIndex);
-			if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
-				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
-			}
-			this.descriptor = constantPoolEntry.getUtf8Value();
+			byte[] classFileBytes,
+			IConstantPool constantPool,
+			int offset) throws ClassFormatException {
+		this.startPC= u2At(classFileBytes, 0, offset);
+		this.length= u2At(classFileBytes, 2, offset);
+		this.nameIndex= u2At(classFileBytes, 4, offset);
+		this.descriptorIndex= u2At(classFileBytes, 6, offset);
+		this.index= u2At(classFileBytes, 8, offset);
+		IConstantPoolEntry constantPoolEntry= constantPool.decodeEntry(this.nameIndex);
+		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
+		this.name= constantPoolEntry.getUtf8Value();
+		constantPoolEntry= constantPool.decodeEntry(this.descriptorIndex);
+		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
+			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
+		}
+		this.descriptor= constantPoolEntry.getUtf8Value();
+	}
 
 	/**
 	 * @see ILocalVariableTableEntry#getStartPC()

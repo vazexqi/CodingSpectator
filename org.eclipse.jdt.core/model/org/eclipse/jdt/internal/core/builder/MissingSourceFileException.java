@@ -16,9 +16,10 @@ package org.eclipse.jdt.internal.core.builder;
 public class MissingSourceFileException extends RuntimeException {
 
 	protected String missingSourceFile;
-	private static final long serialVersionUID = -1416609004971115719L; // backward compatible
 
-public MissingSourceFileException(String missingSourceFile) {
-	this.missingSourceFile = missingSourceFile;
-}
+	private static final long serialVersionUID= -1416609004971115719L; // backward compatible
+
+	public MissingSourceFileException(String missingSourceFile) {
+		this.missingSourceFile= missingSourceFile;
+	}
 }

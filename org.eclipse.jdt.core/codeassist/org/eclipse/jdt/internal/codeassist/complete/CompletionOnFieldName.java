@@ -15,17 +15,20 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
 public class CompletionOnFieldName extends FieldDeclaration {
-	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
+	private static final char[] FAKENAMESUFFIX= " ".toCharArray(); //$NON-NLS-1$
+
 	public char[] realName;
+
 	public CompletionOnFieldName(char[] name, int sourceStart, int sourceEnd) {
 		super(CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd);
-		this.realName = name;
+		this.realName= name;
 	}
 
 	public StringBuffer printStatement(int tab, StringBuffer output) {
 
 		printIndent(tab, output).append("<CompleteOnFieldName:"); //$NON-NLS-1$
-		if (this.type != null) this.type.print(0, output).append(' ');
+		if (this.type != null)
+			this.type.print(0, output).append(' ');
 		output.append(this.realName);
 		if (this.initialization != null) {
 			output.append(" = "); //$NON-NLS-1$
@@ -40,4 +43,3 @@ public class CompletionOnFieldName extends FieldDeclaration {
 		throw new CompletionNodeFound(this, initializationScope);
 	}
 }
-

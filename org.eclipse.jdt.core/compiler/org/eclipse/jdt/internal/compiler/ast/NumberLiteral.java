@@ -15,19 +15,19 @@ public abstract class NumberLiteral extends Literal {
 	char[] source;
 
 	public NumberLiteral(char[] token, int s, int e) {
-		this(s,e) ;
-		this.source = token ;
+		this(s, e);
+		this.source= token;
 	}
 
 	public NumberLiteral(int s, int e) {
-		super (s,e) ;
+		super(s, e);
 	}
 
-	public boolean isValidJavaStatement(){
-		return false ;
+	public boolean isValidJavaStatement() {
+		return false;
 	}
 
-	public char[] source(){
+	public char[] source() {
 		return this.source;
 	}
 }

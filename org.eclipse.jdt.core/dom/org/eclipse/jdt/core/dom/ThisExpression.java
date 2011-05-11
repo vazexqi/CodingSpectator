@@ -16,16 +16,16 @@ import java.util.List;
 
 /**
  * Simple or qualified "this" AST node type.
- *
+ * 
  * <pre>
  * ThisExpression:
  *     [ ClassName <b>.</b> ] <b>this</b>
  * </pre>
  * <p>
- * See <code>FieldAccess</code> for guidelines on handling other expressions
- * that resemble qualified names.
+ * See <code>FieldAccess</code> for guidelines on handling other expressions that resemble qualified
+ * names.
  * </p>
- *
+ * 
  * @see FieldAccess
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -34,33 +34,31 @@ public class ThisExpression extends Expression {
 
 	/**
 	 * The "qualifier" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY =
-		new ChildPropertyDescriptor(ThisExpression.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY=
+			new ChildPropertyDescriptor(ThisExpression.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(2);
+		List propertyList= new ArrayList(2);
 		createPropertyList(ThisExpression.class, propertyList);
 		addProperty(QUALIFIER_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -70,12 +68,12 @@ public class ThisExpression extends Expression {
 	/**
 	 * The optional qualifier; <code>null</code> for none; defaults to none.
 	 */
-	private Name optionalQualifier = null;
+	private Name optionalQualifier= null;
 
 	/**
-	 * Creates a new AST node for a "this" expression owned by the
-	 * given AST. By default, there is no qualifier.
-	 *
+	 * Creates a new AST node for a "this" expression owned by the given AST. By default, there is
+	 * no qualifier.
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	ThisExpression(AST ast) {
@@ -97,7 +95,7 @@ public class ThisExpression extends Expression {
 			if (get) {
 				return getQualifier();
 			} else {
-				setQualifier((Name) child);
+				setQualifier((Name)child);
 				return null;
 			}
 		}
@@ -116,9 +114,9 @@ public class ThisExpression extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		ThisExpression result = new ThisExpression(target);
+		ThisExpression result= new ThisExpression(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
+		result.setQualifier((Name)ASTNode.copySubtree(target, getQualifier()));
 		return result;
 	}
 
@@ -134,7 +132,7 @@ public class ThisExpression extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getQualifier());
 		}
@@ -142,9 +140,8 @@ public class ThisExpression extends Expression {
 	}
 
 	/**
-	 * Returns the qualifier of this "this" expression, or
-	 * <code>null</code> if there is none.
-	 *
+	 * Returns the qualifier of this "this" expression, or <code>null</code> if there is none.
+	 * 
 	 * @return the qualifier name node, or <code>null</code> if there is none
 	 */
 	public Name getQualifier() {
@@ -153,19 +150,18 @@ public class ThisExpression extends Expression {
 
 	/**
 	 * Sets or clears the qualifier of this "this" expression.
-	 *
-	 * @param name the qualifier name node, or <code>null</code> if
-	 *    there is none
+	 * 
+	 * @param name the qualifier name node, or <code>null</code> if there is none
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setQualifier(Name name) {
-		ASTNode oldChild = this.optionalQualifier;
+		ASTNode oldChild= this.optionalQualifier;
 		preReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
-		this.optionalQualifier = name;
+		this.optionalQualifier= name;
 		postReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 	}
 
@@ -181,8 +177,7 @@ public class ThisExpression extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize());
+		return memSize()
+				+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize());
 	}
 }

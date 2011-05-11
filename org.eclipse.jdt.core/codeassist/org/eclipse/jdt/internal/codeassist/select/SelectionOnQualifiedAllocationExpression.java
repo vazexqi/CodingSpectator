@@ -52,7 +52,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		if (this.enclosingInstance == null)
-			output.append("<SelectOnAllocationExpression:");  //$NON-NLS-1$
+			output.append("<SelectOnAllocationExpression:"); //$NON-NLS-1$
 		else
 			output.append("<SelectOnQualifiedAllocationExpression:"); //$NON-NLS-1$
 
@@ -89,10 +89,10 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 		// find its target super constructor (if extending a class) or its target
 		// super interface (if extending an interface)
 		if (this.anonymousType.binding != null) {
-			LocalTypeBinding localType = (LocalTypeBinding) this.anonymousType.binding;
+			LocalTypeBinding localType= (LocalTypeBinding)this.anonymousType.binding;
 			if (localType.superInterfaces == Binding.NO_SUPERINTERFACES) {
 				// find the constructor binding inside the super constructor call
-				ConstructorDeclaration constructor = (ConstructorDeclaration) this.anonymousType.declarationOf(this.binding.original());
+				ConstructorDeclaration constructor= (ConstructorDeclaration)this.anonymousType.declarationOf(this.binding.original());
 				if (constructor != null) {
 					throw new SelectionNodeFound(constructor.constructorCall.binding);
 				}

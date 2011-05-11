@@ -20,7 +20,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeParameter extends AbstractVariableDeclaration {
 
-    public TypeVariableBinding binding;
+	public TypeVariableBinding binding;
+
 	public TypeReference[] bounds;
 
 	/**
@@ -36,16 +37,16 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.checkBounds(scope);
 		}
 		if (this.bounds != null) {
-			for (int i = 0, length = this.bounds.length; i < length; i++) {
+			for (int i= 0, length= this.bounds.length; i < length; i++) {
 				this.bounds[i].checkBounds(scope);
 			}
 		}
 	}
 
 	private void internalResolve(Scope scope, boolean staticContext) {
-	    // detect variable/type name collisions
+		// detect variable/type name collisions
 		if (this.binding != null) {
-			Binding existingType = scope.parent.getBinding(this.name, Binding.TYPE, this, false/*do not resolve hidden field*/);
+			Binding existingType= scope.parent.getBinding(this.name, Binding.TYPE, this, false/*do not resolve hidden field*/);
 			if (existingType != null
 					&& this.binding != existingType
 					&& existingType.isValidBinding()
@@ -72,8 +73,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			output.append(" extends "); //$NON-NLS-1$
 			this.type.print(0, output);
 		}
-		if (this.bounds != null){
-			for (int i = 0; i < this.bounds.length; i++) {
+		if (this.bounds != null) {
+			for (int i= 0; i < this.bounds.length; i++) {
 				output.append(" & "); //$NON-NLS-1$
 				this.bounds[i].print(0, output);
 			}
@@ -82,7 +83,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-	    // nothing to do
+		// nothing to do
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
@@ -91,8 +92,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				this.type.traverse(visitor, scope);
 			}
 			if (this.bounds != null) {
-				int boundsLength = this.bounds.length;
-				for (int i = 0; i < boundsLength; i++) {
+				int boundsLength= this.bounds.length;
+				for (int i= 0; i < boundsLength; i++) {
 					this.bounds[i].traverse(visitor, scope);
 				}
 			}
@@ -106,8 +107,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				this.type.traverse(visitor, scope);
 			}
 			if (this.bounds != null) {
-				int boundsLength = this.bounds.length;
-				for (int i = 0; i < boundsLength; i++) {
+				int boundsLength= this.bounds.length;
+				for (int i= 0; i < boundsLength; i++) {
 					this.bounds[i].traverse(visitor, scope);
 				}
 			}

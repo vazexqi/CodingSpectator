@@ -25,37 +25,37 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * A jar entry that represents a non-java file found in a JAR.
- *
+ * 
  * @see IStorage
  */
-public class JarEntryFile  extends JarEntryResource {
-	private static final IJarEntryResource[] NO_CHILDREN = new IJarEntryResource[0];
+public class JarEntryFile extends JarEntryResource {
+	private static final IJarEntryResource[] NO_CHILDREN= new IJarEntryResource[0];
 
 	public JarEntryFile(String simpleName) {
 		super(simpleName);
 	}
 
 	public JarEntryResource clone(Object newParent) {
-		JarEntryFile file = new JarEntryFile(this.simpleName);
+		JarEntryFile file= new JarEntryFile(this.simpleName);
 		file.setParent(newParent);
 		return file;
 	}
 
 	public InputStream getContents() throws CoreException {
-		ZipFile zipFile = null;
+		ZipFile zipFile= null;
 		try {
-			zipFile = getZipFile();
+			zipFile= getZipFile();
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JarEntryFile.getContents()] Creating ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
+				System.out.println("(" + Thread.currentThread() + ") [JarEntryFile.getContents()] Creating ZipFile on " + zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
 			}
-			String entryName = getEntryName();
-			ZipEntry zipEntry = zipFile.getEntry(entryName);
-			if (zipEntry == null){
+			String entryName= getEntryName();
+			ZipEntry zipEntry= zipFile.getEntry(entryName);
+			if (zipEntry == null) {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, entryName));
 			}
-			byte[] contents = Util.getZipEntryByteContent(zipEntry, zipFile);
+			byte[] contents= Util.getZipEntryByteContent(zipEntry, zipFile);
 			return new ByteArrayInputStream(contents);
-		} catch (IOException e){
+		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} finally {
 			// avoid leaking ZipFiles
@@ -72,6 +72,6 @@ public class JarEntryFile  extends JarEntryResource {
 	}
 
 	public String toString() {
-		return "JarEntryFile["+getEntryName()+"]"; //$NON-NLS-2$ //$NON-NLS-1$
+		return "JarEntryFile[" + getEntryName() + "]"; //$NON-NLS-2$ //$NON-NLS-1$
 	}
 }

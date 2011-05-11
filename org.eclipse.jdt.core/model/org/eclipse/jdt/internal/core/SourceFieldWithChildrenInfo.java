@@ -15,9 +15,9 @@ import org.eclipse.jdt.core.IJavaElement;
 public class SourceFieldWithChildrenInfo extends SourceFieldElementInfo {
 
 	protected IJavaElement[] children;
-	
+
 	public SourceFieldWithChildrenInfo(IJavaElement[] children) {
-		this.children = children;
+		this.children= children;
 	}
 
 	public IJavaElement[] getChildren() {

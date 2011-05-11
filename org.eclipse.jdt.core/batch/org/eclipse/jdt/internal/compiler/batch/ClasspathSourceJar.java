@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -26,38 +26,39 @@ public class ClasspathSourceJar extends ClasspathJar {
 			AccessRuleSet accessRuleSet, String encoding,
 			String destinationPath) {
 		super(file, closeZipFileAtEnd, accessRuleSet, destinationPath);
-		this.encoding = encoding;
+		this.encoding= encoding;
 	}
 
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		if (!isPackage(qualifiedPackageName))
 			return null; // most common case
 
-		ZipEntry sourceEntry = this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java);
+		ZipEntry sourceEntry= this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java);
 		if (sourceEntry != null) {
 			try {
-				InputStream stream = null;
-				char[] contents = null; 
+				InputStream stream= null;
+				char[] contents= null;
 				try {
-					stream = this.zipFile.getInputStream(sourceEntry);
-					contents = Util.getInputStreamAsCharArray(stream, -1, this.encoding);
+					stream= this.zipFile.getInputStream(sourceEntry);
+					contents= Util.getInputStreamAsCharArray(stream, -1, this.encoding);
 				} finally {
 					if (stream != null)
 						stream.close();
 				}
 				return new NameEnvironmentAnswer(
-					new CompilationUnit(
-						contents,
-						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java,
-						this.encoding,
-						this.destinationPath),
-					fetchAccessRestriction(qualifiedBinaryFileName));
+						new CompilationUnit(
+								contents,
+								qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java,
+								this.encoding,
+								this.destinationPath),
+						fetchAccessRestriction(qualifiedBinaryFileName));
 			} catch (IOException e) {
 				// treat as if source file is missing
 			}
 		}
 		return null;
 	}
+
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
 	}

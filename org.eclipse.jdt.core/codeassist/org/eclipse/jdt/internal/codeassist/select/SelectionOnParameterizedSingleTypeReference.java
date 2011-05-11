@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnParameterizedSingleTypeReference extends ParameterizedSingleTypeReference {
-	public SelectionOnParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, long pos){
+	public SelectionOnParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, long pos) {
 		super(name, typeArguments, 0, pos);
 	}
 
@@ -31,11 +31,11 @@ public class SelectionOnParameterizedSingleTypeReference extends ParameterizedSi
 		throw new SelectionNodeFound(this.resolvedType);
 	}
 
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<SelectOnType:");//$NON-NLS-1$
 		output.append(this.token);
 		output.append('<');
-		int max = this.typeArguments.length - 1;
+		int max= this.typeArguments.length - 1;
 		for (int i= 0; i < max; i++) {
 			this.typeArguments[i].print(0, output);
 			output.append(", ");//$NON-NLS-1$

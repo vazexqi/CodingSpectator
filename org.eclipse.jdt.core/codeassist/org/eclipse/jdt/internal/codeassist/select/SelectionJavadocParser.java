@@ -14,7 +14,10 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 
 /**
@@ -23,31 +26,33 @@ import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 public class SelectionJavadocParser extends JavadocParser {
 
 	int selectionStart;
+
 	int selectionEnd;
+
 	ASTNode selectedNode;
 
 	public SelectionJavadocParser(SelectionParser sourceParser) {
 		super(sourceParser);
-		this.shouldReportProblems = false;
-		this.reportProblems = false;
-		this.kind = SELECTION_PARSER | TEXT_PARSE;
+		this.shouldReportProblems= false;
+		this.reportProblems= false;
+		this.kind= SELECTION_PARSER | TEXT_PARSE;
 	}
 
 	/*
 	 * Do not parse comment if selection is not included.
 	 */
 	public boolean checkDeprecation(int commentPtr) {
-		this.selectionStart = ((SelectionParser)this.sourceParser).selectionStart;
-		this.selectionEnd = ((SelectionParser)this.sourceParser).selectionEnd;
-		this.javadocStart = this.sourceParser.scanner.commentStarts[commentPtr];
-		this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr];
+		this.selectionStart= ((SelectionParser)this.sourceParser).selectionStart;
+		this.selectionEnd= ((SelectionParser)this.sourceParser).selectionEnd;
+		this.javadocStart= this.sourceParser.scanner.commentStarts[commentPtr];
+		this.javadocEnd= this.sourceParser.scanner.commentStops[commentPtr];
 		if (this.javadocStart <= this.selectionStart && this.selectionEnd <= this.javadocEnd) {
 			if (SelectionEngine.DEBUG) {
 				System.out.println("SELECTION in Javadoc:"); //$NON-NLS-1$
 			}
 			super.checkDeprecation(commentPtr);
 		} else {
-			this.docComment = null;
+			this.docComment= null;
 		}
 		return false;
 	}
@@ -56,7 +61,7 @@ public class SelectionJavadocParser extends JavadocParser {
 	 * Replace stored Javadoc node with specific selection one.
 	 */
 	protected boolean commentParse() {
-		this.docComment = new SelectionJavadoc(this.javadocStart, this.javadocEnd);
+		this.docComment= new SelectionJavadoc(this.javadocStart, this.javadocEnd);
 		return super.commentParse();
 	}
 
@@ -65,15 +70,15 @@ public class SelectionJavadocParser extends JavadocParser {
 	 */
 	protected Object createArgumentReference(char[] name, int dim, boolean isVarargs, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		// Create argument as we may need it after
-		Expression expression = (Expression) super.createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+		Expression expression= (Expression)super.createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
 		// See if selection is in argument
-		int start = ((TypeReference)typeRef).sourceStart;
-		int end = ((TypeReference)typeRef).sourceEnd;
+		int start= ((TypeReference)typeRef).sourceStart;
+		int end= ((TypeReference)typeRef).sourceEnd;
 		if (start <= this.selectionStart && this.selectionEnd <= end) {
-			this.selectedNode = expression;
-			this.abort = true;
+			this.selectedNode= expression;
+			this.abort= true;
 			if (SelectionEngine.DEBUG) {
-				System.out.println("	selected argument="+this.selectedNode); //$NON-NLS-1$
+				System.out.println("	selected argument=" + this.selectedNode); //$NON-NLS-1$
 			}
 		}
 		return expression;
@@ -85,13 +90,13 @@ public class SelectionJavadocParser extends JavadocParser {
 	 * Otherwise return null as we do not need this reference.
 	 */
 	protected Object createFieldReference(Object receiver) throws InvalidInputException {
-		int start = (int) (this.identifierPositionStack[0] >>> 32);
-		int end = (int) this.identifierPositionStack[0];
+		int start= (int)(this.identifierPositionStack[0] >>> 32);
+		int end= (int)this.identifierPositionStack[0];
 		if (start <= this.selectionStart && this.selectionEnd <= end) {
-			this.selectedNode = (ASTNode) super.createFieldReference(receiver);
-			this.abort = true;
+			this.selectedNode= (ASTNode)super.createFieldReference(receiver);
+			this.abort= true;
 			if (SelectionEngine.DEBUG) {
-				System.out.println("	selected field="+this.selectedNode); //$NON-NLS-1$
+				System.out.println("	selected field=" + this.selectedNode); //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -103,14 +108,14 @@ public class SelectionJavadocParser extends JavadocParser {
 	 * Otherwise return null as we do not need this reference.
 	 */
 	protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
-		int memberPtr = this.identifierLengthStack[0] - 1;	// may be > 0 for inner class constructor reference
-		int start = (int) (this.identifierPositionStack[memberPtr] >>> 32);
-		int end = (int) this.identifierPositionStack[memberPtr];
+		int memberPtr= this.identifierLengthStack[0] - 1; // may be > 0 for inner class constructor reference
+		int start= (int)(this.identifierPositionStack[memberPtr] >>> 32);
+		int end= (int)this.identifierPositionStack[memberPtr];
 		if (start <= this.selectionStart && this.selectionEnd <= end) {
-			this.selectedNode = (ASTNode) super.createMethodReference(receiver, arguments);
-			this.abort = true;
+			this.selectedNode= (ASTNode)super.createMethodReference(receiver, arguments);
+			this.abort= true;
 			if (SelectionEngine.DEBUG) {
-				System.out.println("	selected method="+this.selectedNode); //$NON-NLS-1$
+				System.out.println("	selected method=" + this.selectedNode); //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -123,28 +128,28 @@ public class SelectionJavadocParser extends JavadocParser {
 	 */
 	protected Object createTypeReference(int primitiveToken) {
 		// Need to create type ref in case it was needed by members
-		TypeReference typeRef = (TypeReference) super.createTypeReference(primitiveToken);
+		TypeReference typeRef= (TypeReference)super.createTypeReference(primitiveToken);
 
 		// See if node is concerned by selection
 		if (typeRef.sourceStart <= this.selectionStart && this.selectionEnd <= typeRef.sourceEnd) {
 			// See if selection is in one of tokens of qualification
 			if (typeRef instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference qualifiedTypeRef = (JavadocQualifiedTypeReference) typeRef;
-				int size = qualifiedTypeRef.tokens.length - 1;
-				for (int i=0; i<size; i++) {
-					int start = (int) (qualifiedTypeRef.sourcePositions[i] >>> 32);
-					int end = (int) qualifiedTypeRef.sourcePositions[i];
+				JavadocQualifiedTypeReference qualifiedTypeRef= (JavadocQualifiedTypeReference)typeRef;
+				int size= qualifiedTypeRef.tokens.length - 1;
+				for (int i= 0; i < size; i++) {
+					int start= (int)(qualifiedTypeRef.sourcePositions[i] >>> 32);
+					int end= (int)qualifiedTypeRef.sourcePositions[i];
 					if (start <= this.selectionStart && this.selectionEnd <= end) {
-						int pos = i + 1;
-						char[][] tokens = new char[pos][];
-						int ptr = this.identifierPtr - size;
+						int pos= i + 1;
+						char[][] tokens= new char[pos][];
+						int ptr= this.identifierPtr - size;
 						System.arraycopy(this.identifierStack, ptr, tokens, 0, pos);
-						long[] positions = new long[pos];
+						long[] positions= new long[pos];
 						System.arraycopy(this.identifierPositionStack, ptr, positions, 0, pos);
-						this.selectedNode = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
-						this.abort = true; // we got selected node => cancel parse
+						this.selectedNode= new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+						this.abort= true; // we got selected node => cancel parse
 						if (SelectionEngine.DEBUG) {
-							System.out.println("	selected partial qualified type="+this.selectedNode); //$NON-NLS-1$
+							System.out.println("	selected partial qualified type=" + this.selectedNode); //$NON-NLS-1$
 						}
 						return typeRef;
 					}
@@ -152,10 +157,10 @@ public class SelectionJavadocParser extends JavadocParser {
 				// Selection is in last token => we'll store type ref as this
 			}
 			// Store type ref as selected node
-			this.selectedNode = typeRef;
-			this.abort = true; // we got selected node => cancel parse
+			this.selectedNode= typeRef;
+			this.abort= true; // we got selected node => cancel parse
 			if (SelectionEngine.DEBUG) {
-				System.out.println("	selected type="+this.selectedNode); //$NON-NLS-1$
+				System.out.println("	selected type=" + this.selectedNode); //$NON-NLS-1$
 			}
 		}
 		return typeRef;
@@ -167,13 +172,13 @@ public class SelectionJavadocParser extends JavadocParser {
 	 */
 	protected boolean pushParamName(boolean isTypeParam) {
 		if (super.pushParamName(isTypeParam)) {
-			Expression expression = (Expression) this.astStack[this.astPtr--];
+			Expression expression= (Expression)this.astStack[this.astPtr--];
 			// See if expression is concerned by selection
 			if (expression.sourceStart <= this.selectionStart && this.selectionEnd <= expression.sourceEnd) {
-				this.selectedNode = expression;
-				this.abort = true; // we got selected node => cancel parse
+				this.selectedNode= expression;
+				this.abort= true; // we got selected node => cancel parse
 				if (SelectionEngine.DEBUG) {
-					System.out.println("	selected param="+this.selectedNode); //$NON-NLS-1$
+					System.out.println("	selected param=" + this.selectedNode); //$NON-NLS-1$
 				}
 			}
 		}
@@ -185,7 +190,7 @@ public class SelectionJavadocParser extends JavadocParser {
 	 */
 	protected void updateDocComment() {
 		if (this.selectedNode instanceof Expression) {
-			((SelectionJavadoc) this.docComment).selectedNode = (Expression) this.selectedNode;
+			((SelectionJavadoc)this.docComment).selectedNode= (Expression)this.selectedNode;
 		}
 	}
 }

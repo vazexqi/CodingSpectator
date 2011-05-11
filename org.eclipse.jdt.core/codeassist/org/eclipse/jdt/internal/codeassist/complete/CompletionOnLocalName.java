@@ -16,13 +16,14 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 
 public class CompletionOnLocalName extends LocalDeclaration {
-	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
+	private static final char[] FAKENAMESUFFIX= " ".toCharArray(); //$NON-NLS-1$
+
 	public char[] realName;
 
-	public CompletionOnLocalName(char[] name, int sourceStart, int sourceEnd){
+	public CompletionOnLocalName(char[] name, int sourceStart, int sourceEnd) {
 
 		super(CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd);
-		this.realName = name;
+		this.realName= name;
 	}
 
 	public void resolve(BlockScope scope) {
@@ -34,7 +35,8 @@ public class CompletionOnLocalName extends LocalDeclaration {
 	public StringBuffer printAsExpression(int indent, StringBuffer output) {
 		printIndent(indent, output);
 		output.append("<CompleteOnLocalName:"); //$NON-NLS-1$
-		if (this.type != null)  this.type.print(0, output).append(' ');
+		if (this.type != null)
+			this.type.print(0, output).append(' ');
 		output.append(this.realName);
 		if (this.initialization != null) {
 			output.append(" = "); //$NON-NLS-1$
@@ -48,4 +50,3 @@ public class CompletionOnLocalName extends LocalDeclaration {
 		return output.append(';');
 	}
 }
-

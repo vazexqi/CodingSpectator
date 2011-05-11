@@ -19,10 +19,9 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
- * <code>SubstitutionTextReader</code> that will substitute plain text values
- * for html entities encountered in the original text. Line breaks and
- * whitespace are preserved.
- *
+ * <code>SubstitutionTextReader</code> that will substitute plain text values for html entities
+ * encountered in the original text. Line breaks and whitespace are preserved.
+ * 
  * @since 3.0
  */
 public class HTMLEntity2JavaReader extends SubstitutionTextReader {
@@ -43,7 +42,7 @@ public class HTMLEntity2JavaReader extends SubstitutionTextReader {
 
 	/**
 	 * Creates a new instance that will read from <code>reader</code>
-	 *
+	 * 
 	 * @param reader the source reader
 	 */
 	public HTMLEntity2JavaReader(Reader reader) {
@@ -61,9 +60,9 @@ public class HTMLEntity2JavaReader extends SubstitutionTextReader {
 	}
 
 	/**
-	 * Replaces an HTML entity body (without &amp; and ;) with its
-	 * plain/text (or plain/java) counterpart.
-	 *
+	 * Replaces an HTML entity body (without &amp; and ;) with its plain/text (or plain/java)
+	 * counterpart.
+	 * 
 	 * @param symbol the entity body to resolve
 	 * @return the plain/text counterpart of <code>symbol</code>
 	 */
@@ -76,12 +75,12 @@ public class HTMLEntity2JavaReader extends SubstitutionTextReader {
 				} else {
 					ch= Integer.parseInt(symbol.substring(1), 10);
 				}
-				return String.valueOf((char) ch);
+				return String.valueOf((char)ch);
 			} catch (NumberFormatException e) {
 				// ignore
 			}
 		} else {
-			String str= (String) fgEntityLookup.get(symbol);
+			String str= (String)fgEntityLookup.get(symbol);
 			if (str != null) {
 				return str;
 			}
@@ -90,24 +89,23 @@ public class HTMLEntity2JavaReader extends SubstitutionTextReader {
 	}
 
 	/**
-	 * Reads an HTML entity from the stream and returns its plain/text
-	 * counterpart.
-	 *
+	 * Reads an HTML entity from the stream and returns its plain/text counterpart.
+	 * 
 	 * @return an entity read from the stream, or the stream content.
 	 * @throws IOException if the underlying reader throws one
 	 */
 	private String processEntity() throws IOException {
 		StringBuffer buf= new StringBuffer();
 		int ch= nextChar();
-		while (ScannerHelper.isLetterOrDigit((char) ch) || ch == '#') {
-			buf.append((char) ch);
+		while (ScannerHelper.isLetterOrDigit((char)ch) || ch == '#') {
+			buf.append((char)ch);
 			ch= nextChar();
 		}
 		if (ch == ';')
 			return entity2Text(buf.toString());
 		buf.insert(0, '&');
 		if (ch != -1)
-			buf.append((char) ch);
+			buf.append((char)ch);
 		return buf.toString();
 	}
 }

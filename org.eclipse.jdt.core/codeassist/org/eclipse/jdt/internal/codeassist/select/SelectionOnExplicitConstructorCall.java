@@ -29,8 +29,9 @@ package org.eclipse.jdt.internal.codeassist.select;
  *
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 
 public class SelectionOnExplicitConstructorCall extends ExplicitConstructorCall {
 
@@ -43,15 +44,17 @@ public class SelectionOnExplicitConstructorCall extends ExplicitConstructorCall 
 
 		printIndent(tab, output);
 		output.append("<SelectOnExplicitConstructorCall:"); //$NON-NLS-1$
-		if (this.qualification != null) this.qualification.printExpression(0, output).append('.');
+		if (this.qualification != null)
+			this.qualification.printExpression(0, output).append('.');
 		if (this.accessMode == This) {
 			output.append("this("); //$NON-NLS-1$
 		} else {
 			output.append("super("); //$NON-NLS-1$
 		}
 		if (this.arguments != null) {
-			for (int i = 0; i < this.arguments.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
+			for (int i= 0; i < this.arguments.length; i++) {
+				if (i > 0)
+					output.append(", "); //$NON-NLS-1$
 				this.arguments[i].printExpression(0, output);
 			}
 		}

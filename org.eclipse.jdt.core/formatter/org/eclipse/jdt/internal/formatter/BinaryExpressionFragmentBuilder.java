@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
@@ -21,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
@@ -52,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
@@ -61,16 +61,18 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 class BinaryExpressionFragmentBuilder
-	extends ASTVisitor {
+		extends ASTVisitor {
 
 	ArrayList fragmentsList;
+
 	ArrayList operatorsList;
+
 	private int realFragmentsSize;
 
 	BinaryExpressionFragmentBuilder() {
-		this.fragmentsList = new ArrayList();
-		this.operatorsList = new ArrayList();
-		this.realFragmentsSize = 0;
+		this.fragmentsList= new ArrayList();
+		this.operatorsList= new ArrayList();
+		this.realFragmentsSize= 0;
 	}
 
 	private final void addRealFragment(ASTNode node) {
@@ -91,16 +93,16 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public ASTNode[] fragments() {
-		ASTNode[] fragments = new ASTNode[this.fragmentsList.size()];
+		ASTNode[] fragments= new ASTNode[this.fragmentsList.size()];
 		this.fragmentsList.toArray(fragments);
 		return fragments;
 	}
 
 	public int[] operators() {
-		int length = this.operatorsList.size();
-		int[] tab = new int[length];
-		for (int i = 0; i < length; i++) {
-			tab[i] = ((Integer)this.operatorsList.get(i)).intValue();
+		int length= this.operatorsList.size();
+		int[] tab= new int[length];
+		for (int i= 0; i < length; i++) {
+			tab[i]= ((Integer)this.operatorsList.get(i)).intValue();
 		}
 		return tab;
 	}
@@ -110,15 +112,15 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		AllocationExpression allocationExpression,
-		BlockScope scope) {
-			addRealFragment(allocationExpression);
-			return false;
+			AllocationExpression allocationExpression,
+			BlockScope scope) {
+		addRealFragment(allocationExpression);
+		return false;
 	}
 
 	public boolean visit(
-		AND_AND_Expression and_and_Expression,
-		BlockScope scope) {
+			AND_AND_Expression and_and_Expression,
+			BlockScope scope) {
 
 		if (((and_and_Expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
 			addRealFragment(and_and_Expression);
@@ -131,10 +133,10 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		ArrayAllocationExpression arrayAllocationExpression,
-		BlockScope scope) {
-			addRealFragment(arrayAllocationExpression);
-			return false;
+			ArrayAllocationExpression arrayAllocationExpression,
+			BlockScope scope) {
+		addRealFragment(arrayAllocationExpression);
+		return false;
 	}
 
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
@@ -143,17 +145,17 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-		BlockScope scope) {
-			addRealFragment(arrayQualifiedTypeReference);
-			return false;
+			ArrayQualifiedTypeReference arrayQualifiedTypeReference,
+			BlockScope scope) {
+		addRealFragment(arrayQualifiedTypeReference);
+		return false;
 	}
 
 	public boolean visit(
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-		ClassScope scope) {
-			addRealFragment(arrayQualifiedTypeReference);
-			return false;
+			ArrayQualifiedTypeReference arrayQualifiedTypeReference,
+			ClassScope scope) {
+		addRealFragment(arrayQualifiedTypeReference);
+		return false;
 	}
 
 	public boolean visit(ArrayReference arrayReference, BlockScope scope) {
@@ -162,17 +164,17 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		ArrayTypeReference arrayTypeReference,
-		BlockScope scope) {
-			addRealFragment(arrayTypeReference);
-			return false;
+			ArrayTypeReference arrayTypeReference,
+			BlockScope scope) {
+		addRealFragment(arrayTypeReference);
+		return false;
 	}
 
 	public boolean visit(
-		ArrayTypeReference arrayTypeReference,
-		ClassScope scope) {
-			addRealFragment(arrayTypeReference);
-			return false;
+			ArrayTypeReference arrayTypeReference,
+			ClassScope scope) {
+		addRealFragment(arrayTypeReference);
+		return false;
 	}
 
 	public boolean visit(Assignment assignment, BlockScope scope) {
@@ -182,66 +184,66 @@ class BinaryExpressionFragmentBuilder
 
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
 		if (binaryExpression instanceof CombinedBinaryExpression) {
-			CombinedBinaryExpression expression = (CombinedBinaryExpression) binaryExpression;
+			CombinedBinaryExpression expression= (CombinedBinaryExpression)binaryExpression;
 			if (expression.referencesTable != null) {
 				return this.visit(expression, scope);
 			}
 		}
-		final int numberOfParens = (binaryExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		final int numberOfParens= (binaryExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		if (numberOfParens > 0) {
 			addRealFragment(binaryExpression);
 		} else {
-			switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
-				case OperatorIds.PLUS :
+			switch ((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+				case OperatorIds.PLUS:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.MINUS :
+				case OperatorIds.MINUS:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameMINUS));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.MULTIPLY :
+				case OperatorIds.MULTIPLY:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameMULTIPLY));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.REMAINDER :
+				case OperatorIds.REMAINDER:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameREMAINDER));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.XOR :
+				case OperatorIds.XOR:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameXOR));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.DIVIDE :
+				case OperatorIds.DIVIDE:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameDIVIDE));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.OR :
+				case OperatorIds.OR:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameOR));
 						binaryExpression.right.traverse(this, scope);
 					}
 					return false;
-				case OperatorIds.AND :
+				case OperatorIds.AND:
 					if (buildFragments(binaryExpression)) {
 						binaryExpression.left.traverse(this, scope);
 						this.operatorsList.add(new Integer(TerminalTokens.TokenNameAND));
@@ -263,13 +265,13 @@ class BinaryExpressionFragmentBuilder
 			addRealFragment(combinedBinaryExpression.right);
 			return false;
 		}
-		BinaryExpression cursor = combinedBinaryExpression.referencesTable[0];
+		BinaryExpression cursor= combinedBinaryExpression.referencesTable[0];
 		if (cursor.left instanceof CombinedBinaryExpression) {
-			this.visit((CombinedBinaryExpression) cursor.left, scope);
+			this.visit((CombinedBinaryExpression)cursor.left, scope);
 		} else {
 			addRealFragment(cursor.left);
 		}
-		for (int i = 0, end = combinedBinaryExpression.arity; i < end; i ++) {
+		for (int i= 0, end= combinedBinaryExpression.arity; i < end; i++) {
 			this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
 			addRealFragment(combinedBinaryExpression.referencesTable[i].right);
 		}
@@ -289,24 +291,24 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		ClassLiteralAccess classLiteralAccess,
-		BlockScope scope) {
-			addRealFragment(classLiteralAccess);
-			return false;
+			ClassLiteralAccess classLiteralAccess,
+			BlockScope scope) {
+		addRealFragment(classLiteralAccess);
+		return false;
 	}
 
 	public boolean visit(
-		CompoundAssignment compoundAssignment,
-		BlockScope scope) {
-			addRealFragment(compoundAssignment);
-			return false;
+			CompoundAssignment compoundAssignment,
+			BlockScope scope) {
+		addRealFragment(compoundAssignment);
+		return false;
 	}
 
 	public boolean visit(
-		ConditionalExpression conditionalExpression,
-		BlockScope scope) {
-			addRealFragment(conditionalExpression);
-			return false;
+			ConditionalExpression conditionalExpression,
+			BlockScope scope) {
+		addRealFragment(conditionalExpression);
+		return false;
 	}
 
 	public boolean visit(DoubleLiteral doubleLiteral, BlockScope scope) {
@@ -320,10 +322,10 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		ExtendedStringLiteral extendedStringLiteral,
-		BlockScope scope) {
-			addRealFragment(extendedStringLiteral);
-			return false;
+			ExtendedStringLiteral extendedStringLiteral,
+			BlockScope scope) {
+		addRealFragment(extendedStringLiteral);
+		return false;
 	}
 
 	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
@@ -342,10 +344,10 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		InstanceOfExpression instanceOfExpression,
-		BlockScope scope) {
-			addRealFragment(instanceOfExpression);
-			return false;
+			InstanceOfExpression instanceOfExpression,
+			BlockScope scope) {
+		addRealFragment(instanceOfExpression);
+		return false;
 	}
 
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
@@ -367,7 +369,7 @@ class BinaryExpressionFragmentBuilder
 		if (((stringLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
 			addRealFragment(stringLiteral);
 		} else {
-			for (int i = 0, max = stringLiteral.counter; i < max; i++) {
+			for (int i= 0, max= stringLiteral.counter; i < max; i++) {
 				addRealFragment(stringLiteral.literals[i]);
 				if (i < max - 1) {
 					this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
@@ -394,10 +396,10 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		PostfixExpression postfixExpression,
-		BlockScope scope) {
-			addRealFragment(postfixExpression);
-			return false;
+			PostfixExpression postfixExpression,
+			BlockScope scope) {
+		addRealFragment(postfixExpression);
+		return false;
 	}
 
 	public boolean visit(PrefixExpression prefixExpression, BlockScope scope) {
@@ -406,16 +408,17 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		QualifiedAllocationExpression qualifiedAllocationExpression,
-		BlockScope scope) {
-			addRealFragment(qualifiedAllocationExpression);
-			return false;
+			QualifiedAllocationExpression qualifiedAllocationExpression,
+			BlockScope scope) {
+		addRealFragment(qualifiedAllocationExpression);
+		return false;
 	}
+
 	public boolean visit(
-		QualifiedNameReference qualifiedNameReference,
-		BlockScope scope) {
-			addRealFragment(qualifiedNameReference);
-			return false;
+			QualifiedNameReference qualifiedNameReference,
+			BlockScope scope) {
+		addRealFragment(qualifiedNameReference);
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -439,10 +442,10 @@ class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(
-		SingleNameReference singleNameReference,
-		BlockScope scope) {
-			addRealFragment(singleNameReference);
-			return false;
+			SingleNameReference singleNameReference,
+			BlockScope scope) {
+		addRealFragment(singleNameReference);
+		return false;
 	}
 
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {

@@ -17,19 +17,24 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 public abstract class VariableBinding extends Binding {
 
 	public int modifiers;
+
 	public TypeBinding type;
+
 	public char[] name;
+
 	protected Constant constant;
+
 	public int id; // for flow-analysis (position in flowInfo bit vector)
+
 	public long tagBits;
 
 	public VariableBinding(char[] name, TypeBinding type, int modifiers, Constant constant) {
-		this.name = name;
-		this.type = type;
-		this.modifiers = modifiers;
-		this.constant = constant;
+		this.name= name;
+		this.type= type;
+		this.modifiers= modifiers;
+		this.constant= constant;
 		if (type != null) {
-			this.tagBits |= (type.tagBits & TagBits.HasMissingType);
+			this.tagBits|= (type.tagBits & TagBits.HasMissingType);
 		}
 	}
 
@@ -39,23 +44,27 @@ public abstract class VariableBinding extends Binding {
 
 	public abstract AnnotationBinding[] getAnnotations();
 
-	public final boolean isBlankFinal(){
+	public final boolean isBlankFinal() {
 		return (this.modifiers & ExtraCompilerModifiers.AccBlankFinal) != 0;
 	}
+
 	/* Answer true if the receiver is final and cannot be changed
 	*/
 
 	public final boolean isFinal() {
 		return (this.modifiers & ClassFileConstants.AccFinal) != 0;
 	}
+
 	public char[] readableName() {
 		return this.name;
 	}
+
 	public void setConstant(Constant constant) {
-		this.constant = constant;
+		this.constant= constant;
 	}
+
 	public String toString() {
-		StringBuffer output = new StringBuffer(10);
+		StringBuffer output= new StringBuffer(10);
 		ASTNode.printModifiers(this.modifiers, output);
 		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 			output.append("[unresolved] "); //$NON-NLS-1$

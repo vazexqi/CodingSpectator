@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,13 +32,20 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.search.AbstractJavaSearchScope;
-import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Creates java element handles.
@@ -49,6 +56,7 @@ public class HandleFactory {
 	 * Cache package fragment root information to optimize speed performance.
 	 */
 	private String lastPkgFragmentRootPath;
+
 	private PackageFragmentRoot lastPkgFragmentRoot;
 
 	/**
@@ -59,19 +67,19 @@ public class HandleFactory {
 	private JavaModel javaModel;
 
 	public HandleFactory() {
-		this.javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
+		this.javaModel= JavaModelManager.getJavaModelManager().getJavaModel();
 	}
 
 
 	/**
-	 * Creates an Openable handle from the given resource path.
-	 * The resource path can be a path to a file in the workbench (e.g. /Proj/com/ibm/jdt/core/HandleFactory.java)
-	 * or a path to a file in a jar file - it then contains the path to the jar file and the path to the file in the jar
-	 * (e.g. c:/jdk1.2.2/jre/lib/rt.jar|java/lang/Object.class or /Proj/rt.jar|java/lang/Object.class)
-	 * NOTE: This assumes that the resource path is the toString() of an IPath,
-	 *       in other words, it uses the IPath.SEPARATOR for file path
-	 *            and it uses '/' for entries in a zip file.
-	 * If not null, uses the given scope as a hint for getting Java project handles.
+	 * Creates an Openable handle from the given resource path. The resource path can be a path to a
+	 * file in the workbench (eg. /Proj/com/ibm/jdt/core/HandleFactory.java) or a path to a file in
+	 * a jar file - it then contains the path to the jar file and the path to the file in the jar
+	 * (eg. c:/jdk1.2.2/jre/lib/rt.jar|java/lang/Object.class or
+	 * /Proj/rt.jar|java/lang/Object.class) NOTE: This assumes that the resource path is the
+	 * toString() of an IPath, in other words, it uses the IPath.SEPARATOR for file path and it uses
+	 * '/' for entries in a zip file. If not null, uses the given scope as a hint for getting Java
+	 * project handles.
 	 */
 	public Openable createOpenable(String resourcePath, IJavaSearchScope scope) {
 		int separatorIndex;
@@ -80,7 +88,7 @@ public class HandleFactory {
 			// Optimization: cache package fragment root handle and package handles
 			int rootPathLength;
 			if (this.lastPkgFragmentRootPath == null
-					|| (rootPathLength = this.lastPkgFragmentRootPath.length()) != resourcePath.length()
+					|| (rootPathLength= this.lastPkgFragmentRootPath.length()) != resourcePath.length()
 					|| !resourcePath.regionMatches(0, this.lastPkgFragmentRootPath, 0, rootPathLength)) {
 				String jarPath= resourcePath.substring(0, separatorIndex);
 				PackageFragmentRoot root= getJarPkgFragmentRoot(resourcePath, separatorIndex, jarPath, scope);
@@ -92,50 +100,51 @@ public class HandleFactory {
 			}
 			// create handle
 			String classFilePath= resourcePath.substring(separatorIndex + 1);
-			String[] simpleNames = new Path(classFilePath).segments();
+			String[] simpleNames= new Path(classFilePath).segments();
 			String[] pkgName;
-			int length = simpleNames.length-1;
+			int length= simpleNames.length - 1;
 			if (length > 0) {
-				pkgName = new String[length];
+				pkgName= new String[length];
 				System.arraycopy(simpleNames, 0, pkgName, 0, length);
 			} else {
-				pkgName = CharOperation.NO_STRINGS;
+				pkgName= CharOperation.NO_STRINGS;
 			}
-			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
+			IPackageFragment pkgFragment= (IPackageFragment)this.packageHandles.get(pkgName);
 			if (pkgFragment == null) {
 				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(pkgName);
 				this.packageHandles.put(pkgName, pkgFragment);
 			}
 			IClassFile classFile= pkgFragment.getClassFile(simpleNames[length]);
-			return (Openable) classFile;
+			return (Openable)classFile;
 		} else {
 			// path to a file in a directory
 			// Optimization: cache package fragment root handle and package handles
-			int rootPathLength = -1;
+			int rootPathLength= -1;
 			if (this.lastPkgFragmentRootPath == null
-				|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath)
-					&& !org.eclipse.jdt.internal.compiler.util.Util.isExcluded(resourcePath.toCharArray(), this.lastPkgFragmentRoot.fullInclusionPatternChars(), this.lastPkgFragmentRoot.fullExclusionPatternChars(), false)
-					&& (rootPathLength = this.lastPkgFragmentRootPath.length()) > 0
+					|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath)
+							&& !org.eclipse.jdt.internal.compiler.util.Util.isExcluded(resourcePath.toCharArray(), this.lastPkgFragmentRoot.fullInclusionPatternChars(),
+									this.lastPkgFragmentRoot.fullExclusionPatternChars(), false)
+							&& (rootPathLength= this.lastPkgFragmentRootPath.length()) > 0
 					&& resourcePath.charAt(rootPathLength) == '/')) {
 				PackageFragmentRoot root= getPkgFragmentRoot(resourcePath);
 				if (root == null)
 					return null; // match is outside classpath
-				this.lastPkgFragmentRoot = root;
-				this.lastPkgFragmentRootPath = this.lastPkgFragmentRoot.internalPath().toString();
-				this.packageHandles = new HashtableOfArrayToObject(5);
+				this.lastPkgFragmentRoot= root;
+				this.lastPkgFragmentRootPath= this.lastPkgFragmentRoot.internalPath().toString();
+				this.packageHandles= new HashtableOfArrayToObject(5);
 			}
 			// create handle
-			resourcePath = resourcePath.substring(this.lastPkgFragmentRootPath.length() + 1);
-			String[] simpleNames = new Path(resourcePath).segments();
+			resourcePath= resourcePath.substring(this.lastPkgFragmentRootPath.length() + 1);
+			String[] simpleNames= new Path(resourcePath).segments();
 			String[] pkgName;
-			int length = simpleNames.length-1;
+			int length= simpleNames.length - 1;
 			if (length > 0) {
-				pkgName = new String[length];
+				pkgName= new String[length];
 				System.arraycopy(simpleNames, 0, pkgName, 0, length);
 			} else {
-				pkgName = CharOperation.NO_STRINGS;
+				pkgName= CharOperation.NO_STRINGS;
 			}
-			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
+			IPackageFragment pkgFragment= (IPackageFragment)this.packageHandles.get(pkgName);
 			if (pkgFragment == null) {
 				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(pkgName);
 				this.packageHandles.put(pkgName, pkgFragment);
@@ -143,10 +152,10 @@ public class HandleFactory {
 			String simpleName= simpleNames[length];
 			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
-				return (Openable) unit;
-			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(simpleName)){
+				return (Openable)unit;
+			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(simpleName)) {
 				IClassFile classFile= pkgFragment.getClassFile(simpleName);
-				return (Openable) classFile;
+				return (Openable)classFile;
 			}
 			return null;
 		}
@@ -158,62 +167,65 @@ public class HandleFactory {
 	public IJavaElement createElement(ClassScope scope, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
 		return createElement(scope, scope.referenceContext.sourceStart, unit, existingElements, knownScopes);
 	}
+
 	/**
 	 * Create handle by adding child to parent obtained by recursing into parent scopes.
 	 */
 	private IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
-		IJavaElement newElement = (IJavaElement)knownScopes.get(scope);
-		if (newElement != null) return newElement;
+		IJavaElement newElement= (IJavaElement)knownScopes.get(scope);
+		if (newElement != null)
+			return newElement;
 
-		switch(scope.kind) {
-			case Scope.COMPILATION_UNIT_SCOPE :
-				newElement = unit;
+		switch (scope.kind) {
+			case Scope.COMPILATION_UNIT_SCOPE:
+				newElement= unit;
 				break;
-			case Scope.CLASS_SCOPE :
-				IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
+			case Scope.CLASS_SCOPE:
+				IJavaElement parentElement= createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				switch (parentElement.getElementType()) {
-					case IJavaElement.COMPILATION_UNIT :
-						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+					case IJavaElement.COMPILATION_UNIT:
+						newElement= ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
 						break;
-					case IJavaElement.TYPE :
-						newElement = ((IType)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+					case IJavaElement.TYPE:
+						newElement= ((IType)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
 						break;
-					case IJavaElement.FIELD :
-					case IJavaElement.INITIALIZER :
-					case IJavaElement.METHOD :
-					    IMember member = (IMember)parentElement;
-					    if (member.isBinary()) {
-					        return null;
-					    } else {
-							newElement = member.getType(new String(scope.enclosingSourceType().sourceName), 1);
+					case IJavaElement.FIELD:
+					case IJavaElement.INITIALIZER:
+					case IJavaElement.METHOD:
+						IMember member= (IMember)parentElement;
+						if (member.isBinary()) {
+							return null;
+						} else {
+							newElement= member.getType(new String(scope.enclosingSourceType().sourceName), 1);
 							// increment occurrence count if collision is detected
 							if (newElement != null) {
-								while (!existingElements.add(newElement)) ((SourceRefElement)newElement).occurrenceCount++;
+								while (!existingElements.add(newElement))
+									((SourceRefElement)newElement).occurrenceCount++;
 							}
-					    }
+						}
 						break;
 				}
 				if (newElement != null) {
 					knownScopes.put(scope, newElement);
 				}
 				break;
-			case Scope.METHOD_SCOPE :
-				IType parentType = (IType) createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
-				MethodScope methodScope = (MethodScope) scope;
+			case Scope.METHOD_SCOPE:
+				IType parentType= (IType)createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
+				MethodScope methodScope= (MethodScope)scope;
 				if (methodScope.isInsideInitializer()) {
 					// inside field or initializer, must find proper one
-					TypeDeclaration type = methodScope.referenceType();
-					int occurenceCount = 1;
-					for (int i = 0, length = type.fields.length; i < length; i++) {
-						FieldDeclaration field = type.fields[i];
+					TypeDeclaration type= methodScope.referenceType();
+					int occurenceCount= 1;
+					for (int i= 0, length= type.fields.length; i < length; i++) {
+						FieldDeclaration field= type.fields[i];
 						if (field.declarationSourceStart <= elementPosition && elementPosition <= field.declarationSourceEnd) {
 							switch (field.getKind()) {
-								case AbstractVariableDeclaration.FIELD :
-								case AbstractVariableDeclaration.ENUM_CONSTANT :
-									newElement = parentType.getField(new String(field.name));
+								case AbstractVariableDeclaration.FIELD:
+								case AbstractVariableDeclaration.ENUM_CONSTANT:
+									newElement= parentType.getField(new String(field.name));
 									break;
-								case AbstractVariableDeclaration.INITIALIZER :
-									newElement = parentType.getInitializer(occurenceCount);
+								case AbstractVariableDeclaration.INITIALIZER:
+									newElement= parentType.getInitializer(occurenceCount);
 									break;
 							}
 							break;
@@ -223,40 +235,41 @@ public class HandleFactory {
 					}
 				} else {
 					// method element
-					AbstractMethodDeclaration method = methodScope.referenceMethod();
-					newElement = parentType.getMethod(new String(method.selector), Util.typeParameterSignatures(method));
+					AbstractMethodDeclaration method= methodScope.referenceMethod();
+					newElement= parentType.getMethod(new String(method.selector), Util.typeParameterSignatures(method));
 					if (newElement != null) {
 						knownScopes.put(scope, newElement);
 					}
 				}
 				break;
-			case Scope.BLOCK_SCOPE :
+			case Scope.BLOCK_SCOPE:
 				// standard block, no element per se
-				newElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
+				newElement= createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				break;
 		}
 		return newElement;
 	}
+
 	/**
-	 * Returns the package fragment root that corresponds to the given jar path.
-	 * See createOpenable(...) for the format of the jar path string.
-	 * If not null, uses the given scope as a hint for getting Java project handles.
+	 * Returns the package fragment root that corresponds to the given jar path. See
+	 * createOpenable(...) for the format of the jar path string. If not null, uses the given scope
+	 * as a hint for getting Java project handles.
 	 */
 	private PackageFragmentRoot getJarPkgFragmentRoot(String resourcePathString, int jarSeparatorIndex, String jarPathString, IJavaSearchScope scope) {
 
 		IPath jarPath= new Path(jarPathString);
 
-		Object target = JavaModel.getTarget(jarPath, false);
+		Object target= JavaModel.getTarget(jarPath, false);
 		if (target instanceof IFile) {
 			// internal jar: is it on the classpath of its project?
 			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar
 			//        is NOT on the classpath of org.eclipse.swt.win32
-			IFile jarFile = (IFile)target;
-			JavaProject javaProject = (JavaProject) this.javaModel.getJavaProject(jarFile);
+			IFile jarFile= (IFile)target;
+			JavaProject javaProject= (JavaProject)this.javaModel.getJavaProject(jarFile);
 			try {
-				IClasspathEntry entry = javaProject.getClasspathEntryFor(jarPath);
+				IClasspathEntry entry= javaProject.getClasspathEntryFor(jarPath);
 				if (entry != null) {
-					return (PackageFragmentRoot) javaProject.getPackageFragmentRoot(jarFile);
+					return (PackageFragmentRoot)javaProject.getPackageFragmentRoot(jarFile);
 				}
 			} catch (JavaModelException e) {
 				// ignore and try to find another project
@@ -267,24 +280,24 @@ public class HandleFactory {
 		IJavaProject[] projects;
 		if (scope != null) {
 			if (scope instanceof AbstractJavaSearchScope) {
-				PackageFragmentRoot root = (PackageFragmentRoot) ((AbstractJavaSearchScope) scope).packageFragmentRoot(resourcePathString, jarSeparatorIndex, jarPathString);
+				PackageFragmentRoot root= (PackageFragmentRoot)((AbstractJavaSearchScope)scope).packageFragmentRoot(resourcePathString, jarSeparatorIndex, jarPathString);
 				if (root != null)
 					return root;
 			} else {
-				IPath[] enclosingProjectsAndJars = scope.enclosingProjectsAndJars();
-				int length = enclosingProjectsAndJars.length;
-				projects = new IJavaProject[length];
-				int index = 0;
-				for (int i = 0; i < length; i++) {
-					IPath path = enclosingProjectsAndJars[i];
+				IPath[] enclosingProjectsAndJars= scope.enclosingProjectsAndJars();
+				int length= enclosingProjectsAndJars.length;
+				projects= new IJavaProject[length];
+				int index= 0;
+				for (int i= 0; i < length; i++) {
+					IPath path= enclosingProjectsAndJars[i];
 					if (path.segmentCount() == 1) {
-						projects[index++] = this.javaModel.getJavaProject(path.segment(0));
+						projects[index++]= this.javaModel.getJavaProject(path.segment(0));
 					}
 				}
 				if (index < length) {
-					System.arraycopy(projects, 0, projects = new IJavaProject[index], 0, index);
+					System.arraycopy(projects, 0, projects= new IJavaProject[index], 0, index);
 				}
-				PackageFragmentRoot root = getJarPkgFragmentRoot(jarPath, target, projects);
+				PackageFragmentRoot root= getJarPkgFragmentRoot(jarPath, target, projects);
 				if (root != null) {
 					return root;
 				}
@@ -293,7 +306,7 @@ public class HandleFactory {
 
 		// not found in the scope, walk all projects
 		try {
-			projects = this.javaModel.getJavaProjects();
+			projects= this.javaModel.getJavaProjects();
 		} catch (JavaModelException e) {
 			// java model is not accessible
 			return null;
@@ -302,20 +315,20 @@ public class HandleFactory {
 	}
 
 	private PackageFragmentRoot getJarPkgFragmentRoot(
-		IPath jarPath,
-		Object target,
-		IJavaProject[] projects) {
+			IPath jarPath,
+			Object target,
+			IJavaProject[] projects) {
 		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
 			try {
 				JavaProject javaProject= (JavaProject)projects[i];
-				IClasspathEntry classpathEnty = javaProject.getClasspathEntryFor(jarPath);
+				IClasspathEntry classpathEnty= javaProject.getClasspathEntryFor(jarPath);
 				if (classpathEnty != null) {
 					if (target instanceof IFile) {
 						// internal jar
-						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot((IFile)target);
+						return (PackageFragmentRoot)javaProject.getPackageFragmentRoot((IFile)target);
 					} else {
 						// external jar
-						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot0(jarPath);
+						return (PackageFragmentRoot)javaProject.getPackageFragmentRoot0(jarPath);
 					}
 				}
 			} catch (JavaModelException e) {
@@ -334,9 +347,10 @@ public class HandleFactory {
 		IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (int i= 0, max= projects.length; i < max; i++) {
 			try {
-				IProject project = projects[i];
+				IProject project= projects[i];
 				if (!project.isAccessible()
-					|| !project.hasNature(JavaCore.NATURE_ID)) continue;
+						|| !project.hasNature(JavaCore.NATURE_ID))
+					continue;
 				IJavaProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {

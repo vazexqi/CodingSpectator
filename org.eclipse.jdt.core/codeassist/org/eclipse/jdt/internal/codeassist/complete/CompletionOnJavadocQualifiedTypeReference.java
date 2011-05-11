@@ -14,24 +14,25 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 
 public class CompletionOnJavadocQualifiedTypeReference extends JavadocQualifiedTypeReference implements CompletionOnJavadoc {
-	public int completionFlags = JAVADOC;
+	public int completionFlags= JAVADOC;
+
 	public char[] completionIdentifier;
 
 	public CompletionOnJavadocQualifiedTypeReference(char[][] sources, char[] identifier, long[] pos, int tagStart, int tagEnd) {
 		super(sources, pos, tagStart, tagEnd);
-		this.completionIdentifier = identifier;
+		this.completionIdentifier= identifier;
 	}
 
 	public CompletionOnJavadocQualifiedTypeReference(JavadocQualifiedTypeReference typeRef) {
 		super(typeRef.tokens, typeRef.sourcePositions, typeRef.tagSourceStart, typeRef.tagSourceStart);
-		this.completionIdentifier = CharOperation.NO_CHAR;
+		this.completionIdentifier= CharOperation.NO_CHAR;
 	}
 
 	/**
 	 * @param flags The completionFlags to set.
 	 */
 	public void addCompletionFlags(int flags) {
-		this.completionFlags |= flags;
+		this.completionFlags|= flags;
 	}
 
 	public boolean completeAnException() {
@@ -52,12 +53,13 @@ public class CompletionOnJavadocQualifiedTypeReference extends JavadocQualifiedT
 
 	/**
 	 * Get completion node flags.
-	 *
+	 * 
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {
 		return this.completionFlags;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference#printExpression(int, java.lang.StringBuffer)
 	 */
@@ -67,32 +69,37 @@ public class CompletionOnJavadocQualifiedTypeReference extends JavadocQualifiedT
 		indent++;
 		if (this.completionFlags > 0) {
 			output.append('\n');
-			for (int i=0; i<indent; i++) output.append('\t');
+			for (int i= 0; i < indent; i++)
+				output.append('\t');
 			output.append("infos:"); //$NON-NLS-1$
-			char separator = 0;
+			char separator= 0;
 			if (completeAnException()) {
 				output.append("exception"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeInText()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("text"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeBaseTypes()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("base types"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeFormalReference()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("formal reference"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			output.append('\n');
 		}
 		indent--;
-		for (int i=0; i<indent; i++) output.append('\t');
+		for (int i= 0; i < indent; i++)
+			output.append('\t');
 		return output.append('>');
 	}
 }

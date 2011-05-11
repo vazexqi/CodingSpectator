@@ -30,6 +30,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 * Whether this pattern is case sensitive.
 	 */
 	boolean isCaseSensitive;
+
 	/*
 	 * Whether this pattern is camel case.
 	 */
@@ -38,12 +39,12 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	/**
 	 * One of following pattern value:
 	 * <ul>
-	 * 	<li>{@link #R_EXACT_MATCH}</li>
-	 *		<li>{@link #R_PREFIX_MATCH}</li>
-	 *		<li>{@link #R_PATTERN_MATCH}</li>
-	 *		<li>{@link #R_REGEXP_MATCH}</li>
-	 *		<li>{@link #R_CAMELCASE_MATCH}</li>
-	 *		<li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
+	 * <li>{@link #R_EXACT_MATCH}</li>
+	 * <li>{@link #R_PREFIX_MATCH}</li>
+	 * <li>{@link #R_PATTERN_MATCH}</li>
+	 * <li>{@link #R_REGEXP_MATCH}</li>
+	 * <li>{@link #R_CAMELCASE_MATCH}</li>
+	 * <li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
 	 * </ul>
 	 */
 	int matchMode;
@@ -56,39 +57,42 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	/**
 	 * Fine grain limitation
 	 */
-	public int fineGrain = 0;
+	public int fineGrain= 0;
 
 	/**
 	 * Mask used on match rule for match mode.
 	 */
-	public static final int MATCH_MODE_MASK = R_EXACT_MATCH
-		| R_PREFIX_MATCH
-		| R_PATTERN_MATCH
-		| R_REGEXP_MATCH
-		| R_CAMELCASE_MATCH
-		| R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	public static final int MATCH_MODE_MASK= R_EXACT_MATCH
+			| R_PREFIX_MATCH
+			| R_PATTERN_MATCH
+			| R_REGEXP_MATCH
+			| R_CAMELCASE_MATCH
+			| R_CAMELCASE_SAME_PART_COUNT_MATCH;
 
 	/**
 	 * Mask used on match rule for generic relevance.
 	 */
-	public static final int MATCH_COMPATIBILITY_MASK = R_ERASURE_MATCH | R_EQUIVALENT_MATCH | R_FULL_MATCH;
+	public static final int MATCH_COMPATIBILITY_MASK= R_ERASURE_MATCH | R_EQUIVALENT_MATCH | R_FULL_MATCH;
 
 	// Signatures and arguments for parameterized types search
 	char[][] typeSignatures;
+
 	private char[][][] typeArguments;
-	private int flags = 0;
-	static final int HAS_TYPE_ARGUMENTS = 1;
+
+	private int flags= 0;
+
+	static final int HAS_TYPE_ARGUMENTS= 1;
 
 	protected JavaSearchPattern(int patternKind, int matchRule) {
 		super(matchRule);
-		this.kind = patternKind;
+		this.kind= patternKind;
 		// Use getMatchRule() instead of matchRule as super constructor may modify its value
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
-		int rule = getMatchRule();
-		this.isCaseSensitive = (rule & R_CASE_SENSITIVE) != 0;
-		this.isCamelCase = (rule & (R_CAMELCASE_MATCH | R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
-		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
-		this.matchMode = rule & MATCH_MODE_MASK;
+		int rule= getMatchRule();
+		this.isCaseSensitive= (rule & R_CASE_SENSITIVE) != 0;
+		this.isCamelCase= (rule & (R_CAMELCASE_MATCH | R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
+		this.matchCompatibility= rule & MATCH_COMPATIBILITY_MASK;
+		this.matchMode= rule & MATCH_MODE_MASK;
 	}
 
 	/**
@@ -98,10 +102,11 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		if (fineGrain == 0) {
 			return "none"; //$NON-NLS-1$
 		}
-		StringBuffer buffer = new StringBuffer();
-		for (int i=1; i<=32; i++) {
-			int bit = fineGrain & (1<<(i-1));
-			if (bit != 0 && buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$
+		StringBuffer buffer= new StringBuffer();
+		for (int i= 1; i <= 32; i++) {
+			int bit= fineGrain & (1 << (i - 1));
+			if (bit != 0 && buffer.length() > 0)
+				buffer.append(" | "); //$NON-NLS-1$
 			switch (bit) {
 				case IJavaSearchConstants.FIELD_DECLARATION_TYPE_REFERENCE:
 					buffer.append("FIELD_DECLARATION_TYPE_REFERENCE"); //$NON-NLS-1$
@@ -174,7 +179,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		return this.isCamelCase;
 	}
 
-	final boolean isCaseSensitive () {
+	final boolean isCaseSensitive() {
 		return this.isCaseSensitive;
 	}
 
@@ -194,14 +199,14 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 
 		// Use bind key if the element is resolved
 		if (method.isResolved()) {
-			BindingKey bindingKey = new BindingKey(method.getKey());
+			BindingKey bindingKey= new BindingKey(method.getKey());
 			if (bindingKey.isParameterizedMethod()) {
-				String[] argumentsSignatures = bindingKey.getTypeArguments();
-				int length = argumentsSignatures.length;
+				String[] argumentsSignatures= bindingKey.getTypeArguments();
+				int length= argumentsSignatures.length;
 				if (length > 0) {
-					char[][] methodArguments = new char[length][];
-					for (int i=0; i<length; i++) {
-						methodArguments[i] = argumentsSignatures[i].toCharArray();
+					char[][] methodArguments= new char[length][];
+					for (int i= 0; i < length; i++) {
+						methodArguments[i]= argumentsSignatures[i].toCharArray();
 						CharOperation.replace(methodArguments[i], new char[] { '$', '/' }, '.');
 					}
 					return methodArguments;
@@ -212,19 +217,18 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 
 		// Try to get the argument using the JavaModel info
 		try {
-			ITypeParameter[] parameters = method.getTypeParameters();
+			ITypeParameter[] parameters= method.getTypeParameters();
 			if (parameters != null) {
-				int length = parameters.length;
+				int length= parameters.length;
 				if (length > 0) {
-					char[][] arguments = new char[length][];
-					for (int i=0; i<length; i++) {
-						arguments[i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+					char[][] arguments= new char[length][];
+					for (int i= 0; i < length; i++) {
+						arguments[i]= Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
 					}
 					return arguments;
 				}
 			}
-		}
-		catch (JavaModelException jme) {
+		} catch (JavaModelException jme) {
 			// do nothing
 		}
 		return null;
@@ -238,9 +242,9 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	}
 
 	/**
-	 * Returns whether the pattern has signatures or not.
-	 * If pattern {@link #typeArguments} field, this field shows that it was built
-	 * on a generic source type.
+	 * Returns whether the pattern has signatures or not. If pattern {@link #typeArguments} field,
+	 * this field shows that it was built on a generic source type.
+	 * 
 	 * @return true if {@link #typeSignatures} field is not null and has a length greater than 0.
 	 */
 	public final boolean hasSignatures() {
@@ -249,6 +253,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 
 	/**
 	 * Returns whether the pattern includes type arguments information or not.
+	 * 
 	 * @return default is false
 	 */
 	public final boolean hasTypeArguments() {
@@ -257,8 +262,9 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 
 	/**
 	 * Returns whether the pattern includes type parameters information or not.
-	 * @return true if {@link #typeArguments} contains type parameters instead
-	 * 	type arguments signatures.
+	 * 
+	 * @return true if {@link #typeArguments} contains type parameters instead type arguments
+	 *         signatures.
 	 */
 	public final boolean hasTypeParameters() {
 		return !hasSignatures() && hasTypeArguments();
@@ -266,58 +272,58 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 
 	/**
 	 * Return whether two suffixes are compatible.
-	 *
-	 * Note that obvious compatibility values as equals and {@link IIndexConstants#TYPE_SUFFIX}
-	 * has to be tested by caller to avoid unnecessary method call...
-	 *
+	 * 
+	 * Note that obvious compatibility values as equals and {@link IIndexConstants#TYPE_SUFFIX} has
+	 * to be tested by caller to avoid unnecessary method call...
+	 * 
 	 * @param typeSuffix
 	 * @param patternSuffix
 	 * @return true if suffixes are compatible, false otherwise
 	 */
 	boolean matchDifferentTypeSuffixes(int typeSuffix, int patternSuffix) {
-		switch(typeSuffix) {
-			case CLASS_SUFFIX :
+		switch (typeSuffix) {
+			case CLASS_SUFFIX:
 				switch (patternSuffix) {
-					case CLASS_AND_INTERFACE_SUFFIX :
-					case CLASS_AND_ENUM_SUFFIX :
+					case CLASS_AND_INTERFACE_SUFFIX:
+					case CLASS_AND_ENUM_SUFFIX:
 						return true;
 				}
 				return false;
 
-			case INTERFACE_SUFFIX :
+			case INTERFACE_SUFFIX:
 				switch (patternSuffix) {
-					case CLASS_AND_INTERFACE_SUFFIX :
+					case CLASS_AND_INTERFACE_SUFFIX:
 					case INTERFACE_AND_ANNOTATION_SUFFIX:
 						return true;
 				}
 				return false;
 
-			case ENUM_SUFFIX :
+			case ENUM_SUFFIX:
 				return patternSuffix == CLASS_AND_ENUM_SUFFIX;
 
-			case ANNOTATION_TYPE_SUFFIX :
+			case ANNOTATION_TYPE_SUFFIX:
 				return patternSuffix == INTERFACE_AND_ANNOTATION_SUFFIX;
 
-			case CLASS_AND_INTERFACE_SUFFIX :
+			case CLASS_AND_INTERFACE_SUFFIX:
 				switch (patternSuffix) {
-					case CLASS_SUFFIX :
-					case INTERFACE_SUFFIX :
+					case CLASS_SUFFIX:
+					case INTERFACE_SUFFIX:
 						return true;
 				}
 				return false;
 
-			case CLASS_AND_ENUM_SUFFIX :
+			case CLASS_AND_ENUM_SUFFIX:
 				switch (patternSuffix) {
-					case CLASS_SUFFIX :
-					case ENUM_SUFFIX :
+					case CLASS_SUFFIX:
+					case ENUM_SUFFIX:
 						return true;
 				}
 				return false;
 
-			case INTERFACE_AND_ANNOTATION_SUFFIX :
+			case INTERFACE_AND_ANNOTATION_SUFFIX:
 				switch (patternSuffix) {
-					case INTERFACE_SUFFIX :
-					case ANNOTATION_TYPE_SUFFIX :
+					case INTERFACE_SUFFIX:
+					case ANNOTATION_TYPE_SUFFIX:
 						return true;
 				}
 				return false;
@@ -334,20 +340,20 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 			output.append(this.typeSignatures[0]);
 			output.append("\", "); //$NON-NLS-1$
 		}
-		switch(getMatchMode()) {
-			case R_EXACT_MATCH :
+		switch (getMatchMode()) {
+			case R_EXACT_MATCH:
 				output.append("exact match, "); //$NON-NLS-1$
 				break;
-			case R_PREFIX_MATCH :
+			case R_PREFIX_MATCH:
 				output.append("prefix match, "); //$NON-NLS-1$
 				break;
-			case R_PATTERN_MATCH :
+			case R_PATTERN_MATCH:
 				output.append("pattern match, "); //$NON-NLS-1$
 				break;
-			case R_REGEXP_MATCH :
+			case R_REGEXP_MATCH:
 				output.append("regexp match, "); //$NON-NLS-1$
 				break;
-			case R_CAMELCASE_MATCH :
+			case R_CAMELCASE_MATCH:
 				output.append("camel case match, "); //$NON-NLS-1$
 				break;
 			case R_CAMELCASE_SAME_PART_COUNT_MATCH:
@@ -376,13 +382,13 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 * @param typeArguments The typeArguments to set.
 	 */
 	final void setTypeArguments(char[][][] typeArguments) {
-		this.typeArguments = typeArguments;
+		this.typeArguments= typeArguments;
 		// update flags
 		if (this.typeArguments != null) {
-			int length = this.typeArguments.length;
-			for (int i=0; i<length; i++) {
+			int length= this.typeArguments.length;
+			for (int i= 0; i < length; i++) {
 				if (this.typeArguments[i] != null && this.typeArguments[i].length > 0) {
-					this.flags |= HAS_TYPE_ARGUMENTS;
+					this.flags|= HAS_TYPE_ARGUMENTS;
 					break;
 				}
 			}
@@ -395,51 +401,51 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
 		if (type.isResolved()) {
-			BindingKey bindingKey = new BindingKey(type.getKey());
+			BindingKey bindingKey= new BindingKey(type.getKey());
 			if (bindingKey.isParameterizedType() || bindingKey.isRawType()) {
-				String signature = bindingKey.toSignature();
-				this.typeSignatures = Util.splitTypeLevelsSignature(signature);
+				String signature= bindingKey.toSignature();
+				this.typeSignatures= Util.splitTypeLevelsSignature(signature);
 				setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 			}
 			return;
 		}
 
 		// Scan hierarchy to store type arguments at each level
-		char[][][] typeParameters = new char[10][][];
-		int ptr = -1;
-		boolean hasParameters = false;
+		char[][][] typeParameters= new char[10][][];
+		int ptr= -1;
+		boolean hasParameters= false;
 		try {
-			IJavaElement parent = type;
-			ITypeParameter[] parameters = null;
+			IJavaElement parent= type;
+			ITypeParameter[] parameters= null;
 			while (parent != null && parent.getElementType() == IJavaElement.TYPE) {
 				if (++ptr > typeParameters.length) {
-					System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
+					System.arraycopy(typeParameters, 0, typeParameters= new char[typeParameters.length + 10][][], 0, ptr);
 				}
-				IType parentType = (IType) parent;
-				parameters = parentType.getTypeParameters();
-				if (parameters !=null) {
-					int length = parameters.length;
+				IType parentType= (IType)parent;
+				parameters= parentType.getTypeParameters();
+				if (parameters != null) {
+					int length= parameters.length;
 					if (length > 0) {
-						hasParameters = true;
-						typeParameters[ptr] = new char[length][];
-						for (int i=0; i<length; i++)
-							typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+						hasParameters= true;
+						typeParameters[ptr]= new char[length][];
+						for (int i= 0; i < length; i++)
+							typeParameters[ptr][i]= Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
 					}
 				}
-				parent = parent.getParent();
+				parent= parent.getParent();
 			}
-		}
-		catch (JavaModelException jme) {
+		} catch (JavaModelException jme) {
 			return;
 		}
 
 		// Store type arguments if any
 		if (hasParameters) {
 			if (++ptr < typeParameters.length)
-				System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
+				System.arraycopy(typeParameters, 0, typeParameters= new char[ptr][][], 0, ptr);
 			setTypeArguments(typeParameters);
 		}
 	}
+
 	public final String toString() {
 		return print(new StringBuffer(30)).toString();
 	}

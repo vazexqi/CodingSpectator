@@ -15,9 +15,10 @@ import org.eclipse.jdt.core.compiler.IProblem;
 
 public class AccessRule {
 
-	public static final int IgnoreIfBetter = 0x02000000; // value must be greater than IProblem#ForbiddenReference and DiscouragedReference
+	public static final int IgnoreIfBetter= 0x02000000; // value must be greater than IProblem#ForbiddenReference and DiscouragedReference
 
 	public char[] pattern;
+
 	public int problemId;
 
 	public AccessRule(char[] pattern, int problemId) {
@@ -25,8 +26,8 @@ public class AccessRule {
 	}
 
 	public AccessRule(char[] pattern, int problemId, boolean keepLooking) {
-		this.pattern = pattern;
-		this.problemId = keepLooking ? problemId | IgnoreIfBetter : problemId;
+		this.pattern= pattern;
+		this.problemId= keepLooking ? problemId | IgnoreIfBetter : problemId;
 	}
 
 	public int hashCode() {
@@ -34,9 +35,11 @@ public class AccessRule {
 	}
 
 	public boolean equals(Object obj) {
-		if (!(obj instanceof AccessRule)) return false;
-		AccessRule other = (AccessRule) obj;
-		if (this.problemId != other.problemId) return false;
+		if (!(obj instanceof AccessRule))
+			return false;
+		AccessRule other= (AccessRule)obj;
+		if (this.problemId != other.problemId)
+			return false;
 		return CharOperation.equals(this.pattern, other.pattern);
 	}
 
@@ -49,7 +52,7 @@ public class AccessRule {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		buffer.append("pattern="); //$NON-NLS-1$
 		buffer.append(this.pattern);
 		switch (getProblemId()) {

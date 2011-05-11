@@ -18,10 +18,11 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation {
 	public MemberValuePair completedMemberValuePair;
+
 	public CompletionOnAnnotationMemberValuePair(TypeReference type, int sourceStart, MemberValuePair[] memberValuePairs, MemberValuePair completedMemberValuePair) {
 		super(type, sourceStart);
-		this.memberValuePairs = memberValuePairs;
-		this.completedMemberValuePair = completedMemberValuePair;
+		this.memberValuePairs= memberValuePairs;
+		this.completedMemberValuePair= completedMemberValuePair;
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
@@ -39,7 +40,7 @@ public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation {
 		this.type.printExpression(0, output);
 		output.append('(');
 		if (this.memberValuePairs != null) {
-			for (int i = 0, max = this.memberValuePairs.length; i < max; i++) {
+			for (int i= 0, max= this.memberValuePairs.length; i < max; i++) {
 				if (i > 0) {
 					output.append(',');
 				}

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.core.internal.utils;
 
-
 /**
  * Adapted from a homonym class in org.eclipse.osgi. A hash table of <code>KeyedElement</code>s.
  */

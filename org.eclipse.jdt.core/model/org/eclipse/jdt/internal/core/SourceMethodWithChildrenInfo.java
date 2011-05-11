@@ -15,9 +15,9 @@ import org.eclipse.jdt.core.IJavaElement;
 public class SourceMethodWithChildrenInfo extends SourceMethodInfo {
 
 	protected IJavaElement[] children;
-	
+
 	public SourceMethodWithChildrenInfo(IJavaElement[] children) {
-		this.children = children;
+		this.children= children;
 	}
 
 	public IJavaElement[] getChildren() {

@@ -11,16 +11,16 @@
 package org.eclipse.jdt.internal.core.builder;
 
 /**
- * Exception thrown when an incremental builder cannot find a .class file.
- * Its possible the type can no longer be found because it was renamed inside its existing
- * source file.
+ * Exception thrown when an incremental builder cannot find a .class file. Its possible the type can
+ * no longer be found because it was renamed inside its existing source file.
  */
 public class AbortIncrementalBuildException extends RuntimeException {
 
-protected String qualifiedTypeName;
-private static final long serialVersionUID = -8874662133883858502L; // backward compatible
+	protected String qualifiedTypeName;
 
-public AbortIncrementalBuildException(String qualifiedTypeName) {
-	this.qualifiedTypeName = qualifiedTypeName;
-}
+	private static final long serialVersionUID= -8874662133883858502L; // backward compatible
+
+	public AbortIncrementalBuildException(String qualifiedTypeName) {
+		this.qualifiedTypeName= qualifiedTypeName;
+	}
 }

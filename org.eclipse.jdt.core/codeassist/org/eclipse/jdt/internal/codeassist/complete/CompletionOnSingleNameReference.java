@@ -31,14 +31,19 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * which should be replaced by the completion.
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnSingleNameReference extends SingleNameReference {
 
 	public char[][] possibleKeywords;
+
 	public boolean canBeExplicitConstructor;
+
 	public boolean isInsideAnnotationAttribute;
+
 	public boolean isPrecededByModifiers;
 
 	public CompletionOnSingleNameReference(char[] source, long pos, boolean isInsideAnnotationAttribute) {
@@ -47,9 +52,9 @@ public class CompletionOnSingleNameReference extends SingleNameReference {
 
 	public CompletionOnSingleNameReference(char[] source, long pos, char[][] possibleKeywords, boolean canBeExplicitConstructor, boolean isInsideAnnotationAttribute) {
 		super(source, pos);
-		this.possibleKeywords = possibleKeywords;
-		this.canBeExplicitConstructor = canBeExplicitConstructor;
-		this.isInsideAnnotationAttribute = isInsideAnnotationAttribute;
+		this.possibleKeywords= possibleKeywords;
+		this.canBeExplicitConstructor= canBeExplicitConstructor;
+		this.isInsideAnnotationAttribute= isInsideAnnotationAttribute;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
@@ -59,7 +64,7 @@ public class CompletionOnSingleNameReference extends SingleNameReference {
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
-		if(scope instanceof MethodScope) {
+		if (scope instanceof MethodScope) {
 			throw new CompletionNodeFound(this, scope, ((MethodScope)scope).insideTypeAnnotation);
 		}
 		throw new CompletionNodeFound(this, scope);

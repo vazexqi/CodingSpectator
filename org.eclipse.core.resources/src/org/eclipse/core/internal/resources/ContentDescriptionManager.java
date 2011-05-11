@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
-import org.eclipse.core.internal.utils.FileUtil;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;

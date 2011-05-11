@@ -17,107 +17,108 @@ public class BindingKeyParser {
 
 	int keyStart;
 
-	static final char C_THROWN = '|';
+	static final char C_THROWN= '|';
 
 	static class Scanner {
-		static final int PACKAGE = 0;
-		static final int TYPE = 1;
-		static final int FIELD = 2;
-		static final int METHOD = 3;
-		static final int ARRAY = 4;
-		static final int LOCAL_VAR = 5;
-		static final int FLAGS = 6;
-		static final int WILDCARD = 7;
-		static final int CAPTURE = 8;
-		static final int BASE_TYPE = 9;
-		static final int END = 10;
+		static final int PACKAGE= 0;
 
-		static final int START = -1;
+		static final int TYPE= 1;
 
-		int index = 0, start;
+		static final int FIELD= 2;
+
+		static final int METHOD= 3;
+
+		static final int ARRAY= 4;
+
+		static final int LOCAL_VAR= 5;
+
+		static final int FLAGS= 6;
+
+		static final int WILDCARD= 7;
+
+		static final int CAPTURE= 8;
+
+		static final int BASE_TYPE= 9;
+
+		static final int END= 10;
+
+		static final int START= -1;
+
+		int index= 0, start;
+
 		char[] source;
-		int token = START;
+
+		int token= START;
 
 		Scanner(char[] source) {
-			this.source = source;
+			this.source= source;
 		}
 
 		char[] getTokenSource() {
-			int length = this.index-this.start;
-			char[] result = new char[length];
+			int length= this.index - this.start;
+			char[] result= new char[length];
 			System.arraycopy(this.source, this.start, result, 0, length);
 			return result;
 		}
 
 		boolean isAtAnnotationStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '@';
+			return this.index < this.source.length
+					&& this.source[this.index] == '@';
 		}
 
 		boolean isAtCaptureStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '!';
+			return this.index < this.source.length
+					&& this.source[this.index] == '!';
 		}
 
 		boolean isAtFieldOrMethodStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '.';
+			return this.index < this.source.length
+					&& this.source[this.index] == '.';
 		}
 
 		boolean isAtLocalVariableStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '#';
+			return this.index < this.source.length
+					&& this.source[this.index] == '#';
 		}
 
 		boolean isAtMemberTypeStart() {
-			return
-				this.index < this.source.length
-				&& (this.source[this.index] == '$'
-					|| (this.source[this.index] == '.' && this.source[this.index-1] == '>'));
+			return this.index < this.source.length
+					&& (this.source[this.index] == '$'
+					|| (this.source[this.index] == '.' && this.source[this.index - 1] == '>'));
 		}
 
 		boolean isAtParametersEnd() {
-			return
-				this.index < this.source.length
+			return this.index < this.source.length
 					&& this.source[this.index] == '>';
 		}
 
 		boolean isAtParametersStart() {
 			char currentChar;
-			return
-				this.index > 0
-				&& this.index < this.source.length
-				&& ((currentChar = this.source[this.index]) == '<'
+			return this.index > 0
+					&& this.index < this.source.length
+					&& ((currentChar= this.source[this.index]) == '<'
 					|| currentChar == '%');
 		}
 
 		boolean isAtRawTypeEnd() {
-			return
-				this.index > 0
-				&& this.index < this.source.length
-				&& this.source[this.index] == '>';
+			return this.index > 0
+					&& this.index < this.source.length
+					&& this.source[this.index] == '>';
 		}
 
 		boolean isAtSecondaryTypeStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '~';
+			return this.index < this.source.length
+					&& this.source[this.index] == '~';
 		}
 
 		boolean isAtWildcardStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '{';   // e.g {1}+Ljava/lang/String;
+			return this.index < this.source.length
+					&& this.source[this.index] == '{'; // e.g {1}+Ljava/lang/String;
 		}
 
 		boolean isAtTypeParameterStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == 'T';
+			return this.index < this.source.length
+					&& this.source[this.index] == 'T';
 		}
 
 		boolean isAtTypeArgumentStart() {
@@ -125,30 +126,27 @@ public class BindingKeyParser {
 		}
 
 		boolean isAtThrownStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == C_THROWN;
+			return this.index < this.source.length
+					&& this.source[this.index] == C_THROWN;
 		}
 
 		boolean isAtTypeVariableStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == ':';
+			return this.index < this.source.length
+					&& this.source[this.index] == ':';
 		}
 
 		boolean isAtTypeWithCaptureStart() {
-			return
-				this.index < this.source.length
-				&& this.source[this.index] == '&';
+			return this.index < this.source.length
+					&& this.source[this.index] == '&';
 		}
 
 		int nextToken() {
-			int previousTokenEnd = this.index;
-			this.start = this.index;
-			int dollarIndex = -1;
-			int length = this.source.length;
+			int previousTokenEnd= this.index;
+			this.start= this.index;
+			int dollarIndex= -1;
+			int length= this.source.length;
 			while (this.index <= length) {
-				char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
+				char currentChar= this.index == length ? Character.MIN_VALUE : this.source[this.index];
 				switch (currentChar) {
 					case 'B':
 					case 'C':
@@ -162,51 +160,52 @@ public class BindingKeyParser {
 					case 'Z':
 						// base type
 						if (this.index == previousTokenEnd
-								&& (this.index == 0 || this.source[this.index-1] != '.')) { // case of field or method starting with one of the character above
+								&& (this.index == 0 || this.source[this.index - 1] != '.')) { // case of field or method starting with one of the character above
 							this.index++;
-							this.token = BASE_TYPE;
+							this.token= BASE_TYPE;
 							return this.token;
 						}
 						break;
 					case 'L':
 					case 'T':
 						if (this.index == previousTokenEnd
-								&& (this.index == 0 || this.source[this.index-1] != '.')) { // case of field or method starting with one of the character above
-							this.start = this.index+1;
-							dollarIndex = -1;
+								&& (this.index == 0 || this.source[this.index - 1] != '.')) { // case of field or method starting with one of the character above
+							this.start= this.index + 1;
+							dollarIndex= -1;
 						}
 						break;
 					case ';':
 						if (this.index == previousTokenEnd) {
-							this.start = this.index+1;
-							dollarIndex = -1;
-							previousTokenEnd = this.start;
+							this.start= this.index + 1;
+							dollarIndex= -1;
+							previousTokenEnd= this.start;
 						} else {
-							if (dollarIndex != -1) this.index = dollarIndex;
-							this.token = TYPE;
+							if (dollarIndex != -1)
+								this.index= dollarIndex;
+							this.token= TYPE;
 							return this.token;
 						}
 						break;
 					case '$':
 						if (this.index == previousTokenEnd) {
-							this.start = this.index+1;
-							dollarIndex = -1;
+							this.start= this.index + 1;
+							dollarIndex= -1;
 						} else {
 							if (dollarIndex == -1) {
-								dollarIndex = this.index;
+								dollarIndex= this.index;
 								break;
 							}
-							this.index = dollarIndex;
-							this.token = TYPE;
+							this.index= dollarIndex;
+							this.token= TYPE;
 							return this.token;
 						}
 						break;
 					case '~':
 						if (this.index == previousTokenEnd) {
-							this.start = this.index+1;
-							dollarIndex = -1;
+							this.start= this.index + 1;
+							dollarIndex= -1;
 						} else {
-							this.token = TYPE;
+							this.token= TYPE;
 							return this.token;
 						}
 						break;
@@ -215,82 +214,84 @@ public class BindingKeyParser {
 					case ':':
 					case '>':
 					case '@':
-						this.start = this.index+1;
-						dollarIndex = -1;
-						previousTokenEnd = this.start;
+						this.start= this.index + 1;
+						dollarIndex= -1;
+						previousTokenEnd= this.start;
 						break;
 					case '[':
 						while (this.index < length && this.source[this.index] == '[')
 							this.index++;
-						this.token = ARRAY;
+						this.token= ARRAY;
 						return this.token;
 					case '<':
 						if (this.start > 0) {
-							switch (this.source[this.start-1]) {
+							switch (this.source[this.start - 1]) {
 								case '.':
-									if (this.source[this.start-2] == '>') {
+									if (this.source[this.start - 2] == '>') {
 										// case of member type where enclosing type is parameterized
-										if (dollarIndex != -1) this.index = dollarIndex;
-										this.token = TYPE;
+										if (dollarIndex != -1)
+											this.index= dollarIndex;
+										this.token= TYPE;
 									} else {
-										this.token = METHOD;
+										this.token= METHOD;
 									}
 									return this.token;
 								default:
 									if (this.index == previousTokenEnd) {
-										this.start = this.index+1;
-										dollarIndex = -1;
-										previousTokenEnd = this.start;
+										this.start= this.index + 1;
+										dollarIndex= -1;
+										previousTokenEnd= this.start;
 									} else {
-										if (dollarIndex != -1) this.index = dollarIndex;
-										this.token = TYPE;
+										if (dollarIndex != -1)
+											this.index= dollarIndex;
+										this.token= TYPE;
 										return this.token;
 									}
 							}
 						}
 						break;
 					case '(':
-						this.token = METHOD;
+						this.token= METHOD;
 						return this.token;
 					case ')':
 						if (this.token == TYPE) {
-							this.token = FIELD;
+							this.token= FIELD;
 							return this.token;
 						}
-						this.start = this.index+1;
-						dollarIndex = -1;
-						previousTokenEnd = this.start;
+						this.start= this.index + 1;
+						dollarIndex= -1;
+						previousTokenEnd= this.start;
 						break;
 					case '#':
 						if (this.index == previousTokenEnd) {
-							this.start = this.index+1;
-							dollarIndex = -1;
-							previousTokenEnd = this.start;
+							this.start= this.index + 1;
+							dollarIndex= -1;
+							previousTokenEnd= this.start;
 						} else {
-							this.token = LOCAL_VAR;
+							this.token= LOCAL_VAR;
 							return this.token;
 						}
 						break;
 					case Character.MIN_VALUE:
 						switch (this.token) {
 							case START:
-								this.token = PACKAGE;
+								this.token= PACKAGE;
 								break;
 							case METHOD:
 							case LOCAL_VAR:
-								this.token = LOCAL_VAR;
+								this.token= LOCAL_VAR;
 								break;
 							case TYPE:
-								if (this.index > this.start && this.source[this.start-1] == '.')
-									this.token = FIELD;
+								if (this.index > this.start && this.source[this.start - 1] == '.')
+									this.token= FIELD;
 								else
-									this.token = END;
+									this.token= END;
 								break;
 							case WILDCARD:
-								this.token = TYPE;
+								this.token= TYPE;
 								break;
 							default:
-								this.token = END;
+								this.token= END;
 								break;
 						}
 						return this.token;
@@ -298,23 +299,23 @@ public class BindingKeyParser {
 					case '+':
 					case '-':
 						this.index++;
-						this.token = WILDCARD;
+						this.token= WILDCARD;
 						return this.token;
 					case '!':
 					case '&':
 						this.index++;
-						this.token = CAPTURE;
+						this.token= CAPTURE;
 						return this.token;
 				}
 				this.index++;
 			}
-			this.token = END;
+			this.token= END;
 			return this.token;
 		}
 
 		void skipMethodSignature() {
-			this.start = this.index;
-			int braket = 0;
+			this.start= this.index;
+			int braket= 0;
 			while (this.index < this.source.length) {
 				switch (this.source[this.index]) {
 					case '#':
@@ -340,11 +341,11 @@ public class BindingKeyParser {
 		}
 
 		void skipRank() {
-			this.start = this.index;
+			this.start= this.index;
 			while (this.index < this.source.length && "0123456789".indexOf(this.source[this.index]) != -1) //$NON-NLS-1$
 				this.index++;
 		}
-		
+
 		void skipThrownStart() {
 			while (this.index < this.source.length && this.source[this.index] == C_THROWN)
 				this.index++;
@@ -365,20 +366,20 @@ public class BindingKeyParser {
 			if (this.index < this.source.length && this.source[this.index] == ';')
 				this.index++;
 		}
-		
+
 		void skipRankStart() {
 			if (this.index < this.source.length && this.source[this.index] == '{')
 				this.index++;
 		}
-		
+
 		void skipRankEnd() {
 			if (this.index < this.source.length && this.source[this.index] == '}')
 				this.index++;
-			this.start = this.index;
+			this.start= this.index;
 		}
 
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuffer buffer= new StringBuffer();
 			switch (this.token) {
 				case START:
 					buffer.append("START: "); //$NON-NLS-1$
@@ -438,21 +439,22 @@ public class BindingKeyParser {
 			return buffer.toString();
 		}
 	}
+
 	private boolean parsingPaused;
 
 	private Scanner scanner;
 
-	private boolean hasTypeName = true;
+	private boolean hasTypeName= true;
 
 	private boolean isMalformed;
 
 	public BindingKeyParser(BindingKeyParser parser) {
 		this(""); //$NON-NLS-1$
-		this.scanner = parser.scanner;
+		this.scanner= parser.scanner;
 	}
 
 	public BindingKeyParser(String key) {
-		this.scanner = new Scanner(key.toCharArray());
+		this.scanner= new Scanner(key.toCharArray());
 	}
 
 	public void consumeAnnotation() {
@@ -562,7 +564,7 @@ public class BindingKeyParser {
 	public void consumeWildCard(int kind) {
 		// default is to do nothing
 	}
-	
+
 	public void consumeWildcardRank(int rank) {
 		// default is to do nothing
 	}
@@ -579,7 +581,7 @@ public class BindingKeyParser {
 	}
 
 	public void malformedKey() {
-		this.isMalformed = true;
+		this.isMalformed= true;
 	}
 
 	public BindingKeyParser newParser() {
@@ -596,7 +598,7 @@ public class BindingKeyParser {
 			parseFullyQualifiedName();
 			parseSecondaryType();
 			if (pauseAfterFullyQualifiedName) {
-				this.parsingPaused = true;
+				this.parsingPaused= true;
 				return;
 			}
 		}
@@ -609,11 +611,11 @@ public class BindingKeyParser {
 
 		if (this.scanner.isAtParametersStart()) {
 			this.scanner.skipParametersStart();
-			if (this.scanner.isAtTypeParameterStart())	{
+			if (this.scanner.isAtTypeParameterStart()) {
 				// generic type
 				parseGenericType();
-			 	// skip ";>"
-			 	this.scanner.skipParametersEnd();
+				// skip ";>"
+				this.scanner.skipParametersEnd();
 				// local type in generic type
 				parseInnerType();
 			} else if (this.scanner.isAtTypeArgumentStart())
@@ -647,7 +649,7 @@ public class BindingKeyParser {
 					} else if (this.scanner.isAtAnnotationStart()) {
 						parseAnnotation();
 					}
-			 		break;
+					break;
 				default:
 					malformedKey();
 					return;
@@ -668,26 +670,26 @@ public class BindingKeyParser {
 	private void parseFullyQualifiedName() {
 		if (this.scanner.isAtCaptureStart()) {
 			parseCapture();
-			this.hasTypeName = false;
+			this.hasTypeName= false;
 			return;
 		}
-		switch(this.scanner.nextToken()) {
+		switch (this.scanner.nextToken()) {
 			case Scanner.PACKAGE:
-				this.keyStart = 0;
+				this.keyStart= 0;
 				consumePackage(this.scanner.getTokenSource());
-				this.hasTypeName = false;
+				this.hasTypeName= false;
 				return;
 			case Scanner.TYPE:
-				this.keyStart = this.scanner.start-1;
+				this.keyStart= this.scanner.start - 1;
 				consumeFullyQualifiedName(this.scanner.getTokenSource());
 				break;
 			case Scanner.BASE_TYPE:
-				this.keyStart = this.scanner.start-1;
+				this.keyStart= this.scanner.start - 1;
 				consumeBaseType(this.scanner.getTokenSource());
-				this.hasTypeName = false;
+				this.hasTypeName= false;
 				break;
 			case Scanner.ARRAY:
-				this.keyStart = this.scanner.start;
+				this.keyStart= this.scanner.start;
 				consumeArrayDimension(this.scanner.getTokenSource());
 				switch (this.scanner.nextToken()) {
 					case Scanner.TYPE:
@@ -695,7 +697,7 @@ public class BindingKeyParser {
 						break;
 					case Scanner.BASE_TYPE:
 						consumeBaseType(this.scanner.getTokenSource());
-						this.hasTypeName = false;
+						this.hasTypeName= false;
 						break;
 					default:
 						malformedKey();
@@ -730,13 +732,13 @@ public class BindingKeyParser {
 	private void parseInnerType() {
 		if (!this.scanner.isAtMemberTypeStart() || this.scanner.nextToken() != Scanner.TYPE)
 			return;
-		char[] typeName = this.scanner.getTokenSource();
+		char[] typeName= this.scanner.getTokenSource();
 		if (Character.isDigit(typeName[0])) {
 			// anonymous or local type
-			int nextToken = Scanner.TYPE;
+			int nextToken= Scanner.TYPE;
 			while (this.scanner.isAtMemberTypeStart() && !this.isMalformed)
-				nextToken = this.scanner.nextToken();
-			typeName = nextToken == Scanner.END ? this.scanner.source : CharOperation.subarray(this.scanner.source, this.keyStart, this.scanner.index+1);
+				nextToken= this.scanner.nextToken();
+			typeName= nextToken == Scanner.END ? this.scanner.source : CharOperation.subarray(this.scanner.source, this.keyStart, this.scanner.index + 1);
 			consumeLocalType(typeName);
 		} else {
 			consumeMemberType(typeName);
@@ -749,9 +751,9 @@ public class BindingKeyParser {
 			malformedKey();
 			return;
 		}
-		char[] varName = this.scanner.getTokenSource();
+		char[] varName= this.scanner.getTokenSource();
 		if (Character.isDigit(varName[0])) {
-			int index = Integer.parseInt(new String(varName));
+			int index= Integer.parseInt(new String(varName));
 			consumeScope(index);
 			if (!this.scanner.isAtLocalVariableStart()) {
 				malformedKey();
@@ -759,23 +761,23 @@ public class BindingKeyParser {
 			}
 			parseLocalVariable();
 		} else {
-			int occurrenceCount = 0;
+			int occurrenceCount= 0;
 			if (this.scanner.isAtLocalVariableStart()) {
 				if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
 					malformedKey();
 					return;
 				}
-				char[] occurrence = this.scanner.getTokenSource();
-				occurrenceCount = Integer.parseInt(new String(occurrence));
+				char[] occurrence= this.scanner.getTokenSource();
+				occurrenceCount= Integer.parseInt(new String(occurrence));
 			}
 			consumeLocalVar(varName, occurrenceCount);
 		}
 	}
 
 	private void parseMethod() {
-		char[] selector = this.scanner.getTokenSource();
+		char[] selector= this.scanner.getTokenSource();
 		this.scanner.skipMethodSignature();
-		char[] signature = this.scanner.getTokenSource();
+		char[] signature= this.scanner.getTokenSource();
 		consumeMethod(selector, signature);
 		if (this.scanner.isAtThrownStart()) {
 			parseThrownExceptions();
@@ -789,24 +791,25 @@ public class BindingKeyParser {
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
-		BindingKeyParser parser = newParser();
+		int token= this.scanner.token;
+		BindingKeyParser parser= newParser();
 		parser.parse();
 		consumeParser(parser);
 		consumeAnnotation();
-		this.isMalformed = parser.isMalformed;
-		this.scanner.token = token;
+		this.isMalformed= parser.isMalformed;
+		this.scanner.token= token;
 	}
 
 	private void parseCapture() {
-		if (this.scanner.nextToken() != Scanner.CAPTURE) return;
+		if (this.scanner.nextToken() != Scanner.CAPTURE)
+			return;
 		parseCaptureWildcard();
 		if (this.scanner.nextToken() != Scanner.TYPE) {
 			malformedKey();
 			return;
 		}
-		char[] positionChars = this.scanner.getTokenSource();
-		int position = Integer.parseInt(new String(positionChars));
+		char[] positionChars= this.scanner.getTokenSource();
+		int position= Integer.parseInt(new String(positionChars));
 		consumeCapture(position);
 		this.scanner.skipTypeEnd();
 	}
@@ -816,18 +819,18 @@ public class BindingKeyParser {
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
-		BindingKeyParser parser = newParser();
+		int token= this.scanner.token;
+		BindingKeyParser parser= newParser();
 		parser.parse();
 		consumeParser(parser);
-		this.isMalformed = parser.isMalformed;
-		this.scanner.token = token;
+		this.isMalformed= parser.isMalformed;
+		this.scanner.token= token;
 	}
 
 	private void parseField() {
-		char[] fieldName = this.scanner.getTokenSource();
+		char[] fieldName= this.scanner.getTokenSource();
 		parseReturnType();
- 		consumeField(fieldName);
+		consumeField(fieldName);
 	}
 
 	private void parseThrownExceptions() {
@@ -835,16 +838,16 @@ public class BindingKeyParser {
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
+		int token= this.scanner.token;
 		while (this.scanner.isAtThrownStart() && !this.isMalformed) {
 			this.scanner.skipThrownStart();
-			BindingKeyParser parser = newParser();
+			BindingKeyParser parser= newParser();
 			parser.parse();
 			consumeParser(parser);
 			consumeException();
-			this.isMalformed = parser.isMalformed;
+			this.isMalformed= parser.isMalformed;
 		}
-		this.scanner.token = token;
+		this.scanner.token= token;
 	}
 
 	private void parseParameterizedType(char[] typeName, boolean isRaw) {
@@ -853,32 +856,32 @@ public class BindingKeyParser {
 				parseTypeArgument();
 			}
 		}
-	 	// skip ";>"
-	 	this.scanner.skipParametersEnd();
+		// skip ";>"
+		this.scanner.skipParametersEnd();
 		consumeParameterizedType(typeName, isRaw);
 		this.scanner.skipTypeEnd();
-	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
-	 		typeName = this.scanner.getTokenSource();
+		if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
+			typeName= this.scanner.getTokenSource();
 			if (this.scanner.isAtParametersStart()) {
 				this.scanner.skipParametersStart();
-		 		parseParameterizedType(typeName, this.scanner.isAtRawTypeEnd());
+				parseParameterizedType(typeName, this.scanner.isAtRawTypeEnd());
 			} else
 				consumeParameterizedType(typeName, true/*raw*/);
-	 	}
+		}
 	}
 
 	private void parseRawType() {
 		this.scanner.skipParametersEnd();
 		consumeRawType();
 		this.scanner.skipTypeEnd();
-	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
-	 		char[] typeName = this.scanner.getTokenSource();
+		if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
+			char[] typeName= this.scanner.getTokenSource();
 			if (this.scanner.isAtParametersStart()) {
 				this.scanner.skipParametersStart();
-		 		parseParameterizedType(typeName, this.scanner.isAtRawTypeEnd());
+				parseParameterizedType(typeName, this.scanner.isAtRawTypeEnd());
 			} else
 				consumeParameterizedType(typeName, true/*raw*/);
-	 	}
+		}
 	}
 
 	private void parseReturnType() {
@@ -887,16 +890,17 @@ public class BindingKeyParser {
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
-		BindingKeyParser parser = newParser();
+		int token= this.scanner.token;
+		BindingKeyParser parser= newParser();
 		parser.parse();
 		consumeParser(parser);
-		this.isMalformed = parser.isMalformed;
-		this.scanner.token = token;
+		this.isMalformed= parser.isMalformed;
+		this.scanner.token= token;
 	}
 
 	private void parseSecondaryType() {
-		if (!this.scanner.isAtSecondaryTypeStart() || this.scanner.nextToken() != Scanner.TYPE) return;
+		if (!this.scanner.isAtSecondaryTypeStart() || this.scanner.nextToken() != Scanner.TYPE)
+			return;
 		consumeSecondaryType(this.scanner.getTokenSource());
 	}
 
@@ -905,27 +909,28 @@ public class BindingKeyParser {
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
-		BindingKeyParser parser = newParser();
+		int token= this.scanner.token;
+		BindingKeyParser parser= newParser();
 		parser.parse();
 		consumeParser(parser);
-		this.isMalformed = parser.isMalformed;
-		this.scanner.token = token;
+		this.isMalformed= parser.isMalformed;
+		this.scanner.token= token;
 	}
 
 	private void parseTypeWithCapture() {
-		if (this.scanner.nextToken() != Scanner.CAPTURE) return;
+		if (this.scanner.nextToken() != Scanner.CAPTURE)
+			return;
 		/*
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
-		BindingKeyParser parser = newParser();
+		int token= this.scanner.token;
+		BindingKeyParser parser= newParser();
 		parser.parse();
 		consumeParser(parser);
 		consumeTypeWithCapture();
-		this.isMalformed = parser.isMalformed;
-		this.scanner.token = token;
+		this.isMalformed= parser.isMalformed;
+		this.scanner.token= token;
 	}
 
 	private void parseTypeVariable() {
@@ -933,15 +938,15 @@ public class BindingKeyParser {
 			malformedKey();
 			return;
 		}
-		char[] typeVariableName = this.scanner.getTokenSource();
+		char[] typeVariableName= this.scanner.getTokenSource();
 		char[] position;
-		int length = typeVariableName.length;
+		int length= typeVariableName.length;
 		if (length > 0 && Character.isDigit(typeVariableName[0])) {
-			int firstT = CharOperation.indexOf('T', typeVariableName);
-			position = CharOperation.subarray(typeVariableName, 0, firstT);
-			typeVariableName = CharOperation.subarray(typeVariableName, firstT+1, typeVariableName.length);
+			int firstT= CharOperation.indexOf('T', typeVariableName);
+			position= CharOperation.subarray(typeVariableName, 0, firstT);
+			typeVariableName= CharOperation.subarray(typeVariableName, firstT + 1, typeVariableName.length);
 		} else {
-			position = CharOperation.NO_CHAR;
+			position= CharOperation.NO_CHAR;
 		}
 		consumeTypeVariable(position, typeVariableName);
 		this.scanner.skipTypeEnd();
@@ -949,22 +954,23 @@ public class BindingKeyParser {
 
 	private void parseWildcard() {
 		parseWildcardRank();
-		if (this.scanner.nextToken() != Scanner.WILDCARD) return;
-		char[] source = this.scanner.getTokenSource();
+		if (this.scanner.nextToken() != Scanner.WILDCARD)
+			return;
+		char[] source= this.scanner.getTokenSource();
 		if (source.length == 0) {
 			malformedKey();
 			return;
 		}
-		int kind = -1;
+		int kind= -1;
 		switch (source[0]) {
 			case '*':
-				kind = Wildcard.UNBOUND;
+				kind= Wildcard.UNBOUND;
 				break;
 			case '+':
-				kind = Wildcard.EXTENDS;
+				kind= Wildcard.EXTENDS;
 				break;
 			case '-':
-				kind = Wildcard.SUPER;
+				kind= Wildcard.SUPER;
 				break;
 		}
 		if (kind == -1) {
@@ -979,22 +985,22 @@ public class BindingKeyParser {
 	private void parseWildcardRank() {
 		this.scanner.skipRankStart();
 		this.scanner.skipRank();
-		char[] source = this.scanner.getTokenSource();
+		char[] source= this.scanner.getTokenSource();
 		consumeWildcardRank(Integer.parseInt(new String(source)));
 		this.scanner.skipRankEnd();
 	}
-	
+
 	private void parseWildcardBound() {
 		/*
 		 * The call parser.parse() might have a side-effect on the current token type
 		 * See bug 264443
 		 */
-		int token = this.scanner.token;
-		BindingKeyParser parser = newParser();
+		int token= this.scanner.token;
+		BindingKeyParser parser= newParser();
 		parser.parse();
 		consumeParser(parser);
-		this.isMalformed = parser.isMalformed;
-		this.scanner.token = token;
+		this.isMalformed= parser.isMalformed;
+		this.scanner.token= token;
 	}
 
 }

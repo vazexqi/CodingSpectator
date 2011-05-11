@@ -19,14 +19,15 @@ import java.io.Reader;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
- * Reads the text contents from a reader and computes for each character
- * a potential substitution. The substitution may eat more characters than
- * only the one passed into the computation routine.
+ * Reads the text contents from a reader and computes for each character a potential substitution.
+ * The substitution may eat more characters than only the one passed into the computation routine.
  */
 public abstract class SubstitutionTextReader extends Reader {
 
 	private Reader fReader;
+
 	private boolean fWasWhiteSpace;
+
 	private int fCharAfterWhiteSpace;
 
 	/**
@@ -35,7 +36,9 @@ public abstract class SubstitutionTextReader extends Reader {
 	private boolean fSkipWhiteSpace= true;
 
 	private boolean fReadFromBuffer;
+
 	private StringBuffer fBuffer;
+
 	private int fIndex;
 
 
@@ -61,9 +64,8 @@ public abstract class SubstitutionTextReader extends Reader {
 	}
 
 	/**
-	 * Implement to compute the substitution for the given character and
-	 * if necessary subsequent characters. Use <code>nextChar</code>
-	 * to read subsequent characters.
+	 * Implement to compute the substitution for the given character and if necessary subsequent
+	 * characters. Use <code>nextChar</code> to read subsequent characters.
 	 */
 	protected abstract String computeSubstitution(int c) throws IOException;
 

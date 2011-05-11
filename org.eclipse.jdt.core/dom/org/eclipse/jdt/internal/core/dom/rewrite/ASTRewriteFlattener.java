@@ -12,17 +12,106 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.List;
 
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.AssertStatement;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BlockComment;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.ContinueStatement;
+import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EmptyStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LabeledStatement;
+import org.eclipse.jdt.core.dom.LineComment;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberRef;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.SynchronizedStatement;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.ThrowStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ASTRewriteFlattener extends ASTVisitor {
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL2
-	 * to alleviate deprecation warnings.
+	 * Internal synonynm for deprecated constant AST.JSL2 to alleviate deprecation warnings.
+	 * 
 	 * @deprecated
 	 */
-	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
+	/*package*/static final int JLS2_INTERNAL= AST.JLS2;
 
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
@@ -31,6 +120,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	protected StringBuffer result;
+
 	private RewriteEventStore store;
 
 	public ASTRewriteFlattener(RewriteEventStore store) {
@@ -40,7 +130,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	/**
 	 * Returns the string accumulated in the visit.
-	 *
+	 * 
 	 * @return the serialized
 	 */
 	public String getResult() {
@@ -57,7 +147,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	/**
 	 * Appends the text representation of the given modifier flags, followed by a single space.
-	 *
+	 * 
 	 * @param modifiers the modifiers
 	 * @param buf The <code>StringBuffer</code> to write the result to.
 	 */
@@ -98,19 +188,19 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	protected List getChildList(ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		return (List) getAttribute(parent, childProperty);
+		return (List)getAttribute(parent, childProperty);
 	}
 
 	protected ASTNode getChildNode(ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		return (ASTNode) getAttribute(parent, childProperty);
+		return (ASTNode)getAttribute(parent, childProperty);
 	}
 
 	protected int getIntAttribute(ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		return ((Integer) getAttribute(parent, childProperty)).intValue();
+		return ((Integer)getAttribute(parent, childProperty)).intValue();
 	}
 
 	protected boolean getBooleanAttribute(ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		return ((Boolean) getAttribute(parent, childProperty)).booleanValue();
+		return ((Boolean)getAttribute(parent, childProperty)).booleanValue();
 	}
 
 	protected Object getAttribute(ASTNode parent, StructuralPropertyDescriptor childProperty) {
@@ -123,7 +213,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			if (separator != null && i > 0) {
 				this.result.append(separator);
 			}
-			((ASTNode) list.get(i)).accept(this);
+			((ASTNode)list.get(i)).accept(this);
 		}
 	}
 
@@ -135,7 +225,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 				if (separator != null && i > 0) {
 					this.result.append(separator);
 				}
-				((ASTNode) list.get(i)).accept(this);
+				((ASTNode)list.get(i)).accept(this);
 			}
 			this.result.append(post);
 		}
@@ -168,14 +258,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ArrayCreation node) {
 		this.result.append("new "); //$NON-NLS-1$
-		ArrayType arrayType= (ArrayType) getChildNode(node, ArrayCreation.TYPE_PROPERTY);
+		ArrayType arrayType= (ArrayType)getChildNode(node, ArrayCreation.TYPE_PROPERTY);
 
 		// get the element type and count dimensions
-		Type elementType= (Type) getChildNode(arrayType, ArrayType.COMPONENT_TYPE_PROPERTY);
+		Type elementType= (Type)getChildNode(arrayType, ArrayType.COMPONENT_TYPE_PROPERTY);
 		int dimensions= 1; // always include this array type
 		while (elementType.isArrayType()) {
 			dimensions++;
-			elementType = (Type) getChildNode(elementType, ArrayType.COMPONENT_TYPE_PROPERTY);
+			elementType= (Type)getChildNode(elementType, ArrayType.COMPONENT_TYPE_PROPERTY);
 		}
 
 		elementType.accept(this);
@@ -183,7 +273,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		List list= getChildList(node, ArrayCreation.DIMENSIONS_PROPERTY);
 		for (int i= 0; i < list.size(); i++) {
 			this.result.append('[');
-			((ASTNode) list.get(i)).accept(this);
+			((ASTNode)list.get(i)).accept(this);
 			this.result.append(']');
 			dimensions--;
 		}
@@ -519,7 +609,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		List list= getChildList(node, InfixExpression.EXTENDED_OPERANDS_PROPERTY);
 		for (int i= 0; i < list.size(); i++) {
 			this.result.append(operator);
-			((ASTNode) list.get(i)).accept(this);
+			((ASTNode)list.get(i)).accept(this);
 		}
 		return false;
 	}
@@ -559,7 +649,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		List list= getChildList(node, Javadoc.TAGS_PROPERTY);
 		for (int i= 0; i < list.size(); i++) {
 			this.result.append("\n * "); //$NON-NLS-1$
-			((ASTNode) list.get(i)).accept(this);
+			((ASTNode)list.get(i)).accept(this);
 		}
 		this.result.append("\n */"); //$NON-NLS-1$
 		return false;
@@ -594,7 +684,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 				getChildNode(node, MethodDeclaration.RETURN_TYPE_PROPERTY).accept(this);
 			} else {
-				ASTNode returnType = getChildNode(node, MethodDeclaration.RETURN_TYPE2_PROPERTY);
+				ASTNode returnType= getChildNode(node, MethodDeclaration.RETURN_TYPE2_PROPERTY);
 				if (returnType != null) {
 					returnType.accept(this);
 				} else {
@@ -609,7 +699,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, MethodDeclaration.PARAMETERS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
 		int extraDims= getIntAttribute(node, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY);
-		for (int i = 0; i < extraDims; i++) {
+		for (int i= 0; i < extraDims; i++) {
 			this.result.append("[]"); //$NON-NLS-1$
 		}
 		visitList(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY, String.valueOf(','), " throws ", Util.EMPTY_STRING); //$NON-NLS-1$
@@ -663,7 +753,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(PackageDeclaration node) {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			ASTNode javadoc = getChildNode(node, PackageDeclaration.JAVADOC_PROPERTY);
+			ASTNode javadoc= getChildNode(node, PackageDeclaration.JAVADOC_PROPERTY);
 			if (javadoc != null) {
 				javadoc.accept(this);
 			}
@@ -768,7 +858,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(' ');
 		getChildNode(node, SingleVariableDeclaration.NAME_PROPERTY).accept(this);
 		int extraDimensions= getIntAttribute(node, SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY);
-		for (int i = 0; i < extraDimensions; i++) {
+		for (int i= 0; i < extraDimensions; i++) {
 			this.result.append("[]"); //$NON-NLS-1$
 		}
 		ASTNode initializer= getChildNode(node, SingleVariableDeclaration.INITIALIZER_PROPERTY);
@@ -952,7 +1042,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 
 		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
-		String lead= isInterface ? "extends " : "implements ";  //$NON-NLS-1$//$NON-NLS-2$
+		String lead= isInterface ? "extends " : "implements "; //$NON-NLS-1$//$NON-NLS-2$
 		visitList(node, superInterfaceProperty, String.valueOf(','), lead, Util.EMPTY_STRING);
 		this.result.append('{');
 		visitList(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY, null);
@@ -1002,7 +1092,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(VariableDeclarationFragment node) {
 		getChildNode(node, VariableDeclarationFragment.NAME_PROPERTY).accept(this);
 		int extraDimensions= getIntAttribute(node, VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY);
-		for (int i = 0; i < extraDimensions; i++) {
+		for (int i= 0; i < extraDimensions; i++) {
 			this.result.append("[]"); //$NON-NLS-1$
 		}
 		ASTNode initializer= getChildNode(node, VariableDeclarationFragment.INITIALIZER_PROPERTY);
@@ -1047,12 +1137,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(BlockComment node) {
 		return false; // cant flatten, needs source
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.LineComment)
 	 */
 	public boolean visit(LineComment node) {
 		return false; // cant flatten, needs source
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MemberRef)
 	 */
@@ -1065,6 +1157,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		getChildNode(node, MemberRef.NAME_PROPERTY).accept(this);
 		return false;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MethodRef)
 	 */
@@ -1080,6 +1173,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(')');
 		return false;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MethodRefParameter)
 	 */
@@ -1097,20 +1191,21 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		return false;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.TagElement)
 	 */
 	public boolean visit(TagElement node) {
 		Object tagName= getAttribute(node, TagElement.TAG_NAME_PROPERTY);
 		if (tagName != null) {
-			this.result.append((String) tagName);
+			this.result.append((String)tagName);
 		}
 		List list= getChildList(node, TagElement.FRAGMENTS_PROPERTY);
 		for (int i= 0; i < list.size(); i++) {
 			if (i > 0 || tagName != null) {
 				this.result.append(' ');
 			}
-			ASTNode curr= (ASTNode) list.get(i);
+			ASTNode curr= (ASTNode)list.get(i);
 			if (curr instanceof TagElement) {
 				this.result.append('{');
 				curr.accept(this);
@@ -1121,6 +1216,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		return false;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.TextElement)
 	 */
@@ -1128,6 +1224,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(getAttribute(node, TextElement.TEXT_PROPERTY));
 		return false;
 	}
+
 	/*
 	 * @see ASTVisitor#visit(AnnotationTypeDeclaration)
 	 * @since 3.0
@@ -1223,6 +1320,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append('}');
 		return false;
 	}
+
 	/*
 	 * @see ASTVisitor#visit(MarkerAnnotation)
 	 * @since 3.0
@@ -1243,6 +1341,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		getChildNode(node, MemberValuePair.VALUE_PROPERTY).accept(this);
 		return false;
 	}
+
 	/*
 	 * @see ASTVisitor#visit(Modifier)
 	 * @since 3.0
@@ -1264,6 +1363,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(')');
 		return false;
 	}
+
 	/*
 	 * @see ASTVisitor#visit(ParameterizedType)
 	 * @since 3.0
@@ -1313,7 +1413,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(WildcardType node) {
 		this.result.append('?');
-		ASTNode bound = getChildNode(node, WildcardType.BOUND_PROPERTY);
+		ASTNode bound= getChildNode(node, WildcardType.BOUND_PROPERTY);
 		if (bound != null) {
 			if (getBooleanAttribute(node, WildcardType.UPPER_BOUND_PROPERTY)) {
 				this.result.append(" extends ");//$NON-NLS-1$

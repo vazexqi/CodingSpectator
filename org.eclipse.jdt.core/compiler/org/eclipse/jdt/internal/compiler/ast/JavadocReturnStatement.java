@@ -11,28 +11,32 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class JavadocReturnStatement extends ReturnStatement {
 
 	public JavadocReturnStatement(int s, int e) {
 		super(null, s, e);
-		this.bits |= (ASTNode.InsideJavadoc | ASTNode.Empty);
+		this.bits|= (ASTNode.InsideJavadoc | ASTNode.Empty);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolve(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void resolve(BlockScope scope) {
-		MethodScope methodScope = scope.methodScope();
-		MethodBinding methodBinding = null;
-		TypeBinding methodType =
-			(methodScope.referenceContext instanceof AbstractMethodDeclaration)
-				? ((methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding) == null
-					? null
-					: methodBinding.returnType)
-				: TypeBinding.VOID;
+		MethodScope methodScope= scope.methodScope();
+		MethodBinding methodBinding= null;
+		TypeBinding methodType=
+				(methodScope.referenceContext instanceof AbstractMethodDeclaration)
+						? ((methodBinding= ((AbstractMethodDeclaration)methodScope.referenceContext).binding) == null
+								? null
+								: methodBinding.returnType)
+						: TypeBinding.VOID;
 		if (methodType == null || methodType == TypeBinding.VOID) {
 			scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
 		} else if ((this.bits & ASTNode.Empty) != 0) {
@@ -58,6 +62,7 @@ public class JavadocReturnStatement extends ReturnStatement {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
+
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)

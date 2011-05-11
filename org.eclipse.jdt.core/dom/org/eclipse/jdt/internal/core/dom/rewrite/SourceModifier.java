@@ -21,8 +21,11 @@ import org.eclipse.text.edits.ReplaceEdit;
 public class SourceModifier implements ISourceModifier {
 
 	private final String destinationIndent;
+
 	private final int sourceIndentLevel;
+
 	private final int tabWidth;
+
 	private final int indentWidth;
 
 	public SourceModifier(int sourceIndentLevel, String destinationIndent, int tabWidth, int indentWidth) {

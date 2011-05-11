@@ -16,39 +16,36 @@ import java.util.List;
 
 /**
  * Null statement AST node type.
- *
+ * 
  * <pre>
  * EmptyStatement:
  *    <b>;</b>
  * </pre>
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class EmptyStatement extends Statement {
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(1);
+		List properyList= new ArrayList(1);
 		createPropertyList(EmptyStatement.class, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -60,7 +57,7 @@ public class EmptyStatement extends Statement {
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	EmptyStatement(AST ast) {
@@ -85,7 +82,7 @@ public class EmptyStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		EmptyStatement result = new EmptyStatement(target);
+		EmptyStatement result= new EmptyStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		return result;
@@ -114,4 +111,3 @@ public class EmptyStatement extends Statement {
 		return memSize();
 	}
 }
-

@@ -10,27 +10,30 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.index.EntryResult;
+import org.eclipse.jdt.internal.core.index.Index;
 
 public class PackageDeclarationPattern extends JavaSearchPattern {
 
-protected char[] pkgName;
+	protected char[] pkgName;
 
-public PackageDeclarationPattern(char[] pkgName, int matchRule) {
-	super(PKG_DECL_PATTERN, matchRule);
-	this.pkgName = pkgName;
-}
-public EntryResult[] queryIn(Index index) {
-	// package declarations are not indexed
-	return null;
-}
-protected StringBuffer print(StringBuffer output) {
-	output.append("PackageDeclarationPattern: <"); //$NON-NLS-1$
-	if (this.pkgName != null)
-		output.append(this.pkgName);
-	else
-		output.append("*"); //$NON-NLS-1$
-	output.append(">"); //$NON-NLS-1$
-	return super.print(output);
-}
+	public PackageDeclarationPattern(char[] pkgName, int matchRule) {
+		super(PKG_DECL_PATTERN, matchRule);
+		this.pkgName= pkgName;
+	}
+
+	public EntryResult[] queryIn(Index index) {
+		// package declarations are not indexed
+		return null;
+	}
+
+	protected StringBuffer print(StringBuffer output) {
+		output.append("PackageDeclarationPattern: <"); //$NON-NLS-1$
+		if (this.pkgName != null)
+			output.append(this.pkgName);
+		else
+			output.append("*"); //$NON-NLS-1$
+		output.append(">"); //$NON-NLS-1$
+		return super.print(output);
+	}
 }

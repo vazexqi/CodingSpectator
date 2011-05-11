@@ -11,14 +11,18 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayInitializer extends Expression {
 
 	public Expression[] expressions;
+
 	public ArrayBinding binding; //the type of the { , , , }
 
 	/**
@@ -32,8 +36,8 @@ public class ArrayInitializer extends Expression {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
 		if (this.expressions != null) {
-			for (int i = 0, max = this.expressions.length; i < max; i++) {
-				flowInfo = this.expressions[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			for (int i= 0, max= this.expressions.length; i < max; i++) {
+				flowInfo= this.expressions[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 			}
 		}
 		return flowInfo;
@@ -45,22 +49,22 @@ public class ArrayInitializer extends Expression {
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 		// Flatten the values and compute the dimensions, by iterating in depth into nested array initializers
-		int pc = codeStream.position;
-		int expressionLength = (this.expressions == null) ? 0: this.expressions.length;
+		int pc= codeStream.position;
+		int expressionLength= (this.expressions == null) ? 0 : this.expressions.length;
 		codeStream.generateInlinedValue(expressionLength);
 		codeStream.newArray(this.binding);
 		if (this.expressions != null) {
 			// binding is an ArrayType, so I can just deal with the dimension
-			int elementsTypeID = this.binding.dimensions > 1 ? -1 : this.binding.leafComponentType.id;
-			for (int i = 0; i < expressionLength; i++) {
+			int elementsTypeID= this.binding.dimensions > 1 ? -1 : this.binding.leafComponentType.id;
+			for (int i= 0; i < expressionLength; i++) {
 				Expression expr;
-				if ((expr = this.expressions[i]).constant != Constant.NotAConstant) {
+				if ((expr= this.expressions[i]).constant != Constant.NotAConstant) {
 					switch (elementsTypeID) { // filter out initializations to default values
-						case T_int :
-						case T_short :
-						case T_byte :
-						case T_char :
-						case T_long :
+						case T_int:
+						case T_short:
+						case T_byte:
+						case T_char:
+						case T_long:
 							if (expr.constant.longValue() != 0) {
 								codeStream.dup();
 								codeStream.generateInlinedValue(i);
@@ -68,9 +72,9 @@ public class ArrayInitializer extends Expression {
 								codeStream.arrayAtPut(elementsTypeID, false);
 							}
 							break;
-						case T_float :
-						case T_double :
-							double constantValue = expr.constant.doubleValue();
+						case T_float:
+						case T_double:
+							double constantValue= expr.constant.doubleValue();
 							if (constantValue == -0.0 || constantValue != 0) {
 								codeStream.dup();
 								codeStream.generateInlinedValue(i);
@@ -78,7 +82,7 @@ public class ArrayInitializer extends Expression {
 								codeStream.arrayAtPut(elementsTypeID, false);
 							}
 							break;
-						case T_boolean :
+						case T_boolean:
 							if (expr.constant.booleanValue() != false) {
 								codeStream.dup();
 								codeStream.generateInlinedValue(i);
@@ -86,7 +90,7 @@ public class ArrayInitializer extends Expression {
 								codeStream.arrayAtPut(elementsTypeID, false);
 							}
 							break;
-						default :
+						default:
 							if (!(expr instanceof NullLiteral)) {
 								codeStream.dup();
 								codeStream.generateInlinedValue(i);
@@ -114,15 +118,16 @@ public class ArrayInitializer extends Expression {
 
 		output.append('{');
 		if (this.expressions != null) {
-			int j = 20 ;
-			for (int i = 0 ; i < this.expressions.length ; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
+			int j= 20;
+			for (int i= 0; i < this.expressions.length; i++) {
+				if (i > 0)
+					output.append(", "); //$NON-NLS-1$
 				this.expressions[i].printExpression(0, output);
-				j -- ;
+				j--;
 				if (j == 0) {
 					output.append('\n');
-					printIndent(indent+1, output);
-					j = 20;
+					printIndent(indent + 1, output);
+					j= 20;
 				}
 			}
 		}
@@ -136,25 +141,25 @@ public class ArrayInitializer extends Expression {
 
 		// this method is recursive... (the test on isArrayType is the stop case)
 
-		this.constant = Constant.NotAConstant;
+		this.constant= Constant.NotAConstant;
 
 		if (expectedType instanceof ArrayBinding) {
 			// allow new List<?>[5]
 			if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7
 				// allow new List<?>[5] - only check for generic array when no initializer, since also checked inside initializer resolution
-				TypeBinding leafComponentType = expectedType.leafComponentType();
+				TypeBinding leafComponentType= expectedType.leafComponentType();
 				if (!leafComponentType.isReifiable()) {
-				    scope.problemReporter().illegalGenericArray(leafComponentType, this);
+					scope.problemReporter().illegalGenericArray(leafComponentType, this);
 				}
 			}
-			this.resolvedType = this.binding = (ArrayBinding) expectedType;
+			this.resolvedType= this.binding= (ArrayBinding)expectedType;
 			if (this.expressions == null)
 				return this.binding;
-			TypeBinding elementType = this.binding.elementsType();
-			for (int i = 0, length = this.expressions.length; i < length; i++) {
-				Expression expression = this.expressions[i];
+			TypeBinding elementType= this.binding.elementsType();
+			for (int i= 0, length= this.expressions.length; i < length; i++) {
+				Expression expression= this.expressions[i];
 				expression.setExpectedType(elementType);
-				TypeBinding expressionType = expression instanceof ArrayInitializer
+				TypeBinding expressionType= expression instanceof ArrayInitializer
 						? expression.resolveTypeExpecting(scope, elementType)
 						: expression.resolveType(scope);
 				if (expressionType == null)
@@ -164,7 +169,7 @@ public class ArrayInitializer extends Expression {
 				if (elementType != expressionType) // must call before computeConversion() and typeMismatchError()
 					scope.compilationUnitScope().recordTypeConversion(elementType, expressionType);
 
-				if (expression.isConstantValueOfTypeAssignableToType(expressionType, elementType) 
+				if (expression.isConstantValueOfTypeAssignableToType(expressionType, elementType)
 						|| expressionType.isCompatibleWith(elementType)) {
 					expression.computeConversion(scope, elementType, expressionType);
 				} else if (isBoxingCompatible(expressionType, elementType, expression, scope)) {
@@ -177,34 +182,35 @@ public class ArrayInitializer extends Expression {
 		}
 
 		// infer initializer type for error reporting based on first element
-		TypeBinding leafElementType = null;
-		int dim = 1;
+		TypeBinding leafElementType= null;
+		int dim= 1;
 		if (this.expressions == null) {
-			leafElementType = scope.getJavaLangObject();
+			leafElementType= scope.getJavaLangObject();
 		} else {
-			Expression expression = this.expressions[0];
-			while(expression != null && expression instanceof ArrayInitializer) {
+			Expression expression= this.expressions[0];
+			while (expression != null && expression instanceof ArrayInitializer) {
 				dim++;
-				Expression[] subExprs = ((ArrayInitializer) expression).expressions;
-				if (subExprs == null){
-					leafElementType = scope.getJavaLangObject();
-					expression = null;
+				Expression[] subExprs= ((ArrayInitializer)expression).expressions;
+				if (subExprs == null) {
+					leafElementType= scope.getJavaLangObject();
+					expression= null;
 					break;
 				}
-				expression = ((ArrayInitializer) expression).expressions[0];
+				expression= ((ArrayInitializer)expression).expressions[0];
 			}
 			if (expression != null) {
-				leafElementType = expression.resolveType(scope);
+				leafElementType= expression.resolveType(scope);
 			}
 			// fault-tolerance - resolve other expressions as well
-			for (int i = 1, length = this.expressions.length; i < length; i++) {
-				expression = this.expressions[i];
+			for (int i= 1, length= this.expressions.length; i < length; i++) {
+				expression= this.expressions[i];
 				if (expression != null) {
-					expression.resolveType(scope)	;
+					expression.resolveType(scope);
 				}
-			}		}
+			}
+		}
 		if (leafElementType != null) {
-			this.resolvedType = scope.createArrayType(leafElementType, dim);
+			this.resolvedType= scope.createArrayType(leafElementType, dim);
 			if (expectedType != null)
 				scope.problemReporter().typeMismatchError(this.resolvedType, expectedType, this, null);
 		}
@@ -215,8 +221,8 @@ public class ArrayInitializer extends Expression {
 
 		if (visitor.visit(this, scope)) {
 			if (this.expressions != null) {
-				int expressionsLength = this.expressions.length;
-				for (int i = 0; i < expressionsLength; i++)
+				int expressionsLength= this.expressions.length;
+				for (int i= 0; i < expressionsLength; i++)
 					this.expressions[i].traverse(visitor, scope);
 			}
 		}

@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,14 +43,21 @@ public class UserLibrary {
 	private static final String CURRENT_VERSION= "1"; //$NON-NLS-1$
 
 	private static final String TAG_VERSION= "version"; //$NON-NLS-1$
+
 	private static final String TAG_USERLIBRARY= "userlibrary"; //$NON-NLS-1$
+
 	private static final String TAG_SOURCEATTACHMENT= "sourceattachment"; //$NON-NLS-1$
+
 	private static final String TAG_SOURCEATTACHMENTROOT= "sourceattachmentroot"; //$NON-NLS-1$
+
 	private static final String TAG_PATH= "path"; //$NON-NLS-1$
+
 	private static final String TAG_ARCHIVE= "archive"; //$NON-NLS-1$
+
 	private static final String TAG_SYSTEMLIBRARY= "systemlibrary"; //$NON-NLS-1$
 
 	private boolean isSystemLibrary;
+
 	private IClasspathEntry[] entries;
 
 	public UserLibrary(IClasspathEntry[] entries, boolean isSystemLibrary) {
@@ -71,7 +79,7 @@ public class UserLibrary {
 	 */
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == getClass()) {
-			UserLibrary other= (UserLibrary) obj;
+			UserLibrary other= (UserLibrary)obj;
 			if (this.entries.length == other.entries.length && this.isSystemLibrary == other.isSystemLibrary) {
 				for (int i= 0; i < this.entries.length; i++) {
 					if (!this.entries[i].equals(other.entries[i])) {
@@ -99,19 +107,19 @@ public class UserLibrary {
 	}
 
 	public static String serialize(IClasspathEntry[] entries, boolean isSystemLibrary) throws IOException {
-		ByteArrayOutputStream s = new ByteArrayOutputStream();
-		OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
-		XMLWriter xmlWriter = new XMLWriter(writer, null/*use the workspace line delimiter*/, true/*print XML version*/);
+		ByteArrayOutputStream s= new ByteArrayOutputStream();
+		OutputStreamWriter writer= new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
+		XMLWriter xmlWriter= new XMLWriter(writer, null/*use the workspace line delimiter*/, true/*print XML version*/);
 
-		HashMap library = new HashMap();
+		HashMap library= new HashMap();
 		library.put(TAG_VERSION, String.valueOf(CURRENT_VERSION));
 		library.put(TAG_SYSTEMLIBRARY, String.valueOf(isSystemLibrary));
 		xmlWriter.printTag(TAG_USERLIBRARY, library, true, true, false);
 
-		for (int i = 0, length = entries.length; i < length; ++i) {
-			ClasspathEntry cpEntry = (ClasspathEntry) entries[i];
+		for (int i= 0, length= entries.length; i < length; ++i) {
+			ClasspathEntry cpEntry= (ClasspathEntry)entries[i];
 
-			HashMap archive = new HashMap();
+			HashMap archive= new HashMap();
 			archive.put(TAG_PATH, cpEntry.getPath().toString());
 			IPath sourceAttach= cpEntry.getSourceAttachmentPath();
 			if (sourceAttach != null)
@@ -120,8 +128,8 @@ public class UserLibrary {
 			if (sourceAttachRoot != null)
 				archive.put(TAG_SOURCEATTACHMENTROOT, sourceAttachRoot);
 
-			boolean hasExtraAttributes = cpEntry.extraAttributes != null && cpEntry.extraAttributes.length != 0;
-			boolean hasRestrictions = cpEntry.getAccessRuleSet() != null; // access rule set is null if no access rules
+			boolean hasExtraAttributes= cpEntry.extraAttributes != null && cpEntry.extraAttributes.length != 0;
+			boolean hasRestrictions= cpEntry.getAccessRuleSet() != null; // access rule set is null if no access rules
 			xmlWriter.printTag(TAG_ARCHIVE, archive, true, true, !(hasExtraAttributes || hasRestrictions));
 
 			// write extra attributes if necessary
@@ -148,8 +156,8 @@ public class UserLibrary {
 	public static UserLibrary createFromString(Reader reader) throws IOException {
 		Element cpElement;
 		try {
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
+			DocumentBuilder parser= DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			cpElement= parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch (SAXException e) {
 			throw new IOException(Messages.file_badFormat);
 		} catch (ParserConfigurationException e) {
@@ -167,31 +175,31 @@ public class UserLibrary {
 		boolean isSystem= Boolean.valueOf(cpElement.getAttribute(TAG_SYSTEMLIBRARY)).booleanValue();
 
 		NodeList list= cpElement.getChildNodes();
-		int length = list.getLength();
+		int length= list.getLength();
 
 		ArrayList res= new ArrayList(length);
-		for (int i = 0; i < length; ++i) {
-			Node node = list.item(i);
+		for (int i= 0; i < length; ++i) {
+			Node node= list.item(i);
 
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
-				Element element= (Element) node;
+				Element element= (Element)node;
 				if (element.getNodeName().equals(TAG_ARCHIVE)) {
-					String path = element.getAttribute(TAG_PATH);
+					String path= element.getAttribute(TAG_PATH);
 					IPath sourceAttach= element.hasAttribute(TAG_SOURCEATTACHMENT) ? new Path(element.getAttribute(TAG_SOURCEATTACHMENT)) : null;
 					IPath sourceAttachRoot= element.hasAttribute(TAG_SOURCEATTACHMENTROOT) ? new Path(element.getAttribute(TAG_SOURCEATTACHMENTROOT)) : null;
-					NodeList children = element.getElementsByTagName("*"); //$NON-NLS-1$
-					boolean[] foundChildren = new boolean[children.getLength()];
-					NodeList attributeList = ClasspathEntry.getChildAttributes(ClasspathEntry.TAG_ATTRIBUTES, children, foundChildren);
-					IClasspathAttribute[] extraAttributes = ClasspathEntry.decodeExtraAttributes(attributeList);
-					attributeList = ClasspathEntry.getChildAttributes(ClasspathEntry.TAG_ACCESS_RULES, children, foundChildren);
-					IAccessRule[] accessRules = ClasspathEntry.decodeAccessRules(attributeList);
-					IClasspathEntry entry = JavaCore.newLibraryEntry(new Path(path), sourceAttach, sourceAttachRoot, accessRules, extraAttributes, false/*not exported*/);
+					NodeList children= element.getElementsByTagName("*"); //$NON-NLS-1$
+					boolean[] foundChildren= new boolean[children.getLength()];
+					NodeList attributeList= ClasspathEntry.getChildAttributes(ClasspathEntry.TAG_ATTRIBUTES, children, foundChildren);
+					IClasspathAttribute[] extraAttributes= ClasspathEntry.decodeExtraAttributes(attributeList);
+					attributeList= ClasspathEntry.getChildAttributes(ClasspathEntry.TAG_ACCESS_RULES, children, foundChildren);
+					IAccessRule[] accessRules= ClasspathEntry.decodeAccessRules(attributeList);
+					IClasspathEntry entry= JavaCore.newLibraryEntry(new Path(path), sourceAttach, sourceAttachRoot, accessRules, extraAttributes, false/*not exported*/);
 					res.add(entry);
 				}
 			}
 		}
 
-		IClasspathEntry[] entries= (IClasspathEntry[]) res.toArray(new IClasspathEntry[res.size()]);
+		IClasspathEntry[] entries= (IClasspathEntry[])res.toArray(new IClasspathEntry[res.size()]);
 
 		return new UserLibrary(entries, isSystem);
 	}
@@ -199,10 +207,10 @@ public class UserLibrary {
 	public String toString() {
 		if (this.entries == null)
 			return "null"; //$NON-NLS-1$
-		StringBuffer buffer = new StringBuffer();
-		int length = this.entries.length;
-		for (int i=0; i<length; i++) {
-			buffer.append(this.entries[i].toString()+'\n');
+		StringBuffer buffer= new StringBuffer();
+		int length= this.entries.length;
+		for (int i= 0; i < length; i++) {
+			buffer.append(this.entries[i].toString() + '\n');
 		}
 		return buffer.toString();
 	}

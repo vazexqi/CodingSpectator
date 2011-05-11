@@ -19,11 +19,12 @@ import java.util.List;
  * <p>
  * Array types are expressed in a recursive manner, one dimension at a time.
  * </p>
+ * 
  * <pre>
  * ArrayType:
  *    Type <b>[</b> <b>]</b>
  * </pre>
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -31,34 +32,32 @@ public class ArrayType extends Type {
 
 	/**
 	 * The "componentType" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor COMPONENT_TYPE_PROPERTY =
-		new ChildPropertyDescriptor(ArrayType.class, "componentType", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor COMPONENT_TYPE_PROPERTY=
+			new ChildPropertyDescriptor(ArrayType.class, "componentType", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(2);
+		List properyList= new ArrayList(2);
 		createPropertyList(ArrayType.class, properyList);
 		addProperty(COMPONENT_TYPE_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -66,18 +65,18 @@ public class ArrayType extends Type {
 	}
 
 	/**
-	 * The component type; lazily initialized; defaults to a simple type with
-	 * an unspecfied, but legal, name.
+	 * The component type; lazily initialized; defaults to a simple type with an unspecfied, but
+	 * legal, name.
 	 */
-	private Type componentType = null;
+	private Type componentType= null;
 
 	/**
-	 * Creates a new unparented node for an array type owned by the given AST.
-	 * By default, a 1-dimensional array of an unspecified simple type.
+	 * Creates a new unparented node for an array type owned by the given AST. By default, a
+	 * 1-dimensional array of an unspecified simple type.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	ArrayType(AST ast) {
@@ -99,7 +98,7 @@ public class ArrayType extends Type {
 			if (get) {
 				return getComponentType();
 			} else {
-				setComponentType((Type) child);
+				setComponentType((Type)child);
 				return null;
 			}
 		}
@@ -118,9 +117,9 @@ public class ArrayType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		ArrayType result = new ArrayType(target);
+		ArrayType result= new ArrayType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setComponentType((Type) getComponentType().clone(target));
+		result.setComponentType((Type)getComponentType().clone(target));
 		return result;
 	}
 
@@ -136,7 +135,7 @@ public class ArrayType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getComponentType());
 		}
@@ -144,9 +143,8 @@ public class ArrayType extends Type {
 	}
 
 	/**
-	 * Returns the component type of this array type. The component type
-	 * may be another array type.
-	 *
+	 * Returns the component type of this array type. The component type may be another array type.
+	 * 
 	 * @return the component type node
 	 */
 	public Type getComponentType() {
@@ -155,7 +153,7 @@ public class ArrayType extends Type {
 			synchronized (this) {
 				if (this.componentType == null) {
 					preLazyInit();
-					this.componentType = new SimpleType(this.ast);
+					this.componentType= new SimpleType(this.ast);
 					postLazyInit(this.componentType, COMPONENT_TYPE_PROPERTY);
 				}
 			}
@@ -164,41 +162,39 @@ public class ArrayType extends Type {
 	}
 
 	/**
-	 * Sets the component type of this array type. The component type
-	 * may be another array type.
-	 *
+	 * Sets the component type of this array type. The component type may be another array type.
+	 * 
 	 * @param componentType the component type
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setComponentType(Type componentType) {
 		if (componentType == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.componentType;
+		ASTNode oldChild= this.componentType;
 		preReplaceChild(oldChild, componentType, COMPONENT_TYPE_PROPERTY);
-		this.componentType = componentType;
+		this.componentType= componentType;
 		postReplaceChild(oldChild, componentType, COMPONENT_TYPE_PROPERTY);
 	}
 
 	/**
-	 * Returns the element type of this array type. The element type is
-	 * never an array type.
+	 * Returns the element type of this array type. The element type is never an array type.
 	 * <p>
-	 * This is a convenience method that descends a chain of nested array types
-	 * until it reaches a non-array type.
+	 * This is a convenience method that descends a chain of nested array types until it reaches a
+	 * non-array type.
 	 * </p>
-	 *
+	 * 
 	 * @return the component type node
 	 */
 	public Type getElementType() {
-		Type t = getComponentType();
+		Type t= getComponentType();
 		while (t.isArrayType()) {
-			t = ((ArrayType) t).getComponentType();
+			t= ((ArrayType)t).getComponentType();
 		}
 		return t;
 	}
@@ -206,18 +202,18 @@ public class ArrayType extends Type {
 	/**
 	 * Returns the number of dimensions in this array type.
 	 * <p>
-	 * This is a convenience method that descends a chain of nested array types
-	 * until it reaches a non-array type.
+	 * This is a convenience method that descends a chain of nested array types until it reaches a
+	 * non-array type.
 	 * </p>
-	 *
+	 * 
 	 * @return the number of dimensions (always positive)
 	 */
 	public int getDimensions() {
-		Type t = getComponentType();
-		int dimensions = 1; // always include this array type
+		Type t= getComponentType();
+		int dimensions= 1; // always include this array type
 		while (t.isArrayType()) {
 			dimensions++;
-			t = ((ArrayType) t).getComponentType();
+			t= ((ArrayType)t).getComponentType();
 		}
 		return dimensions;
 	}
@@ -233,9 +229,7 @@ public class ArrayType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.componentType == null ? 0 : getComponentType().treeSize());
+		return memSize()
+				+ (this.componentType == null ? 0 : getComponentType().treeSize());
 	}
 }
-

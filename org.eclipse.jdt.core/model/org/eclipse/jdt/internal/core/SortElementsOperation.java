@@ -46,45 +46,46 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 /**
- * This operation is used to sort elements in a compilation unit according to
- * certain criteria.
- *
+ * This operation is used to sort elements in a compilation unit according to certain criteria.
+ * 
  * @since 2.1
  */
 public class SortElementsOperation extends JavaModelOperation {
-	public static final String CONTAINS_MALFORMED_NODES = "malformed"; //$NON-NLS-1$
+	public static final String CONTAINS_MALFORMED_NODES= "malformed"; //$NON-NLS-1$
 
 	Comparator comparator;
+
 	int[] positions;
-    int apiLevel;
+
+	int apiLevel;
 
 	/**
 	 * Constructor for SortElementsOperation.
-     *
-     * @param level the AST API level; one of the AST LEVEL constants
+	 * 
+	 * @param level the AST API level; one of the AST LEVEL constants
 	 * @param elements
 	 * @param positions
 	 * @param comparator
 	 */
 	public SortElementsOperation(int level, IJavaElement[] elements, int[] positions, Comparator comparator) {
 		super(elements);
-		this.comparator = comparator;
-        this.positions = positions;
-        this.apiLevel = level;
+		this.comparator= comparator;
+		this.positions= positions;
+		this.apiLevel= level;
 	}
 
 	/**
-	 * Returns the amount of work for the main task of this operation for
-	 * progress reporting.
+	 * Returns the amount of work for the main task of this operation for progress reporting.
 	 */
-	protected int getMainAmountOfWork(){
+	protected int getMainAmountOfWork() {
 		return this.elementsToProcess.length;
 	}
 
 	boolean checkMalformedNodes(ASTNode node) {
-		Object property = node.getProperty(CONTAINS_MALFORMED_NODES);
-		if (property == null) return false;
-		return ((Boolean) property).booleanValue();
+		Object property= node.getProperty(CONTAINS_MALFORMED_NODES);
+		if (property == null)
+			return false;
+		return ((Boolean)property).booleanValue();
 	}
 
 	protected boolean isMalformed(ASTNode node) {
@@ -97,14 +98,14 @@ public class SortElementsOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Messages.operation_sortelements, getMainAmountOfWork());
-			CompilationUnit copy = (CompilationUnit) this.elementsToProcess[0];
-			ICompilationUnit unit = copy.getPrimary();
-			IBuffer buffer = copy.getBuffer();
-			if (buffer  == null) {
+			CompilationUnit copy= (CompilationUnit)this.elementsToProcess[0];
+			ICompilationUnit unit= copy.getPrimary();
+			IBuffer buffer= copy.getBuffer();
+			if (buffer == null) {
 				return;
 			}
-			char[] bufferContents = buffer.getCharacters();
-			String result = processElement(unit, bufferContents);
+			char[] bufferContents= buffer.getCharacters();
+			String result= processElement(unit, bufferContents);
 			if (!CharOperation.equals(result.toCharArray(), bufferContents)) {
 				copy.getBuffer().setContents(result);
 			}
@@ -116,6 +117,7 @@ public class SortElementsOperation extends JavaModelOperation {
 
 	/**
 	 * Calculates the required text edits to sort the <code>unit</code>
+	 * 
 	 * @param group
 	 * @return the edit or null if no sorting is required
 	 */
@@ -145,29 +147,30 @@ public class SortElementsOperation extends JavaModelOperation {
 
 	/**
 	 * Method processElement.
+	 * 
 	 * @param unit
 	 * @param source
 	 */
 	private String processElement(ICompilationUnit unit, char[] source) {
-		Document document = new Document(new String(source));
-		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
-		ASTParser parser = ASTParser.newParser(this.apiLevel);
+		Document document= new Document(new String(source));
+		CompilerOptions options= new CompilerOptions(unit.getJavaProject().getOptions(true));
+		ASTParser parser= ASTParser.newParser(this.apiLevel);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(source);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setResolveBindings(false);
-		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		org.eclipse.jdt.core.dom.CompilationUnit ast= (org.eclipse.jdt.core.dom.CompilationUnit)parser.createAST(null);
 
 		ASTRewrite rewriter= sortCompilationUnit(ast, null);
 		if (rewriter == null)
 			return document.get();
 
-		TextEdit edits = rewriter.rewriteAST(document, unit.getJavaProject().getOptions(true));
+		TextEdit edits= rewriter.rewriteAST(document, unit.getJavaProject().getOptions(true));
 
-		RangeMarker[] markers = null;
+		RangeMarker[] markers= null;
 		if (this.positions != null) {
-			markers = new RangeMarker[this.positions.length];
-			for (int i = 0, max = this.positions.length; i < max; i++) {
+			markers= new RangeMarker[this.positions.length];
+			for (int i= 0, max= this.positions.length; i < max; i++) {
 				markers[i]= new RangeMarker(this.positions[i], 0);
 				insert(edits, markers[i]);
 			}
@@ -175,7 +178,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		try {
 			edits.apply(document, TextEdit.UPDATE_REGIONS);
 			if (this.positions != null) {
-				for (int i= 0, max = markers.length; i < max; i++) {
+				for (int i= 0, max= markers.length; i < max; i++) {
 					this.positions[i]= markers[i].getOffset();
 				}
 			}
@@ -189,18 +192,19 @@ public class SortElementsOperation extends JavaModelOperation {
 	private ASTRewrite sortCompilationUnit(org.eclipse.jdt.core.dom.CompilationUnit ast, final TextEditGroup group) {
 		ast.accept(new ASTVisitor() {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
-				List types = compilationUnit.types();
-				for (Iterator iter = types.iterator(); iter.hasNext();) {
-					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) iter.next();
+				List types= compilationUnit.types();
+				for (Iterator iter= types.iterator(); iter.hasNext();) {
+					AbstractTypeDeclaration typeDeclaration= (AbstractTypeDeclaration)iter.next();
 					typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(typeDeclaration.getStartPosition()));
 					compilationUnit.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(typeDeclaration)));
 				}
 				return true;
 			}
+
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
-				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				List bodyDeclarations= annotationTypeDeclaration.bodyDeclarations();
+				for (Iterator iter= bodyDeclarations.iterator(); iter.hasNext();) {
+					BodyDeclaration bodyDeclaration= (BodyDeclaration)iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
 					annotationTypeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
@@ -208,9 +212,9 @@ public class SortElementsOperation extends JavaModelOperation {
 			}
 
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
-				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				List bodyDeclarations= anonymousClassDeclaration.bodyDeclarations();
+				for (Iterator iter= bodyDeclarations.iterator(); iter.hasNext();) {
+					BodyDeclaration bodyDeclaration= (BodyDeclaration)iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
 					anonymousClassDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
@@ -218,9 +222,9 @@ public class SortElementsOperation extends JavaModelOperation {
 			}
 
 			public boolean visit(TypeDeclaration typeDeclaration) {
-				List bodyDeclarations = typeDeclaration.bodyDeclarations();
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				List bodyDeclarations= typeDeclaration.bodyDeclarations();
+				for (Iterator iter= bodyDeclarations.iterator(); iter.hasNext();) {
+					BodyDeclaration bodyDeclaration= (BodyDeclaration)iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
 					typeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
@@ -228,15 +232,15 @@ public class SortElementsOperation extends JavaModelOperation {
 			}
 
 			public boolean visit(EnumDeclaration enumDeclaration) {
-				List bodyDeclarations = enumDeclaration.bodyDeclarations();
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				List bodyDeclarations= enumDeclaration.bodyDeclarations();
+				for (Iterator iter= bodyDeclarations.iterator(); iter.hasNext();) {
+					BodyDeclaration bodyDeclaration= (BodyDeclaration)iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
 					enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
 				}
-				List enumConstants = enumDeclaration.enumConstants();
-				for (Iterator iter = enumConstants.iterator(); iter.hasNext();) {
-					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) iter.next();
+				List enumConstants= enumDeclaration.enumConstants();
+				for (Iterator iter= enumConstants.iterator(); iter.hasNext();) {
+					EnumConstantDeclaration enumConstantDeclaration= (EnumConstantDeclaration)iter.next();
 					enumConstantDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(enumConstantDeclaration.getStartPosition()));
 					enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(enumConstantDeclaration)));
 				}
@@ -245,7 +249,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		});
 
 		final ASTRewrite rewriter= ASTRewrite.create(ast.getAST());
-		final boolean[] hasChanges= new boolean[] {false};
+		final boolean[] hasChanges= new boolean[] { false };
 
 		ast.accept(new ASTVisitor() {
 
@@ -253,13 +257,13 @@ public class SortElementsOperation extends JavaModelOperation {
 				if (elements.size() == 0)
 					return;
 
-				final List myCopy = new ArrayList();
+				final List myCopy= new ArrayList();
 				myCopy.addAll(elements);
 				Collections.sort(myCopy, SortElementsOperation.this.comparator);
 
-				for (int i = 0; i < elements.size(); i++) {
-					ASTNode oldNode= (ASTNode) elements.get(i);
-					ASTNode newNode= (ASTNode) myCopy.get(i);
+				for (int i= 0; i < elements.size(); i++) {
+					ASTNode oldNode= (ASTNode)elements.get(i);
+					ASTNode newNode= (ASTNode)myCopy.get(i);
 					if (oldNode != newNode) {
 						listRewrite.replace(oldNode, rewriter.createMoveTarget(newNode), group);
 						hasChanges[0]= true;
@@ -323,9 +327,11 @@ public class SortElementsOperation extends JavaModelOperation {
 	/**
 	 * Possible failures:
 	 * <ul>
-	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
-	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
+	 * <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is
+	 * <code>null</code></li>.
+	 * <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
 	 * </ul>
+	 * 
 	 * @return IJavaModelStatus
 	 */
 	public IJavaModelStatus verify() {
@@ -335,7 +341,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		if (this.elementsToProcess[0] == null) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		if (!(this.elementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit) this.elementsToProcess[0]).isWorkingCopy()) {
+		if (!(this.elementsToProcess[0] instanceof ICompilationUnit) || !((ICompilationUnit)this.elementsToProcess[0]).isWorkingCopy()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this.elementsToProcess[0]);
 		}
 		return JavaModelStatus.VERIFIED_OK;

@@ -18,14 +18,15 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodPattern {
 
-protected IJavaElement enclosingElement;
-protected SimpleSet knownMethods;
+	protected IJavaElement enclosingElement;
 
-public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
-	super(null, null, null, null, null, null, null, null, IJavaSearchConstants.REFERENCES, R_PATTERN_MATCH);
+	protected SimpleSet knownMethods;
 
-	this.enclosingElement = enclosingElement;
-	this.knownMethods = new SimpleSet();
-	this.mustResolve = true;
-}
+	public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
+		super(null, null, null, null, null, null, null, null, IJavaSearchConstants.REFERENCES, R_PATTERN_MATCH);
+
+		this.enclosingElement= enclosingElement;
+		this.knownMethods= new SimpleSet();
+		this.mustResolve= true;
+	}
 }

@@ -64,23 +64,22 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 /**
- * A SourceMapper maps source code in a ZIP file to binary types in
- * a JAR. The SourceMapper uses the fuzzy parser to identify source
- * fragments in a .java file, and attempts to match the source code
- * with children in a binary type. A SourceMapper is associated
- * with a JarPackageFragment by an AttachSourceOperation.
- *
+ * A SourceMapper maps source code in a ZIP file to binary types in a JAR. The SourceMapper uses the
+ * fuzzy parser to identify source fragments in a .java file, and attempts to match the source code
+ * with children in a binary type. A SourceMapper is associated with a JarPackageFragment by an
+ * AttachSourceOperation.
+ * 
  * @see org.eclipse.jdt.internal.core.JarPackageFragment
  */
 public class SourceMapper
-	extends ReferenceInfoAdapter
-	implements ISourceElementRequestor, SuffixConstants {
+		extends ReferenceInfoAdapter
+		implements ISourceElementRequestor, SuffixConstants {
 
-	public static boolean VERBOSE = false;
+	public static boolean VERBOSE= false;
+
 	/**
-	 * Specifies the location of the package fragment roots within
-	 * the zip (empty specifies the default root). <code>null</code> is
-	 * not a valid root path.
+	 * Specifies the location of the package fragment roots within the zip (empty specifies the
+	 * default root). <code>null</code> is not a valid root path.
 	 */
 	protected ArrayList rootPaths;
 
@@ -93,24 +92,23 @@ public class SourceMapper
 	 * The location of the zip file containing source.
 	 */
 	protected IPath sourcePath;
-	/**
-	 * Specifies the location of the package fragment root within
-	 * the zip (empty specifies the default root). <code>null</code> is
-	 * not a valid root path.
-	 */
-	protected String rootPath = ""; //$NON-NLS-1$
 
 	/**
-	 * Table that maps a binary method to its parameter names.
-	 * Keys are the method handles, entries are <code>char[][]</code>.
+	 * Specifies the location of the package fragment root within the zip (empty specifies the
+	 * default root). <code>null</code> is not a valid root path.
+	 */
+	protected String rootPath= ""; //$NON-NLS-1$
+
+	/**
+	 * Table that maps a binary method to its parameter names. Keys are the method handles, entries
+	 * are <code>char[][]</code>.
 	 */
 	protected HashMap parameterNames;
 
 	/**
-	 * Table that maps a binary element to its <code>SourceRange</code>s.
-	 * Keys are the element handles, entries are <code>SourceRange[]</code> which
-	 * is a two element array; the first being source range, the second
-	 * being name range.
+	 * Table that maps a binary element to its <code>SourceRange</code>s. Keys are the element
+	 * handles, entries are <code>SourceRange[]</code> which is a two element array; the first being
+	 * source range, the second being name range.
 	 */
 	protected HashMap sourceRanges;
 
@@ -123,17 +121,19 @@ public class SourceMapper
 	/**
 	 * The unknown source range {-1, 0}
 	 */
-	public static final SourceRange UNKNOWN_RANGE = new SourceRange(-1, 0);
+	public static final SourceRange UNKNOWN_RANGE= new SourceRange(-1, 0);
 
 	/**
-	 * The position within the source of the start of the
-	 * current member element, or -1 if we are outside a member.
+	 * The position within the source of the start of the current member element, or -1 if we are
+	 * outside a member.
 	 */
 	protected int[] memberDeclarationStart;
+
 	/**
 	 * The <code>SourceRange</code> of the name of the current member element.
 	 */
 	protected SourceRange[] memberNameRange;
+
 	/**
 	 * The name of the current member element.
 	 */
@@ -159,27 +159,34 @@ public class SourceMapper
 	 * imports references
 	 */
 	private HashMap importsTable;
+
 	private HashMap importsCounterTable;
 
 	/**
 	 * Enclosing type information
 	 */
 	IType[] types;
+
 	int[] typeDeclarationStarts;
+
 	SourceRange[] typeNameRanges;
+
 	int[] typeModifiers;
+
 	int typeDepth;
 
 	/**
-	 *  Anonymous counter in case we want to map the source of an anonymous class.
+	 * Anonymous counter in case we want to map the source of an anonymous class.
 	 */
 	int anonymousCounter;
+
 	int anonymousClassName;
 
 	/**
-	 *Options to be used
+	 * Options to be used
 	 */
 	String encoding;
+
 	Map options;
 
 	/**
@@ -188,30 +195,30 @@ public class SourceMapper
 	private boolean areRootPathsComputed;
 
 	public SourceMapper() {
-		this.areRootPathsComputed = false;
+		this.areRootPathsComputed= false;
 	}
 
 	/**
-	 * Creates a <code>SourceMapper</code> that locates source in the zip file
-	 * at the given location in the specified package fragment root.
+	 * Creates a <code>SourceMapper</code> that locates source in the zip file at the given location
+	 * in the specified package fragment root.
 	 */
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
-		this.areRootPathsComputed = false;
-		this.options = options;
+		this.areRootPathsComputed= false;
+		this.options= options;
 		try {
-			this.encoding = ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
+			this.encoding= ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
 		} catch (CoreException e) {
 			// use no encoding
 		}
 		if (rootPath != null) {
-			this.rootPaths = new ArrayList();
+			this.rootPaths= new ArrayList();
 			this.rootPaths.add(rootPath);
 		}
-		this.sourcePath = sourcePath;
-		this.sourceRanges = new HashMap();
-		this.parameterNames = new HashMap();
-		this.importsTable = new HashMap();
-		this.importsCounterTable = new HashMap();
+		this.sourcePath= sourcePath;
+		this.sourceRanges= new HashMap();
+		this.parameterNames= new HashMap();
+		this.importsTable= new HashMap();
+		this.importsCounterTable= new HashMap();
 	}
 
 	/**
@@ -223,30 +230,30 @@ public class SourceMapper
 			char[][] tokens,
 			boolean onDemand,
 			int modifiers) {
-		char[][] imports = (char[][]) this.importsTable.get(this.binaryType);
+		char[][] imports= (char[][])this.importsTable.get(this.binaryType);
 		int importsCounter;
 		if (imports == null) {
-			imports = new char[5][];
-			importsCounter = 0;
+			imports= new char[5][];
+			importsCounter= 0;
 		} else {
-			importsCounter = ((Integer) this.importsCounterTable.get(this.binaryType)).intValue();
+			importsCounter= ((Integer)this.importsCounterTable.get(this.binaryType)).intValue();
 		}
 		if (imports.length == importsCounter) {
 			System.arraycopy(
-				imports,
-				0,
-				(imports = new char[importsCounter * 2][]),
-				0,
-				importsCounter);
+					imports,
+					0,
+					(imports= new char[importsCounter * 2][]),
+					0,
+					importsCounter);
 		}
-		char[] name = CharOperation.concatWith(tokens, '.');
+		char[] name= CharOperation.concatWith(tokens, '.');
 		if (onDemand) {
-			int nameLength = name.length;
-			System.arraycopy(name, 0, (name = new char[nameLength + 2]), 0, nameLength);
-			name[nameLength] = '.';
-			name[nameLength + 1] = '*';
+			int nameLength= name.length;
+			System.arraycopy(name, 0, (name= new char[nameLength + 2]), 0, nameLength);
+			name[nameLength]= '.';
+			name[nameLength + 1]= '*';
 		}
-		imports[importsCounter++] = name;
+		imports[importsCounter++]= name;
 		this.importsTable.put(this.binaryType, imports);
 		this.importsCounterTable.put(this.binaryType, new Integer(importsCounter));
 	}
@@ -273,9 +280,10 @@ public class SourceMapper
 	}
 
 	private void addCategories(IJavaElement element, char[][] elementCategories) {
-		if (elementCategories == null) return;
+		if (elementCategories == null)
+			return;
 		if (this.categories == null)
-			this.categories = new HashMap();
+			this.categories= new HashMap();
 		this.categories.put(element, CharOperation.toStrings(elementCategories));
 	}
 
@@ -284,59 +292,60 @@ public class SourceMapper
 	 * <code>SourceMapper</code> cannot be used again.
 	 */
 	public void close() {
-		this.sourceRanges = null;
-		this.parameterNames = null;
+		this.sourceRanges= null;
+		this.parameterNames= null;
 	}
 
 	/**
-	 * Converts these type names to unqualified signatures. This needs to be done in order to be consistent
-	 * with the way the source range is retrieved.
+	 * Converts these type names to unqualified signatures. This needs to be done in order to be
+	 * consistent with the way the source range is retrieved.
+	 * 
 	 * @see SourceMapper#getUnqualifiedMethodHandle
 	 * @see Signature
 	 */
 	private String[] convertTypeNamesToSigs(char[][] typeNames) {
 		if (typeNames == null)
 			return CharOperation.NO_STRINGS;
-		int n = typeNames.length;
+		int n= typeNames.length;
 		if (n == 0)
 			return CharOperation.NO_STRINGS;
-		String[] typeSigs = new String[n];
-		for (int i = 0; i < n; ++i) {
-			char[] typeSig = Signature.createCharArrayTypeSignature(typeNames[i], false);
+		String[] typeSigs= new String[n];
+		for (int i= 0; i < n; ++i) {
+			char[] typeSig= Signature.createCharArrayTypeSignature(typeNames[i], false);
 
 			// transforms signatures that contains a qualification into unqualified signatures
 			// e.g. "QX<+QMap.Entry;>;" becomes "QX<+QEntry;>;"
-			StringBuffer simpleTypeSig = null;
-			int start = 0;
-			int dot = -1;
-			int length = typeSig.length;
-			for (int j = 0; j < length; j++) {
+			StringBuffer simpleTypeSig= null;
+			int start= 0;
+			int dot= -1;
+			int length= typeSig.length;
+			for (int j= 0; j < length; j++) {
 				switch (typeSig[j]) {
 					case Signature.C_UNRESOLVED:
 						if (simpleTypeSig != null)
-							simpleTypeSig.append(typeSig, start, j-start);
-						start = j;
+							simpleTypeSig.append(typeSig, start, j - start);
+						start= j;
 						break;
 					case Signature.C_DOT:
-						dot = j;
+						dot= j;
 						break;
 					case Signature.C_GENERIC_START:
 					case Signature.C_NAME_END:
 						if (dot > start) {
 							if (simpleTypeSig == null)
-								simpleTypeSig = new StringBuffer().append(typeSig, 0, start);
+								simpleTypeSig= new StringBuffer().append(typeSig, 0, start);
 							simpleTypeSig.append(Signature.C_UNRESOLVED);
-							simpleTypeSig.append(typeSig, dot+1, j-dot-1);
-							start = j;
+							simpleTypeSig.append(typeSig, dot + 1, j - dot - 1);
+							start= j;
 						}
 						break;
 				}
 			}
 			if (simpleTypeSig == null) {
-				typeSigs[i] = new String(typeSig);
+				typeSigs[i]= new String(typeSig);
 			} else {
-				simpleTypeSig.append(typeSig, start, length-start);
-				typeSigs[i] = simpleTypeSig.toString();
+				simpleTypeSig.append(typeSig, start, length - start);
+				typeSigs[i]= simpleTypeSig.toString();
 			}
 		}
 		return typeSigs;
@@ -346,49 +355,49 @@ public class SourceMapper
 		if (this.areRootPathsComputed) {
 			return;
 		}
-		IPackageFragmentRoot root = (IPackageFragmentRoot) type.getPackageFragment().getParent();
-		IPath pkgFragmentRootPath = root.getPath();
-		final HashSet tempRoots = new HashSet();
-		long time = 0;
+		IPackageFragmentRoot root= (IPackageFragmentRoot)type.getPackageFragment().getParent();
+		IPath pkgFragmentRootPath= root.getPath();
+		final HashSet tempRoots= new HashSet();
+		long time= 0;
 		if (VERBOSE) {
 			System.out.println("compute all root paths for " + root.getElementName()); //$NON-NLS-1$
-			time = System.currentTimeMillis();
+			time= System.currentTimeMillis();
 		}
-		final HashSet firstLevelPackageNames = new HashSet();
-		boolean containsADefaultPackage = false;
-		boolean containsJavaSource = !pkgFragmentRootPath.equals(this.sourcePath); // used to optimize zip file reading only if source path and root path are equals, otherwise assume that attachment contains Java source
+		final HashSet firstLevelPackageNames= new HashSet();
+		boolean containsADefaultPackage= false;
+		boolean containsJavaSource= !pkgFragmentRootPath.equals(this.sourcePath); // used to optimize zip file reading only if source path and root path are equals, otherwise assume that attachment contains Java source
 
-		String sourceLevel = null;
-		String complianceLevel = null;
+		String sourceLevel= null;
+		String complianceLevel= null;
 		if (root.isArchive()) {
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ZipFile zip = null;
+			JavaModelManager manager= JavaModelManager.getJavaModelManager();
+			ZipFile zip= null;
 			try {
-				zip = manager.getZipFile(pkgFragmentRootPath);
-				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
-					String entryName = entry.getName();
+				zip= manager.getZipFile(pkgFragmentRootPath);
+				for (Enumeration entries= zip.entries(); entries.hasMoreElements();) {
+					ZipEntry entry= (ZipEntry)entries.nextElement();
+					String entryName= entry.getName();
 					if (!entry.isDirectory()) {
 						if (Util.isClassFileName(entryName)) {
-							int index = entryName.indexOf('/');
+							int index= entryName.indexOf('/');
 							if (index != -1) {
-								String firstLevelPackageName = entryName.substring(0, index);
+								String firstLevelPackageName= entryName.substring(0, index);
 								if (!firstLevelPackageNames.contains(firstLevelPackageName)) {
 									if (sourceLevel == null) {
-										IJavaProject project = root.getJavaProject();
-										sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-										complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+										IJavaProject project= root.getJavaProject();
+										sourceLevel= project.getOption(JavaCore.COMPILER_SOURCE, true);
+										complianceLevel= project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 									}
-									IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
+									IStatus status= JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
 									if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
 										firstLevelPackageNames.add(firstLevelPackageName);
 									}
 								}
 							} else {
-								containsADefaultPackage = true;
+								containsADefaultPackage= true;
 							}
 						} else if (!containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName)) {
-							containsJavaSource = true;
+							containsJavaSource= true;
 						}
 					}
 				}
@@ -398,29 +407,29 @@ public class SourceMapper
 				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
-			Object target = JavaModel.getTarget(root.getPath(), true);
+			Object target= JavaModel.getTarget(root.getPath(), true);
 			if (target instanceof IResource) {
-				IResource resource = (IResource) target;
+				IResource resource= (IResource)target;
 				if (resource instanceof IContainer) {
 					try {
-						IResource[] members = ((IContainer) resource).members();
-						for (int i = 0, max = members.length; i < max; i++) {
-							IResource member = members[i];
-							String resourceName = member.getName();
+						IResource[] members= ((IContainer)resource).members();
+						for (int i= 0, max= members.length; i < max; i++) {
+							IResource member= members[i];
+							String resourceName= member.getName();
 							if (member.getType() == IResource.FOLDER) {
 								if (sourceLevel == null) {
-									IJavaProject project = root.getJavaProject();
-									sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-									complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+									IJavaProject project= root.getJavaProject();
+									sourceLevel= project.getOption(JavaCore.COMPILER_SOURCE, true);
+									complianceLevel= project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 								}
-								IStatus status = JavaConventions.validatePackageName(resourceName, sourceLevel, complianceLevel);
+								IStatus status= JavaConventions.validatePackageName(resourceName, sourceLevel, complianceLevel);
 								if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
 									firstLevelPackageNames.add(resourceName);
 								}
 							} else if (Util.isClassFileName(resourceName)) {
-								containsADefaultPackage = true;
+								containsADefaultPackage= true;
 							} else if (!containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourceName)) {
-								containsJavaSource = true;
+								containsJavaSource= true;
 							}
 						}
 					} catch (CoreException e) {
@@ -431,23 +440,23 @@ public class SourceMapper
 		}
 
 		if (containsJavaSource) { // no need to read source attachment if it contains no Java source (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=190840 )
-			Object target = JavaModel.getTarget(this.sourcePath, true);
+			Object target= JavaModel.getTarget(this.sourcePath, true);
 			if (target instanceof IContainer) {
-				IContainer folder = (IContainer)target;
+				IContainer folder= (IContainer)target;
 				computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()/*if external folder, this is the linked folder path*/);
 			} else {
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ZipFile zip = null;
+				JavaModelManager manager= JavaModelManager.getJavaModelManager();
+				ZipFile zip= null;
 				try {
-					zip = manager.getZipFile(this.sourcePath);
-					for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-						ZipEntry entry = (ZipEntry) entries.nextElement();
+					zip= manager.getZipFile(this.sourcePath);
+					for (Enumeration entries= zip.entries(); entries.hasMoreElements();) {
+						ZipEntry entry= (ZipEntry)entries.nextElement();
 						String entryName;
-						if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())) {
-							IPath path = new Path(entryName);
-							int segmentCount = path.segmentCount();
+						if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName= entry.getName())) {
+							IPath path= new Path(entryName);
+							int segmentCount= path.segmentCount();
 							if (segmentCount > 1) {
-								for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
+								for (int i= 0, max= path.segmentCount() - 1; i < max; i++) {
 									if (firstLevelPackageNames.contains(path.segment(i))) {
 										tempRoots.add(path.uptoSegment(i));
 										// don't break here as this path could contain other first level package names (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74014)
@@ -468,39 +477,39 @@ public class SourceMapper
 				}
 			}
 		}
-		int size = tempRoots.size();
+		int size= tempRoots.size();
 		if (this.rootPaths != null) {
-			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
-				tempRoots.add(new Path((String) iterator.next()));
+			for (Iterator iterator= this.rootPaths.iterator(); iterator.hasNext();) {
+				tempRoots.add(new Path((String)iterator.next()));
 			}
 			this.rootPaths.clear();
 		} else {
-			this.rootPaths = new ArrayList(size);
+			this.rootPaths= new ArrayList(size);
 		}
-		size = tempRoots.size();
+		size= tempRoots.size();
 		if (size > 0) {
-			ArrayList sortedRoots = new ArrayList(tempRoots);
+			ArrayList sortedRoots= new ArrayList(tempRoots);
 			if (size > 1) {
 				Collections.sort(sortedRoots, new Comparator() {
 					public int compare(Object o1, Object o2) {
-						IPath path1 = (IPath) o1;
-						IPath path2 = (IPath) o2;
+						IPath path1= (IPath)o1;
+						IPath path2= (IPath)o2;
 						return path1.segmentCount() - path2.segmentCount();
 					}
 				});
 			}
-			for (Iterator iter = sortedRoots.iterator(); iter.hasNext();) {
-				IPath path = (IPath) iter.next();
+			for (Iterator iter= sortedRoots.iterator(); iter.hasNext();) {
+				IPath path= (IPath)iter.next();
 				this.rootPaths.add(path.toString());
 			}
 		}
-		this.areRootPathsComputed = true;
+		this.areRootPathsComputed= true;
 		if (VERBOSE) {
 			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
-			System.out.println("Found " + size + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext();) {
-				System.out.println("root[" + i + "]=" + ((String) iterator.next()));//$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("Found " + size + " root paths"); //$NON-NLS-1$ //$NON-NLS-2$
+			int i= 0;
+			for (Iterator iterator= this.rootPaths.iterator(); iterator.hasNext();) {
+				System.out.println("root[" + i + "]=" + ((String)iterator.next()));//$NON-NLS-1$ //$NON-NLS-2$
 				i++;
 			}
 		}
@@ -508,33 +517,33 @@ public class SourceMapper
 
 	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set, int sourcePathSegmentCount) {
 		try {
-			IResource[] resources = container.members();
-			for (int i = 0, max = resources.length; i < max; i++) {
-				IResource resource = resources[i];
+			IResource[] resources= container.members();
+			for (int i= 0, max= resources.length; i < max; i++) {
+				IResource resource= resources[i];
 				if (resource.getType() == IResource.FOLDER) {
 					if (firstLevelPackageNames.contains(resource.getName())) {
-						IPath fullPath = container.getFullPath();
-						IPath rootPathEntry = fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
+						IPath fullPath= container.getFullPath();
+						IPath rootPathEntry= fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
 						if (rootPathEntry.segmentCount() >= 1) {
 							set.add(rootPathEntry);
 						}
-						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
+						computeRootPath((IFolder)resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
 					} else {
-						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
+						computeRootPath((IFolder)resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
 					}
 				}
 				if (i == max - 1 && hasDefaultPackage) {
 					// check if one member is a .java file
-					boolean hasJavaSourceFile = false;
-					for (int j = 0; j < max; j++) {
+					boolean hasJavaSourceFile= false;
+					for (int j= 0; j < max; j++) {
 						if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resources[i].getName())) {
-							hasJavaSourceFile = true;
+							hasJavaSourceFile= true;
 							break;
 						}
 					}
 					if (hasJavaSourceFile) {
-						IPath fullPath = container.getFullPath();
-						IPath rootPathEntry = fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
+						IPath fullPath= container.getFullPath();
+						IPath rootPathEntry= fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
 						set.add(rootPathEntry);
 					}
 				}
@@ -553,94 +562,94 @@ public class SourceMapper
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
 			System.arraycopy(
-				this.types,
-				0,
-				this.types = new IType[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.types,
+					0,
+					this.types= new IType[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.typeNameRanges,
-				0,
-				this.typeNameRanges = new SourceRange[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.typeNameRanges,
+					0,
+					this.typeNameRanges= new SourceRange[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.typeDeclarationStarts,
-				0,
-				this.typeDeclarationStarts = new int[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.typeDeclarationStarts,
+					0,
+					this.typeDeclarationStarts= new int[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.memberName,
-				0,
-				this.memberName = new String[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.memberName,
+					0,
+					this.memberName= new String[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.memberDeclarationStart,
-				0,
-				this.memberDeclarationStart = new int[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.memberDeclarationStart,
+					0,
+					this.memberDeclarationStart= new int[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.memberNameRange,
-				0,
-				this.memberNameRange = new SourceRange[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.memberNameRange,
+					0,
+					this.memberNameRange= new SourceRange[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.methodParameterTypes,
-				0,
-				this.methodParameterTypes = new char[this.typeDepth * 2][][],
-				0,
-				this.typeDepth);
+					this.methodParameterTypes,
+					0,
+					this.methodParameterTypes= new char[this.typeDepth * 2][][],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.methodParameterNames,
-				0,
-				this.methodParameterNames = new char[this.typeDepth * 2][][],
-				0,
-				this.typeDepth);
+					this.methodParameterNames,
+					0,
+					this.methodParameterNames= new char[this.typeDepth * 2][][],
+					0,
+					this.typeDepth);
 			System.arraycopy(
-				this.typeModifiers,
-				0,
-				this.typeModifiers = new int[this.typeDepth * 2],
-				0,
-				this.typeDepth);
+					this.typeModifiers,
+					0,
+					this.typeModifiers= new int[this.typeDepth * 2],
+					0,
+					this.typeDepth);
 		}
 		if (typeInfo.name.length == 0) {
 			this.anonymousCounter++;
 			if (this.anonymousCounter == this.anonymousClassName) {
-				this.types[this.typeDepth] = getType(this.binaryType.getElementName());
+				this.types[this.typeDepth]= getType(this.binaryType.getElementName());
 			} else {
-				this.types[this.typeDepth] = getType(new String(typeInfo.name));
+				this.types[this.typeDepth]= getType(new String(typeInfo.name));
 			}
 		} else {
-			this.types[this.typeDepth] = getType(new String(typeInfo.name));
+			this.types[this.typeDepth]= getType(new String(typeInfo.name));
 		}
-		this.typeNameRanges[this.typeDepth] =
-			new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
-		this.typeDeclarationStarts[this.typeDepth] = typeInfo.declarationStart;
+		this.typeNameRanges[this.typeDepth]=
+				new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
+		this.typeDeclarationStarts[this.typeDepth]= typeInfo.declarationStart;
 
-		IType currentType = this.types[this.typeDepth];
+		IType currentType= this.types[this.typeDepth];
 
 		// type parameters
 		if (typeInfo.typeParameters != null) {
-			for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
-				TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-				ITypeParameter typeParameter = currentType.getTypeParameter(new String(typeParameterInfo.name));
+			for (int i= 0, length= typeInfo.typeParameters.length; i < length; i++) {
+				TypeParameterInfo typeParameterInfo= typeInfo.typeParameters[i];
+				ITypeParameter typeParameter= currentType.getTypeParameter(new String(typeParameterInfo.name));
 				setSourceRange(
-					typeParameter,
-					new SourceRange(
-						typeParameterInfo.declarationStart,
-						typeParameterInfo.declarationEnd - typeParameterInfo.declarationStart + 1),
-					new SourceRange(
-						typeParameterInfo.nameSourceStart,
-						typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
+						typeParameter,
+						new SourceRange(
+								typeParameterInfo.declarationStart,
+								typeParameterInfo.declarationEnd - typeParameterInfo.declarationStart + 1),
+						new SourceRange(
+								typeParameterInfo.nameSourceStart,
+								typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
 			}
 		}
 
 		// type modifiers
-		this.typeModifiers[this.typeDepth] = typeInfo.modifiers;
+		this.typeModifiers[this.typeDepth]= typeInfo.modifiers;
 
 		// categories
 		addCategories(currentType, typeInfo.categories);
@@ -665,15 +674,15 @@ public class SourceMapper
 	 */
 	public void enterField(FieldInfo fieldInfo) {
 		if (this.typeDepth >= 0) {
-			this.memberDeclarationStart[this.typeDepth] = fieldInfo.declarationStart;
-			this.memberNameRange[this.typeDepth] =
-				new SourceRange(fieldInfo.nameSourceStart, fieldInfo.nameSourceEnd - fieldInfo.nameSourceStart + 1);
-			String fieldName = new String(fieldInfo.name);
-			this.memberName[this.typeDepth] = fieldName;
+			this.memberDeclarationStart[this.typeDepth]= fieldInfo.declarationStart;
+			this.memberNameRange[this.typeDepth]=
+					new SourceRange(fieldInfo.nameSourceStart, fieldInfo.nameSourceEnd - fieldInfo.nameSourceStart + 1);
+			String fieldName= new String(fieldInfo.name);
+			this.memberName[this.typeDepth]= fieldName;
 
 			// categories
-			IType currentType = this.types[this.typeDepth];
-			IField field = currentType.getField(fieldName);
+			IType currentType= this.types[this.typeDepth];
+			IField field= currentType.getField(fieldName);
 			addCategories(field, fieldInfo.categories);
 		}
 	}
@@ -682,8 +691,8 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void enterInitializer(
-		int declarationSourceStart,
-		int modifiers) {
+			int declarationSourceStart,
+			int modifiers) {
 		//do nothing
 	}
 
@@ -693,60 +702,61 @@ public class SourceMapper
 	public void enterMethod(MethodInfo methodInfo) {
 		enterAbstractMethod(methodInfo);
 	}
+
 	private void enterAbstractMethod(MethodInfo methodInfo) {
 		if (this.typeDepth >= 0) {
-			this.memberName[this.typeDepth] = new String(methodInfo.name);
-			this.memberNameRange[this.typeDepth] =
-				new SourceRange(methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart + 1);
-			this.memberDeclarationStart[this.typeDepth] = methodInfo.declarationStart;
-			IType currentType = this.types[this.typeDepth];
-			int currenTypeModifiers = this.typeModifiers[this.typeDepth];
-			char[][] parameterTypes = methodInfo.parameterTypes;
+			this.memberName[this.typeDepth]= new String(methodInfo.name);
+			this.memberNameRange[this.typeDepth]=
+					new SourceRange(methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart + 1);
+			this.memberDeclarationStart[this.typeDepth]= methodInfo.declarationStart;
+			IType currentType= this.types[this.typeDepth];
+			int currenTypeModifiers= this.typeModifiers[this.typeDepth];
+			char[][] parameterTypes= methodInfo.parameterTypes;
 			if (methodInfo.isConstructor && currentType.getDeclaringType() != null && !Flags.isStatic(currenTypeModifiers)) {
-				IType declaringType = currentType.getDeclaringType();
-				String declaringTypeName = declaringType.getElementName();
+				IType declaringType= currentType.getDeclaringType();
+				String declaringTypeName= declaringType.getElementName();
 				if (declaringTypeName.length() == 0) {
-					IClassFile classFile = declaringType.getClassFile();
-					int length = parameterTypes != null ? parameterTypes.length : 0;
-					char[][] newParameterTypes = new char[length+1][];
-					declaringTypeName = classFile.getElementName();
-					declaringTypeName = declaringTypeName.substring(0, declaringTypeName.indexOf('.'));
-					newParameterTypes[0] = declaringTypeName.toCharArray();
+					IClassFile classFile= declaringType.getClassFile();
+					int length= parameterTypes != null ? parameterTypes.length : 0;
+					char[][] newParameterTypes= new char[length + 1][];
+					declaringTypeName= classFile.getElementName();
+					declaringTypeName= declaringTypeName.substring(0, declaringTypeName.indexOf('.'));
+					newParameterTypes[0]= declaringTypeName.toCharArray();
 					if (length != 0) {
 						System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
 					}
-					this.methodParameterTypes[this.typeDepth] = newParameterTypes;
+					this.methodParameterTypes[this.typeDepth]= newParameterTypes;
 				} else {
-					int length = parameterTypes != null ? parameterTypes.length : 0;
-					char[][] newParameterTypes = new char[length+1][];
-					newParameterTypes[0] = declaringTypeName.toCharArray();
+					int length= parameterTypes != null ? parameterTypes.length : 0;
+					char[][] newParameterTypes= new char[length + 1][];
+					newParameterTypes[0]= declaringTypeName.toCharArray();
 					if (length != 0) {
 						System.arraycopy(parameterTypes, 0, newParameterTypes, 1, length);
 					}
-					this.methodParameterTypes[this.typeDepth] = newParameterTypes;
+					this.methodParameterTypes[this.typeDepth]= newParameterTypes;
 				}
 			} else {
-				this.methodParameterTypes[this.typeDepth] = parameterTypes;
+				this.methodParameterTypes[this.typeDepth]= parameterTypes;
 			}
-			this.methodParameterNames[this.typeDepth] = methodInfo.parameterNames;
+			this.methodParameterNames[this.typeDepth]= methodInfo.parameterNames;
 
-			IMethod method = currentType.getMethod(
+			IMethod method= currentType.getMethod(
 					this.memberName[this.typeDepth],
 					convertTypeNamesToSigs(this.methodParameterTypes[this.typeDepth]));
 
 			// type parameters
 			if (methodInfo.typeParameters != null) {
-				for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
-					TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
-					ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterInfo.name));
+				for (int i= 0, length= methodInfo.typeParameters.length; i < length; i++) {
+					TypeParameterInfo typeParameterInfo= methodInfo.typeParameters[i];
+					ITypeParameter typeParameter= method.getTypeParameter(new String(typeParameterInfo.name));
 					setSourceRange(
-						typeParameter,
-						new SourceRange(
-							typeParameterInfo.declarationStart,
-							typeParameterInfo.declarationEnd - typeParameterInfo.declarationStart + 1),
-						new SourceRange(
-							typeParameterInfo.nameSourceStart,
-							typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
+							typeParameter,
+							new SourceRange(
+									typeParameterInfo.declarationStart,
+									typeParameterInfo.declarationEnd - typeParameterInfo.declarationStart + 1),
+							new SourceRange(
+									typeParameterInfo.nameSourceStart,
+									typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
 				}
 			}
 
@@ -760,13 +770,13 @@ public class SourceMapper
 	 */
 	public void exitType(int declarationEnd) {
 		if (this.typeDepth >= 0) {
-			IType currentType = this.types[this.typeDepth];
+			IType currentType= this.types[this.typeDepth];
 			setSourceRange(
-				currentType,
-				new SourceRange(
-					this.typeDeclarationStarts[this.typeDepth],
-					declarationEnd - this.typeDeclarationStarts[this.typeDepth] + 1),
-				this.typeNameRanges[this.typeDepth]);
+					currentType,
+					new SourceRange(
+							this.typeDeclarationStarts[this.typeDepth],
+							declarationEnd - this.typeDeclarationStarts[this.typeDepth] + 1),
+					this.typeNameRanges[this.typeDepth]);
 			this.typeDepth--;
 		}
 	}
@@ -790,13 +800,13 @@ public class SourceMapper
 	 */
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		if (this.typeDepth >= 0) {
-			IType currentType = this.types[this.typeDepth];
+			IType currentType= this.types[this.typeDepth];
 			setSourceRange(
-				currentType.getField(this.memberName[this.typeDepth]),
-				new SourceRange(
-					this.memberDeclarationStart[this.typeDepth],
-					declarationEnd - this.memberDeclarationStart[this.typeDepth] + 1),
-				this.memberNameRange[this.typeDepth]);
+					currentType.getField(this.memberName[this.typeDepth]),
+					new SourceRange(
+							this.memberDeclarationStart[this.typeDepth],
+							declarationEnd - this.memberDeclarationStart[this.typeDepth] + 1),
+					this.memberNameRange[this.typeDepth]);
 		}
 	}
 
@@ -813,36 +823,36 @@ public class SourceMapper
 	public void exitMethod(int declarationEnd, Expression defaultValue) {
 		exitAbstractMethod(declarationEnd);
 	}
+
 	private void exitAbstractMethod(int declarationEnd) {
 		if (this.typeDepth >= 0) {
-			IType currentType = this.types[this.typeDepth];
-			SourceRange sourceRange =
-				new SourceRange(
-					this.memberDeclarationStart[this.typeDepth],
-					declarationEnd - this.memberDeclarationStart[this.typeDepth] + 1);
-			IMethod method = currentType.getMethod(
+			IType currentType= this.types[this.typeDepth];
+			SourceRange sourceRange=
+					new SourceRange(
+							this.memberDeclarationStart[this.typeDepth],
+							declarationEnd - this.memberDeclarationStart[this.typeDepth] + 1);
+			IMethod method= currentType.getMethod(
 					this.memberName[this.typeDepth],
 					convertTypeNamesToSigs(this.methodParameterTypes[this.typeDepth]));
 			setSourceRange(
-				method,
-				sourceRange,
-				this.memberNameRange[this.typeDepth]);
+					method,
+					sourceRange,
+					this.memberNameRange[this.typeDepth]);
 			setMethodParameterNames(
-				method,
-				this.methodParameterNames[this.typeDepth]);
+					method,
+					this.methodParameterNames[this.typeDepth]);
 		}
 	}
 
 	/**
-	 * Locates and returns source code for the given (binary) type, in this
-	 * SourceMapper's ZIP file, or returns <code>null</code> if source
-	 * code cannot be found.
+	 * Locates and returns source code for the given (binary) type, in this SourceMapper's ZIP file,
+	 * or returns <code>null</code> if source code cannot be found.
 	 */
 	public char[] findSource(IType type, IBinaryType info) {
 		if (!type.isBinary()) {
 			return null;
 		}
-		String simpleSourceFileName = ((BinaryType) type).getSourceFileName(info);
+		String simpleSourceFileName= ((BinaryType)type).getSourceFileName(info);
 		if (simpleSourceFileName == null) {
 			return null;
 		}
@@ -850,40 +860,39 @@ public class SourceMapper
 	}
 
 	/**
-	 * Locates and returns source code for the given (binary) type, in this
-	 * SourceMapper's ZIP file, or returns <code>null</code> if source
-	 * code cannot be found.
-	 * The given simpleSourceFileName is the .java file name (without the enclosing
-	 * folder) used to create the given type (e.g. "A.java" for x/y/A$Inner.class)
+	 * Locates and returns source code for the given (binary) type, in this SourceMapper's ZIP file,
+	 * or returns <code>null</code> if source code cannot be found. The given simpleSourceFileName
+	 * is the .java file name (without the enclosing folder) used to create the given type (e.g.
+	 * "A.java" for x/y/A$Inner.class)
 	 */
 	public char[] findSource(IType type, String simpleSourceFileName) {
-		long time = 0;
+		long time= 0;
 		if (VERBOSE) {
-			time = System.currentTimeMillis();
+			time= System.currentTimeMillis();
 		}
-		PackageFragment pkgFrag = (PackageFragment) type.getPackageFragment();
-		String name = org.eclipse.jdt.internal.core.util.Util.concatWith(pkgFrag.names, simpleSourceFileName, '/');
+		PackageFragment pkgFrag= (PackageFragment)type.getPackageFragment();
+		String name= org.eclipse.jdt.internal.core.util.Util.concatWith(pkgFrag.names, simpleSourceFileName, '/');
 
-		char[] source = null;
+		char[] source= null;
 
-		JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
+		JavaModelManager javaModelManager= JavaModelManager.getJavaModelManager();
 		try {
 			javaModelManager.cacheZipFiles(this); // Cache any zip files we open during this operation
 
 			if (this.rootPath != null) {
-				source = getSourceForRootPath(this.rootPath, name);
+				source= getSourceForRootPath(this.rootPath, name);
 			}
-	
+
 			if (source == null) {
 				computeAllRootPaths(type);
 				if (this.rootPaths != null) {
-					loop: for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
-						String currentRootPath = (String) iterator.next();
+					loop: for (Iterator iterator= this.rootPaths.iterator(); iterator.hasNext();) {
+						String currentRootPath= (String)iterator.next();
 						if (!currentRootPath.equals(this.rootPath)) {
-							source = getSourceForRootPath(currentRootPath, name);
+							source= getSourceForRootPath(currentRootPath, name);
 							if (source != null) {
 								// remember right root path
-								this.rootPath = currentRootPath;
+								this.rootPath= currentRootPath;
 								break loop;
 							}
 						}
@@ -903,39 +912,39 @@ public class SourceMapper
 		String newFullName;
 		if (!currentRootPath.equals(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH)) {
 			if (currentRootPath.endsWith("/")) { //$NON-NLS-1$
-				newFullName = currentRootPath + name;
+				newFullName= currentRootPath + name;
 			} else {
-				newFullName = currentRootPath + '/' + name;
+				newFullName= currentRootPath + '/' + name;
 			}
 		} else {
-			newFullName = name;
+			newFullName= name;
 		}
 		return this.findSource(newFullName);
 	}
 
 	public char[] findSource(String fullName) {
-		char[] source = null;
-		Object target = JavaModel.getTarget(this.sourcePath, true);
+		char[] source= null;
+		Object target= JavaModel.getTarget(this.sourcePath, true);
 		if (target instanceof IContainer) {
-			IResource res = ((IContainer)target).findMember(fullName);
+			IResource res= ((IContainer)target).findMember(fullName);
 			if (res instanceof IFile) {
 				try {
-					source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
+					source= org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
 				} catch (JavaModelException e) {
 					// ignore
 				}
 			}
 		} else {
 			// try to get the entry
-			ZipEntry entry = null;
-			ZipFile zip = null;
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ZipEntry entry= null;
+			ZipFile zip= null;
+			JavaModelManager manager= JavaModelManager.getJavaModelManager();
 			try {
-				zip = manager.getZipFile(this.sourcePath);
-				entry = zip.getEntry(fullName);
+				zip= manager.getZipFile(this.sourcePath);
+				entry= zip.getEntry(fullName);
 				if (entry != null) {
 					// now read the source code
-					source = readSource(entry, zip);
+					source= readSource(entry, zip);
 				}
 			} catch (CoreException e) {
 				return null;
@@ -949,37 +958,37 @@ public class SourceMapper
 
 
 	/**
-	 * Returns the SourceRange for the name of the given element, or
-	 * {-1, -1} if no source range is known for the name of the element.
+	 * Returns the SourceRange for the name of the given element, or {-1, -1} if no source range is
+	 * known for the name of the element.
 	 */
 	public SourceRange getNameRange(IJavaElement element) {
-		switch(element.getElementType()) {
-			case IJavaElement.METHOD :
-				if (((IMember) element).isBinary()) {
-					IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
-					if(el[1] != null && this.sourceRanges.get(el[0]) == null) {
-						element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
+		switch (element.getElementType()) {
+			case IJavaElement.METHOD:
+				if (((IMember)element).isBinary()) {
+					IJavaElement[] el= getUnqualifiedMethodHandle((IMethod)element, false);
+					if (el[1] != null && this.sourceRanges.get(el[0]) == null) {
+						element= getUnqualifiedMethodHandle((IMethod)element, true)[0];
 					} else {
-						element = el[0];
+						element= el[0];
 					}
 				}
 				break;
-			case IJavaElement.TYPE_PARAMETER :
-				IJavaElement parent = element.getParent();
+			case IJavaElement.TYPE_PARAMETER:
+				IJavaElement parent= element.getParent();
 				if (parent.getElementType() == IJavaElement.METHOD) {
-					IMethod method = (IMethod) parent;
+					IMethod method= (IMethod)parent;
 					if (method.isBinary()) {
-						IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
-						if(el[1] != null && this.sourceRanges.get(el[0]) == null) {
-							method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];
+						IJavaElement[] el= getUnqualifiedMethodHandle(method, false);
+						if (el[1] != null && this.sourceRanges.get(el[0]) == null) {
+							method= (IMethod)getUnqualifiedMethodHandle(method, true)[0];
 						} else {
-							method = (IMethod) el[0];
+							method= (IMethod)el[0];
 						}
-						element = method.getTypeParameter(element.getElementName());
+						element= method.getTypeParameter(element.getElementName());
 					}
 				}
 		}
-		SourceRange[] ranges = (SourceRange[]) this.sourceRanges.get(element);
+		SourceRange[] ranges= (SourceRange[])this.sourceRanges.get(element);
 		if (ranges == null) {
 			return UNKNOWN_RANGE;
 		} else {
@@ -988,19 +997,19 @@ public class SourceMapper
 	}
 
 	/**
-	 * Returns parameters names for the given method, or
-	 * null if no parameter names are known for the method.
+	 * Returns parameters names for the given method, or null if no parameter names are known for
+	 * the method.
 	 */
 	public char[][] getMethodParameterNames(IMethod method) {
 		if (method.isBinary()) {
-			IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
-			if(el[1] != null && this.parameterNames.get(el[0]) == null) {
-				method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];
+			IJavaElement[] el= getUnqualifiedMethodHandle(method, false);
+			if (el[1] != null && this.parameterNames.get(el[0]) == null) {
+				method= (IMethod)getUnqualifiedMethodHandle(method, true)[0];
 			} else {
-				method = (IMethod) el[0];
+				method= (IMethod)el[0];
 			}
 		}
-		char[][] parameters = (char[][]) this.parameterNames.get(method);
+		char[][] parameters= (char[][])this.parameterNames.get(method);
 		if (parameters == null) {
 			return null;
 		} else {
@@ -1009,37 +1018,37 @@ public class SourceMapper
 	}
 
 	/**
-	 * Returns the <code>SourceRange</code> for the given element, or
-	 * {-1, -1} if no source range is known for the element.
+	 * Returns the <code>SourceRange</code> for the given element, or {-1, -1} if no source range is
+	 * known for the element.
 	 */
 	public SourceRange getSourceRange(IJavaElement element) {
-		switch(element.getElementType()) {
-			case IJavaElement.METHOD :
-				if (((IMember) element).isBinary()) {
-					IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
-					if(el[1] != null && this.sourceRanges.get(el[0]) == null) {
-						element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
+		switch (element.getElementType()) {
+			case IJavaElement.METHOD:
+				if (((IMember)element).isBinary()) {
+					IJavaElement[] el= getUnqualifiedMethodHandle((IMethod)element, false);
+					if (el[1] != null && this.sourceRanges.get(el[0]) == null) {
+						element= getUnqualifiedMethodHandle((IMethod)element, true)[0];
 					} else {
-						element = el[0];
+						element= el[0];
 					}
 				}
 				break;
-			case IJavaElement.TYPE_PARAMETER :
-				IJavaElement parent = element.getParent();
+			case IJavaElement.TYPE_PARAMETER:
+				IJavaElement parent= element.getParent();
 				if (parent.getElementType() == IJavaElement.METHOD) {
-					IMethod method = (IMethod) parent;
+					IMethod method= (IMethod)parent;
 					if (method.isBinary()) {
-						IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
-						if(el[1] != null && this.sourceRanges.get(el[0]) == null) {
-							method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];
+						IJavaElement[] el= getUnqualifiedMethodHandle(method, false);
+						if (el[1] != null && this.sourceRanges.get(el[0]) == null) {
+							method= (IMethod)getUnqualifiedMethodHandle(method, true)[0];
 						} else {
-							method = (IMethod) el[0];
+							method= (IMethod)el[0];
 						}
-						element = method.getTypeParameter(element.getElementName());
+						element= method.getTypeParameter(element.getElementName());
 					}
 				}
 		}
-		SourceRange[] ranges = (SourceRange[]) this.sourceRanges.get(element);
+		SourceRange[] ranges= (SourceRange[])this.sourceRanges.get(element);
 		if (ranges == null) {
 			return UNKNOWN_RANGE;
 		} else {
@@ -1048,19 +1057,18 @@ public class SourceMapper
 	}
 
 	/**
-	 * Returns the type with the given <code>typeName</code>.  Returns inner classes
-	 * as well.
+	 * Returns the type with the given <code>typeName</code>. Returns inner classes as well.
 	 */
 	protected IType getType(String typeName) {
 		if (typeName.length() == 0) {
-			IJavaElement classFile = this.binaryType.getParent();
-			String classFileName = classFile.getElementName();
-			StringBuffer newClassFileName = new StringBuffer();
-			int lastDollar = classFileName.lastIndexOf('$');
-			for (int i = 0; i <= lastDollar; i++)
+			IJavaElement classFile= this.binaryType.getParent();
+			String classFileName= classFile.getElementName();
+			StringBuffer newClassFileName= new StringBuffer();
+			int lastDollar= classFileName.lastIndexOf('$');
+			for (int i= 0; i <= lastDollar; i++)
 				newClassFileName.append(classFileName.charAt(i));
 			newClassFileName.append(Integer.toString(this.anonymousCounter));
-			PackageFragment pkg = (PackageFragment) classFile.getParent();
+			PackageFragment pkg= (PackageFragment)classFile.getParent();
 			return new BinaryType(new ClassFile(pkg, newClassFileName.toString()), typeName);
 		} else if (this.binaryType.getElementName().equals(typeName))
 			return this.binaryType;
@@ -1069,100 +1077,100 @@ public class SourceMapper
 	}
 
 	/**
-	 * Creates a handle that has parameter types that are not
-	 * fully qualified so that the correct source is found.
+	 * Creates a handle that has parameter types that are not fully qualified so that the correct
+	 * source is found.
 	 */
 	protected IJavaElement[] getUnqualifiedMethodHandle(IMethod method, boolean noDollar) {
-		boolean hasDollar = false;
-		String[] qualifiedParameterTypes = method.getParameterTypes();
-		String[] unqualifiedParameterTypes = new String[qualifiedParameterTypes.length];
-		for (int i = 0; i < qualifiedParameterTypes.length; i++) {
-			StringBuffer unqualifiedTypeSig = new StringBuffer();
+		boolean hasDollar= false;
+		String[] qualifiedParameterTypes= method.getParameterTypes();
+		String[] unqualifiedParameterTypes= new String[qualifiedParameterTypes.length];
+		for (int i= 0; i < qualifiedParameterTypes.length; i++) {
+			StringBuffer unqualifiedTypeSig= new StringBuffer();
 			getUnqualifiedTypeSignature(qualifiedParameterTypes[i], 0/*start*/, qualifiedParameterTypes[i].length(), unqualifiedTypeSig, noDollar);
-			unqualifiedParameterTypes[i] = unqualifiedTypeSig.toString();
-			hasDollar |= unqualifiedParameterTypes[i].lastIndexOf('$') != -1;
+			unqualifiedParameterTypes[i]= unqualifiedTypeSig.toString();
+			hasDollar|= unqualifiedParameterTypes[i].lastIndexOf('$') != -1;
 		}
 
-		IJavaElement[] result = new IJavaElement[2];
-		result[0] = ((IType) method.getParent()).getMethod(
-			method.getElementName(),
-			unqualifiedParameterTypes);
-		if(hasDollar) {
-			result[1] = result[0];
+		IJavaElement[] result= new IJavaElement[2];
+		result[0]= ((IType)method.getParent()).getMethod(
+				method.getElementName(),
+				unqualifiedParameterTypes);
+		if (hasDollar) {
+			result[1]= result[0];
 		}
 		return result;
 	}
 
 	private int getUnqualifiedTypeSignature(String qualifiedTypeSig, int start, int length, StringBuffer unqualifiedTypeSig, boolean noDollar) {
-		char firstChar = qualifiedTypeSig.charAt(start);
-		int end = start + 1;
-		boolean sigStart = false;
-		firstPass: for (int i = start; i < length; i++) {
-			char current = qualifiedTypeSig.charAt(i);
+		char firstChar= qualifiedTypeSig.charAt(start);
+		int end= start + 1;
+		boolean sigStart= false;
+		firstPass: for (int i= start; i < length; i++) {
+			char current= qualifiedTypeSig.charAt(i);
 			switch (current) {
-				case Signature.C_ARRAY :
+				case Signature.C_ARRAY:
 				case Signature.C_SUPER:
 				case Signature.C_EXTENDS:
 					unqualifiedTypeSig.append(current);
-					start = i + 1;
-					end = start + 1;
-					firstChar = qualifiedTypeSig.charAt(start);
+					start= i + 1;
+					end= start + 1;
+					firstChar= qualifiedTypeSig.charAt(start);
 					break;
-				case Signature.C_RESOLVED :
-				case Signature.C_UNRESOLVED :
-				case Signature.C_TYPE_VARIABLE :
+				case Signature.C_RESOLVED:
+				case Signature.C_UNRESOLVED:
+				case Signature.C_TYPE_VARIABLE:
 					if (!sigStart) {
-						start = ++i;
-						sigStart = true;
+						start= ++i;
+						sigStart= true;
 					}
 					break;
 				case Signature.C_NAME_END:
-				case Signature.C_GENERIC_START :
-					end = i;
+				case Signature.C_GENERIC_START:
+					end= i;
 					break firstPass;
-				case Signature.C_STAR :
+				case Signature.C_STAR:
 					unqualifiedTypeSig.append(current);
-					start = i + 1;
-					end = start + 1;
-					firstChar = qualifiedTypeSig.charAt(start);
+					start= i + 1;
+					end= start + 1;
+					firstChar= qualifiedTypeSig.charAt(start);
 					break;
-				case Signature.C_GENERIC_END :
+				case Signature.C_GENERIC_END:
 					return i;
 				case Signature.C_DOT:
-					start = ++i;
+					start= ++i;
 					break;
-				case Signature.C_BOOLEAN :
-				case Signature.C_BYTE :
-				case Signature.C_CHAR :
-				case Signature.C_DOUBLE :
-				case Signature.C_FLOAT :
-				case Signature.C_INT :
-				case Signature.C_LONG :
-				case Signature.C_SHORT :
+				case Signature.C_BOOLEAN:
+				case Signature.C_BYTE:
+				case Signature.C_CHAR:
+				case Signature.C_DOUBLE:
+				case Signature.C_FLOAT:
+				case Signature.C_INT:
+				case Signature.C_LONG:
+				case Signature.C_SHORT:
 					if (!sigStart) {
 						unqualifiedTypeSig.append(current);
-						return i+1;
+						return i + 1;
 					}
 			}
 		}
 		switch (firstChar) {
-			case Signature.C_RESOLVED :
-			case Signature.C_UNRESOLVED :
-			case Signature.C_TYPE_VARIABLE :
+			case Signature.C_RESOLVED:
+			case Signature.C_UNRESOLVED:
+			case Signature.C_TYPE_VARIABLE:
 				unqualifiedTypeSig.append(Signature.C_UNRESOLVED);
 				if (noDollar) {
-					int lastDollar = qualifiedTypeSig.lastIndexOf('$', end);
+					int lastDollar= qualifiedTypeSig.lastIndexOf('$', end);
 					if (lastDollar > start)
-						start = lastDollar + 1;
+						start= lastDollar + 1;
 				}
-				for (int i = start; i < length; i++) {
-					char current = qualifiedTypeSig.charAt(i);
+				for (int i= start; i < length; i++) {
+					char current= qualifiedTypeSig.charAt(i);
 					switch (current) {
 						case Signature.C_GENERIC_START:
 							unqualifiedTypeSig.append(current);
 							i++;
 							do {
-								i = getUnqualifiedTypeSignature(qualifiedTypeSig, i, length, unqualifiedTypeSig, noDollar);
+								i= getUnqualifiedTypeSignature(qualifiedTypeSig, i, length, unqualifiedTypeSig, noDollar);
 							} while (qualifiedTypeSig.charAt(i) != Signature.C_GENERIC_END);
 							unqualifiedTypeSig.append(Signature.C_GENERIC_END);
 							break;
@@ -1175,7 +1183,7 @@ public class SourceMapper
 					}
 				}
 				return length;
-			default :
+			default:
 				// primitive type or wildcard
 				unqualifiedTypeSig.append(qualifiedTypeSig.substring(start, end));
 				return end;
@@ -1190,92 +1198,94 @@ public class SourceMapper
 	}
 
 	/**
-	 * Maps the given source code to the given binary type and its children.
-	 * If a non-null java element is passed, finds the name range for the
-	 * given java element without storing it.
+	 * Maps the given source code to the given binary type and its children. If a non-null java
+	 * element is passed, finds the name range for the given java element without storing it.
 	 */
 	public synchronized ISourceRange mapSource(
-		IType type,
-		char[] contents,
-		IBinaryType info,
-		IJavaElement elementToFind) {
+			IType type,
+			char[] contents,
+			IBinaryType info,
+			IJavaElement elementToFind) {
 
-		this.binaryType = (BinaryType) type;
+		this.binaryType= (BinaryType)type;
 
 		// check whether it is already mapped
-		if (this.sourceRanges.get(type) != null) return (elementToFind != null) ? getNameRange(elementToFind) : null;
+		if (this.sourceRanges.get(type) != null)
+			return (elementToFind != null) ? getNameRange(elementToFind) : null;
 
 		this.importsTable.remove(this.binaryType);
 		this.importsCounterTable.remove(this.binaryType);
-		this.searchedElement = elementToFind;
-		this.types = new IType[1];
-		this.typeDeclarationStarts = new int[1];
-		this.typeNameRanges = new SourceRange[1];
-		this.typeModifiers = new int[1];
-		this.typeDepth = -1;
-		this.memberDeclarationStart = new int[1];
-		this.memberName = new String[1];
-		this.memberNameRange = new SourceRange[1];
-		this.methodParameterTypes = new char[1][][];
-		this.methodParameterNames = new char[1][][];
-		this.anonymousCounter = 0;
+		this.searchedElement= elementToFind;
+		this.types= new IType[1];
+		this.typeDeclarationStarts= new int[1];
+		this.typeNameRanges= new SourceRange[1];
+		this.typeModifiers= new int[1];
+		this.typeDepth= -1;
+		this.memberDeclarationStart= new int[1];
+		this.memberName= new String[1];
+		this.memberNameRange= new SourceRange[1];
+		this.methodParameterTypes= new char[1][][];
+		this.methodParameterNames= new char[1][][];
+		this.anonymousCounter= 0;
 
-		HashMap oldSourceRanges = null;
+		HashMap oldSourceRanges= null;
 		if (elementToFind != null) {
-			oldSourceRanges = (HashMap) this.sourceRanges.clone();
+			oldSourceRanges= (HashMap)this.sourceRanges.clone();
 		}
 		try {
-			IProblemFactory factory = new DefaultProblemFactory();
-			SourceElementParser parser = null;
-			this.anonymousClassName = 0;
+			IProblemFactory factory= new DefaultProblemFactory();
+			SourceElementParser parser= null;
+			this.anonymousClassName= 0;
 			if (info == null) {
 				try {
-					info = (IBinaryType) this.binaryType.getElementInfo();
-				} catch(JavaModelException e) {
+					info= (IBinaryType)this.binaryType.getElementInfo();
+				} catch (JavaModelException e) {
 					return null;
 				}
 			}
-			boolean isAnonymousClass = info.isAnonymous();
-			char[] fullName = info.getName();
+			boolean isAnonymousClass= info.isAnonymous();
+			char[] fullName= info.getName();
 			if (isAnonymousClass) {
-				String eltName = this.binaryType.getParent().getElementName();
-				eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
+				String eltName= this.binaryType.getParent().getElementName();
+				eltName= eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
 				try {
-					this.anonymousClassName = Integer.parseInt(eltName);
-				} catch(NumberFormatException e) {
+					this.anonymousClassName= Integer.parseInt(eltName);
+				} catch (NumberFormatException e) {
 					// ignore
 				}
 			}
-			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
-			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse, true/*optimize string literals*/);
-			parser.javadocParser.checkDocComment = false; // disable javadoc parsing
-			IJavaElement javaElement = this.binaryType.getCompilationUnit();
-			if (javaElement == null) javaElement = this.binaryType.getParent();
+			boolean doFullParse= hasToRetrieveSourceRangesForLocalClass(fullName);
+			parser= new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse, true/*optimize string literals*/);
+			parser.javadocParser.checkDocComment= false; // disable javadoc parsing
+			IJavaElement javaElement= this.binaryType.getCompilationUnit();
+			if (javaElement == null)
+				javaElement= this.binaryType.getParent();
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, null, this.binaryType.sourceFileName(info), javaElement),
-				doFullParse,
-				null/*no progress*/);
+					new BasicCompilationUnit(contents, null, this.binaryType.sourceFileName(info), javaElement),
+					doFullParse,
+					null/*no progress*/);
 			if (elementToFind != null) {
-				ISourceRange range = getNameRange(elementToFind);
+				ISourceRange range= getNameRange(elementToFind);
 				return range;
 			} else {
 				return null;
 			}
 		} finally {
 			if (elementToFind != null) {
-				this.sourceRanges = oldSourceRanges;
+				this.sourceRanges= oldSourceRanges;
 			}
-			this.binaryType = null;
-			this.searchedElement = null;
-			this.types = null;
-			this.typeDeclarationStarts = null;
-			this.typeNameRanges = null;
-			this.typeDepth = -1;
+			this.binaryType= null;
+			this.searchedElement= null;
+			this.types= null;
+			this.typeDeclarationStarts= null;
+			this.typeNameRanges= null;
+			this.typeDepth= -1;
 		}
 	}
+
 	private char[] readSource(ZipEntry entry, ZipFile zip) {
 		try {
-			byte[] bytes = Util.getZipEntryByteContent(entry, zip);
+			byte[] bytes= Util.getZipEntryByteContent(entry, zip);
 			if (bytes != null) {
 				return Util.bytesToChar(bytes, this.encoding);
 			}
@@ -1287,28 +1297,27 @@ public class SourceMapper
 
 	/**
 	 * Sets the mapping for this method to its parameter names.
-	 *
+	 * 
 	 * @see #parameterNames
 	 */
 	protected void setMethodParameterNames(
-		IMethod method,
-		char[][] parameterNames) {
+			IMethod method,
+			char[][] parameterNames) {
 		if (parameterNames == null) {
-			parameterNames = CharOperation.NO_CHAR_CHAR;
+			parameterNames= CharOperation.NO_CHAR_CHAR;
 		}
 		this.parameterNames.put(method, parameterNames);
 	}
 
 	/**
-	 * Sets the mapping for this element to its source ranges for its source range
-	 * and name range.
-	 *
+	 * Sets the mapping for this element to its source ranges for its source range and name range.
+	 * 
 	 * @see #sourceRanges
 	 */
 	protected void setSourceRange(
-		IJavaElement element,
-		SourceRange sourceRange,
-		SourceRange nameRange) {
+			IJavaElement element,
+			SourceRange sourceRange,
+			SourceRange nameRange) {
 		this.sourceRanges.put(element, new SourceRange[] { sourceRange, nameRange });
 	}
 
@@ -1316,16 +1325,16 @@ public class SourceMapper
 	 * Return a char[][] array containing the imports of the attached source for the binary type
 	 */
 	public char[][] getImports(BinaryType type) {
-		char[][] imports = (char[][]) this.importsTable.get(type);
+		char[][] imports= (char[][])this.importsTable.get(type);
 		if (imports != null) {
-			int importsCounter = ((Integer) this.importsCounterTable.get(type)).intValue();
+			int importsCounter= ((Integer)this.importsCounterTable.get(type)).intValue();
 			if (imports.length != importsCounter) {
 				System.arraycopy(
-					imports,
-					0,
-					(imports = new char[importsCounter][]),
-					0,
-					importsCounter);
+						imports,
+						0,
+						(imports= new char[importsCounter][]),
+						0,
+						importsCounter);
 			}
 			this.importsTable.put(type, imports);
 		}
@@ -1342,15 +1351,17 @@ public class SourceMapper
 		 * A$1 : true
 		 * A$B : false
 		 */
-		if (eltName == null) return false;
-		int length = eltName.length;
-		int dollarIndex = CharOperation.indexOf('$', eltName, 0);
+		if (eltName == null)
+			return false;
+		int length= eltName.length;
+		int dollarIndex= CharOperation.indexOf('$', eltName, 0);
 		while (dollarIndex != -1) {
-			int nameStart = dollarIndex+1;
-			if (nameStart == length) return false;
+			int nameStart= dollarIndex + 1;
+			if (nameStart == length)
+				return false;
 			if (Character.isDigit(eltName[nameStart]))
 				return true;
-			dollarIndex = CharOperation.indexOf('$', eltName, nameStart);
+			dollarIndex= CharOperation.indexOf('$', eltName, nameStart);
 		}
 		return false;
 	}

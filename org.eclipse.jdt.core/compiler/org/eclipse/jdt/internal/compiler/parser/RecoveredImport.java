@@ -19,39 +19,46 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 public class RecoveredImport extends RecoveredElement {
 
 	public ImportReference importReference;
-public RecoveredImport(ImportReference importReference, RecoveredElement parent, int bracketBalance){
-	super(parent, bracketBalance);
-	this.importReference = importReference;
-}
+
+	public RecoveredImport(ImportReference importReference, RecoveredElement parent, int bracketBalance) {
+		super(parent, bracketBalance);
+		this.importReference= importReference;
+	}
+
 /*
  * Answer the associated parsed structure
  */
-public ASTNode parseTree(){
-	return this.importReference;
-}
+	public ASTNode parseTree() {
+		return this.importReference;
+	}
+
 /*
  * Answer the very source end of the corresponding parse node
  */
-public int sourceEnd(){
-	return this.importReference.declarationSourceEnd;
-}
-public String toString(int tab) {
-	return tabString(tab) + "Recovered import: " + this.importReference.toString(); //$NON-NLS-1$
-}
-public ImportReference updatedImportReference(){
+	public int sourceEnd() {
+		return this.importReference.declarationSourceEnd;
+	}
 
-	return this.importReference;
-}
-public void updateParseTree(){
-	updatedImportReference();
-}
+	public String toString(int tab) {
+		return tabString(tab) + "Recovered import: " + this.importReference.toString(); //$NON-NLS-1$
+	}
+
+	public ImportReference updatedImportReference() {
+
+		return this.importReference;
+	}
+
+	public void updateParseTree() {
+		updatedImportReference();
+	}
+
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
-	if (this.importReference.declarationSourceEnd == 0) {
-		this.importReference.declarationSourceEnd = bodyEnd;
-		this.importReference.declarationEnd = bodyEnd;
+	public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd) {
+		if (this.importReference.declarationSourceEnd == 0) {
+			this.importReference.declarationSourceEnd= bodyEnd;
+			this.importReference.declarationEnd= bodyEnd;
+		}
 	}
-}
 }

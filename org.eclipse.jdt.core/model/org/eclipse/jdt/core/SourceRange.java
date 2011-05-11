@@ -12,21 +12,19 @@ package org.eclipse.jdt.core;
 
 
 /**
- * A source range defines an element's source coordinates relative to
- * its source buffer.
- *
+ * A source range defines an element's source coordinates relative to its source buffer.
+ * 
  * @see ISourceRange
  * @since 3.6
  */
 public final class SourceRange implements ISourceRange {
 
 	/**
-	 * Helper method that answers whether a valid source range is available
-	 * in the given ISourceRange. When an element has no associated source
-	 * code, Java Model APIs may return either <code>null</code> or a range of
-	 * [-1, 0] to indicate an invalid range. This utility method can be used
-	 * to detect that case.
-	 *
+	 * Helper method that answers whether a valid source range is available in the given
+	 * ISourceRange. When an element has no associated source code, Java Model APIs may return
+	 * either <code>null</code> or a range of [-1, 0] to indicate an invalid range. This utility
+	 * method can be used to detect that case.
+	 * 
 	 * @param range a source range, can be <code>null</code>
 	 * @return <code>true</code> iff range is not null and range.getOffset() is not -1
 	 */
@@ -35,6 +33,7 @@ public final class SourceRange implements ISourceRange {
 	}
 
 	private int offset;
+
 	private int length;
 
 	/**
@@ -44,24 +43,27 @@ public final class SourceRange implements ISourceRange {
 	 * @param length the given length
 	 */
 	public SourceRange(int offset, int length) {
-		this.offset = offset;
-		this.length = length;
+		this.offset= offset;
+		this.length= length;
 	}
+
 	/*
 	 * @see Object#equals(Object)
 	 */
 	public boolean equals(Object obj) {
 		if (!(obj instanceof ISourceRange))
 			return false;
-		ISourceRange sourceRange = (ISourceRange) obj;
+		ISourceRange sourceRange= (ISourceRange)obj;
 		return sourceRange.getOffset() == this.offset && sourceRange.getLength() == this.length;
 	}
+
 	/**
 	 * @see ISourceRange
 	 */
 	public int getLength() {
 		return this.length;
 	}
+
 	/**
 	 * @see ISourceRange
 	 */
@@ -77,7 +79,7 @@ public final class SourceRange implements ISourceRange {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		buffer.append("[offset="); //$NON-NLS-1$
 		buffer.append(this.offset);
 		buffer.append(", length="); //$NON-NLS-1$

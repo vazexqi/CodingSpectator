@@ -39,4 +39,3 @@ public interface IDebugRequestor {
 	 */
 	void reset();
 }
-

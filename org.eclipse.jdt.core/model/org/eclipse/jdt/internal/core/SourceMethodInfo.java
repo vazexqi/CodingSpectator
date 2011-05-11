@@ -34,7 +34,7 @@ public class SourceMethodInfo extends SourceMethodElementInfo {
 	}
 
 	protected void setReturnType(char[] type) {
-		this.returnType = type;
+		this.returnType= type;
 	}
 
 }

@@ -57,7 +57,7 @@ import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class InternalExtendedCompletionContext {
-	private static Util.BindingsToNodesMap EmptyNodeMap = new Util.BindingsToNodesMap() {
+	private static Util.BindingsToNodesMap EmptyNodeMap= new Util.BindingsToNodesMap() {
 		public ASTNode get(Binding binding) {
 			return null;
 		}
@@ -67,23 +67,34 @@ public class InternalExtendedCompletionContext {
 
 	// static data
 	private ITypeRoot typeRoot;
+
 	private CompilationUnitDeclaration compilationUnitDeclaration;
+
 	private LookupEnvironment lookupEnvironment;
+
 	private Scope assistScope;
+
 	private ASTNode assistNode;
+
 	private WorkingCopyOwner owner;
 
 	private CompletionParser parser;
 
 	// computed data
 	private boolean hasComputedVisibleElementBindings;
+
 	private ObjectVector visibleLocalVariables;
+
 	private ObjectVector visibleFields;
+
 	private ObjectVector visibleMethods;
 
 	private boolean hasComputedEnclosingJavaElements;
+
 	private Map bindingsToHandles;
+
 	private Map nodesWithProblemsToHandles;
+
 	private ICompilationUnit compilationUnit;
 
 	public InternalExtendedCompletionContext(
@@ -95,50 +106,51 @@ public class InternalExtendedCompletionContext {
 			ASTNode assistNode,
 			WorkingCopyOwner owner,
 			CompletionParser parser) {
-		this.completionContext = completionContext;
-		this.typeRoot = typeRoot;
-		this.compilationUnitDeclaration = compilationUnitDeclaration;
-		this.lookupEnvironment = lookupEnvironment;
-		this.assistScope = assistScope;
-		this.assistNode = assistNode;
-		this.owner = owner;
-		this.parser = parser;
+		this.completionContext= completionContext;
+		this.typeRoot= typeRoot;
+		this.compilationUnitDeclaration= compilationUnitDeclaration;
+		this.lookupEnvironment= lookupEnvironment;
+		this.assistScope= assistScope;
+		this.assistNode= assistNode;
+		this.owner= owner;
+		this.parser= parser;
 	}
 
 	private void computeEnclosingJavaElements() {
-		this.hasComputedEnclosingJavaElements = true;
+		this.hasComputedEnclosingJavaElements= true;
 
-		if (this.typeRoot == null) return;
+		if (this.typeRoot == null)
+			return;
 
 		if (this.typeRoot.getElementType() == IJavaElement.COMPILATION_UNIT) {
-	 		ICompilationUnit original = (org.eclipse.jdt.core.ICompilationUnit)this.typeRoot;
+			ICompilationUnit original= (org.eclipse.jdt.core.ICompilationUnit)this.typeRoot;
 
-			HashMap handleToBinding = new HashMap();
-			HashMap bindingToHandle = new HashMap();
-			HashMap nodeWithProblemToHandle = new HashMap();
-			HashMap handleToInfo = new HashMap();
+			HashMap handleToBinding= new HashMap();
+			HashMap bindingToHandle= new HashMap();
+			HashMap nodeWithProblemToHandle= new HashMap();
+			HashMap handleToInfo= new HashMap();
 
-			org.eclipse.jdt.core.ICompilationUnit handle = new AssistCompilationUnit(original, this.owner, handleToBinding, handleToInfo);
-			CompilationUnitElementInfo info = new CompilationUnitElementInfo();
+			org.eclipse.jdt.core.ICompilationUnit handle= new AssistCompilationUnit(original, this.owner, handleToBinding, handleToInfo);
+			CompilationUnitElementInfo info= new CompilationUnitElementInfo();
 
 			handleToInfo.put(handle, info);
 
-			CompletionUnitStructureRequestor structureRequestor =
-				new CompletionUnitStructureRequestor(
-						handle,
-						info,
-						this.parser,
-						this.assistNode,
-						handleToBinding,
-						bindingToHandle,
-						nodeWithProblemToHandle,
-						handleToInfo);
+			CompletionUnitStructureRequestor structureRequestor=
+					new CompletionUnitStructureRequestor(
+							handle,
+							info,
+							this.parser,
+							this.assistNode,
+							handleToBinding,
+							bindingToHandle,
+							nodeWithProblemToHandle,
+							handleToInfo);
 
-			CompletionElementNotifier notifier =
-				new CompletionElementNotifier(
-						structureRequestor,
-						true,
-						this.assistNode);
+			CompletionElementNotifier notifier=
+					new CompletionElementNotifier(
+							structureRequestor,
+							true,
+							this.assistNode);
 
 			notifier.notifySourceElementRequestor(
 					this.compilationUnitDeclaration,
@@ -148,37 +160,37 @@ public class InternalExtendedCompletionContext {
 					this.parser.sourceEnds,
 					new HashMap());
 
-			this.bindingsToHandles = bindingToHandle;
-			this.nodesWithProblemsToHandles = nodeWithProblemToHandle;
-			this.compilationUnit = handle;
+			this.bindingsToHandles= bindingToHandle;
+			this.nodesWithProblemsToHandles= nodeWithProblemToHandle;
+			this.compilationUnit= handle;
 		}
 	}
 
 	private void computeVisibleElementBindings() {
-		CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
-		this.lookupEnvironment.unitBeingCompleted = this.compilationUnitDeclaration;
+		CompilationUnitDeclaration previousUnitBeingCompleted= this.lookupEnvironment.unitBeingCompleted;
+		this.lookupEnvironment.unitBeingCompleted= this.compilationUnitDeclaration;
 		try {
-			this.hasComputedVisibleElementBindings = true;
-	
-			Scope scope = this.assistScope;
-			ASTNode astNode = this.assistNode;
-			boolean notInJavadoc = this.completionContext.javadoc == 0;
-	
-			this.visibleLocalVariables = new ObjectVector();
-			this.visibleFields = new ObjectVector();
-			this.visibleMethods = new ObjectVector();
-	
-			ReferenceContext referenceContext = scope.referenceContext();
+			this.hasComputedVisibleElementBindings= true;
+
+			Scope scope= this.assistScope;
+			ASTNode astNode= this.assistNode;
+			boolean notInJavadoc= this.completionContext.javadoc == 0;
+
+			this.visibleLocalVariables= new ObjectVector();
+			this.visibleFields= new ObjectVector();
+			this.visibleMethods= new ObjectVector();
+
+			ReferenceContext referenceContext= scope.referenceContext();
 			if (referenceContext instanceof AbstractMethodDeclaration) {
 				// completion is inside a method body
 				searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
 			} else if (referenceContext instanceof TypeDeclaration) {
-				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
-				FieldDeclaration[] fields = typeDeclaration.fields;
+				TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
+				FieldDeclaration[] fields= typeDeclaration.fields;
 				if (fields != null) {
-					done : for (int i = 0; i < fields.length; i++) {
+					done: for (int i= 0; i < fields.length; i++) {
 						if (fields[i] instanceof Initializer) {
-							Initializer initializer = (Initializer) fields[i];
+							Initializer initializer= (Initializer)fields[i];
 							if (initializer.block.sourceStart <= astNode.sourceStart &&
 									astNode.sourceStart < initializer.bodyEnd) {
 								// completion is inside an initializer
@@ -186,7 +198,7 @@ public class InternalExtendedCompletionContext {
 								break done;
 							}
 						} else {
-							FieldDeclaration fieldDeclaration = fields[i];
+							FieldDeclaration fieldDeclaration= fields[i];
 							if (fieldDeclaration.initialization != null &&
 									fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
 									astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
@@ -199,7 +211,7 @@ public class InternalExtendedCompletionContext {
 				}
 			}
 		} finally {
-			this.lookupEnvironment.unitBeingCompleted = previousUnitBeingCompleted;
+			this.lookupEnvironment.unitBeingCompleted= previousUnitBeingCompleted;
 		}
 	}
 
@@ -208,8 +220,9 @@ public class InternalExtendedCompletionContext {
 			if (!this.hasComputedEnclosingJavaElements) {
 				computeEnclosingJavaElements();
 			}
-			if (this.compilationUnit == null) return null;
-			IJavaElement enclosingElement = this.compilationUnit.getElementAt(this.completionContext.offset);
+			if (this.compilationUnit == null)
+				return null;
+			IJavaElement enclosingElement= this.compilationUnit.getElementAt(this.completionContext.offset);
 			return enclosingElement == null ? this.compilationUnit : enclosingElement;
 		} catch (JavaModelException e) {
 			Util.log(e, "Cannot compute enclosing element"); //$NON-NLS-1$
@@ -218,21 +231,22 @@ public class InternalExtendedCompletionContext {
 	}
 
 	private JavaElement getJavaElement(LocalVariableBinding binding) {
-		LocalDeclaration local = binding.declaration;
+		LocalDeclaration local= binding.declaration;
 
-		JavaElement parent = null;
-		ReferenceContext referenceContext = binding.declaringScope.referenceContext();
+		JavaElement parent= null;
+		ReferenceContext referenceContext= binding.declaringScope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) referenceContext;
-			parent = this.getJavaElementOfCompilationUnit(methodDeclaration, methodDeclaration.binding);
-		} else if (referenceContext instanceof TypeDeclaration){
+			AbstractMethodDeclaration methodDeclaration= (AbstractMethodDeclaration)referenceContext;
+			parent= this.getJavaElementOfCompilationUnit(methodDeclaration, methodDeclaration.binding);
+		} else if (referenceContext instanceof TypeDeclaration) {
 			// Local variable is declared inside an initializer
-			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
+			TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
 
-			JavaElement type = this.getJavaElementOfCompilationUnit(typeDeclaration, typeDeclaration.binding);
-			parent = Util.getUnresolvedJavaElement(local.sourceStart, local.sourceEnd, type);
+			JavaElement type= this.getJavaElementOfCompilationUnit(typeDeclaration, typeDeclaration.binding);
+			parent= Util.getUnresolvedJavaElement(local.sourceStart, local.sourceEnd, type);
 		}
-		if (parent == null) return null;
+		if (parent == null)
+			return null;
 
 		return new LocalVariable(
 				parent,
@@ -249,7 +263,8 @@ public class InternalExtendedCompletionContext {
 		if (!this.hasComputedEnclosingJavaElements) {
 			computeEnclosingJavaElements();
 		}
-		if (this.bindingsToHandles == null) return null;
+		if (this.bindingsToHandles == null)
+			return null;
 		return (JavaElement)this.bindingsToHandles.get(binding);
 	}
 
@@ -258,66 +273,69 @@ public class InternalExtendedCompletionContext {
 			computeEnclosingJavaElements();
 		}
 		if (binding != null) {
-			if (this.bindingsToHandles == null) return null;
+			if (this.bindingsToHandles == null)
+				return null;
 			return (JavaElement)this.bindingsToHandles.get(binding);
 		} else {
-			if (this.nodesWithProblemsToHandles == null) return null;
+			if (this.nodesWithProblemsToHandles == null)
+				return null;
 			return (JavaElement)this.nodesWithProblemsToHandles.get(node);
 		}
 	}
 
 	private TypeBinding getTypeFromSignature(String typeSignature, Scope scope) {
-		TypeBinding assignableTypeBinding = null;
+		TypeBinding assignableTypeBinding= null;
 
-		TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
-		ReferenceContext referenceContext = scope.referenceContext();
+		TypeVariableBinding[] typeVariables= Binding.NO_TYPE_VARIABLES;
+		ReferenceContext referenceContext= scope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) referenceContext;
-			TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+			AbstractMethodDeclaration methodDeclaration= (AbstractMethodDeclaration)referenceContext;
+			TypeParameter[] typeParameters= methodDeclaration.typeParameters();
 			if (typeParameters != null && typeParameters.length > 0) {
-				int length = typeParameters.length;
-				int count = 0;
-				typeVariables = new TypeVariableBinding[length];
-				for (int i = 0; i < length; i++) {
+				int length= typeParameters.length;
+				int count= 0;
+				typeVariables= new TypeVariableBinding[length];
+				for (int i= 0; i < length; i++) {
 					if (typeParameters[i].binding != null) {
-						typeVariables[count++] = typeParameters[i].binding;
+						typeVariables[count++]= typeParameters[i].binding;
 					}
 				}
 
 				if (count != length) {
-					System.arraycopy(typeVariables, 0, typeVariables = new TypeVariableBinding[count], 0, count);
+					System.arraycopy(typeVariables, 0, typeVariables= new TypeVariableBinding[count], 0, count);
 				}
 			}
 		}
 
-		CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
-		this.lookupEnvironment.unitBeingCompleted = this.compilationUnitDeclaration;
+		CompilationUnitDeclaration previousUnitBeingCompleted= this.lookupEnvironment.unitBeingCompleted;
+		this.lookupEnvironment.unitBeingCompleted= this.compilationUnitDeclaration;
 		try {
 
-			SignatureWrapper wrapper = new SignatureWrapper(replacePackagesDot(typeSignature.toCharArray()));
-			assignableTypeBinding = this.lookupEnvironment.getTypeFromTypeSignature(wrapper, typeVariables, this.assistScope.enclosingClassScope().referenceContext.binding, null);
-			assignableTypeBinding = BinaryTypeBinding.resolveType(assignableTypeBinding, this.lookupEnvironment, true);
+			SignatureWrapper wrapper= new SignatureWrapper(replacePackagesDot(typeSignature.toCharArray()));
+			assignableTypeBinding= this.lookupEnvironment.getTypeFromTypeSignature(wrapper, typeVariables, this.assistScope.enclosingClassScope().referenceContext.binding, null);
+			assignableTypeBinding= BinaryTypeBinding.resolveType(assignableTypeBinding, this.lookupEnvironment, true);
 		} catch (AbortCompilation e) {
-			assignableTypeBinding = null;
+			assignableTypeBinding= null;
 		} finally {
-			this.lookupEnvironment.unitBeingCompleted = previousUnitBeingCompleted;
+			this.lookupEnvironment.unitBeingCompleted= previousUnitBeingCompleted;
 		}
 		return assignableTypeBinding;
 	}
 
 	private char[] replacePackagesDot(char[] signature) {
-		boolean replace = true;
-		int length = signature.length;
-		for (int i = 0; i < length; i++) {
+		boolean replace= true;
+		int length= signature.length;
+		for (int i= 0; i < length; i++) {
 			switch (signature[i]) {
 				case '.':
-					if (replace) signature[i] = '/';
+					if (replace)
+						signature[i]= '/';
 					break;
 				case '<':
-					replace = true;
+					replace= true;
 					break;
 				case '>':
-					replace = false;
+					replace= false;
 					break;
 			}
 		}
@@ -325,74 +343,85 @@ public class InternalExtendedCompletionContext {
 	}
 
 	public IJavaElement[] getVisibleElements(String typeSignature) {
-		if (this.assistScope == null) return new IJavaElement[0];
+		if (this.assistScope == null)
+			return new IJavaElement[0];
 
 		if (!this.hasComputedVisibleElementBindings) {
 			computeVisibleElementBindings();
 		}
 
-		TypeBinding assignableTypeBinding = null;
+		TypeBinding assignableTypeBinding= null;
 		if (typeSignature != null) {
-			assignableTypeBinding = getTypeFromSignature(typeSignature, this.assistScope);
-			if (assignableTypeBinding == null) return new IJavaElement[0];
+			assignableTypeBinding= getTypeFromSignature(typeSignature, this.assistScope);
+			if (assignableTypeBinding == null)
+				return new IJavaElement[0];
 		}
 
-		int length = this.visibleLocalVariables.size() + this.visibleFields.size() + this.visibleMethods.size();
-		if (length == 0) return new IJavaElement[0];
+		int length= this.visibleLocalVariables.size() + this.visibleFields.size() + this.visibleMethods.size();
+		if (length == 0)
+			return new IJavaElement[0];
 
-		IJavaElement[] result = new IJavaElement[length];
+		IJavaElement[] result= new IJavaElement[length];
 
-		int elementCount = 0;
+		int elementCount= 0;
 
-		int size = this.visibleLocalVariables.size();
+		int size= this.visibleLocalVariables.size();
 		if (size > 0) {
-			next : for (int i = 0; i < size; i++) {
+			next: for (int i= 0; i < size; i++) {
 				try {
-					LocalVariableBinding binding = (LocalVariableBinding) this.visibleLocalVariables.elementAt(i);
-					if (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding)) continue next;
-					JavaElement localVariable = getJavaElement(binding);
-					if (localVariable != null) result[elementCount++] = localVariable;
-				} catch(AbortCompilation e) {
+					LocalVariableBinding binding= (LocalVariableBinding)this.visibleLocalVariables.elementAt(i);
+					if (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding))
+						continue next;
+					JavaElement localVariable= getJavaElement(binding);
+					if (localVariable != null)
+						result[elementCount++]= localVariable;
+				} catch (AbortCompilation e) {
 					// log the exception and proceed
 					Util.logRepeatedMessage(e.getKey(), e);
 				}
 			}
 
 		}
-		size = this.visibleFields.size();
+		size= this.visibleFields.size();
 		if (size > 0) {
-			next : for (int i = 0; i < size; i++) {
+			next: for (int i= 0; i < size; i++) {
 				try {
-					FieldBinding binding = (FieldBinding) this.visibleFields.elementAt(i);
-					if (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding)) continue next;
+					FieldBinding binding= (FieldBinding)this.visibleFields.elementAt(i);
+					if (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding))
+						continue next;
 					if (this.assistScope.isDefinedInSameUnit(binding.declaringClass)) {
-						JavaElement field = getJavaElementOfCompilationUnit(binding);
-						if (field != null) result[elementCount++] = field;
+						JavaElement field= getJavaElementOfCompilationUnit(binding);
+						if (field != null)
+							result[elementCount++]= field;
 					} else {
-						JavaElement field = Util.getUnresolvedJavaElement(binding, this.owner, EmptyNodeMap);
-						if (field != null) result[elementCount++] = field.resolved(binding);
+						JavaElement field= Util.getUnresolvedJavaElement(binding, this.owner, EmptyNodeMap);
+						if (field != null)
+							result[elementCount++]= field.resolved(binding);
 					}
-				} catch(AbortCompilation e) {
+				} catch (AbortCompilation e) {
 					// log the exception and proceed
 					Util.logRepeatedMessage(e.getKey(), e);
 				}
 			}
 
 		}
-		size = this.visibleMethods.size();
+		size= this.visibleMethods.size();
 		if (size > 0) {
-			next : for (int i = 0; i < size; i++) {
+			next: for (int i= 0; i < size; i++) {
 				try {
-					MethodBinding binding = (MethodBinding) this.visibleMethods.elementAt(i);
-					if (assignableTypeBinding != null && !binding.returnType.isCompatibleWith(assignableTypeBinding)) continue next;
+					MethodBinding binding= (MethodBinding)this.visibleMethods.elementAt(i);
+					if (assignableTypeBinding != null && !binding.returnType.isCompatibleWith(assignableTypeBinding))
+						continue next;
 					if (this.assistScope.isDefinedInSameUnit(binding.declaringClass)) {
-						JavaElement method = getJavaElementOfCompilationUnit(binding);
-						if (method != null) result[elementCount++] = method;
+						JavaElement method= getJavaElementOfCompilationUnit(binding);
+						if (method != null)
+							result[elementCount++]= method;
 					} else {
-						JavaElement method = Util.getUnresolvedJavaElement(binding, this.owner, EmptyNodeMap);
-						if (method != null) result[elementCount++] = method.resolved(binding);
+						JavaElement method= Util.getUnresolvedJavaElement(binding, this.owner, EmptyNodeMap);
+						if (method != null)
+							result[elementCount++]= method.resolved(binding);
 					}
-				} catch(AbortCompilation e) {
+				} catch (AbortCompilation e) {
 					// log the exception and proceed
 					Util.logRepeatedMessage(e.getKey(), e);
 				}
@@ -400,7 +429,7 @@ public class InternalExtendedCompletionContext {
 		}
 
 		if (elementCount != result.length) {
-			System.arraycopy(result, 0, result = new IJavaElement[elementCount], 0, elementCount);
+			System.arraycopy(result, 0, result= new IJavaElement[elementCount], 0, elementCount);
 		}
 
 		return result;
@@ -415,28 +444,31 @@ public class InternalExtendedCompletionContext {
 			boolean onlyStaticFields,
 			ObjectVector localsFound,
 			ObjectVector fieldsFound) {
-		ObjectVector newFieldsFound = new ObjectVector();
+		ObjectVector newFieldsFound= new ObjectVector();
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
-		next : for (int f = fields.length; --f >= 0;) {
-			FieldBinding field = fields[f];
+		next: for (int f= fields.length; --f >= 0;) {
+			FieldBinding field= fields[f];
 
-			if (field.isSynthetic()) continue next;
+			if (field.isSynthetic())
+				continue next;
 
-			if (onlyStaticFields && !field.isStatic()) continue next;
+			if (onlyStaticFields && !field.isStatic())
+				continue next;
 
-			if (!field.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+			if (!field.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-			for (int i = fieldsFound.size; --i >= 0;) {
-				FieldBinding otherField = (FieldBinding) fieldsFound.elementAt(i);
+			for (int i= fieldsFound.size; --i >= 0;) {
+				FieldBinding otherField= (FieldBinding)fieldsFound.elementAt(i);
 				if (CharOperation.equals(field.name, otherField.name, true)) {
 					continue next;
 				}
 			}
 
-			for (int l = localsFound.size; --l >= 0;) {
-				LocalVariableBinding local = (LocalVariableBinding) localsFound.elementAt(l);
+			for (int l= localsFound.size; --l >= 0;) {
+				LocalVariableBinding local= (LocalVariableBinding)localsFound.elementAt(l);
 
 				if (CharOperation.equals(field.name, local.name, true)) {
 					continue next;
@@ -459,30 +491,31 @@ public class InternalExtendedCompletionContext {
 			ObjectVector localsFound,
 			ObjectVector fieldsFound) {
 
-		ReferenceBinding currentType = receiverType;
-		ReferenceBinding[] interfacesToVisit = null;
-		int nextPosition = 0;
+		ReferenceBinding currentType= receiverType;
+		ReferenceBinding[] interfacesToVisit= null;
+		int nextPosition= 0;
 		do {
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			ReferenceBinding[] itsInterfaces= currentType.superInterfaces();
 			if (notInJavadoc && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
-					interfacesToVisit = itsInterfaces;
-					nextPosition = interfacesToVisit.length;
+					interfacesToVisit= itsInterfaces;
+					nextPosition= interfacesToVisit.length;
 				} else {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 
-			FieldBinding[] fields = currentType.availableFields();
-			if(fields != null && fields.length > 0) {
+			FieldBinding[] fields= currentType.availableFields();
+			if (fields != null && fields.length > 0) {
 
 				searchVisibleFields(
 						fields,
@@ -494,14 +527,14 @@ public class InternalExtendedCompletionContext {
 						localsFound,
 						fieldsFound);
 			}
-			currentType = currentType.superclass();
+			currentType= currentType.superclass();
 		} while (notInJavadoc && currentType != null);
 
 		if (notInJavadoc && interfacesToVisit != null) {
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding anInterface = interfacesToVisit[i];
-				FieldBinding[] fields = anInterface.availableFields();
-				if(fields !=  null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface= interfacesToVisit[i];
+				FieldBinding[] fields= anInterface.availableFields();
+				if (fields != null) {
 					searchVisibleFields(
 							fields,
 							receiverType,
@@ -513,16 +546,17 @@ public class InternalExtendedCompletionContext {
 							fieldsFound);
 				}
 
-				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+				ReferenceBinding[] itsInterfaces= anInterface.superInterfaces();
 				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
@@ -538,13 +572,13 @@ public class InternalExtendedCompletionContext {
 			boolean onlyStaticMethods,
 			ObjectVector methodsFound) {
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[] interfacesToVisit = itsInterfaces;
-			int nextPosition = interfacesToVisit.length;
+			ReferenceBinding[] interfacesToVisit= itsInterfaces;
+			int nextPosition= interfacesToVisit.length;
 
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding currentType = interfacesToVisit[i];
-				MethodBinding[] methods = currentType.availableMethods();
-				if(methods != null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding currentType= interfacesToVisit[i];
+				MethodBinding[] methods= currentType.availableMethods();
+				if (methods != null) {
 					searchVisibleLocalMethods(
 							methods,
 							receiverType,
@@ -555,16 +589,17 @@ public class InternalExtendedCompletionContext {
 							methodsFound);
 				}
 
-				itsInterfaces = currentType.superInterfaces();
+				itsInterfaces= currentType.superInterfaces();
 				if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
@@ -579,25 +614,30 @@ public class InternalExtendedCompletionContext {
 			Scope invocationScope,
 			boolean onlyStaticMethods,
 			ObjectVector methodsFound) {
-		ObjectVector newMethodsFound =  new ObjectVector();
+		ObjectVector newMethodsFound= new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
-		next : for (int f = methods.length; --f >= 0;) {
-			MethodBinding method = methods[f];
+		next: for (int f= methods.length; --f >= 0;) {
+			MethodBinding method= methods[f];
 
-			if (method.isSynthetic()) continue next;
+			if (method.isSynthetic())
+				continue next;
 
-			if (method.isDefaultAbstract())	continue next;
+			if (method.isDefaultAbstract())
+				continue next;
 
-			if (method.isConstructor()) continue next;
+			if (method.isConstructor())
+				continue next;
 
-			if (onlyStaticMethods && !method.isStatic()) continue next;
+			if (onlyStaticMethods && !method.isStatic())
+				continue next;
 
-			if (!method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+			if (!method.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-			for (int i = methodsFound.size; --i >= 0;) {
-				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
+			for (int i= methodsFound.size; --i >= 0;) {
+				MethodBinding otherMethod= (MethodBinding)methodsFound.elementAt(i);
 				if (method == otherMethod)
 					continue next;
 
@@ -622,11 +662,11 @@ public class InternalExtendedCompletionContext {
 			boolean onlyStaticMethods,
 			boolean notInJavadoc,
 			ObjectVector methodsFound) {
-		ReferenceBinding currentType = receiverType;
+		ReferenceBinding currentType= receiverType;
 		if (notInJavadoc) {
 			if (receiverType.isInterface()) {
 				searchVisibleInterfaceMethods(
-						new ReferenceBinding[]{currentType},
+						new ReferenceBinding[] { currentType },
 						receiverType,
 						scope,
 						invocationSite,
@@ -634,13 +674,13 @@ public class InternalExtendedCompletionContext {
 						onlyStaticMethods,
 						methodsFound);
 
-				currentType = scope.getJavaLangObject();
+				currentType= scope.getJavaLangObject();
 			}
 		}
-		boolean hasPotentialDefaultAbstractMethods = true;
+		boolean hasPotentialDefaultAbstractMethods= true;
 		while (currentType != null) {
 
-			MethodBinding[] methods = currentType.availableMethods();
+			MethodBinding[] methods= currentType.availableMethods();
 			if (methods != null) {
 				searchVisibleLocalMethods(
 						methods,
@@ -657,12 +697,12 @@ public class InternalExtendedCompletionContext {
 					(currentType.isAbstract() ||
 							currentType.isTypeVariable() ||
 							currentType.isIntersectionType() ||
-							currentType.isEnum())){
+							currentType.isEnum())) {
 
-				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
+				ReferenceBinding[] superInterfaces= currentType.superInterfaces();
 				if (superInterfaces != null && currentType.isIntersectionType()) {
-					for (int i = 0; i < superInterfaces.length; i++) {
-						superInterfaces[i] = (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceEnd());
+					for (int i= 0; i < superInterfaces.length; i++) {
+						superInterfaces[i]= (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceEnd());
 					}
 				}
 
@@ -675,15 +715,16 @@ public class InternalExtendedCompletionContext {
 						onlyStaticMethods,
 						methodsFound);
 			} else {
-				hasPotentialDefaultAbstractMethods = false;
+				hasPotentialDefaultAbstractMethods= false;
 			}
-			if(currentType.isParameterizedType()) {
-				currentType = ((ParameterizedTypeBinding)currentType).genericType().superclass();
+			if (currentType.isParameterizedType()) {
+				currentType= ((ParameterizedTypeBinding)currentType).genericType().superclass();
 			} else {
-				currentType = currentType.superclass();
+				currentType= currentType.superclass();
 			}
 		}
 	}
+
 	private void searchVisibleVariablesAndMethods(
 			Scope scope,
 			ObjectVector localsFound,
@@ -691,27 +732,27 @@ public class InternalExtendedCompletionContext {
 			ObjectVector methodsFound,
 			boolean notInJavadoc) {
 
-		InvocationSite invocationSite = CompletionEngine.FakeInvocationSite;
+		InvocationSite invocationSite= CompletionEngine.FakeInvocationSite;
 
-		boolean staticsOnly = false;
+		boolean staticsOnly= false;
 		// need to know if we're in a static context (or inside a constructor)
 
-		Scope currentScope = scope;
+		Scope currentScope= scope;
 
-		done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		done1: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (currentScope.kind) {
 
-				case Scope.METHOD_SCOPE :
+				case Scope.METHOD_SCOPE:
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-					MethodScope methodScope = (MethodScope) currentScope;
-					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					MethodScope methodScope= (MethodScope)currentScope;
+					staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 					//$FALL-THROUGH$
-				case Scope.BLOCK_SCOPE :
-					BlockScope blockScope = (BlockScope) currentScope;
+				case Scope.BLOCK_SCOPE:
+					BlockScope blockScope= (BlockScope)currentScope;
 
-					next : for (int i = 0, length = blockScope.locals.length; i < length; i++) {
-						LocalVariableBinding local = blockScope.locals[i];
+					next: for (int i= 0, length= blockScope.locals.length; i < length; i++) {
+						LocalVariableBinding local= blockScope.locals[i];
 
 						if (local == null)
 							break next;
@@ -721,13 +762,13 @@ public class InternalExtendedCompletionContext {
 						// If the local variable declaration's initialization statement itself has the completion,
 						// then don't propose the local variable
 						if (local.declaration.initialization != null) {
-							if(local.declaration.initialization.sourceEnd > 0) {
-									if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
+							if (local.declaration.initialization.sourceEnd > 0) {
+								if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
 											&& this.assistNode.sourceStart >= local.declaration.initialization.sourceStart) {
-										continue next;
-									}
+									continue next;
+								}
 							} else {
-								CompletionNodeDetector detector = new CompletionNodeDetector(
+								CompletionNodeDetector detector= new CompletionNodeDetector(
 										this.assistNode,
 										local.declaration.initialization);
 								if (detector.containsCompletionNode()) {
@@ -735,9 +776,9 @@ public class InternalExtendedCompletionContext {
 								}
 							}
 						}
-						for (int f = 0; f < localsFound.size; f++) {
-							LocalVariableBinding otherLocal =
-								(LocalVariableBinding) localsFound.elementAt(f);
+						for (int f= 0; f < localsFound.size; f++) {
+							LocalVariableBinding otherLocal=
+									(LocalVariableBinding)localsFound.elementAt(f);
 							if (CharOperation.equals(otherLocal.name, local.name, true))
 								continue next;
 						}
@@ -746,26 +787,26 @@ public class InternalExtendedCompletionContext {
 					}
 					break;
 
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					break done1;
 			}
-			currentScope = currentScope.parent;
+			currentScope= currentScope.parent;
 		}
 
-		staticsOnly = false;
-		currentScope = scope;
+		staticsOnly= false;
+		currentScope= scope;
 
-		done2 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		done2: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (currentScope.kind) {
-				case Scope.METHOD_SCOPE :
+				case Scope.METHOD_SCOPE:
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-					MethodScope methodScope = (MethodScope) currentScope;
-					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					MethodScope methodScope= (MethodScope)currentScope;
+					staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 					break;
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) currentScope;
-					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)currentScope;
+					SourceTypeBinding enclosingType= classScope.referenceContext.binding;
 
 					searchVisibleFields(
 							enclosingType,
@@ -786,24 +827,24 @@ public class InternalExtendedCompletionContext {
 							notInJavadoc,
 							methodsFound);
 
-					staticsOnly |= enclosingType.isStatic();
+					staticsOnly|= enclosingType.isStatic();
 					break;
 
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					break done2;
 			}
-			currentScope = currentScope.parent;
+			currentScope= currentScope.parent;
 		}
 
 		// search in static import
-		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
-			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
-				if(binding != null && binding.isValidBinding()) {
-					if(importBinding.onDemand) {
-						if((binding.kind() & Binding.TYPE) != 0) {
+		ImportBinding[] importBindings= scope.compilationUnitScope().imports;
+		for (int i= 0; i < importBindings.length; i++) {
+			ImportBinding importBinding= importBindings[i];
+			if (importBinding.isValidBinding() && importBinding.isStatic()) {
+				Binding binding= importBinding.resolvedImport;
+				if (binding != null && binding.isValidBinding()) {
+					if (importBinding.onDemand) {
+						if ((binding.kind() & Binding.TYPE) != 0) {
 							searchVisibleFields(
 									(ReferenceBinding)binding,
 									scope,
@@ -826,7 +867,7 @@ public class InternalExtendedCompletionContext {
 					} else {
 						if ((binding.kind() & Binding.FIELD) != 0) {
 							searchVisibleFields(
-									new FieldBinding[]{(FieldBinding)binding},
+									new FieldBinding[] { (FieldBinding)binding },
 									((FieldBinding)binding).declaringClass,
 									scope,
 									invocationSite,
@@ -835,7 +876,7 @@ public class InternalExtendedCompletionContext {
 									localsFound,
 									fieldsFound);
 						} else if ((binding.kind() & Binding.METHOD) != 0) {
-							MethodBinding methodBinding = (MethodBinding)binding;
+							MethodBinding methodBinding= (MethodBinding)binding;
 
 							searchVisibleLocalMethods(
 									methodBinding.declaringClass.getMethods(methodBinding.selector),

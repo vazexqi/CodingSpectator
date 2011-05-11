@@ -11,7 +11,8 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 
 /**
  * SingleMemberAnnotation node
@@ -19,16 +20,17 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class SingleMemberAnnotation extends Annotation {
 
 	public Expression memberValue;
+
 	private MemberValuePair[] singlePairs; // fake pair set, only value has accurate positions
 
 	public SingleMemberAnnotation(TypeReference type, int sourceStart) {
-		this.type = type;
-		this.sourceStart = sourceStart;
-		this.sourceEnd = type.sourceEnd;
+		this.type= type;
+		this.sourceStart= sourceStart;
+		this.sourceEnd= type.sourceEnd;
 	}
 
 	public ElementValuePair[] computeElementValuePairs() {
-		return new ElementValuePair[] {memberValuePairs()[0].compilerElementPair};
+		return new ElementValuePair[] { memberValuePairs()[0].compilerElementPair };
 	}
 
 	/**
@@ -36,8 +38,8 @@ public class SingleMemberAnnotation extends Annotation {
 	 */
 	public MemberValuePair[] memberValuePairs() {
 		if (this.singlePairs == null) {
-			this.singlePairs =
-				new MemberValuePair[]{
+			this.singlePairs=
+					new MemberValuePair[] {
 					new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue)
 				};
 		}

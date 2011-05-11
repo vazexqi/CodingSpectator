@@ -108,53 +108,50 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
 
 /**
- * Internal AST visitor for serializing an AST in a quick and dirty fashion.
- * For various reasons the resulting string is not necessarily legal
- * Java code; and even if it is legal Java code, it is not necessarily the string
- * that corresponds to the given AST. Although useless for most purposes, it's
- * fine for generating debug print strings.
+ * Internal AST visitor for serializing an AST in a quick and dirty fashion. For various reasons the
+ * resulting string is not necessarily legal Java code; and even if it is legal Java code, it is not
+ * necessarily the string that corresponds to the given AST. Although useless for most purposes,
+ * it's fine for generating debug print strings.
  * <p>
- * Example usage:
- * <code>
+ * Example usage: <code>
  * <pre>
  *    NaiveASTFlattener p = new NaiveASTFlattener();
  *    node.accept(p);
  *    String result = p.getResult();
  * </pre>
- * </code>
- * Call the <code>reset</code> method to clear the previous result before reusing an
+ * </code> Call the <code>reset</code> method to clear the previous result before reusing an
  * existing instance.
  * </p>
- *
+ * 
  * @since 2.0
  */
 public class NaiveASTFlattener extends ASTVisitor {
 	/**
-	 * Internal synonym for {@link AST#JLS2}. Use to alleviate
-	 * deprecation warnings.
+	 * Internal synonym for {@link AST#JLS2}. Use to alleviate deprecation warnings.
+	 * 
 	 * @deprecated
 	 * @since 3.4
 	 */
-	private static final int JLS2 = AST.JLS2;
+	private static final int JLS2= AST.JLS2;
 
 	/**
-	 * The string buffer into which the serialized representation of the AST is
-	 * written.
+	 * The string buffer into which the serialized representation of the AST is written.
 	 */
 	protected StringBuffer buffer;
 
-	private int indent = 0;
+	private int indent= 0;
 
 	/**
 	 * Creates a new AST printer.
 	 */
 	public NaiveASTFlattener() {
-		this.buffer = new StringBuffer();
+		this.buffer= new StringBuffer();
 	}
 
 	/**
-	 * Internal synonym for {@link ClassInstanceCreation#getName()}. Use to alleviate
-	 * deprecation warnings.
+	 * Internal synonym for {@link ClassInstanceCreation#getName()}. Use to alleviate deprecation
+	 * warnings.
+	 * 
 	 * @deprecated
 	 * @since 3.4
 	 */
@@ -164,7 +161,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	/**
 	 * Returns the string accumulated in the visit.
-	 *
+	 * 
 	 * @return the serialized
 	 */
 	public String getResult() {
@@ -172,8 +169,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/**
-	 * Internal synonym for {@link MethodDeclaration#getReturnType()}. Use to alleviate
-	 * deprecation warnings.
+	 * Internal synonym for {@link MethodDeclaration#getReturnType()}. Use to alleviate deprecation
+	 * warnings.
+	 * 
 	 * @deprecated
 	 * @since 3.4
 	 */
@@ -182,8 +180,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/**
-	 * Internal synonym for {@link TypeDeclaration#getSuperclass()}. Use to alleviate
-	 * deprecation warnings.
+	 * Internal synonym for {@link TypeDeclaration#getSuperclass()}. Use to alleviate deprecation
+	 * warnings.
+	 * 
 	 * @deprecated
 	 * @since 3.4
 	 */
@@ -194,6 +193,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	/**
 	 * Internal synonym for {@link TypeDeclarationStatement#getTypeDeclaration()}. Use to alleviate
 	 * deprecation warnings.
+	 * 
 	 * @deprecated
 	 * @since 3.4
 	 */
@@ -202,14 +202,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	void printIndent() {
-		for (int i = 0; i < this.indent; i++)
+		for (int i= 0; i < this.indent; i++)
 			this.buffer.append("  "); //$NON-NLS-1$
 	}
 
 	/**
-	 * Appends the text representation of the given modifier flags, followed by a single space.
-	 * Used for JLS2 modifiers.
-	 *
+	 * Appends the text representation of the given modifier flags, followed by a single space. Used
+	 * for JLS2 modifiers.
+	 * 
 	 * @param modifiers the modifier flags
 	 */
 	void printModifiers(int modifiers) {
@@ -249,15 +249,15 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/**
-	 * Appends the text representation of the given modifier flags, followed by a single space.
-	 * Used for 3.0 modifiers and annotations.
-	 *
-	 * @param ext the list of modifier and annotation nodes
-	 * (element type: <code>IExtendedModifiers</code>)
+	 * Appends the text representation of the given modifier flags, followed by a single space. Used
+	 * for 3.0 modifiers and annotations.
+	 * 
+	 * @param ext the list of modifier and annotation nodes (element type:
+	 *            <code>IExtendedModifiers</code>)
 	 */
 	void printModifiers(List ext) {
-		for (Iterator it = ext.iterator(); it.hasNext(); ) {
-			ASTNode p = (ASTNode) it.next();
+		for (Iterator it= ext.iterator(); it.hasNext();) {
+			ASTNode p= (ASTNode)it.next();
 			p.accept(this);
 			this.buffer.append(" ");//$NON-NLS-1$
 		}
@@ -271,8 +271,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/**
-	 * Internal synonym for {@link TypeDeclaration#superInterfaces()}. Use to alleviate
-	 * deprecation warnings.
+	 * Internal synonym for {@link TypeDeclaration#superInterfaces()}. Use to alleviate deprecation
+	 * warnings.
+	 * 
 	 * @deprecated
 	 * @since 3.4
 	 */
@@ -293,8 +294,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("@interface ");//$NON-NLS-1$
 		node.getName().accept(this);
 		this.buffer.append(" {");//$NON-NLS-1$
-		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-			BodyDeclaration d = (BodyDeclaration) it.next();
+		for (Iterator it= node.bodyDeclarations().iterator(); it.hasNext();) {
+			BodyDeclaration d= (BodyDeclaration)it.next();
 			d.accept(this);
 		}
 		this.buffer.append("}\n");//$NON-NLS-1$
@@ -329,8 +330,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(AnonymousClassDeclaration node) {
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-			BodyDeclaration b = (BodyDeclaration) it.next();
+		for (Iterator it= node.bodyDeclarations().iterator(); it.hasNext();) {
+			BodyDeclaration b= (BodyDeclaration)it.next();
 			b.accept(this);
 		}
 		this.indent--;
@@ -355,13 +356,13 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ArrayCreation node) {
 		this.buffer.append("new ");//$NON-NLS-1$
-		ArrayType at = node.getType();
-		int dims = at.getDimensions();
-		Type elementType = at.getElementType();
+		ArrayType at= node.getType();
+		int dims= at.getDimensions();
+		Type elementType= at.getElementType();
 		elementType.accept(this);
-		for (Iterator it = node.dimensions().iterator(); it.hasNext(); ) {
+		for (Iterator it= node.dimensions().iterator(); it.hasNext();) {
 			this.buffer.append("[");//$NON-NLS-1$
-			Expression e = (Expression) it.next();
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			this.buffer.append("]");//$NON-NLS-1$
 			dims--;
@@ -381,8 +382,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ArrayInitializer node) {
 		this.buffer.append("{");//$NON-NLS-1$
-		for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.expressions().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -432,8 +433,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(Block node) {
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.statements().iterator(); it.hasNext(); ) {
-			Statement s = (Statement) it.next();
+		for (Iterator it= node.statements().iterator(); it.hasNext();) {
+			Statement s= (Statement)it.next();
 			s.accept(this);
 		}
 		this.indent--;
@@ -523,8 +524,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
-					Type t = (Type) it.next();
+				for (Iterator it= node.typeArguments().iterator(); it.hasNext();) {
+					Type t= (Type)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -535,8 +536,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			node.getType().accept(this);
 		}
 		this.buffer.append("(");//$NON-NLS-1$
-		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.arguments().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -556,12 +557,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getPackage() != null) {
 			node.getPackage().accept(this);
 		}
-		for (Iterator it = node.imports().iterator(); it.hasNext(); ) {
-			ImportDeclaration d = (ImportDeclaration) it.next();
+		for (Iterator it= node.imports().iterator(); it.hasNext();) {
+			ImportDeclaration d= (ImportDeclaration)it.next();
 			d.accept(this);
 		}
-		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
-			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
+		for (Iterator it= node.types().iterator(); it.hasNext();) {
+			AbstractTypeDeclaration d= (AbstractTypeDeclaration)it.next();
 			d.accept(this);
 		}
 		return false;
@@ -587,8 +588,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
-					Type t = (Type) it.next();
+				for (Iterator it= node.typeArguments().iterator(); it.hasNext();) {
+					Type t= (Type)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -598,8 +599,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 		}
 		this.buffer.append("this(");//$NON-NLS-1$
-		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.arguments().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -673,8 +674,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		if (!node.arguments().isEmpty()) {
 			this.buffer.append("(");//$NON-NLS-1$
-			for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
-				Expression e = (Expression) it.next();
+			for (Iterator it= node.arguments().iterator(); it.hasNext();) {
+				Expression e= (Expression)it.next();
 				e.accept(this);
 				if (it.hasNext()) {
 					this.buffer.append(",");//$NON-NLS-1$
@@ -703,8 +704,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(" ");//$NON-NLS-1$
 		if (!node.superInterfaceTypes().isEmpty()) {
 			this.buffer.append("implements ");//$NON-NLS-1$
-			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
-				Type t = (Type) it.next();
+			for (Iterator it= node.superInterfaceTypes().iterator(); it.hasNext();) {
+				Type t= (Type)it.next();
 				t.accept(this);
 				if (it.hasNext()) {
 					this.buffer.append(", ");//$NON-NLS-1$
@@ -713,8 +714,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append(" ");//$NON-NLS-1$
 		}
 		this.buffer.append("{");//$NON-NLS-1$
-		for (Iterator it = node.enumConstants().iterator(); it.hasNext(); ) {
-			EnumConstantDeclaration d = (EnumConstantDeclaration) it.next();
+		for (Iterator it= node.enumConstants().iterator(); it.hasNext();) {
+			EnumConstantDeclaration d= (EnumConstantDeclaration)it.next();
 			d.accept(this);
 			// enum constant declarations do not include punctuation
 			if (it.hasNext()) {
@@ -724,8 +725,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		if (!node.bodyDeclarations().isEmpty()) {
 			this.buffer.append("; ");//$NON-NLS-1$
-			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-				BodyDeclaration d = (BodyDeclaration) it.next();
+			for (Iterator it= node.bodyDeclarations().iterator(); it.hasNext();) {
+				BodyDeclaration d= (BodyDeclaration)it.next();
 				d.accept(this);
 				// other body declarations include trailing punctuation
 			}
@@ -770,8 +771,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getType().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-			VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
+		for (Iterator it= node.fragments().iterator(); it.hasNext();) {
+			VariableDeclarationFragment f= (VariableDeclarationFragment)it.next();
 			f.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(", ");//$NON-NLS-1$
@@ -787,20 +788,22 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(ForStatement node) {
 		printIndent();
 		this.buffer.append("for (");//$NON-NLS-1$
-		for (Iterator it = node.initializers().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.initializers().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
-			if (it.hasNext()) this.buffer.append(", ");//$NON-NLS-1$
+			if (it.hasNext())
+				this.buffer.append(", ");//$NON-NLS-1$
 		}
 		this.buffer.append("; ");//$NON-NLS-1$
 		if (node.getExpression() != null) {
 			node.getExpression().accept(this);
 		}
 		this.buffer.append("; ");//$NON-NLS-1$
-		for (Iterator it = node.updaters().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.updaters().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
-			if (it.hasNext()) this.buffer.append(", ");//$NON-NLS-1$
+			if (it.hasNext())
+				this.buffer.append(", ");//$NON-NLS-1$
 		}
 		this.buffer.append(") ");//$NON-NLS-1$
 		node.getBody().accept(this);
@@ -847,16 +850,16 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(InfixExpression node) {
 		node.getLeftOperand().accept(this);
-		this.buffer.append(' ');  // for cases like x= i - -1; or x= i++ + ++i;
+		this.buffer.append(' '); // for cases like x= i - -1; or x= i++ + ++i;
 		this.buffer.append(node.getOperator().toString());
 		this.buffer.append(' ');
 		node.getRightOperand().accept(this);
-		final List extendedOperands = node.extendedOperands();
+		final List extendedOperands= node.extendedOperands();
 		if (extendedOperands.size() != 0) {
 			this.buffer.append(' ');
-			for (Iterator it = extendedOperands.iterator(); it.hasNext(); ) {
+			for (Iterator it= extendedOperands.iterator(); it.hasNext();) {
 				this.buffer.append(node.getOperator().toString()).append(' ');
-				Expression e = (Expression) it.next();
+				Expression e= (Expression)it.next();
 				e.accept(this);
 			}
 		}
@@ -896,8 +899,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(Javadoc node) {
 		printIndent();
 		this.buffer.append("/** ");//$NON-NLS-1$
-		for (Iterator it = node.tags().iterator(); it.hasNext(); ) {
-			ASTNode e = (ASTNode) it.next();
+		for (Iterator it= node.tags().iterator(); it.hasNext();) {
+			ASTNode e= (ASTNode)it.next();
 			e.accept(this);
 		}
 		this.buffer.append("\n */\n");//$NON-NLS-1$
@@ -973,8 +976,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			printModifiers(node.modifiers());
 			if (!node.typeParameters().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
-					TypeParameter t = (TypeParameter) it.next();
+				for (Iterator it= node.typeParameters().iterator(); it.hasNext();) {
+					TypeParameter t= (TypeParameter)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -998,21 +1001,21 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
-		for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
-			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
+		for (Iterator it= node.parameters().iterator(); it.hasNext();) {
+			SingleVariableDeclaration v= (SingleVariableDeclaration)it.next();
 			v.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
 			}
 		}
 		this.buffer.append(")");//$NON-NLS-1$
-		for (int i = 0; i < node.getExtraDimensions(); i++) {
+		for (int i= 0; i < node.getExtraDimensions(); i++) {
 			this.buffer.append("[]"); //$NON-NLS-1$
 		}
 		if (!node.thrownExceptions().isEmpty()) {
 			this.buffer.append(" throws ");//$NON-NLS-1$
-			for (Iterator it = node.thrownExceptions().iterator(); it.hasNext(); ) {
-				Name n = (Name) it.next();
+			for (Iterator it= node.thrownExceptions().iterator(); it.hasNext();) {
+				Name n= (Name)it.next();
 				n.accept(this);
 				if (it.hasNext()) {
 					this.buffer.append(", ");//$NON-NLS-1$
@@ -1039,8 +1042,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
-					Type t = (Type) it.next();
+				for (Iterator it= node.typeArguments().iterator(); it.hasNext();) {
+					Type t= (Type)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -1051,8 +1054,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
-		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.arguments().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -1073,8 +1076,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("#");//$NON-NLS-1$
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
-		for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
-			MethodRefParameter e = (MethodRefParameter) it.next();
+		for (Iterator it= node.parameters().iterator(); it.hasNext();) {
+			MethodRefParameter e= (MethodRefParameter)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -1119,8 +1122,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("@");//$NON-NLS-1$
 		node.getTypeName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
-		for (Iterator it = node.values().iterator(); it.hasNext(); ) {
-			MemberValuePair p = (MemberValuePair) it.next();
+		for (Iterator it= node.values().iterator(); it.hasNext();) {
+			MemberValuePair p= (MemberValuePair)it.next();
 			p.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -1154,8 +1157,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			if (node.getJavadoc() != null) {
 				node.getJavadoc().accept(this);
 			}
-			for (Iterator it = node.annotations().iterator(); it.hasNext(); ) {
-				Annotation p = (Annotation) it.next();
+			for (Iterator it= node.annotations().iterator(); it.hasNext();) {
+				Annotation p= (Annotation)it.next();
 				p.accept(this);
 				this.buffer.append(" ");//$NON-NLS-1$
 			}
@@ -1174,8 +1177,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(ParameterizedType node) {
 		node.getType().accept(this);
 		this.buffer.append("<");//$NON-NLS-1$
-		for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
-			Type t = (Type) it.next();
+		for (Iterator it= node.typeArguments().iterator(); it.hasNext();) {
+			Type t= (Type)it.next();
 			t.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -1303,7 +1306,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append(" ");//$NON-NLS-1$
 		node.getName().accept(this);
-		for (int i = 0; i < node.getExtraDimensions(); i++) {
+		for (int i= 0; i < node.getExtraDimensions(); i++) {
 			this.buffer.append("[]"); //$NON-NLS-1$
 		}
 		if (node.getInitializer() != null) {
@@ -1333,8 +1336,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
-					Type t = (Type) it.next();
+				for (Iterator it= node.typeArguments().iterator(); it.hasNext();) {
+					Type t= (Type)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -1344,8 +1347,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 		}
 		this.buffer.append("super(");//$NON-NLS-1$
-		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.arguments().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -1380,8 +1383,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeArguments().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeArguments().iterator(); it.hasNext(); ) {
-					Type t = (Type) it.next();
+				for (Iterator it= node.typeArguments().iterator(); it.hasNext();) {
+					Type t= (Type)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -1392,8 +1395,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
-		for (Iterator it = node.arguments().iterator(); it.hasNext(); ) {
-			Expression e = (Expression) it.next();
+		for (Iterator it= node.arguments().iterator(); it.hasNext();) {
+			Expression e= (Expression)it.next();
 			e.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(",");//$NON-NLS-1$
@@ -1427,8 +1430,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(") ");//$NON-NLS-1$
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.statements().iterator(); it.hasNext(); ) {
-			Statement s = (Statement) it.next();
+		for (Iterator it= node.statements().iterator(); it.hasNext();) {
+			Statement s= (Statement)it.next();
 			s.accept(this);
 			this.indent--; // incremented in visit(SwitchCase)
 		}
@@ -1461,27 +1464,27 @@ public class NaiveASTFlattener extends ASTVisitor {
 			// top-level tags always begin on a new line
 			this.buffer.append("\n * ");//$NON-NLS-1$
 		}
-		boolean previousRequiresWhiteSpace = false;
+		boolean previousRequiresWhiteSpace= false;
 		if (node.getTagName() != null) {
 			this.buffer.append(node.getTagName());
-			previousRequiresWhiteSpace = true;
+			previousRequiresWhiteSpace= true;
 		}
-		boolean previousRequiresNewLine = false;
-		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-			ASTNode e = (ASTNode) it.next();
+		boolean previousRequiresNewLine= false;
+		for (Iterator it= node.fragments().iterator(); it.hasNext();) {
+			ASTNode e= (ASTNode)it.next();
 			// assume text elements include necessary leading and trailing whitespace
 			// but Name, MemberRef, MethodRef, and nested TagElement do not include white space
-			boolean currentIncludesWhiteSpace = (e instanceof TextElement);
+			boolean currentIncludesWhiteSpace= (e instanceof TextElement);
 			if (previousRequiresNewLine && currentIncludesWhiteSpace) {
 				this.buffer.append("\n * ");//$NON-NLS-1$
 			}
-			previousRequiresNewLine = currentIncludesWhiteSpace;
+			previousRequiresNewLine= currentIncludesWhiteSpace;
 			// add space if required to separate
 			if (previousRequiresWhiteSpace && !currentIncludesWhiteSpace) {
 				this.buffer.append(" "); //$NON-NLS-1$
 			}
 			e.accept(this);
-			previousRequiresWhiteSpace = !currentIncludesWhiteSpace && !(e instanceof TagElement);
+			previousRequiresWhiteSpace= !currentIncludesWhiteSpace && !(e instanceof TagElement);
 		}
 		if (node.isNested()) {
 			this.buffer.append("}");//$NON-NLS-1$
@@ -1529,8 +1532,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("try ");//$NON-NLS-1$
 		node.getBody().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		for (Iterator it = node.catchClauses().iterator(); it.hasNext(); ) {
-			CatchClause cc = (CatchClause) it.next();
+		for (Iterator it= node.catchClauses().iterator(); it.hasNext();) {
+			CatchClause cc= (CatchClause)it.next();
 			cc.accept(this);
 		}
 		if (node.getFinally() != null) {
@@ -1558,8 +1561,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (!node.typeParameters().isEmpty()) {
 				this.buffer.append("<");//$NON-NLS-1$
-				for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
-					TypeParameter t = (TypeParameter) it.next();
+				for (Iterator it= node.typeParameters().iterator(); it.hasNext();) {
+					TypeParameter t= (TypeParameter)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(",");//$NON-NLS-1$
@@ -1577,8 +1580,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 			if (!superInterfaces(node).isEmpty()) {
 				this.buffer.append(node.isInterface() ? "extends " : "implements ");//$NON-NLS-2$//$NON-NLS-1$
-				for (Iterator it = superInterfaces(node).iterator(); it.hasNext(); ) {
-					Name n = (Name) it.next();
+				for (Iterator it= superInterfaces(node).iterator(); it.hasNext();) {
+					Name n= (Name)it.next();
 					n.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(", ");//$NON-NLS-1$
@@ -1595,8 +1598,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 			if (!node.superInterfaceTypes().isEmpty()) {
 				this.buffer.append(node.isInterface() ? "extends " : "implements ");//$NON-NLS-2$//$NON-NLS-1$
-				for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
-					Type t = (Type) it.next();
+				for (Iterator it= node.superInterfaceTypes().iterator(); it.hasNext();) {
+					Type t= (Type)it.next();
 					t.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(", ");//$NON-NLS-1$
@@ -1607,8 +1610,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-			BodyDeclaration d = (BodyDeclaration) it.next();
+		for (Iterator it= node.bodyDeclarations().iterator(); it.hasNext();) {
+			BodyDeclaration d= (BodyDeclaration)it.next();
 			d.accept(this);
 		}
 		this.indent--;
@@ -1647,8 +1650,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		if (!node.typeBounds().isEmpty()) {
 			this.buffer.append(" extends ");//$NON-NLS-1$
-			for (Iterator it = node.typeBounds().iterator(); it.hasNext(); ) {
-				Type t = (Type) it.next();
+			for (Iterator it= node.typeBounds().iterator(); it.hasNext();) {
+				Type t= (Type)it.next();
 				t.accept(this);
 				if (it.hasNext()) {
 					this.buffer.append(" & ");//$NON-NLS-1$
@@ -1670,8 +1673,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getType().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-			VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
+		for (Iterator it= node.fragments().iterator(); it.hasNext();) {
+			VariableDeclarationFragment f= (VariableDeclarationFragment)it.next();
 			f.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(", ");//$NON-NLS-1$
@@ -1685,7 +1688,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(VariableDeclarationFragment node) {
 		node.getName().accept(this);
-		for (int i = 0; i < node.getExtraDimensions(); i++) {
+		for (int i= 0; i < node.getExtraDimensions(); i++) {
 			this.buffer.append("[]");//$NON-NLS-1$
 		}
 		if (node.getInitializer() != null) {
@@ -1708,8 +1711,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getType().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-			VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
+		for (Iterator it= node.fragments().iterator(); it.hasNext();) {
+			VariableDeclarationFragment f= (VariableDeclarationFragment)it.next();
 			f.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append(", ");//$NON-NLS-1$
@@ -1737,7 +1740,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(WildcardType node) {
 		this.buffer.append("?");//$NON-NLS-1$
-		Type bound = node.getBound();
+		Type bound= node.getBound();
 		if (bound != null) {
 			if (node.isUpperBound()) {
 				this.buffer.append(" extends ");//$NON-NLS-1$

@@ -16,16 +16,18 @@ import java.util.List;
 
 /**
  * Enhanced For statement AST node type (added in JLS3 API).
- *
+ * 
  * <pre>
  * EnhancedForStatement:
  *    <b>for</b> <b>(</b> FormalParameter <b>:</b> Expression <b>)</b>
  * 			Statement
  * </pre>
  * 
- * <p>The FormalParameter is represented by a {@link SingleVariableDeclaration}
- * (without an initializer).</p>
- *
+ * <p>
+ * The FormalParameter is represented by a {@link SingleVariableDeclaration} (without an
+ * initializer).
+ * </p>
+ * 
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -34,79 +36,72 @@ public class EnhancedForStatement extends Statement {
 	/**
 	 * The "parameter" structural property of this node type.
 	 */
-	public static final ChildPropertyDescriptor PARAMETER_PROPERTY =
-		new ChildPropertyDescriptor(EnhancedForStatement.class, "parameter", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor PARAMETER_PROPERTY=
+			new ChildPropertyDescriptor(EnhancedForStatement.class, "parameter", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "expression" structural property of this node type.
 	 */
-	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
-		new ChildPropertyDescriptor(EnhancedForStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY=
+			new ChildPropertyDescriptor(EnhancedForStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "body" structural property of this node type.
 	 */
-	public static final ChildPropertyDescriptor BODY_PROPERTY =
-		new ChildPropertyDescriptor(EnhancedForStatement.class, "body", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor BODY_PROPERTY=
+			new ChildPropertyDescriptor(EnhancedForStatement.class, "body", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(4);
+		List properyList= new ArrayList(4);
 		createPropertyList(EnhancedForStatement.class, properyList);
 		addProperty(PARAMETER_PROPERTY, properyList);
 		addProperty(EXPRESSION_PROPERTY, properyList);
 		addProperty(BODY_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
 	}
 
 	/**
-	 * The parameter; lazily initialized; defaults to a unspecified,
-	 * legal node.
+	 * The parameter; lazily initialized; defaults to a unspecified, legal node.
 	 */
-	private SingleVariableDeclaration parameter = null;
+	private SingleVariableDeclaration parameter= null;
 
 	/**
-	 * The expression; lazily initialized; defaults to a unspecified, but legal,
-	 * expression.
+	 * The expression; lazily initialized; defaults to a unspecified, but legal, expression.
 	 */
-	private Expression expression = null;
+	private Expression expression= null;
 
 	/**
-	 * The body statement; lazily initialized; defaults to an empty block
-	 * statement.
+	 * The body statement; lazily initialized; defaults to an empty block statement.
 	 */
-	private Statement body = null;
+	private Statement body= null;
 
 	/**
-	 * Creates a new AST node for an enchanced for statement owned by the
-	 * given AST. By default, the parameter and expression are unspecified
-	 * but legal subtrees, and the body is an empty block.
-	 *
+	 * Creates a new AST node for an enchanced for statement owned by the given AST. By default, the
+	 * parameter and expression are unspecified but legal subtrees, and the body is an empty block.
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	EnhancedForStatement(AST ast) {
 		super(ast);
-	    unsupportedIn2();
+		unsupportedIn2();
 	}
 
 	/* (omit javadoc for this method)
@@ -124,7 +119,7 @@ public class EnhancedForStatement extends Statement {
 			if (get) {
 				return getParameter();
 			} else {
-				setParameter((SingleVariableDeclaration) child);
+				setParameter((SingleVariableDeclaration)child);
 				return null;
 			}
 		}
@@ -132,7 +127,7 @@ public class EnhancedForStatement extends Statement {
 			if (get) {
 				return getExpression();
 			} else {
-				setExpression((Expression) child);
+				setExpression((Expression)child);
 				return null;
 			}
 		}
@@ -140,7 +135,7 @@ public class EnhancedForStatement extends Statement {
 			if (get) {
 				return getBody();
 			} else {
-				setBody((Statement) child);
+				setBody((Statement)child);
 				return null;
 			}
 		}
@@ -159,13 +154,13 @@ public class EnhancedForStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		EnhancedForStatement result = new EnhancedForStatement(target);
+		EnhancedForStatement result= new EnhancedForStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		result.setParameter((SingleVariableDeclaration) getParameter().clone(target));
-		result.setExpression((Expression) getExpression().clone(target));
+		result.setParameter((SingleVariableDeclaration)getParameter().clone(target));
+		result.setExpression((Expression)getExpression().clone(target));
 		result.setBody(
-			(Statement) ASTNode.copySubtree(target, getBody()));
+				(Statement)ASTNode.copySubtree(target, getBody()));
 		return result;
 	}
 
@@ -181,7 +176,7 @@ public class EnhancedForStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getParameter());
@@ -193,7 +188,7 @@ public class EnhancedForStatement extends Statement {
 
 	/**
 	 * Returns the formal parameter in this enhanced for statement.
-	 *
+	 * 
 	 * @return the parameter
 	 */
 	public SingleVariableDeclaration getParameter() {
@@ -202,7 +197,7 @@ public class EnhancedForStatement extends Statement {
 			synchronized (this) {
 				if (this.parameter == null) {
 					preLazyInit();
-					this.parameter = this.ast.newSingleVariableDeclaration();
+					this.parameter= this.ast.newSingleVariableDeclaration();
 					postLazyInit(this.parameter, PARAMETER_PROPERTY);
 				}
 			}
@@ -212,27 +207,27 @@ public class EnhancedForStatement extends Statement {
 
 	/**
 	 * Sets the formal parameter in this enhanced for statement.
-	 *
+	 * 
 	 * @param parameter the new parameter
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setParameter(SingleVariableDeclaration parameter) {
 		if (parameter == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.parameter;
+		ASTNode oldChild= this.parameter;
 		preReplaceChild(oldChild, parameter, PARAMETER_PROPERTY);
-		this.parameter = parameter;
+		this.parameter= parameter;
 		postReplaceChild(oldChild, parameter, PARAMETER_PROPERTY);
 	}
 
 	/**
 	 * Returns the expression of this enhanced for statement.
-	 *
+	 * 
 	 * @return the expression node
 	 */
 	public Expression getExpression() {
@@ -241,7 +236,7 @@ public class EnhancedForStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
+					this.expression= new SimpleName(this.ast);
 					postLazyInit(this.expression, EXPRESSION_PROPERTY);
 				}
 			}
@@ -251,28 +246,28 @@ public class EnhancedForStatement extends Statement {
 
 	/**
 	 * Sets the expression of this enhanced for statement.
-	 *
+	 * 
 	 * @param expression the new expression node
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setExpression(Expression expression) {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.expression;
+		ASTNode oldChild= this.expression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.expression = expression;
+		this.expression= expression;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
 	 * Returns the body of this enchanced for statement.
-	 *
+	 * 
 	 * @return the body statement node
 	 */
 	public Statement getBody() {
@@ -281,7 +276,7 @@ public class EnhancedForStatement extends Statement {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
+					this.body= new Block(this.ast);
 					postLazyInit(this.body, BODY_PROPERTY);
 				}
 			}
@@ -291,22 +286,22 @@ public class EnhancedForStatement extends Statement {
 
 	/**
 	 * Sets the body of this enhanced for statement.
-	 *
+	 * 
 	 * @param statement the body statement node
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setBody(Statement statement) {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.body;
+		ASTNode oldChild= this.body;
 		preReplaceChild(oldChild, statement, BODY_PROPERTY);
-		this.body = statement;
+		this.body= statement;
 		postReplaceChild(oldChild, statement, BODY_PROPERTY);
 	}
 
@@ -321,10 +316,9 @@ public class EnhancedForStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.parameter == null ? 0 : getParameter().treeSize())
-			+ (this.expression == null ? 0 : getExpression().treeSize())
-			+ (this.body == null ? 0 : getBody().treeSize());
+		return memSize()
+				+ (this.parameter == null ? 0 : getParameter().treeSize())
+				+ (this.expression == null ? 0 : getExpression().treeSize())
+				+ (this.body == null ? 0 : getBody().treeSize());
 	}
 }

@@ -18,15 +18,16 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
-	public SelectionOnParameterizedQualifiedTypeReference(char[][] previousIdentifiers, char[] selectionIdentifier, TypeReference[][] typeArguments, TypeReference[] assistTypeArguments, long[] positions) {
+	public SelectionOnParameterizedQualifiedTypeReference(char[][] previousIdentifiers, char[] selectionIdentifier, TypeReference[][] typeArguments, TypeReference[] assistTypeArguments,
+			long[] positions) {
 		super(
-			CharOperation.arrayConcat(previousIdentifiers, selectionIdentifier),
-			typeArguments,
-			0,
-			positions);
-		int length =  this.typeArguments.length;
-		System.arraycopy(this.typeArguments, 0, this.typeArguments = new TypeReference[length + 1][], 0, length);
-		this.typeArguments[length] = assistTypeArguments;
+				CharOperation.arrayConcat(previousIdentifiers, selectionIdentifier),
+				typeArguments,
+				0,
+				positions);
+		int length= this.typeArguments.length;
+		System.arraycopy(this.typeArguments, 0, this.typeArguments= new TypeReference[length + 1][], 0, length);
+		this.typeArguments[length]= assistTypeArguments;
 	}
 
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
@@ -51,17 +52,17 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<SelectOnType:");//$NON-NLS-1$
-		int length = this.tokens.length;
-		for (int i = 0; i < length; i++) {
-			if(i != 0) {
+		int length= this.tokens.length;
+		for (int i= 0; i < length; i++) {
+			if (i != 0) {
 				output.append('.');
 			}
 			output.append(this.tokens[i]);
-			TypeReference[] typeArgument = this.typeArguments[i];
+			TypeReference[] typeArgument= this.typeArguments[i];
 			if (typeArgument != null) {
 				output.append('<');
-				int max = typeArgument.length - 1;
-				for (int j = 0; j < max; j++) {
+				int max= typeArgument.length - 1;
+				for (int j= 0; j < max; j++) {
 					typeArgument[j].print(0, output);
 					output.append(", ");//$NON-NLS-1$
 				}

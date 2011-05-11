@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources.refresh.win32;
 
-
 /**
  * Hooks for native methods involved with win32 auto-refresh callbacks.
  */
@@ -199,7 +198,6 @@ public class Win32Natives {
 	 *         attempt fails.
 	 */
 	private static native long FindFirstChangeNotificationA(byte[] lpPathName, boolean bWatchSubtree, int dwNotifyFilter);
-
 
 	/**
 	 * Stops and disposes of the change notification object that corresponds to the given handle.

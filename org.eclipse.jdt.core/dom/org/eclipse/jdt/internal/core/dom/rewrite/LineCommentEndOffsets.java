@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class LineCommentEndOffsets {
 
 	private int[] offsets;
+
 	private final List commentList;
 
 	public LineCommentEndOffsets(List commentList) {
@@ -45,7 +46,7 @@ public class LineCommentEndOffsets {
 				for (int i= 0, k= 0; i < nComments; i++) {
 					Object curr= this.commentList.get(i);
 					if (curr instanceof LineComment) {
-						LineComment comment= (LineComment) curr;
+						LineComment comment= (LineComment)curr;
 						this.offsets[k++]= comment.getStartPosition() + comment.getLength();
 					}
 				}

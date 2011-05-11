@@ -17,14 +17,14 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class MarkerAnnotation extends Annotation {
 
 	public MarkerAnnotation(TypeReference type, int sourceStart) {
-		this.type = type;
-		this.sourceStart = sourceStart;
-		this.sourceEnd = type.sourceEnd;
+		this.type= type;
+		this.sourceStart= sourceStart;
+		this.sourceEnd= type.sourceEnd;
 	}
 
 	/**

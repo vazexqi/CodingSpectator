@@ -13,24 +13,24 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
- * Holds cached structure and properties for a Java element.
- * Subclassed to carry properties for specific kinds of elements.
+ * Holds cached structure and properties for a Java element. Subclassed to carry properties for
+ * specific kinds of elements.
  */
 public class JavaElementInfo implements Cloneable {
 
 	/**
 	 * Shared empty collection used for efficiency.
 	 */
-	static Object[] NO_NON_JAVA_RESOURCES = new Object[] {};
+	static Object[] NO_NON_JAVA_RESOURCES= new Object[] {};
 
 	public Object clone() {
 		try {
 			return super.clone();
-		}
-		catch (CloneNotSupportedException e) {
+		} catch (CloneNotSupportedException e) {
 			throw new Error();
 		}
 	}
+
 	public IJavaElement[] getChildren() {
 		return JavaElement.NO_ELEMENTS;
 	}

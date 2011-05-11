@@ -15,83 +15,84 @@ import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 /**
  * Abstract class for all {@link FormatJavadoc} nodes.
  * <p>
- * The basic information for these nodes are the start and end positions in the
- * source.
+ * The basic information for these nodes are the start and end positions in the source.
  * </p>
  */
 public abstract class FormatJavadocNode implements JavadocTagConstants {
 
 	// default size used for array
-	final static int DEFAULT_ARRAY_SIZE = 10;
-	final static int INCREMENT_ARRAY_SIZE = 10;
+	final static int DEFAULT_ARRAY_SIZE= 10;
+
+	final static int INCREMENT_ARRAY_SIZE= 10;
+
 	protected int sourceStart, sourceEnd;
+
 	protected int lineStart;
-	protected int linesBefore = 0;
 
-public FormatJavadocNode(int start, int end, int line) {
-	this.sourceStart = start;
-	this.sourceEnd = end;
-	this.lineStart = line;
-}
+	protected int linesBefore= 0;
 
-abstract void clean();
+	public FormatJavadocNode(int start, int end, int line) {
+		this.sourceStart= start;
+		this.sourceEnd= end;
+		this.lineStart= line;
+	}
 
-FormatJavadocNode getLastNode() {
-	return null;
-}
+	abstract void clean();
 
-public int getLength() {
-	return this.sourceEnd - this.sourceStart + 1;
-}
+	FormatJavadocNode getLastNode() {
+		return null;
+	}
 
-/**
- * Returns whether the node is a text (see {@link FormatJavadocText} or not.
- * In case not, that means that the node is an block (see
- * {@link FormatJavadocBlock}).
- *
- * @return <code>true</code> if the node is a text <code>false</code>
- * 	otherwise.
- */
-public boolean isText() {
-	return false;
-}
+	public int getLength() {
+		return this.sourceEnd - this.sourceStart + 1;
+	}
 
-/**
- * Returns whether the node is immutable or not. If <code>true</code>, then
- * the formatter will leave it contents unchanged.
- *
- * @return <code>true</code> if the node is immutable, <code>false</code>
- * 	otherwise.
- */
-public boolean isImmutable() {
-	return false;
-}
+	/**
+	 * Returns whether the node is a text (see {@link FormatJavadocText} or not. In case not, that
+	 * means that the node is an block (see {@link FormatJavadocBlock}).
+	 * 
+	 * @return <code>true</code> if the node is a text <code>false</code> otherwise.
+	 */
+	public boolean isText() {
+		return false;
+	}
 
-public String toString() {
-	StringBuffer buffer = new StringBuffer();
-	toString(buffer);
-	return buffer.toString();
-}
-protected void toString(StringBuffer buffer) {
-	buffer.append(": "); //$NON-NLS-1$
-	buffer.append(this.sourceStart);
-	buffer.append(" -> ");	//$NON-NLS-1$
-	buffer.append(this.sourceEnd);
-}
+	/**
+	 * Returns whether the node is immutable or not. If <code>true</code>, then the formatter will
+	 * leave it contents unchanged.
+	 * 
+	 * @return <code>true</code> if the node is immutable, <code>false</code> otherwise.
+	 */
+	public boolean isImmutable() {
+		return false;
+	}
 
-public String toStringDebug(char[] source) {
-	StringBuffer buffer = new StringBuffer();
-	toStringDebug(buffer, source);
-	return buffer.toString();
-}
+	public String toString() {
+		StringBuffer buffer= new StringBuffer();
+		toString(buffer);
+		return buffer.toString();
+	}
 
-public void toStringDebug(StringBuffer buffer, char[] source) {
-	buffer.append(source, this.sourceStart, this.sourceEnd-this.sourceStart+1);
-	buffer.append(' ');
-}
+	protected void toString(StringBuffer buffer) {
+		buffer.append(": "); //$NON-NLS-1$
+		buffer.append(this.sourceStart);
+		buffer.append(" -> "); //$NON-NLS-1$
+		buffer.append(this.sourceEnd);
+	}
 
-void setHeaderLine(int javadocLineStart) {
-	// do nothing
-}
+	public String toStringDebug(char[] source) {
+		StringBuffer buffer= new StringBuffer();
+		toStringDebug(buffer, source);
+		return buffer.toString();
+	}
+
+	public void toStringDebug(StringBuffer buffer, char[] source) {
+		buffer.append(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
+		buffer.append(' ');
+	}
+
+	void setHeaderLine(int javadocLineStart) {
+		// do nothing
+	}
 
 }

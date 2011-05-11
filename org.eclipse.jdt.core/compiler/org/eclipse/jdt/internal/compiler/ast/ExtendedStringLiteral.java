@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 public class ExtendedStringLiteral extends StringLiteral {
 
 	/**
-	 *  Build a string+char literal
+	 * Build a string+char literal
 	 */
 	public ExtendedStringLiteral(StringLiteral str, CharLiteral character) {
 
@@ -39,30 +39,30 @@ public class ExtendedStringLiteral extends StringLiteral {
 	public ExtendedStringLiteral extendWith(CharLiteral lit) {
 
 		//update the source
-		int length = this.source.length;
-		System.arraycopy(this.source, 0, (this.source = new char[length + 1]), 0, length);
-		this.source[length] = lit.value;
+		int length= this.source.length;
+		System.arraycopy(this.source, 0, (this.source= new char[length + 1]), 0, length);
+		this.source[length]= lit.value;
 		//position at the end of all literals
-		this.sourceEnd = lit.sourceEnd;
+		this.sourceEnd= lit.sourceEnd;
 		return this;
 	}
 
 	/**
-	 *  Add the lit source to mine, just as if it was mine
+	 * Add the lit source to mine, just as if it was mine
 	 */
 	public ExtendedStringLiteral extendWith(StringLiteral lit) {
 
 		//uddate the source
-		int length = this.source.length;
+		int length= this.source.length;
 		System.arraycopy(
-			this.source,
-			0,
-			this.source = new char[length + lit.source.length],
-			0,
-			length);
+				this.source,
+				0,
+				this.source= new char[length + lit.source.length],
+				0,
+				length);
 		System.arraycopy(lit.source, 0, this.source, length, lit.source.length);
 		//position at the end of all literals
-		this.sourceEnd = lit.sourceEnd;
+		this.sourceEnd= lit.sourceEnd;
 		return this;
 	}
 

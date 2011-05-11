@@ -14,16 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Anonymous class declaration AST node type. For JLS2, this type of node appears
- * only as a child on a class instance creation expression.
- * For JLS3, this type of node appears may also appear as the child of
- * an enum constant declaration.
- *
+ * Anonymous class declaration AST node type. For JLS2, this type of node appears only as a child on
+ * a class instance creation expression. For JLS3, this type of node appears may also appear as the
+ * child of an enum constant declaration.
+ * 
  * <pre>
  * AnonymousClassDeclaration:
  *        <b>{</b> ClassBodyDeclaration <b>}</b>
  * </pre>
- *
+ * 
  * @see ClassInstanceCreation
  * @see EnumConstantDeclaration
  * @since 2.0
@@ -33,34 +32,32 @@ public class AnonymousClassDeclaration extends ASTNode {
 
 	/**
 	 * The "bodyDeclarations" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(AnonymousClassDeclaration.class, "bodyDeclarations", BodyDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY=
+			new ChildListPropertyDescriptor(AnonymousClassDeclaration.class, "bodyDeclarations", BodyDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(2);
+		List properyList= new ArrayList(2);
 		createPropertyList(AnonymousClassDeclaration.class, properyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -68,21 +65,19 @@ public class AnonymousClassDeclaration extends ASTNode {
 	}
 
 	/**
-	 * The body declarations (element type: <code>BodyDeclaration</code>).
-	 * Defaults to none.
+	 * The body declarations (element type: <code>BodyDeclaration</code>). Defaults to none.
 	 */
-	private ASTNode.NodeList bodyDeclarations =
-		new ASTNode.NodeList(BODY_DECLARATIONS_PROPERTY);
+	private ASTNode.NodeList bodyDeclarations=
+			new ASTNode.NodeList(BODY_DECLARATIONS_PROPERTY);
 
 	/**
-	 * Creates a new AST node for an anonymous class declaration owned
-	 * by the given AST. By default, the list of body declarations is empty.
+	 * Creates a new AST node for an anonymous class declaration owned by the given AST. By default,
+	 * the list of body declarations is empty.
 	 * <p>
-	 * N.B. This constructor is package-private; all subclasses must be
-	 * declared in the same package; clients are unable to declare
-	 * additional subclasses.
+	 * N.B. This constructor is package-private; all subclasses must be declared in the same
+	 * package; clients are unable to declare additional subclasses.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	AnonymousClassDeclaration(AST ast) {
@@ -118,10 +113,10 @@ public class AnonymousClassDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		AnonymousClassDeclaration result = new AnonymousClassDeclaration(target);
+		AnonymousClassDeclaration result= new AnonymousClassDeclaration(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.bodyDeclarations().addAll(
-			ASTNode.copySubtrees(target, bodyDeclarations()));
+				ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
 	}
 
@@ -137,7 +132,7 @@ public class AnonymousClassDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChildren(visitor, this.bodyDeclarations);
@@ -146,26 +141,21 @@ public class AnonymousClassDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Returns the live ordered list of body declarations of this
-	 * anonymous class declaration.
-	 *
-	 * @return the live list of body declarations
-	 *    (element type: <code>BodyDeclaration</code>)
+	 * Returns the live ordered list of body declarations of this anonymous class declaration.
+	 * 
+	 * @return the live list of body declarations (element type: <code>BodyDeclaration</code>)
 	 */
 	public List bodyDeclarations() {
 		return this.bodyDeclarations;
 	}
 
 	/**
-	 * Resolves and returns the binding for the anonymous class declared in
-	 * this declaration.
+	 * Resolves and returns the binding for the anonymous class declared in this declaration.
 	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
+	 * Note that bindings are generally unavailable unless requested when the AST is being built.
 	 * </p>
-	 *
-	 * @return the binding, or <code>null</code> if the binding cannot be
-	 *    resolved
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be resolved
 	 */
 	public ITypeBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveType(this);
@@ -183,8 +173,7 @@ public class AnonymousClassDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ this.bodyDeclarations.listSize();
+		return memSize()
+				+ this.bodyDeclarations.listSize();
 	}
 }

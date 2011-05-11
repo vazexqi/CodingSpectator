@@ -20,33 +20,33 @@ import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * A package fragment root that corresponds to an external class folder.
- *
- * <p>NOTE: An external package fragment root never has an associated resource.
- *
+ * 
+ * <p>
+ * NOTE: An external package fragment root never has an associated resource.
+ * 
  * @see org.eclipse.jdt.core.IPackageFragmentRoot
  * @see org.eclipse.jdt.internal.core.PackageFragmentRootInfo
  */
 public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 
 	/**
-	 * The path to the external folder
-	 * (an OS path)
+	 * The path to the external folder (an OS path)
 	 */
 	protected final IPath externalPath;
 
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
-	 * based on an external folder that is not contained in a <code>IJavaProject</code> and
-	 * does not have an associated <code>IResource</code>.
+	 * based on an external folder that is not contained in a <code>IJavaProject</code> and does not
+	 * have an associated <code>IResource</code>.
 	 */
 	protected ExternalPackageFragmentRoot(IPath externalPath, JavaProject project) {
 		super(null, project);
-		this.externalPath = externalPath;
+		this.externalPath= externalPath;
 	}
 
 	protected ExternalPackageFragmentRoot(IResource linkedFolder, IPath externalPath, JavaProject project) {
 		super(linkedFolder, project);
-		this.externalPath = externalPath == null ? linkedFolder.getLocation() : externalPath;
+		this.externalPath= externalPath == null ? linkedFolder.getLocation() : externalPath;
 	}
 
 	/**
@@ -55,33 +55,37 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	protected int determineKind(IResource underlyingResource) {
 		return IPackageFragmentRoot.K_BINARY;
 	}
+
 	/**
-	 * Returns true if this handle represents the same external folder
-	 * as the given handle.
-	 *
+	 * Returns true if this handle represents the same external folder as the given handle.
+	 * 
 	 * @see Object#equals
 	 */
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
 		if (o instanceof ExternalPackageFragmentRoot) {
-			ExternalPackageFragmentRoot other= (ExternalPackageFragmentRoot) o;
+			ExternalPackageFragmentRoot other= (ExternalPackageFragmentRoot)o;
 			return this.externalPath.equals(other.externalPath);
 		}
 		return false;
 	}
+
 	public String getElementName() {
 		return this.externalPath.lastSegment();
 	}
+
 	/**
 	 * @see IPackageFragmentRoot
 	 */
 	public int getKind() {
 		return IPackageFragmentRoot.K_BINARY;
 	}
+
 	int internalKind() throws JavaModelException {
 		return IPackageFragmentRoot.K_BINARY;
 	}
+
 	/**
 	 * @see IPackageFragmentRoot
 	 */
@@ -95,9 +99,11 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	public IResource getUnderlyingResource() throws JavaModelException {
 		return null;
 	}
+
 	public int hashCode() {
 		return this.externalPath.hashCode();
 	}
+
 	/**
 	 * @see IPackageFragmentRoot
 	 */
@@ -107,17 +113,17 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 
 	public IResource resource(PackageFragmentRoot root) {
 		if (this.resource == null)
-			return this.resource = JavaModelManager.getExternalManager().getFolder(this.externalPath);
+			return this.resource= JavaModelManager.getExternalManager().getFolder(this.externalPath);
 		return super.resource(root);
 	}
 
 	protected boolean resourceExists(IResource underlyingResource) {
 		if (underlyingResource == null)
 			return false;
-		IPath location = underlyingResource.getLocation();
+		IPath location= underlyingResource.getLocation();
 		if (location == null)
 			return false;
-		File file = location.toFile();
+		File file= location.toFile();
 		if (file == null)
 			return false;
 		return file.exists();

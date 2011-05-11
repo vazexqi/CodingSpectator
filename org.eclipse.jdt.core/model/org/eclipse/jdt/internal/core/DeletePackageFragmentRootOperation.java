@@ -13,35 +13,46 @@ package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
+import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 
 public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 
 	int updateResourceFlags;
+
 	int updateModelFlags;
 
 	public DeletePackageFragmentRootOperation(
-		IPackageFragmentRoot root,
-		int updateResourceFlags,
-		int updateModelFlags) {
+			IPackageFragmentRoot root,
+			int updateResourceFlags,
+			int updateModelFlags) {
 
 		super(root);
-		this.updateResourceFlags = updateResourceFlags;
-		this.updateModelFlags = updateModelFlags;
+		this.updateResourceFlags= updateResourceFlags;
+		this.updateModelFlags= updateModelFlags;
 	}
 
 	protected void executeOperation() throws JavaModelException {
 
-		IPackageFragmentRoot root = (IPackageFragmentRoot)getElementToProcess();
-		IClasspathEntry rootEntry = root.getRawClasspathEntry();
+		IPackageFragmentRoot root= (IPackageFragmentRoot)getElementToProcess();
+		IClasspathEntry rootEntry= root.getRawClasspathEntry();
 
 		// remember olds roots
-		DeltaProcessor deltaProcessor = JavaModelManager.getJavaModelManager().getDeltaProcessor();
+		DeltaProcessor deltaProcessor= JavaModelManager.getJavaModelManager().getDeltaProcessor();
 		if (deltaProcessor.oldRoots == null)
-			deltaProcessor.oldRoots = new HashMap();
+			deltaProcessor.oldRoots= new HashMap();
 
 		// update classpath if needed
 		if ((this.updateModelFlags & IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH) != 0) {
@@ -58,11 +69,11 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 	}
 
 	protected void deleteResource(
-		IPackageFragmentRoot root,
-		IClasspathEntry rootEntry)
-		throws JavaModelException {
-		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
-		IResource rootResource = ((JavaElement) root).resource();
+			IPackageFragmentRoot root,
+			IClasspathEntry rootEntry)
+			throws JavaModelException {
+		final char[][] exclusionPatterns= ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
+		IResource rootResource= ((JavaElement)root).resource();
 		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
 				rootResource.delete(this.updateResourceFlags, this.progressMonitor);
@@ -70,11 +81,11 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 				throw new JavaModelException(e);
 			}
 		} else {
-			final IPath[] nestedFolders = getNestedFolders(root);
-			IResourceProxyVisitor visitor = new IResourceProxyVisitor() {
+			final IPath[] nestedFolders= getNestedFolders(root);
+			IResourceProxyVisitor visitor= new IResourceProxyVisitor() {
 				public boolean visit(IResourceProxy proxy) throws CoreException {
 					if (proxy.getType() == IResource.FOLDER) {
-						IPath path = proxy.requestFullPath();
+						IPath path= proxy.requestFullPath();
 						if (prefixesOneOf(path, nestedFolders)) {
 							// equals if nested source folder
 							return !equalsOneOf(path, nestedFolders);
@@ -103,11 +114,12 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 	 * Deletes the classpath entries equals to the given rootPath from all Java projects.
 	 */
 	protected void updateReferringProjectClasspaths(IPath rootPath, IJavaProject projectOfRoot, Map oldRoots) throws JavaModelException {
-		IJavaModel model = getJavaModel();
-		IJavaProject[] projects = model.getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject project = projects[i];
-			if (project.equals(projectOfRoot)) continue;
+		IJavaModel model= getJavaModel();
+		IJavaProject[] projects= model.getJavaProjects();
+		for (int i= 0, length= projects.length; i < length; i++) {
+			IJavaProject project= projects[i];
+			if (project.equals(projectOfRoot))
+				continue;
 			updateProjectClasspath(rootPath, project, oldRoots);
 		}
 	}
@@ -119,40 +131,41 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		// remember old roots
 		oldRoots.put(project, project.getPackageFragmentRoots());
 
-		IClasspathEntry[] classpath = project.getRawClasspath();
-		IClasspathEntry[] newClasspath = null;
-		int cpLength = classpath.length;
-		int newCPIndex = -1;
-		for (int j = 0; j < cpLength; j++) {
-			IClasspathEntry entry = classpath[j];
+		IClasspathEntry[] classpath= project.getRawClasspath();
+		IClasspathEntry[] newClasspath= null;
+		int cpLength= classpath.length;
+		int newCPIndex= -1;
+		for (int j= 0; j < cpLength; j++) {
+			IClasspathEntry entry= classpath[j];
 			if (rootPath.equals(entry.getPath())) {
 				if (newClasspath == null) {
-					newClasspath = new IClasspathEntry[cpLength-1];
+					newClasspath= new IClasspathEntry[cpLength - 1];
 					System.arraycopy(classpath, 0, newClasspath, 0, j);
-					newCPIndex = j;
+					newCPIndex= j;
 				}
 			} else if (newClasspath != null) {
-				newClasspath[newCPIndex++] = entry;
+				newClasspath[newCPIndex++]= entry;
 			}
 		}
 		if (newClasspath != null) {
 			if (newCPIndex < newClasspath.length) {
-				System.arraycopy(newClasspath, 0, newClasspath = new IClasspathEntry[newCPIndex], 0, newCPIndex);
+				System.arraycopy(newClasspath, 0, newClasspath= new IClasspathEntry[newCPIndex], 0, newCPIndex);
 			}
 			project.setRawClasspath(newClasspath, this.progressMonitor);
 		}
 	}
+
 	protected IJavaModelStatus verify() {
-		IJavaModelStatus status = super.verify();
+		IJavaModelStatus status= super.verify();
 		if (!status.isOK()) {
 			return status;
 		}
-		IJavaElement root = getElementToProcess();
+		IJavaElement root= getElementToProcess();
 		if (root == null || !root.exists()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, root);
 		}
 
-		IResource resource = ((JavaElement) root).resource();
+		IResource resource= ((JavaElement)root).resource();
 		if (resource instanceof IFolder) {
 			if (resource.isLinked()) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE, root);

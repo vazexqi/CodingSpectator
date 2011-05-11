@@ -21,29 +21,30 @@ public class CompilationUnitElementInfo extends OpenableElementInfo {
 	protected int sourceLength;
 
 	/**
-	 * Timestamp of original resource at the time this element
-	 * was opened or last updated.
+	 * Timestamp of original resource at the time this element was opened or last updated.
 	 */
 	protected long timestamp;
 
 	/*
 	 * Number of annotations in this compilation unit
 	 */
-	public int annotationNumber = 0;
+	public int annotationNumber= 0;
 
-/**
- * Returns the length of the source string.
- */
-public int getSourceLength() {
-	return this.sourceLength;
-}
-protected ISourceRange getSourceRange() {
-	return new SourceRange(0, this.sourceLength);
-}
-/**
- * Sets the length of the source string.
- */
-public void setSourceLength(int newSourceLength) {
-	this.sourceLength = newSourceLength;
-}
+	/**
+	 * Returns the length of the source string.
+	 */
+	public int getSourceLength() {
+		return this.sourceLength;
+	}
+
+	protected ISourceRange getSourceRange() {
+		return new SourceRange(0, this.sourceLength);
+	}
+
+	/**
+	 * Sets the length of the source string.
+	 */
+	public void setSourceLength(int newSourceLength) {
+		this.sourceLength= newSourceLength;
+	}
 }

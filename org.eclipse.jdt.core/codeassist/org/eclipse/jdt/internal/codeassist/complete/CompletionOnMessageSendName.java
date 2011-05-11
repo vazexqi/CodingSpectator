@@ -17,10 +17,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class CompletionOnMessageSendName extends MessageSend {
 	public CompletionOnMessageSendName(char[] selector, int start, int end) {
 		super();
-		this.selector = selector;
-		this.sourceStart = start;
-		this.sourceEnd = end;
-		this.nameSourcePosition = end;
+		this.selector= selector;
+		this.sourceStart= start;
+		this.sourceEnd= end;
+		this.nameSourcePosition= end;
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
@@ -28,16 +28,16 @@ public class CompletionOnMessageSendName extends MessageSend {
 		if (this.receiver.isImplicitThis())
 			throw new CompletionNodeFound();
 
-		this.actualReceiverType = this.receiver.resolveType(scope);
+		this.actualReceiverType= this.receiver.resolveType(scope);
 		if (this.actualReceiverType == null || this.actualReceiverType.isBaseType() || this.actualReceiverType.isArrayType())
 			throw new CompletionNodeFound();
 
 		// resolve type arguments
 		if (this.typeArguments != null) {
-			int length = this.typeArguments.length;
-			this.genericTypeArguments = new TypeBinding[length];
-			for (int i = 0; i < length; i++) {
-				this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope, true /* check bounds*/);
+			int length= this.typeArguments.length;
+			this.genericTypeArguments= new TypeBinding[length];
+			for (int i= 0; i < length; i++) {
+				this.genericTypeArguments[i]= this.typeArguments[i].resolveType(scope, true /* check bounds*/);
 			}
 		}
 
@@ -47,11 +47,12 @@ public class CompletionOnMessageSendName extends MessageSend {
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append("<CompleteOnMessageSendName:"); //$NON-NLS-1$
-		if (!this.receiver.isImplicitThis()) this.receiver.printExpression(0, output).append('.');
+		if (!this.receiver.isImplicitThis())
+			this.receiver.printExpression(0, output).append('.');
 		if (this.typeArguments != null) {
 			output.append('<');
-			int max = this.typeArguments.length - 1;
-			for (int j = 0; j < max; j++) {
+			int max= this.typeArguments.length - 1;
+			for (int j= 0; j < max; j++) {
 				this.typeArguments[j].print(0, output);
 				output.append(", ");//$NON-NLS-1$
 			}

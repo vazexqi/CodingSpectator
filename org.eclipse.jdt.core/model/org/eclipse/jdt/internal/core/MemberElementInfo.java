@@ -11,12 +11,12 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- *Element info for IMember elements.
+ * Element info for IMember elements.
  */
-/* package */ abstract class MemberElementInfo extends SourceRefElementInfo {
+/* package */abstract class MemberElementInfo extends SourceRefElementInfo {
 	/**
 	 * The modifiers associated with this member.
-	 *
+	 * 
 	 * @see org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants
 	 */
 	protected int flags;
@@ -29,6 +29,7 @@ package org.eclipse.jdt.internal.core;
 	public int getNameSourceEnd() {
 		return -1;
 	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.ISourceType#getNameSourceStart()
 	 * @see org.eclipse.jdt.internal.compiler.env.ISourceMethod#getNameSourceStart()
@@ -37,7 +38,7 @@ package org.eclipse.jdt.internal.core;
 	public int getNameSourceStart() {
 		return -1;
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getModifiers()
 	 * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getModifiers()
@@ -46,7 +47,8 @@ package org.eclipse.jdt.internal.core;
 	public int getModifiers() {
 		return this.flags;
 	}
+
 	protected void setFlags(int flags) {
-		this.flags = flags;
+		this.flags= flags;
 	}
 }

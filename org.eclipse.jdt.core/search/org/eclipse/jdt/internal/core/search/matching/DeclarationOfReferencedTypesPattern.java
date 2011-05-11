@@ -15,14 +15,15 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class DeclarationOfReferencedTypesPattern extends TypeReferencePattern {
 
-protected SimpleSet knownTypes;
-protected IJavaElement enclosingElement;
+	protected SimpleSet knownTypes;
 
-public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
-	super(null, null, R_PATTERN_MATCH);
+	protected IJavaElement enclosingElement;
 
-	this.enclosingElement = enclosingElement;
-	this.knownTypes = new SimpleSet();
-	this.mustResolve = true;
-}
+	public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
+		super(null, null, R_PATTERN_MATCH);
+
+		this.enclosingElement= enclosingElement;
+		this.knownTypes= new SimpleSet();
+		this.mustResolve= true;
+	}
 }

@@ -20,9 +20,10 @@ import org.eclipse.jdt.internal.core.ImportContainer;
 
 public class AssistImportContainer extends ImportContainer {
 	private Map infoCache;
+
 	public AssistImportContainer(CompilationUnit parent, Map infoCache) {
 		super(parent);
-		this.infoCache = infoCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {

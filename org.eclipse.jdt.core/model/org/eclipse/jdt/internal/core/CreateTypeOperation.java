@@ -23,106 +23,115 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
- * <p>This operation creates a class or interface.
- *
- * <p>Required Attributes:<ul>
- *  <li>Parent element - must be a compilation unit, or type.
- *  <li>The source code for the type. No verification of the source is
- *      performed.
+ * <p>
+ * This operation creates a class or interface.
+ * 
+ * <p>
+ * Required Attributes:
+ * <ul>
+ * <li>Parent element - must be a compilation unit, or type.
+ * <li>The source code for the type. No verification of the source is performed.
  * </ul>
  */
 public class CreateTypeOperation extends CreateTypeMemberOperation {
-/**
- * When executed, this operation will create a type unit
- * in the given parent element (a compilation unit, type)
- */
-public CreateTypeOperation(IJavaElement parentElement, String source, boolean force) {
-	super(parentElement, source, force);
-}
-protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
-	ASTNode node = super.generateElementAST(rewriter, cu);
-	if (!(node instanceof AbstractTypeDeclaration))
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
-	return node;
-}
+	/**
+	 * When executed, this operation will create a type unit in the given parent element (a
+	 * compilation unit, type)
+	 */
+	public CreateTypeOperation(IJavaElement parentElement, String source, boolean force) {
+		super(parentElement, source, force);
+	}
 
-/**
- * @see CreateElementInCUOperation#generateResultHandle()
- */
-protected IJavaElement generateResultHandle() {
-	IJavaElement parent= getParentElement();
-	switch (parent.getElementType()) {
-		case IJavaElement.COMPILATION_UNIT:
-			return ((ICompilationUnit)parent).getType(getASTNodeName());
-		case IJavaElement.TYPE:
-			return ((IType)parent).getType(getASTNodeName());
-		// Note: creating local/anonymous type is not supported
+	protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
+		ASTNode node= super.generateElementAST(rewriter, cu);
+		if (!(node instanceof AbstractTypeDeclaration))
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
+		return node;
 	}
-	return null;
-}
-/**
- * @see CreateElementInCUOperation#getMainTaskName()
- */
-public String getMainTaskName(){
-	return Messages.operation_createTypeProgress;
-}
-/**
- * Returns the <code>IType</code> the member is to be created in.
- */
-protected IType getType() {
-	IJavaElement parent = getParentElement();
-	if (parent.getElementType() == IJavaElement.TYPE) {
-		return (IType) parent;
+
+	/**
+	 * @see CreateElementInCUOperation#generateResultHandle()
+	 */
+	protected IJavaElement generateResultHandle() {
+		IJavaElement parent= getParentElement();
+		switch (parent.getElementType()) {
+			case IJavaElement.COMPILATION_UNIT:
+				return ((ICompilationUnit)parent).getType(getASTNodeName());
+			case IJavaElement.TYPE:
+				return ((IType)parent).getType(getASTNodeName());
+				// Note: creating local/anonymous type is not supported
+		}
+		return null;
 	}
-	return null;
-}
-/**
- * @see CreateTypeMemberOperation#verifyNameCollision
- */
-protected IJavaModelStatus verifyNameCollision() {
-	IJavaElement parent = getParentElement();
-	switch (parent.getElementType()) {
-		case IJavaElement.COMPILATION_UNIT:
-			String typeName = getASTNodeName();
-			if (((ICompilationUnit) parent).getType(typeName).exists()) {
-				return new JavaModelStatus(
-					IJavaModelStatusConstants.NAME_COLLISION,
-					Messages.bind(Messages.status_nameCollision, typeName));
-			}
-			break;
-		case IJavaElement.TYPE:
-			typeName = getASTNodeName();
-			if (((IType) parent).getType(typeName).exists()) {
-				return new JavaModelStatus(
-					IJavaModelStatusConstants.NAME_COLLISION,
-					Messages.bind(Messages.status_nameCollision, typeName));
-			}
-			break;
-		// Note: creating local/anonymous type is not supported
+
+	/**
+	 * @see CreateElementInCUOperation#getMainTaskName()
+	 */
+	public String getMainTaskName() {
+		return Messages.operation_createTypeProgress;
 	}
-	return JavaModelStatus.VERIFIED_OK;
-}
-public IJavaModelStatus verify() {
-	IJavaModelStatus status = super.verify();
-	if (!status.isOK())
-		return status;
-	try {
-		IJavaElement parent = getParentElement();
-		if (this.anchorElement != null && this.anchorElement.getElementType() == IJavaElement.FIELD
-				&& parent.getElementType() == IJavaElement.TYPE && ((IType)parent).isEnum())
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.anchorElement);
-	} catch (JavaModelException e) {
-		return e.getJavaModelStatus();
+
+	/**
+	 * Returns the <code>IType</code> the member is to be created in.
+	 */
+	protected IType getType() {
+		IJavaElement parent= getParentElement();
+		if (parent.getElementType() == IJavaElement.TYPE) {
+			return (IType)parent;
+		}
+		return null;
 	}
-	return JavaModelStatus.VERIFIED_OK;
-}
-private String getASTNodeName() {
-	return ((AbstractTypeDeclaration) this.createdNode).getName().getIdentifier();
-}
-protected SimpleName rename(ASTNode node, SimpleName newName) {
-	AbstractTypeDeclaration type = (AbstractTypeDeclaration) node;
-	SimpleName oldName = type.getName();
-	type.setName(newName);
-	return oldName;
-}
+
+	/**
+	 * @see CreateTypeMemberOperation#verifyNameCollision
+	 */
+	protected IJavaModelStatus verifyNameCollision() {
+		IJavaElement parent= getParentElement();
+		switch (parent.getElementType()) {
+			case IJavaElement.COMPILATION_UNIT:
+				String typeName= getASTNodeName();
+				if (((ICompilationUnit)parent).getType(typeName).exists()) {
+					return new JavaModelStatus(
+							IJavaModelStatusConstants.NAME_COLLISION,
+							Messages.bind(Messages.status_nameCollision, typeName));
+				}
+				break;
+			case IJavaElement.TYPE:
+				typeName= getASTNodeName();
+				if (((IType)parent).getType(typeName).exists()) {
+					return new JavaModelStatus(
+							IJavaModelStatusConstants.NAME_COLLISION,
+							Messages.bind(Messages.status_nameCollision, typeName));
+				}
+				break;
+			// Note: creating local/anonymous type is not supported
+		}
+		return JavaModelStatus.VERIFIED_OK;
+	}
+
+	public IJavaModelStatus verify() {
+		IJavaModelStatus status= super.verify();
+		if (!status.isOK())
+			return status;
+		try {
+			IJavaElement parent= getParentElement();
+			if (this.anchorElement != null && this.anchorElement.getElementType() == IJavaElement.FIELD
+					&& parent.getElementType() == IJavaElement.TYPE && ((IType)parent).isEnum())
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.anchorElement);
+		} catch (JavaModelException e) {
+			return e.getJavaModelStatus();
+		}
+		return JavaModelStatus.VERIFIED_OK;
+	}
+
+	private String getASTNodeName() {
+		return ((AbstractTypeDeclaration)this.createdNode).getName().getIdentifier();
+	}
+
+	protected SimpleName rename(ASTNode node, SimpleName newName) {
+		AbstractTypeDeclaration type= (AbstractTypeDeclaration)node;
+		SimpleName oldName= type.getName();
+		type.setName(newName);
+		return oldName;
+	}
 }

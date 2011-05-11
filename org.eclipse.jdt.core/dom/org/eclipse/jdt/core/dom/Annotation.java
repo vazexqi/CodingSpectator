@@ -13,29 +13,30 @@ package org.eclipse.jdt.core.dom;
 /**
  * Abstract base class of AST nodes that represent annotations.
  * <p>
+ * 
  * <pre>
  * Annotation:
- *		NormalAnnotation
- *		MarkerAnnotation
- *		SingleMemberAnnotation
+ * 	NormalAnnotation
+ * 	MarkerAnnotation
+ * 	SingleMemberAnnotation
  * </pre>
+ * 
  * </p>
+ * 
  * @since 3.1
  */
 public abstract class Annotation extends Expression implements IExtendedModifier {
 
 	/**
-	 * Returns structural property descriptor for the "typeName" property
-	 * of this node.
-	 *
+	 * Returns structural property descriptor for the "typeName" property of this node.
+	 * 
 	 * @return the property descriptor
 	 */
 	abstract ChildPropertyDescriptor internalTypeNameProperty();
 
 	/**
-	 * Returns structural property descriptor for the "typeName" property
-	 * of this node.
-	 *
+	 * Returns structural property descriptor for the "typeName" property of this node.
+	 * 
 	 * @return the property descriptor
 	 */
 	public final ChildPropertyDescriptor getTypeNameProperty() {
@@ -43,9 +44,9 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	}
 
 	/**
-	 * Creates and returns a structural property descriptor for the
-	 * "typeName" property declared on the given concrete node type.
-	 *
+	 * Creates and returns a structural property descriptor for the "typeName" property declared on
+	 * the given concrete node type.
+	 * 
 	 * @return the property descriptor
 	 */
 	static final ChildPropertyDescriptor internalTypeNamePropertyFactory(Class nodeClass) {
@@ -53,18 +54,17 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	}
 
 	/**
-	 * The annotation type name; lazily initialized; defaults to an unspecified,
-	 * legal Java identifier.
+	 * The annotation type name; lazily initialized; defaults to an unspecified, legal Java
+	 * identifier.
 	 */
-	Name typeName = null;
+	Name typeName= null;
 
 	/**
-	 * Creates a new AST node for an annotation node owned by the
-	 * given AST.
+	 * Creates a new AST node for an annotation node owned by the given AST.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	Annotation(AST ast) {
@@ -87,7 +87,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 
 	/**
 	 * Returns the annotation type name of this annotation.
-	 *
+	 * 
 	 * @return the annotation type name
 	 */
 	public Name getTypeName() {
@@ -96,7 +96,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
+					this.typeName= new SimpleName(this.ast);
 					postLazyInit(this.typeName, internalTypeNameProperty());
 				}
 			}
@@ -106,53 +106,48 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 
 	/**
 	 * Sets the annotation type name of this annotation.
-	 *
+	 * 
 	 * @param typeName the annotation type name
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setTypeName(Name typeName) {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		ChildPropertyDescriptor p = internalTypeNameProperty();
-		ASTNode oldChild = this.typeName;
+		ChildPropertyDescriptor p= internalTypeNameProperty();
+		ASTNode oldChild= this.typeName;
 		preReplaceChild(oldChild, typeName, p);
-		this.typeName = typeName;
+		this.typeName= typeName;
 		postReplaceChild(oldChild, typeName, p);
 	}
 
 	/**
-	 * Returns whether this is a normal annotation
-	 * ({@link NormalAnnotation}).
-	 *
-	 * @return <code>true</code> if this is a normal annotation,
-	 *    and <code>false</code> otherwise
+	 * Returns whether this is a normal annotation ({@link NormalAnnotation}).
+	 * 
+	 * @return <code>true</code> if this is a normal annotation, and <code>false</code> otherwise
 	 */
 	public boolean isNormalAnnotation() {
 		return (this instanceof NormalAnnotation);
 	}
 
 	/**
-	 * Returns whether this is a marker annotation
-	 * ({@link MarkerAnnotation}).
-	 *
-	 * @return <code>true</code> if this is a marker annotation,
-	 *    and <code>false</code> otherwise
+	 * Returns whether this is a marker annotation ({@link MarkerAnnotation}).
+	 * 
+	 * @return <code>true</code> if this is a marker annotation, and <code>false</code> otherwise
 	 */
 	public boolean isMarkerAnnotation() {
 		return (this instanceof MarkerAnnotation);
 	}
 
 	/**
-	 * Returns whether this is a single member annotation.
-	 * ({@link SingleMemberAnnotation}).
-	 *
-	 * @return <code>true</code> if this is a single member annotation,
-	 *    and <code>false</code> otherwise
+	 * Returns whether this is a single member annotation. ({@link SingleMemberAnnotation}).
+	 * 
+	 * @return <code>true</code> if this is a single member annotation, and <code>false</code>
+	 *         otherwise
 	 */
 	public boolean isSingleMemberAnnotation() {
 		return (this instanceof SingleMemberAnnotation);
@@ -171,11 +166,11 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	 * Note that bindings (which includes resolved annotations) are generally unavailable unless
 	 * requested when the AST is being built.
 	 * </p>
-	 *
+	 * 
 	 * @return the resolved annotation, or <code>null</code> if the annotation cannot be resolved
 	 * @since 3.2
 	 */
 	public IAnnotationBinding resolveAnnotationBinding() {
-	    return this.ast.getBindingResolver().resolveAnnotation(this);
+		return this.ast.getBindingResolver().resolveAnnotation(this);
 	}
 }

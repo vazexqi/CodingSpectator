@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Array creation expression AST node type.
- * For JLS2:
+ * Array creation expression AST node type. For JLS2:
+ * 
  * <pre>
  * ArrayCreation:
  *    <b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
@@ -26,13 +26,13 @@ import java.util.List;
  * <p>
  * The mapping from Java language syntax to AST nodes is as follows:
  * <ul>
- * <li>the type node is the array type of the creation expression,
- *   with one level of array per set of square brackets,</li>
- * <li>the dimension expressions are collected into the <code>dimensions</code>
- *   list.</li>
+ * <li>the type node is the array type of the creation expression, with one level of array per set
+ * of square brackets,</li>
+ * <li>the dimension expressions are collected into the <code>dimensions</code> list.</li>
  * </ul>
  * </p>
  * For JLS3, type arguments are added:
+ * 
  * <pre>
  * ArrayCreation:
  *    <b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
@@ -42,7 +42,7 @@ import java.util.List;
  *    <b>new</b> TypeName [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
  *        <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
  * </pre>
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -50,50 +50,50 @@ public class ArrayCreation extends Expression {
 
 	/**
 	 * The "type" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor TYPE_PROPERTY =
-		new ChildPropertyDescriptor(ArrayCreation.class, "type", ArrayType.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor TYPE_PROPERTY=
+			new ChildPropertyDescriptor(ArrayCreation.class, "type", ArrayType.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "dimensions" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildListPropertyDescriptor DIMENSIONS_PROPERTY =
-		new ChildListPropertyDescriptor(ArrayCreation.class, "dimensions", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor DIMENSIONS_PROPERTY=
+			new ChildListPropertyDescriptor(ArrayCreation.class, "dimensions", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "initializer" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor INITIALIZER_PROPERTY =
-		new ChildPropertyDescriptor(ArrayCreation.class, "initializer", ArrayInitializer.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor INITIALIZER_PROPERTY=
+			new ChildPropertyDescriptor(ArrayCreation.class, "initializer", ArrayInitializer.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(4);
+		List properyList= new ArrayList(4);
 		createPropertyList(ArrayCreation.class, properyList);
 		addProperty(TYPE_PROPERTY, properyList);
 		addProperty(DIMENSIONS_PROPERTY, properyList);
 		addProperty(INITIALIZER_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -101,30 +101,27 @@ public class ArrayCreation extends Expression {
 	}
 
 	/**
-	 * The array type; lazily initialized; defaults to a unspecified,
-	 * legal array type.
+	 * The array type; lazily initialized; defaults to a unspecified, legal array type.
 	 */
-	private ArrayType arrayType = null;
+	private ArrayType arrayType= null;
 
 	/**
-	 * The list of dimension expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * The list of dimension expressions (element type: <code>Expression</code>). Defaults to an
+	 * empty list.
 	 */
-	private ASTNode.NodeList dimensions =
-		new ASTNode.NodeList(DIMENSIONS_PROPERTY);
+	private ASTNode.NodeList dimensions=
+			new ASTNode.NodeList(DIMENSIONS_PROPERTY);
 
 	/**
-	 * The optional array initializer, or <code>null</code> if none;
-	 * defaults to none.
+	 * The optional array initializer, or <code>null</code> if none; defaults to none.
 	 */
-	private ArrayInitializer optionalInitializer = null;
+	private ArrayInitializer optionalInitializer= null;
 
 	/**
-	 * Creates a new AST node for an array creation expression owned by the
-	 * given AST. By default, the array type is an unspecified 1-dimensional
-	 * array, the list of dimensions is empty, and there is no array
-	 * initializer.
-	 *
+	 * Creates a new AST node for an array creation expression owned by the given AST. By default,
+	 * the array type is an unspecified 1-dimensional array, the list of dimensions is empty, and
+	 * there is no array initializer.
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	ArrayCreation(AST ast) {
@@ -146,7 +143,7 @@ public class ArrayCreation extends Expression {
 			if (get) {
 				return getInitializer();
 			} else {
-				setInitializer((ArrayInitializer) child);
+				setInitializer((ArrayInitializer)child);
 				return null;
 			}
 		}
@@ -154,7 +151,7 @@ public class ArrayCreation extends Expression {
 			if (get) {
 				return getType();
 			} else {
-				setType((ArrayType) child);
+				setType((ArrayType)child);
 				return null;
 			}
 		}
@@ -184,12 +181,12 @@ public class ArrayCreation extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		ArrayCreation result = new ArrayCreation(target);
+		ArrayCreation result= new ArrayCreation(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setType((ArrayType) getType().clone(target));
+		result.setType((ArrayType)getType().clone(target));
 		result.dimensions().addAll(ASTNode.copySubtrees(target, dimensions()));
 		result.setInitializer(
-			(ArrayInitializer) ASTNode.copySubtree(target, getInitializer()));
+				(ArrayInitializer)ASTNode.copySubtree(target, getInitializer()));
 		return result;
 	}
 
@@ -205,7 +202,7 @@ public class ArrayCreation extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getType());
@@ -217,7 +214,7 @@ public class ArrayCreation extends Expression {
 
 	/**
 	 * Returns the array type in this array creation expression.
-	 *
+	 * 
 	 * @return the array type
 	 */
 	public ArrayType getType() {
@@ -226,7 +223,7 @@ public class ArrayCreation extends Expression {
 			synchronized (this) {
 				if (this.arrayType == null) {
 					preLazyInit();
-					this.arrayType = this.ast.newArrayType(
+					this.arrayType= this.ast.newArrayType(
 							this.ast.newPrimitiveType(PrimitiveType.INT));
 					postLazyInit(this.arrayType, TYPE_PROPERTY);
 				}
@@ -237,42 +234,39 @@ public class ArrayCreation extends Expression {
 
 	/**
 	 * Sets the array type in this array creation expression.
-	 *
+	 * 
 	 * @param type the new array type
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                </ul>
 	 */
 	public void setType(ArrayType type) {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
 		// an ArrayCreation cannot occur inside a ArrayType - cycles not possible
-		ASTNode oldChild = this.arrayType;
+		ASTNode oldChild= this.arrayType;
 		preReplaceChild(oldChild, type, TYPE_PROPERTY);
-		this.arrayType = type;
+		this.arrayType= type;
 		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
-	 * Returns the live ordered list of dimension expressions in this array
-	 * initializer.
-	 *
-	 * @return the live list of dimension expressions
-	 *    (element type: <code>Expression</code>)
+	 * Returns the live ordered list of dimension expressions in this array initializer.
+	 * 
+	 * @return the live list of dimension expressions (element type: <code>Expression</code>)
 	 */
 	public List dimensions() {
 		return this.dimensions;
 	}
 
 	/**
-	 * Returns the array initializer of this array creation expression, or
-	 * <code>null</code> if there is none.
-	 *
-	 * @return the array initializer node, or <code>null</code> if
-	 *    there is none
+	 * Returns the array initializer of this array creation expression, or <code>null</code> if
+	 * there is none.
+	 * 
+	 * @return the array initializer node, or <code>null</code> if there is none
 	 */
 	public ArrayInitializer getInitializer() {
 		return this.optionalInitializer;
@@ -280,22 +274,21 @@ public class ArrayCreation extends Expression {
 
 	/**
 	 * Sets or clears the array initializer of this array creation expression.
-	 *
-	 * @param initializer the array initializer node, or <code>null</code>
-	 *    if there is none
+	 * 
+	 * @param initializer the array initializer node, or <code>null</code> if there is none
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setInitializer(ArrayInitializer initializer) {
 		// an ArrayCreation may occur inside an ArrayInitializer
 		// must check cycles
-		ASTNode oldChild = this.optionalInitializer;
+		ASTNode oldChild= this.optionalInitializer;
 		preReplaceChild(oldChild, initializer, INITIALIZER_PROPERTY);
-		this.optionalInitializer = initializer;
+		this.optionalInitializer= initializer;
 		postReplaceChild(oldChild, initializer, INITIALIZER_PROPERTY);
 	}
 
@@ -310,11 +303,10 @@ public class ArrayCreation extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		int size = memSize()
-			+ (this.arrayType == null ? 0 : getType().treeSize())
-			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize())
-			+ this.dimensions.listSize();
+		int size= memSize()
+				+ (this.arrayType == null ? 0 : getType().treeSize())
+				+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize())
+				+ this.dimensions.listSize();
 		return size;
 	}
 }
-

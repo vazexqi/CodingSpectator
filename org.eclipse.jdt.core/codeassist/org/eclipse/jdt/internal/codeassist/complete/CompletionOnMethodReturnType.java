@@ -15,15 +15,15 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 
 public class CompletionOnMethodReturnType extends MethodDeclaration {
-	public CompletionOnMethodReturnType(TypeReference returnType, CompilationResult compilationResult){
+	public CompletionOnMethodReturnType(TypeReference returnType, CompilationResult compilationResult) {
 		super(compilationResult);
-		this.returnType = returnType;
-		this.sourceStart = returnType.sourceStart;
-		this.sourceEnd = returnType.sourceEnd;
+		this.returnType= returnType;
+		this.sourceStart= returnType.sourceStart;
+		this.sourceEnd= returnType.sourceEnd;
 	}
 
 	public void resolveStatements() {
-			throw new CompletionNodeFound(this, this.scope);
+		throw new CompletionNodeFound(this, this.scope);
 	}
 
 	public StringBuffer print(int tab, StringBuffer output) {

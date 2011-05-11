@@ -12,7 +12,12 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class JavadocImplicitTypeReference extends TypeReference {
 
@@ -20,10 +25,11 @@ public class JavadocImplicitTypeReference extends TypeReference {
 
 	public JavadocImplicitTypeReference(char[] name, int pos) {
 		super();
-		this.token = name;
-		this.sourceStart = pos;
-		this.sourceEnd = pos;
+		this.token= name;
+		this.sourceStart= pos;
+		this.sourceEnd= pos;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
 	 */
@@ -35,8 +41,8 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
 	protected TypeBinding getTypeBinding(Scope scope) {
-		this.constant = Constant.NotAConstant;
-		return this.resolvedType = scope.enclosingReceiverType();
+		this.constant= Constant.NotAConstant;
+		return this.resolvedType= scope.enclosingReceiverType();
 	}
 
 	public char[] getLastToken() {
@@ -48,11 +54,12 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 */
 	public char[][] getTypeName() {
 		if (this.token != null) {
-			char[][] tokens = { this.token };
+			char[][] tokens= { this.token };
 			return tokens;
 		}
 		return null;
 	}
+
 	public boolean isThis() {
 		return true;
 	}
@@ -63,38 +70,39 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 */
 	protected TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
-		this.constant = Constant.NotAConstant;
+		this.constant= Constant.NotAConstant;
 		if (this.resolvedType != null) { // is a shared type reference which was already resolved
 			if (this.resolvedType.isValidBinding()) {
 				return this.resolvedType;
 			} else {
 				switch (this.resolvedType.problemId()) {
-					case ProblemReasons.NotFound :
-					case ProblemReasons.NotVisible :
-						TypeBinding type = this.resolvedType.closestMatch();
+					case ProblemReasons.NotFound:
+					case ProblemReasons.NotVisible:
+						TypeBinding type= this.resolvedType.closestMatch();
 						return type;
-					default :
+					default:
 						return null;
 				}
 			}
 		}
 		boolean hasError;
-		TypeBinding type = this.resolvedType = getTypeBinding(scope);
+		TypeBinding type= this.resolvedType= getTypeBinding(scope);
 		if (type == null) {
 			return null; // detected cycle while resolving hierarchy
-		} else if ((hasError = !type.isValidBinding())== true) {
+		} else if ((hasError= !type.isValidBinding()) == true) {
 			reportInvalidType(scope);
 			switch (type.problemId()) {
-				case ProblemReasons.NotFound :
-				case ProblemReasons.NotVisible :
-					type = type.closestMatch();
-					if (type == null) return null;
+				case ProblemReasons.NotFound:
+				case ProblemReasons.NotVisible:
+					type= type.closestMatch();
+					if (type == null)
+						return null;
 					break;
-				default :
+				default:
 					return null;
 			}
 		}
-		if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
+		if (type.isArrayType() && ((ArrayBinding)type).leafComponentType == TypeBinding.VOID) {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			return null;
 		}
@@ -104,19 +112,20 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
 		// raw convert all enclosing types when dealing with Javadoc references
 		if (type.isGenericType() || type.isParameterizedType()) {
-			type = scope.environment().convertToRawType(type, true /*force the conversion of enclosing types*/);
+			type= scope.environment().convertToRawType(type, true /*force the conversion of enclosing types*/);
 		}
 
 		if (hasError) {
 			// do not store the computed type, keep the problem type instead
 			return type;
 		}
-		return this.resolvedType = type;
+		return this.resolvedType= type;
 	}
 
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
+
 	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}

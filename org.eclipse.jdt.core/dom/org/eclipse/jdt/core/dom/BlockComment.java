@@ -16,47 +16,40 @@ import java.util.List;
 /**
  * Block comment AST node type.
  * <p>
- * Block comments (also called "traditional" comments in JLS 3.7)
- * begin with "/&#42;", may contain line breaks, and must end
- * with "&#42;/". Following the definition in the JLS (first edition
- * but not second edition), block comment normally exclude comments
- * that begin with "/&#42;#42;", which are instead classified as doc
- * comments ({@link Javadoc}).
+ * Block comments (also called "traditional" comments in JLS 3.7) begin with "/&#42;", may contain
+ * line breaks, and must end with "&#42;/". Following the definition in the JLS (first edition but
+ * not second edition), block comment normally exclude comments that begin with "/&#42;#42;", which
+ * are instead classified as doc comments ({@link Javadoc}).
  * </p>
  * <p>
- * Note that this node type is a comment placeholder, and is
- * only useful for recording the source range where a comment
- * was found in a source string. It is not useful for creating
- * comments.
+ * Note that this node type is a comment placeholder, and is only useful for recording the source
+ * range where a comment was found in a source string. It is not useful for creating comments.
  * </p>
- *
+ * 
  * @since 3.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class BlockComment extends Comment {
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(1);
+		List properyList= new ArrayList(1);
 		createPropertyList(BlockComment.class, properyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(properyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -68,7 +61,7 @@ public final class BlockComment extends Comment {
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	BlockComment(AST ast) {
@@ -93,7 +86,7 @@ public final class BlockComment extends Comment {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		BlockComment result = new BlockComment(target);
+		BlockComment result= new BlockComment(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		return result;
 	}

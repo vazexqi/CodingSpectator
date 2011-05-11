@@ -33,70 +33,202 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
-
-import org.eclipse.jdt.internal.codeassist.complete.*;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnAnnotationOfType;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnArgumentName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnBranchStatementLabel;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnClassLiteralAccess;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnExplicitConstructorCall;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnFieldName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnFieldType;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnImportReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocAllocationExpression;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocFieldReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocMessageSend;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocParamNameReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocSingleTypeReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTag;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTypeParamReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeyword;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnLocalName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMarkerAnnotationName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMemberAccess;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMemberValueName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMessageSend;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMessageSendName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMethodName;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMethodReturnType;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnPackageReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnParameterizedQualifiedTypeReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnQualifiedAllocationExpression;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnQualifiedNameReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnQualifiedTypeReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnSingleNameReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnSingleTypeReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnStringLiteral;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionScanner;
+import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
+import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
+import org.eclipse.jdt.internal.compiler.ast.Assignment;
+import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
+import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.ForStatement;
+import org.eclipse.jdt.internal.compiler.ast.IfStatement;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
+import org.eclipse.jdt.internal.compiler.ast.Javadoc;
+import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
+import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
+import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+import org.eclipse.jdt.internal.compiler.ast.TryStatement;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
+import org.eclipse.jdt.internal.core.BinaryTypeConverter;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.SourceType;
-import org.eclipse.jdt.internal.core.BinaryTypeConverter;
-import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
-import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
- * This class is the entry point for source completions.
- * It contains two public APIs used to call CodeAssist on a given source with
- * a given environment, assisting position and storage (and possibly options).
+ * This class is the entry point for source completions. It contains two public APIs used to call
+ * CodeAssist on a given source with a given environment, assisting position and storage (and
+ * possibly options).
  */
 public final class CompletionEngine
-	extends Engine
-	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants, SuffixConstants {
-	
+		extends Engine
+		implements ISearchRequestor, TypeConstants, TerminalTokens, RelevanceConstants, SuffixConstants {
+
 	private static class AcceptedConstructor {
 		public int modifiers;
+
 		public char[] simpleTypeName;
+
 		public int parameterCount;
+
 		public char[] signature;
+
 		public char[][] parameterTypes;
+
 		public char[][] parameterNames;
+
 		public int typeModifiers;
+
 		public char[] packageName;
+
 		public int extraFlags;
+
 		public int accessibility;
-		public boolean proposeType = false;
-		public boolean proposeConstructor = false;
-		public char[] fullyQualifiedName = null;
-		
-		public boolean mustBeQualified = false;
-		
+
+		public boolean proposeType= false;
+
+		public boolean proposeConstructor= false;
+
+		public char[] fullyQualifiedName= null;
+
+		public boolean mustBeQualified= false;
+
 		public AcceptedConstructor(
 				int modifiers,
 				char[] simpleTypeName,
@@ -108,20 +240,20 @@ public final class CompletionEngine
 				char[] packageName,
 				int extraFlags,
 				int accessibility) {
-			this.modifiers = modifiers;
-			this.simpleTypeName = simpleTypeName;
-			this.parameterCount = parameterCount;
-			this.signature = signature;
-			this.parameterTypes = parameterTypes;
-			this.parameterNames = parameterNames;
-			this.typeModifiers = typeModifiers;
-			this.packageName = packageName;
-			this.extraFlags = extraFlags;
-			this.accessibility = accessibility;
+			this.modifiers= modifiers;
+			this.simpleTypeName= simpleTypeName;
+			this.parameterCount= parameterCount;
+			this.signature= signature;
+			this.parameterTypes= parameterTypes;
+			this.parameterNames= parameterNames;
+			this.typeModifiers= typeModifiers;
+			this.packageName= packageName;
+			this.extraFlags= extraFlags;
+			this.accessibility= accessibility;
 		}
 
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuffer buffer= new StringBuffer();
 			buffer.append('{');
 			buffer.append(this.packageName);
 			buffer.append(',');
@@ -130,32 +262,39 @@ public final class CompletionEngine
 			return buffer.toString();
 		}
 	}
-	
+
 	private static class AcceptedType {
 		public char[] packageName;
-		public char[] simpleTypeName;
-		public char[][] enclosingTypeNames;
-		public int modifiers;
-		public int accessibility;
-		public boolean mustBeQualified = false;
 
-		public char[] fullyQualifiedName = null;
-		public char[] qualifiedTypeName = null;
+		public char[] simpleTypeName;
+
+		public char[][] enclosingTypeNames;
+
+		public int modifiers;
+
+		public int accessibility;
+
+		public boolean mustBeQualified= false;
+
+		public char[] fullyQualifiedName= null;
+
+		public char[] qualifiedTypeName= null;
+
 		public AcceptedType(
-			char[] packageName,
-			char[] simpleTypeName,
-			char[][] enclosingTypeNames,
-			int modifiers,
-			int accessibility) {
-			this.packageName = packageName;
-			this.simpleTypeName = simpleTypeName;
-			this.enclosingTypeNames = enclosingTypeNames;
-			this.modifiers = modifiers;
-			this.accessibility = accessibility;
+				char[] packageName,
+				char[] simpleTypeName,
+				char[][] enclosingTypeNames,
+				int modifiers,
+				int accessibility) {
+			this.packageName= packageName;
+			this.simpleTypeName= simpleTypeName;
+			this.enclosingTypeNames= enclosingTypeNames;
+			this.modifiers= modifiers;
+			this.accessibility= accessibility;
 		}
 
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuffer buffer= new StringBuffer();
 			buffer.append('{');
 			buffer.append(this.packageName);
 			buffer.append(',');
@@ -166,53 +305,55 @@ public final class CompletionEngine
 			return buffer.toString();
 		}
 	}
-	
+
 	public class CompletionProblemFactory extends DefaultProblemFactory {
 		private int lastErrorStart;
 
-		private boolean checkProblems = false;
-		public boolean hasForbiddenProblems = false;
-		public boolean hasAllowedProblems = false;
+		private boolean checkProblems= false;
+
+		public boolean hasForbiddenProblems= false;
+
+		public boolean hasAllowedProblems= false;
 
 		public CompletionProblemFactory(Locale loc) {
 			super(loc);
 		}
 
 		private CategorizedProblem checkProblem(CategorizedProblem pb,
-			char[] originatingFileName,	int severity, int start) {
-			int id = pb.getID();
+				char[] originatingFileName, int severity, int start) {
+			int id= pb.getID();
 			if (CompletionEngine.this.actualCompletionPosition > start
-				&& this.lastErrorStart < start
-				&& pb.isError()
-				&& (id & IProblem.Syntax) == 0
-				&& (CompletionEngine.this.fileName == null || CharOperation.equals(CompletionEngine.this.fileName, originatingFileName))) {
+					&& this.lastErrorStart < start
+					&& pb.isError()
+					&& (id & IProblem.Syntax) == 0
+					&& (CompletionEngine.this.fileName == null || CharOperation.equals(CompletionEngine.this.fileName, originatingFileName))) {
 
-				CompletionEngine.this.problem = pb;
-				this.lastErrorStart = start;
+				CompletionEngine.this.problem= pb;
+				this.lastErrorStart= start;
 			}
 			if (this.checkProblems && !this.hasForbiddenProblems) {
 				switch (id) {
 					case IProblem.UsingDeprecatedType:
-						this.hasForbiddenProblems =
-							CompletionEngine.this.options.checkDeprecation;
+						this.hasForbiddenProblems=
+								CompletionEngine.this.options.checkDeprecation;
 						break;
 					case IProblem.NotVisibleType:
-						this.hasForbiddenProblems =
-							CompletionEngine.this.options.checkVisibility;
+						this.hasForbiddenProblems=
+								CompletionEngine.this.options.checkVisibility;
 						break;
 					case IProblem.ForbiddenReference:
-						this.hasForbiddenProblems =
-							CompletionEngine.this.options.checkForbiddenReference;
+						this.hasForbiddenProblems=
+								CompletionEngine.this.options.checkForbiddenReference;
 						break;
 					case IProblem.DiscouragedReference:
-						this.hasForbiddenProblems =
-							CompletionEngine.this.options.checkDiscouragedReference;
+						this.hasForbiddenProblems=
+								CompletionEngine.this.options.checkDiscouragedReference;
 						break;
 					default:
 						if ((severity & ProblemSeverities.Optional) != 0) {
-							this.hasAllowedProblems = true;
+							this.hasAllowedProblems= true;
 						} else {
-							this.hasForbiddenProblems = true;
+							this.hasForbiddenProblems= true;
 						}
 
 						break;
@@ -233,18 +374,18 @@ public final class CompletionEngine
 				int end,
 				int lineNumber,
 				int columnNumber) {
-				return checkProblem(
+			return checkProblem(
 					super.createProblem(
-						originatingFileName,
-						problemId,
-						problemArguments,
-						elaborationId,
-						messageArguments,
-						severity,
-						start,
-						end,
-						lineNumber,
-						columnNumber), originatingFileName, severity, start);
+							originatingFileName,
+							problemId,
+							problemArguments,
+							elaborationId,
+							messageArguments,
+							severity,
+							start,
+							end,
+							lineNumber,
+							columnNumber), originatingFileName, severity, start);
 		}
 
 		public CategorizedProblem createProblem(
@@ -257,32 +398,32 @@ public final class CompletionEngine
 				int end,
 				int lineNumber,
 				int columnNumber) {
-				return checkProblem(
+			return checkProblem(
 					super.createProblem(
-						originatingFileName,
-						problemId,
-						problemArguments,
-						messageArguments,
-						severity,
-						start,
-						end,
-						lineNumber,
-						columnNumber), originatingFileName, severity, start);
+							originatingFileName,
+							problemId,
+							problemArguments,
+							messageArguments,
+							severity,
+							start,
+							end,
+							lineNumber,
+							columnNumber), originatingFileName, severity, start);
 		}
 
 		public void startCheckingProblems() {
-			this.checkProblems = true;
-			this.hasForbiddenProblems = false;
-			this.hasAllowedProblems = false;
+			this.checkProblems= true;
+			this.hasForbiddenProblems= false;
+			this.hasAllowedProblems= false;
 		}
 
 		public void stopCheckingProblems() {
-			this.checkProblems = false;
+			this.checkProblems= false;
 		}
 	}
-	
+
 	public static char[] createBindingKey(char[] packageName, char[] typeName) {
-		char[] signature = createTypeSignature(packageName, typeName);
+		char[] signature= createTypeSignature(packageName, typeName);
 		CharOperation.replace(signature, '.', '/');
 		return signature;
 	}
@@ -290,38 +431,39 @@ public final class CompletionEngine
 	public static char[][] createDefaultParameterNames(int length) {
 		char[][] parameters;
 		switch (length) {
-			case 0 :
-				parameters = new char[length][];
+			case 0:
+				parameters= new char[length][];
 				break;
-			case 1 :
-				parameters = ARGS1;
+			case 1:
+				parameters= ARGS1;
 				break;
-			case 2 :
-				parameters = ARGS2;
+			case 2:
+				parameters= ARGS2;
 				break;
-			case 3 :
-				parameters = ARGS3;
+			case 3:
+				parameters= ARGS3;
 				break;
-			case 4 :
-				parameters = ARGS4;
+			case 4:
+				parameters= ARGS4;
 				break;
-			default :
-				parameters = new char[length][];
-				for (int i = 0; i < length; i++) {
-					parameters[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+			default:
+				parameters= new char[length][];
+				for (int i= 0; i < length; i++) {
+					parameters[i]= CharOperation.concat(ARG, String.valueOf(i).toCharArray());
 				}
 				break;
 		}
 		return parameters;
 	}
+
 	public static char[] createMethodSignature(char[][] parameterPackageNames, char[][] parameterTypeNames, char[] returnTypeSignature) {
-		char[][] parameterTypeSignature = new char[parameterTypeNames.length][];
-		for (int i = 0; i < parameterTypeSignature.length; i++) {
-			parameterTypeSignature[i] =
-				Signature.createCharArrayTypeSignature(
-						CharOperation.concat(
-								parameterPackageNames[i],
-								CharOperation.replaceOnCopy(parameterTypeNames[i], '.', '$'), '.'), true);
+		char[][] parameterTypeSignature= new char[parameterTypeNames.length][];
+		for (int i= 0; i < parameterTypeSignature.length; i++) {
+			parameterTypeSignature[i]=
+					Signature.createCharArrayTypeSignature(
+							CharOperation.concat(
+									parameterPackageNames[i],
+									CharOperation.replaceOnCopy(parameterTypeNames[i], '.', '$'), '.'), true);
 		}
 
 		return Signature.createMethodSignature(
@@ -330,19 +472,20 @@ public final class CompletionEngine
 	}
 
 	public static char[] createMethodSignature(char[][] parameterPackageNames, char[][] parameterTypeNames, char[] returnPackagename, char[] returnTypeName) {
-		char[] returnTypeSignature =
-			returnTypeName == null || returnTypeName.length == 0
-			? Signature.createCharArrayTypeSignature(VOID, true)
-			: Signature.createCharArrayTypeSignature(
-					CharOperation.concat(
-							returnPackagename,
-							CharOperation.replaceOnCopy(returnTypeName, '.', '$'), '.'), true);
+		char[] returnTypeSignature=
+				returnTypeName == null || returnTypeName.length == 0
+						? Signature.createCharArrayTypeSignature(VOID, true)
+						: Signature.createCharArrayTypeSignature(
+								CharOperation.concat(
+										returnPackagename,
+										CharOperation.replaceOnCopy(returnTypeName, '.', '$'), '.'), true);
 
 		return createMethodSignature(
 				parameterPackageNames,
 				parameterTypeNames,
 				returnTypeSignature);
 	}
+
 	public static char[] createNonGenericTypeSignature(char[] qualifiedPackageName, char[] qualifiedTypeName) {
 		return Signature.createCharArrayTypeSignature(
 				CharOperation.concat(
@@ -351,16 +494,16 @@ public final class CompletionEngine
 	}
 
 	public static char[] createTypeSignature(char[] qualifiedPackageName, char[] qualifiedTypeName) {
-		char[] name = new char[qualifiedTypeName.length];
+		char[] name= new char[qualifiedTypeName.length];
 		System.arraycopy(qualifiedTypeName, 0, name, 0, qualifiedTypeName.length);
 
-		int depth = 0;
-		int length = name.length;
-		for (int i = length -1; i >= 0; i--) {
+		int depth= 0;
+		int length= name.length;
+		for (int i= length - 1; i >= 0; i--) {
 			switch (name[i]) {
 				case '.':
 					if (depth == 0 && name[i - 1] != '>') {
-						name[i] = '$';
+						name[i]= '$';
 					}
 					break;
 				case '<':
@@ -378,181 +521,246 @@ public final class CompletionEngine
 	}
 
 	private static char[] getRequiredTypeSignature(TypeBinding typeBinding) {
-		char[] result = null;
-		StringBuffer sig = new StringBuffer(10);
+		char[] result= null;
+		StringBuffer sig= new StringBuffer(10);
 
 		sig.append(typeBinding.signature());
 
-		int sigLength = sig.length();
-		result = new char[sigLength];
+		int sigLength= sig.length();
+		result= new char[sigLength];
 		sig.getChars(0, sigLength, result, 0);
-		result = CharOperation.replaceOnCopy(result, '/', '.');
+		result= CharOperation.replaceOnCopy(result, '/', '.');
 		return result;
 	}
-	
+
 	private static char[] getTypeName(TypeReference typeReference) {
-		char[] typeName = CharOperation.concatWith(typeReference.getTypeName(), '.');
-		int dims = typeReference.dimensions();
+		char[] typeName= CharOperation.concatWith(typeReference.getTypeName(), '.');
+		int dims= typeReference.dimensions();
 		if (dims > 0) {
-			int length = typeName.length;
-			int newLength = length + (dims*2);
-			System.arraycopy(typeName, 0, typeName = new char[newLength], 0, length);
-			for (int k = length; k < newLength; k += 2) {
-				typeName[k] = '[';
-				typeName[k+1] = ']';
+			int length= typeName.length;
+			int newLength= length + (dims * 2);
+			System.arraycopy(typeName, 0, typeName= new char[newLength], 0, length);
+			for (int k= length; k < newLength; k+= 2) {
+				typeName[k]= '[';
+				typeName[k + 1]= ']';
 			}
 		}
-		
+
 		return typeName;
 	}
-	
+
 	private static boolean hasStaticMemberTypes(ReferenceBinding typeBinding, SourceTypeBinding invocationType, CompilationUnitScope unitScope) {
-		ReferenceBinding[] memberTypes = typeBinding.memberTypes();
-		int length = memberTypes == null ? 0 : memberTypes.length;
-		next : for (int i = 0; i < length; i++) {
-			ReferenceBinding memberType = memberTypes[i];
+		ReferenceBinding[] memberTypes= typeBinding.memberTypes();
+		int length= memberTypes == null ? 0 : memberTypes.length;
+		next: for (int i= 0; i < length; i++) {
+			ReferenceBinding memberType= memberTypes[i];
 			if (invocationType != null && !memberType.canBeSeenBy(typeBinding, invocationType)) {
 				continue next;
-			} else if(invocationType == null && !memberType.canBeSeenBy(unitScope.fPackage)) {
+			} else if (invocationType == null && !memberType.canBeSeenBy(unitScope.fPackage)) {
 				continue next;
 			}
-			
+
 			if ((memberType.modifiers & ClassFileConstants.AccStatic) != 0) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	private static boolean hasMemberTypesInEnclosingScope(SourceTypeBinding typeBinding, Scope scope) {
-		ReferenceBinding[] memberTypes = typeBinding.memberTypes();
-		int length = memberTypes == null ? 0 : memberTypes.length;
-		
+		ReferenceBinding[] memberTypes= typeBinding.memberTypes();
+		int length= memberTypes == null ? 0 : memberTypes.length;
+
 		if (length > 0) {
-			MethodScope methodScope = scope.methodScope();
+			MethodScope methodScope= scope.methodScope();
 			if (methodScope != null && !methodScope.isStatic) {
-				ClassScope classScope = typeBinding.scope;
-				Scope currentScope = scope;
+				ClassScope classScope= typeBinding.scope;
+				Scope currentScope= scope;
 				while (currentScope != null) {
 					if (currentScope == classScope) {
 						return true;
 					}
-					currentScope = currentScope.parent;
+					currentScope= currentScope.parent;
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	public HashtableOfObject typeCache;
+
 	public int openedBinaryTypes; // used during InternalCompletionProposal#findConstructorParameterNames()
-	
-	public static boolean DEBUG = false;
-	public static boolean PERF = false;
-	
-	private static final char[] KNOWN_TYPE_WITH_UNKNOWN_CONSTRUCTORS = new char[]{};
-	private static final char[] KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS = new char[]{};
-	
-	private static final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
-	private static final char[] ARG0 = "arg0".toCharArray();  //$NON-NLS-1$
-	private static final char[] ARG1 = "arg1".toCharArray();  //$NON-NLS-1$
-	private static final char[] ARG2 = "arg2".toCharArray();  //$NON-NLS-1$
-	private static final char[] ARG3 = "arg3".toCharArray();  //$NON-NLS-1$
-	private static final char[][] ARGS1 = new char[][]{ARG0};
-	private static final char[][] ARGS2 = new char[][]{ARG0, ARG1};
-	private static final char[][] ARGS3 = new char[][]{ARG0, ARG1, ARG2};
-	private static final char[][] ARGS4 = new char[][]{ARG0, ARG1, ARG2, ARG3};
-	
-	private final static int CHECK_CANCEL_FREQUENCY = 50;
-	
+
+	public static boolean DEBUG= false;
+
+	public static boolean PERF= false;
+
+	private static final char[] KNOWN_TYPE_WITH_UNKNOWN_CONSTRUCTORS= new char[] {};
+
+	private static final char[] KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS= new char[] {};
+
+	private static final char[] ARG= "arg".toCharArray(); //$NON-NLS-1$
+
+	private static final char[] ARG0= "arg0".toCharArray(); //$NON-NLS-1$
+
+	private static final char[] ARG1= "arg1".toCharArray(); //$NON-NLS-1$
+
+	private static final char[] ARG2= "arg2".toCharArray(); //$NON-NLS-1$
+
+	private static final char[] ARG3= "arg3".toCharArray(); //$NON-NLS-1$
+
+	private static final char[][] ARGS1= new char[][] { ARG0 };
+
+	private static final char[][] ARGS2= new char[][] { ARG0, ARG1 };
+
+	private static final char[][] ARGS3= new char[][] { ARG0, ARG1, ARG2 };
+
+	private static final char[][] ARGS4= new char[][] { ARG0, ARG1, ARG2, ARG3 };
+
+	private final static int CHECK_CANCEL_FREQUENCY= 50;
+
 	// temporary constants to quickly disabled polish features if necessary
-	public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = false;
-	
-	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
-	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
-	private final static char[] SEMICOLON = new char[] { ';' };
+	public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN= false;
 
-	private final static char[] CLASS = "Class".toCharArray();  //$NON-NLS-1$
-	private final static char[] VOID = "void".toCharArray();  //$NON-NLS-1$
-	private final static char[] INT = "int".toCharArray();  //$NON-NLS-1$
-	private final static char[] INT_SIGNATURE = new char[]{Signature.C_INT};
-	private final static char[] VALUE = "value".toCharArray();  //$NON-NLS-1$
-	private final static char[] EXTENDS = "extends".toCharArray();  //$NON-NLS-1$
-	private final static char[] SUPER = "super".toCharArray();  //$NON-NLS-1$
-	private final static char[] DEFAULT_CONSTRUCTOR_SIGNATURE = "()V".toCharArray();  //$NON-NLS-1$
-	
-	private final static char[] DOT = ".".toCharArray();  //$NON-NLS-1$
+	private final static char[] ERROR_PATTERN= "*error*".toCharArray(); //$NON-NLS-1$
 
-	private final static char[] VARARGS = "...".toCharArray();  //$NON-NLS-1$
-	
-	private final static char[] IMPORT = "import".toCharArray();  //$NON-NLS-1$
-	private final static char[] STATIC = "static".toCharArray();  //$NON-NLS-1$
-	private final static char[] ON_DEMAND = ".*".toCharArray();  //$NON-NLS-1$
-	private final static char[] IMPORT_END = ";\n".toCharArray();  //$NON-NLS-1$
+	private final static char[] EXCEPTION_PATTERN= "*exception*".toCharArray(); //$NON-NLS-1$
 
-	private final static char[] JAVA_LANG_OBJECT_SIGNATURE =
-		createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
-	private final static char[] JAVA_LANG_NAME =
-		CharOperation.concatWith(JAVA_LANG, '.');
-	
-	private final static int NONE = 0;
-	private final static int SUPERTYPE = 1;
-	private final static int SUBTYPE = 2;
-	
-	private final static char[] DOT_ENUM = ".enum".toCharArray(); //$NON-NLS-1$
-	
-	int expectedTypesPtr = -1;
-	TypeBinding[] expectedTypes = new TypeBinding[1];
+	private final static char[] SEMICOLON= new char[] { ';' };
+
+	private final static char[] CLASS= "Class".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] VOID= "void".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] INT= "int".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] INT_SIGNATURE= new char[] { Signature.C_INT };
+
+	private final static char[] VALUE= "value".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] EXTENDS= "extends".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] SUPER= "super".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] DEFAULT_CONSTRUCTOR_SIGNATURE= "()V".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] DOT= ".".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] VARARGS= "...".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] IMPORT= "import".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] STATIC= "static".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] ON_DEMAND= ".*".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] IMPORT_END= ";\n".toCharArray(); //$NON-NLS-1$
+
+	private final static char[] JAVA_LANG_OBJECT_SIGNATURE=
+			createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
+
+	private final static char[] JAVA_LANG_NAME=
+			CharOperation.concatWith(JAVA_LANG, '.');
+
+	private final static int NONE= 0;
+
+	private final static int SUPERTYPE= 1;
+
+	private final static int SUBTYPE= 2;
+
+	int expectedTypesPtr= -1;
+
+	TypeBinding[] expectedTypes= new TypeBinding[1];
+
 	int expectedTypesFilter;
-	boolean hasJavaLangObjectAsExpectedType = false;
-	boolean hasExpectedArrayTypes = false;
-	boolean hasComputedExpectedArrayTypes = false;
-	int uninterestingBindingsPtr = -1;
-	Binding[] uninterestingBindings = new Binding[1];
-	int forbbidenBindingsPtr = -1;
-	Binding[] forbbidenBindings = new Binding[1];
+
+	boolean hasJavaLangObjectAsExpectedType= false;
+
+	boolean hasExpectedArrayTypes= false;
+
+	boolean hasComputedExpectedArrayTypes= false;
+
+	int uninterestingBindingsPtr= -1;
+
+	Binding[] uninterestingBindings= new Binding[1];
+
+	int forbbidenBindingsPtr= -1;
+
+	Binding[] forbbidenBindings= new Binding[1];
+
 	int forbbidenBindingsFilter;
-	
+
 	ImportBinding[] favoriteReferenceBindings;
-	
+
 	boolean assistNodeIsClass;
+
 	boolean assistNodeIsEnum;
+
 	boolean assistNodeIsException;
+
 	boolean assistNodeIsInterface;
+
 	boolean assistNodeIsAnnotation;
+
 	boolean assistNodeIsConstructor;
+
 	boolean assistNodeIsSuperType;
+
 	boolean assistNodeIsExtendedType;
-	int  assistNodeInJavadoc = 0;
-	boolean assistNodeCanBeSingleMemberAnnotation = false;
-	
+
+	int assistNodeInJavadoc= 0;
+
+	boolean assistNodeCanBeSingleMemberAnnotation= false;
+
 	long targetedElement;
-	
+
 	WorkingCopyOwner owner;
+
 	IProgressMonitor monitor;
+
 	IJavaProject javaProject;
+
 	ITypeRoot typeRoot;
+
 	CompletionParser parser;
+
 	CompletionRequestor requestor;
+
 	CompletionProblemFactory problemFactory;
+
 	ProblemReporter problemReporter;
+
 	private JavaSearchNameEnvironment noCacheNameEnvironment;
+
 	char[] source;
+
 	char[] completionToken;
+
 	char[] qualifiedCompletionToken;
-	boolean resolvingImports = false;
-	boolean resolvingStaticImports = false;
-	boolean insideQualifiedReference = false;
-	boolean noProposal = true;
-	CategorizedProblem problem = null;
-	char[] fileName = null;
+
+	boolean resolvingImports= false;
+
+	boolean resolvingStaticImports= false;
+
+	boolean insideQualifiedReference= false;
+
+	boolean noProposal= true;
+
+	CategorizedProblem problem= null;
+
+	char[] fileName= null;
+
 	int startPosition, actualCompletionPosition, endPosition, offset;
+
 	int tokenStart, tokenEnd;
+
 	int javadocTagPosition; // Position of previous tag while completing in javadoc
-	HashtableOfObject knownPkgs = new HashtableOfObject(10);
-	HashtableOfObject knownTypes = new HashtableOfObject(10);
-	
- 	/*
+
+	HashtableOfObject knownPkgs= new HashtableOfObject(10);
+
+	HashtableOfObject knownTypes= new HashtableOfObject(10);
+
+	/*
 		static final char[][] mainDeclarations =
 			new char[][] {
 				"package".toCharArray(),
@@ -577,70 +785,98 @@ public final class CompletionEngine
 				"transient".toCharArray(),
 				"volatile".toCharArray()};
 	*/
-	static final BaseTypeBinding[] BASE_TYPES = {
-		TypeBinding.BOOLEAN,
-		TypeBinding.BYTE,
-		TypeBinding.CHAR,
-		TypeBinding.DOUBLE,
-		TypeBinding.FLOAT,
-		TypeBinding.INT,
-		TypeBinding.LONG,
-		TypeBinding.SHORT,
-		TypeBinding.VOID
+	static final BaseTypeBinding[] BASE_TYPES= {
+			TypeBinding.BOOLEAN,
+			TypeBinding.BYTE,
+			TypeBinding.CHAR,
+			TypeBinding.DOUBLE,
+			TypeBinding.FLOAT,
+			TypeBinding.INT,
+			TypeBinding.LONG,
+			TypeBinding.SHORT,
+			TypeBinding.VOID
 	};
-	static final int BASE_TYPES_LENGTH = BASE_TYPES.length;
-	static final char[][] BASE_TYPE_NAMES = new char[BASE_TYPES_LENGTH][];
-	static final int BASE_TYPES_WITHOUT_VOID_LENGTH = BASE_TYPES.length - 1;
-	static final char[][] BASE_TYPE_NAMES_WITHOUT_VOID = new char[BASE_TYPES_WITHOUT_VOID_LENGTH][];
-	static {
- 		for (int i=0; i<BASE_TYPES_LENGTH; i++) {
- 			BASE_TYPE_NAMES[i] = BASE_TYPES[i].simpleName;
- 		}
-		for (int i=0; i<BASE_TYPES_WITHOUT_VOID_LENGTH; i++) {
-			BASE_TYPE_NAMES_WITHOUT_VOID[i] = BASE_TYPES[i].simpleName;
-		}
- 	}
-	
-	static final char[] classField = "class".toCharArray();  //$NON-NLS-1$
-	static final char[] lengthField = "length".toCharArray();  //$NON-NLS-1$
-	static final char[] cloneMethod = "clone".toCharArray();  //$NON-NLS-1$
-	static final char[] THIS = "this".toCharArray();  //$NON-NLS-1$
-	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
 
-	static InvocationSite FakeInvocationSite = new InvocationSite(){
-		public TypeBinding[] genericTypeArguments() { return null; }
-		public boolean isSuperAccess(){ return false; }
-		public boolean isTypeAccess(){ return false; }
-		public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */}
-		public void setDepth(int depth){/* empty */}
-		public void setFieldIndex(int depth){/* empty */}
-		public int sourceEnd() { return 0; 	}
-		public int sourceStart() { return 0; 	}
-		public TypeBinding expectedType() { return null; }
+	static final int BASE_TYPES_LENGTH= BASE_TYPES.length;
+
+	static final char[][] BASE_TYPE_NAMES= new char[BASE_TYPES_LENGTH][];
+
+	static final int BASE_TYPES_WITHOUT_VOID_LENGTH= BASE_TYPES.length - 1;
+
+	static final char[][] BASE_TYPE_NAMES_WITHOUT_VOID= new char[BASE_TYPES_WITHOUT_VOID_LENGTH][];
+	static {
+		for (int i= 0; i < BASE_TYPES_LENGTH; i++) {
+			BASE_TYPE_NAMES[i]= BASE_TYPES[i].simpleName;
+		}
+		for (int i= 0; i < BASE_TYPES_WITHOUT_VOID_LENGTH; i++) {
+			BASE_TYPE_NAMES_WITHOUT_VOID[i]= BASE_TYPES[i].simpleName;
+		}
+	}
+
+	static final char[] classField= "class".toCharArray(); //$NON-NLS-1$
+
+	static final char[] lengthField= "length".toCharArray(); //$NON-NLS-1$
+
+	static final char[] cloneMethod= "clone".toCharArray(); //$NON-NLS-1$
+
+	static final char[] THIS= "this".toCharArray(); //$NON-NLS-1$
+
+	static final char[] THROWS= "throws".toCharArray(); //$NON-NLS-1$
+
+	static InvocationSite FakeInvocationSite= new InvocationSite() {
+		public TypeBinding[] genericTypeArguments() {
+			return null;
+		}
+
+		public boolean isSuperAccess() {
+			return false;
+		}
+
+		public boolean isTypeAccess() {
+			return false;
+		}
+
+		public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */
+		}
+
+		public void setDepth(int depth) {/* empty */
+		}
+
+		public void setFieldIndex(int depth) {/* empty */
+		}
+
+		public int sourceEnd() {
+			return 0;
+		}
+
+		public int sourceStart() {
+			return 0;
+		}
 	};
 
 	private int foundTypesCount;
+
 	private ObjectVector acceptedTypes;
-	
+
 	private int foundConstructorsCount;
+
 	private ObjectVector acceptedConstructors;
 
 	/**
 	 * The CompletionEngine is responsible for computing source completions.
-	 *
-	 * It requires a searchable name environment, which supports some
-	 * specific search APIs, and a requestor to feed back the results to a UI.
-	 *
-	 *  @param nameEnvironment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment
-	 *      used to resolve type/package references and search for types/packages
-	 *      based on partial names.
-	 *
-	 *  @param requestor org.eclipse.jdt.internal.codeassist.ICompletionRequestor
-	 *      since the engine might produce answers of various forms, the engine
-	 *      is associated with a requestor able to accept all possible completions.
-	 *
-	 *  @param settings java.util.Map
-	 *		set of options used to configure the code assist engine.
+	 * 
+	 * It requires a searchable name environment, which supports some specific search APIs, and a
+	 * requestor to feed back the results to a UI.
+	 * 
+	 * @param nameEnvironment org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment used to
+	 *            resolve type/package references and search for types/packages based on partial
+	 *            names.
+	 * 
+	 * @param requestor org.eclipse.jdt.internal.codeassist.ICompletionRequestor since the engine
+	 *            might produce answers of various forms, the engine is associated with a requestor
+	 *            able to accept all possible completions.
+	 * 
+	 * @param settings java.util.Map set of options used to configure the code assist engine.
 	 */
 	public CompletionEngine(
 			SearchableEnvironment nameEnvironment,
@@ -650,25 +886,25 @@ public final class CompletionEngine
 			WorkingCopyOwner owner,
 			IProgressMonitor monitor) {
 		super(settings);
-		this.javaProject = javaProject;
-		this.requestor = requestor;
-		this.nameEnvironment = nameEnvironment;
-		this.typeCache = new HashtableOfObject(5);
-		this.openedBinaryTypes = 0;
+		this.javaProject= javaProject;
+		this.requestor= requestor;
+		this.nameEnvironment= nameEnvironment;
+		this.typeCache= new HashtableOfObject(5);
+		this.openedBinaryTypes= 0;
 
-		this.problemFactory = new CompletionProblemFactory(Locale.getDefault());
-		this.problemReporter = new ProblemReporter(
+		this.problemFactory= new CompletionProblemFactory(Locale.getDefault());
+		this.problemReporter= new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				this.compilerOptions,
 				this.problemFactory);
-		this.lookupEnvironment =
-			new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
-		this.parser =
-			new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
-		this.owner = owner;
-		this.monitor = monitor;
+		this.lookupEnvironment=
+				new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
+		this.parser=
+				new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
+		this.owner= owner;
+		this.monitor= monitor;
 	}
-	
+
 	public void acceptConstructor(
 			int modifiers,
 			char[] simpleTypeName,
@@ -681,47 +917,52 @@ public final class CompletionEngine
 			int extraFlags,
 			String path,
 			AccessRestriction accessRestriction) {
-		
+
 		// does not check cancellation for every types to avoid performance loss
-		if ((this.foundConstructorsCount % (CHECK_CANCEL_FREQUENCY)) == 0) checkCancel();
+		if ((this.foundConstructorsCount % (CHECK_CANCEL_FREQUENCY)) == 0)
+			checkCancel();
 		this.foundConstructorsCount++;
-		
-		if ((typeModifiers & ClassFileConstants.AccEnum) != 0) return;
-		
-		if (this.options.checkDeprecation && (typeModifiers & ClassFileConstants.AccDeprecated) != 0) return;
+
+		if ((typeModifiers & ClassFileConstants.AccEnum) != 0)
+			return;
+
+		if (this.options.checkDeprecation && (typeModifiers & ClassFileConstants.AccDeprecated) != 0)
+			return;
 
 		if (this.options.checkVisibility) {
-			if((typeModifiers & ClassFileConstants.AccPublic) == 0) {
-				if((typeModifiers & ClassFileConstants.AccPrivate) != 0) return;
+			if ((typeModifiers & ClassFileConstants.AccPublic) == 0) {
+				if ((typeModifiers & ClassFileConstants.AccPrivate) != 0)
+					return;
 
 				if (this.currentPackageName == null) {
 					initializePackageCache();
 				}
-				
-				if(!CharOperation.equals(packageName, this.currentPackageName)) return;
+
+				if (!CharOperation.equals(packageName, this.currentPackageName))
+					return;
 			}
 		}
 
-		int accessibility = IAccessRule.K_ACCESSIBLE;
-		if(accessRestriction != null) {
+		int accessibility= IAccessRule.K_ACCESSIBLE;
+		if (accessRestriction != null) {
 			switch (accessRestriction.getProblemId()) {
 				case IProblem.ForbiddenReference:
 					if (this.options.checkForbiddenReference) {
 						return;
 					}
-					accessibility = IAccessRule.K_NON_ACCESSIBLE;
+					accessibility= IAccessRule.K_NON_ACCESSIBLE;
 					break;
 				case IProblem.DiscouragedReference:
 					if (this.options.checkDiscouragedReference) {
 						return;
 					}
-					accessibility = IAccessRule.K_DISCOURAGED;
+					accessibility= IAccessRule.K_DISCOURAGED;
 					break;
 			}
 		}
-		
-		if(this.acceptedConstructors == null) {
-			this.acceptedConstructors = new ObjectVector();
+
+		if (this.acceptedConstructors == null) {
+			this.acceptedConstructors= new ObjectVector();
 		}
 		this.acceptedConstructors.add(
 				new AcceptedConstructor(
@@ -736,95 +977,100 @@ public final class CompletionEngine
 						extraFlags,
 						accessibility));
 	}
-	
+
 	private void acceptConstructors(Scope scope) {
-		final boolean DEFER_QUALIFIED_PROPOSALS = false;
-		
+		final boolean DEFER_QUALIFIED_PROPOSALS= false;
+
 		this.checkCancel();
-		
-		if(this.acceptedConstructors == null) return;
 
-		int length = this.acceptedConstructors.size();
+		if (this.acceptedConstructors == null)
+			return;
 
-		if(length == 0) return;
-		
-		HashtableOfObject onDemandFound = new HashtableOfObject();
-		
-		ArrayList deferredProposals = null;
+		int length= this.acceptedConstructors.size();
+
+		if (length == 0)
+			return;
+
+		HashtableOfObject onDemandFound= new HashtableOfObject();
+
+		ArrayList deferredProposals= null;
 		if (DEFER_QUALIFIED_PROPOSALS) {
-			deferredProposals = new ArrayList();
+			deferredProposals= new ArrayList();
 		}
-		
+
 		try {
-			next : for (int i = 0; i < length; i++) {
-				
+			next: for (int i= 0; i < length; i++) {
+
 				// does not check cancellation for every types to avoid performance loss
-				if ((i % CHECK_CANCEL_FREQUENCY) == 0) checkCancel();
-				
-				AcceptedConstructor acceptedConstructor = (AcceptedConstructor)this.acceptedConstructors.elementAt(i);
-				final int typeModifiers = acceptedConstructor.typeModifiers;
-				final char[] packageName = acceptedConstructor.packageName;
-				final char[] simpleTypeName = acceptedConstructor.simpleTypeName;
-				final int modifiers = acceptedConstructor.modifiers;
-				final int parameterCount = acceptedConstructor.parameterCount;
-				final char[] signature = acceptedConstructor.signature;
-				final char[][] parameterTypes = acceptedConstructor.parameterTypes;
-				final char[][] parameterNames = acceptedConstructor.parameterNames;
-				final int extraFlags = acceptedConstructor.extraFlags;
-				final int accessibility = acceptedConstructor.accessibility;
-				
-				boolean proposeType = hasArrayTypeAsExpectedSuperTypes() || (extraFlags & ExtraFlags.HasNonPrivateStaticMemberTypes) != 0;
-				
-				char[] fullyQualifiedName = CharOperation.concat(packageName, simpleTypeName, '.');
-						
-				Object knownTypeKind = this.knownTypes.get(fullyQualifiedName);
+				if ((i % CHECK_CANCEL_FREQUENCY) == 0)
+					checkCancel();
+
+				AcceptedConstructor acceptedConstructor= (AcceptedConstructor)this.acceptedConstructors.elementAt(i);
+				final int typeModifiers= acceptedConstructor.typeModifiers;
+				final char[] packageName= acceptedConstructor.packageName;
+				final char[] simpleTypeName= acceptedConstructor.simpleTypeName;
+				final int modifiers= acceptedConstructor.modifiers;
+				final int parameterCount= acceptedConstructor.parameterCount;
+				final char[] signature= acceptedConstructor.signature;
+				final char[][] parameterTypes= acceptedConstructor.parameterTypes;
+				final char[][] parameterNames= acceptedConstructor.parameterNames;
+				final int extraFlags= acceptedConstructor.extraFlags;
+				final int accessibility= acceptedConstructor.accessibility;
+
+				boolean proposeType= hasArrayTypeAsExpectedSuperTypes() || (extraFlags & ExtraFlags.HasNonPrivateStaticMemberTypes) != 0;
+
+				char[] fullyQualifiedName= CharOperation.concat(packageName, simpleTypeName, '.');
+
+				Object knownTypeKind= this.knownTypes.get(fullyQualifiedName);
 				if (knownTypeKind != null) {
 					if (knownTypeKind == KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS) {
 						// the type and its constructors are already accepted
 						continue next;
 					}
 					// this type is already accepted
-					proposeType = false;
+					proposeType= false;
 				} else {
 					this.knownTypes.put(fullyQualifiedName, KNOWN_TYPE_WITH_UNKNOWN_CONSTRUCTORS);
 				}
-				
-				boolean proposeConstructor = true;
-					
+
+				boolean proposeConstructor= true;
+
 				if (this.options.checkVisibility) {
-					if((modifiers & ClassFileConstants.AccPublic) == 0) {
-						if((modifiers & ClassFileConstants.AccPrivate) != 0) {
-							if (!proposeType) continue next;
-							proposeConstructor = false;
+					if ((modifiers & ClassFileConstants.AccPublic) == 0) {
+						if ((modifiers & ClassFileConstants.AccPrivate) != 0) {
+							if (!proposeType)
+								continue next;
+							proposeConstructor= false;
 						} else {
 							if (this.currentPackageName == null) {
 								initializePackageCache();
 							}
-							
-							if(!CharOperation.equals(packageName, this.currentPackageName)) {
-								
-								if((typeModifiers & ClassFileConstants.AccAbstract) == 0 ||
+
+							if (!CharOperation.equals(packageName, this.currentPackageName)) {
+
+								if ((typeModifiers & ClassFileConstants.AccAbstract) == 0 ||
 										(modifiers & ClassFileConstants.AccProtected) == 0) {
-									if (!proposeType) continue next;
-									proposeConstructor = false;
+									if (!proposeType)
+										continue next;
+									proposeConstructor= false;
 								}
 							}
 						}
 					}
 				}
-				
-				acceptedConstructor.fullyQualifiedName = fullyQualifiedName;
-				acceptedConstructor.proposeType = proposeType;
-				acceptedConstructor.proposeConstructor = proposeConstructor;
-				
-				
-				if(!this.importCachesInitialized) {
+
+				acceptedConstructor.fullyQualifiedName= fullyQualifiedName;
+				acceptedConstructor.proposeType= proposeType;
+				acceptedConstructor.proposeConstructor= proposeConstructor;
+
+
+				if (!this.importCachesInitialized) {
 					initializeImportCaches();
 				}
-				
-				for (int j = 0; j < this.importCacheCount; j++) {
-					char[][] importName = this.importsCache[j];
-					if(CharOperation.equals(simpleTypeName, importName[0])) {
+
+				for (int j= 0; j < this.importCacheCount; j++) {
+					char[][] importName= this.importsCache[j];
+					if (CharOperation.equals(simpleTypeName, importName[0])) {
 						if (proposeType) {
 							proposeType(
 									packageName,
@@ -836,9 +1082,9 @@ public final class CompletionEngine
 									!CharOperation.equals(fullyQualifiedName, importName[1]),
 									scope);
 						}
-						
+
 						if (proposeConstructor && !Flags.isEnum(typeModifiers)) {
-							boolean isQualified = !CharOperation.equals(fullyQualifiedName, importName[1]);
+							boolean isQualified= !CharOperation.equals(fullyQualifiedName, importName[1]);
 							if (!isQualified) {
 								proposeConstructor(
 										simpleTypeName,
@@ -856,7 +1102,7 @@ public final class CompletionEngine
 										scope,
 										extraFlags);
 							} else {
-								acceptedConstructor.mustBeQualified = true;
+								acceptedConstructor.mustBeQualified= true;
 								if (DEFER_QUALIFIED_PROPOSALS) {
 									deferredProposals.add(acceptedConstructor);
 								} else {
@@ -881,7 +1127,7 @@ public final class CompletionEngine
 								false,
 								scope);
 					}
-					
+
 					if (proposeConstructor && !Flags.isEnum(typeModifiers)) {
 						proposeConstructor(
 								simpleTypeName,
@@ -901,22 +1147,22 @@ public final class CompletionEngine
 					}
 					continue next;
 				} else {
-					char[] fullyQualifiedEnclosingTypeOrPackageName = null;
+					char[] fullyQualifiedEnclosingTypeOrPackageName= null;
 
-					AcceptedConstructor foundConstructor = null;
-					if((foundConstructor = (AcceptedConstructor)onDemandFound.get(simpleTypeName)) == null) {
-						for (int j = 0; j < this.onDemandImportCacheCount; j++) {
-							ImportBinding importBinding = this.onDemandImportsCache[j];
+					AcceptedConstructor foundConstructor= null;
+					if ((foundConstructor= (AcceptedConstructor)onDemandFound.get(simpleTypeName)) == null) {
+						for (int j= 0; j < this.onDemandImportCacheCount; j++) {
+							ImportBinding importBinding= this.onDemandImportsCache[j];
 
-							char[][] importName = importBinding.compoundName;
-							char[] importFlatName = CharOperation.concatWith(importName, '.');
+							char[][] importName= importBinding.compoundName;
+							char[] importFlatName= CharOperation.concatWith(importName, '.');
 
-							if(fullyQualifiedEnclosingTypeOrPackageName == null) {
-								fullyQualifiedEnclosingTypeOrPackageName = packageName;
+							if (fullyQualifiedEnclosingTypeOrPackageName == null) {
+								fullyQualifiedEnclosingTypeOrPackageName= packageName;
 							}
-							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
-								if(importBinding.isStatic()) {
-									if((typeModifiers & ClassFileConstants.AccStatic) != 0) {
+							if (CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
+								if (importBinding.isStatic()) {
+									if ((typeModifiers & ClassFileConstants.AccStatic) != 0) {
 										onDemandFound.put(
 												simpleTypeName,
 												acceptedConstructor);
@@ -930,24 +1176,24 @@ public final class CompletionEngine
 								}
 							}
 						}
-					} else if(!foundConstructor.mustBeQualified){
-						done : for (int j = 0; j < this.onDemandImportCacheCount; j++) {
-							ImportBinding importBinding = this.onDemandImportsCache[j];
+					} else if (!foundConstructor.mustBeQualified) {
+						done: for (int j= 0; j < this.onDemandImportCacheCount; j++) {
+							ImportBinding importBinding= this.onDemandImportsCache[j];
 
-							char[][] importName = importBinding.compoundName;
-							char[] importFlatName = CharOperation.concatWith(importName, '.');
+							char[][] importName= importBinding.compoundName;
+							char[] importFlatName= CharOperation.concatWith(importName, '.');
 
-							if(fullyQualifiedEnclosingTypeOrPackageName == null) {
-								fullyQualifiedEnclosingTypeOrPackageName = packageName;
+							if (fullyQualifiedEnclosingTypeOrPackageName == null) {
+								fullyQualifiedEnclosingTypeOrPackageName= packageName;
 							}
-							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
-								if(importBinding.isStatic()) {
-									if((typeModifiers & ClassFileConstants.AccStatic) != 0) {
-										foundConstructor.mustBeQualified = true;
+							if (CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
+								if (importBinding.isStatic()) {
+									if ((typeModifiers & ClassFileConstants.AccStatic) != 0) {
+										foundConstructor.mustBeQualified= true;
 										break done;
 									}
 								} else {
-									foundConstructor.mustBeQualified = true;
+									foundConstructor.mustBeQualified= true;
 									break done;
 								}
 							}
@@ -964,9 +1210,9 @@ public final class CompletionEngine
 								true,
 								scope);
 					}
-					
+
 					if (proposeConstructor && !Flags.isEnum(typeModifiers)) {
-						acceptedConstructor.mustBeQualified = true;
+						acceptedConstructor.mustBeQualified= true;
 						if (DEFER_QUALIFIED_PROPOSALS) {
 							deferredProposals.add(acceptedConstructor);
 						} else {
@@ -975,18 +1221,19 @@ public final class CompletionEngine
 					}
 				}
 			}
-		
-			char[][] keys = onDemandFound.keyTable;
-			Object[] values = onDemandFound.valueTable;
-			int max = keys.length;
-			for (int i = 0; i < max; i++) {
-				
+
+			char[][] keys= onDemandFound.keyTable;
+			Object[] values= onDemandFound.valueTable;
+			int max= keys.length;
+			for (int i= 0; i < max; i++) {
+
 				// does not check cancellation for every types to avoid performance loss
-				if ((i % CHECK_CANCEL_FREQUENCY) == 0) checkCancel();
-				
-				if(keys[i] != null) {
-					AcceptedConstructor value = (AcceptedConstructor) values[i];
-					if(value != null) {
+				if ((i % CHECK_CANCEL_FREQUENCY) == 0)
+					checkCancel();
+
+				if (keys[i] != null) {
+					AcceptedConstructor value= (AcceptedConstructor)values[i];
+					if (value != null) {
 						if (value.proposeType) {
 							proposeType(
 									value.packageName,
@@ -998,7 +1245,7 @@ public final class CompletionEngine
 									value.mustBeQualified,
 									scope);
 						}
-						
+
 						if (value.proposeConstructor && !Flags.isEnum(value.modifiers)) {
 							if (!value.mustBeQualified) {
 								proposeConstructor(
@@ -1027,16 +1274,17 @@ public final class CompletionEngine
 					}
 				}
 			}
-			
+
 			if (DEFER_QUALIFIED_PROPOSALS) {
-				int size = deferredProposals.size();
-				for (int i = 0; i < size; i++) {
-					
+				int size= deferredProposals.size();
+				for (int i= 0; i < size; i++) {
+
 					// does not check cancellation for every types to avoid performance loss
-					if ((i % CHECK_CANCEL_FREQUENCY) == 0) checkCancel();
-				
-					AcceptedConstructor deferredProposal = (AcceptedConstructor)deferredProposals.get(i);
-					
+					if ((i % CHECK_CANCEL_FREQUENCY) == 0)
+						checkCancel();
+
+					AcceptedConstructor deferredProposal= (AcceptedConstructor)deferredProposals.get(i);
+
 					if (deferredProposal.proposeConstructor) {
 						proposeConstructor(
 								deferredProposal.simpleTypeName,
@@ -1057,46 +1305,46 @@ public final class CompletionEngine
 				}
 			}
 		} finally {
-			this.acceptedTypes = null; // reset
+			this.acceptedTypes= null; // reset
 		}
 	}
 
 	/**
 	 * One result of the search consists of a new package.
-	 *
-	 * NOTE - All package names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    The default package is represented by an empty array.
+	 * 
+	 * NOTE - All package names are presented in their readable form: Package names are in the form
+	 * "a.b.c". The default package is represented by an empty array.
 	 */
 	public void acceptPackage(char[] packageName) {
 
-		if (this.knownPkgs.containsKey(packageName)) return;
+		if (this.knownPkgs.containsKey(packageName))
+			return;
 
 		this.knownPkgs.put(packageName, this);
 
 		char[] completion;
-		if(this.resolvingImports) {
-			if(this.resolvingStaticImports) {
-				completion = CharOperation.concat(packageName, new char[] { '.' });
+		if (this.resolvingImports) {
+			if (this.resolvingStaticImports) {
+				completion= CharOperation.concat(packageName, new char[] { '.' });
 			} else {
-				completion = CharOperation.concat(packageName, new char[] { '.', '*', ';' });
+				completion= CharOperation.concat(packageName, new char[] { '.', '*', ';' });
 			}
 		} else {
-			completion = packageName;
+			completion= packageName;
 		}
 
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, packageName);
-		if(!this.resolvingImports) {
-			relevance += computeRelevanceForQualification(true);
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, packageName);
+		if (!this.resolvingImports) {
+			relevance+= computeRelevanceForQualification(true);
 		}
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-		this.noProposal = false;
-		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
-			InternalCompletionProposal proposal = createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
+		this.noProposal= false;
+		if (!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+			InternalCompletionProposal proposal= createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
 			proposal.setDeclarationSignature(packageName);
 			proposal.setPackageName(packageName);
 			proposal.setCompletion(completion);
@@ -1104,7 +1352,7 @@ public final class CompletionEngine
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -1112,139 +1360,147 @@ public final class CompletionEngine
 
 	/**
 	 * One result of the search consists of a new type.
-	 *
-	 * NOTE - All package and type names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    Nested type names are in the qualified form "A.I".
-	 *    The default package is represented by an empty array.
+	 * 
+	 * NOTE - All package and type names are presented in their readable form: Package names are in
+	 * the form "a.b.c". Nested type names are in the qualified form "A.I". The default package is
+	 * represented by an empty array.
 	 */
 	public void acceptType(
-		char[] packageName,
-		char[] simpleTypeName,
-		char[][] enclosingTypeNames,
-		int modifiers,
-		AccessRestriction accessRestriction) {
-		
+			char[] packageName,
+			char[] simpleTypeName,
+			char[][] enclosingTypeNames,
+			int modifiers,
+			AccessRestriction accessRestriction) {
+
 		// does not check cancellation for every types to avoid performance loss
-		if ((this.foundTypesCount % CHECK_CANCEL_FREQUENCY) == 0) checkCancel();
+		if ((this.foundTypesCount % CHECK_CANCEL_FREQUENCY) == 0)
+			checkCancel();
 		this.foundTypesCount++;
-		
-		if (this.options.checkDeprecation && (modifiers & ClassFileConstants.AccDeprecated) != 0) return;
-		if (this.assistNodeIsExtendedType && (modifiers & ClassFileConstants.AccFinal) != 0) return;
+
+		if (this.options.checkDeprecation && (modifiers & ClassFileConstants.AccDeprecated) != 0)
+			return;
+		if (this.assistNodeIsExtendedType && (modifiers & ClassFileConstants.AccFinal) != 0)
+			return;
 
 		if (this.options.checkVisibility) {
-			if((modifiers & ClassFileConstants.AccPublic) == 0) {
-				if((modifiers & ClassFileConstants.AccPrivate) != 0) return;
+			if ((modifiers & ClassFileConstants.AccPublic) == 0) {
+				if ((modifiers & ClassFileConstants.AccPrivate) != 0)
+					return;
 
-				char[] currentPackage = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
-				if(!CharOperation.equals(packageName, currentPackage)) return;
+				char[] currentPackage= CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
+				if (!CharOperation.equals(packageName, currentPackage))
+					return;
 			}
 		}
 
-		int accessibility = IAccessRule.K_ACCESSIBLE;
-		if(accessRestriction != null) {
+		int accessibility= IAccessRule.K_ACCESSIBLE;
+		if (accessRestriction != null) {
 			switch (accessRestriction.getProblemId()) {
 				case IProblem.ForbiddenReference:
 					if (this.options.checkForbiddenReference) {
 						return;
 					}
-					accessibility = IAccessRule.K_NON_ACCESSIBLE;
+					accessibility= IAccessRule.K_NON_ACCESSIBLE;
 					break;
 				case IProblem.DiscouragedReference:
 					if (this.options.checkDiscouragedReference) {
 						return;
 					}
-					accessibility = IAccessRule.K_DISCOURAGED;
+					accessibility= IAccessRule.K_DISCOURAGED;
 					break;
 			}
 		}
-		
+
 		if (isForbiddenType(packageName, simpleTypeName, enclosingTypeNames)) {
 			return;
 		}
 
-		if(this.acceptedTypes == null) {
-			this.acceptedTypes = new ObjectVector();
+		if (this.acceptedTypes == null) {
+			this.acceptedTypes= new ObjectVector();
 		}
 		this.acceptedTypes.add(new AcceptedType(packageName, simpleTypeName, enclosingTypeNames, modifiers, accessibility));
 	}
 
 	private void acceptTypes(Scope scope) {
 		this.checkCancel();
-		
-		if(this.acceptedTypes == null) return;
 
-		int length = this.acceptedTypes.size();
+		if (this.acceptedTypes == null)
+			return;
 
-		if(length == 0) return;
+		int length= this.acceptedTypes.size();
 
-		HashtableOfObject onDemandFound = new HashtableOfObject();
-		
+		if (length == 0)
+			return;
+
+		HashtableOfObject onDemandFound= new HashtableOfObject();
+
 		try {
-			next : for (int i = 0; i < length; i++) {
-				
+			next: for (int i= 0; i < length; i++) {
+
 				// does not check cancellation for every types to avoid performance loss
-				if ((i % CHECK_CANCEL_FREQUENCY) == 0) checkCancel();
-				
-				AcceptedType acceptedType = (AcceptedType)this.acceptedTypes.elementAt(i);
-				char[] packageName = acceptedType.packageName;
-				char[] simpleTypeName = acceptedType.simpleTypeName;
-				char[][] enclosingTypeNames = acceptedType.enclosingTypeNames;
-				int modifiers = acceptedType.modifiers;
-				int accessibility = acceptedType.accessibility;
-	
+				if ((i % CHECK_CANCEL_FREQUENCY) == 0)
+					checkCancel();
+
+				AcceptedType acceptedType= (AcceptedType)this.acceptedTypes.elementAt(i);
+				char[] packageName= acceptedType.packageName;
+				char[] simpleTypeName= acceptedType.simpleTypeName;
+				char[][] enclosingTypeNames= acceptedType.enclosingTypeNames;
+				int modifiers= acceptedType.modifiers;
+				int accessibility= acceptedType.accessibility;
+
 				char[] typeName;
 				char[] flatEnclosingTypeNames;
-				if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
-					flatEnclosingTypeNames = null;
-					typeName = simpleTypeName;
+				if (enclosingTypeNames == null || enclosingTypeNames.length == 0) {
+					flatEnclosingTypeNames= null;
+					typeName= simpleTypeName;
 				} else {
-					flatEnclosingTypeNames = CharOperation.concatWith(acceptedType.enclosingTypeNames, '.');
-					typeName = CharOperation.concat(flatEnclosingTypeNames, simpleTypeName, '.');
+					flatEnclosingTypeNames= CharOperation.concatWith(acceptedType.enclosingTypeNames, '.');
+					typeName= CharOperation.concat(flatEnclosingTypeNames, simpleTypeName, '.');
 				}
-				char[] fullyQualifiedName = CharOperation.concat(packageName, typeName, '.');
-	
-				if (this.knownTypes.containsKey(fullyQualifiedName)) continue next;
-	
+				char[] fullyQualifiedName= CharOperation.concat(packageName, typeName, '.');
+
+				if (this.knownTypes.containsKey(fullyQualifiedName))
+					continue next;
+
 				this.knownTypes.put(fullyQualifiedName, KNOWN_TYPE_WITH_UNKNOWN_CONSTRUCTORS);
-	
+
 				if (this.resolvingImports) {
-					if(this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_4 && packageName.length == 0) {
+					if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_4 && packageName.length == 0) {
 						continue next; // import of default package is forbidden when compliance is 1.4 or higher
 					}
-	
-					char[] completionName = this.insideQualifiedReference ? simpleTypeName : fullyQualifiedName;
-	
-					if(this.resolvingStaticImports) {
-						if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
-							completionName = CharOperation.concat(completionName, new char[] { '.' });
+
+					char[] completionName= this.insideQualifiedReference ? simpleTypeName : fullyQualifiedName;
+
+					if (this.resolvingStaticImports) {
+						if (enclosingTypeNames == null || enclosingTypeNames.length == 0) {
+							completionName= CharOperation.concat(completionName, new char[] { '.' });
 						} else if ((modifiers & ClassFileConstants.AccStatic) == 0) {
 							continue next;
 						} else {
-							completionName = CharOperation.concat(completionName, new char[] { ';' });
+							completionName= CharOperation.concat(completionName, new char[] { ';' });
 						}
 					} else {
-						completionName = CharOperation.concat(completionName, new char[] { ';' });
+						completionName= CharOperation.concat(completionName, new char[] { ';' });
 					}
-	
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForRestrictions(accessibility);
-					relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
-	
-					this.noProposal = false;
-					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+
+					int relevance= computeBaseRelevance();
+					relevance+= computeRelevanceForResolution();
+					relevance+= computeRelevanceForInterestingProposal();
+					relevance+= computeRelevanceForRestrictions(accessibility);
+					relevance+= computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
+
+					this.noProposal= false;
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						createTypeProposal(packageName, typeName, modifiers, accessibility, completionName, relevance);
 					}
 				} else {
-					if(!this.importCachesInitialized) {
+					if (!this.importCachesInitialized) {
 						initializeImportCaches();
 					}
-	
-					for (int j = 0; j < this.importCacheCount; j++) {
-						char[][] importName = this.importsCache[j];
-						if(CharOperation.equals(typeName, importName[0])) {
+
+					for (int j= 0; j < this.importCacheCount; j++) {
+						char[][] importName= this.importsCache[j];
+						if (CharOperation.equals(typeName, importName[0])) {
 							proposeType(
 									packageName,
 									simpleTypeName,
@@ -1257,9 +1513,9 @@ public final class CompletionEngine
 							continue next;
 						}
 					}
-	
-	
-					if ((enclosingTypeNames == null || enclosingTypeNames.length == 0 ) && CharOperation.equals(this.currentPackageName, packageName)) {
+
+
+					if ((enclosingTypeNames == null || enclosingTypeNames.length == 0) && CharOperation.equals(this.currentPackageName, packageName)) {
 						proposeType(
 								packageName,
 								simpleTypeName,
@@ -1271,41 +1527,41 @@ public final class CompletionEngine
 								scope);
 						continue next;
 					} else {
-						char[] fullyQualifiedEnclosingTypeOrPackageName = null;
-	
-						AcceptedType foundType = null;
-						if((foundType = (AcceptedType)onDemandFound.get(simpleTypeName)) == null) {
-							for (int j = 0; j < this.onDemandImportCacheCount; j++) {
-								ImportBinding importBinding = this.onDemandImportsCache[j];
-	
-								char[][] importName = importBinding.compoundName;
-								char[] importFlatName = CharOperation.concatWith(importName, '.');
-	
-								if(fullyQualifiedEnclosingTypeOrPackageName == null) {
-									if(enclosingTypeNames != null && enclosingTypeNames.length != 0) {
-										fullyQualifiedEnclosingTypeOrPackageName =
-											CharOperation.concat(
-													packageName,
-													flatEnclosingTypeNames,
-													'.');
+						char[] fullyQualifiedEnclosingTypeOrPackageName= null;
+
+						AcceptedType foundType= null;
+						if ((foundType= (AcceptedType)onDemandFound.get(simpleTypeName)) == null) {
+							for (int j= 0; j < this.onDemandImportCacheCount; j++) {
+								ImportBinding importBinding= this.onDemandImportsCache[j];
+
+								char[][] importName= importBinding.compoundName;
+								char[] importFlatName= CharOperation.concatWith(importName, '.');
+
+								if (fullyQualifiedEnclosingTypeOrPackageName == null) {
+									if (enclosingTypeNames != null && enclosingTypeNames.length != 0) {
+										fullyQualifiedEnclosingTypeOrPackageName=
+												CharOperation.concat(
+														packageName,
+														flatEnclosingTypeNames,
+														'.');
 									} else {
-										fullyQualifiedEnclosingTypeOrPackageName =
-											packageName;
+										fullyQualifiedEnclosingTypeOrPackageName=
+												packageName;
 									}
 								}
-								if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
-									if(importBinding.isStatic()) {
-										if((modifiers & ClassFileConstants.AccStatic) != 0) {
-											acceptedType.qualifiedTypeName = typeName;
-											acceptedType.fullyQualifiedName = fullyQualifiedName;
+								if (CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
+									if (importBinding.isStatic()) {
+										if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+											acceptedType.qualifiedTypeName= typeName;
+											acceptedType.fullyQualifiedName= fullyQualifiedName;
 											onDemandFound.put(
 													simpleTypeName,
 													acceptedType);
 											continue next;
 										}
 									} else {
-										acceptedType.qualifiedTypeName = typeName;
-										acceptedType.fullyQualifiedName = fullyQualifiedName;
+										acceptedType.qualifiedTypeName= typeName;
+										acceptedType.fullyQualifiedName= fullyQualifiedName;
 										onDemandFound.put(
 												simpleTypeName,
 												acceptedType);
@@ -1313,33 +1569,33 @@ public final class CompletionEngine
 									}
 								}
 							}
-						} else if(!foundType.mustBeQualified){
-							done : for (int j = 0; j < this.onDemandImportCacheCount; j++) {
-								ImportBinding importBinding = this.onDemandImportsCache[j];
-	
-								char[][] importName = importBinding.compoundName;
-								char[] importFlatName = CharOperation.concatWith(importName, '.');
-	
-								if(fullyQualifiedEnclosingTypeOrPackageName == null) {
-									if(enclosingTypeNames != null && enclosingTypeNames.length != 0) {
-										fullyQualifiedEnclosingTypeOrPackageName =
-											CharOperation.concat(
-													packageName,
-													flatEnclosingTypeNames,
-													'.');
+						} else if (!foundType.mustBeQualified) {
+							done: for (int j= 0; j < this.onDemandImportCacheCount; j++) {
+								ImportBinding importBinding= this.onDemandImportsCache[j];
+
+								char[][] importName= importBinding.compoundName;
+								char[] importFlatName= CharOperation.concatWith(importName, '.');
+
+								if (fullyQualifiedEnclosingTypeOrPackageName == null) {
+									if (enclosingTypeNames != null && enclosingTypeNames.length != 0) {
+										fullyQualifiedEnclosingTypeOrPackageName=
+												CharOperation.concat(
+														packageName,
+														flatEnclosingTypeNames,
+														'.');
 									} else {
-										fullyQualifiedEnclosingTypeOrPackageName =
-											packageName;
+										fullyQualifiedEnclosingTypeOrPackageName=
+												packageName;
 									}
 								}
-								if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
-									if(importBinding.isStatic()) {
-										if((modifiers & ClassFileConstants.AccStatic) != 0) {
-											foundType.mustBeQualified = true;
+								if (CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
+									if (importBinding.isStatic()) {
+										if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+											foundType.mustBeQualified= true;
 											break done;
 										}
 									} else {
-										foundType.mustBeQualified = true;
+										foundType.mustBeQualified= true;
 										break done;
 									}
 								}
@@ -1357,15 +1613,16 @@ public final class CompletionEngine
 					}
 				}
 			}
-		
-			char[][] keys = onDemandFound.keyTable;
-			Object[] values = onDemandFound.valueTable;
-			int max = keys.length;
-			for (int i = 0; i < max; i++) {
-				if ((i % CHECK_CANCEL_FREQUENCY) == 0) checkCancel();
-				if(keys[i] != null) {
-					AcceptedType value = (AcceptedType) values[i];
-					if(value != null) {
+
+			char[][] keys= onDemandFound.keyTable;
+			Object[] values= onDemandFound.valueTable;
+			int max= keys.length;
+			for (int i= 0; i < max; i++) {
+				if ((i % CHECK_CANCEL_FREQUENCY) == 0)
+					checkCancel();
+				if (keys[i] != null) {
+					AcceptedType value= (AcceptedType)values[i];
+					if (value != null) {
 						proposeType(
 								value.packageName,
 								value.simpleTypeName,
@@ -1379,20 +1636,20 @@ public final class CompletionEngine
 				}
 			}
 		} finally {
-			this.acceptedTypes = null; // reset
+			this.acceptedTypes= null; // reset
 		}
 	}
-	
+
 	public void acceptUnresolvedName(char[] name) {
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution(false);
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForCaseMatching(this.completionToken, name);
-		relevance += computeRelevanceForQualification(false);
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
-		CompletionEngine.this.noProposal = false;
-		if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-			InternalCompletionProposal proposal = CompletionEngine.this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, CompletionEngine.this.actualCompletionPosition);
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution(false);
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForCaseMatching(this.completionToken, name);
+		relevance+= computeRelevanceForQualification(false);
+		relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
+		CompletionEngine.this.noProposal= false;
+		if (!CompletionEngine.this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
+			InternalCompletionProposal proposal= CompletionEngine.this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, CompletionEngine.this.actualCompletionPosition);
 			proposal.setSignature(JAVA_LANG_OBJECT_SIGNATURE);
 			proposal.setPackageName(JAVA_LANG_NAME);
 			proposal.setTypeName(OBJECT);
@@ -1403,62 +1660,67 @@ public final class CompletionEngine
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			CompletionEngine.this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				CompletionEngine.this.printDebug(proposal);
 			}
 		}
 	}
-	private void addExpectedType(TypeBinding type, Scope scope){
-		if (type == null || !type.isValidBinding() || type == TypeBinding.NULL) return;
+
+	private void addExpectedType(TypeBinding type, Scope scope) {
+		if (type == null || !type.isValidBinding() || type == TypeBinding.NULL)
+			return;
 
 		// do not add twice the same type
-		for (int i = 0; i <= this.expectedTypesPtr; i++) {
-			if (this.expectedTypes[i] == type) return;
+		for (int i= 0; i <= this.expectedTypesPtr; i++) {
+			if (this.expectedTypes[i] == type)
+				return;
 		}
 
-		int length = this.expectedTypes.length;
+		int length= this.expectedTypes.length;
 		if (++this.expectedTypesPtr >= length)
-			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[length * 2], 0, length);
-		this.expectedTypes[this.expectedTypesPtr] = type;
+			System.arraycopy(this.expectedTypes, 0, this.expectedTypes= new TypeBinding[length * 2], 0, length);
+		this.expectedTypes[this.expectedTypesPtr]= type;
 
-		if(type == scope.getJavaLangObject()) {
-			this.hasJavaLangObjectAsExpectedType = true;
+		if (type == scope.getJavaLangObject()) {
+			this.hasJavaLangObjectAsExpectedType= true;
 		}
 	}
 
-	private void addForbiddenBindings(Binding binding){
-		if (binding == null) return;
+	private void addForbiddenBindings(Binding binding) {
+		if (binding == null)
+			return;
 
-		int length = this.forbbidenBindings.length;
+		int length= this.forbbidenBindings.length;
 		if (++this.forbbidenBindingsPtr >= length)
-			System.arraycopy(this.forbbidenBindings, 0, this.forbbidenBindings = new Binding[length * 2], 0, length);
-		this.forbbidenBindings[this.forbbidenBindingsPtr] = binding;
+			System.arraycopy(this.forbbidenBindings, 0, this.forbbidenBindings= new Binding[length * 2], 0, length);
+		this.forbbidenBindings[this.forbbidenBindingsPtr]= binding;
 	}
 
-	private void addUninterestingBindings(Binding binding){
-		if (binding == null) return;
+	private void addUninterestingBindings(Binding binding) {
+		if (binding == null)
+			return;
 
-		int length = this.uninterestingBindings.length;
+		int length= this.uninterestingBindings.length;
 		if (++this.uninterestingBindingsPtr >= length)
-			System.arraycopy(this.uninterestingBindings, 0, this.uninterestingBindings = new Binding[length * 2], 0, length);
-		this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
+			System.arraycopy(this.uninterestingBindings, 0, this.uninterestingBindings= new Binding[length * 2], 0, length);
+		this.uninterestingBindings[this.uninterestingBindingsPtr]= binding;
 	}
 
 	// this code is derived from MethodBinding#areParametersCompatibleWith(TypeBinding[])
 	private final boolean areParametersCompatibleWith(TypeBinding[] parameters, TypeBinding[] arguments, boolean isVarargs) {
-		int paramLength = parameters.length;
-		int argLength = arguments.length;
-		int lastIndex = argLength;
+		int paramLength= parameters.length;
+		int argLength= arguments.length;
+		int lastIndex= argLength;
 		if (isVarargs) {
-			lastIndex = paramLength - 1;
+			lastIndex= paramLength - 1;
 			if (paramLength == argLength) { // accept X[] but not X or X[][]
-				TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
-				TypeBinding lastArgument = arguments[lastIndex];
+				TypeBinding varArgType= parameters[lastIndex]; // is an ArrayBinding by definition
+				TypeBinding lastArgument= arguments[lastIndex];
 				if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType))
 					return false;
 			} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
-				TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
-				for (int i = lastIndex; i < argLength; i++)
+				TypeBinding varArgType= ((ArrayBinding)parameters[lastIndex]).elementsType();
+				for (int i= lastIndex; i < argLength; i++)
 					if (varArgType != arguments[i] && !arguments[i].isCompatibleWith(varArgType))
 						return false;
 			} else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
@@ -1466,10 +1728,10 @@ public final class CompletionEngine
 			}
 			// now compare standard arguments from 0 to lastIndex
 		} else {
-			if(paramLength != argLength)
+			if (paramLength != argLength)
 				return false;
 		}
-		for (int i = 0; i < lastIndex; i++)
+		for (int i= 0; i < lastIndex; i++)
 			if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
 				return false;
 		return true;
@@ -1481,7 +1743,7 @@ public final class CompletionEngine
 			CompilationUnitDeclaration compilationUnitDeclaration,
 			Binding qualifiedBinding,
 			Scope scope) {
-		InternalCompletionContext context = new InternalCompletionContext();
+		InternalCompletionContext context= new InternalCompletionContext();
 		if (this.requestor.isExtendedContextRequired()) {
 			context.setExtendedData(
 					this.typeRoot,
@@ -1495,12 +1757,12 @@ public final class CompletionEngine
 
 		// build expected types context
 		if (this.expectedTypesPtr > -1) {
-			int length = this.expectedTypesPtr + 1;
-			char[][] expTypes = new char[length][];
-			char[][] expKeys = new char[length][];
-			for (int i = 0; i < length; i++) {
-				expTypes[i] = getSignature(this.expectedTypes[i]);
-				expKeys[i] = this.expectedTypes[i].computeUniqueKey();
+			int length= this.expectedTypesPtr + 1;
+			char[][] expTypes= new char[length][];
+			char[][] expKeys= new char[length][];
+			for (int i= 0; i < length; i++) {
+				expTypes[i]= getSignature(this.expectedTypes[i]);
+				expKeys[i]= this.expectedTypes[i].computeUniqueKey();
 			}
 			context.setExpectedTypesSignatures(expTypes);
 			context.setExpectedTypesKeys(expKeys);
@@ -1510,26 +1772,26 @@ public final class CompletionEngine
 
 		// Set javadoc info
 		if (astNode instanceof CompletionOnJavadoc) {
-			this.assistNodeInJavadoc = ((CompletionOnJavadoc)astNode).getCompletionFlags();
+			this.assistNodeInJavadoc= ((CompletionOnJavadoc)astNode).getCompletionFlags();
 			context.setJavadoc(this.assistNodeInJavadoc);
 		}
 
 		if (!(astNode instanceof CompletionOnJavadoc)) {
-			CompletionScanner scanner = (CompletionScanner)this.parser.scanner;
+			CompletionScanner scanner= (CompletionScanner)this.parser.scanner;
 			context.setToken(scanner.completionIdentifier);
 			context.setTokenRange(
 					scanner.completedIdentifierStart - this.offset,
 					scanner.completedIdentifierEnd - this.offset,
 					scanner.endOfEmptyToken - this.offset);
-		} else if(astNode instanceof CompletionOnJavadocTag) {
-			CompletionOnJavadocTag javadocTag = (CompletionOnJavadocTag) astNode;
-			context.setToken(CharOperation.concat(new char[]{'@'}, javadocTag.token));
+		} else if (astNode instanceof CompletionOnJavadocTag) {
+			CompletionOnJavadocTag javadocTag= (CompletionOnJavadocTag)astNode;
+			context.setToken(CharOperation.concat(new char[] { '@' }, javadocTag.token));
 			context.setTokenRange(
 					javadocTag.tagSourceStart - this.offset,
 					javadocTag.tagSourceEnd - this.offset,
 					((CompletionScanner)this.parser.javadocParser.scanner).endOfEmptyToken - this.offset);
 		} else {
-			CompletionScanner scanner = (CompletionScanner)this.parser.javadocParser.scanner;
+			CompletionScanner scanner= (CompletionScanner)this.parser.javadocParser.scanner;
 			context.setToken(scanner.completionIdentifier);
 			context.setTokenRange(
 					scanner.completedIdentifierStart - this.offset,
@@ -1537,7 +1799,7 @@ public final class CompletionEngine
 					scanner.endOfEmptyToken - this.offset);
 		}
 
-		if(astNode instanceof CompletionOnStringLiteral) {
+		if (astNode instanceof CompletionOnStringLiteral) {
 			context.setTokenKind(CompletionContext.TOKEN_KIND_STRING_LITERAL);
 		} else {
 			context.setTokenKind(CompletionContext.TOKEN_KIND_NAME);
@@ -1545,32 +1807,33 @@ public final class CompletionEngine
 
 		buildTokenLocationContext(context, scope, astNode, astNodeParent);
 
-		if(DEBUG) {
+		if (DEBUG) {
 			System.out.println(context.toString());
 		}
 		this.requestor.acceptContext(context);
 	}
 
 	private void buildTokenLocationContext(InternalCompletionContext context, Scope scope, ASTNode astNode, ASTNode astNodeParent) {
-		if (scope == null || context.isInJavadoc()) return;
+		if (scope == null || context.isInJavadoc())
+			return;
 
 		if (astNode instanceof CompletionOnFieldType) {
-			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
+			CompletionOnFieldType field= (CompletionOnFieldType)astNode;
 			if (!field.isLocalVariable &&
 					field.modifiers == ClassFileConstants.AccDefault &&
 					(field.annotations == null || field.annotations.length == 0)) {
 				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
 			}
 		} else if (astNode instanceof CompletionOnMethodReturnType) {
-			CompletionOnMethodReturnType method = (CompletionOnMethodReturnType) astNode;
+			CompletionOnMethodReturnType method= (CompletionOnMethodReturnType)astNode;
 			if (method.modifiers == ClassFileConstants.AccDefault &&
 					(method.annotations == null || method.annotations.length == 0)) {
 				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
 			}
 		} else {
-			ReferenceContext referenceContext = scope.referenceContext();
+			ReferenceContext referenceContext= scope.referenceContext();
 			if (referenceContext instanceof AbstractMethodDeclaration) {
-				AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration)referenceContext;
+				AbstractMethodDeclaration methodDeclaration= (AbstractMethodDeclaration)referenceContext;
 				if (methodDeclaration.bodyStart <= astNode.sourceStart &&
 						astNode.sourceEnd <= methodDeclaration.bodyEnd) {
 					// completion is inside a method body
@@ -1581,12 +1844,12 @@ public final class CompletionEngine
 					}
 				}
 			} else if (referenceContext instanceof TypeDeclaration) {
-				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
-				FieldDeclaration[] fields = typeDeclaration.fields;
+				TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
+				FieldDeclaration[] fields= typeDeclaration.fields;
 				if (fields != null) {
-					done : for (int i = 0; i < fields.length; i++) {
+					done: for (int i= 0; i < fields.length; i++) {
 						if (fields[i] instanceof Initializer) {
-							Initializer initializer = (Initializer) fields[i];
+							Initializer initializer= (Initializer)fields[i];
 							if (initializer.block.sourceStart <= astNode.sourceStart &&
 									astNode.sourceStart < initializer.bodyEnd) {
 								// completion is inside an initializer
@@ -1621,10 +1884,11 @@ public final class CompletionEngine
 
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd);
 
-		scope = computeForbiddenBindings(astNode, astNodeParent, scope);
+		scope= computeForbiddenBindings(astNode, astNodeParent, scope);
 		computeUninterestingBindings(astNodeParent, scope);
-		if(astNodeParent != null) {
-			if(!isValidParent(astNodeParent, astNode, scope)) return false;
+		if (astNodeParent != null) {
+			if (!isValidParent(astNodeParent, astNode, scope))
+				return false;
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
 
@@ -1668,11 +1932,11 @@ public final class CompletionEngine
 			completionOnMarkerAnnotationName(astNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMemberValueName) {
 			completionOnMemberValueName(astNode, astNodeParent, scope, insideTypeAnnotation);
-		} else if(astNode instanceof CompletionOnBranchStatementLabel) {
+		} else if (astNode instanceof CompletionOnBranchStatementLabel) {
 			completionOnBranchStatementLabel(astNode);
-		} else if(astNode instanceof CompletionOnMessageSendName) {
+		} else if (astNode instanceof CompletionOnMessageSendName) {
 			completionOnMessageSendName(astNode, qualifiedBinding, scope);
-		// Completion on Javadoc nodes
+			// Completion on Javadoc nodes
 		} else if ((astNode.bits & ASTNode.InsideJavadoc) != 0) {
 			if (astNode instanceof CompletionOnJavadocSingleTypeReference) {
 				completionOnJavadocSingleTypeReference(astNode, scope);
@@ -1696,22 +1960,20 @@ public final class CompletionEngine
 	}
 
 	/**
-	 * Ask the engine to compute a completion at the specified position
-	 * of the given compilation unit.
-	 *
-	 *  No return
-	 *      completion results are answered through a requestor.
-	 *
-	 *  @param sourceUnit org.eclipse.jdt.internal.compiler.env.ICompilationUnit
-	 *      the source of the current compilation unit.
-	 *
-	 *  @param completionPosition int
-	 *      a position in the source where the completion is taking place.
-	 *      This position is relative to the source provided.
+	 * Ask the engine to compute a completion at the specified position of the given compilation
+	 * unit.
+	 * 
+	 * No return completion results are answered through a requestor.
+	 * 
+	 * @param sourceUnit org.eclipse.jdt.internal.compiler.env.ICompilationUnit the source of the
+	 *            current compilation unit.
+	 * 
+	 * @param completionPosition int a position in the source where the completion is taking place.
+	 *            This position is relative to the source provided.
 	 */
 	public void complete(ICompilationUnit sourceUnit, int completionPosition, int pos, ITypeRoot root) {
 
-		if(DEBUG) {
+		if (DEBUG) {
 			System.out.print("COMPLETION IN "); //$NON-NLS-1$
 			System.out.print(sourceUnit.getFileName());
 			System.out.print(" AT POSITION "); //$NON-NLS-1$
@@ -1719,83 +1981,84 @@ public final class CompletionEngine
 			System.out.println("COMPLETION - Source :"); //$NON-NLS-1$
 			System.out.println(sourceUnit.getContents());
 		}
-		if (this.monitor != null) this.monitor.beginTask(Messages.engine_completing, IProgressMonitor.UNKNOWN);
+		if (this.monitor != null)
+			this.monitor.beginTask(Messages.engine_completing, IProgressMonitor.UNKNOWN);
 		this.requestor.beginReporting();
-		boolean contextAccepted = false;
+		boolean contextAccepted= false;
 		try {
-			this.fileName = sourceUnit.getFileName();
-			this.actualCompletionPosition = completionPosition - 1;
-			this.offset = pos;
-			this.typeRoot = root;
-			
+			this.fileName= sourceUnit.getFileName();
+			this.actualCompletionPosition= completionPosition - 1;
+			this.offset= pos;
+			this.typeRoot= root;
+
 			this.checkCancel();
-			
+
 			// for now until we can change the UI.
-			CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
-			CompilationUnitDeclaration parsedUnit = this.parser.dietParse(sourceUnit, result, this.actualCompletionPosition);
+			CompilationResult result= new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
+			CompilationUnitDeclaration parsedUnit= this.parser.dietParse(sourceUnit, result, this.actualCompletionPosition);
 
 			//		boolean completionNodeFound = false;
 			if (parsedUnit != null) {
-				if(DEBUG) {
+				if (DEBUG) {
 					System.out.println("COMPLETION - Diet AST :"); //$NON-NLS-1$
 					System.out.println(parsedUnit.toString());
 				}
 
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
-					contextAccepted = true;
+					contextAccepted= true;
 					buildContext(parsedUnit.currentPackage, null, parsedUnit, null, null);
-					if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
-						findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
+					if (!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+						findPackages((CompletionOnPackageReference)parsedUnit.currentPackage);
 					}
-					if(this.noProposal && this.problem != null) {
+					if (this.noProposal && this.problem != null) {
 						this.requestor.completionFailure(this.problem);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(this.problem);
 						}
 					}
 					return;
 				}
 
-				ImportReference[] imports = parsedUnit.imports;
+				ImportReference[] imports= parsedUnit.imports;
 				if (imports != null) {
-					for (int i = 0, length = imports.length; i < length; i++) {
-						ImportReference importReference = imports[i];
+					for (int i= 0, length= imports.length; i < length; i++) {
+						ImportReference importReference= imports[i];
 						if (importReference instanceof CompletionOnImportReference) {
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-							if ((this.unitScope = parsedUnit.scope) != null) {
-								contextAccepted = true;
+							if ((this.unitScope= parsedUnit.scope) != null) {
+								contextAccepted= true;
 								buildContext(importReference, null, parsedUnit, null, null);
 
-								long positions = importReference.sourcePositions[importReference.tokens.length - 1];
-								setSourceAndTokenRange((int) (positions >>> 32), (int) positions);
+								long positions= importReference.sourcePositions[importReference.tokens.length - 1];
+								setSourceAndTokenRange((int)(positions >>> 32), (int)positions);
 
-								char[][] oldTokens = importReference.tokens;
-								int tokenCount = oldTokens.length;
+								char[][] oldTokens= importReference.tokens;
+								int tokenCount= oldTokens.length;
 								if (tokenCount == 1) {
 									findImports((CompletionOnImportReference)importReference, true);
-								} else if(tokenCount > 1){
-									this.insideQualifiedReference = true;
+								} else if (tokenCount > 1) {
+									this.insideQualifiedReference= true;
 
-									char[] lastToken = oldTokens[tokenCount - 1];
-									char[][] qualifierTokens = CharOperation.subarray(oldTokens, 0, tokenCount - 1);
+									char[] lastToken= oldTokens[tokenCount - 1];
+									char[][] qualifierTokens= CharOperation.subarray(oldTokens, 0, tokenCount - 1);
 
-									Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
-									if(binding != null) {
-										if(binding instanceof PackageBinding) {
+									Binding binding= this.unitScope.getTypeOrPackage(qualifierTokens);
+									if (binding != null) {
+										if (binding instanceof PackageBinding) {
 											findImports((CompletionOnImportReference)importReference, false);
 										} else {
-											ReferenceBinding ref = (ReferenceBinding) binding;
+											ReferenceBinding ref= (ReferenceBinding)binding;
 
-											if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+											if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 												findImportsOfMemberTypes(lastToken, ref, importReference.isStatic());
 											}
-											if(importReference.isStatic()) {
+											if (importReference.isStatic()) {
 
-												if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+												if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 													findImportsOfStaticFields(lastToken, ref);
 												}
-												if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+												if (!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
 													findImportsOfStaticMethods(lastToken, ref);
 												}
 											}
@@ -1803,25 +2066,25 @@ public final class CompletionEngine
 									}
 								}
 
-								if(this.noProposal && this.problem != null) {
+								if (this.noProposal && this.problem != null) {
 									this.requestor.completionFailure(this.problem);
-									if(DEBUG) {
+									if (DEBUG) {
 										this.printDebug(this.problem);
 									}
 								}
 							}
 							return;
-						} else if(importReference instanceof CompletionOnKeyword) {
-							contextAccepted = true;
+						} else if (importReference instanceof CompletionOnKeyword) {
+							contextAccepted= true;
 							buildContext(importReference, null, parsedUnit, null, null);
-							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+							if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								setSourceAndTokenRange(importReference.sourceStart, importReference.sourceEnd);
-								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
+								CompletionOnKeyword keyword= (CompletionOnKeyword)importReference;
 								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, false);
 							}
-							if(this.noProposal && this.problem != null) {
+							if (this.noProposal && this.problem != null) {
 								this.requestor.completionFailure(this.problem);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(this.problem);
 								}
 							}
@@ -1834,12 +2097,12 @@ public final class CompletionEngine
 					try {
 						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 
-						if ((this.unitScope = parsedUnit.scope) != null) {
-							this.source = sourceUnit.getContents();
+						if ((this.unitScope= parsedUnit.scope) != null) {
+							this.source= sourceUnit.getContents();
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
 							parseBlockStatements(parsedUnit, this.actualCompletionPosition);
-							if(DEBUG) {
+							if (DEBUG) {
 								System.out.println("COMPLETION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
 							}
@@ -1849,40 +2112,41 @@ public final class CompletionEngine
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
 							// if null then we found a problem in the completion node
-							if(DEBUG) {
+							if (DEBUG) {
 								System.out.print("COMPLETION - Completion node : "); //$NON-NLS-1$
 								System.out.println(e.astNode.toString());
-								if(this.parser.assistNodeParent != null) {
-									System.out.print("COMPLETION - Parent Node : ");  //$NON-NLS-1$
+								if (this.parser.assistNodeParent != null) {
+									System.out.print("COMPLETION - Parent Node : "); //$NON-NLS-1$
 									System.out.println(this.parser.assistNodeParent);
 								}
 							}
-							this.lookupEnvironment.unitBeingCompleted = parsedUnit; // better resilient to further error reporting
-							contextAccepted =
-								complete(
-									e.astNode,
-									this.parser.assistNodeParent,
-									this.parser.enclosingNode,
-									parsedUnit,
-									e.qualifiedBinding,
-									e.scope,
-									e.insideTypeAnnotation);
+							this.lookupEnvironment.unitBeingCompleted= parsedUnit; // better resilient to further error reporting
+							contextAccepted=
+									complete(
+											e.astNode,
+											this.parser.assistNodeParent,
+											this.parser.enclosingNode,
+											parsedUnit,
+											e.qualifiedBinding,
+											e.scope,
+											e.insideTypeAnnotation);
 						}
 					}
 				}
 			}
 
-			if(this.noProposal && this.problem != null) {
-				if(!contextAccepted) {
-					contextAccepted = true;
-					InternalCompletionContext context = new InternalCompletionContext();
+			if (this.noProposal && this.problem != null) {
+				if (!contextAccepted) {
+					contextAccepted= true;
+					InternalCompletionContext context= new InternalCompletionContext();
 					context.setOffset(completionPosition - this.offset);
 					context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
-					if (this.requestor.isExtendedContextRequired()) context.setExtended();
+					if (this.requestor.isExtendedContextRequired())
+						context.setExtended();
 					this.requestor.acceptContext(context);
 				}
 				this.requestor.completionFailure(this.problem);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(this.problem);
 				}
 			}
@@ -1898,93 +2162,95 @@ public final class CompletionEngine
 					}
 			*/
 		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D
-			if(DEBUG) {
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
 		} catch (InvalidCursorLocation e) { // may eventually report a usefull error
-			if(DEBUG) {
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
-			if(DEBUG) {
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
-		} catch (CompletionNodeFound e){ // internal failure - bugs 5618
-			if(DEBUG) {
+		} catch (CompletionNodeFound e) { // internal failure - bugs 5618
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
 		} finally {
-			if(!contextAccepted) {
-				contextAccepted = true;
-				InternalCompletionContext context = new InternalCompletionContext();
+			if (!contextAccepted) {
+				contextAccepted= true;
+				InternalCompletionContext context= new InternalCompletionContext();
 				context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
 				context.setOffset(completionPosition - this.offset);
-				if (this.requestor.isExtendedContextRequired()) context.setExtended();
+				if (this.requestor.isExtendedContextRequired())
+					context.setExtended();
 				this.requestor.acceptContext(context);
 			}
 			this.requestor.endReporting();
-			if (this.monitor != null) this.monitor.done();
+			if (this.monitor != null)
+				this.monitor.done();
 			reset();
 		}
 	}
 
-	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
-		if(this.requestor != null){
+	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic) {
+		if (this.requestor != null) {
 			this.requestor.beginReporting();
 		}
-		boolean contextAccepted = false;
-		IType topLevelType = type;
-		while(topLevelType.getDeclaringType() != null) {
-			topLevelType = topLevelType.getDeclaringType();
+		boolean contextAccepted= false;
+		IType topLevelType= type;
+		while (topLevelType.getDeclaringType() != null) {
+			topLevelType= topLevelType.getDeclaringType();
 		}
 
-		this.fileName = topLevelType.getParent().getElementName().toCharArray();
-		CompilationResult compilationResult = new CompilationResult(this.fileName, 1, 1, this.compilerOptions.maxProblemsPerUnit);
+		this.fileName= topLevelType.getParent().getElementName().toCharArray();
+		CompilationResult compilationResult= new CompilationResult(this.fileName, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 
-		CompilationUnitDeclaration compilationUnit = null;
+		CompilationUnitDeclaration compilationUnit= null;
 
 		try {
 			// TypeConverter is used instead of SourceTypeConverter because the type
 			// to convert can be a binary type or a source type
-			TypeDeclaration typeDeclaration = null;
+			TypeDeclaration typeDeclaration= null;
 			if (type instanceof SourceType) {
-				SourceType sourceType = (SourceType) type;
-				ISourceType info = (ISourceType) sourceType.getElementInfo();
-				compilationUnit = SourceTypeConverter.buildCompilationUnit(
-					new ISourceType[] {info},//sourceTypes[0] is always toplevel here
-					SourceTypeConverter.FIELD_AND_METHOD // need field and methods
-					| SourceTypeConverter.MEMBER_TYPE, // need member types
-					// no need for field initialization
-					this.problemReporter,
-					compilationResult);
+				SourceType sourceType= (SourceType)type;
+				ISourceType info= (ISourceType)sourceType.getElementInfo();
+				compilationUnit= SourceTypeConverter.buildCompilationUnit(
+						new ISourceType[] { info },//sourceTypes[0] is always toplevel here
+						SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+								| SourceTypeConverter.MEMBER_TYPE, // need member types
+						// no need for field initialization
+						this.problemReporter,
+						compilationResult);
 				if (compilationUnit.types != null)
-					typeDeclaration = compilationUnit.types[0];
+					typeDeclaration= compilationUnit.types[0];
 			} else {
-				compilationUnit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
-				typeDeclaration = new BinaryTypeConverter(this.parser.problemReporter(), compilationResult, null/*no need to remember type names*/).buildTypeDeclaration(type, compilationUnit);
+				compilationUnit= new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
+				typeDeclaration= new BinaryTypeConverter(this.parser.problemReporter(), compilationResult, null/*no need to remember type names*/).buildTypeDeclaration(type, compilationUnit);
 			}
 
-			if(typeDeclaration != null) {
+			if (typeDeclaration != null) {
 				// build AST from snippet
-				Initializer fakeInitializer = parseSnippeInitializer(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+				Initializer fakeInitializer= parseSnippeInitializer(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 
 				// merge AST
-				FieldDeclaration[] oldFields = typeDeclaration.fields;
-				FieldDeclaration[] newFields = null;
+				FieldDeclaration[] oldFields= typeDeclaration.fields;
+				FieldDeclaration[] newFields= null;
 				if (oldFields != null) {
-					newFields = new FieldDeclaration[oldFields.length + 1];
+					newFields= new FieldDeclaration[oldFields.length + 1];
 					System.arraycopy(oldFields, 0, newFields, 0, oldFields.length);
-					newFields[oldFields.length] = fakeInitializer;
+					newFields[oldFields.length]= fakeInitializer;
 				} else {
-					newFields = new FieldDeclaration[] {fakeInitializer};
+					newFields= new FieldDeclaration[] { fakeInitializer };
 				}
-				typeDeclaration.fields = newFields;
+				typeDeclaration.fields= newFields;
 
-				if(DEBUG) {
+				if (DEBUG) {
 					System.out.println("SNIPPET COMPLETION AST :"); //$NON-NLS-1$
 					System.out.println(compilationUnit.toString());
 				}
@@ -1993,7 +2259,7 @@ public final class CompletionEngine
 					try {
 						this.lookupEnvironment.buildTypeBindings(compilationUnit, null /*no access restriction*/);
 
-						if ((this.unitScope = compilationUnit.scope) != null) {
+						if ((this.unitScope= compilationUnit.scope) != null) {
 							this.lookupEnvironment.completeTypeBindings(compilationUnit, true);
 							compilationUnit.scope.faultInTypes();
 							compilationUnit.resolve();
@@ -2002,81 +2268,83 @@ public final class CompletionEngine
 						//					completionNodeFound = true;
 						if (e.astNode != null) {
 							// if null then we found a problem in the completion node
-							contextAccepted =
-								complete(
-									e.astNode,
-									this.parser.assistNodeParent,
-									this.parser.enclosingNode,
-									compilationUnit,
-									e.qualifiedBinding,
-									e.scope,
-									e.insideTypeAnnotation);
+							contextAccepted=
+									complete(
+											e.astNode,
+											this.parser.assistNodeParent,
+											this.parser.enclosingNode,
+											compilationUnit,
+											e.qualifiedBinding,
+											e.scope,
+											e.insideTypeAnnotation);
 						}
 					}
 				}
-				if(this.noProposal && this.problem != null) {
-					if(!contextAccepted) {
-						contextAccepted = true;
-						InternalCompletionContext context = new InternalCompletionContext();
-						if (this.requestor.isExtendedContextRequired()) context.setExtended();
+				if (this.noProposal && this.problem != null) {
+					if (!contextAccepted) {
+						contextAccepted= true;
+						InternalCompletionContext context= new InternalCompletionContext();
+						if (this.requestor.isExtendedContextRequired())
+							context.setExtended();
 						this.requestor.acceptContext(context);
 					}
 					this.requestor.completionFailure(this.problem);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(this.problem);
 					}
 				}
 			}
-		}  catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D (added with fix of 99629)
-			if(DEBUG) {
+		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D (added with fix of 99629)
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
 		} catch (InvalidCursorLocation e) { // may eventually report a usefull error (added to fix 99629)
-			if(DEBUG) {
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object (added with fix of 99629)
-			if(DEBUG) {
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
-		} catch (CompletionNodeFound e){ // internal failure - bugs 5618 (added with fix of 99629)
-			if(DEBUG) {
+		} catch (CompletionNodeFound e) { // internal failure - bugs 5618 (added with fix of 99629)
+			if (DEBUG) {
 				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
 				e.printStackTrace(System.out);
 			}
-		} catch(JavaModelException e) {
+		} catch (JavaModelException e) {
 			// Do nothing
 		}
-		if(!contextAccepted) {
-			contextAccepted = true;
-			InternalCompletionContext context = new InternalCompletionContext();
-			if (this.requestor.isExtendedContextRequired()) context.setExtended();
+		if (!contextAccepted) {
+			contextAccepted= true;
+			InternalCompletionContext context= new InternalCompletionContext();
+			if (this.requestor.isExtendedContextRequired())
+				context.setExtended();
 			this.requestor.acceptContext(context);
 		}
-		if(this.requestor != null){
+		if (this.requestor != null) {
 			this.requestor.endReporting();
 		}
 	}
-	
+
 	private void completionOnBranchStatementLabel(ASTNode astNode) {
 		if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
-			CompletionOnBranchStatementLabel label = (CompletionOnBranchStatementLabel) astNode;
-			this.completionToken = label.label;
+			CompletionOnBranchStatementLabel label= (CompletionOnBranchStatementLabel)astNode;
+			this.completionToken= label.label;
 			findLabels(this.completionToken, label.possibleLabels);
 		}
 	}
-	
+
 	private void completionOnClassLiteralAccess(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-			CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess) astNode;
+			CompletionOnClassLiteralAccess access= (CompletionOnClassLiteralAccess)astNode;
 			setSourceAndTokenRange(access.classStart, access.sourceEnd);
-			this.completionToken = access.completionIdentifier;
+			this.completionToken= access.completionIdentifier;
 			findClassField(
 					this.completionToken,
-					(TypeBinding) qualifiedBinding,
+					(TypeBinding)qualifiedBinding,
 					scope,
 					null,
 					null,
@@ -2084,53 +2352,53 @@ public final class CompletionEngine
 					false);
 		}
 	}
-	
+
 	private void completionOnExplicitConstructorCall(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 			setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
-			CompletionOnExplicitConstructorCall constructorCall = (CompletionOnExplicitConstructorCall) astNode;
-			TypeBinding[] argTypes = computeTypes(constructorCall.arguments);
+			CompletionOnExplicitConstructorCall constructorCall= (CompletionOnExplicitConstructorCall)astNode;
+			TypeBinding[] argTypes= computeTypes(constructorCall.arguments);
 			findConstructors(
-				(ReferenceBinding) qualifiedBinding,
-				argTypes,
-				scope,
-				constructorCall,
-				false,
-				null,
-				null,
-				null,
-				false);
+					(ReferenceBinding)qualifiedBinding,
+					argTypes,
+					scope,
+					constructorCall,
+					false,
+					null,
+					null,
+					null,
+					false);
 		}
 	}
-	
+
 	private void completionOnFieldName(ASTNode astNode, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
-			CompletionOnFieldName field = (CompletionOnFieldName) astNode;
+			CompletionOnFieldName field= (CompletionOnFieldName)astNode;
 
-			FieldBinding[] fields = scope.enclosingSourceType().fields();
-			char[][] excludeNames = new char[fields.length][];
-			for(int i = 0 ; i < fields.length ; i++){
-				excludeNames[i] = fields[i].name;
+			FieldBinding[] fields= scope.enclosingSourceType().fields();
+			char[][] excludeNames= new char[fields.length][];
+			for (int i= 0; i < fields.length; i++) {
+				excludeNames[i]= fields[i].name;
 			}
 
-			this.completionToken = field.realName;
+			this.completionToken= field.realName;
 
-			
-			int kind =
-				 (field.modifiers & ClassFileConstants.AccStatic) == 0 ? 
-						InternalNamingConventions.VK_INSTANCE_FIELD :
-							(field.modifiers & ClassFileConstants.AccFinal) == 0 ? 
+
+			int kind=
+					(field.modifiers & ClassFileConstants.AccStatic) == 0 ?
+							InternalNamingConventions.VK_INSTANCE_FIELD :
+							(field.modifiers & ClassFileConstants.AccFinal) == 0 ?
 									InternalNamingConventions.VK_STATIC_FIELD :
 										InternalNamingConventions.VK_STATIC_FINAL_FIELD;
-			
+
 			findVariableNames(field.realName, field.type, excludeNames, null, kind);
 		}
 	}
-	
+
 	private void completionOnFieldType(ASTNode astNode, Scope scope) {
-		CompletionOnFieldType field = (CompletionOnFieldType) astNode;
-		CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) field.type;
-		this.completionToken = type.token;
+		CompletionOnFieldType field= (CompletionOnFieldType)astNode;
+		CompletionOnSingleTypeReference type= (CompletionOnSingleTypeReference)field.type;
+		this.completionToken= type.token;
 		setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 
 		findTypesAndPackages(this.completionToken, scope, true, true, new ObjectVector());
@@ -2139,7 +2407,7 @@ public final class CompletionEngine
 		}
 
 		if (!field.isLocalVariable && field.modifiers == ClassFileConstants.AccDefault) {
-			SourceTypeBinding enclosingType = scope.enclosingSourceType();
+			SourceTypeBinding enclosingType= scope.enclosingSourceType();
 			if (!enclosingType.isAnnotationType()) {
 				if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
 					findMethodDeclarations(
@@ -2158,94 +2426,96 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	//TODO
 	private void completionOnJavadocAllocationExpression(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		// setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
-		
-		CompletionOnJavadocAllocationExpression allocExpression = (CompletionOnJavadocAllocationExpression) astNode;
-		this.javadocTagPosition = allocExpression.tagSourceStart;
-		int rangeStart = astNode.sourceStart;
+
+		CompletionOnJavadocAllocationExpression allocExpression= (CompletionOnJavadocAllocationExpression)astNode;
+		this.javadocTagPosition= allocExpression.tagSourceStart;
+		int rangeStart= astNode.sourceStart;
 		if (allocExpression.type.isThis()) {
 			if (allocExpression.completeInText()) {
-				rangeStart = allocExpression.separatorPosition;
+				rangeStart= allocExpression.separatorPosition;
 			}
 		} else if (allocExpression.completeInText()) {
-			rangeStart = allocExpression.type.sourceStart;
+			rangeStart= allocExpression.type.sourceStart;
 		}
 		setSourceAndTokenRange(rangeStart, astNode.sourceEnd, false);
-		TypeBinding[] argTypes = computeTypes(allocExpression.arguments);
+		TypeBinding[] argTypes= computeTypes(allocExpression.arguments);
 
-		ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
+		ReferenceBinding ref= (ReferenceBinding)qualifiedBinding;
 		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF) && ref.isClass()) {
 			findConstructors(ref, argTypes, scope, allocExpression, false, null, null, null, false);
 		}
 	}
+
 	//TODO
 	private void completionOnJavadocFieldReference(ASTNode astNode, Scope scope) {
-		this.insideQualifiedReference = true;
-		CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) astNode;
-		this.completionToken = fieldRef.token;
-		long completionPosition = fieldRef.nameSourcePosition;
-		this.javadocTagPosition = fieldRef.tagSourceStart;
+		this.insideQualifiedReference= true;
+		CompletionOnJavadocFieldReference fieldRef= (CompletionOnJavadocFieldReference)astNode;
+		this.completionToken= fieldRef.token;
+		long completionPosition= fieldRef.nameSourcePosition;
+		this.javadocTagPosition= fieldRef.tagSourceStart;
 
 		if (fieldRef.actualReceiverType != null && fieldRef.actualReceiverType.isValidBinding()) {
-				ReferenceBinding receiverType = (ReferenceBinding) fieldRef.actualReceiverType;
-			int rangeStart = (int) (completionPosition >>> 32);
+			ReferenceBinding receiverType= (ReferenceBinding)fieldRef.actualReceiverType;
+			int rangeStart= (int)(completionPosition >>> 32);
 			if (fieldRef.receiver.isThis()) {
 				if (fieldRef.completeInText()) {
-					rangeStart = fieldRef.separatorPosition;
+					rangeStart= fieldRef.separatorPosition;
 				}
 			} else if (fieldRef.completeInText()) {
-				rangeStart = fieldRef.receiver.sourceStart;
+				rangeStart= fieldRef.receiver.sourceStart;
 			}
-			setSourceAndTokenRange(rangeStart, (int) completionPosition);
+			setSourceAndTokenRange(rangeStart, (int)completionPosition);
 
 			if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)
 					|| !this.requestor.isIgnored(CompletionProposal.JAVADOC_FIELD_REF)) {
 				findFields(this.completionToken,
-					receiverType,
-					scope,
-					new ObjectVector(),
-					new ObjectVector(),
-					false, /*not only static */
-					fieldRef,
-					scope,
-					false,
-					true,
-					null,
-					null,
-					null,
-					false,
-					null,
-					-1,
-					-1);
+						receiverType,
+						scope,
+						new ObjectVector(),
+						new ObjectVector(),
+						false, /*not only static */
+						fieldRef,
+						scope,
+						false,
+						true,
+						null,
+						null,
+						null,
+						false,
+						null,
+						-1,
+						-1);
 			}
 
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)
 					|| !this.requestor.isIgnored(CompletionProposal.JAVADOC_METHOD_REF)) {
 				findMethods(
-					this.completionToken,
-					null,
-					null,
-					receiverType,
-					scope,
-					new ObjectVector(),
-					false, /*not only static */
-					false,
-					fieldRef,
-					scope,
-					false,
-					false,
-					true,
-					null,
-					null,
-					null,
-					false,
-					null,
-					-1,
-					-1);
+						this.completionToken,
+						null,
+						null,
+						receiverType,
+						scope,
+						new ObjectVector(),
+						false, /*not only static */
+						false,
+						fieldRef,
+						scope,
+						false,
+						false,
+						true,
+						null,
+						null,
+						null,
+						false,
+						null,
+						-1,
+						-1);
 				if (fieldRef.actualReceiverType instanceof ReferenceBinding) {
-					ReferenceBinding refBinding = (ReferenceBinding)fieldRef.actualReceiverType;
+					ReferenceBinding refBinding= (ReferenceBinding)fieldRef.actualReceiverType;
 					if (this.completionToken == null
 							|| CharOperation.prefixEquals(this.completionToken, refBinding.sourceName)
 							|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(this.completionToken, refBinding.sourceName))) {
@@ -2255,21 +2525,22 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	//TODO
 	private void completionOnJavadocMessageSend(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
-		CompletionOnJavadocMessageSend messageSend = (CompletionOnJavadocMessageSend) astNode;
-		TypeBinding[] argTypes = null; //computeTypes(messageSend.arguments);
-		this.completionToken = messageSend.selector;
-		this.javadocTagPosition = messageSend.tagSourceStart;
+		CompletionOnJavadocMessageSend messageSend= (CompletionOnJavadocMessageSend)astNode;
+		TypeBinding[] argTypes= null; //computeTypes(messageSend.arguments);
+		this.completionToken= messageSend.selector;
+		this.javadocTagPosition= messageSend.tagSourceStart;
 
 		// Set source range
-		int rangeStart = astNode.sourceStart;
+		int rangeStart= astNode.sourceStart;
 		if (messageSend.receiver.isThis()) {
 			if (messageSend.completeInText()) {
-				rangeStart = messageSend.separatorPosition;
+				rangeStart= messageSend.separatorPosition;
 			}
 		} else if (messageSend.completeInText()) {
-			rangeStart = messageSend.receiver.sourceStart;
+			rangeStart= messageSend.receiver.sourceStart;
 		}
 		setSourceAndTokenRange(rangeStart, astNode.sourceEnd, false);
 
@@ -2279,79 +2550,82 @@ public final class CompletionEngine
 			}
 		} else if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 			findMethods(
-				this.completionToken,
-				null,
-				argTypes,
-				(ReferenceBinding) ((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
-				scope,
-				new ObjectVector(),
-				false,
-				false/* prefix match */,
-				messageSend,
-				scope,
-				false,
-				messageSend.receiver instanceof SuperReference,
-				true,
-				null,
-				null,
-				null,
-				false,
-				null,
-				-1,
-				-1);
+					this.completionToken,
+					null,
+					argTypes,
+					(ReferenceBinding)((ReferenceBinding)qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
+					scope,
+					new ObjectVector(),
+					false,
+					false/* prefix match */,
+					messageSend,
+					scope,
+					false,
+					messageSend.receiver instanceof SuperReference,
+					true,
+					null,
+					null,
+					null,
+					false,
+					null,
+					-1,
+					-1);
 		}
 	}
+
 	//TODO
 	private void completionOnJavadocParamNameReference(ASTNode astNode) {
 		if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
-			CompletionOnJavadocParamNameReference paramRef = (CompletionOnJavadocParamNameReference) astNode;
+			CompletionOnJavadocParamNameReference paramRef= (CompletionOnJavadocParamNameReference)astNode;
 			setSourceAndTokenRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
 			findJavadocParamNames(paramRef.token, paramRef.missingParams, false);
 			findJavadocParamNames(paramRef.token, paramRef.missingTypeParams, true);
 		}
 	}
+
 	//TODO
 	private void completionOnJavadocQualifiedTypeReference(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
-		this.insideQualifiedReference = true;
+		this.insideQualifiedReference= true;
 
-		CompletionOnJavadocQualifiedTypeReference typeRef = (CompletionOnJavadocQualifiedTypeReference) astNode;
-		this.completionToken = typeRef.completionIdentifier;
-		long completionPosition = typeRef.sourcePositions[typeRef.tokens.length];
-		this.javadocTagPosition = typeRef.tagSourceStart;
+		CompletionOnJavadocQualifiedTypeReference typeRef= (CompletionOnJavadocQualifiedTypeReference)astNode;
+		this.completionToken= typeRef.completionIdentifier;
+		long completionPosition= typeRef.sourcePositions[typeRef.tokens.length];
+		this.javadocTagPosition= typeRef.tagSourceStart;
 
 		// get the source positions of the completion identifier
 		if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
 					((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF))) {
-				int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
-				setSourceAndTokenRange(rangeStart, (int) completionPosition);
+				int rangeStart= typeRef.completeInText() ? typeRef.sourceStart : (int)(completionPosition >>> 32);
+				setSourceAndTokenRange(rangeStart, (int)completionPosition);
 				findMemberTypes(
-					this.completionToken,
-					(ReferenceBinding) qualifiedBinding,
-					scope,
-					scope.enclosingSourceType(),
-					false,
-					false,
-					new ObjectVector(),
-					null,
-					null,
-					null,
-					false);
+						this.completionToken,
+						(ReferenceBinding)qualifiedBinding,
+						scope,
+						scope.enclosingSourceType(),
+						false,
+						false,
+						new ObjectVector(),
+						null,
+						null,
+						null,
+						false);
 			}
 		} else if (qualifiedBinding instanceof PackageBinding) {
 
-			setSourceRange(astNode.sourceStart, (int) completionPosition);
-			int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
-			setTokenRange(rangeStart, (int) completionPosition);
+			setSourceRange(astNode.sourceStart, (int)completionPosition);
+			int rangeStart= typeRef.completeInText() ? typeRef.sourceStart : (int)(completionPosition >>> 32);
+			setTokenRange(rangeStart, (int)completionPosition);
 			// replace to the end of the completion identifier
-			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
+			findTypesAndSubpackages(this.completionToken, (PackageBinding)qualifiedBinding, scope);
 		}
 	}
+
 	//TODO
 	private void completionOnJavadocSingleTypeReference(ASTNode astNode, Scope scope) {
-		CompletionOnJavadocSingleTypeReference typeRef = (CompletionOnJavadocSingleTypeReference) astNode;
-		this.completionToken = typeRef.token;
-		this.javadocTagPosition = typeRef.tagSourceStart;
+		CompletionOnJavadocSingleTypeReference typeRef= (CompletionOnJavadocSingleTypeReference)astNode;
+		this.completionToken= typeRef.token;
+		this.javadocTagPosition= typeRef.tagSourceStart;
 		setSourceAndTokenRange(typeRef.sourceStart, typeRef.sourceEnd);
 		findTypesAndPackages(
 				this.completionToken,
@@ -2360,79 +2634,81 @@ public final class CompletionEngine
 				false,
 				new ObjectVector());
 	}
+
 	//TODO
 	private void completionOnJavadocTag(ASTNode astNode) {
-		CompletionOnJavadocTag javadocTag = (CompletionOnJavadocTag) astNode;
+		CompletionOnJavadocTag javadocTag= (CompletionOnJavadocTag)astNode;
 		setSourceAndTokenRange(javadocTag.tagSourceStart, javadocTag.sourceEnd);
 		findJavadocBlockTags(javadocTag);
 		findJavadocInlineTags(javadocTag);
 	}
+
 	//TODO
 	private void completionOnJavadocTypeParamReference(ASTNode astNode) {
 		if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
-			CompletionOnJavadocTypeParamReference paramRef = (CompletionOnJavadocTypeParamReference) astNode;
+			CompletionOnJavadocTypeParamReference paramRef= (CompletionOnJavadocTypeParamReference)astNode;
 			setSourceAndTokenRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
 			findJavadocParamNames(paramRef.token, paramRef.missingParams, true);
 		}
 	}
-	
+
 	private void completionOnKeyword(ASTNode astNode) {
 		if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-			CompletionOnKeyword keyword = (CompletionOnKeyword)astNode;
+			CompletionOnKeyword keyword= (CompletionOnKeyword)astNode;
 			findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), keyword.canCompleteEmptyToken(), false);
 		}
 	}
-	
+
 	private void completionOnLocalOrArgumentName(ASTNode astNode, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
-			LocalDeclaration variable = (LocalDeclaration) astNode;
+			LocalDeclaration variable= (LocalDeclaration)astNode;
 
 			int kind;
-			if (variable instanceof CompletionOnLocalName){
-				this.completionToken = ((CompletionOnLocalName) variable).realName;
-				kind = InternalNamingConventions.VK_LOCAL;
+			if (variable instanceof CompletionOnLocalName) {
+				this.completionToken= ((CompletionOnLocalName)variable).realName;
+				kind= InternalNamingConventions.VK_LOCAL;
 			} else {
-				CompletionOnArgumentName arg = (CompletionOnArgumentName) variable;
-				this.completionToken = arg.realName;
-				kind = arg.isCatchArgument ? InternalNamingConventions.VK_LOCAL : InternalNamingConventions.VK_PARAMETER;
+				CompletionOnArgumentName arg= (CompletionOnArgumentName)variable;
+				this.completionToken= arg.realName;
+				kind= arg.isCatchArgument ? InternalNamingConventions.VK_LOCAL : InternalNamingConventions.VK_PARAMETER;
 			}
 
-			char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, variable);
+			char[][] alreadyDefinedName= computeAlreadyDefinedName((BlockScope)scope, variable);
 
-			char[][] forbiddenNames = findVariableFromUnresolvedReference(variable, (BlockScope)scope, alreadyDefinedName);
+			char[][] forbiddenNames= findVariableFromUnresolvedReference(variable, (BlockScope)scope, alreadyDefinedName);
 
-			LocalVariableBinding[] locals = ((BlockScope)scope).locals;
-			char[][] discouragedNames = new char[locals.length][];
-			int localCount = 0;
-			for(int i = 0 ; i < locals.length ; i++){
+			LocalVariableBinding[] locals= ((BlockScope)scope).locals;
+			char[][] discouragedNames= new char[locals.length][];
+			int localCount= 0;
+			for (int i= 0; i < locals.length; i++) {
 				if (locals[i] != null) {
-					discouragedNames[localCount++] = locals[i].name;
+					discouragedNames[localCount++]= locals[i].name;
 				}
 			}
 
-			System.arraycopy(discouragedNames, 0, discouragedNames = new char[localCount][], 0, localCount);
+			System.arraycopy(discouragedNames, 0, discouragedNames= new char[localCount][], 0, localCount);
 
 			findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, kind);
 		}
 	}
-	
-	private void completionOnMarkerAnnotationName(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
-		CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
 
-		CompletionOnAnnotationOfType fakeType = (CompletionOnAnnotationOfType)scope.parent.referenceContext();
+	private void completionOnMarkerAnnotationName(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
+		CompletionOnMarkerAnnotationName annot= (CompletionOnMarkerAnnotationName)astNode;
+
+		CompletionOnAnnotationOfType fakeType= (CompletionOnAnnotationOfType)scope.parent.referenceContext();
 		if (fakeType.annotations[0] == annot) {
 			// When the completion is inside a method body the annotation cannot be accuratly attached to the correct node by completion recovery.
 			// So 'targetedElement' is not computed in this case.
 			if (scope.parent.parent == null || !(scope.parent.parent instanceof MethodScope)) {
-				this.targetedElement = computeTargetedElement(fakeType);
+				this.targetedElement= computeTargetedElement(fakeType);
 			}
 
 		}
 
-		this.assistNodeIsAnnotation = true;
+		this.assistNodeIsAnnotation= true;
 		if (annot.type instanceof CompletionOnSingleTypeReference) {
-			CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) annot.type;
-			this.completionToken = type.token;
+			CompletionOnSingleTypeReference type= (CompletionOnSingleTypeReference)annot.type;
+			this.completionToken= type.token;
 			setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 
 			if (scope.parent.parent != null &&
@@ -2440,25 +2716,25 @@ public final class CompletionEngine
 					!fakeType.isParameter) {
 
 				if (this.completionToken.length <= Keywords.INTERFACE.length
-					&& CharOperation.prefixEquals(this.completionToken, Keywords.INTERFACE, false /* ignore case */
-				)){
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(this.completionToken, Keywords.INTERFACE);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
-					relevance += R_ANNOTATION; // this proposal is most relevant than annotation proposals
+						&& CharOperation.prefixEquals(this.completionToken, Keywords.INTERFACE, false /* ignore case */
+						)) {
+					int relevance= computeBaseRelevance();
+					relevance+= computeRelevanceForResolution();
+					relevance+= computeRelevanceForInterestingProposal();
+					relevance+= computeRelevanceForCaseMatching(this.completionToken, Keywords.INTERFACE);
+					relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
+					relevance+= R_ANNOTATION; // this proposal is most relevant than annotation proposals
 
-					this.noProposal = false;
-					if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-						CompletionProposal proposal = createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+						CompletionProposal proposal= createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
 						proposal.setName(Keywords.INTERFACE);
 						proposal.setCompletion(Keywords.INTERFACE);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
@@ -2467,44 +2743,44 @@ public final class CompletionEngine
 
 			findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 		} else if (annot.type instanceof CompletionOnQualifiedTypeReference) {
-			this.insideQualifiedReference = true;
+			this.insideQualifiedReference= true;
 
-			CompletionOnQualifiedTypeReference type = (CompletionOnQualifiedTypeReference) annot.type;
-			this.completionToken = type.completionIdentifier;
-			long completionPosition = type.sourcePositions[type.tokens.length];
+			CompletionOnQualifiedTypeReference type= (CompletionOnQualifiedTypeReference)annot.type;
+			this.completionToken= type.completionIdentifier;
+			long completionPosition= type.sourcePositions[type.tokens.length];
 			if (qualifiedBinding instanceof PackageBinding) {
 
-				setSourceRange(astNode.sourceStart, (int) completionPosition);
-				setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceRange(astNode.sourceStart, (int)completionPosition);
+				setTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 				// replace to the end of the completion identifier
-				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
+				findTypesAndSubpackages(this.completionToken, (PackageBinding)qualifiedBinding, scope);
 			} else {
-				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 
 				findMemberTypes(
-					this.completionToken,
-					(ReferenceBinding) qualifiedBinding,
-					scope,
-					scope.enclosingSourceType(),
-					false,
-					false,
-					new ObjectVector(),
-					null,
-					null,
-					null,
-					false);
+						this.completionToken,
+						(ReferenceBinding)qualifiedBinding,
+						scope,
+						scope.enclosingSourceType(),
+						false,
+						false,
+						new ObjectVector(),
+						null,
+						null,
+						null,
+						false);
 			}
 		}
 	}
-	
+
 	private void completionOnMemberAccess(ASTNode astNode, ASTNode enclosingNode, Binding qualifiedBinding,
 			Scope scope, boolean insideTypeAnnotation) {
-		this.insideQualifiedReference = true;
-		CompletionOnMemberAccess access = (CompletionOnMemberAccess) astNode;
-		long completionPosition = access.nameSourcePosition;
-		setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+		this.insideQualifiedReference= true;
+		CompletionOnMemberAccess access= (CompletionOnMemberAccess)astNode;
+		long completionPosition= access.nameSourcePosition;
+		setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 
-		this.completionToken = access.token;
+		this.completionToken= access.token;
 
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			// complete method members with missing return type
@@ -2517,7 +2793,7 @@ public final class CompletionEngine
 			if (this.assistNodeInJavadoc == 0 &&
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
-				ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) qualifiedBinding;
+				ProblemMethodBinding problemMethodBinding= (ProblemMethodBinding)qualifiedBinding;
 				findFieldsAndMethodsFromMissingReturnType(
 						problemMethodBinding.selector,
 						problemMethodBinding.parameters,
@@ -2528,36 +2804,36 @@ public final class CompletionEngine
 		} else {
 			if (!access.isInsideAnnotation) {
 				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-					findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false, false);
+					findKeywords(this.completionToken, new char[][] { Keywords.NEW }, false, false);
 				}
 
-				ObjectVector fieldsFound = new ObjectVector();
-				ObjectVector methodsFound = new ObjectVector();
+				ObjectVector fieldsFound= new ObjectVector();
+				ObjectVector methodsFound= new ObjectVector();
 
-				boolean superCall = access.receiver instanceof SuperReference;
+				boolean superCall= access.receiver instanceof SuperReference;
 
 				findFieldsAndMethods(
-					this.completionToken,
-					((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
-					scope,
-					fieldsFound,
-					methodsFound,
-					access,
-					scope,
-					false,
-					superCall,
-					null,
-					null,
-					null,
-					false,
-					null,
-					-1,
-					-1);
+						this.completionToken,
+						((TypeBinding)qualifiedBinding).capture(scope, access.receiver.sourceEnd),
+						scope,
+						fieldsFound,
+						methodsFound,
+						access,
+						scope,
+						false,
+						superCall,
+						null,
+						null,
+						null,
+						false,
+						null,
+						-1,
+						-1);
 
 				if (!superCall) {
-					
+
 					checkCancel();
-					
+
 					findFieldsAndMethodsFromCastedReceiver(
 							enclosingNode,
 							qualifiedBinding,
@@ -2571,15 +2847,15 @@ public final class CompletionEngine
 			}
 		}
 	}
-	
+
 	private void completionOnMemberValueName(ASTNode astNode, ASTNode astNodeParent, Scope scope,
 			boolean insideTypeAnnotation) {
-		CompletionOnMemberValueName memberValuePair = (CompletionOnMemberValueName) astNode;
-		Annotation annotation = (Annotation) astNodeParent;
+		CompletionOnMemberValueName memberValuePair= (CompletionOnMemberValueName)astNode;
+		Annotation annotation= (Annotation)astNodeParent;
 
-		this.completionToken = memberValuePair.name;
+		this.completionToken= memberValuePair.name;
 
-		ReferenceBinding annotationType = (ReferenceBinding)annotation.resolvedType;
+		ReferenceBinding annotationType= (ReferenceBinding)annotation.resolvedType;
 
 		if (annotationType != null && annotationType.isAnnotationType()) {
 			if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
@@ -2590,17 +2866,17 @@ public final class CompletionEngine
 					findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 				} else {
 					if (this.expectedTypesPtr > -1) {
-						this.assistNodeIsEnum = true;
-						done : for (int i = 0; i <= this.expectedTypesPtr; i++) {
+						this.assistNodeIsEnum= true;
+						done: for (int i= 0; i <= this.expectedTypesPtr; i++) {
 							if (!this.expectedTypes[i].isEnum()) {
-								this.assistNodeIsEnum = false;
+								this.assistNodeIsEnum= false;
 								break done;
 							}
 						}
 
 					}
 					if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-						char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, FakeInvocationSite);
+						char[][] alreadyDefinedName= computeAlreadyDefinedName((BlockScope)scope, FakeInvocationSite);
 
 						findUnresolvedReference(
 								memberValuePair.sourceStart,
@@ -2609,33 +2885,33 @@ public final class CompletionEngine
 								alreadyDefinedName);
 					}
 					findVariablesAndMethods(
-						this.completionToken,
-						scope,
-						FakeInvocationSite,
-						scope,
-						insideTypeAnnotation,
-						true);
+							this.completionToken,
+							scope,
+							FakeInvocationSite,
+							scope,
+							insideTypeAnnotation,
+							true);
 					// can be the start of a qualified type name
 					findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 				}
 			}
 		}
 	}
-	
+
 	private void completionOnMessageSend(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
 
-		CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
-		TypeBinding[] argTypes = computeTypes(messageSend.arguments);
-		this.completionToken = messageSend.selector;
+		CompletionOnMessageSend messageSend= (CompletionOnMessageSend)astNode;
+		TypeBinding[] argTypes= computeTypes(messageSend.arguments);
+		this.completionToken= messageSend.selector;
 		if (qualifiedBinding == null) {
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-				ObjectVector methodsFound = new ObjectVector();
+				ObjectVector methodsFound= new ObjectVector();
 
 				findImplicitMessageSends(this.completionToken, argTypes, scope, messageSend, scope, methodsFound);
-				
+
 				checkCancel();
-				
+
 				findLocalMethodsFromStaticImports(
 						this.completionToken,
 						scope,
@@ -2645,51 +2921,51 @@ public final class CompletionEngine
 						methodsFound,
 						true);
 			}
-		} else  if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+		} else if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 			findMethods(
-				this.completionToken,
-				null,
-				argTypes,
-				(ReferenceBinding)((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
-				scope,
-				new ObjectVector(),
-				false,
-				true,
-				messageSend,
-				scope,
-				false,
-				messageSend.receiver instanceof SuperReference,
-				false,
-				null,
-				null,
-				null,
-				false,
-				null,
-				-1,
-				-1);
+					this.completionToken,
+					null,
+					argTypes,
+					(ReferenceBinding)((ReferenceBinding)qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
+					scope,
+					new ObjectVector(),
+					false,
+					true,
+					messageSend,
+					scope,
+					false,
+					messageSend.receiver instanceof SuperReference,
+					false,
+					null,
+					null,
+					null,
+					false,
+					null,
+					-1,
+					-1);
 		}
 	}
-	
+
 	private void completionOnMessageSendName(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-			CompletionOnMessageSendName messageSend = (CompletionOnMessageSendName) astNode;
+			CompletionOnMessageSendName messageSend= (CompletionOnMessageSendName)astNode;
 
-			this.insideQualifiedReference = true;
-			this.completionToken = messageSend.selector;
-			boolean onlyStatic = false;
+			this.insideQualifiedReference= true;
+			this.completionToken= messageSend.selector;
+			boolean onlyStatic= false;
 			if (messageSend.receiver instanceof NameReference) {
-				onlyStatic = ((NameReference)messageSend.receiver).isTypeReference();
+				onlyStatic= ((NameReference)messageSend.receiver).isTypeReference();
 			} else if (!(messageSend.receiver instanceof MessageSend) &&
 					!(messageSend.receiver instanceof FieldReference) &&
 					!(messageSend.receiver.isThis())) {
-				onlyStatic = true;
+				onlyStatic= true;
 			}
 
-			TypeBinding receiverType = (TypeBinding)qualifiedBinding;
+			TypeBinding receiverType= (TypeBinding)qualifiedBinding;
 
-			if(receiverType != null && receiverType instanceof ReferenceBinding) {
-				TypeBinding[] typeArgTypes = computeTypesIfCorrect(messageSend.typeArguments);
-				if(typeArgTypes != null) {
+			if (receiverType != null && receiverType instanceof ReferenceBinding) {
+				TypeBinding[] typeArgTypes= computeTypesIfCorrect(messageSend.typeArguments);
+				if (typeArgTypes != null) {
 					findMethods(
 							this.completionToken,
 							typeArgTypes,
@@ -2715,37 +2991,37 @@ public final class CompletionEngine
 			}
 		}
 	}
-	
+
 	private void completionOnMethodName(ASTNode astNode, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
-			CompletionOnMethodName method = (CompletionOnMethodName) astNode;
+			CompletionOnMethodName method= (CompletionOnMethodName)astNode;
 
 			setSourceAndTokenRange(method.sourceStart, method.selectorEnd);
 
-			FieldBinding[] fields = scope.enclosingSourceType().fields();
-			char[][] excludeNames = new char[fields.length][];
-			for(int i = 0 ; i < fields.length ; i++){
-				excludeNames[i] = fields[i].name;
+			FieldBinding[] fields= scope.enclosingSourceType().fields();
+			char[][] excludeNames= new char[fields.length][];
+			for (int i= 0; i < fields.length; i++) {
+				excludeNames[i]= fields[i].name;
 			}
 
-			this.completionToken = method.selector;
+			this.completionToken= method.selector;
 
-			
-			int kind =
-				 (method.modifiers & ClassFileConstants.AccStatic) == 0 ? 
-						InternalNamingConventions.VK_INSTANCE_FIELD :
-							(method.modifiers & ClassFileConstants.AccFinal) == 0 ? 
+
+			int kind=
+					(method.modifiers & ClassFileConstants.AccStatic) == 0 ?
+							InternalNamingConventions.VK_INSTANCE_FIELD :
+							(method.modifiers & ClassFileConstants.AccFinal) == 0 ?
 									InternalNamingConventions.VK_STATIC_FIELD :
 										InternalNamingConventions.VK_STATIC_FINAL_FIELD;
-						
+
 			findVariableNames(this.completionToken, method.returnType, excludeNames, null, kind);
 		}
 	}
-	
+
 	private void completionOnMethodReturnType(ASTNode astNode, Scope scope) {
-		CompletionOnMethodReturnType method = (CompletionOnMethodReturnType) astNode;
-		SingleTypeReference type = (CompletionOnSingleTypeReference) method.returnType;
-		this.completionToken = type.token;
+		CompletionOnMethodReturnType method= (CompletionOnMethodReturnType)astNode;
+		SingleTypeReference type= (CompletionOnSingleTypeReference)method.returnType;
+		this.completionToken= type.token;
 		setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 		findTypesAndPackages(this.completionToken, scope.parent, true, true, new ObjectVector());
 		if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
@@ -2753,7 +3029,7 @@ public final class CompletionEngine
 		}
 
 		if (method.modifiers == ClassFileConstants.AccDefault) {
-			SourceTypeBinding enclosingType = scope.enclosingSourceType();
+			SourceTypeBinding enclosingType= scope.enclosingSourceType();
 			if (!enclosingType.isAnnotationType()) {
 				if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
 					findMethodDeclarations(
@@ -2772,28 +3048,28 @@ public final class CompletionEngine
 			}
 		}
 	}
-	
+
 	private void completionOnParameterizedQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			CompletionOnParameterizedQualifiedTypeReference ref = (CompletionOnParameterizedQualifiedTypeReference) astNode;
+			CompletionOnParameterizedQualifiedTypeReference ref= (CompletionOnParameterizedQualifiedTypeReference)astNode;
 
-			this.insideQualifiedReference = true;
+			this.insideQualifiedReference= true;
 
-			this.assistNodeIsClass = ref.isClass();
-			this.assistNodeIsException = ref.isException();
-			this.assistNodeIsInterface = ref.isInterface();
-			this.assistNodeIsSuperType = ref.isSuperType();
-			this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
+			this.assistNodeIsClass= ref.isClass();
+			this.assistNodeIsException= ref.isException();
+			this.assistNodeIsInterface= ref.isInterface();
+			this.assistNodeIsSuperType= ref.isSuperType();
+			this.assistNodeIsExtendedType= assistNodeIsExtendedType(astNode, astNodeParent);
 
-			this.completionToken = ref.completionIdentifier;
-			long completionPosition = ref.sourcePositions[ref.tokens.length];
-			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+			this.completionToken= ref.completionIdentifier;
+			long completionPosition= ref.sourcePositions[ref.tokens.length];
+			setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 
 			if (qualifiedBinding.problemId() == ProblemReasons.NotFound ||
 					(((ReferenceBinding)qualifiedBinding).tagBits & TagBits.HasMissingType) != 0) {
 				if (this.assistNodeInJavadoc == 0 &&
 						(this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
-					if(ref.tokens.length == 1) {
+					if (ref.tokens.length == 1) {
 						findMemberTypesFromMissingType(
 								ref,
 								ref.sourcePositions[0],
@@ -2801,7 +3077,7 @@ public final class CompletionEngine
 					}
 				}
 			} else {
-				ObjectVector typesFound = new ObjectVector();
+				ObjectVector typesFound= new ObjectVector();
 				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
 					findExceptionFromTryStatement(
 							this.completionToken,
@@ -2810,21 +3086,21 @@ public final class CompletionEngine
 							(BlockScope)scope,
 							typesFound);
 				}
-				
+
 				checkCancel();
-				
+
 				findMemberTypes(
-					this.completionToken,
-					(ReferenceBinding) qualifiedBinding,
-					scope,
-					scope.enclosingSourceType(),
-					false,
-					false,
-					typesFound,
-					null,
-					null,
-					null,
-					false);
+						this.completionToken,
+						(ReferenceBinding)qualifiedBinding,
+						scope,
+						scope.enclosingSourceType(),
+						false,
+						false,
+						typesFound,
+						null,
+						null,
+						null,
+						false);
 			}
 		}
 	}
@@ -2834,27 +3110,27 @@ public final class CompletionEngine
 		if (astNodeParent == null)
 			return false;
 		if (astNodeParent instanceof TypeDeclaration) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) astNodeParent;
-			return (typeDeclaration.superclass == astNode);	
+			TypeDeclaration typeDeclaration= (TypeDeclaration)astNodeParent;
+			return (typeDeclaration.superclass == astNode);
 		} else if (astNodeParent instanceof TypeParameter) {
-			TypeParameter typeParameter = (TypeParameter) astNodeParent;
+			TypeParameter typeParameter= (TypeParameter)astNodeParent;
 			return (typeParameter.type == astNode);
 		} else if (astNodeParent instanceof Wildcard) {
-			Wildcard wildcard = (Wildcard) astNodeParent;
+			Wildcard wildcard= (Wildcard)astNodeParent;
 			return (wildcard.bound == astNode && wildcard.kind == Wildcard.EXTENDS);
 		}
 		return false;
 	}
-	
+
 	private void completionOnQualifiedAllocationExpression(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
 
-		CompletionOnQualifiedAllocationExpression allocExpression =
-			(CompletionOnQualifiedAllocationExpression) astNode;
-		TypeBinding[] argTypes = computeTypes(allocExpression.arguments);
+		CompletionOnQualifiedAllocationExpression allocExpression=
+				(CompletionOnQualifiedAllocationExpression)astNode;
+		TypeBinding[] argTypes= computeTypes(allocExpression.arguments);
 
-		ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
-		
+		ReferenceBinding ref= (ReferenceBinding)qualifiedBinding;
+
 		if (ref.problemId() == ProblemReasons.NotFound) {
 			findConstructorsFromMissingType(
 					allocExpression.type,
@@ -2865,7 +3141,7 @@ public final class CompletionEngine
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)
 					&& ref.isClass()
 					&& !ref.isAbstract()) {
-					findConstructors(
+				findConstructors(
 						ref,
 						argTypes,
 						scope,
@@ -2876,35 +3152,35 @@ public final class CompletionEngine
 						null,
 						false);
 			}
-			
+
 			checkCancel();
-			
+
 			if (!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)
 					&& !ref.isFinal()
-					&& !ref.isEnum()){
+					&& !ref.isEnum()) {
 				findAnonymousType(
-					ref,
-					argTypes,
-					scope,
-					allocExpression,
-					null,
-					null,
-					null,
-					false);
+						ref,
+						argTypes,
+						scope,
+						allocExpression,
+						null,
+						null,
+						null,
+						false);
 			}
 		}
 	}
-	
+
 	private void completionOnQualifiedNameReference(ASTNode astNode, ASTNode enclosingNode, Binding qualifiedBinding,
 			Scope scope, boolean insideTypeAnnotation) {
-		this.insideQualifiedReference = true;
-		CompletionOnQualifiedNameReference ref =
-			(CompletionOnQualifiedNameReference) astNode;
-		this.completionToken = ref.completionIdentifier;
-		long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
+		this.insideQualifiedReference= true;
+		CompletionOnQualifiedNameReference ref=
+				(CompletionOnQualifiedNameReference)astNode;
+		this.completionToken= ref.completionIdentifier;
+		long completionPosition= ref.sourcePositions[ref.sourcePositions.length - 1];
 
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
-			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+			setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 			// complete field members with missing fields type
 			// class X {
 			//   Missing f;
@@ -2916,13 +3192,13 @@ public final class CompletionEngine
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
-				if(ref.tokens.length == 1) {
-					boolean foundSomeFields = findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
+				if (ref.tokens.length == 1) {
+					boolean foundSomeFields= findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
 
 					if (!foundSomeFields) {
-						
+
 						checkCancel();
-						
+
 						findMembersFromMissingType(
 								ref.tokens[0],
 								ref.sourcePositions[0],
@@ -2934,11 +3210,11 @@ public final class CompletionEngine
 				}
 			}
 		} else if (qualifiedBinding instanceof VariableBinding) {
-			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
-			TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
+			setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
+			TypeBinding receiverType= ((VariableBinding)qualifiedBinding).type;
 			if (receiverType != null && (receiverType.tagBits & TagBits.HasMissingType) == 0) {
-				ObjectVector fieldsFound = new ObjectVector();
-				ObjectVector methodsFound = new ObjectVector();
+				ObjectVector fieldsFound= new ObjectVector();
+				ObjectVector methodsFound= new ObjectVector();
 
 				findFieldsAndMethods(
 						this.completionToken,
@@ -2957,7 +3233,7 @@ public final class CompletionEngine
 						null,
 						-1,
 						-1);
-				
+
 				checkCancel();
 
 				findFieldsAndMethodsFromCastedReceiver(
@@ -2973,10 +3249,10 @@ public final class CompletionEngine
 			} else if (this.assistNodeInJavadoc == 0 &&
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
-				boolean proposeField = !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
-				boolean proposeMethod = !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
+				boolean proposeField= !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
+				boolean proposeMethod= !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
 				if (proposeField || proposeMethod) {
-					if(ref.tokens.length == 1) {
+					if (ref.tokens.length == 1) {
 						if (qualifiedBinding instanceof LocalVariableBinding) {
 							// complete local variable members with missing variables type
 							// class X {
@@ -2985,7 +3261,7 @@ public final class CompletionEngine
 							//     f.|
 							//   }
 							// }
-							LocalVariableBinding localVariableBinding = (LocalVariableBinding) qualifiedBinding;
+							LocalVariableBinding localVariableBinding= (LocalVariableBinding)qualifiedBinding;
 							findFieldsAndMethodsFromMissingType(
 									localVariableBinding.declaration.type,
 									localVariableBinding.declaringScope,
@@ -3007,9 +3283,9 @@ public final class CompletionEngine
 			}
 
 		} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
-			boolean isInsideAnnotationAttribute = ref.isInsideAnnotationAttribute;
-			ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
-			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+			boolean isInsideAnnotationAttribute= ref.isInsideAnnotationAttribute;
+			ReferenceBinding receiverType= (ReferenceBinding)qualifiedBinding;
+			setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 
 			findMembers(
 					this.completionToken,
@@ -3024,37 +3300,37 @@ public final class CompletionEngine
 
 		} else if (qualifiedBinding instanceof PackageBinding) {
 
-			setSourceRange(astNode.sourceStart, (int) completionPosition);
-			setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+			setSourceRange(astNode.sourceStart, (int)completionPosition);
+			setTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 
 			// replace to the end of the completion identifier
-			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
+			findTypesAndSubpackages(this.completionToken, (PackageBinding)qualifiedBinding, scope);
 		}
 	}
-	
+
 	private void completionOnQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding,
 			Scope scope) {
-		this.insideQualifiedReference = true;
+		this.insideQualifiedReference= true;
 
-		CompletionOnQualifiedTypeReference ref =
-			(CompletionOnQualifiedTypeReference) astNode;
+		CompletionOnQualifiedTypeReference ref=
+				(CompletionOnQualifiedTypeReference)astNode;
 
-		this.assistNodeIsClass = ref.isClass();
-		this.assistNodeIsException = ref.isException();
-		this.assistNodeIsInterface = ref.isInterface();
-		this.assistNodeIsConstructor = ref.isConstructorType;
-		this.assistNodeIsSuperType = ref.isSuperType();
-		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
+		this.assistNodeIsClass= ref.isClass();
+		this.assistNodeIsException= ref.isException();
+		this.assistNodeIsInterface= ref.isInterface();
+		this.assistNodeIsConstructor= ref.isConstructorType;
+		this.assistNodeIsSuperType= ref.isSuperType();
+		this.assistNodeIsExtendedType= assistNodeIsExtendedType(astNode, astNodeParent);
 
-		this.completionToken = ref.completionIdentifier;
-		long completionPosition = ref.sourcePositions[ref.tokens.length];
+		this.completionToken= ref.completionIdentifier;
+		long completionPosition= ref.sourcePositions[ref.tokens.length];
 
 		// get the source positions of the completion identifier
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
-			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+			setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 			if (this.assistNodeInJavadoc == 0 &&
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
-				if(ref.tokens.length == 1) {
+				if (ref.tokens.length == 1) {
 					findMemberTypesFromMissingType(
 							ref.tokens[0],
 							ref.sourcePositions[0],
@@ -3063,9 +3339,9 @@ public final class CompletionEngine
 			}
 		} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceAndTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 
-				ObjectVector typesFound = new ObjectVector();
+				ObjectVector typesFound= new ObjectVector();
 
 				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
 					findExceptionFromTryStatement(
@@ -3075,58 +3351,58 @@ public final class CompletionEngine
 							(BlockScope)scope,
 							typesFound);
 				}
-				
+
 				checkCancel();
 
 				findMemberTypes(
-					this.completionToken,
-					(ReferenceBinding) qualifiedBinding,
-					scope,
-					scope.enclosingSourceType(),
-					false,
-					false,
-					typesFound,
-					null,
-					null,
-					null,
-					false);
+						this.completionToken,
+						(ReferenceBinding)qualifiedBinding,
+						scope,
+						scope.enclosingSourceType(),
+						false,
+						false,
+						typesFound,
+						null,
+						null,
+						null,
+						false);
 			}
 		} else if (qualifiedBinding instanceof PackageBinding) {
 
-			setSourceRange(astNode.sourceStart, (int) completionPosition);
-			setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+			setSourceRange(astNode.sourceStart, (int)completionPosition);
+			setTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 			// replace to the end of the completion identifier
-			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
+			findTypesAndSubpackages(this.completionToken, (PackageBinding)qualifiedBinding, scope);
 		}
 	}
-	
+
 	private void completionOnSingleNameReference(ASTNode astNode, ASTNode astNodeParent, Scope scope,
 			boolean insideTypeAnnotation) {
-		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
-		this.completionToken = singleNameReference.token;
-		SwitchStatement switchStatement = astNodeParent instanceof SwitchStatement ? (SwitchStatement) astNodeParent : null;
+		CompletionOnSingleNameReference singleNameReference= (CompletionOnSingleNameReference)astNode;
+		this.completionToken= singleNameReference.token;
+		SwitchStatement switchStatement= astNodeParent instanceof SwitchStatement ? (SwitchStatement)astNodeParent : null;
 		if (switchStatement != null
 				&& switchStatement.expression.resolvedType != null
 				&& switchStatement.expression.resolvedType.isEnum()) {
 			if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-				this.assistNodeIsEnum = true;
-				findEnumConstantsFromSwithStatement(this.completionToken, (SwitchStatement) astNodeParent);
+				this.assistNodeIsEnum= true;
+				findEnumConstantsFromSwithStatement(this.completionToken, (SwitchStatement)astNodeParent);
 			}
 		} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
 			findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 		} else {
 			if (this.expectedTypesPtr > -1) {
-				this.assistNodeIsEnum = true;
-				done : for (int i = 0; i <= this.expectedTypesPtr; i++) {
+				this.assistNodeIsEnum= true;
+				done: for (int i= 0; i <= this.expectedTypesPtr; i++) {
 					if (!this.expectedTypes[i].isEnum()) {
-						this.assistNodeIsEnum = false;
+						this.assistNodeIsEnum= false;
 						break done;
 					}
 				}
 
 			}
 			if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-				char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, singleNameReference);
+				char[][] alreadyDefinedName= computeAlreadyDefinedName((BlockScope)scope, singleNameReference);
 
 				findUnresolvedReference(
 						singleNameReference.sourceStart,
@@ -3134,19 +3410,19 @@ public final class CompletionEngine
 						(BlockScope)scope,
 						alreadyDefinedName);
 			}
-			
+
 			checkCancel();
-			
+
 			findVariablesAndMethods(
-				this.completionToken,
-				scope,
-				singleNameReference,
-				scope,
-				insideTypeAnnotation,
-				singleNameReference.isInsideAnnotationAttribute);
-			
+					this.completionToken,
+					scope,
+					singleNameReference,
+					scope,
+					insideTypeAnnotation,
+					singleNameReference.isInsideAnnotationAttribute);
+
 			checkCancel();
-			
+
 			// can be the start of a qualified type name
 			findTypesAndPackages(this.completionToken, scope, true, false, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
@@ -3156,29 +3432,29 @@ public final class CompletionEngine
 					findTrueOrFalseKeywords(singleNameReference.possibleKeywords);
 				}
 			}
-			if (singleNameReference.canBeExplicitConstructor && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)){
+			if (singleNameReference.canBeExplicitConstructor && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 				if (CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
-					ReferenceBinding ref = scope.enclosingSourceType();
+					ReferenceBinding ref= scope.enclosingSourceType();
 					findExplicitConstructors(Keywords.THIS, ref, (MethodScope)scope, singleNameReference);
 				} else if (CharOperation.prefixEquals(this.completionToken, Keywords.SUPER, false)) {
-					ReferenceBinding ref = scope.enclosingSourceType();
+					ReferenceBinding ref= scope.enclosingSourceType();
 					findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
 				}
 			}
 		}
 	}
-	
+
 	private void completionOnSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
-		CompletionOnSingleTypeReference singleRef = (CompletionOnSingleTypeReference) astNode;
+		CompletionOnSingleTypeReference singleRef= (CompletionOnSingleTypeReference)astNode;
 
-		this.completionToken = singleRef.token;
+		this.completionToken= singleRef.token;
 
-		this.assistNodeIsClass = singleRef.isClass();
-		this.assistNodeIsException = singleRef.isException();
-		this.assistNodeIsInterface = singleRef.isInterface();
-		this.assistNodeIsConstructor = singleRef.isConstructorType;
-		this.assistNodeIsSuperType = singleRef.isSuperType();
-		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
+		this.assistNodeIsClass= singleRef.isClass();
+		this.assistNodeIsException= singleRef.isException();
+		this.assistNodeIsInterface= singleRef.isInterface();
+		this.assistNodeIsConstructor= singleRef.isConstructorType;
+		this.assistNodeIsSuperType= singleRef.isSuperType();
+		this.assistNodeIsExtendedType= assistNodeIsExtendedType(astNode, astNodeParent);
 
 		// can be the start of a qualified type name
 		if (qualifiedBinding == null) {
@@ -3189,7 +3465,7 @@ public final class CompletionEngine
 
 				findParameterizedType((TypeReference)astNodeParent, scope);
 			} else {
-				ObjectVector typesFound = new ObjectVector();
+				ObjectVector typesFound= new ObjectVector();
 				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
 					findExceptionFromTryStatement(
 							this.completionToken,
@@ -3198,55 +3474,55 @@ public final class CompletionEngine
 							(BlockScope)scope,
 							typesFound);
 				}
-				
+
 				checkCancel();
-				
+
 				findTypesAndPackages(this.completionToken, scope, this.assistNodeIsConstructor, false, typesFound);
 			}
 		} else if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			findMemberTypes(
-				this.completionToken,
-				(ReferenceBinding) qualifiedBinding,
-				scope,
-				scope.enclosingSourceType(),
-				false,
-				false,
-				false,
-				false,
-				!this.assistNodeIsConstructor,
-				null,
-				new ObjectVector(),
-				null,
-				null,
-				null,
-				false);
+					this.completionToken,
+					(ReferenceBinding)qualifiedBinding,
+					scope,
+					scope.enclosingSourceType(),
+					false,
+					false,
+					false,
+					false,
+					!this.assistNodeIsConstructor,
+					null,
+					new ObjectVector(),
+					null,
+					null,
+					null,
+					false);
 		}
 	}
 
 	private char[][] computeAlreadyDefinedName(
 			BlockScope scope,
 			InvocationSite invocationSite) {
-		ArrayList result = new ArrayList();
+		ArrayList result= new ArrayList();
 
-		boolean staticsOnly = false;
+		boolean staticsOnly= false;
 
-		Scope currentScope = scope;
+		Scope currentScope= scope;
 
-		done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		done1: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (currentScope.kind) {
 
-				case Scope.METHOD_SCOPE :
+				case Scope.METHOD_SCOPE:
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-					MethodScope methodScope = (MethodScope) currentScope;
-					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					MethodScope methodScope= (MethodScope)currentScope;
+					staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 
-				//$FALL-THROUGH$
-				case Scope.BLOCK_SCOPE :
-					BlockScope blockScope = (BlockScope) currentScope;
+					//$FALL-THROUGH$
+				case Scope.BLOCK_SCOPE:
+					BlockScope blockScope= (BlockScope)currentScope;
 
-					next : for (int i = 0, length = blockScope.locals.length; i < length; i++) {
-						LocalVariableBinding local = blockScope.locals[i];
+					next: for (int i= 0, length= blockScope.locals.length; i < length; i++) {
+						LocalVariableBinding local= blockScope.locals[i];
 
 						if (local == null)
 							break next;
@@ -3258,25 +3534,26 @@ public final class CompletionEngine
 					}
 					break;
 
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) currentScope;
-					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)currentScope;
+					SourceTypeBinding enclosingType= classScope.referenceContext.binding;
 					computeAlreadyDefinedName(
 							enclosingType,
 							classScope,
 							staticsOnly,
 							invocationSite,
 							result);
-					staticsOnly |= enclosingType.isStatic();
+					staticsOnly|= enclosingType.isStatic();
 					break;
 
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					break done1;
 			}
-			currentScope = currentScope.parent;
+			currentScope= currentScope.parent;
 		}
 
-		if (result.size() == 0) return CharOperation.NO_CHAR_CHAR;
+		if (result.size() == 0)
+			return CharOperation.NO_CHAR_CHAR;
 
 		return (char[][])result.toArray(new char[result.size()][]);
 	}
@@ -3289,14 +3566,17 @@ public final class CompletionEngine
 			InvocationSite invocationSite,
 			ArrayList result) {
 
-		next : for (int f = fields.length; --f >= 0;) {
-			FieldBinding field = fields[f];
+		next: for (int f= fields.length; --f >= 0;) {
+			FieldBinding field= fields[f];
 
-			if (field.isSynthetic()) continue next;
+			if (field.isSynthetic())
+				continue next;
 
-			if (onlyStaticFields && !field.isStatic()) continue next;
+			if (onlyStaticFields && !field.isStatic())
+				continue next;
 
-			if (!field.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+			if (!field.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
 			result.add(field.name);
 		}
@@ -3309,172 +3589,174 @@ public final class CompletionEngine
 			InvocationSite invocationSite,
 			ArrayList result) {
 
-		ReferenceBinding currentType = receiverType;
-		ReferenceBinding[] interfacesToVisit = null;
-		int nextPosition = 0;
+		ReferenceBinding currentType= receiverType;
+		ReferenceBinding[] interfacesToVisit= null;
+		int nextPosition= 0;
 		do {
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			ReferenceBinding[] itsInterfaces= currentType.superInterfaces();
 			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
-					interfacesToVisit = itsInterfaces;
-					nextPosition = interfacesToVisit.length;
+					interfacesToVisit= itsInterfaces;
+					nextPosition= interfacesToVisit.length;
 				} else {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 
-			FieldBinding[] fields = currentType.availableFields();
-			if(fields != null && fields.length > 0) {
+			FieldBinding[] fields= currentType.availableFields();
+			if (fields != null && fields.length > 0) {
 				computeAlreadyDefinedName(
-					fields,
-					scope,
-					onlyStaticFields,
-					receiverType,
-					invocationSite,
-					result);
-			}
-			currentType = currentType.superclass();
-		} while ( currentType != null);
-
-		if (interfacesToVisit != null) {
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding anInterface = interfacesToVisit[i];
-				FieldBinding[] fields = anInterface.availableFields();
-				if(fields !=  null) {
-					computeAlreadyDefinedName(
 						fields,
 						scope,
 						onlyStaticFields,
 						receiverType,
 						invocationSite,
 						result);
+			}
+			currentType= currentType.superclass();
+		} while (currentType != null);
+
+		if (interfacesToVisit != null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface= interfacesToVisit[i];
+				FieldBinding[] fields= anInterface.availableFields();
+				if (fields != null) {
+					computeAlreadyDefinedName(
+							fields,
+							scope,
+							onlyStaticFields,
+							receiverType,
+							invocationSite,
+							result);
 				}
 
-				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+				ReferenceBinding[] itsInterfaces= anInterface.superInterfaces();
 				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 		}
 	}
 
-	int computeBaseRelevance(){
+	int computeBaseRelevance() {
 		return R_DEFAULT;
 	}
 
-	private void computeExpectedTypes(ASTNode parent, ASTNode node, Scope scope){
+	private void computeExpectedTypes(ASTNode parent, ASTNode node, Scope scope) {
 
 		// default filter
-		this.expectedTypesFilter = SUBTYPE;
-		this.hasJavaLangObjectAsExpectedType = false;
+		this.expectedTypesFilter= SUBTYPE;
+		this.hasJavaLangObjectAsExpectedType= false;
 
 		// find types from parent
-		if(parent instanceof AbstractVariableDeclaration && !(parent instanceof TypeParameter)) {
-			AbstractVariableDeclaration variable = (AbstractVariableDeclaration)parent;
-			TypeBinding binding = variable.type.resolvedType;
-			if(binding != null) {
-				if(!(variable.initialization instanceof ArrayInitializer)) {
+		if (parent instanceof AbstractVariableDeclaration && !(parent instanceof TypeParameter)) {
+			AbstractVariableDeclaration variable= (AbstractVariableDeclaration)parent;
+			TypeBinding binding= variable.type.resolvedType;
+			if (binding != null) {
+				if (!(variable.initialization instanceof ArrayInitializer)) {
 					addExpectedType(binding, scope);
 				}
 			}
-		} else if(parent instanceof Assignment) {
-			TypeBinding binding = ((Assignment)parent).lhs.resolvedType;
-			if(binding != null) {
+		} else if (parent instanceof Assignment) {
+			TypeBinding binding= ((Assignment)parent).lhs.resolvedType;
+			if (binding != null) {
 				addExpectedType(binding, scope);
 			}
-		} else if(parent instanceof ReturnStatement) {
-			if(scope.methodScope().referenceContext instanceof AbstractMethodDeclaration) {
-				MethodBinding methodBinding = ((AbstractMethodDeclaration) scope.methodScope().referenceContext).binding;
-				TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
-				if(binding != null) {
+		} else if (parent instanceof ReturnStatement) {
+			if (scope.methodScope().referenceContext instanceof AbstractMethodDeclaration) {
+				MethodBinding methodBinding= ((AbstractMethodDeclaration)scope.methodScope().referenceContext).binding;
+				TypeBinding binding= methodBinding == null ? null : methodBinding.returnType;
+				if (binding != null) {
 					addExpectedType(binding, scope);
 				}
 			}
-		} else if(parent instanceof CastExpression) {
-			Expression e = ((CastExpression)parent).type;
-			TypeBinding binding = e.resolvedType;
-			if(binding != null){
+		} else if (parent instanceof CastExpression) {
+			Expression e= ((CastExpression)parent).type;
+			TypeBinding binding= e.resolvedType;
+			if (binding != null) {
 				addExpectedType(binding, scope);
-				this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
+				this.expectedTypesFilter= SUBTYPE | SUPERTYPE;
 			}
-		} else if(parent instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) parent;
+		} else if (parent instanceof MessageSend) {
+			MessageSend messageSend= (MessageSend)parent;
 
-			if(messageSend.actualReceiverType instanceof ReferenceBinding) {
-				ReferenceBinding binding = (ReferenceBinding)messageSend.actualReceiverType;
-				boolean isStatic = messageSend.receiver.isTypeReference();
+			if (messageSend.actualReceiverType instanceof ReferenceBinding) {
+				ReferenceBinding binding= (ReferenceBinding)messageSend.actualReceiverType;
+				boolean isStatic= messageSend.receiver.isTypeReference();
 
-				while(binding != null) {
+				while (binding != null) {
 					computeExpectedTypesForMessageSend(
-						binding,
-						messageSend.selector,
-						messageSend.arguments,
-						(ReferenceBinding)messageSend.actualReceiverType,
-						scope,
-						messageSend,
-						isStatic);
+							binding,
+							messageSend.selector,
+							messageSend.arguments,
+							(ReferenceBinding)messageSend.actualReceiverType,
+							scope,
+							messageSend,
+							isStatic);
 					computeExpectedTypesForMessageSendForInterface(
-						binding,
-						messageSend.selector,
-						messageSend.arguments,
-						(ReferenceBinding)messageSend.actualReceiverType,
-						scope,
-						messageSend,
-						isStatic);
-					binding = binding.superclass();
+							binding,
+							messageSend.selector,
+							messageSend.arguments,
+							(ReferenceBinding)messageSend.actualReceiverType,
+							scope,
+							messageSend,
+							isStatic);
+					binding= binding.superclass();
 				}
 			}
-		} else if(parent instanceof AllocationExpression) {
-			AllocationExpression allocationExpression = (AllocationExpression) parent;
+		} else if (parent instanceof AllocationExpression) {
+			AllocationExpression allocationExpression= (AllocationExpression)parent;
 
-			ReferenceBinding binding = (ReferenceBinding)allocationExpression.type.resolvedType;
+			ReferenceBinding binding= (ReferenceBinding)allocationExpression.type.resolvedType;
 
-			if(binding != null) {
+			if (binding != null) {
 				computeExpectedTypesForAllocationExpression(
-					binding,
-					allocationExpression.arguments,
-					scope,
-					allocationExpression);
+						binding,
+						allocationExpression.arguments,
+						scope,
+						allocationExpression);
 			}
-		} else if(parent instanceof OperatorExpression) {
-			int operator = (parent.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
-			if(parent instanceof ConditionalExpression) {
+		} else if (parent instanceof OperatorExpression) {
+			int operator= (parent.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
+			if (parent instanceof ConditionalExpression) {
 				// for future use
-			} else if(parent instanceof InstanceOfExpression) {
-				InstanceOfExpression e = (InstanceOfExpression) parent;
-				TypeBinding binding = e.expression.resolvedType;
-				if(binding != null){
+			} else if (parent instanceof InstanceOfExpression) {
+				InstanceOfExpression e= (InstanceOfExpression)parent;
+				TypeBinding binding= e.expression.resolvedType;
+				if (binding != null) {
 					addExpectedType(binding, scope);
-					this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
+					this.expectedTypesFilter= SUBTYPE | SUPERTYPE;
 				}
-			} else if(parent instanceof BinaryExpression) {
-				BinaryExpression binaryExpression = (BinaryExpression) parent;
-				switch(operator) {
-					case OperatorIds.EQUAL_EQUAL :
+			} else if (parent instanceof BinaryExpression) {
+				BinaryExpression binaryExpression= (BinaryExpression)parent;
+				switch (operator) {
+					case OperatorIds.EQUAL_EQUAL:
 						// expected type is not relevant in this case
-						TypeBinding binding = binaryExpression.left.resolvedType;
+						TypeBinding binding= binaryExpression.left.resolvedType;
 						if (binding != null) {
 							addExpectedType(binding, scope);
-							this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
+							this.expectedTypesFilter= SUBTYPE | SUPERTYPE;
 						}
 						break;
-					case OperatorIds.PLUS :
+					case OperatorIds.PLUS:
 						addExpectedType(TypeBinding.SHORT, scope);
 						addExpectedType(TypeBinding.INT, scope);
 						addExpectedType(TypeBinding.LONG, scope);
@@ -3484,12 +3766,12 @@ public final class CompletionEngine
 						addExpectedType(TypeBinding.BYTE, scope);
 						addExpectedType(scope.getJavaLangString(), scope);
 						break;
-					case OperatorIds.AND_AND :
-					case OperatorIds.OR_OR :
-					case OperatorIds.XOR :
+					case OperatorIds.AND_AND:
+					case OperatorIds.OR_OR:
+					case OperatorIds.XOR:
 						addExpectedType(TypeBinding.BOOLEAN, scope);
 						break;
-					default :
+					default:
 						addExpectedType(TypeBinding.SHORT, scope);
 						addExpectedType(TypeBinding.INT, scope);
 						addExpectedType(TypeBinding.LONG, scope);
@@ -3499,35 +3781,35 @@ public final class CompletionEngine
 						addExpectedType(TypeBinding.BYTE, scope);
 						break;
 				}
-				if(operator == OperatorIds.LESS) {
-					if(binaryExpression.left instanceof SingleNameReference){
-						SingleNameReference name = (SingleNameReference) binaryExpression.left;
-						Binding b = scope.getBinding(name.token, Binding.VARIABLE | Binding.TYPE, name, false);
-						if(b instanceof ReferenceBinding) {
-							TypeVariableBinding[] typeVariableBindings =((ReferenceBinding)b).typeVariables();
-							if(typeVariableBindings != null && typeVariableBindings.length > 0) {
+				if (operator == OperatorIds.LESS) {
+					if (binaryExpression.left instanceof SingleNameReference) {
+						SingleNameReference name= (SingleNameReference)binaryExpression.left;
+						Binding b= scope.getBinding(name.token, Binding.VARIABLE | Binding.TYPE, name, false);
+						if (b instanceof ReferenceBinding) {
+							TypeVariableBinding[] typeVariableBindings= ((ReferenceBinding)b).typeVariables();
+							if (typeVariableBindings != null && typeVariableBindings.length > 0) {
 								addExpectedType(typeVariableBindings[0].firstBound, scope);
 							}
 
 						}
 					}
 				}
-			} else if(parent instanceof UnaryExpression) {
-				switch(operator) {
-					case OperatorIds.NOT :
+			} else if (parent instanceof UnaryExpression) {
+				switch (operator) {
+					case OperatorIds.NOT:
 						addExpectedType(TypeBinding.BOOLEAN, scope);
 						break;
-					case OperatorIds.TWIDDLE :
+					case OperatorIds.TWIDDLE:
 						addExpectedType(TypeBinding.SHORT, scope);
 						addExpectedType(TypeBinding.INT, scope);
 						addExpectedType(TypeBinding.LONG, scope);
 						addExpectedType(TypeBinding.CHAR, scope);
 						addExpectedType(TypeBinding.BYTE, scope);
 						break;
-					case OperatorIds.PLUS :
-					case OperatorIds.MINUS :
-					case OperatorIds.PLUS_PLUS :
-					case OperatorIds.MINUS_MINUS :
+					case OperatorIds.PLUS:
+					case OperatorIds.MINUS:
+					case OperatorIds.PLUS_PLUS:
+					case OperatorIds.MINUS_MINUS:
 						addExpectedType(TypeBinding.SHORT, scope);
 						addExpectedType(TypeBinding.INT, scope);
 						addExpectedType(TypeBinding.LONG, scope);
@@ -3538,117 +3820,118 @@ public final class CompletionEngine
 						break;
 				}
 			}
-		} else if(parent instanceof ArrayReference) {
+		} else if (parent instanceof ArrayReference) {
 			addExpectedType(TypeBinding.SHORT, scope);
 			addExpectedType(TypeBinding.INT, scope);
 			addExpectedType(TypeBinding.LONG, scope);
-		} else if(parent instanceof ParameterizedSingleTypeReference) {
-			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
-			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
-			if(typeVariables != null && typeVariables.length >= length) {
-				int index = length - 1;
-				while(index > -1 && ref.typeArguments[index] != node) index--;
+		} else if (parent instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference ref= (ParameterizedSingleTypeReference)parent;
+			TypeVariableBinding[] typeVariables= ((ReferenceBinding)ref.resolvedType).typeVariables();
+			int length= ref.typeArguments == null ? 0 : ref.typeArguments.length;
+			if (typeVariables != null && typeVariables.length >= length) {
+				int index= length - 1;
+				while (index > -1 && ref.typeArguments[index] != node)
+					index--;
 
-				TypeBinding bound = typeVariables[index].firstBound;
+				TypeBinding bound= typeVariables[index].firstBound;
 				addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
 			}
-		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
-			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
-			TypeReference[][] arguments = ref.typeArguments;
-			if(typeVariables != null) {
-				int iLength = arguments == null ? 0 : arguments.length;
-				done: for (int i = 0; i < iLength; i++) {
-					int jLength = arguments[i] == null ? 0 : arguments[i].length;
-					for (int j = 0; j < jLength; j++) {
-						if(arguments[i][j] == node && typeVariables.length > j) {
-							TypeBinding bound = typeVariables[j].firstBound;
+		} else if (parent instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference ref= (ParameterizedQualifiedTypeReference)parent;
+			TypeVariableBinding[] typeVariables= ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeReference[][] arguments= ref.typeArguments;
+			if (typeVariables != null) {
+				int iLength= arguments == null ? 0 : arguments.length;
+				done: for (int i= 0; i < iLength; i++) {
+					int jLength= arguments[i] == null ? 0 : arguments[i].length;
+					for (int j= 0; j < jLength; j++) {
+						if (arguments[i][j] == node && typeVariables.length > j) {
+							TypeBinding bound= typeVariables[j].firstBound;
 							addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
 							break done;
 						}
 					}
 				}
 			}
-		} else if(parent instanceof MemberValuePair) {
-			MemberValuePair memberValuePair = (MemberValuePair) parent;
-			if(memberValuePair.binding != null) {
+		} else if (parent instanceof MemberValuePair) {
+			MemberValuePair memberValuePair= (MemberValuePair)parent;
+			if (memberValuePair.binding != null) {
 				addExpectedType(memberValuePair.binding.returnType, scope);
 			}
 		} else if (parent instanceof NormalAnnotation) {
-			NormalAnnotation annotation = (NormalAnnotation) parent;
-			MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
-			if(memberValuePairs == null || memberValuePairs.length == 0) {
-				if(annotation.resolvedType instanceof ReferenceBinding) {
-					MethodBinding[] methodBindings =
-						((ReferenceBinding)annotation.resolvedType).availableMethods();
+			NormalAnnotation annotation= (NormalAnnotation)parent;
+			MemberValuePair[] memberValuePairs= annotation.memberValuePairs();
+			if (memberValuePairs == null || memberValuePairs.length == 0) {
+				if (annotation.resolvedType instanceof ReferenceBinding) {
+					MethodBinding[] methodBindings=
+							((ReferenceBinding)annotation.resolvedType).availableMethods();
 					if (methodBindings != null &&
 							methodBindings.length > 0 &&
 							CharOperation.equals(methodBindings[0].selector, VALUE)) {
-						boolean canBeSingleMemberAnnotation = true;
-						done : for (int i = 1; i < methodBindings.length; i++) {
-							if((methodBindings[i].modifiers & ClassFileConstants.AccAnnotationDefault) == 0) {
-								canBeSingleMemberAnnotation = false;
+						boolean canBeSingleMemberAnnotation= true;
+						done: for (int i= 1; i < methodBindings.length; i++) {
+							if ((methodBindings[i].modifiers & ClassFileConstants.AccAnnotationDefault) == 0) {
+								canBeSingleMemberAnnotation= false;
 								break done;
 							}
 						}
 						if (canBeSingleMemberAnnotation) {
-							this.assistNodeCanBeSingleMemberAnnotation = canBeSingleMemberAnnotation;
+							this.assistNodeCanBeSingleMemberAnnotation= canBeSingleMemberAnnotation;
 							addExpectedType(methodBindings[0].returnType, scope);
 						}
 					}
 				}
 			}
 		} else if (parent instanceof TryStatement) {
-			boolean isException = false;
+			boolean isException= false;
 			if (node instanceof CompletionOnSingleTypeReference) {
-				isException = ((CompletionOnSingleTypeReference)node).isException();
+				isException= ((CompletionOnSingleTypeReference)node).isException();
 			} else if (node instanceof CompletionOnQualifiedTypeReference) {
-				isException = ((CompletionOnQualifiedTypeReference)node).isException();
+				isException= ((CompletionOnQualifiedTypeReference)node).isException();
 			} else if (node instanceof CompletionOnParameterizedQualifiedTypeReference) {
-				isException = ((CompletionOnParameterizedQualifiedTypeReference)node).isException();
+				isException= ((CompletionOnParameterizedQualifiedTypeReference)node).isException();
 			}
 			if (isException) {
-				ThrownExceptionFinder thrownExceptionFinder = new ThrownExceptionFinder();
-				ReferenceBinding[] bindings = thrownExceptionFinder.find((TryStatement) parent, (BlockScope)scope);
+				ThrownExceptionFinder thrownExceptionFinder= new ThrownExceptionFinder();
+				ReferenceBinding[] bindings= thrownExceptionFinder.find((TryStatement)parent, (BlockScope)scope);
 				if (bindings != null && bindings.length > 0) {
-					for (int i = 0; i < bindings.length; i++) {
+					for (int i= 0; i < bindings.length; i++) {
 						addExpectedType(bindings[i], scope);
 					}
-					this.expectedTypesFilter = SUPERTYPE;
+					this.expectedTypesFilter= SUPERTYPE;
 				}
 			}
 		} else if (parent instanceof SwitchStatement) {
-			SwitchStatement switchStatement = (SwitchStatement) parent;
+			SwitchStatement switchStatement= (SwitchStatement)parent;
 			if (switchStatement.expression != null &&
 					switchStatement.expression.resolvedType != null) {
 				addExpectedType(switchStatement.expression.resolvedType, scope);
 			}
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253008, flag boolean as the expected
-		// type if we are completing inside if(), for (; ;), while() and do while()
-		} else if (parent instanceof WhileStatement) {  // covers both while and do-while loops
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253008, flag boolean as the expected
+			// type if we are completing inside if(), for (; ;), while() and do while()
+		} else if (parent instanceof WhileStatement) { // covers both while and do-while loops
 			addExpectedType(TypeBinding.BOOLEAN, scope);
-		} else if (parent instanceof IfStatement) {  
+		} else if (parent instanceof IfStatement) {
 			addExpectedType(TypeBinding.BOOLEAN, scope);
 		} else if (parent instanceof AssertStatement) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=274466
 			// If the assertExpression is same as the node , then the assistNode is the conditional part of the assert statement
-			AssertStatement assertStatement = (AssertStatement) parent;
+			AssertStatement assertStatement= (AssertStatement)parent;
 			if (assertStatement.assertExpression == node) {
 				addExpectedType(TypeBinding.BOOLEAN, scope);
 			}
-		} else if (parent instanceof ForStatement) {   // astNodeParent set to ForStatement only for the condition  
+		} else if (parent instanceof ForStatement) { // astNodeParent set to ForStatement only for the condition  
 			addExpectedType(TypeBinding.BOOLEAN, scope);
 
-		// Expected types for javadoc
+			// Expected types for javadoc
 		} else if (parent instanceof Javadoc) {
 			if (scope.kind == Scope.METHOD_SCOPE) {
-				MethodScope methodScope = (MethodScope) scope;
-				AbstractMethodDeclaration methodDecl = methodScope.referenceMethod();
+				MethodScope methodScope= (MethodScope)scope;
+				AbstractMethodDeclaration methodDecl= methodScope.referenceMethod();
 				if (methodDecl != null && methodDecl.binding != null) {
-					ReferenceBinding[] exceptions = methodDecl.binding.thrownExceptions;
+					ReferenceBinding[] exceptions= methodDecl.binding.thrownExceptions;
 					if (exceptions != null) {
-						for (int i = 0; i < exceptions.length; i++) {
+						for (int i= 0; i < exceptions.length; i++) {
 							addExpectedType(exceptions[i], scope);
 						}
 					}
@@ -3656,124 +3939,136 @@ public final class CompletionEngine
 			}
 		}
 
-		if(this.expectedTypesPtr + 1 != this.expectedTypes.length) {
-			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[this.expectedTypesPtr + 1], 0, this.expectedTypesPtr + 1);
+		if (this.expectedTypesPtr + 1 != this.expectedTypes.length) {
+			System.arraycopy(this.expectedTypes, 0, this.expectedTypes= new TypeBinding[this.expectedTypesPtr + 1], 0, this.expectedTypesPtr + 1);
 		}
 	}
 
 	private void computeExpectedTypesForAllocationExpression(
-		ReferenceBinding binding,
-		Expression[] arguments,
-		Scope scope,
-		InvocationSite invocationSite) {
+			ReferenceBinding binding,
+			Expression[] arguments,
+			Scope scope,
+			InvocationSite invocationSite) {
 
-		MethodBinding[] methods = binding.availableMethods();
-		nextMethod : for (int i = 0; i < methods.length; i++) {
-			MethodBinding method = methods[i];
+		MethodBinding[] methods= binding.availableMethods();
+		nextMethod: for (int i= 0; i < methods.length; i++) {
+			MethodBinding method= methods[i];
 
-			if (!method.isConstructor()) continue nextMethod;
-
-			if (method.isSynthetic()) continue nextMethod;
-
-			if (this.options.checkVisibility && !method.canBeSeenBy(invocationSite, scope)) continue nextMethod;
-
-			TypeBinding[] parameters = method.parameters;
-			if(parameters.length < arguments.length)
+			if (!method.isConstructor())
 				continue nextMethod;
 
-			int length = arguments.length - 1;
+			if (method.isSynthetic())
+				continue nextMethod;
 
-			for (int j = 0; j < length; j++) {
-				Expression argument = arguments[j];
-				TypeBinding argType = argument.resolvedType;
-				if(argType != null && !argType.isCompatibleWith(parameters[j]))
+			if (this.options.checkVisibility && !method.canBeSeenBy(invocationSite, scope))
+				continue nextMethod;
+
+			TypeBinding[] parameters= method.parameters;
+			if (parameters.length < arguments.length)
+				continue nextMethod;
+
+			int length= arguments.length - 1;
+
+			for (int j= 0; j < length; j++) {
+				Expression argument= arguments[j];
+				TypeBinding argType= argument.resolvedType;
+				if (argType != null && !argType.isCompatibleWith(parameters[j]))
 					continue nextMethod;
 			}
 
-			TypeBinding expectedType = method.parameters[arguments.length - 1];
-			if(expectedType != null) {
+			TypeBinding expectedType= method.parameters[arguments.length - 1];
+			if (expectedType != null) {
 				addExpectedType(expectedType, scope);
 			}
 		}
 	}
+
 	private void computeExpectedTypesForMessageSend(
-		ReferenceBinding binding,
-		char[] selector,
-		Expression[] arguments,
-		ReferenceBinding receiverType,
-		Scope scope,
-		InvocationSite invocationSite,
-		boolean isStatic) {
+			ReferenceBinding binding,
+			char[] selector,
+			Expression[] arguments,
+			ReferenceBinding receiverType,
+			Scope scope,
+			InvocationSite invocationSite,
+			boolean isStatic) {
 
-		MethodBinding[] methods = binding.availableMethods();
-		nextMethod : for (int i = 0; i < methods.length; i++) {
-			MethodBinding method = methods[i];
+		MethodBinding[] methods= binding.availableMethods();
+		nextMethod: for (int i= 0; i < methods.length; i++) {
+			MethodBinding method= methods[i];
 
-			if (method.isSynthetic()) continue nextMethod;
-
-			if (method.isDefaultAbstract())	continue nextMethod;
-
-			if (method.isConstructor()) continue nextMethod;
-
-			if (isStatic && !method.isStatic()) continue nextMethod;
-
-			if (this.options.checkVisibility && !method.canBeSeenBy(receiverType, invocationSite, scope)) continue nextMethod;
-
-			if(!CharOperation.equals(method.selector, selector)) continue nextMethod;
-
-			TypeBinding[] parameters = method.parameters;
-			if(parameters.length < arguments.length)
+			if (method.isSynthetic())
 				continue nextMethod;
 
-			int length = arguments.length - 1;
+			if (method.isDefaultAbstract())
+				continue nextMethod;
 
-			for (int j = 0; j < length; j++) {
-				Expression argument = arguments[j];
-				TypeBinding argType = argument.resolvedType;
-				if(argType != null && !argType.isCompatibleWith(parameters[j]))
+			if (method.isConstructor())
+				continue nextMethod;
+
+			if (isStatic && !method.isStatic())
+				continue nextMethod;
+
+			if (this.options.checkVisibility && !method.canBeSeenBy(receiverType, invocationSite, scope))
+				continue nextMethod;
+
+			if (!CharOperation.equals(method.selector, selector))
+				continue nextMethod;
+
+			TypeBinding[] parameters= method.parameters;
+			if (parameters.length < arguments.length)
+				continue nextMethod;
+
+			int length= arguments.length - 1;
+
+			for (int j= 0; j < length; j++) {
+				Expression argument= arguments[j];
+				TypeBinding argType= argument.resolvedType;
+				if (argType != null && !argType.isCompatibleWith(parameters[j]))
 					continue nextMethod;
 			}
 
-			TypeBinding expectedType = method.parameters[arguments.length - 1];
-			if(expectedType != null) {
+			TypeBinding expectedType= method.parameters[arguments.length - 1];
+			if (expectedType != null) {
 				addExpectedType(expectedType, scope);
 			}
 		}
 	}
+
 	private void computeExpectedTypesForMessageSendForInterface(
-		ReferenceBinding binding,
-		char[] selector,
-		Expression[] arguments,
-		ReferenceBinding receiverType,
-		Scope scope,
-		InvocationSite invocationSite,
-		boolean isStatic) {
+			ReferenceBinding binding,
+			char[] selector,
+			Expression[] arguments,
+			ReferenceBinding receiverType,
+			Scope scope,
+			InvocationSite invocationSite,
+			boolean isStatic) {
 
-		ReferenceBinding[] itsInterfaces = binding.superInterfaces();
+		ReferenceBinding[] itsInterfaces= binding.superInterfaces();
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[] interfacesToVisit = itsInterfaces;
-			int nextPosition = interfacesToVisit.length;
+			ReferenceBinding[] interfacesToVisit= itsInterfaces;
+			int nextPosition= interfacesToVisit.length;
 
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding currentType = interfacesToVisit[i];
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding currentType= interfacesToVisit[i];
 				computeExpectedTypesForMessageSend(
-					currentType,
-					selector,
-					arguments,
-					receiverType,
-					scope,
-					invocationSite,
-					isStatic);
+						currentType,
+						selector,
+						arguments,
+						receiverType,
+						scope,
+						invocationSite,
+						isStatic);
 
-				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+				if ((itsInterfaces= currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
@@ -3781,53 +4076,53 @@ public final class CompletionEngine
 	}
 
 	private Scope computeForbiddenBindings(ASTNode astNode, ASTNode astNodeParent, Scope scope) {
-		this.forbbidenBindingsFilter = NONE;
-		if(scope instanceof ClassScope) {
-			TypeDeclaration typeDeclaration = ((ClassScope)scope).referenceContext;
-			if(typeDeclaration.superclass == astNode) {
+		this.forbbidenBindingsFilter= NONE;
+		if (scope instanceof ClassScope) {
+			TypeDeclaration typeDeclaration= ((ClassScope)scope).referenceContext;
+			if (typeDeclaration.superclass == astNode) {
 				addForbiddenBindings(typeDeclaration.binding);
 				addForbiddenBindingsForMemberTypes(typeDeclaration);
 				return scope.parent;
 			}
-			TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
-			int length = superInterfaces == null ? 0 : superInterfaces.length;
-			int astNodeIndex = -1;
-			for (int i = 0; i < length; i++) {
-				if(superInterfaces[i] == astNode) {
+			TypeReference[] superInterfaces= typeDeclaration.superInterfaces;
+			int length= superInterfaces == null ? 0 : superInterfaces.length;
+			int astNodeIndex= -1;
+			for (int i= 0; i < length; i++) {
+				if (superInterfaces[i] == astNode) {
 					addForbiddenBindings(typeDeclaration.binding);
 					addForbiddenBindingsForMemberTypes(typeDeclaration);
-					astNodeIndex = i;
+					astNodeIndex= i;
 					break;
 				}
 			}
 			if (astNodeIndex >= 0) {
 				// Need to loop only up to astNodeIndex as the rest will be undefined.
-				for (int i = 0; i < astNodeIndex; i++) {
+				for (int i= 0; i < astNodeIndex; i++) {
 					addForbiddenBindings(superInterfaces[i].resolvedType);
 				}
 				return scope.parent;
 			}
 		} else {
 			if (astNodeParent != null && astNodeParent instanceof TryStatement) {
-				boolean isException = false;
+				boolean isException= false;
 				if (astNode instanceof CompletionOnSingleTypeReference) {
-					isException = ((CompletionOnSingleTypeReference)astNode).isException();
+					isException= ((CompletionOnSingleTypeReference)astNode).isException();
 				} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
-					isException = ((CompletionOnQualifiedTypeReference)astNode).isException();
+					isException= ((CompletionOnQualifiedTypeReference)astNode).isException();
 				} else if (astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
-					isException = ((CompletionOnParameterizedQualifiedTypeReference)astNode).isException();
+					isException= ((CompletionOnParameterizedQualifiedTypeReference)astNode).isException();
 				}
 				if (isException) {
-					Argument[] catchArguments = ((TryStatement) astNodeParent).catchArguments;
-					int length = catchArguments == null ? 0 : catchArguments.length;
-					for (int i = 0; i < length; i++) {
-						TypeBinding caughtException = catchArguments[i].type.resolvedType;
+					Argument[] catchArguments= ((TryStatement)astNodeParent).catchArguments;
+					int length= catchArguments == null ? 0 : catchArguments.length;
+					for (int i= 0; i < length; i++) {
+						TypeBinding caughtException= catchArguments[i].type.resolvedType;
 						if (caughtException != null) {
 							addForbiddenBindings(caughtException);
 							this.knownTypes.put(CharOperation.concat(caughtException.qualifiedPackageName(), caughtException.qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
 						}
 					}
-					this.forbbidenBindingsFilter = SUBTYPE;
+					this.forbbidenBindingsFilter= SUBTYPE;
 				}
 			}
 		}
@@ -3842,17 +4137,17 @@ public final class CompletionEngine
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437
 	private void addForbiddenBindingsForMemberTypes(TypeDeclaration typeDeclaration) {
-		TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
-		int memberTypesLen = memberTypes == null ? 0 : memberTypes.length;
-		for (int i = 0; i < memberTypesLen; i++) {
+		TypeDeclaration[] memberTypes= typeDeclaration.memberTypes;
+		int memberTypesLen= memberTypes == null ? 0 : memberTypes.length;
+		for (int i= 0; i < memberTypesLen; i++) {
 			addForbiddenBindings(memberTypes[i].binding);
 			addForbiddenBindingsForMemberTypes(memberTypes[i]);
 		}
 	}
 
-	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){
+	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic) {
 
-		StringBuffer completion = new StringBuffer(10);
+		StringBuffer completion= new StringBuffer(10);
 
 		if (isStatic) {
 			completion.append(declarationType.sourceName());
@@ -3880,65 +4175,66 @@ public final class CompletionEngine
 		return completion.toString().toCharArray();
 	}
 
-	private int computeRelevanceForAnnotation(){
-		if(this.assistNodeIsAnnotation) {
+	private int computeRelevanceForAnnotation() {
+		if (this.assistNodeIsAnnotation) {
 			return R_ANNOTATION;
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForAnnotationTarget(TypeBinding typeBinding){
+	private int computeRelevanceForAnnotationTarget(TypeBinding typeBinding) {
 		if (this.assistNodeIsAnnotation &&
 				(this.targetedElement & TagBits.AnnotationTargetMASK) != 0) {
-			long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
-			if(target == 0 || (target & this.targetedElement) != 0) {
+			long target= typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+			if (target == 0 || (target & this.targetedElement) != 0) {
 				return R_TARGET;
 			}
 		}
 		return 0;
 	}
-	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
+
+	int computeRelevanceForCaseMatching(char[] token, char[] proposalName) {
 		if (this.options.camelCaseMatch) {
-			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
+			if (CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
 				return R_CASE + R_EXACT_NAME;
 			} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
 				return R_CASE;
-			} else if (CharOperation.camelCaseMatch(token, proposalName)){
+			} else if (CharOperation.camelCaseMatch(token, proposalName)) {
 				return R_CAMEL_CASE;
-			} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+			} else if (CharOperation.equals(token, proposalName, false /* ignore case */)) {
 				return R_EXACT_NAME;
 			}
 		} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
-			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
+			if (CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
 				return R_CASE + R_EXACT_NAME;
 			} else {
 				return R_CASE;
 			}
-		} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+		} else if (CharOperation.equals(token, proposalName, false /* ignore case */)) {
 			return R_EXACT_NAME;
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForClass(){
-		if(this.assistNodeIsClass) {
+	private int computeRelevanceForClass() {
+		if (this.assistNodeIsClass) {
 			return R_CLASS;
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForEnum(){
-		if(this.assistNodeIsEnum) {
+	private int computeRelevanceForEnum() {
+		if (this.assistNodeIsEnum) {
 			return R_ENUM;
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForEnumConstant(TypeBinding proposalType){
-		if(this.assistNodeIsEnum &&
+	private int computeRelevanceForEnumConstant(TypeBinding proposalType) {
+		if (this.assistNodeIsEnum &&
 				proposalType != null &&
 				this.expectedTypes != null) {
-			for (int i = 0; i <= this.expectedTypesPtr; i++) {
+			for (int i= 0; i <= this.expectedTypesPtr; i++) {
 				if (proposalType.isEnum() &&
 						proposalType == this.expectedTypes[i]) {
 					return R_ENUM + R_ENUM_CONSTANT;
@@ -3949,71 +4245,71 @@ public final class CompletionEngine
 		return 0;
 	}
 
-	private int computeRelevanceForException(){
+	private int computeRelevanceForException() {
 		if (this.assistNodeIsException) {
 			return R_EXCEPTION;
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForException(char[] proposalName){
+	private int computeRelevanceForException(char[] proposalName) {
 
-		if((this.assistNodeIsException || (this.assistNodeInJavadoc & CompletionOnJavadoc.EXCEPTION) != 0 )&&
-			(CharOperation.match(EXCEPTION_PATTERN, proposalName, false) ||
-			CharOperation.match(ERROR_PATTERN, proposalName, false))) {
+		if ((this.assistNodeIsException || (this.assistNodeInJavadoc & CompletionOnJavadoc.EXCEPTION) != 0) &&
+				(CharOperation.match(EXCEPTION_PATTERN, proposalName, false) ||
+				CharOperation.match(ERROR_PATTERN, proposalName, false))) {
 			return R_EXCEPTION;
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName){
-		if(this.expectedTypes != null) {
-			for (int i = 0; i <= this.expectedTypesPtr; i++) {
-				if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), packageName) &&
-					CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), typeName)) {
+	private int computeRelevanceForExpectingType(char[] packageName, char[] typeName) {
+		if (this.expectedTypes != null) {
+			for (int i= 0; i <= this.expectedTypesPtr; i++) {
+				if (CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), packageName) &&
+						CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), typeName)) {
 					return R_EXACT_EXPECTED_TYPE;
 				}
 			}
-			if(this.hasJavaLangObjectAsExpectedType) {
+			if (this.hasJavaLangObjectAsExpectedType) {
 				return R_EXPECTED_TYPE;
 			}
 		}
 		return 0;
 	}
 
-	private int computeRelevanceForExpectingType(TypeBinding proposalType){
-		if(this.expectedTypes != null && proposalType != null) {
-			int relevance = 0;
+	private int computeRelevanceForExpectingType(TypeBinding proposalType) {
+		if (this.expectedTypes != null && proposalType != null) {
+			int relevance= 0;
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
 			// If there is at least one expected type, then void proposal types attract a degraded relevance.  
-			if (proposalType == TypeBinding.VOID && this.expectedTypesPtr >=0) {
+			if (proposalType == TypeBinding.VOID && this.expectedTypesPtr >= 0) {
 				return R_VOID;
-			}	
-			for (int i = 0; i <= this.expectedTypesPtr; i++) {
-				if((this.expectedTypesFilter & SUBTYPE) != 0
+			}
+			for (int i= 0; i <= this.expectedTypesPtr; i++) {
+				if ((this.expectedTypesFilter & SUBTYPE) != 0
 						&& proposalType.isCompatibleWith(this.expectedTypes[i])) {
 
-					if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
+					if (CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
 							CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
 						return R_EXACT_EXPECTED_TYPE;
 					}
 
-					relevance = R_EXPECTED_TYPE;
+					relevance= R_EXPECTED_TYPE;
 				}
-				if((this.expectedTypesFilter & SUPERTYPE) != 0
+				if ((this.expectedTypesFilter & SUPERTYPE) != 0
 						&& this.expectedTypes[i].isCompatibleWith(proposalType)) {
 
-					if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
+					if (CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
 							CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
 						return R_EXACT_EXPECTED_TYPE;
 					}
 
-					relevance = R_EXPECTED_TYPE;
+					relevance= R_EXPECTED_TYPE;
 				}
 				// Bug 84720 - [1.5][assist] proposal ranking by return value should consider auto(un)boxing
 				// Just ensuring that the unitScope is not null, even though it's an unlikely case.
 				if (this.unitScope != null && this.unitScope.isBoxingCompatibleWith(proposalType, this.expectedTypes[i])) {
-					relevance = R_EXPECTED_TYPE;
+					relevance= R_EXPECTED_TYPE;
 				}
 			}
 			return relevance;
@@ -4022,18 +4318,19 @@ public final class CompletionEngine
 	}
 
 	private int computeRelevanceForInheritance(ReferenceBinding receiverType, ReferenceBinding declaringClass) {
-		if (receiverType == declaringClass) return R_NON_INHERITED;
+		if (receiverType == declaringClass)
+			return R_NON_INHERITED;
 		return 0;
 	}
 
-	int computeRelevanceForInterestingProposal(){
+	int computeRelevanceForInterestingProposal() {
 		return computeRelevanceForInterestingProposal(null);
 	}
 
-	private int computeRelevanceForInterestingProposal(Binding binding){
-		if(this.uninterestingBindings != null) {
-			for (int i = 0; i <= this.uninterestingBindingsPtr; i++) {
-				if(this.uninterestingBindings[i] == binding) {
+	private int computeRelevanceForInterestingProposal(Binding binding) {
+		if (this.uninterestingBindings != null) {
+			for (int i= 0; i <= this.uninterestingBindingsPtr; i++) {
+				if (this.uninterestingBindings[i] == binding) {
 					return 0;
 				}
 			}
@@ -4041,8 +4338,8 @@ public final class CompletionEngine
 		return R_INTERESTING;
 	}
 
-	private int computeRelevanceForInterface(){
-		if(this.assistNodeIsInterface) {
+	private int computeRelevanceForInterface() {
+		if (this.assistNodeIsInterface) {
 			return R_INTERFACE;
 		}
 		return 0;
@@ -4054,22 +4351,23 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
+
 	int computeRelevanceForQualification(boolean prefixRequired) {
-		if(!prefixRequired && !this.insideQualifiedReference) {
+		if (!prefixRequired && !this.insideQualifiedReference) {
 			return R_UNQUALIFIED;
 		}
 
-		if(prefixRequired && this.insideQualifiedReference) {
+		if (prefixRequired && this.insideQualifiedReference) {
 			return R_QUALIFIED;
 		}
 		return 0;
 	}
 
-	int computeRelevanceForResolution(){
+	int computeRelevanceForResolution() {
 		return computeRelevanceForResolution(true);
 	}
 
-	int computeRelevanceForResolution(boolean isResolved){
+	int computeRelevanceForResolution(boolean isResolved) {
 		if (isResolved) {
 			return R_RESOLVED;
 		}
@@ -4077,24 +4375,24 @@ public final class CompletionEngine
 	}
 
 	int computeRelevanceForRestrictions(int accessRuleKind) {
-		if(accessRuleKind == IAccessRule.K_ACCESSIBLE) {
+		if (accessRuleKind == IAccessRule.K_ACCESSIBLE) {
 			return R_NON_RESTRICTED;
 		}
 		return 0;
 	}
 
 	private int computeRelevanceForStatic(boolean onlyStatic, boolean isStatic) {
-		if(this.insideQualifiedReference && !onlyStatic && !isStatic) {
+		if (this.insideQualifiedReference && !onlyStatic && !isStatic) {
 			return R_NON_STATIC;
 		}
 		return 0;
 	}
 
 	private long computeTargetedElement(CompletionOnAnnotationOfType fakeNode) {
-		ASTNode annotatedElement = fakeNode.potentialAnnotatedNode;
+		ASTNode annotatedElement= fakeNode.potentialAnnotatedNode;
 
 		if (annotatedElement instanceof TypeDeclaration) {
-			TypeDeclaration annotatedTypeDeclaration = (TypeDeclaration) annotatedElement;
+			TypeDeclaration annotatedTypeDeclaration= (TypeDeclaration)annotatedElement;
 			if (TypeDeclaration.kind(annotatedTypeDeclaration.modifiers) == TypeDeclaration.ANNOTATION_TYPE_DECL) {
 				return TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType;
 			}
@@ -4117,30 +4415,34 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
+
 	private TypeBinding[] computeTypes(Expression[] arguments) {
-		if (arguments == null) return null;
-		int argsLength = arguments.length;
-		TypeBinding[] argTypes = new TypeBinding[argsLength];
-		for (int a = argsLength; --a >= 0;) {
-			argTypes[a] = arguments[a].resolvedType;
+		if (arguments == null)
+			return null;
+		int argsLength= arguments.length;
+		TypeBinding[] argTypes= new TypeBinding[argsLength];
+		for (int a= argsLength; --a >= 0;) {
+			argTypes[a]= arguments[a].resolvedType;
 		}
 		return argTypes;
 	}
 
 	private TypeBinding[] computeTypesIfCorrect(Expression[] arguments) {
-		if (arguments == null) return null;
-		int argsLength = arguments.length;
-		TypeBinding[] argTypes = new TypeBinding[argsLength];
-		for (int a = argsLength; --a >= 0;) {
-			TypeBinding typeBinding = arguments[a].resolvedType;
-			if(typeBinding == null || !typeBinding.isValidBinding()) return null;
-			argTypes[a] = typeBinding;
+		if (arguments == null)
+			return null;
+		int argsLength= arguments.length;
+		TypeBinding[] argTypes= new TypeBinding[argsLength];
+		for (int a= argsLength; --a >= 0;) {
+			TypeBinding typeBinding= arguments[a].resolvedType;
+			if (typeBinding == null || !typeBinding.isValidBinding())
+				return null;
+			argTypes[a]= typeBinding;
 		}
 		return argTypes;
 	}
 
-	private void computeUninterestingBindings(ASTNode parent, Scope scope){
-		if(parent instanceof LocalDeclaration) {
+	private void computeUninterestingBindings(ASTNode parent, Scope scope) {
+		if (parent instanceof LocalDeclaration) {
 			addUninterestingBindings(((LocalDeclaration)parent).binding);
 		} else if (parent instanceof FieldDeclaration) {
 			addUninterestingBindings(((FieldDeclaration)parent).binding);
@@ -4148,13 +4450,13 @@ public final class CompletionEngine
 	}
 
 	private char[] createImportCharArray(char[] importedElement, boolean isStatic, boolean onDemand) {
-		char[] result = IMPORT;
+		char[] result= IMPORT;
 		if (isStatic) {
-			result = CharOperation.concat(result, STATIC, ' ');
+			result= CharOperation.concat(result, STATIC, ' ');
 		}
-		result = CharOperation.concat(result, importedElement, ' ');
+		result= CharOperation.concat(result, importedElement, ' ');
 		if (onDemand) {
-			result = CharOperation.concat(result, ON_DEMAND);
+			result= CharOperation.concat(result, ON_DEMAND);
 		}
 		return CharOperation.concat(result, IMPORT_END);
 	}
@@ -4162,18 +4464,18 @@ public final class CompletionEngine
 	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, Scope scope, StringBuffer completion) {
 		//// Modifiers
 		// flush uninteresting modifiers
-		int insertedModifiers = method.modifiers & ~(ClassFileConstants.AccNative | ClassFileConstants.AccAbstract);
-		if(insertedModifiers != ClassFileConstants.AccDefault){
+		int insertedModifiers= method.modifiers & ~(ClassFileConstants.AccNative | ClassFileConstants.AccAbstract);
+		if (insertedModifiers != ClassFileConstants.AccDefault) {
 			ASTNode.printModifiers(insertedModifiers, completion);
 		}
 
 		//// Type parameters
 
-		TypeVariableBinding[] typeVariableBindings = method.typeVariables;
-		if(typeVariableBindings != null && typeVariableBindings.length != 0) {
+		TypeVariableBinding[] typeVariableBindings= method.typeVariables;
+		if (typeVariableBindings != null && typeVariableBindings.length != 0) {
 			completion.append('<');
-			for (int i = 0; i < typeVariableBindings.length; i++) {
-				if(i != 0) {
+			for (int i= 0; i < typeVariableBindings.length; i++) {
+				if (i != 0) {
 					completion.append(',');
 					completion.append(' ');
 				}
@@ -4193,16 +4495,16 @@ public final class CompletionEngine
 		completion.append('(');
 
 		////Parameters
-		TypeBinding[] parameterTypes = method.parameters;
-		int length = parameterTypes.length;
-		for (int i = 0; i < length; i++) {
-			if(i != 0) {
+		TypeBinding[] parameterTypes= method.parameters;
+		int length= parameterTypes.length;
+		for (int i= 0; i < length; i++) {
+			if (i != 0) {
 				completion.append(',');
 				completion.append(' ');
 			}
 			createType(parameterTypes[i], scope, completion);
 			completion.append(' ');
-			if(parameterNames != null){
+			if (parameterNames != null) {
 				completion.append(parameterNames[i]);
 			} else {
 				completion.append('%');
@@ -4212,14 +4514,14 @@ public final class CompletionEngine
 		completion.append(')');
 
 		//// Exceptions
-		ReferenceBinding[] exceptions = method.thrownExceptions;
+		ReferenceBinding[] exceptions= method.thrownExceptions;
 
-		if (exceptions != null && exceptions.length > 0){
+		if (exceptions != null && exceptions.length > 0) {
 			completion.append(' ');
 			completion.append(THROWS);
 			completion.append(' ');
-			for(int i = 0; i < exceptions.length ; i++){
-				if(i != 0) {
+			for (int i= 0; i < exceptions.length; i++) {
+				if (i != 0) {
 					completion.append(' ');
 					completion.append(',');
 				}
@@ -4229,24 +4531,24 @@ public final class CompletionEngine
 	}
 
 	protected InternalCompletionProposal createProposal(int kind, int completionOffset) {
-		InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(kind, completionOffset - this.offset);
-		proposal.nameLookup = this.nameEnvironment.nameLookup;
-		proposal.completionEngine = this;
+		InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(kind, completionOffset - this.offset);
+		proposal.nameLookup= this.nameEnvironment.nameLookup;
+		proposal.completionEngine= this;
 		return proposal;
 	}
 
 	private CompletionProposal createRequiredTypeProposal(Binding binding, int start, int end, int relevance) {
-		InternalCompletionProposal proposal = null;
+		InternalCompletionProposal proposal= null;
 		if (binding instanceof ReferenceBinding) {
-			ReferenceBinding typeBinding = (ReferenceBinding) binding;
+			ReferenceBinding typeBinding= (ReferenceBinding)binding;
 
-			char[] packageName = typeBinding.qualifiedPackageName();
-			char[] typeName = typeBinding.qualifiedSourceName();
-			char[] fullyQualifiedName = CharOperation.concat(packageName, typeName, '.');
+			char[] packageName= typeBinding.qualifiedPackageName();
+			char[] typeName= typeBinding.qualifiedSourceName();
+			char[] fullyQualifiedName= CharOperation.concat(packageName, typeName, '.');
 
-			proposal = createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+			proposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setDeclarationSignature(packageName);
 			proposal.setSignature(getRequiredTypeSignature(typeBinding));
 			proposal.setPackageName(packageName);
@@ -4257,11 +4559,11 @@ public final class CompletionEngine
 			proposal.setTokenRange(start - this.offset, end - this.offset);
 			proposal.setRelevance(relevance);
 		} else if (binding instanceof PackageBinding) {
-			PackageBinding packageBinding = (PackageBinding) binding;
+			PackageBinding packageBinding= (PackageBinding)binding;
 
-			char[] packageName = CharOperation.concatWith(packageBinding.compoundName, '.');
+			char[] packageName= CharOperation.concatWith(packageBinding.compoundName, '.');
 
-			proposal = createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
+			proposal= createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
 			proposal.setDeclarationSignature(packageName);
 			proposal.setPackageName(packageName);
 			proposal.setCompletion(packageName);
@@ -4274,12 +4576,12 @@ public final class CompletionEngine
 
 	private void createType(TypeBinding type, Scope scope, StringBuffer completion) {
 		switch (type.kind()) {
-			case Binding.BASE_TYPE :
+			case Binding.BASE_TYPE:
 				completion.append(type.sourceName());
 				break;
-			case Binding.WILDCARD_TYPE :
-			case Binding.INTERSECTION_TYPE : // TODO (david) need to handle intersection type specifically
-				WildcardBinding wildcardBinding = (WildcardBinding) type;
+			case Binding.WILDCARD_TYPE:
+			case Binding.INTERSECTION_TYPE: // TODO (david) need to handle intersection type specifically
+				WildcardBinding wildcardBinding= (WildcardBinding)type;
 				completion.append('?');
 				switch (wildcardBinding.boundKind) {
 					case Wildcard.EXTENDS:
@@ -4287,10 +4589,10 @@ public final class CompletionEngine
 						completion.append(EXTENDS);
 						completion.append(' ');
 						createType(wildcardBinding.bound, scope, completion);
-						if(wildcardBinding.otherBounds != null) {
+						if (wildcardBinding.otherBounds != null) {
 
-							int length = wildcardBinding.otherBounds.length;
-							for (int i = 0; i < length; i++) {
+							int length= wildcardBinding.otherBounds.length;
+							for (int i= 0; i < length; i++) {
 								completion.append(' ');
 								completion.append('&');
 								completion.append(' ');
@@ -4306,16 +4608,16 @@ public final class CompletionEngine
 						break;
 				}
 				break;
-			case Binding.ARRAY_TYPE :
+			case Binding.ARRAY_TYPE:
 				createType(type.leafComponentType(), scope, completion);
-				int dim = type.dimensions();
-				for (int i = 0; i < dim; i++) {
+				int dim= type.dimensions();
+				for (int i= 0; i < dim; i++) {
 					completion.append('[');
 					completion.append(']');
 				}
 				break;
-			case Binding.PARAMETERIZED_TYPE :
-				ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
+			case Binding.PARAMETERIZED_TYPE:
+				ParameterizedTypeBinding parameterizedType= (ParameterizedTypeBinding)type;
 				if (type.isMemberType()) {
 					createType(parameterizedType.enclosingType(), scope, completion);
 					completion.append('.');
@@ -4325,25 +4627,26 @@ public final class CompletionEngine
 				}
 				if (parameterizedType.arguments != null) {
 					completion.append('<');
-				    for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
-				        if (i != 0) completion.append(',');
-				        createType(parameterizedType.arguments[i], scope, completion);
-				    }
-				    completion.append('>');
+					for (int i= 0, length= parameterizedType.arguments.length; i < length; i++) {
+						if (i != 0)
+							completion.append(',');
+						createType(parameterizedType.arguments[i], scope, completion);
+					}
+					completion.append('>');
 				}
 				break;
-			default :
-				char[] packageName = type.qualifiedPackageName();
-			char[] typeName = type.qualifiedSourceName();
-			if(mustQualifyType(
-					(ReferenceBinding)type,
-					packageName,
-					scope)) {
-				completion.append(CharOperation.concat(packageName, typeName,'.'));
-			} else {
-				completion.append(type.sourceName());
-			}
-			break;
+			default:
+				char[] packageName= type.qualifiedPackageName();
+				char[] typeName= type.qualifiedSourceName();
+				if (mustQualifyType(
+						(ReferenceBinding)type,
+						packageName,
+						scope)) {
+					completion.append(CharOperation.concat(packageName, typeName, '.'));
+				} else {
+					completion.append(type.sourceName());
+				}
+				break;
 		}
 	}
 
@@ -4351,13 +4654,13 @@ public final class CompletionEngine
 	 * Create a completion proposal for a member type.
 	 */
 	private void createTypeParameterProposal(TypeParameter typeParameter, int relevance) {
-		char[] completionName = typeParameter.name;
+		char[] completionName= typeParameter.name;
 
 		// Create standard type proposal
-		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setSignature(getSignature(typeParameter.binding));
 			proposal.setTypeName(completionName);
 			proposal.setCompletion(completionName);
@@ -4366,7 +4669,7 @@ public final class CompletionEngine
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -4374,18 +4677,18 @@ public final class CompletionEngine
 		// Create javadoc text proposal if necessary
 		if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 			char[] javadocCompletion= inlineTagCompletion(completionName, JavadocTagConstants.TAG_LINK);
-			InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+			InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setSignature(getSignature(typeParameter.binding));
 			proposal.setTypeName(javadocCompletion);
 			proposal.setCompletion(javadocCompletion);
 			proposal.setFlags(typeParameter.modifiers);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-			proposal.setRelevance(relevance+R_INLINE_TAG);
+			proposal.setRelevance(relevance + R_INLINE_TAG);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -4397,10 +4700,10 @@ public final class CompletionEngine
 	private void createTypeProposal(char[] packageName, char[] typeName, int modifiers, int accessibility, char[] completionName, int relevance) {
 
 		// Create standard type proposal
-		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-			InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+			InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setDeclarationSignature(packageName);
 			proposal.setSignature(createNonGenericTypeSignature(packageName, typeName));
 			proposal.setPackageName(packageName);
@@ -4412,7 +4715,7 @@ public final class CompletionEngine
 			proposal.setRelevance(relevance);
 			proposal.setAccessibility(accessibility);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -4420,22 +4723,22 @@ public final class CompletionEngine
 		// Create javadoc text proposal if necessary
 		if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 			char[] javadocCompletion= inlineTagCompletion(completionName, JavadocTagConstants.TAG_LINK);
-			InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+			InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setDeclarationSignature(packageName);
 			proposal.setSignature(createNonGenericTypeSignature(packageName, typeName));
 			proposal.setPackageName(packageName);
 			proposal.setTypeName(typeName);
 			proposal.setCompletion(javadocCompletion);
 			proposal.setFlags(modifiers);
-			int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
+			int start= (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 			proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-			proposal.setRelevance(relevance+R_INLINE_TAG);
+			proposal.setRelevance(relevance + R_INLINE_TAG);
 			proposal.setAccessibility(accessibility);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -4456,23 +4759,23 @@ public final class CompletionEngine
 			boolean missingElementsHaveProblems) {
 
 		// Create standard type proposal
-		if(!this.isIgnored(CompletionProposal.TYPE_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-			InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+		if (!this.isIgnored(CompletionProposal.TYPE_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+			InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(CompletionProposal.TYPE_REF, this.actualCompletionPosition - this.offset);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setDeclarationSignature(refBinding.qualifiedPackageName());
 			proposal.setSignature(getCompletedTypeSignature(refBinding));
 			proposal.setPackageName(refBinding.qualifiedPackageName());
 			proposal.setTypeName(typeName);
 			if (missingElements != null) {
-				CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-				for (int i = 0; i < missingElements.length; i++) {
-					subProposals[i] =
-						createRequiredTypeProposal(
-								missingElements[i],
-								missingElementsStarts[i],
-								missingElementsEnds[i],
-								relevance);
+				CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+				for (int i= 0; i < missingElements.length; i++) {
+					subProposals[i]=
+							createRequiredTypeProposal(
+									missingElements[i],
+									missingElementsStarts[i],
+									missingElementsEnds[i],
+									relevance);
 				}
 				proposal.setRequiredProposals(subProposals);
 			}
@@ -4482,7 +4785,7 @@ public final class CompletionEngine
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -4490,55 +4793,57 @@ public final class CompletionEngine
 		// Create javadoc text proposal if necessary
 		if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 			char[] javadocCompletion= inlineTagCompletion(completionName, JavadocTagConstants.TAG_LINK);
-			InternalCompletionProposal proposal = (InternalCompletionProposal) CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
-			proposal.nameLookup = this.nameEnvironment.nameLookup;
-			proposal.completionEngine = this;
+			InternalCompletionProposal proposal= (InternalCompletionProposal)CompletionProposal.create(CompletionProposal.JAVADOC_TYPE_REF, this.actualCompletionPosition - this.offset);
+			proposal.nameLookup= this.nameEnvironment.nameLookup;
+			proposal.completionEngine= this;
 			proposal.setDeclarationSignature(refBinding.qualifiedPackageName());
 			proposal.setSignature(getCompletedTypeSignature(refBinding));
 			proposal.setPackageName(refBinding.qualifiedPackageName());
 			proposal.setTypeName(typeName);
 			proposal.setCompletion(javadocCompletion);
 			proposal.setFlags(refBinding.modifiers);
-			int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
+			int start= (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 			proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-			proposal.setRelevance(relevance+R_INLINE_TAG);
+			proposal.setRelevance(relevance + R_INLINE_TAG);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
 	}
+
 	private void createTypeVariable(TypeVariableBinding typeVariable, Scope scope, StringBuffer completion) {
 		completion.append(typeVariable.sourceName);
 
 		if (typeVariable.superclass != null && typeVariable.firstBound == typeVariable.superclass) {
-		    completion.append(' ');
-		    completion.append(EXTENDS);
-		    completion.append(' ');
-		    createType(typeVariable.superclass, scope, completion);
+			completion.append(' ');
+			completion.append(EXTENDS);
+			completion.append(' ');
+			createType(typeVariable.superclass, scope, completion);
 		}
 		if (typeVariable.superInterfaces != null && typeVariable.superInterfaces != Binding.NO_SUPERINTERFACES) {
-		   if (typeVariable.firstBound != typeVariable.superclass) {
-			   completion.append(' ');
-			   completion.append(EXTENDS);
-			   completion.append(' ');
-		   }
-		   for (int i = 0, length = typeVariable.superInterfaces.length; i < length; i++) {
-			   if (i > 0 || typeVariable.firstBound == typeVariable.superclass) {
-				   completion.append(' ');
-				   completion.append(EXTENDS);
-				   completion.append(' ');
-			   }
-			   createType(typeVariable.superInterfaces[i], scope, completion);
-		   }
+			if (typeVariable.firstBound != typeVariable.superclass) {
+				completion.append(' ');
+				completion.append(EXTENDS);
+				completion.append(' ');
+			}
+			for (int i= 0, length= typeVariable.superInterfaces.length; i < length; i++) {
+				if (i > 0 || typeVariable.firstBound == typeVariable.superclass) {
+					completion.append(' ');
+					completion.append(EXTENDS);
+					completion.append(' ');
+				}
+				createType(typeVariable.superInterfaces[i], scope, completion);
+			}
 		}
 	}
+
 	private void createVargsType(TypeBinding type, Scope scope, StringBuffer completion) {
 		if (type.isArrayType()) {
 			createType(type.leafComponentType(), scope, completion);
-			int dim = type.dimensions() - 1;
-			for (int i = 0; i < dim; i++) {
+			int dim= type.dimensions() - 1;
+			for (int i= 0; i < dim; i++) {
 				completion.append('[');
 				completion.append(']');
 			}
@@ -4547,29 +4852,32 @@ public final class CompletionEngine
 			createType(type, scope, completion);
 		}
 	}
+
 	private void findAnnotationAttributes(char[] token, MemberValuePair[] attributesFound, ReferenceBinding annotation) {
-		MethodBinding[] methods = annotation.availableMethods();
-		nextAttribute: for (int i = 0; i < methods.length; i++) {
-			MethodBinding method = methods[i];
+		MethodBinding[] methods= annotation.availableMethods();
+		nextAttribute: for (int i= 0; i < methods.length; i++) {
+			MethodBinding method= methods[i];
 
-			if(!CharOperation.prefixEquals(token, method.selector, false)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, method.selector))) continue nextAttribute;
+			if (!CharOperation.prefixEquals(token, method.selector, false)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, method.selector)))
+				continue nextAttribute;
 
-			int length = attributesFound == null ? 0 : attributesFound.length;
-			for (int j = 0; j < length; j++) {
-				if(CharOperation.equals(method.selector, attributesFound[j].name, false)) continue nextAttribute;
+			int length= attributesFound == null ? 0 : attributesFound.length;
+			for (int j= 0; j < length; j++) {
+				if (CharOperation.equals(method.selector, attributesFound[j].name, false))
+					continue nextAttribute;
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal(method);
-			relevance += computeRelevanceForCaseMatching(token, method.selector);
-			relevance += computeRelevanceForQualification(false);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal(method);
+			relevance+= computeRelevanceForCaseMatching(token, method.selector);
+			relevance+= computeRelevanceForQualification(false);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
-				CompletionProposal proposal = createProposal(CompletionProposal.ANNOTATION_ATTRIBUTE_REF, this.actualCompletionPosition);
+			this.noProposal= false;
+			if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
+				CompletionProposal proposal= createProposal(CompletionProposal.ANNOTATION_ATTRIBUTE_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method.returnType));
 				proposal.setName(method.selector);
@@ -4579,12 +4887,13 @@ public final class CompletionEngine
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(proposal);
 				}
 			}
 		}
 	}
+
 	void findAnonymousType(
 			ReferenceBinding currentType,
 			TypeBinding[] argTypes,
@@ -4594,16 +4903,16 @@ public final class CompletionEngine
 			int[] missingElementsStarts,
 			int[] missingElementsEnds,
 			boolean missingElementsHaveProblems) {
-		
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-		
+
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+
 		if (missingElements != null) {
-			relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+			relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 		}
-		
+
 		findAnonymousType(
 				currentType,
 				argTypes,
@@ -4617,43 +4926,44 @@ public final class CompletionEngine
 				false,
 				relevance);
 	}
+
 	private void findAnonymousType(
-		ReferenceBinding currentType,
-		TypeBinding[] argTypes,
-		Scope scope,
-		InvocationSite invocationSite,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		boolean exactMatch,
-		boolean isQualified,
-		int relevance) {
+			ReferenceBinding currentType,
+			TypeBinding[] argTypes,
+			Scope scope,
+			InvocationSite invocationSite,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			boolean exactMatch,
+			boolean isQualified,
+			int relevance) {
 
 		if (currentType.isInterface()) {
-			char[] completion = CharOperation.NO_CHAR;
-			char[] typeCompletion = null;
+			char[] completion= CharOperation.NO_CHAR;
+			char[] typeCompletion= null;
 			if (!exactMatch) {
-				typeCompletion = 
-					isQualified ?
-							CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
+				typeCompletion=
+						isQualified ?
+								CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
 								currentType.sourceName();
 				if (this.source != null
 							&& this.source.length > this.endPosition
 							&& this.source[this.endPosition] == '(') {
-					completion = CharOperation.NO_CHAR;
+					completion= CharOperation.NO_CHAR;
 				} else {
-					completion = new char[] { '(', ')' };
+					completion= new char[] { '(', ')' };
 				}
 			}
 
-			this.noProposal = false;
+			this.noProposal= false;
 			if (!exactMatch) {
-				if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-					char[] packageName = currentType.isLocalType() ? null : currentType.qualifiedPackageName();
-					char[] typeName = currentType.qualifiedSourceName();
-					
-					InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+				if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+					char[] packageName= currentType.isLocalType() ? null : currentType.qualifiedPackageName();
+					char[] typeName= currentType.qualifiedSourceName();
+
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(currentType));
 					proposal.setDeclarationKey(currentType.computeUniqueKey());
 					proposal.setSignature(
@@ -4671,10 +4981,10 @@ public final class CompletionEngine
 					//proposal.setPackageName(null);
 					//proposal.setTypeName(null);
 					proposal.setName(currentType.sourceName());
-					
-					InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-					typeProposal.nameLookup = this.nameEnvironment.nameLookup;
-					typeProposal.completionEngine = this;
+
+					InternalCompletionProposal typeProposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+					typeProposal.nameLookup= this.nameEnvironment.nameLookup;
+					typeProposal.completionEngine= this;
 					typeProposal.setDeclarationSignature(packageName);
 					typeProposal.setSignature(getRequiredTypeSignature(currentType));
 					typeProposal.setPackageName(packageName);
@@ -4684,21 +4994,21 @@ public final class CompletionEngine
 					typeProposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					typeProposal.setTokenRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					typeProposal.setRelevance(relevance);
-					proposal.setRequiredProposals( new CompletionProposal[]{typeProposal});
-								
+					proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
+
 					proposal.setCompletion(completion);
 					proposal.setFlags(Flags.AccPublic);
 					proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
-			}  else {
-				if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)) {
-					InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
+			} else {
+				if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(currentType));
 					proposal.setDeclarationKey(currentType.computeUniqueKey());
 					proposal.setSignature(
@@ -4716,14 +5026,14 @@ public final class CompletionEngine
 					//proposal.setPackageName(null);
 					//proposal.setTypeName(null);
 					if (missingElements != null) {
-						CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-						for (int i = 0; i < missingElements.length; i++) {
-							subProposals[i] =
-								createRequiredTypeProposal(
-										missingElements[i],
-										missingElementsStarts[i],
-										missingElementsEnds[i],
-										relevance);
+						CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+						for (int i= 0; i < missingElements.length; i++) {
+							subProposals[i]=
+									createRequiredTypeProposal(
+											missingElements[i],
+											missingElementsStarts[i],
+											missingElementsEnds[i],
+											relevance);
 						}
 						proposal.setRequiredProposals(subProposals);
 					}
@@ -4733,27 +5043,28 @@ public final class CompletionEngine
 					proposal.setTokenRange(this.tokenEnd - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 			}
 		} else {
 			findConstructors(
-				currentType,
-				argTypes,
-				scope,
-				invocationSite,
-				true,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems,
-				exactMatch,
-				isQualified,
-				relevance);
+					currentType,
+					argTypes,
+					scope,
+					invocationSite,
+					true,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems,
+					exactMatch,
+					isQualified,
+					relevance);
 		}
 	}
+
 	private void findClassField(
 			char[] token,
 			TypeBinding receiverType,
@@ -4763,42 +5074,43 @@ public final class CompletionEngine
 			int[] missingElementsEnds,
 			boolean missingElementsHaveProblems) {
 
-		if (token == null) return;
+		if (token == null)
+			return;
 
 		if (token.length <= classField.length
-			&& CharOperation.prefixEquals(token, classField, false /* ignore case */
-		)) {
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(token, classField);
-			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); //no access restriction for class field
-			relevance += R_NON_INHERITED;
+				&& CharOperation.prefixEquals(token, classField, false /* ignore case */
+				)) {
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(token, classField);
+			relevance+= computeRelevanceForExpectingType(scope.getJavaLangClass());
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); //no access restriction for class field
+			relevance+= R_NON_INHERITED;
 
 			if (missingElements != null) {
-				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+				relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 			}
 
-			this.noProposal = false;
-			if(!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
-				InternalCompletionProposal proposal = createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+			this.noProposal= false;
+			if (!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 				//proposal.setDeclarationSignature(null);
-				char[] signature =
-					createNonGenericTypeSignature(
-						CharOperation.concatWith(JAVA_LANG, '.'),
-						CLASS);
+				char[] signature=
+						createNonGenericTypeSignature(
+								CharOperation.concatWith(JAVA_LANG, '.'),
+								CLASS);
 				if (this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4) {
 					// add type argument
-					char[] typeArgument = getTypeSignature(receiverType);
-					int oldLength = signature.length;
-					int argumentLength = typeArgument.length;
-					int newLength = oldLength + argumentLength + 2;
-					System.arraycopy(signature, 0, signature = new char[newLength], 0, oldLength - 1);
-					signature[oldLength - 1] = '<';
-					System.arraycopy(typeArgument, 0, signature, oldLength , argumentLength);
-					signature[newLength - 2] = '>';
-					signature[newLength - 1] = ';';
+					char[] typeArgument= getTypeSignature(receiverType);
+					int oldLength= signature.length;
+					int argumentLength= typeArgument.length;
+					int newLength= oldLength + argumentLength + 2;
+					System.arraycopy(signature, 0, signature= new char[newLength], 0, oldLength - 1);
+					signature[oldLength - 1]= '<';
+					System.arraycopy(typeArgument, 0, signature, oldLength, argumentLength);
+					signature[newLength - 2]= '>';
+					signature[newLength - 1]= ';';
 				}
 				proposal.setSignature(signature);
 				//proposal.setDeclarationPackageName(null);
@@ -4807,14 +5119,14 @@ public final class CompletionEngine
 				proposal.setTypeName(CLASS);
 				proposal.setName(classField);
 				if (missingElements != null) {
-					CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-					for (int i = 0; i < missingElements.length; i++) {
-						subProposals[i] =
-							createRequiredTypeProposal(
-									missingElements[i],
-									missingElementsStarts[i],
-									missingElementsEnds[i],
-									relevance);
+					CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+					for (int i= 0; i < missingElements.length; i++) {
+						subProposals[i]=
+								createRequiredTypeProposal(
+										missingElements[i],
+										missingElementsStarts[i],
+										missingElementsEnds[i],
+										relevance);
 					}
 					proposal.setRequiredProposals(subProposals);
 				}
@@ -4824,33 +5136,33 @@ public final class CompletionEngine
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(proposal);
 				}
 			}
 		}
 	}
-	
+
 	void findConstructors(
-		ReferenceBinding currentType,
-		TypeBinding[] argTypes,
-		Scope scope,
-		InvocationSite invocationSite,
-		boolean forAnonymousType,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems) {
-		
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-		
+			ReferenceBinding currentType,
+			TypeBinding[] argTypes,
+			Scope scope,
+			InvocationSite invocationSite,
+			boolean forAnonymousType,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
+
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+
 		if (missingElements != null) {
-			relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+			relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 		}
-		
+
 		findConstructors(
 				currentType,
 				argTypes,
@@ -4865,83 +5177,84 @@ public final class CompletionEngine
 				false,
 				relevance);
 	}
-	
-	
+
+
 	private void findConstructorsFromMissingType(
 			TypeReference typeRef,
 			final TypeBinding[] argTypes,
 			final Scope scope,
 			final InvocationSite invocationSite) {
-		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
-		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
-			new MissingTypesGuesser.GuessedTypeRequestor() {
-				public void accept(
-						TypeBinding guessedType,
-						Binding[] missingElements,
-						int[] missingElementsStarts,
-						int[] missingElementsEnds,
-						boolean hasProblems) {
-					if (guessedType instanceof ReferenceBinding) {
-						ReferenceBinding ref = (ReferenceBinding) guessedType;
-						if (!isIgnored(CompletionProposal.METHOD_REF, missingElements != null)
-								&& ref.isClass()
-								&& !ref.isAbstract()) {
+		MissingTypesGuesser missingTypesConverter= new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor=
+				new MissingTypesGuesser.GuessedTypeRequestor() {
+					public void accept(
+							TypeBinding guessedType,
+							Binding[] missingElements,
+							int[] missingElementsStarts,
+							int[] missingElementsEnds,
+							boolean hasProblems) {
+						if (guessedType instanceof ReferenceBinding) {
+							ReferenceBinding ref= (ReferenceBinding)guessedType;
+							if (!isIgnored(CompletionProposal.METHOD_REF, missingElements != null)
+									&& ref.isClass()
+									&& !ref.isAbstract()) {
 								findConstructors(
-									ref,
-									argTypes,
-									scope,
-									invocationSite,
-									false,
-									missingElements,
-									missingElementsStarts,
-									missingElementsEnds,
-									hasProblems);
-						}
-								
-						checkCancel();
-			
-						if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)
-								&& !ref.isFinal()
-								&& !ref.isEnum()){
-							findAnonymousType(
-								ref,
-								argTypes,
-								scope,
-								invocationSite,
-								missingElements,
-								missingElementsStarts,
-								missingElementsEnds,
-								hasProblems);
+										ref,
+										argTypes,
+										scope,
+										invocationSite,
+										false,
+										missingElements,
+										missingElementsStarts,
+										missingElementsEnds,
+										hasProblems);
+							}
+
+							checkCancel();
+
+							if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)
+									&& !ref.isFinal()
+									&& !ref.isEnum()) {
+								findAnonymousType(
+										ref,
+										argTypes,
+										scope,
+										invocationSite,
+										missingElements,
+										missingElementsStarts,
+										missingElementsEnds,
+										hasProblems);
+							}
 						}
 					}
-				}
-			};
+				};
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
-		
+
 	private void findConstructors(
-		ReferenceBinding currentType,
-		TypeBinding[] argTypes,
-		Scope scope,
-		InvocationSite invocationSite,
-		boolean forAnonymousType,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		boolean exactMatch,
-		boolean isQualified,
-		int relevance) {
+			ReferenceBinding currentType,
+			TypeBinding[] argTypes,
+			Scope scope,
+			InvocationSite invocationSite,
+			boolean forAnonymousType,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			boolean exactMatch,
+			boolean isQualified,
+			int relevance) {
 
 		// No visibility checks can be performed without the scope & invocationSite
-		MethodBinding[] methods = currentType.availableMethods();
-		if(methods != null) {
-			int minArgLength = argTypes == null ? 0 : argTypes.length;
-			next : for (int f = methods.length; --f >= 0;) {
-				MethodBinding constructor = methods[f];
+		MethodBinding[] methods= currentType.availableMethods();
+		if (methods != null) {
+			int minArgLength= argTypes == null ? 0 : argTypes.length;
+			next: for (int f= methods.length; --f >= 0;) {
+				MethodBinding constructor= methods[f];
 				if (constructor.isConstructor()) {
 
-					if (constructor.isSynthetic()) continue next;
+					if (constructor.isSynthetic())
+						continue next;
 
 					if (this.options.checkDeprecation &&
 							constructor.isViewedAsDeprecated() &&
@@ -4949,60 +5262,60 @@ public final class CompletionEngine
 						continue next;
 
 					if (this.options.checkVisibility
-						&& !constructor.canBeSeenBy(invocationSite, scope)) {
-						if(!forAnonymousType || !constructor.isProtected())
+							&& !constructor.canBeSeenBy(invocationSite, scope)) {
+						if (!forAnonymousType || !constructor.isProtected())
 							continue next;
 					}
 
-					TypeBinding[] parameters = constructor.parameters;
-					int paramLength = parameters.length;
+					TypeBinding[] parameters= constructor.parameters;
+					int paramLength= parameters.length;
 					if (minArgLength > paramLength)
 						continue next;
-					for (int a = minArgLength; --a >= 0;)
+					for (int a= minArgLength; --a >= 0;)
 						if (argTypes[a] != null) { // can be null if it could not be resolved properly
 							if (!argTypes[a].isCompatibleWith(constructor.parameters[a]))
 								continue next;
 						}
 
-					char[][] parameterPackageNames = new char[paramLength][];
-					char[][] parameterTypeNames = new char[paramLength][];
-					for (int i = 0; i < paramLength; i++) {
-						TypeBinding type = parameters[i];
-						parameterPackageNames[i] = type.qualifiedPackageName();
-						parameterTypeNames[i] = type.qualifiedSourceName();
+					char[][] parameterPackageNames= new char[paramLength][];
+					char[][] parameterTypeNames= new char[paramLength][];
+					for (int i= 0; i < paramLength; i++) {
+						TypeBinding type= parameters[i];
+						parameterPackageNames[i]= type.qualifiedPackageName();
+						parameterTypeNames[i]= type.qualifiedSourceName();
 					}
-					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
+					char[][] parameterNames= findMethodParameterNames(constructor, parameterTypeNames);
 
-					char[] completion = CharOperation.NO_CHAR;
-					
-					if(forAnonymousType){
-						char[] typeCompletion = null;
+					char[] completion= CharOperation.NO_CHAR;
+
+					if (forAnonymousType) {
+						char[] typeCompletion= null;
 						if (!exactMatch) {
-							typeCompletion = 
-								isQualified ?
-										CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
+							typeCompletion=
+									isQualified ?
+											CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
 											currentType.sourceName();
 							if (this.source != null
 										&& this.source.length > this.endPosition
 										&& this.source[this.endPosition] == '(') {
-								completion = CharOperation.NO_CHAR;
+								completion= CharOperation.NO_CHAR;
 							} else {
-								completion = new char[] { '(', ')' };
+								completion= new char[] { '(', ')' };
 							}
 						}
-						
-						this.noProposal = false;
+
+						this.noProposal= false;
 						if (!exactMatch) {
-							if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-								char[] packageName = currentType.isLocalType() ? null : currentType.qualifiedPackageName();
-								char[] typeName = currentType.qualifiedSourceName();
-								
-								InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+							if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+								char[] packageName= currentType.isLocalType() ? null : currentType.qualifiedPackageName();
+								char[] typeName= currentType.qualifiedSourceName();
+
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setDeclarationKey(currentType.computeUniqueKey());
 								proposal.setSignature(getSignature(constructor));
-								MethodBinding original = constructor.original();
-								if(original != constructor) {
+								MethodBinding original= constructor.original();
+								if (original != constructor) {
 									proposal.setOriginalSignature(getSignature(original));
 								}
 								proposal.setKey(constructor.computeUniqueKey());
@@ -5013,10 +5326,10 @@ public final class CompletionEngine
 								//proposal.setPackageName(null);
 								//proposal.setTypeName(null);
 								proposal.setName(currentType.sourceName());
-								
-								InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-								typeProposal.nameLookup = this.nameEnvironment.nameLookup;
-								typeProposal.completionEngine = this;
+
+								InternalCompletionProposal typeProposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+								typeProposal.nameLookup= this.nameEnvironment.nameLookup;
+								typeProposal.completionEngine= this;
 								typeProposal.setDeclarationSignature(packageName);
 								typeProposal.setSignature(getRequiredTypeSignature(currentType));
 								typeProposal.setPackageName(packageName);
@@ -5026,27 +5339,28 @@ public final class CompletionEngine
 								typeProposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 								typeProposal.setTokenRange(this.startPosition - this.offset, this.endPosition - this.offset);
 								typeProposal.setRelevance(relevance);
-								proposal.setRequiredProposals( new CompletionProposal[]{typeProposal});
-								
+								proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
+
 								proposal.setCompletion(completion);
 								proposal.setFlags(constructor.modifiers);
 								proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
-								if(parameterNames != null) proposal.setParameterNames(parameterNames);
+								if (parameterNames != null)
+									proposal.setParameterNames(parameterNames);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
 						} else {
-							if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)) {
-								InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
+							if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, missingElements != null)) {
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setDeclarationKey(currentType.computeUniqueKey());
 								proposal.setSignature(getSignature(constructor));
-								MethodBinding original = constructor.original();
-								if(original != constructor) {
+								MethodBinding original= constructor.original();
+								if (original != constructor) {
 									proposal.setOriginalSignature(getSignature(original));
 								}
 								proposal.setKey(constructor.computeUniqueKey());
@@ -5057,14 +5371,14 @@ public final class CompletionEngine
 								//proposal.setPackageName(null);
 								//proposal.setTypeName(null);
 								if (missingElements != null) {
-									CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-									for (int i = 0; i < missingElements.length; i++) {
-										subProposals[i] =
-											createRequiredTypeProposal(
-													missingElements[i],
-													missingElementsStarts[i],
-													missingElementsEnds[i],
-													relevance);
+									CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+									for (int i= 0; i < missingElements.length; i++) {
+										subProposals[i]=
+												createRequiredTypeProposal(
+														missingElements[i],
+														missingElementsStarts[i],
+														missingElementsEnds[i],
+														relevance);
 									}
 									proposal.setRequiredProposals(subProposals);
 								}
@@ -5073,43 +5387,44 @@ public final class CompletionEngine
 								proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 								proposal.setTokenRange(this.tokenEnd - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
-								if(parameterNames != null) proposal.setParameterNames(parameterNames);
+								if (parameterNames != null)
+									proposal.setParameterNames(parameterNames);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
 						}
 					} else {
-						char[] typeCompletion = null;
+						char[] typeCompletion= null;
 						// Special case for completion in javadoc
 						if (this.assistNodeInJavadoc > 0) {
-							Expression receiver = null;
-							char[] selector = null;
+							Expression receiver= null;
+							char[] selector= null;
 							if (invocationSite instanceof CompletionOnJavadocAllocationExpression) {
-								CompletionOnJavadocAllocationExpression alloc = (CompletionOnJavadocAllocationExpression) invocationSite;
-								receiver = alloc.type;
+								CompletionOnJavadocAllocationExpression alloc= (CompletionOnJavadocAllocationExpression)invocationSite;
+								receiver= alloc.type;
 							} else if (invocationSite instanceof CompletionOnJavadocFieldReference) {
-								CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
-								receiver = fieldRef.receiver;
+								CompletionOnJavadocFieldReference fieldRef= (CompletionOnJavadocFieldReference)invocationSite;
+								receiver= fieldRef.receiver;
 							}
 							if (receiver != null) {
-								StringBuffer javadocCompletion = new StringBuffer();
+								StringBuffer javadocCompletion= new StringBuffer();
 								if (receiver.isThis()) {
-									selector = (((JavadocImplicitTypeReference)receiver).token);
+									selector= (((JavadocImplicitTypeReference)receiver).token);
 									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 										javadocCompletion.append('#');
 									}
 								} else if (receiver instanceof JavadocSingleTypeReference) {
-									JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
-									selector = typeRef.token;
+									JavadocSingleTypeReference typeRef= (JavadocSingleTypeReference)receiver;
+									selector= typeRef.token;
 									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 										javadocCompletion.append(typeRef.token);
 										javadocCompletion.append('#');
 									}
 								} else if (receiver instanceof JavadocQualifiedTypeReference) {
-									JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) receiver;
-									selector = typeRef.tokens[typeRef.tokens.length-1];
+									JavadocQualifiedTypeReference typeRef= (JavadocQualifiedTypeReference)receiver;
+									selector= typeRef.tokens[typeRef.tokens.length - 1];
 									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 										javadocCompletion.append(CharOperation.concatWith(typeRef.tokens, '.'));
 										javadocCompletion.append('#');
@@ -5119,11 +5434,12 @@ public final class CompletionEngine
 								javadocCompletion.append(selector);
 								javadocCompletion.append('(');
 								if (constructor.parameters != null) {
-									boolean isVarargs = constructor.isVarargs();
-									for (int p=0, ln=constructor.parameters.length; p<ln; p++) {
-										if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
-										TypeBinding argTypeBinding = constructor.parameters[p];
-										if (isVarargs && p == ln - 1)  {
+									boolean isVarargs= constructor.isVarargs();
+									for (int p= 0, ln= constructor.parameters.length; p < ln; p++) {
+										if (p > 0)
+											javadocCompletion.append(", "); //$NON-NLS-1$
+										TypeBinding argTypeBinding= constructor.parameters[p];
+										if (isVarargs && p == ln - 1) {
 											createVargsType(argTypeBinding.erasure(), scope, javadocCompletion);
 										} else {
 											createType(argTypeBinding.erasure(), scope, javadocCompletion);
@@ -5131,37 +5447,37 @@ public final class CompletionEngine
 									}
 								}
 								javadocCompletion.append(')');
-								completion = javadocCompletion.toString().toCharArray();
+								completion= javadocCompletion.toString().toCharArray();
 							}
 						} else {
 							if (!exactMatch) {
-								typeCompletion = 
-									isQualified ?
-											CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
+								typeCompletion=
+										isQualified ?
+												CharOperation.concat(currentType.qualifiedPackageName(), currentType.qualifiedSourceName(), '.') :
 												currentType.sourceName();
-								
+
 								if (this.source != null
 											&& this.source.length > this.endPosition
 											&& this.source[this.endPosition] == '(') {
-									completion = CharOperation.NO_CHAR;
+									completion= CharOperation.NO_CHAR;
 								} else {
-									completion = new char[] { '(', ')' };
+									completion= new char[] { '(', ')' };
 								}
 							}
 						}
 
 						// Create standard proposal
-						this.noProposal = false;
+						this.noProposal= false;
 						if (!exactMatch) {
-							if(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-								char[] packageName = currentType.isLocalType() ? null : currentType.qualifiedPackageName();
-								char[] typeName = currentType.qualifiedSourceName();
-								
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+							if (!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+								char[] packageName= currentType.isLocalType() ? null : currentType.qualifiedPackageName();
+								char[] typeName= currentType.qualifiedSourceName();
+
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setSignature(getSignature(constructor));
-								MethodBinding original = constructor.original();
-								if(original != constructor) {
+								MethodBinding original= constructor.original();
+								if (original != constructor) {
 									proposal.setOriginalSignature(getSignature(original));
 								}
 								proposal.setDeclarationPackageName(packageName);
@@ -5171,10 +5487,10 @@ public final class CompletionEngine
 								//proposal.setPackageName(null);
 								//proposal.setTypeName(null);
 								proposal.setName(currentType.sourceName());
-					
-								InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-								typeProposal.nameLookup = this.nameEnvironment.nameLookup;
-								typeProposal.completionEngine = this;
+
+								InternalCompletionProposal typeProposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+								typeProposal.nameLookup= this.nameEnvironment.nameLookup;
+								typeProposal.completionEngine= this;
 								typeProposal.setDeclarationSignature(packageName);
 								typeProposal.setSignature(getRequiredTypeSignature(currentType));
 								typeProposal.setPackageName(packageName);
@@ -5184,27 +5500,28 @@ public final class CompletionEngine
 								typeProposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 								typeProposal.setTokenRange(this.startPosition - this.offset, this.endPosition - this.offset);
 								typeProposal.setRelevance(relevance);
-								proposal.setRequiredProposals( new CompletionProposal[]{typeProposal});
-								
+								proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
+
 								proposal.setIsContructor(true);
 								proposal.setCompletion(completion);
 								proposal.setFlags(constructor.modifiers);
 								proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
-								if(parameterNames != null) proposal.setParameterNames(parameterNames);
+								if (parameterNames != null)
+									proposal.setParameterNames(parameterNames);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
 						} else {
-							if(!isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+							if (!isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setSignature(getSignature(constructor));
-								MethodBinding original = constructor.original();
-								if(original != constructor) {
+								MethodBinding original= constructor.original();
+								if (original != constructor) {
 									proposal.setOriginalSignature(getSignature(original));
 								}
 								proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
@@ -5215,37 +5532,38 @@ public final class CompletionEngine
 								//proposal.setTypeName(null);
 								proposal.setName(currentType.sourceName());
 								if (missingElements != null) {
-									CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-									for (int i = 0; i < missingElements.length; i++) {
-										subProposals[i] =
-											createRequiredTypeProposal(
-													missingElements[i],
-													missingElementsStarts[i],
-													missingElementsEnds[i],
-													relevance);
+									CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+									for (int i= 0; i < missingElements.length; i++) {
+										subProposals[i]=
+												createRequiredTypeProposal(
+														missingElements[i],
+														missingElementsStarts[i],
+														missingElementsEnds[i],
+														relevance);
 									}
 									proposal.setRequiredProposals(subProposals);
 								}
 								proposal.setIsContructor(true);
 								proposal.setCompletion(completion);
 								proposal.setFlags(constructor.modifiers);
-								int start = (this.assistNodeInJavadoc > 0) ? this.startPosition : this.endPosition;
+								int start= (this.assistNodeInJavadoc > 0) ? this.startPosition : this.endPosition;
 								proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
-								if(parameterNames != null) proposal.setParameterNames(parameterNames);
+								if (parameterNames != null)
+									proposal.setParameterNames(parameterNames);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
 							if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_METHOD_REF)) {
-								char[] javadocCompletion = inlineTagCompletion(completion, JavadocTagConstants.TAG_LINK);
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_METHOD_REF, this.actualCompletionPosition);
+								char[] javadocCompletion= inlineTagCompletion(completion, JavadocTagConstants.TAG_LINK);
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.JAVADOC_METHOD_REF, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(getSignature(currentType));
 								proposal.setSignature(getSignature(constructor));
-								MethodBinding original = constructor.original();
-								if(original != constructor) {
+								MethodBinding original= constructor.original();
+								if (original != constructor) {
 									proposal.setOriginalSignature(getSignature(original));
 								}
 								proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
@@ -5258,13 +5576,14 @@ public final class CompletionEngine
 								proposal.setIsContructor(true);
 								proposal.setCompletion(javadocCompletion);
 								proposal.setFlags(constructor.modifiers);
-								int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
+								int start= (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 								proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-								proposal.setRelevance(relevance+R_INLINE_TAG);
-								if(parameterNames != null) proposal.setParameterNames(parameterNames);
+								proposal.setRelevance(relevance + R_INLINE_TAG);
+								if (parameterNames != null)
+									proposal.setParameterNames(parameterNames);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
@@ -5274,86 +5593,90 @@ public final class CompletionEngine
 			}
 		}
 	}
-	
+
 	private char[] getResolvedSignature(char[][] parameterTypes, char[] fullyQualifiedTypeName, int parameterCount, Scope scope) {
-		char[][] cn = CharOperation.splitOn('.', fullyQualifiedTypeName);
+		char[][] cn= CharOperation.splitOn('.', fullyQualifiedTypeName);
 
 		TypeReference ref;
 		if (cn.length == 1) {
-			ref = new SingleTypeReference(cn[0], 0);
+			ref= new SingleTypeReference(cn[0], 0);
 		} else {
-			ref = new QualifiedTypeReference(cn,new long[cn.length]);
+			ref= new QualifiedTypeReference(cn, new long[cn.length]);
 		}
-		
-		TypeBinding guessedType = null;
-		INameEnvironment oldNameEnvironment = this.lookupEnvironment.nameEnvironment;
-		this.lookupEnvironment.nameEnvironment = getNoCacheNameEnvironment();
+
+		TypeBinding guessedType= null;
+		INameEnvironment oldNameEnvironment= this.lookupEnvironment.nameEnvironment;
+		this.lookupEnvironment.nameEnvironment= getNoCacheNameEnvironment();
 		try {
 			switch (scope.kind) {
-				case Scope.METHOD_SCOPE :
-				case Scope.BLOCK_SCOPE :
-					guessedType = ref.resolveType((BlockScope)scope);
+				case Scope.METHOD_SCOPE:
+				case Scope.BLOCK_SCOPE:
+					guessedType= ref.resolveType((BlockScope)scope);
 					break;
-				case Scope.CLASS_SCOPE :
-					guessedType = ref.resolveType((ClassScope)scope);
+				case Scope.CLASS_SCOPE:
+					guessedType= ref.resolveType((ClassScope)scope);
 					break;
 			}
-		
+
 
 			if (guessedType != null && guessedType.isValidBinding()) {
 				// the erasure must be used because guessedType can be a RawTypeBinding (https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890)
-				guessedType = guessedType.erasure();
-				
+				guessedType= guessedType.erasure();
+
 				if (guessedType instanceof SourceTypeBinding) {
-					SourceTypeBinding refBinding = (SourceTypeBinding) guessedType;
-					
-					if (refBinding.scope == null || refBinding.scope.referenceContext == null) return null;
-					
-					TypeDeclaration typeDeclaration = refBinding.scope.referenceContext;
-					AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-					
-					next : for (int i = 0; i < methods.length; i++) {
-						AbstractMethodDeclaration method = methods[i];
-						
-						if (!method.isConstructor()) continue next;
-						
-						Argument[] arguments = method.arguments;
-						int argumentsLength = arguments == null ? 0 : arguments.length;
-						
-						if (parameterCount != argumentsLength) continue next;
-						
-						for (int j = 0; j < argumentsLength; j++) {
-							char[] argumentTypeName = getTypeName(arguments[j].type);
-	
+					SourceTypeBinding refBinding= (SourceTypeBinding)guessedType;
+
+					if (refBinding.scope == null || refBinding.scope.referenceContext == null)
+						return null;
+
+					TypeDeclaration typeDeclaration= refBinding.scope.referenceContext;
+					AbstractMethodDeclaration[] methods= typeDeclaration.methods;
+
+					next: for (int i= 0; i < methods.length; i++) {
+						AbstractMethodDeclaration method= methods[i];
+
+						if (!method.isConstructor())
+							continue next;
+
+						Argument[] arguments= method.arguments;
+						int argumentsLength= arguments == null ? 0 : arguments.length;
+
+						if (parameterCount != argumentsLength)
+							continue next;
+
+						for (int j= 0; j < argumentsLength; j++) {
+							char[] argumentTypeName= getTypeName(arguments[j].type);
+
 							if (!CharOperation.equals(argumentTypeName, parameterTypes[j])) {
 								continue next;
 							}
 						}
-						
+
 						refBinding.resolveTypesFor(method.binding); // force resolution
-						if (method.binding == null) continue next;
+						if (method.binding == null)
+							continue next;
 						return getSignature(method.binding);
 					}
 				}
 			}
 		} finally {
-			this.lookupEnvironment.nameEnvironment = oldNameEnvironment;
+			this.lookupEnvironment.nameEnvironment= oldNameEnvironment;
 		}
-		
+
 		return null;
 	}
-	
+
 	private void findConstructorsOrAnonymousTypes(
 			ReferenceBinding currentType,
 			Scope scope,
 			InvocationSite invocationSite,
 			boolean isQualified,
 			int relevance) {
-		
+
 		if (!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)
 				&& currentType.isClass()
 				&& !currentType.isAbstract()) {
-				findConstructors(
+			findConstructors(
 					currentType,
 					null,
 					scope,
@@ -5367,79 +5690,81 @@ public final class CompletionEngine
 					isQualified,
 					relevance);
 		}
-		
+
 		// This code is disabled because there is too much proposals when constructors and anonymous are proposed
 		if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)
 				&& !currentType.isFinal()
-				&& (currentType.isInterface() || (currentType.isClass() && currentType.isAbstract()))){
+				&& (currentType.isInterface() || (currentType.isClass() && currentType.isAbstract()))) {
 			findAnonymousType(
-				currentType,
-				null,
-				scope,
-				invocationSite,
-				null,
-				null,
-				null,
-				false,
-				false,
-				isQualified,
-				relevance);
+					currentType,
+					null,
+					scope,
+					invocationSite,
+					null,
+					null,
+					null,
+					false,
+					false,
+					isQualified,
+					relevance);
 		}
 	}
-	private char[][] findEnclosingTypeNames(Scope scope){
-		char[][] excludedNames = new char[10][];
-		int excludedNameCount = 0;
 
-		Scope currentScope = scope;
-		while(currentScope != null) {
+	private char[][] findEnclosingTypeNames(Scope scope) {
+		char[][] excludedNames= new char[10][];
+		int excludedNameCount= 0;
+
+		Scope currentScope= scope;
+		while (currentScope != null) {
 			switch (currentScope.kind) {
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) currentScope;
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)currentScope;
 
-					TypeDeclaration typeDeclaration = classScope.referenceContext;
+					TypeDeclaration typeDeclaration= classScope.referenceContext;
 
-					if(excludedNameCount == excludedNames.length) {
-						System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+					if (excludedNameCount == excludedNames.length) {
+						System.arraycopy(excludedNames, 0, excludedNames= new char[excludedNameCount * 2][], 0, excludedNameCount);
 					}
-					excludedNames[excludedNameCount++] = typeDeclaration.name;
+					excludedNames[excludedNameCount++]= typeDeclaration.name;
 
-					TypeParameter[] classTypeParameters = typeDeclaration.typeParameters;
-					if(classTypeParameters != null) {
-						for (int i = 0; i < classTypeParameters.length; i++) {
-							TypeParameter typeParameter = classTypeParameters[i];
-							if(excludedNameCount == excludedNames.length) {
-								System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+					TypeParameter[] classTypeParameters= typeDeclaration.typeParameters;
+					if (classTypeParameters != null) {
+						for (int i= 0; i < classTypeParameters.length; i++) {
+							TypeParameter typeParameter= classTypeParameters[i];
+							if (excludedNameCount == excludedNames.length) {
+								System.arraycopy(excludedNames, 0, excludedNames= new char[excludedNameCount * 2][], 0, excludedNameCount);
 							}
-							excludedNames[excludedNameCount++] = typeParameter.name;
+							excludedNames[excludedNameCount++]= typeParameter.name;
 						}
 					}
 					break;
-				case Scope.METHOD_SCOPE :
-					MethodScope methodScope = (MethodScope) currentScope;
-					if(methodScope.referenceContext instanceof AbstractMethodDeclaration) {
-						TypeParameter[] methodTypeParameters = ((AbstractMethodDeclaration)methodScope.referenceContext).typeParameters();
-						if(methodTypeParameters != null) {
-							for (int i = 0; i < methodTypeParameters.length; i++) {
-								TypeParameter typeParameter = methodTypeParameters[i];
-								if(excludedNameCount == excludedNames.length) {
-									System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
+				case Scope.METHOD_SCOPE:
+					MethodScope methodScope= (MethodScope)currentScope;
+					if (methodScope.referenceContext instanceof AbstractMethodDeclaration) {
+						TypeParameter[] methodTypeParameters= ((AbstractMethodDeclaration)methodScope.referenceContext).typeParameters();
+						if (methodTypeParameters != null) {
+							for (int i= 0; i < methodTypeParameters.length; i++) {
+								TypeParameter typeParameter= methodTypeParameters[i];
+								if (excludedNameCount == excludedNames.length) {
+									System.arraycopy(excludedNames, 0, excludedNames= new char[excludedNameCount * 2][], 0, excludedNameCount);
 								}
-								excludedNames[excludedNameCount++] = typeParameter.name;
+								excludedNames[excludedNameCount++]= typeParameter.name;
 							}
 						}
 					}
 					break;
 			}
 
-			currentScope = currentScope.parent;
+			currentScope= currentScope.parent;
 		}
 
-		if(excludedNameCount == 0) {
+		if (excludedNameCount == 0) {
 			return CharOperation.NO_CHAR_CHAR;
 		}
-		System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount][], 0, excludedNameCount);
+		System.arraycopy(excludedNames, 0, excludedNames= new char[excludedNameCount][], 0, excludedNameCount);
 		return excludedNames;
 	}
+
 	private void findEnumConstants(
 			char[] enumConstantName,
 			ReferenceBinding enumType,
@@ -5449,42 +5774,47 @@ public final class CompletionEngine
 			int alreadyUsedConstantCount,
 			boolean needQualification) {
 
-		FieldBinding[] fields = enumType.fields();
+		FieldBinding[] fields= enumType.fields();
 
-		int enumConstantLength = enumConstantName.length;
-		next : for (int f = fields.length; --f >= 0;) {
-			FieldBinding field = fields[f];
+		int enumConstantLength= enumConstantName.length;
+		next: for (int f= fields.length; --f >= 0;) {
+			FieldBinding field= fields[f];
 
-			if (field.isSynthetic()) continue next;
+			if (field.isSynthetic())
+				continue next;
 
-			if ((field.modifiers & Flags.AccEnum) == 0) continue next;
+			if ((field.modifiers & Flags.AccEnum) == 0)
+				continue next;
 
-			if (enumConstantLength > field.name.length) continue next;
+			if (enumConstantLength > field.name.length)
+				continue next;
 
 			if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(enumConstantName, field.name)))	continue next;
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(enumConstantName, field.name)))
+				continue next;
 
-			char[] fieldName = field.name;
+			char[] fieldName= field.name;
 
-			for (int i = 0; i < alreadyUsedConstantCount; i++) {
-				if(CharOperation.equals(alreadyUsedConstants[i], fieldName)) continue next;
+			for (int i= 0; i < alreadyUsedConstantCount; i++) {
+				if (CharOperation.equals(alreadyUsedConstants[i], fieldName))
+					continue next;
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(enumConstantName, field.name);
-			relevance += computeRelevanceForExpectingType(field.type);
-			relevance += computeRelevanceForEnumConstant(field.type);
-			relevance += computeRelevanceForQualification(needQualification);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal(field);
+			relevance+= computeRelevanceForCaseMatching(enumConstantName, field.name);
+			relevance+= computeRelevanceForExpectingType(field.type);
+			relevance+= computeRelevanceForEnumConstant(field.type);
+			relevance+= computeRelevanceForQualification(needQualification);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			this.noProposal = false;
+			this.noProposal= false;
 			if (!needQualification) {
-				char[] completion = fieldName;
+				char[] completion= fieldName;
 
-				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-					InternalCompletionProposal proposal = createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
 					proposal.setSignature(getSignature(field.type));
 					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -5498,20 +5828,20 @@ public final class CompletionEngine
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 
 			} else {
-				TypeBinding visibleType = invocationScope.getType(field.type.sourceName());
-				boolean needImport = visibleType == null || !visibleType.isValidBinding();
+				TypeBinding visibleType= invocationScope.getType(field.type.sourceName());
+				boolean needImport= visibleType == null || !visibleType.isValidBinding();
 
-				char[] completion = CharOperation.concat(field.type.sourceName(), field.name, '.');
+				char[] completion= CharOperation.concat(field.type.sourceName(), field.name, '.');
 
 				if (!needImport) {
-					if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-						InternalCompletionProposal proposal = createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(field.declaringClass));
 						proposal.setSignature(getSignature(field.type));
 						proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -5525,19 +5855,19 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				} else {
 					if (!this.isIgnored(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT)) {
-						CompilationUnitDeclaration cu = this.unitScope.referenceContext;
-						int importStart = cu.types[0].declarationSourceStart;
-						int importEnd = importStart;
+						CompilationUnitDeclaration cu= this.unitScope.referenceContext;
+						int importStart= cu.types[0].declarationSourceStart;
+						int importEnd= importStart;
 
-						ReferenceBinding fieldType = (ReferenceBinding)field.type;
+						ReferenceBinding fieldType= (ReferenceBinding)field.type;
 
-						InternalCompletionProposal proposal = createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(field.declaringClass));
 						proposal.setSignature(getSignature(field.type));
 						proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -5551,12 +5881,12 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 
-						char[] typeImportCompletion = createImportCharArray(CharOperation.concatWith(fieldType.compoundName, '.'), false, false);
+						char[] typeImportCompletion= createImportCharArray(CharOperation.concatWith(fieldType.compoundName, '.'), false, false);
 
-						InternalCompletionProposal typeImportProposal = createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
-						typeImportProposal.nameLookup = this.nameEnvironment.nameLookup;
-						typeImportProposal.completionEngine = this;
-						char[] packageName = fieldType.qualifiedPackageName();
+						InternalCompletionProposal typeImportProposal= createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
+						typeImportProposal.nameLookup= this.nameEnvironment.nameLookup;
+						typeImportProposal.completionEngine= this;
+						char[] packageName= fieldType.qualifiedPackageName();
 						typeImportProposal.setDeclarationSignature(packageName);
 						typeImportProposal.setSignature(getSignature(fieldType));
 						typeImportProposal.setPackageName(packageName);
@@ -5568,10 +5898,10 @@ public final class CompletionEngine
 						typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 						typeImportProposal.setRelevance(relevance);
 
-						proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeImportProposal });
 
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
@@ -5579,12 +5909,13 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	private void findEnumConstantsFromExpectedTypes(
 			char[] token,
 			Scope invocationScope,
 			ObjectVector fieldsFound) {
-		int length = this.expectedTypesPtr + 1;
-		for (int i = 0; i < length; i++) {
+		int length= this.expectedTypesPtr + 1;
+		for (int i= 0; i < length; i++) {
 			if (this.expectedTypes[i].isEnum()) {
 				findEnumConstants(
 						token,
@@ -5598,20 +5929,21 @@ public final class CompletionEngine
 		}
 
 	}
+
 	private void findEnumConstantsFromSwithStatement(char[] enumConstantName, SwitchStatement switchStatement) {
-		TypeBinding expressionType = switchStatement.expression.resolvedType;
-		if(expressionType != null && expressionType.isEnum()) {
-			ReferenceBinding enumType = (ReferenceBinding) expressionType;
+		TypeBinding expressionType= switchStatement.expression.resolvedType;
+		if (expressionType != null && expressionType.isEnum()) {
+			ReferenceBinding enumType= (ReferenceBinding)expressionType;
 
-			CaseStatement[] cases = switchStatement.cases;
+			CaseStatement[] cases= switchStatement.cases;
 
-			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
-			int alreadyUsedConstantCount = 0;
-			for (int i = 0; i < switchStatement.caseCount; i++) {
-				Expression caseExpression = cases[i].constantExpression;
-				if((caseExpression instanceof SingleNameReference)
+			char[][] alreadyUsedConstants= new char[switchStatement.caseCount][];
+			int alreadyUsedConstantCount= 0;
+			for (int i= 0; i < switchStatement.caseCount; i++) {
+				Expression caseExpression= cases[i].constantExpression;
+				if ((caseExpression instanceof SingleNameReference)
 						&& (caseExpression.resolvedType != null && caseExpression.resolvedType.isEnum())) {
-					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)cases[i].constantExpression).token;
+					alreadyUsedConstants[alreadyUsedConstantCount++]= ((SingleNameReference)cases[i].constantExpression).token;
 				}
 			}
 
@@ -5625,6 +5957,7 @@ public final class CompletionEngine
 					false);
 		}
 	}
+
 	private void findExceptionFromTryStatement(
 			char[] typeName,
 			ReferenceBinding exceptionType,
@@ -5635,12 +5968,12 @@ public final class CompletionEngine
 			boolean searchSuperClasses) {
 
 		if (searchSuperClasses) {
-			ReferenceBinding javaLangThrowable = scope.getJavaLangThrowable();
+			ReferenceBinding javaLangThrowable= scope.getJavaLangThrowable();
 			if (exceptionType != javaLangThrowable) {
-				ReferenceBinding superClass = exceptionType.superclass();
-				while(superClass != null && superClass != javaLangThrowable) {
+				ReferenceBinding superClass= exceptionType.superclass();
+				while (superClass != null && superClass != javaLangThrowable) {
 					findExceptionFromTryStatement(typeName, superClass, receiverType, invocationType, scope, typesFound, false);
-					superClass = superClass.superclass();
+					superClass= superClass.superclass();
 				}
 			}
 		}
@@ -5660,17 +5993,19 @@ public final class CompletionEngine
 		if (this.options.checkVisibility) {
 			if (invocationType != null) {
 				if (receiverType != null) {
-					if (!exceptionType.canBeSeenBy(receiverType, invocationType)) return;
+					if (!exceptionType.canBeSeenBy(receiverType, invocationType))
+						return;
 				} else {
-					if (!exceptionType.canBeSeenBy(exceptionType, invocationType)) return;
+					if (!exceptionType.canBeSeenBy(exceptionType, invocationType))
+						return;
 				}
-			} else if(!exceptionType.canBeSeenBy(this.unitScope.fPackage)) {
+			} else if (!exceptionType.canBeSeenBy(this.unitScope.fPackage)) {
 				return;
 			}
 		}
 
-		for (int j = typesFound.size; --j >= 0;) {
-			ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
+		for (int j= typesFound.size; --j >= 0;) {
+			ReferenceBinding otherType= (ReferenceBinding)typesFound.elementAt(j);
 
 			if (exceptionType == otherType)
 				return;
@@ -5682,64 +6017,64 @@ public final class CompletionEngine
 
 				if (otherType.enclosingType().isInterface())
 					if (exceptionType.enclosingType()
-						.implementsInterface(otherType.enclosingType(), true))
+							.implementsInterface(otherType.enclosingType(), true))
 						return;
 
 				if (exceptionType.enclosingType().isInterface())
 					if (otherType.enclosingType()
-						.implementsInterface(exceptionType.enclosingType(), true))
+							.implementsInterface(exceptionType.enclosingType(), true))
 						return;
 			}
 		}
 
 		typesFound.add(exceptionType);
 
-		char[] completionName = exceptionType.sourceName();
+		char[] completionName= exceptionType.sourceName();
 
-		boolean isQualified = false;
+		boolean isQualified= false;
 
-		if(!this.insideQualifiedReference) {
-			isQualified = true;
+		if (!this.insideQualifiedReference) {
+			isQualified= true;
 
-			char[] memberPackageName = exceptionType.qualifiedPackageName();
-			char[] memberTypeName = exceptionType.sourceName();
-			char[] memberEnclosingTypeNames = null;
+			char[] memberPackageName= exceptionType.qualifiedPackageName();
+			char[] memberTypeName= exceptionType.sourceName();
+			char[] memberEnclosingTypeNames= null;
 
-			ReferenceBinding enclosingType = exceptionType.enclosingType();
+			ReferenceBinding enclosingType= exceptionType.enclosingType();
 			if (enclosingType != null) {
-				memberEnclosingTypeNames = exceptionType.enclosingType().qualifiedSourceName();
+				memberEnclosingTypeNames= exceptionType.enclosingType().qualifiedSourceName();
 			}
 
-			Scope currentScope = scope;
-			done : while (currentScope != null) { // done when a COMPILATION_UNIT_SCOPE is found
+			Scope currentScope= scope;
+			done: while (currentScope != null) { // done when a COMPILATION_UNIT_SCOPE is found
 
 				switch (currentScope.kind) {
 
-					case Scope.METHOD_SCOPE :
-					case Scope.BLOCK_SCOPE :
-						BlockScope blockScope = (BlockScope) currentScope;
+					case Scope.METHOD_SCOPE:
+					case Scope.BLOCK_SCOPE:
+						BlockScope blockScope= (BlockScope)currentScope;
 
-						for (int j = 0, length = blockScope.subscopeCount; j < length; j++) {
+						for (int j= 0, length= blockScope.subscopeCount; j < length; j++) {
 
 							if (blockScope.subscopes[j] instanceof ClassScope) {
-								SourceTypeBinding localType =
-									((ClassScope) blockScope.subscopes[j]).referenceContext.binding;
+								SourceTypeBinding localType=
+										((ClassScope)blockScope.subscopes[j]).referenceContext.binding;
 
 								if (localType == exceptionType) {
-									isQualified = false;
+									isQualified= false;
 									break done;
 								}
 							}
 						}
 						break;
 
-					case Scope.CLASS_SCOPE :
-						SourceTypeBinding type = ((ClassScope)currentScope).referenceContext.binding;
-						ReferenceBinding[] memberTypes = type.memberTypes();
+					case Scope.CLASS_SCOPE:
+						SourceTypeBinding type= ((ClassScope)currentScope).referenceContext.binding;
+						ReferenceBinding[] memberTypes= type.memberTypes();
 						if (memberTypes != null) {
-							for (int j = 0; j < memberTypes.length; j++) {
+							for (int j= 0; j < memberTypes.length; j++) {
 								if (memberTypes[j] == exceptionType) {
-									isQualified = false;
+									isQualified= false;
 									break done;
 								}
 							}
@@ -5748,19 +6083,19 @@ public final class CompletionEngine
 
 						break;
 
-					case Scope.COMPILATION_UNIT_SCOPE :
-						SourceTypeBinding[] types = ((CompilationUnitScope)currentScope).topLevelTypes;
+					case Scope.COMPILATION_UNIT_SCOPE:
+						SourceTypeBinding[] types= ((CompilationUnitScope)currentScope).topLevelTypes;
 						if (types != null) {
-							for (int j = 0; j < types.length; j++) {
+							for (int j= 0; j < types.length; j++) {
 								if (types[j] == exceptionType) {
-									isQualified = false;
+									isQualified= false;
 									break done;
 								}
 							}
 						}
 						break done;
 				}
-				currentScope = currentScope.parent;
+				currentScope= currentScope.parent;
 			}
 
 			if (isQualified && mustQualifyType(memberPackageName, memberTypeName, memberEnclosingTypeNames, exceptionType.modifiers)) {
@@ -5768,35 +6103,35 @@ public final class CompletionEngine
 					if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 						return; // ignore types from the default package from outside it
 			} else {
-				isQualified = false;
+				isQualified= false;
 			}
 
 			if (isQualified) {
-				completionName =
-					CharOperation.concat(
-							memberPackageName,
-							CharOperation.concat(
-									memberEnclosingTypeNames,
-									memberTypeName,
-									'.'),
-							'.');
+				completionName=
+						CharOperation.concat(
+								memberPackageName,
+								CharOperation.concat(
+										memberEnclosingTypeNames,
+										memberTypeName,
+										'.'),
+								'.');
 			}
 		}
 
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForCaseMatching(typeName, exceptionType.sourceName);
-		relevance += computeRelevanceForExpectingType(exceptionType);
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-		if(!this.insideQualifiedReference) {
-			relevance += computeRelevanceForQualification(isQualified);
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForCaseMatching(typeName, exceptionType.sourceName);
+		relevance+= computeRelevanceForExpectingType(exceptionType);
+		relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		if (!this.insideQualifiedReference) {
+			relevance+= computeRelevanceForQualification(isQualified);
 		}
-		relevance += computeRelevanceForClass();
-		relevance += computeRelevanceForException();
+		relevance+= computeRelevanceForClass();
+		relevance+= computeRelevanceForException();
 
-		this.noProposal = false;
-		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+		this.noProposal= false;
+		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			createTypeProposal(
 					exceptionType,
 					exceptionType.qualifiedSourceName(),
@@ -5809,6 +6144,7 @@ public final class CompletionEngine
 					false);
 		}
 	}
+
 	private void findExceptionFromTryStatement(
 			char[] typeName,
 			ReferenceBinding receiverType,
@@ -5816,29 +6152,31 @@ public final class CompletionEngine
 			BlockScope scope,
 			ObjectVector typesFound) {
 
-		for (int i = 0; i <= this.expectedTypesPtr; i++) {
-			ReferenceBinding exceptionType = (ReferenceBinding)this.expectedTypes[i];
+		for (int i= 0; i <= this.expectedTypesPtr; i++) {
+			ReferenceBinding exceptionType= (ReferenceBinding)this.expectedTypes[i];
 
 			findExceptionFromTryStatement(typeName, exceptionType, receiverType, invocationType, scope, typesFound, true);
 		}
 	}
-	private void findExplicitConstructors(
-		char[] name,
-		ReferenceBinding currentType,
-		MethodScope scope,
-		InvocationSite invocationSite) {
 
-		ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration)scope.referenceContext;
-		MethodBinding enclosingConstructor = constructorDeclaration.binding;
+	private void findExplicitConstructors(
+			char[] name,
+			ReferenceBinding currentType,
+			MethodScope scope,
+			InvocationSite invocationSite) {
+
+		ConstructorDeclaration constructorDeclaration= (ConstructorDeclaration)scope.referenceContext;
+		MethodBinding enclosingConstructor= constructorDeclaration.binding;
 
 		// No visibility checks can be performed without the scope & invocationSite
-		MethodBinding[] methods = currentType.availableMethods();
-		if(methods != null) {
-			next : for (int f = methods.length; --f >= 0;) {
-				MethodBinding constructor = methods[f];
+		MethodBinding[] methods= currentType.availableMethods();
+		if (methods != null) {
+			next: for (int f= methods.length; --f >= 0;) {
+				MethodBinding constructor= methods[f];
 				if (constructor != enclosingConstructor && constructor.isConstructor()) {
 
-					if (constructor.isSynthetic()) continue next;
+					if (constructor.isSynthetic())
+						continue next;
 
 					if (this.options.checkDeprecation &&
 							constructor.isViewedAsDeprecated() &&
@@ -5846,41 +6184,42 @@ public final class CompletionEngine
 						continue next;
 
 					if (this.options.checkVisibility
-						&& !constructor.canBeSeenBy(invocationSite, scope))	continue next;
+							&& !constructor.canBeSeenBy(invocationSite, scope))
+						continue next;
 
-					TypeBinding[] parameters = constructor.parameters;
-					int paramLength = parameters.length;
+					TypeBinding[] parameters= constructor.parameters;
+					int paramLength= parameters.length;
 
-					char[][] parameterPackageNames = new char[paramLength][];
-					char[][] parameterTypeNames = new char[paramLength][];
-					for (int i = 0; i < paramLength; i++) {
-						TypeBinding type = parameters[i];
-						parameterPackageNames[i] = type.qualifiedPackageName();
-						parameterTypeNames[i] = type.qualifiedSourceName();
+					char[][] parameterPackageNames= new char[paramLength][];
+					char[][] parameterTypeNames= new char[paramLength][];
+					for (int i= 0; i < paramLength; i++) {
+						TypeBinding type= parameters[i];
+						parameterPackageNames[i]= type.qualifiedPackageName();
+						parameterTypeNames[i]= type.qualifiedSourceName();
 					}
-					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
+					char[][] parameterNames= findMethodParameterNames(constructor, parameterTypeNames);
 
-					char[] completion = CharOperation.NO_CHAR;
+					char[] completion= CharOperation.NO_CHAR;
 					if (this.source != null
-						&& this.source.length > this.endPosition
-						&& this.source[this.endPosition] == '(')
-						completion = name;
+							&& this.source.length > this.endPosition
+							&& this.source[this.endPosition] == '(')
+						completion= name;
 					else
-						completion = CharOperation.concat(name, new char[] { '(', ')' });
+						completion= CharOperation.concat(name, new char[] { '(', ')' });
 
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(this.completionToken, name);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+					int relevance= computeBaseRelevance();
+					relevance+= computeRelevanceForResolution();
+					relevance+= computeRelevanceForInterestingProposal();
+					relevance+= computeRelevanceForCaseMatching(this.completionToken, name);
+					relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-					this.noProposal = false;
-					if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(currentType));
 						proposal.setSignature(getSignature(constructor));
-						MethodBinding original = constructor.original();
-						if(original != constructor) {
+						MethodBinding original= constructor.original();
+						if (original != constructor) {
 							proposal.setOriginalSignature(getSignature(original));
 						}
 						proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
@@ -5896,9 +6235,10 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
-						if(parameterNames != null) proposal.setParameterNames(parameterNames);
+						if (parameterNames != null)
+							proposal.setParameterNames(parameterNames);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
@@ -5906,43 +6246,48 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	// Helper method for findFields(char[], ReferenceBinding, Scope, ObjectVector, boolean)
 	private void findFields(
-		char[] fieldName,
-		FieldBinding[] fields,
-		Scope scope,
-		ObjectVector fieldsFound,
-		ObjectVector localsFound,
-		boolean onlyStaticFields,
-		ReferenceBinding receiverType,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean implicitCall,
-		boolean canBePrefixed,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		char[] castedReceiver,
-		int receiverStart,
-		int receiverEnd) {
+			char[] fieldName,
+			FieldBinding[] fields,
+			Scope scope,
+			ObjectVector fieldsFound,
+			ObjectVector localsFound,
+			boolean onlyStaticFields,
+			ReferenceBinding receiverType,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean implicitCall,
+			boolean canBePrefixed,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			char[] castedReceiver,
+			int receiverStart,
+			int receiverEnd) {
 
-		ObjectVector newFieldsFound = new ObjectVector();
+		ObjectVector newFieldsFound= new ObjectVector();
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
-		int fieldLength = fieldName.length;
-		next : for (int f = fields.length; --f >= 0;) {
-			FieldBinding field = fields[f];
+		int fieldLength= fieldName.length;
+		next: for (int f= fields.length; --f >= 0;) {
+			FieldBinding field= fields[f];
 
-			if (field.isSynthetic())	continue next;
+			if (field.isSynthetic())
+				continue next;
 
-			if (onlyStaticFields && !field.isStatic()) continue next;
+			if (onlyStaticFields && !field.isStatic())
+				continue next;
 
-			if (fieldLength > field.name.length) continue next;
+			if (fieldLength > field.name.length)
+				continue next;
 
 			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
+				continue next;
 
 			if (this.options.checkDeprecation &&
 					field.isViewedAsDeprecated() &&
@@ -5950,14 +6295,15 @@ public final class CompletionEngine
 				continue next;
 
 			if (this.options.checkVisibility
-				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
+					&& !field.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-			boolean prefixRequired = false;
+			boolean prefixRequired= false;
 
-			for (int i = fieldsFound.size; --i >= 0;) {
-				Object[] other = (Object[])fieldsFound.elementAt(i);
-				FieldBinding otherField = (FieldBinding) other[0];
-				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
+			for (int i= fieldsFound.size; --i >= 0;) {
+				Object[] other= (Object[])fieldsFound.elementAt(i);
+				FieldBinding otherField= (FieldBinding)other[0];
+				ReferenceBinding otherReceiverType= (ReferenceBinding)other[1];
 				if (field == otherField && receiverType == otherReceiverType)
 					continue next;
 				if (CharOperation.equals(field.name, otherField.name, true)) {
@@ -5972,24 +6318,24 @@ public final class CompletionEngine
 					if (field.declaringClass.isInterface())
 						if (otherField.declaringClass.implementsInterface(field.declaringClass, true))
 							continue next;
-					if(canBePrefixed) {
-						prefixRequired = true;
+					if (canBePrefixed) {
+						prefixRequired= true;
 					} else {
 						continue next;
 					}
 				}
 			}
 
-			for (int l = localsFound.size; --l >= 0;) {
-				LocalVariableBinding local = (LocalVariableBinding) localsFound.elementAt(l);
+			for (int l= localsFound.size; --l >= 0;) {
+				LocalVariableBinding local= (LocalVariableBinding)localsFound.elementAt(l);
 
 				if (CharOperation.equals(field.name, local.name, true)) {
-					SourceTypeBinding declarationType = scope.enclosingSourceType();
+					SourceTypeBinding declarationType= scope.enclosingSourceType();
 					if (declarationType.isAnonymousType() && declarationType != invocationScope.enclosingSourceType()) {
 						continue next;
 					}
-					if(canBePrefixed) {
-						prefixRequired = true;
+					if (canBePrefixed) {
+						prefixRequired= true;
 					} else {
 						continue next;
 					}
@@ -5997,61 +6343,61 @@ public final class CompletionEngine
 				}
 			}
 
-			newFieldsFound.add(new Object[]{field, receiverType});
+			newFieldsFound.add(new Object[] { field, receiverType });
 
-			char[] completion = field.name;
+			char[] completion= field.name;
 
-			if(prefixRequired || this.options.forceImplicitQualification){
-				char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), field.isStatic());
-				completion = CharOperation.concat(prefix,completion,'.');
+			if (prefixRequired || this.options.forceImplicitQualification) {
+				char[] prefix= computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), field.isStatic());
+				completion= CharOperation.concat(prefix, completion, '.');
 			}
 
 
 			if (castedReceiver != null) {
-				completion = CharOperation.concat(castedReceiver, completion);
+				completion= CharOperation.concat(castedReceiver, completion);
 			}
 
 			// Special case for javadoc completion
 			if (this.assistNodeInJavadoc > 0) {
 				if (invocationSite instanceof CompletionOnJavadocFieldReference) {
-					CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
+					CompletionOnJavadocFieldReference fieldRef= (CompletionOnJavadocFieldReference)invocationSite;
 					if (fieldRef.receiver.isThis()) {
 						if (fieldRef.completeInText()) {
-							completion = CharOperation.concat(new char[] { '#' }, field.name);
+							completion= CharOperation.concat(new char[] { '#' }, field.name);
 						}
 					} else if (fieldRef.completeInText()) {
 						if (fieldRef.receiver instanceof JavadocSingleTypeReference) {
-							JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) fieldRef.receiver;
-							completion = CharOperation.concat(typeRef.token, field.name, '#');
+							JavadocSingleTypeReference typeRef= (JavadocSingleTypeReference)fieldRef.receiver;
+							completion= CharOperation.concat(typeRef.token, field.name, '#');
 						} else if (fieldRef.receiver instanceof JavadocQualifiedTypeReference) {
-							JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) fieldRef.receiver;
-							completion = CharOperation.concat(CharOperation.concatWith(typeRef.tokens, '.'), field.name, '#');
+							JavadocQualifiedTypeReference typeRef= (JavadocQualifiedTypeReference)fieldRef.receiver;
+							completion= CharOperation.concat(CharOperation.concatWith(typeRef.tokens, '.'), field.name, '#');
 						}
 					}
 				}
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
-			relevance += computeRelevanceForExpectingType(field.type);
-			relevance += computeRelevanceForEnumConstant(field.type);
-			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
-			relevance += computeRelevanceForQualification(prefixRequired);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal(field);
+			relevance+= computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance+= computeRelevanceForExpectingType(field.type);
+			relevance+= computeRelevanceForEnumConstant(field.type);
+			relevance+= computeRelevanceForStatic(onlyStaticFields, field.isStatic());
+			relevance+= computeRelevanceForQualification(prefixRequired);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			if (onlyStaticFields && this.insideQualifiedReference) {
-				relevance += computeRelevanceForInheritance(receiverType, field.declaringClass);
+				relevance+= computeRelevanceForInheritance(receiverType, field.declaringClass);
 			}
 			if (missingElements != null) {
-				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+				relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 			}
 
-			this.noProposal = false;
+			this.noProposal= false;
 			if (castedReceiver == null) {
 				// Standard proposal
 				if (!this.isIgnored(CompletionProposal.FIELD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
 					proposal.setSignature(getSignature(field.type));
 					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -6060,14 +6406,14 @@ public final class CompletionEngine
 					proposal.setTypeName(field.type.qualifiedSourceName());
 					proposal.setName(field.name);
 					if (missingElements != null) {
-						CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-						for (int i = 0; i < missingElements.length; i++) {
-							subProposals[i] =
-								createRequiredTypeProposal(
-										missingElements[i],
-										missingElementsStarts[i],
-										missingElementsEnds[i],
-										relevance);
+						CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+						for (int i= 0; i < missingElements.length; i++) {
+							subProposals[i]=
+									createRequiredTypeProposal(
+											missingElements[i],
+											missingElementsStarts[i],
+											missingElementsEnds[i],
+											relevance);
 						}
 						proposal.setRequiredProposals(subProposals);
 					}
@@ -6077,15 +6423,15 @@ public final class CompletionEngine
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 
 				// Javadoc completions
 				if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_FIELD_REF)) {
-					char[] javadocCompletion = inlineTagCompletion(completion, JavadocTagConstants.TAG_LINK);
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_FIELD_REF, this.actualCompletionPosition);
+					char[] javadocCompletion= inlineTagCompletion(completion, JavadocTagConstants.TAG_LINK);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.JAVADOC_FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
 					proposal.setSignature(getSignature(field.type));
 					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -6095,18 +6441,18 @@ public final class CompletionEngine
 					proposal.setName(field.name);
 					proposal.setCompletion(javadocCompletion);
 					proposal.setFlags(field.modifiers);
-					int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
+					int start= (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 					proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-					proposal.setRelevance(relevance+R_INLINE_TAG);
+					proposal.setRelevance(relevance + R_INLINE_TAG);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 					// Javadoc value completion for static fields
 					if (field.isStatic() && !this.requestor.isIgnored(CompletionProposal.JAVADOC_VALUE_REF)) {
-						javadocCompletion = inlineTagCompletion(completion, JavadocTagConstants.TAG_VALUE);
-						InternalCompletionProposal valueProposal = createProposal(CompletionProposal.JAVADOC_VALUE_REF, this.actualCompletionPosition);
+						javadocCompletion= inlineTagCompletion(completion, JavadocTagConstants.TAG_VALUE);
+						InternalCompletionProposal valueProposal= createProposal(CompletionProposal.JAVADOC_VALUE_REF, this.actualCompletionPosition);
 						valueProposal.setDeclarationSignature(getSignature(field.declaringClass));
 						valueProposal.setSignature(getSignature(field.type));
 						valueProposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -6118,16 +6464,16 @@ public final class CompletionEngine
 						valueProposal.setFlags(field.modifiers);
 						valueProposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 						valueProposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-						valueProposal.setRelevance(relevance+R_VALUE_TAG);
+						valueProposal.setRelevance(relevance + R_VALUE_TAG);
 						this.requestor.accept(valueProposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(valueProposal);
 						}
 					}
 				}
 			} else {
-				if(!this.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
-					InternalCompletionProposal proposal = createProposal(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
+				if (!this.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
 					proposal.setSignature(getSignature(field.type));
 					proposal.setReceiverSignature(getSignature(receiverType));
@@ -6137,14 +6483,14 @@ public final class CompletionEngine
 					proposal.setTypeName(field.type.qualifiedSourceName());
 					proposal.setName(field.name);
 					if (missingElements != null) {
-						CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-						for (int i = 0; i < missingElements.length; i++) {
-							subProposals[i] =
-								createRequiredTypeProposal(
-										missingElements[i],
-										missingElementsStarts[i],
-										missingElementsEnds[i],
-										relevance);
+						CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+						for (int i= 0; i < missingElements.length; i++) {
+							subProposals[i]=
+									createRequiredTypeProposal(
+											missingElements[i],
+											missingElementsStarts[i],
+											missingElementsEnds[i],
+											relevance);
 						}
 						proposal.setRequiredProposals(subProposals);
 					}
@@ -6155,7 +6501,7 @@ public final class CompletionEngine
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
@@ -6164,82 +6510,56 @@ public final class CompletionEngine
 
 		fieldsFound.addAll(newFieldsFound);
 	}
-	private void findFields(
-		char[] fieldName,
-		ReferenceBinding receiverType,
-		Scope scope,
-		ObjectVector fieldsFound,
-		ObjectVector localsFound,
-		boolean onlyStaticFields,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean implicitCall,
-		boolean canBePrefixed,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		char[] castedReceiver,
-		int receiverStart,
-		int receiverEnd) {
 
-		boolean notInJavadoc = this.assistNodeInJavadoc == 0;
+	private void findFields(
+			char[] fieldName,
+			ReferenceBinding receiverType,
+			Scope scope,
+			ObjectVector fieldsFound,
+			ObjectVector localsFound,
+			boolean onlyStaticFields,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean implicitCall,
+			boolean canBePrefixed,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			char[] castedReceiver,
+			int receiverStart,
+			int receiverEnd) {
+
+		boolean notInJavadoc= this.assistNodeInJavadoc == 0;
 		if (fieldName == null && notInJavadoc)
 			return;
 
-		ReferenceBinding currentType = receiverType;
-		ReferenceBinding[] interfacesToVisit = null;
-		int nextPosition = 0;
+		ReferenceBinding currentType= receiverType;
+		ReferenceBinding[] interfacesToVisit= null;
+		int nextPosition= 0;
 		do {
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			ReferenceBinding[] itsInterfaces= currentType.superInterfaces();
 			if (notInJavadoc && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
-					interfacesToVisit = itsInterfaces;
-					nextPosition = interfacesToVisit.length;
+					interfacesToVisit= itsInterfaces;
+					nextPosition= interfacesToVisit.length;
 				} else {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 
-			FieldBinding[] fields = currentType.availableFields();
-			if(fields != null && fields.length > 0) {
+			FieldBinding[] fields= currentType.availableFields();
+			if (fields != null && fields.length > 0) {
 				findFields(
-					fieldName,
-					fields,
-					scope,
-					fieldsFound,
-					localsFound,
-					onlyStaticFields,
-					receiverType,
-					invocationSite,
-					invocationScope,
-					implicitCall,
-					canBePrefixed,
-					missingElements,
-					missingElementsStarts,
-					missingElementsEnds,
-					missingElementsHaveProblems,
-					castedReceiver,
-					receiverStart,
-					receiverEnd);
-			}
-			currentType = currentType.superclass();
-		} while (notInJavadoc && currentType != null);
-
-		if (notInJavadoc && interfacesToVisit != null) {
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding anInterface = interfacesToVisit[i];
-				FieldBinding[] fields = anInterface.availableFields();
-				if(fields !=  null) {
-					findFields(
 						fieldName,
 						fields,
 						scope,
@@ -6258,18 +6578,47 @@ public final class CompletionEngine
 						castedReceiver,
 						receiverStart,
 						receiverEnd);
+			}
+			currentType= currentType.superclass();
+		} while (notInJavadoc && currentType != null);
+
+		if (notInJavadoc && interfacesToVisit != null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface= interfacesToVisit[i];
+				FieldBinding[] fields= anInterface.availableFields();
+				if (fields != null) {
+					findFields(
+							fieldName,
+							fields,
+							scope,
+							fieldsFound,
+							localsFound,
+							onlyStaticFields,
+							receiverType,
+							invocationSite,
+							invocationScope,
+							implicitCall,
+							canBePrefixed,
+							missingElements,
+							missingElementsStarts,
+							missingElementsEnds,
+							missingElementsHaveProblems,
+							castedReceiver,
+							receiverStart,
+							receiverEnd);
 				}
 
-				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+				ReferenceBinding[] itsInterfaces= anInterface.superInterfaces();
 				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
@@ -6277,22 +6626,22 @@ public final class CompletionEngine
 	}
 
 	protected void findFieldsAndMethods(
-		char[] token,
-		TypeBinding receiverType,
-		Scope scope,
-		ObjectVector fieldsFound,
-		ObjectVector methodsFound,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean implicitCall,
-		boolean superCall,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		char[] castedReceiver,
-		int receiverStart,
-		int receiverEnd) {
+			char[] token,
+			TypeBinding receiverType,
+			Scope scope,
+			ObjectVector fieldsFound,
+			ObjectVector methodsFound,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean implicitCall,
+			boolean superCall,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			char[] castedReceiver,
+			int receiverStart,
+			int receiverEnd) {
 
 		if (token == null)
 			return;
@@ -6300,47 +6649,47 @@ public final class CompletionEngine
 		if (receiverType.isBaseType())
 			return; // nothing else is possible with base types
 
-		boolean proposeField =
-			castedReceiver == null ?
-					!this.isIgnored(CompletionProposal.FIELD_REF, missingElements != null) :
-					!this.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, missingElements != null) ;
-		boolean proposeMethod =
-			castedReceiver == null ?
-					!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) :
-					!this.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, missingElements != null);
+		boolean proposeField=
+				castedReceiver == null ?
+						!this.isIgnored(CompletionProposal.FIELD_REF, missingElements != null) :
+						!this.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, missingElements != null);
+		boolean proposeMethod=
+				castedReceiver == null ?
+						!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) :
+						!this.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, missingElements != null);
 
 		if (receiverType.isArrayType()) {
 			if (proposeField
-				&& token.length <= lengthField.length
-				&& CharOperation.prefixEquals(token, lengthField, false /* ignore case */
-			)) {
+					&& token.length <= lengthField.length
+					&& CharOperation.prefixEquals(token, lengthField, false /* ignore case */
+					)) {
 
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(token,lengthField);
-				relevance += computeRelevanceForExpectingType(TypeBinding.INT);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for length field
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(token, lengthField);
+				relevance+= computeRelevanceForExpectingType(TypeBinding.INT);
+				relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for length field
 				if (missingElements != null) {
-					relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+					relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 				}
-				this.noProposal = false;
+				this.noProposal= false;
 				if (castedReceiver == null) {
-					if(!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					if (!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(receiverType));
 						proposal.setSignature(INT_SIGNATURE);
 						proposal.setTypeName(INT);
 						proposal.setName(lengthField);
 						if (missingElements != null) {
-							CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-							for (int i = 0; i < missingElements.length; i++) {
-								subProposals[i] =
-									createRequiredTypeProposal(
-											missingElements[i],
-											missingElementsStarts[i],
-											missingElementsEnds[i],
-											relevance);
+							CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+							for (int i= 0; i < missingElements.length; i++) {
+								subProposals[i]=
+										createRequiredTypeProposal(
+												missingElements[i],
+												missingElementsStarts[i],
+												missingElementsEnds[i],
+												relevance);
 							}
 							proposal.setRequiredProposals(subProposals);
 						}
@@ -6350,29 +6699,29 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				} else {
-					char[] completion = CharOperation.concat(castedReceiver, lengthField);
+					char[] completion= CharOperation.concat(castedReceiver, lengthField);
 
-					if(!this.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
+					if (!this.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(receiverType));
 						proposal.setSignature(INT_SIGNATURE);
 						proposal.setReceiverSignature(getSignature(receiverType));
 						proposal.setTypeName(INT);
 						proposal.setName(lengthField);
 						if (missingElements != null) {
-							CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-							for (int i = 0; i < missingElements.length; i++) {
-								subProposals[i] =
-									createRequiredTypeProposal(
-											missingElements[i],
-											missingElementsStarts[i],
-											missingElementsEnds[i],
-											relevance);
+							CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+							for (int i= 0; i < missingElements.length; i++) {
+								subProposals[i]=
+										createRequiredTypeProposal(
+												missingElements[i],
+												missingElementsStarts[i],
+												missingElementsEnds[i],
+												relevance);
 							}
 							proposal.setRequiredProposals(subProposals);
 						}
@@ -6383,46 +6732,45 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				}
 			}
 			if (proposeMethod
-				&& token.length <= cloneMethod.length
-				&& CharOperation.prefixEquals(token, cloneMethod, false /* ignore case */)
-			) {
-				ReferenceBinding objectRef = scope.getJavaLangObject();
+					&& token.length <= cloneMethod.length
+					&& CharOperation.prefixEquals(token, cloneMethod, false /* ignore case */)) {
+				ReferenceBinding objectRef= scope.getJavaLangObject();
 
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(token, cloneMethod);
-				relevance += computeRelevanceForExpectingType(objectRef);
-				relevance += computeRelevanceForStatic(false, false);
-				relevance += computeRelevanceForQualification(false);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for clone() method
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(token, cloneMethod);
+				relevance+= computeRelevanceForExpectingType(objectRef);
+				relevance+= computeRelevanceForStatic(false, false);
+				relevance+= computeRelevanceForQualification(false);
+				relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for clone() method
 				if (missingElements != null) {
-					relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+					relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 				}
 				char[] completion;
 				if (this.source != null
-					&& this.source.length > this.endPosition
-					&& this.source[this.endPosition] == '(') {
-					completion = cloneMethod;
-					} else {
-					completion = CharOperation.concat(cloneMethod, new char[] { '(', ')' });
+						&& this.source.length > this.endPosition
+						&& this.source[this.endPosition] == '(') {
+					completion= cloneMethod;
+				} else {
+					completion= CharOperation.concat(cloneMethod, new char[] { '(', ')' });
 				}
 
 				if (castedReceiver != null) {
-					completion = CharOperation.concat(castedReceiver, completion);
+					completion= CharOperation.concat(castedReceiver, completion);
 				}
 
-				this.noProposal = false;
+				this.noProposal= false;
 				if (castedReceiver == null) {
 					if (!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(receiverType));
 						proposal.setSignature(
 								this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4 && receiverType.isArrayType() ?
@@ -6444,14 +6792,14 @@ public final class CompletionEngine
 						proposal.setTypeName(OBJECT);
 						proposal.setName(cloneMethod);
 						if (missingElements != null) {
-							CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-							for (int i = 0; i < missingElements.length; i++) {
-								subProposals[i] =
-									createRequiredTypeProposal(
-											missingElements[i],
-											missingElementsStarts[i],
-											missingElementsEnds[i],
-											relevance);
+							CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+							for (int i= 0; i < missingElements.length; i++) {
+								subProposals[i]=
+										createRequiredTypeProposal(
+												missingElements[i],
+												missingElementsStarts[i],
+												missingElementsEnds[i],
+												relevance);
 							}
 							proposal.setRequiredProposals(subProposals);
 						}
@@ -6461,14 +6809,14 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
-					methodsFound.add(new Object[]{objectRef.getMethods(cloneMethod)[0], objectRef});
+					methodsFound.add(new Object[] { objectRef.getMethods(cloneMethod)[0], objectRef });
 				} else {
-					if(!this.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
+					if (!this.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(receiverType));
 						proposal.setSignature(
 								this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4 && receiverType.isArrayType() ?
@@ -6486,14 +6834,14 @@ public final class CompletionEngine
 						proposal.setTypeName(OBJECT);
 						proposal.setName(cloneMethod);
 						if (missingElements != null) {
-							CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-							for (int i = 0; i < missingElements.length; i++) {
-								subProposals[i] =
-									createRequiredTypeProposal(
-											missingElements[i],
-											missingElementsStarts[i],
-											missingElementsEnds[i],
-											relevance);
+							CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+							for (int i= 0; i < missingElements.length; i++) {
+								subProposals[i]=
+										createRequiredTypeProposal(
+												missingElements[i],
+												missingElementsStarts[i],
+												missingElementsEnds[i],
+												relevance);
 							}
 							proposal.setRequiredProposals(subProposals);
 						}
@@ -6504,61 +6852,61 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				}
 			}
 
-			receiverType = scope.getJavaLangObject();
-		}
-		
-		checkCancel();
-		
-		if(proposeField) {
-			findFields(
-				token,
-				(ReferenceBinding) receiverType,
-				scope,
-				fieldsFound,
-				new ObjectVector(),
-				false,
-				invocationSite,
-				invocationScope,
-				implicitCall,
-				false,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems,
-				castedReceiver,
-				receiverStart,
-				receiverEnd);
+			receiverType= scope.getJavaLangObject();
 		}
 
-		if(proposeMethod) {
+		checkCancel();
+
+		if (proposeField) {
+			findFields(
+					token,
+					(ReferenceBinding)receiverType,
+					scope,
+					fieldsFound,
+					new ObjectVector(),
+					false,
+					invocationSite,
+					invocationScope,
+					implicitCall,
+					false,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems,
+					castedReceiver,
+					receiverStart,
+					receiverEnd);
+		}
+
+		if (proposeMethod) {
 			findMethods(
-				token,
-				null,
-				null,
-				(ReferenceBinding) receiverType,
-				scope,
-				methodsFound,
-				false,
-				false,
-				invocationSite,
-				invocationScope,
-				implicitCall,
-				superCall,
-				false,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems,
-				castedReceiver,
-				receiverStart,
-				receiverEnd);
+					token,
+					null,
+					null,
+					(ReferenceBinding)receiverType,
+					scope,
+					methodsFound,
+					false,
+					false,
+					invocationSite,
+					invocationScope,
+					implicitCall,
+					superCall,
+					false,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems,
+					castedReceiver,
+					receiverStart,
+					receiverEnd);
 		}
 	}
 
@@ -6580,43 +6928,45 @@ public final class CompletionEngine
 			int receiverStart,
 			int receiverEnd) {
 
-		if (receiverType.resolvedType == null) return;
+		if (receiverType.resolvedType == null)
+			return;
 
-		TypeBinding receiverTypeBinding = receiverType.resolvedType;
-		char[] castedReceiver = null;
+		TypeBinding receiverTypeBinding= receiverType.resolvedType;
+		char[] castedReceiver= null;
 
-		char[] castedTypeChars = CharOperation.concatWith(receiverType.getTypeName(), '.');
-		if(this.source != null) {
-			int memberRefStart = this.startPosition;
+		char[] castedTypeChars= CharOperation.concatWith(receiverType.getTypeName(), '.');
+		if (this.source != null) {
+			int memberRefStart= this.startPosition;
 
-			char[] receiverChars = CharOperation.subarray(this.source, receiverStart, receiverEnd);
-			char[] dotChars = CharOperation.subarray(this.source, receiverEnd, memberRefStart);
+			char[] receiverChars= CharOperation.subarray(this.source, receiverStart, receiverEnd);
+			char[] dotChars= CharOperation.subarray(this.source, receiverEnd, memberRefStart);
 
-			castedReceiver =
-				CharOperation.concat(
+			castedReceiver=
 					CharOperation.concat(
-						'(',
-						CharOperation.concat(
-							CharOperation.concat('(', castedTypeChars, ')'),
-							receiverChars),
-						')'),
-					dotChars);
+							CharOperation.concat(
+									'(',
+									CharOperation.concat(
+											CharOperation.concat('(', castedTypeChars, ')'),
+											receiverChars),
+									')'),
+							dotChars);
 		} else {
-			castedReceiver =
-				CharOperation.concat(
+			castedReceiver=
 					CharOperation.concat(
-						'(',
-						CharOperation.concat(
-							CharOperation.concat('(', castedTypeChars, ')'),
-							CharOperation.concatWith(receiverName, '.')),
-						')'),
-					DOT);
+							CharOperation.concat(
+									'(',
+									CharOperation.concat(
+											CharOperation.concat('(', castedTypeChars, ')'),
+											CharOperation.concatWith(receiverName, '.')),
+									')'),
+							DOT);
 		}
 
-		if (castedReceiver == null) return;
+		if (castedReceiver == null)
+			return;
 
-		int oldStartPosition = this.startPosition;
-		this.startPosition = receiverStart;
+		int oldStartPosition= this.startPosition;
+		this.startPosition= receiverStart;
 
 		findFieldsAndMethods(
 				token,
@@ -6636,8 +6986,9 @@ public final class CompletionEngine
 				receiverStart,
 				receiverEnd);
 
-		this.startPosition = oldStartPosition;
+		this.startPosition= oldStartPosition;
 	}
+
 	private void findFieldsAndMethodsFromCastedReceiver(
 			ASTNode enclosingNode,
 			Binding qualifiedBinding,
@@ -6648,116 +6999,121 @@ public final class CompletionEngine
 			Scope invocationScope,
 			Expression receiver) {
 
-		if (enclosingNode == null || !(enclosingNode instanceof IfStatement)) return;
+		if (enclosingNode == null || !(enclosingNode instanceof IfStatement))
+			return;
 
-		IfStatement ifStatement = (IfStatement)enclosingNode;
+		IfStatement ifStatement= (IfStatement)enclosingNode;
 
-		if (!(ifStatement.condition instanceof InstanceOfExpression)) return;
+		if (!(ifStatement.condition instanceof InstanceOfExpression))
+			return;
 
-		InstanceOfExpression instanceOfExpression = (InstanceOfExpression) ifStatement.condition;
+		InstanceOfExpression instanceOfExpression= (InstanceOfExpression)ifStatement.condition;
 
-		TypeReference instanceOfType = instanceOfExpression.type;
+		TypeReference instanceOfType= instanceOfExpression.type;
 
-		if (instanceOfType.resolvedType == null) return;
+		if (instanceOfType.resolvedType == null)
+			return;
 
-		boolean findFromAnotherReceiver = false;
+		boolean findFromAnotherReceiver= false;
 
-		char[][] receiverName = null;
-		int receiverStart = -1;
-		int receiverEnd = -1;
+		char[][] receiverName= null;
+		int receiverStart= -1;
+		int receiverEnd= -1;
 
 		if (receiver instanceof QualifiedNameReference) {
-			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) receiver;
+			QualifiedNameReference qualifiedNameReference= (QualifiedNameReference)receiver;
 
-			receiverName = qualifiedNameReference.tokens;
+			receiverName= qualifiedNameReference.tokens;
 
-			if (receiverName.length != 1) return;
+			if (receiverName.length != 1)
+				return;
 
-			receiverStart = (int) (qualifiedNameReference.sourcePositions[0] >>> 32);
-			receiverEnd = (int) qualifiedNameReference.sourcePositions[qualifiedNameReference.tokens.length - 1] + 1;
+			receiverStart= (int)(qualifiedNameReference.sourcePositions[0] >>> 32);
+			receiverEnd= (int)qualifiedNameReference.sourcePositions[qualifiedNameReference.tokens.length - 1] + 1;
 
 			// if (local instanceof X) local.|
 			// if (field instanceof X) field.|
 			if (instanceOfExpression.expression instanceof SingleNameReference &&
 					((SingleNameReference)instanceOfExpression.expression).binding == qualifiedBinding &&
 					(qualifiedBinding instanceof LocalVariableBinding || qualifiedBinding instanceof FieldBinding)) {
-				findFromAnotherReceiver = true;
+				findFromAnotherReceiver= true;
 			}
 
 			// if (this.field instanceof X) field.|
 			if (instanceOfExpression.expression instanceof FieldReference) {
-				FieldReference fieldReference = (FieldReference)instanceOfExpression.expression;
+				FieldReference fieldReference= (FieldReference)instanceOfExpression.expression;
 
 				if (fieldReference.receiver instanceof ThisReference &&
 						qualifiedBinding instanceof FieldBinding &&
 						fieldReference.binding == qualifiedBinding) {
-							findFromAnotherReceiver = true;
+					findFromAnotherReceiver= true;
 				}
 			}
 		} else if (receiver instanceof FieldReference) {
-			FieldReference fieldReference1 = (FieldReference) receiver;
+			FieldReference fieldReference1= (FieldReference)receiver;
 
-			receiverStart = fieldReference1.sourceStart;
-			receiverEnd = fieldReference1.sourceEnd + 1;
+			receiverStart= fieldReference1.sourceStart;
+			receiverEnd= fieldReference1.sourceEnd + 1;
 
 			if (fieldReference1.receiver instanceof ThisReference) {
 
-				receiverName = new char[][] {THIS, fieldReference1.token};
+				receiverName= new char[][] { THIS, fieldReference1.token };
 
 				// if (field instanceof X) this.field.|
 				if (instanceOfExpression.expression instanceof SingleNameReference &&
 						((SingleNameReference)instanceOfExpression.expression).binding == fieldReference1.binding) {
-					findFromAnotherReceiver = true;
+					findFromAnotherReceiver= true;
 				}
 
 				// if (this.field instanceof X) this.field.|
 				if (instanceOfExpression.expression instanceof FieldReference) {
-					FieldReference fieldReference2 = (FieldReference)instanceOfExpression.expression;
+					FieldReference fieldReference2= (FieldReference)instanceOfExpression.expression;
 
 					if (fieldReference2.receiver instanceof ThisReference &&
 							fieldReference2.binding == fieldReference1.binding) {
-								findFromAnotherReceiver = true;
+						findFromAnotherReceiver= true;
 					}
 				}
 			}
 		}
 
 		if (findFromAnotherReceiver) {
-			TypeBinding receiverTypeBinding = instanceOfType.resolvedType;
-			char[] castedReceiver = null;
+			TypeBinding receiverTypeBinding= instanceOfType.resolvedType;
+			char[] castedReceiver= null;
 
-			char[] castedTypeChars = CharOperation.concatWith(instanceOfType.getTypeName(), '.');
-			if(this.source != null) {
-				int memberRefStart = this.startPosition;
+			char[] castedTypeChars= CharOperation.concatWith(instanceOfType.getTypeName(), '.');
+			if (this.source != null) {
+				int memberRefStart= this.startPosition;
 
-				char[] receiverChars = CharOperation.subarray(this.source, receiverStart, receiverEnd);
-				char[] dotChars = CharOperation.subarray(this.source, receiverEnd, memberRefStart);
+				char[] receiverChars= CharOperation.subarray(this.source, receiverStart, receiverEnd);
+				char[] dotChars= CharOperation.subarray(this.source, receiverEnd, memberRefStart);
 
-				castedReceiver =
-					CharOperation.concat(
+				castedReceiver=
 						CharOperation.concat(
-							'(',
-							CharOperation.concat(
-								CharOperation.concat('(', castedTypeChars, ')'),
-								receiverChars),
-							')'),
-						dotChars);
+								CharOperation.concat(
+										'(',
+										CharOperation.concat(
+												CharOperation.concat('(', castedTypeChars, ')'),
+												receiverChars),
+										')'),
+								dotChars);
 			} else {
-				castedReceiver =
-					CharOperation.concat(
+				castedReceiver=
 						CharOperation.concat(
-							'(',
-							CharOperation.concat(
-								CharOperation.concat('(', castedTypeChars, ')'),
-								CharOperation.concatWith(receiverName, '.')),
-							')'),
-						DOT);
+								CharOperation.concat(
+										'(',
+										CharOperation.concat(
+												CharOperation.concat('(', castedTypeChars, ')'),
+												CharOperation.concatWith(receiverName, '.')),
+										')'),
+								DOT);
 			}
 
-			if (castedReceiver == null) return;
+			if (castedReceiver == null)
+				return;
 
-			int oldStartPosition = this.startPosition;
-			this.startPosition = receiverStart;
+			int oldStartPosition= this.startPosition;
+			this.startPosition= receiverStart;
 
 			findFieldsAndMethods(
 					this.completionToken,
@@ -6777,9 +7133,10 @@ public final class CompletionEngine
 					receiverStart,
 					receiverEnd);
 
-			this.startPosition = oldStartPosition;
+			this.startPosition= oldStartPosition;
 		}
 	}
+
 	private void findFieldsAndMethodsFromFavorites(
 			char[] token,
 			Scope scope,
@@ -6789,19 +7146,19 @@ public final class CompletionEngine
 			ObjectVector fieldsFound,
 			ObjectVector methodsFound) {
 
-		ObjectVector methodsFoundFromFavorites = new ObjectVector();
+		ObjectVector methodsFoundFromFavorites= new ObjectVector();
 
-		ImportBinding[] favoriteBindings = getFavoriteReferenceBindings(invocationScope);
+		ImportBinding[] favoriteBindings= getFavoriteReferenceBindings(invocationScope);
 
 		if (favoriteBindings != null && favoriteBindings.length > 0) {
-			for (int i = 0; i < favoriteBindings.length; i++) {
-				ImportBinding favoriteBinding = favoriteBindings[i];
+			for (int i= 0; i < favoriteBindings.length; i++) {
+				ImportBinding favoriteBinding= favoriteBindings[i];
 				switch (favoriteBinding.resolvedImport.kind()) {
 					case Binding.FIELD:
-						FieldBinding fieldBinding = (FieldBinding) favoriteBinding.resolvedImport;
+						FieldBinding fieldBinding= (FieldBinding)favoriteBinding.resolvedImport;
 						findFieldsFromFavorites(
 								token,
-								new FieldBinding[]{fieldBinding},
+								new FieldBinding[] { fieldBinding },
 								scope,
 								fieldsFound,
 								localsFound,
@@ -6810,15 +7167,15 @@ public final class CompletionEngine
 								invocationScope);
 						break;
 					case Binding.METHOD:
-						MethodBinding methodBinding = (MethodBinding) favoriteBinding.resolvedImport;
-						MethodBinding[] methods = methodBinding.declaringClass.availableMethods();
+						MethodBinding methodBinding= (MethodBinding)favoriteBinding.resolvedImport;
+						MethodBinding[] methods= methodBinding.declaringClass.availableMethods();
 						long range;
-						if ((range = ReferenceBinding.binarySearch(methodBinding.selector, methods)) >= 0) {
-							int start = (int) range, end = (int) (range >> 32);
-							int length = end - start + 1;
-							System.arraycopy(methods, start, methods = new MethodBinding[length], 0, length);
+						if ((range= ReferenceBinding.binarySearch(methodBinding.selector, methods)) >= 0) {
+							int start= (int)range, end= (int)(range >> 32);
+							int length= end - start + 1;
+							System.arraycopy(methods, start, methods= new MethodBinding[length], 0, length);
 						} else {
-							methods = Binding.NO_METHODS;
+							methods= Binding.NO_METHODS;
 						}
 						findLocalMethodsFromFavorites(
 								token,
@@ -6831,8 +7188,8 @@ public final class CompletionEngine
 								invocationScope);
 						break;
 					case Binding.TYPE:
-						ReferenceBinding referenceBinding = (ReferenceBinding) favoriteBinding.resolvedImport;
-						if(favoriteBinding.onDemand) {
+						ReferenceBinding referenceBinding= (ReferenceBinding)favoriteBinding.resolvedImport;
+						if (favoriteBinding.onDemand) {
 							findFieldsFromFavorites(
 									token,
 									referenceBinding.availableFields(),
@@ -6862,39 +7219,39 @@ public final class CompletionEngine
 	}
 
 	private boolean findFieldsAndMethodsFromMissingFieldType(
-		char[] token,
-		Scope scope,
-		InvocationSite invocationSite,
-		boolean insideTypeAnnotation) {
+			char[] token,
+			Scope scope,
+			InvocationSite invocationSite,
+			boolean insideTypeAnnotation) {
 
-		boolean foundSomeFields = false;
+		boolean foundSomeFields= false;
 
-		boolean staticsOnly = false;
-		Scope currentScope = scope;
+		boolean staticsOnly= false;
+		Scope currentScope= scope;
 
-		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		done: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (currentScope.kind) {
 
-				case Scope.METHOD_SCOPE :
+				case Scope.METHOD_SCOPE:
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-					MethodScope methodScope = (MethodScope) currentScope;
-					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					MethodScope methodScope= (MethodScope)currentScope;
+					staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 					break;
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) currentScope;
-					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
-					if(!insideTypeAnnotation) {
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)currentScope;
+					SourceTypeBinding enclosingType= classScope.referenceContext.binding;
+					if (!insideTypeAnnotation) {
 
-						FieldDeclaration[] fields = classScope.referenceContext.fields;
+						FieldDeclaration[] fields= classScope.referenceContext.fields;
 
-						int fieldsCount = fields == null ? 0 : fields.length;
-						for (int i = 0; i < fieldsCount; i++) {
-							FieldDeclaration fieldDeclaration = fields[i];
+						int fieldsCount= fields == null ? 0 : fields.length;
+						for (int i= 0; i < fieldsCount; i++) {
+							FieldDeclaration fieldDeclaration= fields[i];
 							if (CharOperation.equals(fieldDeclaration.name, token)) {
-								FieldBinding fieldBinding = fieldDeclaration.binding;
-								if (fieldBinding == null || fieldBinding.type == null  || (fieldBinding.type.tagBits & TagBits.HasMissingType) != 0) {
-									foundSomeFields = true;
+								FieldBinding fieldBinding= fieldDeclaration.binding;
+								if (fieldBinding == null || fieldBinding.type == null || (fieldBinding.type.tagBits & TagBits.HasMissingType) != 0) {
+									foundSomeFields= true;
 									findFieldsAndMethodsFromMissingType(
 											fieldDeclaration.type,
 											currentScope,
@@ -6905,54 +7262,54 @@ public final class CompletionEngine
 							}
 						}
 					}
-					staticsOnly |= enclosingType.isStatic();
-					insideTypeAnnotation = false;
+					staticsOnly|= enclosingType.isStatic();
+					insideTypeAnnotation= false;
 					break;
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					break done;
 			}
-			currentScope = currentScope.parent;
+			currentScope= currentScope.parent;
 		}
 		return foundSomeFields;
 	}
 
 	private void findFieldsAndMethodsFromMissingReturnType(
-		char[] token,
-		TypeBinding[] arguments,
-		Scope scope,
-		InvocationSite invocationSite,
-		boolean insideTypeAnnotation) {
+			char[] token,
+			TypeBinding[] arguments,
+			Scope scope,
+			InvocationSite invocationSite,
+			boolean insideTypeAnnotation) {
 
-		boolean staticsOnly = false;
-		Scope currentScope = scope;
+		boolean staticsOnly= false;
+		Scope currentScope= scope;
 
-		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		done: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (currentScope.kind) {
 
-				case Scope.METHOD_SCOPE :
+				case Scope.METHOD_SCOPE:
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-					MethodScope methodScope = (MethodScope) currentScope;
-					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					MethodScope methodScope= (MethodScope)currentScope;
+					staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 					break;
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) currentScope;
-					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
-					if(!insideTypeAnnotation) {
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)currentScope;
+					SourceTypeBinding enclosingType= classScope.referenceContext.binding;
+					if (!insideTypeAnnotation) {
 
-						AbstractMethodDeclaration[] methods = classScope.referenceContext.methods;
+						AbstractMethodDeclaration[] methods= classScope.referenceContext.methods;
 
-						int methodsCount = methods == null ? 0 : methods.length;
-						for (int i = 0; i < methodsCount; i++) {
-							AbstractMethodDeclaration methodDeclaration = methods[i];
+						int methodsCount= methods == null ? 0 : methods.length;
+						for (int i= 0; i < methodsCount; i++) {
+							AbstractMethodDeclaration methodDeclaration= methods[i];
 							if (methodDeclaration instanceof MethodDeclaration &&
 									CharOperation.equals(methodDeclaration.selector, token)) {
-								MethodDeclaration method = (MethodDeclaration) methodDeclaration;
-								MethodBinding methodBinding = method.binding;
-								if (methodBinding == null || methodBinding.returnType == null  || (methodBinding.returnType.tagBits & TagBits.HasMissingType) != 0) {
-									Argument[] parameters = method.arguments;
-									int parametersLength = parameters == null ? 0 : parameters.length;
-									int argumentsLength = arguments == null ? 0 : arguments.length;
+								MethodDeclaration method= (MethodDeclaration)methodDeclaration;
+								MethodBinding methodBinding= method.binding;
+								if (methodBinding == null || methodBinding.returnType == null || (methodBinding.returnType.tagBits & TagBits.HasMissingType) != 0) {
+									Argument[] parameters= method.arguments;
+									int parametersLength= parameters == null ? 0 : parameters.length;
+									int argumentsLength= arguments == null ? 0 : arguments.length;
 
 									if (parametersLength == 0) {
 										if (argumentsLength == 0) {
@@ -6966,18 +7323,18 @@ public final class CompletionEngine
 									} else {
 										TypeBinding[] parametersBindings;
 										if (methodBinding == null) { // since no binding, extra types from type references
-											parametersBindings = new TypeBinding[parametersLength];
-											for (int j = 0; j < parametersLength; j++) {
-												TypeBinding parameterType = parameters[j].type.resolvedType;
+											parametersBindings= new TypeBinding[parametersLength];
+											for (int j= 0; j < parametersLength; j++) {
+												TypeBinding parameterType= parameters[j].type.resolvedType;
 												if (!parameterType.isValidBinding() && parameterType.closestMatch() != null) {
-													parameterType = parameterType.closestMatch();
+													parameterType= parameterType.closestMatch();
 												}
-												parametersBindings[j] = parameterType;
+												parametersBindings[j]= parameterType;
 											}
 										} else {
-											parametersBindings = methodBinding.parameters;
+											parametersBindings= methodBinding.parameters;
 										}
-										if(areParametersCompatibleWith(parametersBindings, arguments, parameters[parametersLength - 1].isVarArgs())) {
+										if (areParametersCompatibleWith(parametersBindings, arguments, parameters[parametersLength - 1].isVarArgs())) {
 											findFieldsAndMethodsFromMissingType(
 													method.returnType,
 													currentScope,
@@ -6991,13 +7348,13 @@ public final class CompletionEngine
 							}
 						}
 					}
-					staticsOnly |= enclosingType.isStatic();
-					insideTypeAnnotation = false;
+					staticsOnly|= enclosingType.isStatic();
+					insideTypeAnnotation= false;
 					break;
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					break done;
 			}
-			currentScope = currentScope.parent;
+			currentScope= currentScope.parent;
 		}
 	}
 
@@ -7006,35 +7363,35 @@ public final class CompletionEngine
 			final Scope scope,
 			final InvocationSite invocationSite,
 			final Scope invocationScope) {
-		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
-		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
-			new MissingTypesGuesser.GuessedTypeRequestor() {
-				public void accept(
-						TypeBinding guessedType,
-						Binding[] missingElements,
-						int[] missingElementsStarts,
-						int[] missingElementsEnds,
-						boolean hasProblems) {
-					findFieldsAndMethods(
-						CompletionEngine.this.completionToken,
-						guessedType,
-						scope,
-						new ObjectVector(),
-						new ObjectVector(),
-						invocationSite,
-						invocationScope,
-						false,
-						false,
-						missingElements,
-						missingElementsStarts,
-						missingElementsEnds,
-						hasProblems,
-						null,
-						-1,
-						-1);
+		MissingTypesGuesser missingTypesConverter= new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor=
+				new MissingTypesGuesser.GuessedTypeRequestor() {
+					public void accept(
+							TypeBinding guessedType,
+							Binding[] missingElements,
+							int[] missingElementsStarts,
+							int[] missingElementsEnds,
+							boolean hasProblems) {
+						findFieldsAndMethods(
+								CompletionEngine.this.completionToken,
+								guessedType,
+								scope,
+								new ObjectVector(),
+								new ObjectVector(),
+								invocationSite,
+								invocationScope,
+								false,
+								false,
+								missingElements,
+								missingElementsStarts,
+								missingElementsEnds,
+								hasProblems,
+								null,
+								-1,
+								-1);
 
-				}
-			};
+					}
+				};
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 
@@ -7051,64 +7408,64 @@ public final class CompletionEngine
 			boolean proposeField,
 			boolean proposeMethod) {
 		// search in static import
-		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
-			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
-				if(binding != null && binding.isValidBinding()) {
-					if(importBinding.onDemand) {
-						if((binding.kind() & Binding.TYPE) != 0) {
-							if(proposeField) {
+		ImportBinding[] importBindings= scope.compilationUnitScope().imports;
+		for (int i= 0; i < importBindings.length; i++) {
+			ImportBinding importBinding= importBindings[i];
+			if (importBinding.isValidBinding() && importBinding.isStatic()) {
+				Binding binding= importBinding.resolvedImport;
+				if (binding != null && binding.isValidBinding()) {
+					if (importBinding.onDemand) {
+						if ((binding.kind() & Binding.TYPE) != 0) {
+							if (proposeField) {
 								findFields(
-									token,
-									(ReferenceBinding)binding,
-									scope,
-									fieldsFound,
-									localsFound,
-									true,
-									invocationSite,
-									invocationScope,
-									true,
-									false,
-									null,
-									null,
-									null,
-									false,
-									null,
-									-1,
-									-1);
+										token,
+										(ReferenceBinding)binding,
+										scope,
+										fieldsFound,
+										localsFound,
+										true,
+										invocationSite,
+										invocationScope,
+										true,
+										false,
+										null,
+										null,
+										null,
+										false,
+										null,
+										-1,
+										-1);
 							}
-							if(proposeMethod && !insideAnnotationAttribute) {
+							if (proposeMethod && !insideAnnotationAttribute) {
 								findMethods(
-									token,
-									null,
-									null,
-									(ReferenceBinding)binding,
-									scope,
-									methodsFound,
-									true,
-									exactMatch,
-									invocationSite,
-									invocationScope,
-									true,
-									false,
-									false,
-									null,
-									null,
-									null,
-									false,
-									null,
-									-1,
-									-1);
+										token,
+										null,
+										null,
+										(ReferenceBinding)binding,
+										scope,
+										methodsFound,
+										true,
+										exactMatch,
+										invocationSite,
+										invocationScope,
+										true,
+										false,
+										false,
+										null,
+										null,
+										null,
+										false,
+										null,
+										-1,
+										-1);
 							}
 						}
 					} else {
 						if ((binding.kind() & Binding.FIELD) != 0) {
-							if(proposeField) {
-									findFields(
+							if (proposeField) {
+								findFields(
 											token,
-											new FieldBinding[]{(FieldBinding)binding},
+											new FieldBinding[] { (FieldBinding)binding },
 											scope,
 											fieldsFound,
 											localsFound,
@@ -7127,8 +7484,8 @@ public final class CompletionEngine
 											-1);
 							}
 						} else if ((binding.kind() & Binding.METHOD) != 0) {
-							if(proposeMethod && !insideAnnotationAttribute) {
-								MethodBinding methodBinding = (MethodBinding)binding;
+							if (proposeMethod && !insideAnnotationAttribute) {
+								MethodBinding methodBinding= (MethodBinding)binding;
 								if ((exactMatch && CharOperation.equals(token, methodBinding.selector)) ||
 										!exactMatch && CharOperation.prefixEquals(token, methodBinding.selector) ||
 										(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, methodBinding.selector))) {
@@ -7159,21 +7516,25 @@ public final class CompletionEngine
 			InvocationSite invocationSite,
 			Scope invocationScope) {
 
-		char[] typeName = CharOperation.concatWith(receiverType.compoundName, '.');
+		char[] typeName= CharOperation.concatWith(receiverType.compoundName, '.');
 
-		int fieldLength = fieldName.length;
-		next : for (int f = fields.length; --f >= 0;) {
-			FieldBinding field = fields[f];
+		int fieldLength= fieldName.length;
+		next: for (int f= fields.length; --f >= 0;) {
+			FieldBinding field= fields[f];
 
-			if (field.isSynthetic())	continue next;
+			if (field.isSynthetic())
+				continue next;
 
 			// only static fields must be proposed
-			if (!field.isStatic()) continue next;
+			if (!field.isStatic())
+				continue next;
 
-			if (fieldLength > field.name.length) continue next;
+			if (fieldLength > field.name.length)
+				continue next;
 
 			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
+				continue next;
 
 			if (this.options.checkDeprecation &&
 					field.isViewedAsDeprecated() &&
@@ -7181,38 +7542,40 @@ public final class CompletionEngine
 				continue next;
 
 			if (this.options.checkVisibility
-				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
+					&& !field.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-			for (int i = fieldsFound.size; --i >= 0;) {
-				Object[] other = (Object[])fieldsFound.elementAt(i);
-				FieldBinding otherField = (FieldBinding) other[0];
+			for (int i= fieldsFound.size; --i >= 0;) {
+				Object[] other= (Object[])fieldsFound.elementAt(i);
+				FieldBinding otherField= (FieldBinding)other[0];
 
-				if (field == otherField) continue next;
+				if (field == otherField)
+					continue next;
 			}
 
-			fieldsFound.add(new Object[]{field, receiverType});
+			fieldsFound.add(new Object[] { field, receiverType });
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
-			relevance += computeRelevanceForExpectingType(field.type);
-			relevance += computeRelevanceForEnumConstant(field.type);
-			relevance += computeRelevanceForStatic(true, true);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal(field);
+			relevance+= computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance+= computeRelevanceForExpectingType(field.type);
+			relevance+= computeRelevanceForEnumConstant(field.type);
+			relevance+= computeRelevanceForStatic(true, true);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			CompilationUnitDeclaration cu = this.unitScope.referenceContext;
-			int importStart = cu.types[0].declarationSourceStart;
-			int importEnd = importStart;
+			CompilationUnitDeclaration cu= this.unitScope.referenceContext;
+			int importStart= cu.types[0].declarationSourceStart;
+			int importEnd= importStart;
 
-			this.noProposal = false;
+			this.noProposal= false;
 
 			if (this.compilerOptions.complianceLevel < ClassFileConstants.JDK1_5 ||
 					!this.options.suggestStaticImport) {
 				if (!this.isIgnored(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT)) {
-					char[] completion = CharOperation.concat(receiverType.sourceName, field.name, '.');
+					char[] completion= CharOperation.concat(receiverType.sourceName, field.name, '.');
 
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
 					proposal.setSignature(getSignature(field.type));
 					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -7226,12 +7589,12 @@ public final class CompletionEngine
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 
-					char[] typeImportCompletion = createImportCharArray(typeName, false, false);
+					char[] typeImportCompletion= createImportCharArray(typeName, false, false);
 
-					InternalCompletionProposal typeImportProposal = createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
-					typeImportProposal.nameLookup = this.nameEnvironment.nameLookup;
-					typeImportProposal.completionEngine = this;
-					char[] packageName = receiverType.qualifiedPackageName();
+					InternalCompletionProposal typeImportProposal= createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
+					typeImportProposal.nameLookup= this.nameEnvironment.nameLookup;
+					typeImportProposal.completionEngine= this;
+					char[] packageName= receiverType.qualifiedPackageName();
 					typeImportProposal.setDeclarationSignature(packageName);
 					typeImportProposal.setSignature(getSignature(receiverType));
 					typeImportProposal.setPackageName(packageName);
@@ -7243,18 +7606,18 @@ public final class CompletionEngine
 					typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 					typeImportProposal.setRelevance(relevance);
 
-					proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
+					proposal.setRequiredProposals(new CompletionProposal[] { typeImportProposal });
 
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 			} else {
 				if (!this.isIgnored(CompletionProposal.FIELD_REF, CompletionProposal.FIELD_IMPORT)) {
-					char[] completion = field.name;
+					char[] completion= field.name;
 
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
 					proposal.setSignature(getSignature(field.type));
 					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -7268,9 +7631,9 @@ public final class CompletionEngine
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 
-					char[] fieldImportCompletion = createImportCharArray(CharOperation.concat(typeName, field.name, '.'), true, false);
+					char[] fieldImportCompletion= createImportCharArray(CharOperation.concat(typeName, field.name, '.'), true, false);
 
-					InternalCompletionProposal fieldImportProposal = createProposal(CompletionProposal.FIELD_IMPORT, this.actualCompletionPosition);
+					InternalCompletionProposal fieldImportProposal= createProposal(CompletionProposal.FIELD_IMPORT, this.actualCompletionPosition);
 					fieldImportProposal.setDeclarationSignature(getSignature(field.declaringClass));
 					fieldImportProposal.setSignature(getSignature(field.type));
 					fieldImportProposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -7285,106 +7648,108 @@ public final class CompletionEngine
 					fieldImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 					fieldImportProposal.setRelevance(relevance);
 
-					proposal.setRequiredProposals(new CompletionProposal[]{fieldImportProposal});
+					proposal.setRequiredProposals(new CompletionProposal[] { fieldImportProposal });
 
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 			}
 		}
 	}
+
 	private void findImplicitMessageSends(
-		char[] token,
-		TypeBinding[] argTypes,
-		Scope scope,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		ObjectVector methodsFound) {
+			char[] token,
+			TypeBinding[] argTypes,
+			Scope scope,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			ObjectVector methodsFound) {
 
 		if (token == null)
 			return;
 
-		boolean staticsOnly = false;
+		boolean staticsOnly= false;
 		// need to know if we're in a static context (or inside a constructor)
 
-		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		done: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (scope.kind) {
 
-				case Scope.METHOD_SCOPE :
+				case Scope.METHOD_SCOPE:
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-					MethodScope methodScope = (MethodScope) scope;
-					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+					MethodScope methodScope= (MethodScope)scope;
+					staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 					break;
 
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) scope;
-					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)scope;
+					SourceTypeBinding enclosingType= classScope.referenceContext.binding;
 					findMethods(
-						token,
-						null,
-						argTypes,
-						enclosingType,
-						classScope,
-						methodsFound,
-						staticsOnly,
-						true,
-						invocationSite,
-						invocationScope,
-						true,
-						false,
-						true,
-						null,
-						null,
-						null,
-						false,
-						null,
-						-1,
-						-1);
-					staticsOnly |= enclosingType.isStatic();
+							token,
+							null,
+							argTypes,
+							enclosingType,
+							classScope,
+							methodsFound,
+							staticsOnly,
+							true,
+							invocationSite,
+							invocationScope,
+							true,
+							false,
+							true,
+							null,
+							null,
+							null,
+							false,
+							null,
+							-1,
+							-1);
+					staticsOnly|= enclosingType.isStatic();
 					break;
 
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					break done;
 			}
-			scope = scope.parent;
+			scope= scope.parent;
 		}
 	}
-	private void findImports(CompletionOnImportReference importReference, boolean findMembers) {
-		char[][] tokens = importReference.tokens;
 
-		char[] importName = CharOperation.concatWith(tokens, '.');
+	private void findImports(CompletionOnImportReference importReference, boolean findMembers) {
+		char[][] tokens= importReference.tokens;
+
+		char[] importName= CharOperation.concatWith(tokens, '.');
 
 		if (importName.length == 0)
 			return;
 
-		char[] lastToken = tokens[tokens.length - 1];
-		if(lastToken != null && lastToken.length == 0)
-			importName = CharOperation.concat(importName, new char[]{'.'});
+		char[] lastToken= tokens[tokens.length - 1];
+		if (lastToken != null && lastToken.length == 0)
+			importName= CharOperation.concat(importName, new char[] { '.' });
 
-		this.resolvingImports = true;
-		this.resolvingStaticImports = importReference.isStatic();
+		this.resolvingImports= true;
+		this.resolvingStaticImports= importReference.isStatic();
 
-		this.completionToken =  lastToken;
-		this.qualifiedCompletionToken = importName;
+		this.completionToken= lastToken;
+		this.qualifiedCompletionToken= importName;
 
 		// want to replace the existing .*;
-		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
-			int oldStart = this.startPosition;
-			int oldEnd = this.endPosition;
+		if (!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+			int oldStart= this.startPosition;
+			int oldEnd= this.endPosition;
 			setSourceRange(
-				importReference.sourceStart,
-				importReference.declarationSourceEnd);
+					importReference.sourceStart,
+					importReference.declarationSourceEnd);
 			this.nameEnvironment.findPackages(importName, this);
 			setSourceRange(
-				oldStart,
-				oldEnd - 1,
-				false);
+					oldStart,
+					oldEnd - 1,
+					false);
 		}
-		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			this.foundTypesCount = 0;
+		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			this.foundTypesCount= 0;
 			this.nameEnvironment.findTypes(
 					importName,
 					findMembers,
@@ -7396,12 +7761,12 @@ public final class CompletionEngine
 		}
 	}
 
-	private void findImportsOfMemberTypes(char[] typeName,	ReferenceBinding ref, boolean onlyStatic) {
-		ReferenceBinding[] memberTypes = ref.memberTypes();
+	private void findImportsOfMemberTypes(char[] typeName, ReferenceBinding ref, boolean onlyStatic) {
+		ReferenceBinding[] memberTypes= ref.memberTypes();
 
-		int typeLength = typeName.length;
-		next : for (int m = memberTypes.length; --m >= 0;) {
-			ReferenceBinding memberType = memberTypes[m];
+		int typeLength= typeName.length;
+		next: for (int m= memberTypes.length; --m >= 0;) {
+			ReferenceBinding memberType= memberTypes[m];
 			//		if (!wantClasses && memberType.isClass()) continue next;
 			//		if (!wantInterfaces && memberType.isInterface()) continue next;
 
@@ -7415,29 +7780,30 @@ public final class CompletionEngine
 					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
 				continue next;
 
-			if (this.options.checkDeprecation && memberType.isViewedAsDeprecated()) continue next;
-
-			if (this.options.checkVisibility
-				&& !memberType.canBeSeenBy(this.unitScope.fPackage))
+			if (this.options.checkDeprecation && memberType.isViewedAsDeprecated())
 				continue next;
 
-			char[] completionName = CharOperation.concat(memberType.sourceName, SEMICOLON);
+			if (this.options.checkVisibility
+					&& !memberType.canBeSeenBy(this.unitScope.fPackage))
+				continue next;
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(typeName, memberType.sourceName);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			char[] completionName= CharOperation.concat(memberType.sourceName, SEMICOLON);
+
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(typeName, memberType.sourceName);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
 			if (memberType.isClass()) {
-				relevance += computeRelevanceForClass();
-			} else if(memberType.isEnum()) {
-				relevance += computeRelevanceForEnum();
+				relevance+= computeRelevanceForClass();
+			} else if (memberType.isEnum()) {
+				relevance+= computeRelevanceForEnum();
 			} else if (memberType.isInterface()) {
-				relevance += computeRelevanceForInterface();
+				relevance+= computeRelevanceForInterface();
 			}
-			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			this.noProposal= false;
+			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 				createTypeProposal(
 						memberType,
 						memberType.qualifiedSourceName(),
@@ -7453,11 +7819,11 @@ public final class CompletionEngine
 	}
 
 	private void findImportsOfStaticFields(char[] fieldName, ReferenceBinding ref) {
-		FieldBinding[] fields = ref.availableFields();
+		FieldBinding[] fields= ref.availableFields();
 
-		int fieldLength = fieldName.length;
-		next : for (int m = fields.length; --m >= 0;) {
-			FieldBinding field = fields[m];
+		int fieldLength= fieldName.length;
+		next: for (int m= fields.length; --m >= 0;) {
+			FieldBinding field= fields[m];
 
 			if (fieldLength > field.name.length)
 				continue next;
@@ -7469,26 +7835,27 @@ public final class CompletionEngine
 				continue next;
 
 			if (!CharOperation.prefixEquals(fieldName, field.name, false/* ignore case */)
-				&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
 				continue next;
 
-			if (this.options.checkDeprecation && field.isViewedAsDeprecated()) continue next;
+			if (this.options.checkDeprecation && field.isViewedAsDeprecated())
+				continue next;
 
 			if (this.options.checkVisibility
-				&& !field.canBeSeenBy(this.unitScope.fPackage))
+					&& !field.canBeSeenBy(this.unitScope.fPackage))
 				continue next;
 
-			char[] completionName = CharOperation.concat(field.name, SEMICOLON);
+			char[] completionName= CharOperation.concat(field.name, SEMICOLON);
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-				InternalCompletionProposal proposal =  createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+			this.noProposal= false;
+			if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(field.declaringClass));
 				proposal.setSignature(getSignature(field.type));
 				proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
@@ -7502,7 +7869,7 @@ public final class CompletionEngine
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(proposal);
 				}
 			}
@@ -7510,24 +7877,30 @@ public final class CompletionEngine
 	}
 
 	private void findImportsOfStaticMethods(char[] methodName, ReferenceBinding ref) {
-		MethodBinding[] methods = ref.availableMethods();
+		MethodBinding[] methods= ref.availableMethods();
 
-		int methodLength = methodName.length;
-		next : for (int m = methods.length; --m >= 0;) {
-			MethodBinding method = methods[m];
+		int methodLength= methodName.length;
+		next: for (int m= methods.length; --m >= 0;) {
+			MethodBinding method= methods[m];
 
-			if (method.isSynthetic()) continue next;
+			if (method.isSynthetic())
+				continue next;
 
-			if (method.isDefaultAbstract())	continue next;
+			if (method.isDefaultAbstract())
+				continue next;
 
-			if (method.isConstructor()) continue next;
+			if (method.isConstructor())
+				continue next;
 
-			if (!method.isStatic()) continue next;
+			if (!method.isStatic())
+				continue next;
 
-			if (this.options.checkDeprecation && method.isViewedAsDeprecated()) continue next;
+			if (this.options.checkDeprecation && method.isViewedAsDeprecated())
+				continue next;
 
 			if (this.options.checkVisibility
-				&& !method.canBeSeenBy(this.unitScope.fPackage)) continue next;
+					&& !method.canBeSeenBy(this.unitScope.fPackage))
+				continue next;
 
 			if (methodLength > method.selector.length)
 				continue next;
@@ -7536,28 +7909,28 @@ public final class CompletionEngine
 					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
 				continue next;
 
-			int length = method.parameters.length;
-			char[][] parameterPackageNames = new char[length][];
-			char[][] parameterTypeNames = new char[length][];
+			int length= method.parameters.length;
+			char[][] parameterPackageNames= new char[length][];
+			char[][] parameterTypeNames= new char[length][];
 
-			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.original().parameters[i];
-				parameterPackageNames[i] = type.qualifiedPackageName();
-				parameterTypeNames[i] = type.qualifiedSourceName();
+			for (int i= 0; i < length; i++) {
+				TypeBinding type= method.original().parameters[i];
+				parameterPackageNames[i]= type.qualifiedPackageName();
+				parameterTypeNames[i]= type.qualifiedSourceName();
 			}
-			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+			char[][] parameterNames= findMethodParameterNames(method, parameterTypeNames);
 
-			char[] completionName = CharOperation.concat(method.selector, SEMICOLON);
+			char[] completionName= CharOperation.concat(method.selector, SEMICOLON);
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
-				InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_NAME_REFERENCE, this.actualCompletionPosition);
+			this.noProposal= false;
+			if (!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_NAME_REFERENCE, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method));
 				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
@@ -7572,155 +7945,160 @@ public final class CompletionEngine
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
-				if(parameterNames != null) proposal.setParameterNames(parameterNames);
+				if (parameterNames != null)
+					proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(proposal);
 				}
 			}
 		}
 	}
-	
+
 	private void findInterfacesMethodDeclarations(
-		char[] selector,
-		ReferenceBinding receiverType,
-		ReferenceBinding[] itsInterfaces,
-		Scope scope,
-		ObjectVector methodsFound,
-		Binding[] missingElements,
-		int[] missingElementssStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems) {
+			char[] selector,
+			ReferenceBinding receiverType,
+			ReferenceBinding[] itsInterfaces,
+			Scope scope,
+			ObjectVector methodsFound,
+			Binding[] missingElements,
+			int[] missingElementssStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 
 		if (selector == null)
 			return;
 
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[] interfacesToVisit = itsInterfaces;
-			int nextPosition = interfacesToVisit.length;
+			ReferenceBinding[] interfacesToVisit= itsInterfaces;
+			int nextPosition= interfacesToVisit.length;
 
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding currentType = interfacesToVisit[i];
-				MethodBinding[] methods = currentType.availableMethods();
-				if(methods != null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding currentType= interfacesToVisit[i];
+				MethodBinding[] methods= currentType.availableMethods();
+				if (methods != null) {
 					findLocalMethodDeclarations(
-						selector,
-						methods,
-						scope,
-						methodsFound,
-						false,
-						receiverType);
+							selector,
+							methods,
+							scope,
+							methodsFound,
+							false,
+							receiverType);
 				}
 
-				itsInterfaces = currentType.superInterfaces();
+				itsInterfaces= currentType.superInterfaces();
 				if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 		}
 	}
-	
+
 	private void findInterfacesMethods(
-		char[] selector,
-		TypeBinding[] typeArgTypes,
-		TypeBinding[] argTypes,
-		ReferenceBinding receiverType,
-		ReferenceBinding[] itsInterfaces,
-		Scope scope,
-		ObjectVector methodsFound,
-		boolean onlyStaticMethods,
-		boolean exactMatch,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean implicitCall,
-		boolean superCall,
-		boolean canBePrefixed,
-		Binding[] missingElements,
-		int[] missingElementssStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		char[] castedReceiver,
-		int receiverStart,
-		int receiverEnd) {
+			char[] selector,
+			TypeBinding[] typeArgTypes,
+			TypeBinding[] argTypes,
+			ReferenceBinding receiverType,
+			ReferenceBinding[] itsInterfaces,
+			Scope scope,
+			ObjectVector methodsFound,
+			boolean onlyStaticMethods,
+			boolean exactMatch,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean implicitCall,
+			boolean superCall,
+			boolean canBePrefixed,
+			Binding[] missingElements,
+			int[] missingElementssStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			char[] castedReceiver,
+			int receiverStart,
+			int receiverEnd) {
 
 		if (selector == null)
 			return;
 
 		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			ReferenceBinding[] interfacesToVisit = itsInterfaces;
-			int nextPosition = interfacesToVisit.length;
+			ReferenceBinding[] interfacesToVisit= itsInterfaces;
+			int nextPosition= interfacesToVisit.length;
 
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding currentType = interfacesToVisit[i];
-				MethodBinding[] methods = currentType.availableMethods();
-				if(methods != null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding currentType= interfacesToVisit[i];
+				MethodBinding[] methods= currentType.availableMethods();
+				if (methods != null) {
 					findLocalMethods(
-						selector,
-						typeArgTypes,
-						argTypes,
-						methods,
-						scope,
-						methodsFound,
-						onlyStaticMethods,
-						exactMatch,
-						receiverType,
-						invocationSite,
-						invocationScope,
-						implicitCall,
-						superCall,
-						canBePrefixed,
-						missingElements,
-						missingElementssStarts,
-						missingElementsEnds,
-						missingElementsHaveProblems,
-						castedReceiver,
-						receiverStart,
-						receiverEnd);
+							selector,
+							typeArgTypes,
+							argTypes,
+							methods,
+							scope,
+							methodsFound,
+							onlyStaticMethods,
+							exactMatch,
+							receiverType,
+							invocationSite,
+							invocationScope,
+							implicitCall,
+							superCall,
+							canBePrefixed,
+							missingElements,
+							missingElementssStarts,
+							missingElementsEnds,
+							missingElementsHaveProblems,
+							castedReceiver,
+							receiverStart,
+							receiverEnd);
 				}
 
-				itsInterfaces = currentType.superInterfaces();
+				itsInterfaces= currentType.superInterfaces();
 				if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 		}
 	}
+
 	/*
 	 * Find javadoc block tags for a given completion javadoc tag node
 	 */
 	private void findJavadocBlockTags(CompletionOnJavadocTag javadocTag) {
-		char[][] possibleTags = javadocTag.getPossibleBlockTags();
-		if (possibleTags == null) return;
-		int length = possibleTags.length;
-		for (int i=0; i<length; i++) {
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+		char[][] possibleTags= javadocTag.getPossibleBlockTags();
+		if (possibleTags == null)
+			return;
+		int length= possibleTags.length;
+		for (int i= 0; i < length; i++) {
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 
-			this.noProposal = false;
+			this.noProposal= false;
 			if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_BLOCK_TAG)) {
-				char[] possibleTag = possibleTags[i];
-				InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_BLOCK_TAG, this.actualCompletionPosition);
+				char[] possibleTag= possibleTags[i];
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.JAVADOC_BLOCK_TAG, this.actualCompletionPosition);
 				proposal.setName(possibleTag);
-				int tagLength = possibleTag.length;
-				char[] completion = new char[1+tagLength];
-				completion[0] = '@';
+				int tagLength= possibleTag.length;
+				char[] completion= new char[1 + tagLength];
+				completion[0]= '@';
 				System.arraycopy(possibleTag, 0, completion, 1, tagLength);
 				proposal.setCompletion(completion);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
@@ -7738,28 +8116,29 @@ public final class CompletionEngine
 	 * Find javadoc inline tags for a given completion javadoc tag node
 	 */
 	private void findJavadocInlineTags(CompletionOnJavadocTag javadocTag) {
-		char[][] possibleTags = javadocTag.getPossibleInlineTags();
-		if (possibleTags == null) return;
-		int length = possibleTags.length;
-		for (int i=0; i<length; i++) {
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+		char[][] possibleTags= javadocTag.getPossibleInlineTags();
+		if (possibleTags == null)
+			return;
+		int length= possibleTags.length;
+		for (int i= 0; i < length; i++) {
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 
-			this.noProposal = false;
+			this.noProposal= false;
 			if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_INLINE_TAG)) {
-				char[] possibleTag = possibleTags[i];
-				InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_INLINE_TAG, this.actualCompletionPosition);
+				char[] possibleTag= possibleTags[i];
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.JAVADOC_INLINE_TAG, this.actualCompletionPosition);
 				proposal.setName(possibleTag);
-				int tagLength = possibleTag.length;
+				int tagLength= possibleTag.length;
 //				boolean inlineTagStarted = javadocTag.completeInlineTagStarted();
-				char[] completion = new char[2+tagLength+1];
-				completion[0] = '{';
-				completion[1] = '@';
+				char[] completion= new char[2 + tagLength + 1];
+				completion[0]= '{';
+				completion[1]= '@';
 				System.arraycopy(possibleTag, 0, completion, 2, tagLength);
 				// do not add space at end of inline tag (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=121026)
 				//completion[tagLength+2] = ' ';
-				completion[tagLength+2] = '}';
+				completion[tagLength + 2]= '}';
 				proposal.setCompletion(completion);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
@@ -7777,26 +8156,28 @@ public final class CompletionEngine
 	 */
 	private void findJavadocParamNames(char[] token, char[][] missingParams, boolean isTypeParam) {
 
-		if (missingParams == null) return;
+		if (missingParams == null)
+			return;
 
 		// Get relevance
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for param name
-		if (!isTypeParam) relevance += R_INTERESTING;
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for param name
+		if (!isTypeParam)
+			relevance+= R_INTERESTING;
 
 		// Propose missing param
-		int length = missingParams.length;
-		relevance += length;
-		for (int i=0; i<length; i++) {
-			char[] argName = missingParams[i];
+		int length= missingParams.length;
+		relevance+= length;
+		for (int i= 0; i < length; i++) {
+			char[] argName= missingParams[i];
 			if (token == null || CharOperation.prefixEquals(token, argName)) {
 
-				this.noProposal = false;
+				this.noProposal= false;
 				if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_PARAM_REF, this.actualCompletionPosition);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.JAVADOC_PARAM_REF, this.actualCompletionPosition);
 					proposal.setName(argName);
-					char[] completion = isTypeParam ? CharOperation.concat('<', argName, '>') : argName;
+					char[] completion= isTypeParam ? CharOperation.concat('<', argName, '>') : argName;
 					proposal.setCompletion(completion);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
@@ -7813,157 +8194,162 @@ public final class CompletionEngine
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
 	private void findKeywords(char[] keyword, char[][] choices, boolean canCompleteEmptyToken, boolean staticFieldsAndMethodOnly) {
-		if(choices == null || choices.length == 0) return;
+		if (choices == null || choices.length == 0)
+			return;
 
-		int length = keyword.length;
+		int length= keyword.length;
 		if (canCompleteEmptyToken || length > 0)
-			for (int i = 0; i < choices.length; i++)
+			for (int i= 0; i < choices.length; i++)
 				if (length <= choices[i].length
-					&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
-				)){
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
-					if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED;
+						&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
+						)) {
+					int relevance= computeBaseRelevance();
+					relevance+= computeRelevanceForResolution();
+					relevance+= computeRelevanceForInterestingProposal();
+					relevance+= computeRelevanceForCaseMatching(keyword, choices[i]);
+					relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
+					if (staticFieldsAndMethodOnly && this.insideQualifiedReference)
+						relevance+= R_NON_INHERITED;
 
-					if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
-						relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
-						relevance += computeRelevanceForQualification(false);
+					if (CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
+						relevance+= computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
+						relevance+= computeRelevanceForQualification(false);
 					}
-					this.noProposal = false;
-					if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
 						proposal.setName(choices[i]);
 						proposal.setCompletion(choices[i]);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				}
 	}
+
 	private void findKeywordsForMember(char[] token, int modifiers) {
-		char[][] keywords = new char[Keywords.COUNT][];
-		int count = 0;
+		char[][] keywords= new char[Keywords.COUNT][];
+		int count= 0;
 
 		// visibility
-		if((modifiers & ClassFileConstants.AccPrivate) == 0
-			&& (modifiers & ClassFileConstants.AccProtected) == 0
-			&& (modifiers & ClassFileConstants.AccPublic) == 0) {
-			keywords[count++] = Keywords.PROTECTED;
-			keywords[count++] = Keywords.PUBLIC;
-			if((modifiers & ClassFileConstants.AccAbstract) == 0) {
-				keywords[count++] = Keywords.PRIVATE;
+		if ((modifiers & ClassFileConstants.AccPrivate) == 0
+				&& (modifiers & ClassFileConstants.AccProtected) == 0
+				&& (modifiers & ClassFileConstants.AccPublic) == 0) {
+			keywords[count++]= Keywords.PROTECTED;
+			keywords[count++]= Keywords.PUBLIC;
+			if ((modifiers & ClassFileConstants.AccAbstract) == 0) {
+				keywords[count++]= Keywords.PRIVATE;
 			}
 		}
 
-		if((modifiers & ClassFileConstants.AccAbstract) == 0) {
+		if ((modifiers & ClassFileConstants.AccAbstract) == 0) {
 			// abtract
-			if((modifiers & ~(ExtraCompilerModifiers.AccVisibilityMASK | ClassFileConstants.AccStatic)) == 0) {
-				keywords[count++] = Keywords.ABSTRACT;
+			if ((modifiers & ~(ExtraCompilerModifiers.AccVisibilityMASK | ClassFileConstants.AccStatic)) == 0) {
+				keywords[count++]= Keywords.ABSTRACT;
 			}
 
 			// final
-			if((modifiers & ClassFileConstants.AccFinal) == 0) {
-				keywords[count++] = Keywords.FINAL;
+			if ((modifiers & ClassFileConstants.AccFinal) == 0) {
+				keywords[count++]= Keywords.FINAL;
 			}
 
 			// static
-			if((modifiers & ClassFileConstants.AccStatic) == 0) {
-				keywords[count++] = Keywords.STATIC;
+			if ((modifiers & ClassFileConstants.AccStatic) == 0) {
+				keywords[count++]= Keywords.STATIC;
 			}
 
-			boolean canBeField = true;
-			boolean canBeMethod = true;
-			boolean canBeType = true;
-			if((modifiers & ClassFileConstants.AccNative) != 0
-				|| (modifiers & ClassFileConstants.AccStrictfp) != 0
-				|| (modifiers & ClassFileConstants.AccSynchronized) != 0) {
-				canBeField = false;
-				canBeType = false;
+			boolean canBeField= true;
+			boolean canBeMethod= true;
+			boolean canBeType= true;
+			if ((modifiers & ClassFileConstants.AccNative) != 0
+					|| (modifiers & ClassFileConstants.AccStrictfp) != 0
+					|| (modifiers & ClassFileConstants.AccSynchronized) != 0) {
+				canBeField= false;
+				canBeType= false;
 			}
 
-			if((modifiers & ClassFileConstants.AccTransient) != 0
-				|| (modifiers & ClassFileConstants.AccVolatile) != 0) {
-				canBeMethod = false;
-				canBeType = false;
+			if ((modifiers & ClassFileConstants.AccTransient) != 0
+					|| (modifiers & ClassFileConstants.AccVolatile) != 0) {
+				canBeMethod= false;
+				canBeType= false;
 			}
 
-			if(canBeField) {
+			if (canBeField) {
 				// transient
-				if((modifiers & ClassFileConstants.AccTransient) == 0) {
-					keywords[count++] = Keywords.TRANSIENT;
+				if ((modifiers & ClassFileConstants.AccTransient) == 0) {
+					keywords[count++]= Keywords.TRANSIENT;
 				}
 
 				// volatile
-				if((modifiers & ClassFileConstants.AccVolatile) == 0) {
-					keywords[count++] = Keywords.VOLATILE;
+				if ((modifiers & ClassFileConstants.AccVolatile) == 0) {
+					keywords[count++]= Keywords.VOLATILE;
 				}
 			}
 
-			if(canBeMethod) {
+			if (canBeMethod) {
 				// native
-				if((modifiers & ClassFileConstants.AccNative) == 0) {
-					keywords[count++] = Keywords.NATIVE;
+				if ((modifiers & ClassFileConstants.AccNative) == 0) {
+					keywords[count++]= Keywords.NATIVE;
 				}
 
 				// strictfp
-				if((modifiers & ClassFileConstants.AccStrictfp) == 0) {
-					keywords[count++] = Keywords.STRICTFP;
+				if ((modifiers & ClassFileConstants.AccStrictfp) == 0) {
+					keywords[count++]= Keywords.STRICTFP;
 				}
 
 				// synchronized
-				if((modifiers & ClassFileConstants.AccSynchronized) == 0) {
-					keywords[count++] = Keywords.SYNCHRONIZED;
+				if ((modifiers & ClassFileConstants.AccSynchronized) == 0) {
+					keywords[count++]= Keywords.SYNCHRONIZED;
 				}
 			}
 
-			if(canBeType) {
-				keywords[count++] = Keywords.CLASS;
-				keywords[count++] = Keywords.INTERFACE;
+			if (canBeType) {
+				keywords[count++]= Keywords.CLASS;
+				keywords[count++]= Keywords.INTERFACE;
 
-				if((modifiers & ClassFileConstants.AccFinal) == 0) {
-					keywords[count++] = Keywords.ENUM;
+				if ((modifiers & ClassFileConstants.AccFinal) == 0) {
+					keywords[count++]= Keywords.ENUM;
 				}
 			}
 		} else {
 			// class
-			keywords[count++] = Keywords.CLASS;
-			keywords[count++] = Keywords.INTERFACE;
+			keywords[count++]= Keywords.CLASS;
+			keywords[count++]= Keywords.INTERFACE;
 		}
-		System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+		System.arraycopy(keywords, 0, keywords= new char[count][], 0, count);
 
 		findKeywords(token, keywords, false, false);
 	}
+
 	private void findLabels(char[] label, char[][] choices) {
-		if(choices == null || choices.length == 0) return;
+		if (choices == null || choices.length == 0)
+			return;
 
-		int length = label.length;
-		for (int i = 0; i < choices.length; i++) {
+		int length= label.length;
+		for (int i= 0; i < choices.length; i++) {
 			if (length <= choices[i].length
-				&& CharOperation.prefixEquals(label, choices[i], false /* ignore case */
-			)){
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(label, choices[i]);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+					&& CharOperation.prefixEquals(label, choices[i], false /* ignore case */
+					)) {
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(label, choices[i]);
+				relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 
-				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.LABEL_REF, this.actualCompletionPosition);
+				this.noProposal= false;
+				if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.LABEL_REF, this.actualCompletionPosition);
 					proposal.setName(choices[i]);
 					proposal.setCompletion(choices[i]);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
@@ -7973,31 +8359,34 @@ public final class CompletionEngine
 
 	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
 	private void findLocalMethodDeclarations(
-		char[] methodName,
-		MethodBinding[] methods,
-		Scope scope,
-		ObjectVector methodsFound,
-		//	boolean noVoidReturnType, how do you know?
-		boolean exactMatch,
-		ReferenceBinding receiverType) {
+			char[] methodName,
+			MethodBinding[] methods,
+			Scope scope,
+			ObjectVector methodsFound,
+			//	boolean noVoidReturnType, how do you know?
+			boolean exactMatch,
+			ReferenceBinding receiverType) {
 
-		ObjectVector newMethodsFound =  new ObjectVector();
+		ObjectVector newMethodsFound= new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
-		int methodLength = methodName.length;
-		next : for (int f = methods.length; --f >= 0;) {
+		int methodLength= methodName.length;
+		next: for (int f= methods.length; --f >= 0;) {
 
-			MethodBinding method = methods[f];
-			if (method.isSynthetic())	continue next;
+			MethodBinding method= methods[f];
+			if (method.isSynthetic())
+				continue next;
 
-			if (method.isDefaultAbstract()) continue next;
+			if (method.isDefaultAbstract())
+				continue next;
 
-			if (method.isConstructor()) continue next;
+			if (method.isConstructor())
+				continue next;
 
 			if (method.isFinal()) {
-                newMethodsFound.add(method);
-                continue next;
-            }
+				newMethodsFound.add(method);
+				continue next;
+			}
 
 			if (this.options.checkDeprecation &&
 					method.isViewedAsDeprecated() &&
@@ -8005,13 +8394,15 @@ public final class CompletionEngine
 				continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if(method.isStatic()) continue next;
+			if (method.isStatic())
+				continue next;
 
-			if (!method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
+			if (!method.canBeSeenBy(receiverType, FakeInvocationSite, scope))
+				continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
-					))
+				))
 					continue next;
 
 			} else {
@@ -8024,8 +8415,8 @@ public final class CompletionEngine
 					continue next;
 			}
 
-			for (int i = methodsFound.size; --i >= 0;) {
-				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
+			for (int i= methodsFound.size; --i >= 0;) {
+				MethodBinding otherMethod= (MethodBinding)methodsFound.elementAt(i);
 				if (method == otherMethod)
 					continue next;
 
@@ -8037,23 +8428,23 @@ public final class CompletionEngine
 
 			newMethodsFound.add(method);
 
-			int length = method.parameters.length;
-			char[][] parameterPackageNames = new char[length][];
-			char[][] parameterFullTypeNames = new char[length][];
+			int length= method.parameters.length;
+			char[][] parameterPackageNames= new char[length][];
+			char[][] parameterFullTypeNames= new char[length][];
 
-			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.parameters[i];
-				parameterPackageNames[i] = type.qualifiedPackageName();
-				parameterFullTypeNames[i] = type.qualifiedSourceName();
+			for (int i= 0; i < length; i++) {
+				TypeBinding type= method.parameters[i];
+				parameterPackageNames[i]= type.qualifiedPackageName();
+				parameterFullTypeNames[i]= type.qualifiedSourceName();
 			}
 
-			char[][] parameterNames = findMethodParameterNames(method, parameterFullTypeNames);
+			char[][] parameterNames= findMethodParameterNames(method, parameterFullTypeNames);
 
-			if(method.typeVariables != null && method.typeVariables.length > 0) {
-				char[][] excludedNames = findEnclosingTypeNames(scope);
-				char[][] substituedParameterNames = substituteMethodTypeParameterNames(method.typeVariables, excludedNames);
-				if(substituedParameterNames != null) {
-					method = new ParameterizedMethodBinding(
+			if (method.typeVariables != null && method.typeVariables.length > 0) {
+				char[][] excludedNames= findEnclosingTypeNames(scope);
+				char[][] substituedParameterNames= substituteMethodTypeParameterNames(method.typeVariables, excludedNames);
+				if (substituedParameterNames != null) {
+					method= new ParameterizedMethodBinding(
 								method.declaringClass,
 								method,
 								substituedParameterNames,
@@ -8061,27 +8452,28 @@ public final class CompletionEngine
 				}
 			}
 
-			StringBuffer completion = new StringBuffer(10);
+			StringBuffer completion= new StringBuffer(10);
 			if (!exactMatch) {
 				createMethod(method, parameterPackageNames, parameterFullTypeNames, parameterNames, scope, completion);
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += R_METHOD_OVERIDE;
-			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance+= R_METHOD_OVERIDE;
+			if (method.isAbstract())
+				relevance+= R_ABSTRACT_METHOD;
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-				InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_DECLARATION, this.actualCompletionPosition);
+			this.noProposal= false;
+			if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_DECLARATION, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setDeclarationKey(method.declaringClass.computeUniqueKey());
 				proposal.setSignature(getSignature(method));
-				MethodBinding original = method.original();
-				if(original != method) {
+				MethodBinding original= method.original();
+				if (original != method) {
 					proposal.setOriginalSignature(getSignature(original));
 				}
 				proposal.setKey(method.computeUniqueKey());
@@ -8097,9 +8489,10 @@ public final class CompletionEngine
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
-				if(parameterNames != null) proposal.setParameterNames(parameterNames);
+				if (parameterNames != null)
+					proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(proposal);
 				}
 			}
@@ -8109,44 +8502,47 @@ public final class CompletionEngine
 
 	// Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
 	private void findLocalMethods(
-		char[] methodName,
-		TypeBinding[] typeArgTypes,
-		TypeBinding[] argTypes,
-		MethodBinding[] methods,
-		Scope scope,
-		ObjectVector methodsFound,
-		boolean onlyStaticMethods,
-		boolean exactMatch,
-		ReferenceBinding receiverType,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean implicitCall,
-		boolean superCall,
-		boolean canBePrefixed,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		char[] castedReceiver,
-		int receiverStart,
-		int receiverEnd) {
+			char[] methodName,
+			TypeBinding[] typeArgTypes,
+			TypeBinding[] argTypes,
+			MethodBinding[] methods,
+			Scope scope,
+			ObjectVector methodsFound,
+			boolean onlyStaticMethods,
+			boolean exactMatch,
+			ReferenceBinding receiverType,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean implicitCall,
+			boolean superCall,
+			boolean canBePrefixed,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			char[] castedReceiver,
+			int receiverStart,
+			int receiverEnd) {
 
-		ObjectVector newMethodsFound =  new ObjectVector();
+		ObjectVector newMethodsFound= new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
-		int methodLength = methodName.length;
-		int minTypeArgLength = typeArgTypes == null ? 0 : typeArgTypes.length;
-		int minArgLength = argTypes == null ? 0 : argTypes.length;
+		int methodLength= methodName.length;
+		int minTypeArgLength= typeArgTypes == null ? 0 : typeArgTypes.length;
+		int minArgLength= argTypes == null ? 0 : argTypes.length;
 
-		next : for (int f = methods.length; --f >= 0;) {
-			MethodBinding method = methods[f];
+		next: for (int f= methods.length; --f >= 0;) {
+			MethodBinding method= methods[f];
 
-			if (method.isSynthetic()) continue next;
+			if (method.isSynthetic())
+				continue next;
 
-			if (method.isDefaultAbstract())	continue next;
+			if (method.isDefaultAbstract())
+				continue next;
 
-			if (method.isConstructor()) continue next;
+			if (method.isConstructor())
+				continue next;
 
 			if (this.options.checkDeprecation &&
 					method.isViewedAsDeprecated() &&
@@ -8156,13 +8552,15 @@ public final class CompletionEngine
 			//TODO (david) perhaps the relevance of a void method must be lesser than other methods
 			//if (expectedTypesPtr > -1 && method.returnType == BaseTypes.VoidBinding) continue next;
 
-			if (onlyStaticMethods && !method.isStatic()) continue next;
+			if (onlyStaticMethods && !method.isStatic())
+				continue next;
 
 			if (this.options.checkVisibility
-				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+					&& !method.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-			if(superCall && method.isAbstract()) {
-				methodsFound.add(new Object[]{method, receiverType});
+			if (superCall && method.isAbstract()) {
+				methodsFound.add(new Object[] { method, receiverType });
 				continue next;
 			}
 
@@ -8171,7 +8569,8 @@ public final class CompletionEngine
 					continue next;
 				}
 			} else {
-				if (methodLength > method.selector.length) continue next;
+				if (methodLength > method.selector.length)
+					continue next;
 				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
 						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
 					continue next;
@@ -8182,13 +8581,13 @@ public final class CompletionEngine
 				continue next;
 
 			if (minTypeArgLength != 0) {
-				method = scope.environment().createParameterizedGenericMethod(method, typeArgTypes);
+				method= scope.environment().createParameterizedGenericMethod(method, typeArgTypes);
 			}
 
 			if (minArgLength > method.parameters.length)
 				continue next;
 
-			for (int a = minArgLength; --a >= 0;){
+			for (int a= minArgLength; --a >= 0;) {
 				if (argTypes[a] != null) { // can be null if it could not be resolved properly
 					if (!argTypes[a].isCompatibleWith(method.parameters[a])) {
 						continue next;
@@ -8196,12 +8595,12 @@ public final class CompletionEngine
 				}
 			}
 
-			boolean prefixRequired = false;
+			boolean prefixRequired= false;
 
-			for (int i = methodsFound.size; --i >= 0;) {
-				Object[] other = (Object[]) methodsFound.elementAt(i);
-				MethodBinding otherMethod = (MethodBinding) other[0];
-				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
+			for (int i= methodsFound.size; --i >= 0;) {
+				Object[] other= (Object[])methodsFound.elementAt(i);
+				MethodBinding otherMethod= (MethodBinding)other[0];
+				ReferenceBinding otherReceiverType= (ReferenceBinding)other[1];
 				if (method == otherMethod && receiverType == otherReceiverType)
 					continue next;
 
@@ -8214,72 +8613,75 @@ public final class CompletionEngine
 						}
 					} else {
 						if (this.lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
-							if(receiverType.isAnonymousType()) continue next;
+							if (receiverType.isAnonymousType())
+								continue next;
 
-							if(!superCall) {
-								if(!canBePrefixed) continue next;
+							if (!superCall) {
+								if (!canBePrefixed)
+									continue next;
 
-								prefixRequired = true;
+								prefixRequired= true;
 							}
 						}
 					}
 				}
 			}
 
-			newMethodsFound.add(new Object[]{method, receiverType});
+			newMethodsFound.add(new Object[] { method, receiverType });
 
-			ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
+			ReferenceBinding superTypeWithSameErasure= (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
 			if (method.declaringClass != superTypeWithSameErasure) {
-				MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
-				for (int i = 0; i < otherMethods.length; i++) {
-					if(otherMethods[i].original() == method.original()) {
-						method = otherMethods[i];
+				MethodBinding[] otherMethods= superTypeWithSameErasure.getMethods(method.selector);
+				for (int i= 0; i < otherMethods.length; i++) {
+					if (otherMethods[i].original() == method.original()) {
+						method= otherMethods[i];
 					}
 				}
 			}
 
-			int length = method.parameters.length;
-			char[][] parameterPackageNames = new char[length][];
-			char[][] parameterTypeNames = new char[length][];
+			int length= method.parameters.length;
+			char[][] parameterPackageNames= new char[length][];
+			char[][] parameterTypeNames= new char[length][];
 
-			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.original().parameters[i];
-				parameterPackageNames[i] = type.qualifiedPackageName();
-				parameterTypeNames[i] = type.qualifiedSourceName();
+			for (int i= 0; i < length; i++) {
+				TypeBinding type= method.original().parameters[i];
+				parameterPackageNames[i]= type.qualifiedPackageName();
+				parameterTypeNames[i]= type.qualifiedSourceName();
 			}
-			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+			char[][] parameterNames= findMethodParameterNames(method, parameterTypeNames);
 
-			char[] completion = CharOperation.NO_CHAR;
+			char[] completion= CharOperation.NO_CHAR;
 
-			int previousStartPosition = this.startPosition;
-			int previousTokenStart = this.tokenStart;
+			int previousStartPosition= this.startPosition;
+			int previousTokenStart= this.tokenStart;
 
 			// Special case for completion in javadoc
 			if (this.assistNodeInJavadoc > 0) {
-				Expression receiver = null;
+				Expression receiver= null;
 				if (invocationSite instanceof CompletionOnJavadocMessageSend) {
-					CompletionOnJavadocMessageSend msg = (CompletionOnJavadocMessageSend) invocationSite;
-					receiver = msg.receiver;
+					CompletionOnJavadocMessageSend msg= (CompletionOnJavadocMessageSend)invocationSite;
+					receiver= msg.receiver;
 				} else if (invocationSite instanceof CompletionOnJavadocFieldReference) {
-					CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
-					receiver = fieldRef.receiver;
+					CompletionOnJavadocFieldReference fieldRef= (CompletionOnJavadocFieldReference)invocationSite;
+					receiver= fieldRef.receiver;
 				}
 				if (receiver != null) {
-					StringBuffer javadocCompletion = new StringBuffer();
+					StringBuffer javadocCompletion= new StringBuffer();
 					if (receiver.isThis()) {
 						if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 							javadocCompletion.append('#');
 						}
 					} else if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 						if (receiver instanceof JavadocSingleTypeReference) {
-							JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
+							JavadocSingleTypeReference typeRef= (JavadocSingleTypeReference)receiver;
 							javadocCompletion.append(typeRef.token);
 							javadocCompletion.append('#');
 						} else if (receiver instanceof JavadocQualifiedTypeReference) {
-							JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) receiver;
-							completion = CharOperation.concat(CharOperation.concatWith(typeRef.tokens, '.'), method.selector, '#');
-							for (int t=0,nt =typeRef.tokens.length; t<nt; t++) {
-								if (t>0) javadocCompletion.append('.');
+							JavadocQualifiedTypeReference typeRef= (JavadocQualifiedTypeReference)receiver;
+							completion= CharOperation.concat(CharOperation.concatWith(typeRef.tokens, '.'), method.selector, '#');
+							for (int t= 0, nt= typeRef.tokens.length; t < nt; t++) {
+								if (t > 0)
+									javadocCompletion.append('.');
 								javadocCompletion.append(typeRef.tokens[t]);
 							}
 							javadocCompletion.append('#');
@@ -8289,74 +8691,75 @@ public final class CompletionEngine
 					// Append parameters types
 					javadocCompletion.append('(');
 					if (method.parameters != null) {
-						boolean isVarargs = method.isVarargs();
-						for (int p=0, ln=method.parameters.length; p<ln; p++) {
-							if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
-							TypeBinding argTypeBinding = method.parameters[p];
-							if (isVarargs && p == ln - 1)  {
+						boolean isVarargs= method.isVarargs();
+						for (int p= 0, ln= method.parameters.length; p < ln; p++) {
+							if (p > 0)
+								javadocCompletion.append(", "); //$NON-NLS-1$
+							TypeBinding argTypeBinding= method.parameters[p];
+							if (isVarargs && p == ln - 1) {
 								createVargsType(argTypeBinding.erasure(), scope, javadocCompletion);
 							} else {
-								createType(argTypeBinding.erasure(), scope,javadocCompletion);
+								createType(argTypeBinding.erasure(), scope, javadocCompletion);
 							}
 						}
 					}
 					javadocCompletion.append(')');
-					completion = javadocCompletion.toString().toCharArray();
+					completion= javadocCompletion.toString().toCharArray();
 				}
 			} else {
 				// nothing to insert - do not want to replace the existing selector & arguments
 				if (!exactMatch) {
 					if (this.source != null
-						&& this.source.length > this.endPosition
-						&& this.source[this.endPosition] == '(')
-						completion = method.selector;
+							&& this.source.length > this.endPosition
+							&& this.source[this.endPosition] == '(')
+						completion= method.selector;
 					else
-						completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
+						completion= CharOperation.concat(method.selector, new char[] { '(', ')' });
 
 					if (castedReceiver != null) {
-						completion = CharOperation.concat(castedReceiver, completion);
+						completion= CharOperation.concat(castedReceiver, completion);
 					}
 				} else {
-					if(prefixRequired && (this.source != null)) {
-						completion = CharOperation.subarray(this.source, this.startPosition, this.endPosition);
+					if (prefixRequired && (this.source != null)) {
+						completion= CharOperation.subarray(this.source, this.startPosition, this.endPosition);
 					} else {
-						this.startPosition = this.endPosition;
+						this.startPosition= this.endPosition;
 					}
-					this.tokenStart = this.tokenEnd;
+					this.tokenStart= this.tokenEnd;
 				}
 
-				if(prefixRequired || this.options.forceImplicitQualification){
-					char[] prefix = computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
-					completion = CharOperation.concat(prefix,completion,'.');
+				if (prefixRequired || this.options.forceImplicitQualification) {
+					char[] prefix= computePrefix(scope.enclosingSourceType(), invocationScope.enclosingSourceType(), method.isStatic());
+					completion= CharOperation.concat(prefix, completion, '.');
 				}
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += computeRelevanceForExpectingType(method.returnType);
-			relevance += computeRelevanceForEnumConstant(method.returnType);
-			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
-			relevance += computeRelevanceForQualification(prefixRequired);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance+= computeRelevanceForExpectingType(method.returnType);
+			relevance+= computeRelevanceForEnumConstant(method.returnType);
+			relevance+= computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
+			relevance+= computeRelevanceForQualification(prefixRequired);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			if (onlyStaticMethods && this.insideQualifiedReference) {
-				relevance += computeRelevanceForInheritance(receiverType, method.declaringClass);
+				relevance+= computeRelevanceForInheritance(receiverType, method.declaringClass);
 			}
 			if (missingElements != null) {
-				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+				relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 			}
 
-			this.noProposal = false;
+			this.noProposal= false;
 
 			if (castedReceiver == null) {
 				// Standard proposal
-				if(!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+				if (!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(method.declaringClass));
 					proposal.setSignature(getSignature(method));
-					MethodBinding original = method.original();
-					if(original != method) {
+					MethodBinding original= method.original();
+					if (original != method) {
 						proposal.setOriginalSignature(getSignature(original));
 					}
 					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
@@ -8367,14 +8770,14 @@ public final class CompletionEngine
 					proposal.setTypeName(method.returnType.qualifiedSourceName());
 					proposal.setName(method.selector);
 					if (missingElements != null) {
-						CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-						for (int i = 0; i < missingElements.length; i++) {
-							subProposals[i] =
-								createRequiredTypeProposal(
-										missingElements[i],
-										missingElementsStarts[i],
-										missingElementsEnds[i],
-										relevance);
+						CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+						for (int i= 0; i < missingElements.length; i++) {
+							subProposals[i]=
+									createRequiredTypeProposal(
+											missingElements[i],
+											missingElementsStarts[i],
+											missingElementsEnds[i],
+											relevance);
 						}
 						proposal.setRequiredProposals(subProposals);
 					}
@@ -8383,21 +8786,22 @@ public final class CompletionEngine
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
-					if(parameterNames != null) proposal.setParameterNames(parameterNames);
+					if (parameterNames != null)
+						proposal.setParameterNames(parameterNames);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 
 				// Javadoc proposal
 				if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_METHOD_REF)) {
-					char[] javadocCompletion = inlineTagCompletion(completion, JavadocTagConstants.TAG_LINK);
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_METHOD_REF, this.actualCompletionPosition);
+					char[] javadocCompletion= inlineTagCompletion(completion, JavadocTagConstants.TAG_LINK);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.JAVADOC_METHOD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(method.declaringClass));
 					proposal.setSignature(getSignature(method));
-					MethodBinding original = method.original();
-					if(original != method) {
+					MethodBinding original= method.original();
+					if (original != method) {
 						proposal.setOriginalSignature(getSignature(original));
 					}
 					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
@@ -8409,23 +8813,24 @@ public final class CompletionEngine
 					proposal.setName(method.selector);
 					proposal.setCompletion(javadocCompletion);
 					proposal.setFlags(method.modifiers);
-					int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
+					int start= (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 					proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-					proposal.setRelevance(relevance+R_INLINE_TAG);
-					if(parameterNames != null) proposal.setParameterNames(parameterNames);
+					proposal.setRelevance(relevance + R_INLINE_TAG);
+					if (parameterNames != null)
+						proposal.setParameterNames(parameterNames);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 			} else {
-				if(!this.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
+				if (!this.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, missingElements != null)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(method.declaringClass));
 					proposal.setSignature(getSignature(method));
-					MethodBinding original = method.original();
-					if(original != method) {
+					MethodBinding original= method.original();
+					if (original != method) {
 						proposal.setOriginalSignature(getSignature(original));
 					}
 					proposal.setReceiverSignature(getSignature(receiverType));
@@ -8437,14 +8842,14 @@ public final class CompletionEngine
 					proposal.setTypeName(method.returnType.qualifiedSourceName());
 					proposal.setName(method.selector);
 					if (missingElements != null) {
-						CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
-						for (int i = 0; i < missingElements.length; i++) {
-							subProposals[i] =
-								createRequiredTypeProposal(
-										missingElements[i],
-										missingElementsStarts[i],
-										missingElementsEnds[i],
-										relevance);
+						CompletionProposal[] subProposals= new CompletionProposal[missingElements.length];
+						for (int i= 0; i < missingElements.length; i++) {
+							subProposals[i]=
+									createRequiredTypeProposal(
+											missingElements[i],
+											missingElementsStarts[i],
+											missingElementsEnds[i],
+											relevance);
 						}
 						proposal.setRequiredProposals(subProposals);
 					}
@@ -8454,19 +8859,21 @@ public final class CompletionEngine
 					proposal.setReceiverRange(receiverStart - this.offset, receiverEnd - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
-					if(parameterNames != null) proposal.setParameterNames(parameterNames);
+					if (parameterNames != null)
+						proposal.setParameterNames(parameterNames);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
 			}
-			this.startPosition = previousStartPosition;
-			this.tokenStart = previousTokenStart;
+			this.startPosition= previousStartPosition;
+			this.tokenStart= previousTokenStart;
 		}
 
 		methodsFound.addAll(newMethodsFound);
 	}
+
 	private void findLocalMethodsFromFavorites(
 			char[] methodName,
 			MethodBinding[] methods,
@@ -8477,302 +8884,320 @@ public final class CompletionEngine
 			InvocationSite invocationSite,
 			Scope invocationScope) {
 
-			char[] typeName = CharOperation.concatWith(receiverType.compoundName, '.');
+		char[] typeName= CharOperation.concatWith(receiverType.compoundName, '.');
 
-			int methodLength = methodName.length;
+		int methodLength= methodName.length;
 
-			next : for (int f = methods.length; --f >= 0;) {
-				MethodBinding method = methods[f];
+		next: for (int f= methods.length; --f >= 0;) {
+			MethodBinding method= methods[f];
 
-				if (method.isSynthetic()) continue next;
+			if (method.isSynthetic())
+				continue next;
 
-				if (method.isDefaultAbstract())	continue next;
+			if (method.isDefaultAbstract())
+				continue next;
 
-				if (method.isConstructor()) continue next;
+			if (method.isConstructor())
+				continue next;
 
-				if (this.options.checkDeprecation &&
+			if (this.options.checkDeprecation &&
 						method.isViewedAsDeprecated() &&
 						!scope.isDefinedInSameUnit(method.declaringClass))
-					continue next;
+				continue next;
 
-				if (!method.isStatic()) continue next;
+			if (!method.isStatic())
+				continue next;
 
-				if (this.options.checkVisibility
-					&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+			if (this.options.checkVisibility
+					&& !method.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-				if (methodLength > method.selector.length) continue next;
+			if (methodLength > method.selector.length)
+				continue next;
 
-				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
+			if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
 						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
+				continue next;
+			}
+
+			for (int i= methodsFoundFromFavorites.size; --i >= 0;) {
+				Object[] other= (Object[])methodsFoundFromFavorites.elementAt(i);
+				MethodBinding otherMethod= (MethodBinding)other[0];
+
+				if (method == otherMethod)
 					continue next;
-				}
 
-				for (int i = methodsFoundFromFavorites.size; --i >= 0;) {
-					Object[] other = (Object[]) methodsFoundFromFavorites.elementAt(i);
-					MethodBinding otherMethod = (MethodBinding) other[0];
-
-					if (method == otherMethod) continue next;
-
-					if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
-						if (otherMethod.declaringClass == method.declaringClass &&
+				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
+					if (otherMethod.declaringClass == method.declaringClass &&
 								this.lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
-							continue next;
-						}
+						continue next;
 					}
 				}
+			}
 
-				for (int i = methodsFound.size; --i >= 0;) {
-					Object[] other = (Object[]) methodsFound.elementAt(i);
-					MethodBinding otherMethod = (MethodBinding) other[0];
+			for (int i= methodsFound.size; --i >= 0;) {
+				Object[] other= (Object[])methodsFound.elementAt(i);
+				MethodBinding otherMethod= (MethodBinding)other[0];
 
-					if (method == otherMethod) continue next;
+				if (method == otherMethod)
+					continue next;
 
-					if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
-						if (this.lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
-							continue next;
-						}
+				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
+					if (this.lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
+						continue next;
 					}
 				}
+			}
 
-				boolean proposeStaticImport = !(this.compilerOptions.complianceLevel < ClassFileConstants.JDK1_5) &&
+			boolean proposeStaticImport= !(this.compilerOptions.complianceLevel < ClassFileConstants.JDK1_5) &&
 					this.options.suggestStaticImport;
 
-				boolean isAlreadyImported = false;
-				if (!proposeStaticImport) {
-					if(!this.importCachesInitialized) {
-						initializeImportCaches();
-					}
-					for (int j = 0; j < this.importCacheCount; j++) {
-						char[][] importName = this.importsCache[j];
-						if(CharOperation.equals(receiverType.sourceName, importName[0])) {
-							if (!CharOperation.equals(typeName, importName[1])) {
-								continue next;
-							} else {
-								isAlreadyImported = true;
-							}
+			boolean isAlreadyImported= false;
+			if (!proposeStaticImport) {
+				if (!this.importCachesInitialized) {
+					initializeImportCaches();
+				}
+				for (int j= 0; j < this.importCacheCount; j++) {
+					char[][] importName= this.importsCache[j];
+					if (CharOperation.equals(receiverType.sourceName, importName[0])) {
+						if (!CharOperation.equals(typeName, importName[1])) {
+							continue next;
+						} else {
+							isAlreadyImported= true;
 						}
 					}
 				}
+			}
 
-				methodsFoundFromFavorites.add(new Object[]{method, receiverType});
+			methodsFoundFromFavorites.add(new Object[] { method, receiverType });
 
-				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
-				if (method.declaringClass != superTypeWithSameErasure) {
-					MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
-					for (int i = 0; i < otherMethods.length; i++) {
-						if(otherMethods[i].original() == method.original()) {
-							method = otherMethods[i];
-						}
+			ReferenceBinding superTypeWithSameErasure= (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
+			if (method.declaringClass != superTypeWithSameErasure) {
+				MethodBinding[] otherMethods= superTypeWithSameErasure.getMethods(method.selector);
+				for (int i= 0; i < otherMethods.length; i++) {
+					if (otherMethods[i].original() == method.original()) {
+						method= otherMethods[i];
 					}
 				}
+			}
 
-				int length = method.parameters.length;
-				char[][] parameterPackageNames = new char[length][];
-				char[][] parameterTypeNames = new char[length][];
+			int length= method.parameters.length;
+			char[][] parameterPackageNames= new char[length][];
+			char[][] parameterTypeNames= new char[length][];
 
-				for (int i = 0; i < length; i++) {
-					TypeBinding type = method.original().parameters[i];
-					parameterPackageNames[i] = type.qualifiedPackageName();
-					parameterTypeNames[i] = type.qualifiedSourceName();
-				}
-				char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+			for (int i= 0; i < length; i++) {
+				TypeBinding type= method.original().parameters[i];
+				parameterPackageNames[i]= type.qualifiedPackageName();
+				parameterTypeNames[i]= type.qualifiedSourceName();
+			}
+			char[][] parameterNames= findMethodParameterNames(method, parameterTypeNames);
 
-				char[] completion = CharOperation.NO_CHAR;
+			char[] completion= CharOperation.NO_CHAR;
 
-				int previousStartPosition = this.startPosition;
-				int previousTokenStart = this.tokenStart;
+			int previousStartPosition= this.startPosition;
+			int previousTokenStart= this.tokenStart;
 
-				if (this.source != null
+			if (this.source != null
 					&& this.source.length > this.endPosition
 					&& this.source[this.endPosition] == '(') {
-					completion = method.selector;
-				} else {
-					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
-				}
-
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-				relevance += computeRelevanceForExpectingType(method.returnType);
-				relevance += computeRelevanceForEnumConstant(method.returnType);
-				relevance += computeRelevanceForStatic(true, method.isStatic());
-				relevance += computeRelevanceForQualification(true);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-
-				CompilationUnitDeclaration cu = this.unitScope.referenceContext;
-				int importStart = cu.types[0].declarationSourceStart;
-				int importEnd = importStart;
-
-				this.noProposal = false;
-
-				if (!proposeStaticImport) {
-					if (isAlreadyImported) {
-						if (!isIgnored(CompletionProposal.METHOD_REF)) {
-							completion = CharOperation.concat(receiverType.sourceName, completion, '.');
-
-							InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
-							proposal.setDeclarationSignature(getSignature(method.declaringClass));
-							proposal.setSignature(getSignature(method));
-							MethodBinding original = method.original();
-							if(original != method) {
-								proposal.setOriginalSignature(getSignature(original));
-							}
-							proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
-							proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
-							proposal.setParameterPackageNames(parameterPackageNames);
-							proposal.setParameterTypeNames(parameterTypeNames);
-							proposal.setPackageName(method.returnType.qualifiedPackageName());
-							proposal.setTypeName(method.returnType.qualifiedSourceName());
-							proposal.setName(method.selector);
-							proposal.setCompletion(completion);
-							proposal.setFlags(method.modifiers);
-							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-							proposal.setRelevance(relevance);
-							if(parameterNames != null) proposal.setParameterNames(parameterNames);
-
-							this.requestor.accept(proposal);
-							if(DEBUG) {
-								this.printDebug(proposal);
-							}
-						}
-					} else if (!this.isIgnored(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_IMPORT)) {
-						completion = CharOperation.concat(receiverType.sourceName, completion, '.');
-
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
-						proposal.setDeclarationSignature(getSignature(method.declaringClass));
-						proposal.setSignature(getSignature(method));
-						MethodBinding original = method.original();
-						if(original != method) {
-							proposal.setOriginalSignature(getSignature(original));
-						}
-						proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
-						proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
-						proposal.setParameterPackageNames(parameterPackageNames);
-						proposal.setParameterTypeNames(parameterTypeNames);
-						proposal.setPackageName(method.returnType.qualifiedPackageName());
-						proposal.setTypeName(method.returnType.qualifiedSourceName());
-						proposal.setName(method.selector);
-						proposal.setCompletion(completion);
-						proposal.setFlags(method.modifiers);
-						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-						proposal.setRelevance(relevance);
-						if(parameterNames != null) proposal.setParameterNames(parameterNames);
-
-						char[] typeImportCompletion = createImportCharArray(typeName, false, false);
-
-						InternalCompletionProposal typeImportProposal = createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
-						typeImportProposal.nameLookup = this.nameEnvironment.nameLookup;
-						typeImportProposal.completionEngine = this;
-						char[] packageName = receiverType.qualifiedPackageName();
-						typeImportProposal.setDeclarationSignature(packageName);
-						typeImportProposal.setSignature(getSignature(receiverType));
-						typeImportProposal.setPackageName(packageName);
-						typeImportProposal.setTypeName(receiverType.qualifiedSourceName());
-						typeImportProposal.setCompletion(typeImportCompletion);
-						typeImportProposal.setFlags(receiverType.modifiers);
-						typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
-						typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
-						typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
-						typeImportProposal.setRelevance(relevance);
-
-						proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
-
-						this.requestor.accept(proposal);
-						if(DEBUG) {
-							this.printDebug(proposal);
-						}
-					}
-				} else {
-					if (!this.isIgnored(CompletionProposal.METHOD_REF, CompletionProposal.METHOD_IMPORT)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
-						proposal.setDeclarationSignature(getSignature(method.declaringClass));
-						proposal.setSignature(getSignature(method));
-						MethodBinding original = method.original();
-						if(original != method) {
-							proposal.setOriginalSignature(getSignature(original));
-						}
-						proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
-						proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
-						proposal.setParameterPackageNames(parameterPackageNames);
-						proposal.setParameterTypeNames(parameterTypeNames);
-						proposal.setPackageName(method.returnType.qualifiedPackageName());
-						proposal.setTypeName(method.returnType.qualifiedSourceName());
-						proposal.setName(method.selector);
-						proposal.setCompletion(completion);
-						proposal.setFlags(method.modifiers);
-						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-						proposal.setRelevance(relevance);
-						if(parameterNames != null) proposal.setParameterNames(parameterNames);
-
-						char[] methodImportCompletion = createImportCharArray(CharOperation.concat(typeName, method.selector, '.'), true, false);
-
-						InternalCompletionProposal methodImportProposal = createProposal(CompletionProposal.METHOD_IMPORT, this.actualCompletionPosition);
-						methodImportProposal.setDeclarationSignature(getSignature(method.declaringClass));
-						methodImportProposal.setSignature(getSignature(method));
-						if(original != method) {
-							proposal.setOriginalSignature(getSignature(original));
-						}
-						methodImportProposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
-						methodImportProposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
-						methodImportProposal.setParameterPackageNames(parameterPackageNames);
-						methodImportProposal.setParameterTypeNames(parameterTypeNames);
-						methodImportProposal.setPackageName(method.returnType.qualifiedPackageName());
-						methodImportProposal.setTypeName(method.returnType.qualifiedSourceName());
-						methodImportProposal.setName(method.selector);
-						methodImportProposal.setCompletion(methodImportCompletion);
-						methodImportProposal.setFlags(method.modifiers);
-						methodImportProposal.setAdditionalFlags(CompletionFlags.StaticImport);
-						methodImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
-						methodImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
-						methodImportProposal.setRelevance(relevance);
-						if(parameterNames != null) methodImportProposal.setParameterNames(parameterNames);
-
-						proposal.setRequiredProposals(new CompletionProposal[]{methodImportProposal});
-
-						this.requestor.accept(proposal);
-						if(DEBUG) {
-							this.printDebug(proposal);
-						}
-					}
-				}
-
-				this.startPosition = previousStartPosition;
-				this.tokenStart = previousTokenStart;
+				completion= method.selector;
+			} else {
+				completion= CharOperation.concat(method.selector, new char[] { '(', ')' });
 			}
+
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance+= computeRelevanceForExpectingType(method.returnType);
+			relevance+= computeRelevanceForEnumConstant(method.returnType);
+			relevance+= computeRelevanceForStatic(true, method.isStatic());
+			relevance+= computeRelevanceForQualification(true);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+
+			CompilationUnitDeclaration cu= this.unitScope.referenceContext;
+			int importStart= cu.types[0].declarationSourceStart;
+			int importEnd= importStart;
+
+			this.noProposal= false;
+
+			if (!proposeStaticImport) {
+				if (isAlreadyImported) {
+					if (!isIgnored(CompletionProposal.METHOD_REF)) {
+						completion= CharOperation.concat(receiverType.sourceName, completion, '.');
+
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(getSignature(method.declaringClass));
+						proposal.setSignature(getSignature(method));
+						MethodBinding original= method.original();
+						if (original != method) {
+							proposal.setOriginalSignature(getSignature(original));
+						}
+						proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+						proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+						proposal.setParameterPackageNames(parameterPackageNames);
+						proposal.setParameterTypeNames(parameterTypeNames);
+						proposal.setPackageName(method.returnType.qualifiedPackageName());
+						proposal.setTypeName(method.returnType.qualifiedSourceName());
+						proposal.setName(method.selector);
+						proposal.setCompletion(completion);
+						proposal.setFlags(method.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+						proposal.setRelevance(relevance);
+						if (parameterNames != null)
+							proposal.setParameterNames(parameterNames);
+
+						this.requestor.accept(proposal);
+						if (DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
+				} else if (!this.isIgnored(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_IMPORT)) {
+					completion= CharOperation.concat(receiverType.sourceName, completion, '.');
+
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(getSignature(method.declaringClass));
+					proposal.setSignature(getSignature(method));
+					MethodBinding original= method.original();
+					if (original != method) {
+						proposal.setOriginalSignature(getSignature(original));
+					}
+					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+					proposal.setParameterPackageNames(parameterPackageNames);
+					proposal.setParameterTypeNames(parameterTypeNames);
+					proposal.setPackageName(method.returnType.qualifiedPackageName());
+					proposal.setTypeName(method.returnType.qualifiedSourceName());
+					proposal.setName(method.selector);
+					proposal.setCompletion(completion);
+					proposal.setFlags(method.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+					proposal.setRelevance(relevance);
+					if (parameterNames != null)
+						proposal.setParameterNames(parameterNames);
+
+					char[] typeImportCompletion= createImportCharArray(typeName, false, false);
+
+					InternalCompletionProposal typeImportProposal= createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
+					typeImportProposal.nameLookup= this.nameEnvironment.nameLookup;
+					typeImportProposal.completionEngine= this;
+					char[] packageName= receiverType.qualifiedPackageName();
+					typeImportProposal.setDeclarationSignature(packageName);
+					typeImportProposal.setSignature(getSignature(receiverType));
+					typeImportProposal.setPackageName(packageName);
+					typeImportProposal.setTypeName(receiverType.qualifiedSourceName());
+					typeImportProposal.setCompletion(typeImportCompletion);
+					typeImportProposal.setFlags(receiverType.modifiers);
+					typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
+					typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+					typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
+					typeImportProposal.setRelevance(relevance);
+
+					proposal.setRequiredProposals(new CompletionProposal[] { typeImportProposal });
+
+					this.requestor.accept(proposal);
+					if (DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			} else {
+				if (!this.isIgnored(CompletionProposal.METHOD_REF, CompletionProposal.METHOD_IMPORT)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(getSignature(method.declaringClass));
+					proposal.setSignature(getSignature(method));
+					MethodBinding original= method.original();
+					if (original != method) {
+						proposal.setOriginalSignature(getSignature(original));
+					}
+					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+					proposal.setParameterPackageNames(parameterPackageNames);
+					proposal.setParameterTypeNames(parameterTypeNames);
+					proposal.setPackageName(method.returnType.qualifiedPackageName());
+					proposal.setTypeName(method.returnType.qualifiedSourceName());
+					proposal.setName(method.selector);
+					proposal.setCompletion(completion);
+					proposal.setFlags(method.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+					proposal.setRelevance(relevance);
+					if (parameterNames != null)
+						proposal.setParameterNames(parameterNames);
+
+					char[] methodImportCompletion= createImportCharArray(CharOperation.concat(typeName, method.selector, '.'), true, false);
+
+					InternalCompletionProposal methodImportProposal= createProposal(CompletionProposal.METHOD_IMPORT, this.actualCompletionPosition);
+					methodImportProposal.setDeclarationSignature(getSignature(method.declaringClass));
+					methodImportProposal.setSignature(getSignature(method));
+					if (original != method) {
+						proposal.setOriginalSignature(getSignature(original));
+					}
+					methodImportProposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+					methodImportProposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+					methodImportProposal.setParameterPackageNames(parameterPackageNames);
+					methodImportProposal.setParameterTypeNames(parameterTypeNames);
+					methodImportProposal.setPackageName(method.returnType.qualifiedPackageName());
+					methodImportProposal.setTypeName(method.returnType.qualifiedSourceName());
+					methodImportProposal.setName(method.selector);
+					methodImportProposal.setCompletion(methodImportCompletion);
+					methodImportProposal.setFlags(method.modifiers);
+					methodImportProposal.setAdditionalFlags(CompletionFlags.StaticImport);
+					methodImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+					methodImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
+					methodImportProposal.setRelevance(relevance);
+					if (parameterNames != null)
+						methodImportProposal.setParameterNames(parameterNames);
+
+					proposal.setRequiredProposals(new CompletionProposal[] { methodImportProposal });
+
+					this.requestor.accept(proposal);
+					if (DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			}
+
+			this.startPosition= previousStartPosition;
+			this.tokenStart= previousTokenStart;
 		}
+	}
 
 	/**
-	 * Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
-	 * Note that the method doesn't do a comparison of the method names and expects the client to handle the same.
+	 * Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector,
+	 * boolean, boolean, boolean) Note that the method doesn't do a comparison of the method names
+	 * and expects the client to handle the same.
 	 * 
 	 * @methodName method as entered by the user, the one to completed
-	 * @param methods a resultant array of MethodBinding, whose names should match methodName. The calling client must ensure that this check is handled.
+	 * @param methods a resultant array of MethodBinding, whose names should match methodName. The
+	 *            calling client must ensure that this check is handled.
 	 */
 	private void findLocalMethodsFromStaticImports(
-		char[] methodName,
-		MethodBinding[] methods,
-		Scope scope,
-		boolean exactMatch,
-		ObjectVector methodsFound,
-		ReferenceBinding receiverType,
-		InvocationSite invocationSite) {
+			char[] methodName,
+			MethodBinding[] methods,
+			Scope scope,
+			boolean exactMatch,
+			ObjectVector methodsFound,
+			ReferenceBinding receiverType,
+			InvocationSite invocationSite) {
 
-		ObjectVector newMethodsFound =  new ObjectVector();
+		ObjectVector newMethodsFound= new ObjectVector();
 
-		next : for (int f = methods.length; --f >= 0;) {
-			MethodBinding method = methods[f];
+		next: for (int f= methods.length; --f >= 0;) {
+			MethodBinding method= methods[f];
 
-			if (method.isSynthetic()) continue next;
+			if (method.isSynthetic())
+				continue next;
 
-			if (method.isDefaultAbstract())	continue next;
+			if (method.isDefaultAbstract())
+				continue next;
 
-			if (method.isConstructor()) continue next;
+			if (method.isConstructor())
+				continue next;
 
-			if (!method.isStatic()) continue next;
+			if (!method.isStatic())
+				continue next;
 
 			if (this.options.checkDeprecation &&
 					method.isViewedAsDeprecated() &&
@@ -8780,12 +9205,13 @@ public final class CompletionEngine
 				continue next;
 
 			if (this.options.checkVisibility
-				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+					&& !method.canBeSeenBy(receiverType, invocationSite, scope))
+				continue next;
 
-			for (int i = methodsFound.size; --i >= 0;) {
-				Object[] other = (Object[]) methodsFound.elementAt(i);
-				MethodBinding otherMethod = (MethodBinding) other[0];
-				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
+			for (int i= methodsFound.size; --i >= 0;) {
+				Object[] other= (Object[])methodsFound.elementAt(i);
+				MethodBinding otherMethod= (MethodBinding)other[0];
+				ReferenceBinding otherReceiverType= (ReferenceBinding)other[1];
 				if (method == otherMethod && receiverType == otherReceiverType)
 					continue next;
 
@@ -8796,54 +9222,54 @@ public final class CompletionEngine
 				}
 			}
 
-			newMethodsFound.add(new Object[]{method, receiverType});
+			newMethodsFound.add(new Object[] { method, receiverType });
 
-			int length = method.parameters.length;
-			char[][] parameterPackageNames = new char[length][];
-			char[][] parameterTypeNames = new char[length][];
+			int length= method.parameters.length;
+			char[][] parameterPackageNames= new char[length][];
+			char[][] parameterTypeNames= new char[length][];
 
-			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.original().parameters[i];
-				parameterPackageNames[i] = type.qualifiedPackageName();
-				parameterTypeNames[i] = type.qualifiedSourceName();
+			for (int i= 0; i < length; i++) {
+				TypeBinding type= method.original().parameters[i];
+				parameterPackageNames[i]= type.qualifiedPackageName();
+				parameterTypeNames[i]= type.qualifiedSourceName();
 			}
-			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+			char[][] parameterNames= findMethodParameterNames(method, parameterTypeNames);
 
-			char[] completion = CharOperation.NO_CHAR;
+			char[] completion= CharOperation.NO_CHAR;
 
-			int previousStartPosition = this.startPosition;
-			int previousTokenStart = this.tokenStart;
+			int previousStartPosition= this.startPosition;
+			int previousTokenStart= this.tokenStart;
 
 			if (!exactMatch) {
 				if (this.source != null
-					&& this.source.length > this.endPosition
-					&& this.source[this.endPosition] == '(') {
-					completion = method.selector;
+						&& this.source.length > this.endPosition
+						&& this.source[this.endPosition] == '(') {
+					completion= method.selector;
 				} else {
-					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
+					completion= CharOperation.concat(method.selector, new char[] { '(', ')' });
 				}
 			} else {
-				this.startPosition = this.endPosition;
-				this.tokenStart = this.tokenEnd;
+				this.startPosition= this.endPosition;
+				this.tokenStart= this.tokenEnd;
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += computeRelevanceForExpectingType(method.returnType);
-			relevance += computeRelevanceForEnumConstant(method.returnType);
-			relevance += computeRelevanceForStatic(true, method.isStatic());
-			relevance += computeRelevanceForQualification(false);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance+= computeRelevanceForExpectingType(method.returnType);
+			relevance+= computeRelevanceForEnumConstant(method.returnType);
+			relevance+= computeRelevanceForStatic(true, method.isStatic());
+			relevance+= computeRelevanceForQualification(false);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
-			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-				InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+			this.noProposal= false;
+			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+				InternalCompletionProposal proposal= createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method));
-				MethodBinding original = method.original();
-				if(original != method) {
+				MethodBinding original= method.original();
+				if (original != method) {
 					proposal.setOriginalSignature(getSignature(original));
 				}
 				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
@@ -8858,14 +9284,15 @@ public final class CompletionEngine
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
-				if(parameterNames != null) proposal.setParameterNames(parameterNames);
+				if (parameterNames != null)
+					proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
-				if(DEBUG) {
+				if (DEBUG) {
 					this.printDebug(proposal);
 				}
 			}
-			this.startPosition = previousStartPosition;
-			this.tokenStart = previousTokenStart;
+			this.startPosition= previousStartPosition;
+			this.tokenStart= previousTokenStart;
 		}
 
 		methodsFound.addAll(newMethodsFound);
@@ -8892,6 +9319,7 @@ public final class CompletionEngine
 				false,
 				proposeMethod);
 	}
+
 	protected void findMembers(
 			char[] token,
 			ReferenceBinding receiverType,
@@ -8928,24 +9356,24 @@ public final class CompletionEngine
 					missingElementsHaveProblems);
 		}
 
-		MethodScope methodScope = null;
+		MethodScope methodScope= null;
 		if (!isInsideAnnotationAttribute &&
 				!this.requestor.isIgnored(CompletionProposal.KEYWORD) &&
 				((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
-				|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
+				|| ((methodScope= scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
 			if (token.length > 0) {
-				findKeywords(token, new char[][]{Keywords.THIS}, false, true);
+				findKeywords(token, new char[][] { Keywords.THIS }, false, true);
 			} else {
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(this.completionToken, Keywords.THIS);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
-				relevance += R_NON_INHERITED;
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(this.completionToken, Keywords.THIS);
+				relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
+				relevance+= R_NON_INHERITED;
 
-				this.noProposal = false;
+				this.noProposal= false;
 				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
 					proposal.setName(Keywords.THIS);
 					proposal.setCompletion(Keywords.THIS);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
@@ -8961,47 +9389,47 @@ public final class CompletionEngine
 
 		if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 			findFields(
-				token,
-				receiverType,
-				scope,
-				new ObjectVector(),
-				new ObjectVector(),
-				true,
-				invocationSite,
-				scope,
-				false,
-				false,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems,
-				null,
-				-1,
-				-1);
+					token,
+					receiverType,
+					scope,
+					new ObjectVector(),
+					new ObjectVector(),
+					true,
+					invocationSite,
+					scope,
+					false,
+					false,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems,
+					null,
+					-1,
+					-1);
 		}
 
 		if (!isInsideAnnotationAttribute && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 			findMethods(
-				token,
-				null,
-				null,
-				receiverType,
-				scope,
-				new ObjectVector(),
-				true,
-				false,
-				invocationSite,
-				scope,
-				false,
-				false,
-				false,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems,
-				null,
-				-1,
-				-1);
+					token,
+					null,
+					null,
+					receiverType,
+					scope,
+					new ObjectVector(),
+					true,
+					false,
+					invocationSite,
+					scope,
+					false,
+					false,
+					false,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems,
+					null,
+					-1,
+					-1);
 		}
 	}
 
@@ -9012,140 +9440,102 @@ public final class CompletionEngine
 			final Scope scope,
 			final InvocationSite invocationSite,
 			final boolean isInsideAnnotationAttribute) {
-		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
-		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
-			new MissingTypesGuesser.GuessedTypeRequestor() {
-				public void accept(
-						TypeBinding guessedType,
-						Binding[] missingElements,
-						int[] missingElementsStarts,
-						int[] missingElementsEnds,
-						boolean hasProblems) {
-					if (guessedType instanceof ReferenceBinding) {
-						findMembers(
-								CompletionEngine.this.completionToken,
-								(ReferenceBinding)guessedType,
-								scope,
-								invocationSite,
-								isInsideAnnotationAttribute,
-								missingElements,
-								missingElementsStarts,
-								missingElementsEnds,
-								hasProblems);
+		MissingTypesGuesser missingTypesConverter= new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor=
+				new MissingTypesGuesser.GuessedTypeRequestor() {
+					public void accept(
+							TypeBinding guessedType,
+							Binding[] missingElements,
+							int[] missingElementsStarts,
+							int[] missingElementsEnds,
+							boolean hasProblems) {
+						if (guessedType instanceof ReferenceBinding) {
+							findMembers(
+									CompletionEngine.this.completionToken,
+									(ReferenceBinding)guessedType,
+									scope,
+									invocationSite,
+									isInsideAnnotationAttribute,
+									missingElements,
+									missingElementsStarts,
+									missingElementsEnds,
+									hasProblems);
+						}
 					}
-				}
-			};
-		SingleTypeReference typeRef = new SingleTypeReference(token, pos);
-		typeRef.resolvedType = new ProblemReferenceBinding(new char[][]{ token }, null, ProblemReasons.NotFound);
+				};
+		SingleTypeReference typeRef= new SingleTypeReference(token, pos);
+		typeRef.resolvedType= new ProblemReferenceBinding(new char[][] { token }, null, ProblemReasons.NotFound);
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 
 	private void findMemberTypes(
-		char[] typeName,
-		ReferenceBinding receiverType,
-		Scope scope,
-		SourceTypeBinding typeInvocation,
-		boolean staticOnly,
-		boolean staticFieldsAndMethodOnly,
-		boolean fromStaticImport,
-		boolean checkQualification,
-		boolean proposeAllMemberTypes,
-		SourceTypeBinding typeToIgnore,
-		ObjectVector typesFound,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems) {
+			char[] typeName,
+			ReferenceBinding receiverType,
+			Scope scope,
+			SourceTypeBinding typeInvocation,
+			boolean staticOnly,
+			boolean staticFieldsAndMethodOnly,
+			boolean fromStaticImport,
+			boolean checkQualification,
+			boolean proposeAllMemberTypes,
+			SourceTypeBinding typeToIgnore,
+			ObjectVector typesFound,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 
-		ReferenceBinding currentType = receiverType;
+		ReferenceBinding currentType= receiverType;
 		if (typeName == null)
 			return;
 
 		if (this.insideQualifiedReference
-			|| typeName.length == 0) { // do not search up the hierarchy
+				|| typeName.length == 0) { // do not search up the hierarchy
 
 			findMemberTypes(
-				typeName,
-				currentType.memberTypes(),
-				typesFound,
-				receiverType,
-				typeInvocation,
-				staticOnly,
-				staticFieldsAndMethodOnly,
-				fromStaticImport,
-				checkQualification,
-				scope,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems);
+					typeName,
+					currentType.memberTypes(),
+					typesFound,
+					receiverType,
+					typeInvocation,
+					staticOnly,
+					staticFieldsAndMethodOnly,
+					fromStaticImport,
+					checkQualification,
+					scope,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems);
 			return;
 		}
 
-		ReferenceBinding[] interfacesToVisit = null;
-		int nextPosition = 0;
+		ReferenceBinding[] interfacesToVisit= null;
+		int nextPosition= 0;
 
 		do {
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			ReferenceBinding[] itsInterfaces= currentType.superInterfaces();
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
-					interfacesToVisit = itsInterfaces;
-					nextPosition = interfacesToVisit.length;
+					interfacesToVisit= itsInterfaces;
+					nextPosition= interfacesToVisit.length;
 				} else {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
 
 			findMemberTypes(
-				typeName,
-				currentType.memberTypes(),
-				typesFound,
-				receiverType,
-				typeInvocation,
-				staticOnly,
-				staticFieldsAndMethodOnly,
-				fromStaticImport,
-				checkQualification,
-				scope,
-				missingElements,
-				missingElementsStarts,
-				missingElementsEnds,
-				missingElementsHaveProblems);
-
-			currentType = currentType.superclass();
-		} while (currentType != null);
-
-		if(proposeAllMemberTypes) {
-			ReferenceBinding[] memberTypes = receiverType.memberTypes();
-			for (int i = 0; i < memberTypes.length; i++) {
-				if(memberTypes[i] != typeToIgnore) {
-					findSubMemberTypes(
-						typeName,
-						memberTypes[i],
-						scope,
-						typeInvocation,
-						staticOnly,
-						staticFieldsAndMethodOnly,
-						fromStaticImport,
-						typesFound);
-				}
-			}
-		}
-
-		if (interfacesToVisit != null) {
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding anInterface = interfacesToVisit[i];
-				findMemberTypes(
 					typeName,
-					anInterface.memberTypes(),
+					currentType.memberTypes(),
 					typesFound,
 					receiverType,
 					typeInvocation,
@@ -9159,16 +9549,56 @@ public final class CompletionEngine
 					missingElementsEnds,
 					missingElementsHaveProblems);
 
-				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+			currentType= currentType.superclass();
+		} while (currentType != null);
+
+		if (proposeAllMemberTypes) {
+			ReferenceBinding[] memberTypes= receiverType.memberTypes();
+			for (int i= 0; i < memberTypes.length; i++) {
+				if (memberTypes[i] != typeToIgnore) {
+					findSubMemberTypes(
+							typeName,
+							memberTypes[i],
+							scope,
+							typeInvocation,
+							staticOnly,
+							staticFieldsAndMethodOnly,
+							fromStaticImport,
+							typesFound);
+				}
+			}
+		}
+
+		if (interfacesToVisit != null) {
+			for (int i= 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface= interfacesToVisit[i];
+				findMemberTypes(
+						typeName,
+						anInterface.memberTypes(),
+						typesFound,
+						receiverType,
+						typeInvocation,
+						staticOnly,
+						staticFieldsAndMethodOnly,
+						fromStaticImport,
+						checkQualification,
+						scope,
+						missingElements,
+						missingElementsStarts,
+						missingElementsEnds,
+						missingElementsHaveProblems);
+
+				ReferenceBinding[] itsInterfaces= anInterface.superInterfaces();
 				if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-					int itsLength = itsInterfaces.length;
+					int itsLength= itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-					nextInterface : for (int a = 0; a < itsLength; a++) {
-						ReferenceBinding next = itsInterfaces[a];
-						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
-						interfacesToVisit[nextPosition++] = next;
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit= new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface: for (int a= 0; a < itsLength; a++) {
+						ReferenceBinding next= itsInterfaces[a];
+						for (int b= 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b])
+								continue nextInterface;
+						interfacesToVisit[nextPosition++]= next;
 					}
 				}
 			}
@@ -9176,17 +9606,17 @@ public final class CompletionEngine
 	}
 
 	protected void findMemberTypes(
-		char[] typeName,
-		ReferenceBinding receiverType,
-		Scope scope,
-		SourceTypeBinding typeInvocation,
-		boolean staticOnly,
-		boolean staticFieldsAndMethodOnly,
-		ObjectVector typesFound,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems)  {
+			char[] typeName,
+			ReferenceBinding receiverType,
+			Scope scope,
+			SourceTypeBinding typeInvocation,
+			boolean staticOnly,
+			boolean staticFieldsAndMethodOnly,
+			ObjectVector typesFound,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 		findMemberTypes(
 				typeName,
 				receiverType,
@@ -9204,34 +9634,37 @@ public final class CompletionEngine
 				missingElementsEnds,
 				missingElementsHaveProblems);
 	}
-		// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
+
+	// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
 	private void findMemberTypes(
-		char[] typeName,
-		ReferenceBinding[] memberTypes,
-		ObjectVector typesFound,
-		ReferenceBinding receiverType,
-		SourceTypeBinding invocationType,
-		boolean staticOnly,
-		boolean staticFieldsAndMethodOnly,
-		boolean fromStaticImport,
-		boolean checkQualification,
-		Scope scope,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems) {
+			char[] typeName,
+			ReferenceBinding[] memberTypes,
+			ObjectVector typesFound,
+			ReferenceBinding receiverType,
+			SourceTypeBinding invocationType,
+			boolean staticOnly,
+			boolean staticFieldsAndMethodOnly,
+			boolean fromStaticImport,
+			boolean checkQualification,
+			Scope scope,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 
 		// Inherited member types which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
-		int typeLength = typeName.length;
-		next : for (int m = memberTypes.length; --m >= 0;) {
-			ReferenceBinding memberType = memberTypes[m];
+		int typeLength= typeName.length;
+		next: for (int m= memberTypes.length; --m >= 0;) {
+			ReferenceBinding memberType= memberTypes[m];
 			//		if (!wantClasses && memberType.isClass()) continue next;
 			//		if (!wantInterfaces && memberType.isInterface()) continue next;
 
-			if (staticOnly && !memberType.isStatic()) continue next;
+			if (staticOnly && !memberType.isStatic())
+				continue next;
 
-			if (isForbidden(memberType)) continue next;
+			if (isForbidden(memberType))
+				continue next;
 
 			if (typeLength > memberType.sourceName.length)
 				continue next;
@@ -9248,7 +9681,7 @@ public final class CompletionEngine
 			if (this.options.checkVisibility) {
 				if (invocationType != null && !memberType.canBeSeenBy(receiverType, invocationType)) {
 					continue next;
-				} else if(invocationType == null && !memberType.canBeSeenBy(this.unitScope.fPackage)) {
+				} else if (invocationType == null && !memberType.canBeSeenBy(this.unitScope.fPackage)) {
 					continue next;
 				}
 			}
@@ -9259,8 +9692,8 @@ public final class CompletionEngine
 				continue next;
 			}
 
-			for (int i = typesFound.size; --i >= 0;) {
-				ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(i);
+			for (int i= typesFound.size; --i >= 0;) {
+				ReferenceBinding otherType= (ReferenceBinding)typesFound.elementAt(i);
 
 				if (memberType == otherType)
 					continue next;
@@ -9272,82 +9705,87 @@ public final class CompletionEngine
 
 					if (otherType.enclosingType().isInterface())
 						if (memberType.enclosingType()
-							.implementsInterface(otherType.enclosingType(), true))
+								.implementsInterface(otherType.enclosingType(), true))
 							continue next;
 
 					if (memberType.enclosingType().isInterface())
 						if (otherType.enclosingType()
-							.implementsInterface(memberType.enclosingType(), true))
+								.implementsInterface(memberType.enclosingType(), true))
 							continue next;
 				}
 			}
 
 			typesFound.add(memberType);
 
-			if (this.assistNodeIsExtendedType && memberType.isFinal()) continue next;
-			if(!this.insideQualifiedReference) {
-				if(this.assistNodeIsClass) {
-					if(!memberType.isClass()) continue next;
-				} else if(this.assistNodeIsInterface) {
-					if(!memberType.isInterface() && !memberType.isAnnotationType()) continue next;
+			if (this.assistNodeIsExtendedType && memberType.isFinal())
+				continue next;
+			if (!this.insideQualifiedReference) {
+				if (this.assistNodeIsClass) {
+					if (!memberType.isClass())
+						continue next;
+				} else if (this.assistNodeIsInterface) {
+					if (!memberType.isInterface() && !memberType.isAnnotationType())
+						continue next;
 				} else if (this.assistNodeIsAnnotation) {
-					if(!memberType.isAnnotationType()) continue next;
+					if (!memberType.isAnnotationType())
+						continue next;
 				}
 			}
 
-			char[] completionName = memberType.sourceName();
+			char[] completionName= memberType.sourceName();
 
-			boolean isQualified = false;
-			if(checkQualification && !fromStaticImport) {
-				char[] memberPackageName = memberType.qualifiedPackageName();
-				char[] memberTypeName = memberType.sourceName();
-				char[] memberEnclosingTypeNames = memberType.enclosingType().qualifiedSourceName();
+			boolean isQualified= false;
+			if (checkQualification && !fromStaticImport) {
+				char[] memberPackageName= memberType.qualifiedPackageName();
+				char[] memberTypeName= memberType.sourceName();
+				char[] memberEnclosingTypeNames= memberType.enclosingType().qualifiedSourceName();
 				if (mustQualifyType(memberPackageName, memberTypeName, memberEnclosingTypeNames, memberType.modifiers)) {
 					if (memberPackageName == null || memberPackageName.length == 0)
 						if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 							break next; // ignore types from the default package from outside it
-					isQualified = true;
-					completionName =
-						CharOperation.concat(
-								memberPackageName,
-								CharOperation.concat(
-										memberEnclosingTypeNames,
-										memberTypeName,
-										'.'),
-								'.');
+					isQualified= true;
+					completionName=
+							CharOperation.concat(
+									memberPackageName,
+									CharOperation.concat(
+											memberEnclosingTypeNames,
+											memberTypeName,
+											'.'),
+									'.');
 				}
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(typeName, memberType.sourceName);
-			relevance += computeRelevanceForExpectingType(memberType);
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-			if(!this.insideQualifiedReference) {
-				relevance += computeRelevanceForQualification(isQualified);
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(typeName, memberType.sourceName);
+			relevance+= computeRelevanceForExpectingType(memberType);
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			if (!this.insideQualifiedReference) {
+				relevance+= computeRelevanceForQualification(isQualified);
 			}
-			if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED; // This criterion doesn't concern types and is added to be balanced with field and method relevance.
+			if (staticFieldsAndMethodOnly && this.insideQualifiedReference)
+				relevance+= R_NON_INHERITED; // This criterion doesn't concern types and is added to be balanced with field and method relevance.
 
 			if (memberType.isAnnotationType()) {
-				relevance += computeRelevanceForAnnotation();
-				relevance += computeRelevanceForAnnotationTarget(memberType);
+				relevance+= computeRelevanceForAnnotation();
+				relevance+= computeRelevanceForAnnotationTarget(memberType);
 			} else if (memberType.isClass()) {
-				relevance += computeRelevanceForClass();
-				relevance += computeRelevanceForException(memberType.sourceName);
-			} else if(memberType.isEnum()) {
-				relevance += computeRelevanceForEnum();
-			} else if(memberType.isInterface()) {
-				relevance += computeRelevanceForInterface();
+				relevance+= computeRelevanceForClass();
+				relevance+= computeRelevanceForException(memberType.sourceName);
+			} else if (memberType.isEnum()) {
+				relevance+= computeRelevanceForEnum();
+			} else if (memberType.isInterface()) {
+				relevance+= computeRelevanceForInterface();
 			}
 
 			if (missingElements != null) {
-				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+				relevance+= computeRelevanceForMissingElements(missingElementsHaveProblems);
 			}
 
-			boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
-			
-			this.noProposal = false;
+			boolean allowingLongComputationProposals= isAllowingLongComputationProposals();
+
+			this.noProposal= false;
 			if (!this.assistNodeIsConstructor ||
 					!allowingLongComputationProposals ||
 					hasStaticMemberTypes(memberType, invocationType, this.unitScope) ||
@@ -9364,7 +9802,7 @@ public final class CompletionEngine
 						missingElementsEnds,
 						missingElementsHaveProblems);
 			}
-			
+
 			if (this.assistNodeIsConstructor && allowingLongComputationProposals) {
 				findConstructorsOrAnonymousTypes(
 						memberType,
@@ -9375,222 +9813,224 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	private void findMemberTypesFromMissingType(
 			char[] typeName,
 			final long pos,
-			final Scope scope)  {
-		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
-		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
-			new MissingTypesGuesser.GuessedTypeRequestor() {
-				public void accept(
-						TypeBinding guessedType,
-						Binding[] missingElements,
-						int[] missingElementsStarts,
-						int[] missingElementsEnds,
-						boolean hasProblems) {
-					if (guessedType instanceof ReferenceBinding) {
-						findMemberTypes(
-								CompletionEngine.this.completionToken,
-								(ReferenceBinding)guessedType,
-								scope,
-								scope.enclosingSourceType(),
-								false,
-								false,
-								new ObjectVector(),
-								missingElements,
-								missingElementsStarts,
-								missingElementsEnds,
-								hasProblems);
+			final Scope scope) {
+		MissingTypesGuesser missingTypesConverter= new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor=
+				new MissingTypesGuesser.GuessedTypeRequestor() {
+					public void accept(
+							TypeBinding guessedType,
+							Binding[] missingElements,
+							int[] missingElementsStarts,
+							int[] missingElementsEnds,
+							boolean hasProblems) {
+						if (guessedType instanceof ReferenceBinding) {
+							findMemberTypes(
+									CompletionEngine.this.completionToken,
+									(ReferenceBinding)guessedType,
+									scope,
+									scope.enclosingSourceType(),
+									false,
+									false,
+									new ObjectVector(),
+									missingElements,
+									missingElementsStarts,
+									missingElementsEnds,
+									hasProblems);
+						}
 					}
-				}
-			};
-		SingleTypeReference typeRef = new SingleTypeReference(typeName, pos);
-		typeRef.resolvedType = new ProblemReferenceBinding(new char[][]{ typeName }, null, ProblemReasons.NotFound);
+				};
+		SingleTypeReference typeRef= new SingleTypeReference(typeName, pos);
+		typeRef.resolvedType= new ProblemReferenceBinding(new char[][] { typeName }, null, ProblemReasons.NotFound);
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
-	
+
 	private void findMemberTypesFromMissingType(
 			TypeReference typeRef,
 			final long pos,
-			final Scope scope)  {
-		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
-		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
-			new MissingTypesGuesser.GuessedTypeRequestor() {
-				public void accept(
-						TypeBinding guessedType,
-						Binding[] missingElements,
-						int[] missingElementsStarts,
-						int[] missingElementsEnds,
-						boolean hasProblems) {
-					if (guessedType instanceof ReferenceBinding) {
-						findMemberTypes(
-								CompletionEngine.this.completionToken,
-								(ReferenceBinding)guessedType,
-								scope,
-								scope.enclosingSourceType(),
-								false,
-								false,
-								new ObjectVector(),
-								missingElements,
-								missingElementsStarts,
-								missingElementsEnds,
-								hasProblems);
+			final Scope scope) {
+		MissingTypesGuesser missingTypesConverter= new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor=
+				new MissingTypesGuesser.GuessedTypeRequestor() {
+					public void accept(
+							TypeBinding guessedType,
+							Binding[] missingElements,
+							int[] missingElementsStarts,
+							int[] missingElementsEnds,
+							boolean hasProblems) {
+						if (guessedType instanceof ReferenceBinding) {
+							findMemberTypes(
+									CompletionEngine.this.completionToken,
+									(ReferenceBinding)guessedType,
+									scope,
+									scope.enclosingSourceType(),
+									false,
+									false,
+									new ObjectVector(),
+									missingElements,
+									missingElementsStarts,
+									missingElementsEnds,
+									hasProblems);
+						}
 					}
-				}
-			};
+				};
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 
 	private void findMethodDeclarations(
-		char[] selector,
-		ReferenceBinding receiverType,
-		Scope scope,
-		ObjectVector methodsFound,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems) {
+			char[] selector,
+			ReferenceBinding receiverType,
+			Scope scope,
+			ObjectVector methodsFound,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 
 		if (selector == null) {
 			return;
 		}
 
-		MethodBinding[] receiverTypeMethods = receiverType.availableMethods();
-		if (receiverTypeMethods != null){
-			for (int i = 0; i < receiverTypeMethods.length; i++) {
-				if(!receiverTypeMethods[i].isDefaultAbstract()) {
+		MethodBinding[] receiverTypeMethods= receiverType.availableMethods();
+		if (receiverTypeMethods != null) {
+			for (int i= 0; i < receiverTypeMethods.length; i++) {
+				if (!receiverTypeMethods[i].isDefaultAbstract()) {
 					methodsFound.add(receiverTypeMethods[i]);
 				}
 			}
 		}
 
-		ReferenceBinding currentType = receiverType;
-		
+		ReferenceBinding currentType= receiverType;
+
 		findInterfacesMethodDeclarations(
-			selector,
-			receiverType,
-			currentType.superInterfaces(),
-			scope,
-			methodsFound,
-			missingElements,
-			missingElementsStarts,
-			missingElementsEnds,
-			missingElementsHaveProblems);
-		
+				selector,
+				receiverType,
+				currentType.superInterfaces(),
+				scope,
+				methodsFound,
+				missingElements,
+				missingElementsStarts,
+				missingElementsEnds,
+				missingElementsHaveProblems);
+
 		if (receiverType.isInterface()) {
-			currentType = scope.getJavaLangObject();
+			currentType= scope.getJavaLangObject();
 		} else {
-			currentType = receiverType.superclass();
+			currentType= receiverType.superclass();
 		}
-		
-		boolean hasPotentialDefaultAbstractMethods = true;
+
+		boolean hasPotentialDefaultAbstractMethods= true;
 		while (currentType != null) {
 
-			MethodBinding[] methods = currentType.availableMethods();
+			MethodBinding[] methods= currentType.availableMethods();
 			if (methods != null) {
 				findLocalMethodDeclarations(
-					selector,
-					methods,
-					scope,
-					methodsFound,
-					false,
-					receiverType);
+						selector,
+						methods,
+						scope,
+						methodsFound,
+						false,
+						receiverType);
 			}
 
 			if (hasPotentialDefaultAbstractMethods &&
 					(currentType.isAbstract() ||
 							currentType.isTypeVariable() ||
 							currentType.isIntersectionType() ||
-							currentType.isEnum())){
+							currentType.isEnum())) {
 
-				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
+				ReferenceBinding[] superInterfaces= currentType.superInterfaces();
 
 				findInterfacesMethodDeclarations(
-					selector,
-					receiverType,
-					superInterfaces,
-					scope,
-					methodsFound,
-					missingElements,
-					missingElementsStarts,
-					missingElementsEnds,
-					missingElementsHaveProblems);
+						selector,
+						receiverType,
+						superInterfaces,
+						scope,
+						methodsFound,
+						missingElements,
+						missingElementsStarts,
+						missingElementsEnds,
+						missingElementsHaveProblems);
 			} else {
-				hasPotentialDefaultAbstractMethods = false;
+				hasPotentialDefaultAbstractMethods= false;
 			}
-			currentType = currentType.superclass();
+			currentType= currentType.superclass();
 		}
 	}
-	
-	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){
-		TypeBinding erasure =  method.declaringClass.erasure();
-		if(!(erasure instanceof ReferenceBinding)) return null;
 
-		char[][] parameterNames = null;
+	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames) {
+		TypeBinding erasure= method.declaringClass.erasure();
+		if (!(erasure instanceof ReferenceBinding))
+			return null;
 
-		int length = parameterTypeNames.length;
+		char[][] parameterNames= null;
 
-		if (length == 0){
+		int length= parameterTypeNames.length;
+
+		if (length == 0) {
 			return CharOperation.NO_CHAR_CHAR;
 		}
 		// look into the corresponding unit if it is available
-		if (erasure instanceof SourceTypeBinding){
-			SourceTypeBinding sourceType = (SourceTypeBinding) erasure;
+		if (erasure instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceType= (SourceTypeBinding)erasure;
 
-			if (sourceType.scope != null){
+			if (sourceType.scope != null) {
 				TypeDeclaration parsedType;
 
-				if ((parsedType = sourceType.scope.referenceContext) != null){
-					AbstractMethodDeclaration methodDecl = parsedType.declarationOf(method.original());
+				if ((parsedType= sourceType.scope.referenceContext) != null) {
+					AbstractMethodDeclaration methodDecl= parsedType.declarationOf(method.original());
 
-					if (methodDecl != null){
-						Argument[] arguments = methodDecl.arguments;
-						parameterNames = new char[length][];
+					if (methodDecl != null) {
+						Argument[] arguments= methodDecl.arguments;
+						parameterNames= new char[length][];
 
-						for(int i = 0 ; i < length ; i++){
-							parameterNames[i] = arguments[i].name;
+						for (int i= 0; i < length; i++) {
+							parameterNames[i]= arguments[i].name;
 						}
 					}
 				}
 			}
 		}
 		// look into the model
-		if(parameterNames == null){
+		if (parameterNames == null) {
 
-			ReferenceBinding bindingType = (ReferenceBinding)erasure;
+			ReferenceBinding bindingType= (ReferenceBinding)erasure;
 
-			char[] compoundName = CharOperation.concatWith(bindingType.compoundName, '.');
-			Object type = this.typeCache.get(compoundName);
+			char[] compoundName= CharOperation.concatWith(bindingType.compoundName, '.');
+			Object type= this.typeCache.get(compoundName);
 
-			ISourceType sourceType = null;
-			if(type != null) {
-				if(type instanceof ISourceType) {
-					sourceType = (ISourceType) type;
+			ISourceType sourceType= null;
+			if (type != null) {
+				if (type instanceof ISourceType) {
+					sourceType= (ISourceType)type;
 				}
 			} else {
-				NameEnvironmentAnswer answer = this.nameEnvironment.findType(bindingType.compoundName);
-				if(answer != null && answer.isSourceType()) {
-					sourceType = answer.getSourceTypes()[0];
+				NameEnvironmentAnswer answer= this.nameEnvironment.findType(bindingType.compoundName);
+				if (answer != null && answer.isSourceType()) {
+					sourceType= answer.getSourceTypes()[0];
 					this.typeCache.put(compoundName, sourceType);
 				}
 			}
 
-			if(sourceType != null) {
-				IType typeHandle = ((SourceTypeElementInfo) sourceType).getHandle();
+			if (sourceType != null) {
+				IType typeHandle= ((SourceTypeElementInfo)sourceType).getHandle();
 
-				String[] parameterTypeSignatures = new String[length];
-				for (int i = 0; i < length; i++) {
-					parameterTypeSignatures[i] = Signature.createTypeSignature(parameterTypeNames[i], false);
+				String[] parameterTypeSignatures= new String[length];
+				for (int i= 0; i < length; i++) {
+					parameterTypeSignatures[i]= Signature.createTypeSignature(parameterTypeNames[i], false);
 				}
-				IMethod searchedMethod = typeHandle.getMethod(String.valueOf(method.selector), parameterTypeSignatures);
-				IMethod[] foundMethods = typeHandle.findMethods(searchedMethod);
+				IMethod searchedMethod= typeHandle.getMethod(String.valueOf(method.selector), parameterTypeSignatures);
+				IMethod[] foundMethods= typeHandle.findMethods(searchedMethod);
 
-				if(foundMethods != null) {
-					int len = foundMethods.length;
-					if(len == 1) {
+				if (foundMethods != null) {
+					int len= foundMethods.length;
+					if (len == 1) {
 						try {
-							SourceMethod sourceMethod = (SourceMethod) foundMethods[0];
-							parameterNames = ((SourceMethodElementInfo) sourceMethod.getElementInfo()).getArgumentNames();
+							SourceMethod sourceMethod= (SourceMethod)foundMethods[0];
+							parameterNames= ((SourceMethodElementInfo)sourceMethod.getElementInfo()).getArgumentNames();
 						} catch (JavaModelException e) {
 							// method doesn't exist: ignore
 						}
@@ -9602,158 +10042,158 @@ public final class CompletionEngine
 	}
 
 	private void findMethods(
-		char[] selector,
-		TypeBinding[] typeArgTypes,
-		TypeBinding[] argTypes,
-		ReferenceBinding receiverType,
-		Scope scope,
-		ObjectVector methodsFound,
-		boolean onlyStaticMethods,
-		boolean exactMatch,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean implicitCall,
-		boolean superCall,
-		boolean canBePrefixed,
-		Binding[] missingElements,
-		int[] missingElementsStarts,
-		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems,
-		char[] castedReceiver,
-		int receiverStart,
-		int receiverEnd) {
+			char[] selector,
+			TypeBinding[] typeArgTypes,
+			TypeBinding[] argTypes,
+			ReferenceBinding receiverType,
+			Scope scope,
+			ObjectVector methodsFound,
+			boolean onlyStaticMethods,
+			boolean exactMatch,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean implicitCall,
+			boolean superCall,
+			boolean canBePrefixed,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems,
+			char[] castedReceiver,
+			int receiverStart,
+			int receiverEnd) {
 
-		boolean notInJavadoc = this.assistNodeInJavadoc == 0;
+		boolean notInJavadoc= this.assistNodeInJavadoc == 0;
 		if (selector == null && notInJavadoc) {
 			return;
 		}
 
-		ReferenceBinding currentType = receiverType;
+		ReferenceBinding currentType= receiverType;
 		if (notInJavadoc) {
 			if (receiverType.isInterface()) {
 				findInterfacesMethods(
-					selector,
-					typeArgTypes,
-					argTypes,
-					receiverType,
-					new ReferenceBinding[]{currentType},
-					scope,
-					methodsFound,
-					onlyStaticMethods,
-					exactMatch,
-					invocationSite,
-					invocationScope,
-					implicitCall,
-					superCall,
-					canBePrefixed,
-					missingElements,
-					missingElementsStarts,
-					missingElementsEnds,
-					missingElementsHaveProblems,
-					castedReceiver,
-					receiverStart,
-					receiverEnd);
+						selector,
+						typeArgTypes,
+						argTypes,
+						receiverType,
+						new ReferenceBinding[] { currentType },
+						scope,
+						methodsFound,
+						onlyStaticMethods,
+						exactMatch,
+						invocationSite,
+						invocationScope,
+						implicitCall,
+						superCall,
+						canBePrefixed,
+						missingElements,
+						missingElementsStarts,
+						missingElementsEnds,
+						missingElementsHaveProblems,
+						castedReceiver,
+						receiverStart,
+						receiverEnd);
 
-				currentType = scope.getJavaLangObject();
+				currentType= scope.getJavaLangObject();
 			}
 		}
-		boolean hasPotentialDefaultAbstractMethods = true;
+		boolean hasPotentialDefaultAbstractMethods= true;
 		while (currentType != null) {
 
-			MethodBinding[] methods = currentType.availableMethods();
+			MethodBinding[] methods= currentType.availableMethods();
 			if (methods != null) {
 				findLocalMethods(
-					selector,
-					typeArgTypes,
-					argTypes,
-					methods,
-					scope,
-					methodsFound,
-					onlyStaticMethods,
-					exactMatch,
-					receiverType,
-					invocationSite,
-					invocationScope,
-					implicitCall,
-					superCall,
-					canBePrefixed,
-					missingElements,
-					missingElementsStarts,
-					missingElementsEnds,
-					missingElementsHaveProblems,
-					castedReceiver,
-					receiverStart,
-					receiverEnd);
+						selector,
+						typeArgTypes,
+						argTypes,
+						methods,
+						scope,
+						methodsFound,
+						onlyStaticMethods,
+						exactMatch,
+						receiverType,
+						invocationSite,
+						invocationScope,
+						implicitCall,
+						superCall,
+						canBePrefixed,
+						missingElements,
+						missingElementsStarts,
+						missingElementsEnds,
+						missingElementsHaveProblems,
+						castedReceiver,
+						receiverStart,
+						receiverEnd);
 			}
 
 			if (hasPotentialDefaultAbstractMethods &&
 					(currentType.isAbstract() ||
 							currentType.isTypeVariable() ||
 							currentType.isIntersectionType() ||
-							currentType.isEnum())){
+							currentType.isEnum())) {
 
-				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
+				ReferenceBinding[] superInterfaces= currentType.superInterfaces();
 				if (superInterfaces != null && currentType.isIntersectionType()) {
-					for (int i = 0; i < superInterfaces.length; i++) {
-						superInterfaces[i] = (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceEnd());
+					for (int i= 0; i < superInterfaces.length; i++) {
+						superInterfaces[i]= (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceEnd());
 					}
 				}
 
 				findInterfacesMethods(
-					selector,
-					typeArgTypes,
-					argTypes,
-					receiverType,
-					superInterfaces,
-					scope,
-					methodsFound,
-					onlyStaticMethods,
-					exactMatch,
-					invocationSite,
-					invocationScope,
-					implicitCall,
-					superCall,
-					canBePrefixed,
-					missingElements,
-					missingElementsStarts,
-					missingElementsEnds,
-					missingElementsHaveProblems,
-					castedReceiver,
-					receiverStart,
-					receiverEnd);
+						selector,
+						typeArgTypes,
+						argTypes,
+						receiverType,
+						superInterfaces,
+						scope,
+						methodsFound,
+						onlyStaticMethods,
+						exactMatch,
+						invocationSite,
+						invocationScope,
+						implicitCall,
+						superCall,
+						canBePrefixed,
+						missingElements,
+						missingElementsStarts,
+						missingElementsEnds,
+						missingElementsHaveProblems,
+						castedReceiver,
+						receiverStart,
+						receiverEnd);
 			} else {
-				hasPotentialDefaultAbstractMethods = false;
+				hasPotentialDefaultAbstractMethods= false;
 			}
-			currentType = currentType.superclass();
+			currentType= currentType.superclass();
 		}
 	}
 
 	private void findNestedTypes(
-		char[] typeName,
-		SourceTypeBinding currentType,
-		Scope scope,
-		boolean proposeAllMemberTypes,
-		ObjectVector typesFound) {
-		
+			char[] typeName,
+			SourceTypeBinding currentType,
+			Scope scope,
+			boolean proposeAllMemberTypes,
+			ObjectVector typesFound) {
+
 		if (typeName == null)
 			return;
 
-		int typeLength = typeName.length;
+		int typeLength= typeName.length;
 
-		SourceTypeBinding nextTypeToIgnore = null;
+		SourceTypeBinding nextTypeToIgnore= null;
 		while (scope != null) { // done when a COMPILATION_UNIT_SCOPE is found
 
 			switch (scope.kind) {
 
-				case Scope.METHOD_SCOPE :
-				case Scope.BLOCK_SCOPE :
-					BlockScope blockScope = (BlockScope) scope;
+				case Scope.METHOD_SCOPE:
+				case Scope.BLOCK_SCOPE:
+					BlockScope blockScope= (BlockScope)scope;
 
-					next : for (int i = 0, length = blockScope.subscopeCount; i < length; i++) {
+					next: for (int i= 0, length= blockScope.subscopeCount; i < length; i++) {
 
 						if (blockScope.subscopes[i] instanceof ClassScope) {
-							SourceTypeBinding localType =
-								((ClassScope) blockScope.subscopes[i]).referenceContext.binding;
+							SourceTypeBinding localType=
+									((ClassScope)blockScope.subscopes[i]).referenceContext.binding;
 
 							if (!localType.isAnonymousType()) {
 								if (isForbidden(localType))
@@ -9765,37 +10205,41 @@ public final class CompletionEngine
 										&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, localType.sourceName)))
 									continue next;
 
-								for (int j = typesFound.size; --j >= 0;) {
-									ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
+								for (int j= typesFound.size; --j >= 0;) {
+									ReferenceBinding otherType= (ReferenceBinding)typesFound.elementAt(j);
 
 									if (localType == otherType)
 										continue next;
 								}
 
-								if (this.assistNodeIsExtendedType && localType.isFinal()) continue next;
-								if(this.assistNodeIsClass) {
-									if(!localType.isClass()) continue next;
-								} else if(this.assistNodeIsInterface) {
-									if(!localType.isInterface() && !localType.isAnnotationType()) continue next;
+								if (this.assistNodeIsExtendedType && localType.isFinal())
+									continue next;
+								if (this.assistNodeIsClass) {
+									if (!localType.isClass())
+										continue next;
+								} else if (this.assistNodeIsInterface) {
+									if (!localType.isInterface() && !localType.isAnnotationType())
+										continue next;
 								} else if (this.assistNodeIsAnnotation) {
-									if(!localType.isAnnotationType()) continue next;
+									if (!localType.isAnnotationType())
+										continue next;
 								}
 
-								int relevance = computeBaseRelevance();
-								relevance += computeRelevanceForResolution();
-								relevance += computeRelevanceForInterestingProposal();
-								relevance += computeRelevanceForCaseMatching(typeName, localType.sourceName);
-								relevance += computeRelevanceForExpectingType(localType);
-								relevance += computeRelevanceForException(localType.sourceName);
-								relevance += computeRelevanceForClass();
-								relevance += computeRelevanceForQualification(false);
-								relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for nested type
-								relevance += computeRelevanceForAnnotationTarget(localType);
+								int relevance= computeBaseRelevance();
+								relevance+= computeRelevanceForResolution();
+								relevance+= computeRelevanceForInterestingProposal();
+								relevance+= computeRelevanceForCaseMatching(typeName, localType.sourceName);
+								relevance+= computeRelevanceForExpectingType(localType);
+								relevance+= computeRelevanceForException(localType.sourceName);
+								relevance+= computeRelevanceForClass();
+								relevance+= computeRelevanceForQualification(false);
+								relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for nested type
+								relevance+= computeRelevanceForAnnotationTarget(localType);
 
-								boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
+								boolean allowingLongComputationProposals= isAllowingLongComputationProposals();
 								if (!this.assistNodeIsConstructor || !allowingLongComputationProposals || hasArrayTypeAsExpectedSuperTypes()) {
-									this.noProposal = false;
-									if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+									this.noProposal= false;
+									if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 										createTypeProposal(
 												localType,
 												localType.sourceName,
@@ -9808,7 +10252,7 @@ public final class CompletionEngine
 												false);
 									}
 								}
-								
+
 								if (this.assistNodeIsConstructor && allowingLongComputationProposals) {
 									findConstructorsOrAnonymousTypes(
 											localType,
@@ -9822,8 +10266,8 @@ public final class CompletionEngine
 					}
 					break;
 
-				case Scope.CLASS_SCOPE :
-					SourceTypeBinding enclosingSourceType = scope.enclosingSourceType();
+				case Scope.CLASS_SCOPE:
+					SourceTypeBinding enclosingSourceType= scope.enclosingSourceType();
 					findMemberTypes(
 							typeName,
 							enclosingSourceType,
@@ -9840,68 +10284,68 @@ public final class CompletionEngine
 							null,
 							null,
 							false);
-					nextTypeToIgnore = enclosingSourceType;
+					nextTypeToIgnore= enclosingSourceType;
 					if (typeLength == 0)
 						return; // do not search outside the class scope if no prefix was provided
 					break;
 
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					return;
 			}
-			scope = scope.parent;
+			scope= scope.parent;
 		}
 	}
 
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 
-		this.completionToken = CharOperation.concatWith(packageStatement.tokens, '.');
+		this.completionToken= CharOperation.concatWith(packageStatement.tokens, '.');
 		if (this.completionToken.length == 0)
 			return;
 
 		setSourceRange(packageStatement.sourceStart, packageStatement.sourceEnd);
-		long completionPosition = packageStatement.sourcePositions[packageStatement.sourcePositions.length - 1];
-		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+		long completionPosition= packageStatement.sourcePositions[packageStatement.sourcePositions.length - 1];
+		setTokenRange((int)(completionPosition >>> 32), (int)completionPosition);
 		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
 	}
 
 	private void findParameterizedType(TypeReference ref, Scope scope) {
-		ReferenceBinding refBinding = (ReferenceBinding) ref.resolvedType;
-		if(refBinding != null) {
+		ReferenceBinding refBinding= (ReferenceBinding)ref.resolvedType;
+		if (refBinding != null) {
 			if (this.options.checkDeprecation &&
 					refBinding.isViewedAsDeprecated() &&
 					!scope.isDefinedInSameUnit(refBinding))
 				return;
 
-			int accessibility = IAccessRule.K_ACCESSIBLE;
-			if(refBinding.hasRestrictedAccess()) {
-				AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(refBinding);
-				if(accessRestriction != null) {
+			int accessibility= IAccessRule.K_ACCESSIBLE;
+			if (refBinding.hasRestrictedAccess()) {
+				AccessRestriction accessRestriction= this.lookupEnvironment.getAccessRestriction(refBinding);
+				if (accessRestriction != null) {
 					switch (accessRestriction.getProblemId()) {
 						case IProblem.ForbiddenReference:
 							if (this.options.checkForbiddenReference) {
 								return;
 							}
-							accessibility = IAccessRule.K_NON_ACCESSIBLE;
+							accessibility= IAccessRule.K_NON_ACCESSIBLE;
 							break;
 						case IProblem.DiscouragedReference:
 							if (this.options.checkDiscouragedReference) {
 								return;
 							}
-							accessibility = IAccessRule.K_DISCOURAGED;
+							accessibility= IAccessRule.K_DISCOURAGED;
 							break;
 					}
 				}
 			}
 
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(refBinding.sourceName, refBinding.sourceName);
-			relevance += computeRelevanceForExpectingType(refBinding);
-			relevance += computeRelevanceForQualification(false);
-			relevance += computeRelevanceForRestrictions(accessibility); // no access restriction for type in the current unit
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForCaseMatching(refBinding.sourceName, refBinding.sourceName);
+			relevance+= computeRelevanceForExpectingType(refBinding);
+			relevance+= computeRelevanceForQualification(false);
+			relevance+= computeRelevanceForRestrictions(accessibility); // no access restriction for type in the current unit
 
-			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 				createTypeProposal(
 						refBinding,
 						refBinding.qualifiedSourceName(),
@@ -9917,20 +10361,21 @@ public final class CompletionEngine
 	}
 
 	private void findSubMemberTypes(
-		char[] typeName,
-		ReferenceBinding receiverType,
-		Scope scope,
-		SourceTypeBinding typeInvocation,
-		boolean staticOnly,
-		boolean staticFieldsAndMethodOnly,
-		boolean fromStaticImport,
-		ObjectVector typesFound) {
+			char[] typeName,
+			ReferenceBinding receiverType,
+			Scope scope,
+			SourceTypeBinding typeInvocation,
+			boolean staticOnly,
+			boolean staticFieldsAndMethodOnly,
+			boolean fromStaticImport,
+			ObjectVector typesFound) {
 
-		ReferenceBinding currentType = receiverType;
+		ReferenceBinding currentType= receiverType;
 		if (typeName == null)
 			return;
 
-		if (this.assistNodeIsSuperType && !this.insideQualifiedReference && isForbidden(currentType)) return; // we're trying to find a supertype
+		if (this.assistNodeIsSuperType && !this.insideQualifiedReference && isForbidden(currentType))
+			return; // we're trying to find a supertype
 
 		findMemberTypes(
 				typeName,
@@ -9948,55 +10393,56 @@ public final class CompletionEngine
 				null,
 				false);
 
-		ReferenceBinding[] memberTypes = receiverType.memberTypes();
-		next : for (int i = 0; i < memberTypes.length; i++) {
+		ReferenceBinding[] memberTypes= receiverType.memberTypes();
+		next: for (int i= 0; i < memberTypes.length; i++) {
 			if (this.options.checkVisibility) {
 				if (typeInvocation != null && !memberTypes[i].canBeSeenBy(receiverType, typeInvocation)) {
 					continue next;
-				} else if(typeInvocation == null && !memberTypes[i].canBeSeenBy(this.unitScope.fPackage)) {
+				} else if (typeInvocation == null && !memberTypes[i].canBeSeenBy(this.unitScope.fPackage)) {
 					continue next;
 				}
 			}
 			findSubMemberTypes(
-				typeName,
-				memberTypes[i],
-				scope,
-				typeInvocation,
-				staticOnly,
-				staticFieldsAndMethodOnly,
-				fromStaticImport,
-				typesFound);
+					typeName,
+					memberTypes[i],
+					scope,
+					typeInvocation,
+					staticOnly,
+					staticFieldsAndMethodOnly,
+					fromStaticImport,
+					typesFound);
 		}
 	}
 
 	private void findTrueOrFalseKeywords(char[][] choices) {
-		if(choices == null || choices.length == 0) return;
+		if (choices == null || choices.length == 0)
+			return;
 
-		if(this.expectedTypesPtr != 0 || this.expectedTypes[0] != TypeBinding.BOOLEAN) return;
+		if (this.expectedTypesPtr != 0 || this.expectedTypes[0] != TypeBinding.BOOLEAN)
+			return;
 
-		for (int i = 0; i < choices.length; i++) {
+		for (int i= 0; i < choices.length; i++) {
 			if (CharOperation.equals(choices[i], Keywords.TRUE) ||
-					CharOperation.equals(choices[i], Keywords.FALSE)
-			){
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, choices[i]);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
-				relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
-				relevance += computeRelevanceForQualification(false);
-				relevance += R_TRUE_OR_FALSE;
+					CharOperation.equals(choices[i], Keywords.FALSE)) {
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(CharOperation.NO_CHAR, choices[i]);
+				relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+				relevance+= computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
+				relevance+= computeRelevanceForQualification(false);
+				relevance+= R_TRUE_OR_FALSE;
 
-				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+				this.noProposal= false;
+				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+					InternalCompletionProposal proposal= createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
 					proposal.setName(choices[i]);
 					proposal.setCompletion(choices[i]);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
-					if(DEBUG) {
+					if (DEBUG) {
 						this.printDebug(proposal);
 					}
 				}
@@ -10005,57 +10451,61 @@ public final class CompletionEngine
 	}
 
 	private void findTypeParameters(char[] token, Scope scope) {
-		if (this.compilerOptions.sourceLevel < ClassFileConstants.JDK1_5) return;
+		if (this.compilerOptions.sourceLevel < ClassFileConstants.JDK1_5)
+			return;
 
-		TypeParameter[] typeParameters = null;
+		TypeParameter[] typeParameters= null;
 		while (scope != null) { // done when a COMPILATION_UNIT_SCOPE is found
-			typeParameters = null;
+			typeParameters= null;
 			switch (scope.kind) {
-				case Scope.METHOD_SCOPE :
-					MethodScope methodScope = (MethodScope) scope;
-					if(methodScope.referenceContext instanceof MethodDeclaration) {
-						MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
-						typeParameters = methodDeclaration.typeParameters;
-					} else if(methodScope.referenceContext instanceof ConstructorDeclaration) {
-						ConstructorDeclaration methodDeclaration = (ConstructorDeclaration) methodScope.referenceContext;
-						typeParameters = methodDeclaration.typeParameters;
+				case Scope.METHOD_SCOPE:
+					MethodScope methodScope= (MethodScope)scope;
+					if (methodScope.referenceContext instanceof MethodDeclaration) {
+						MethodDeclaration methodDeclaration= (MethodDeclaration)methodScope.referenceContext;
+						typeParameters= methodDeclaration.typeParameters;
+					} else if (methodScope.referenceContext instanceof ConstructorDeclaration) {
+						ConstructorDeclaration methodDeclaration= (ConstructorDeclaration)methodScope.referenceContext;
+						typeParameters= methodDeclaration.typeParameters;
 					}
 					break;
-				case Scope.CLASS_SCOPE :
-					ClassScope classScope = (ClassScope) scope;
-					typeParameters = classScope.referenceContext.typeParameters;
+				case Scope.CLASS_SCOPE:
+					ClassScope classScope= (ClassScope)scope;
+					typeParameters= classScope.referenceContext.typeParameters;
 					break;
-				case Scope.COMPILATION_UNIT_SCOPE :
+				case Scope.COMPILATION_UNIT_SCOPE:
 					return;
 			}
-			if(typeParameters != null) {
-				for (int i = 0; i < typeParameters.length; i++) {
-					int typeLength = token.length;
-					TypeParameter typeParameter = typeParameters[i];
+			if (typeParameters != null) {
+				for (int i= 0; i < typeParameters.length; i++) {
+					int typeLength= token.length;
+					TypeParameter typeParameter= typeParameters[i];
 
-					if(typeParameter.binding == null) continue;
+					if (typeParameter.binding == null)
+						continue;
 
-					if (typeLength > typeParameter.name.length) continue;
+					if (typeLength > typeParameter.name.length)
+						continue;
 
 					if (!CharOperation.prefixEquals(token, typeParameter.name, false)
-							&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeParameter.name))) continue;
+							&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeParameter.name)))
+						continue;
 
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(token, typeParameter.name);
-					relevance += computeRelevanceForExpectingType(typeParameter.type == null ? null :typeParameter.type.resolvedType);
-					relevance += computeRelevanceForQualification(false);
-					relevance += computeRelevanceForException(typeParameter.name);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction fot type parameter
+					int relevance= computeBaseRelevance();
+					relevance+= computeRelevanceForResolution();
+					relevance+= computeRelevanceForInterestingProposal();
+					relevance+= computeRelevanceForCaseMatching(token, typeParameter.name);
+					relevance+= computeRelevanceForExpectingType(typeParameter.type == null ? null : typeParameter.type.resolvedType);
+					relevance+= computeRelevanceForQualification(false);
+					relevance+= computeRelevanceForException(typeParameter.name);
+					relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction fot type parameter
 
-					this.noProposal = false;
-					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+					this.noProposal= false;
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						createTypeParameterProposal(typeParameter, relevance);
 					}
 				}
 			}
-			scope = scope.parent;
+			scope= scope.parent;
 		}
 	}
 
@@ -10063,65 +10513,66 @@ public final class CompletionEngine
 
 		if (token == null)
 			return;
-		
-		boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
-		
-		boolean proposeType =
-			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
-			((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
 
-		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor;
-		
-		boolean proposeConstructor =
-			allowingLongComputationProposals &&
-			this.assistNodeIsConstructor &&
-			(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF) ||
-					!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF));
-		
+		boolean allowingLongComputationProposals= isAllowingLongComputationProposals();
+
+		boolean proposeType=
+				!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
+						((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
+
+		boolean proposeAllMemberTypes= !this.assistNodeIsConstructor;
+
+		boolean proposeConstructor=
+				allowingLongComputationProposals &&
+						this.assistNodeIsConstructor &&
+						(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF) ||
+						!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF));
+
 
 		if ((proposeType || proposeConstructor) && scope.enclosingSourceType() != null) {
-			
+
 			checkCancel();
-			
+
 			findNestedTypes(token, scope.enclosingSourceType(), scope, proposeAllMemberTypes, typesFound);
-			if(!this.assistNodeIsInterface &&
+			if (!this.assistNodeIsInterface &&
 					!this.assistNodeIsConstructor &&
 					!this.assistNodeIsAnnotation &&
 					this.assistNodeInJavadoc == 0) {
-				
+
 				checkCancel();
-				
+
 				// don't propose type parameters if the completion is a constructor ('new |')
 				findTypeParameters(token, scope);
 			}
 		}
 
-		boolean isEmptyPrefix = token.length == 0;
+		boolean isEmptyPrefix= token.length == 0;
 
 		if ((proposeType || proposeConstructor) && this.unitScope != null) {
-			
-			ReferenceBinding outerInvocationType = scope.enclosingSourceType();
-			if(outerInvocationType != null) {
-				ReferenceBinding temp = outerInvocationType.enclosingType();
-				while(temp != null) {
-					outerInvocationType = temp;
-					temp = temp.enclosingType();
+
+			ReferenceBinding outerInvocationType= scope.enclosingSourceType();
+			if (outerInvocationType != null) {
+				ReferenceBinding temp= outerInvocationType.enclosingType();
+				while (temp != null) {
+					outerInvocationType= temp;
+					temp= temp.enclosingType();
 				}
 			}
 
-			int typeLength = token.length;
-			SourceTypeBinding[] types = this.unitScope.topLevelTypes;
+			int typeLength= token.length;
+			SourceTypeBinding[] types= this.unitScope.topLevelTypes;
 
-			next : for (int i = 0, length = types.length; i < length; i++) {
-				
+			next: for (int i= 0, length= types.length; i < length; i++) {
+
 				checkCancel();
-				
-				SourceTypeBinding sourceType = types[i];
 
-				if(isForbidden(sourceType)) continue next;
+				SourceTypeBinding sourceType= types[i];
 
-				if(proposeAllMemberTypes &&
-					sourceType != outerInvocationType) {
+				if (isForbidden(sourceType))
+					continue next;
+
+				if (proposeAllMemberTypes &&
+						sourceType != outerInvocationType) {
 					findSubMemberTypes(
 							token,
 							sourceType,
@@ -10133,66 +10584,75 @@ public final class CompletionEngine
 							typesFound);
 				}
 
-				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue next;
-				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue next;
+				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME)
+					continue next;
+				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME)
+					continue next;
 
-				if (typeLength > sourceType.sourceName.length) continue next;
+				if (typeLength > sourceType.sourceName.length)
+					continue next;
 
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName))) continue next;
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName)))
+					continue next;
 
 				if (this.assistNodeIsAnnotation && !hasPossibleAnnotationTarget(sourceType, scope)) {
 					continue next;
 				}
 
-				for (int j = typesFound.size; --j >= 0;) {
-					ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
+				for (int j= typesFound.size; --j >= 0;) {
+					ReferenceBinding otherType= (ReferenceBinding)typesFound.elementAt(j);
 
-					if (sourceType == otherType) continue next;
+					if (sourceType == otherType)
+						continue next;
 				}
-				
+
 				typesFound.add(sourceType);
 
-				if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue next;
-				if(this.assistNodeIsClass) {
-					if(!sourceType.isClass()) continue next;
-				} else if(this.assistNodeIsInterface) {
-					if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue next;
+				if (this.assistNodeIsExtendedType && sourceType.isFinal())
+					continue next;
+				if (this.assistNodeIsClass) {
+					if (!sourceType.isClass())
+						continue next;
+				} else if (this.assistNodeIsInterface) {
+					if (!sourceType.isInterface() && !sourceType.isAnnotationType())
+						continue next;
 				} else if (this.assistNodeIsAnnotation) {
-					if(!sourceType.isAnnotationType()) continue next;
+					if (!sourceType.isAnnotationType())
+						continue next;
 				} else if (isEmptyPrefix && this.assistNodeIsException) {
 					if (sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
 						continue next;
 					}
 				}
 
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
-				relevance += computeRelevanceForExpectingType(sourceType);
-				relevance += computeRelevanceForQualification(false);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for type in the current unit
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(token, sourceType.sourceName);
+				relevance+= computeRelevanceForExpectingType(sourceType);
+				relevance+= computeRelevanceForQualification(false);
+				relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for type in the current unit
 
 				if (sourceType.isAnnotationType()) {
-					relevance += computeRelevanceForAnnotation();
-					relevance += computeRelevanceForAnnotationTarget(sourceType);
+					relevance+= computeRelevanceForAnnotation();
+					relevance+= computeRelevanceForAnnotationTarget(sourceType);
 				} else if (sourceType.isInterface()) {
-					relevance += computeRelevanceForInterface();
-				} else if(sourceType.isClass()){
-					relevance += computeRelevanceForClass();
-					relevance += computeRelevanceForException(sourceType.sourceName);
+					relevance+= computeRelevanceForInterface();
+				} else if (sourceType.isClass()) {
+					relevance+= computeRelevanceForClass();
+					relevance+= computeRelevanceForException(sourceType.sourceName);
 				}
-				
-				
-				this.noProposal = false;
-				if(proposeType &&
+
+
+				this.noProposal= false;
+				if (proposeType &&
 						(!this.assistNodeIsConstructor ||
 								!allowingLongComputationProposals ||
 								hasStaticMemberTypes(sourceType, null, this.unitScope) ||
 								hasMemberTypesInEnclosingScope(sourceType, scope)) ||
 								hasArrayTypeAsExpectedSuperTypes()) {
-					char[] typeName = sourceType.sourceName();
+					char[] typeName= sourceType.sourceName();
 					createTypeProposal(
 							sourceType,
 							typeName,
@@ -10204,7 +10664,7 @@ public final class CompletionEngine
 							null,
 							false);
 				}
-				
+
 				if (proposeConstructor) {
 					findConstructorsOrAnonymousTypes(
 							sourceType,
@@ -10217,21 +10677,21 @@ public final class CompletionEngine
 		}
 
 		if (proposeConstructor && !isEmptyPrefix) {
-			
+
 			checkCancel();
-			
+
 			findTypesFromImports(token, scope, proposeType, typesFound);
-		} else if(proposeType) {
-			
+		} else if (proposeType) {
+
 			checkCancel();
-			
+
 			findTypesFromStaticImports(token, scope, proposeAllMemberTypes, typesFound);
 		}
-		
+
 		if (proposeConstructor) {
-			
+
 			checkCancel();
-			
+
 			findTypesFromExpectedTypes(token, scope, typesFound, proposeType, proposeConstructor);
 		}
 
@@ -10240,7 +10700,7 @@ public final class CompletionEngine
 				findTypesFromExpectedTypes(token, scope, typesFound, proposeType, proposeConstructor);
 			}
 		} else {
-			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+			if (!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				if (this.assistNodeInJavadoc == 0 || (this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0) {
 					if (proposeBaseTypes) {
 						if (proposeVoidType) {
@@ -10251,22 +10711,22 @@ public final class CompletionEngine
 					}
 				}
 			}
-			
+
 			if (proposeConstructor) {
-				int l = typesFound.size();
-				for (int i = 0; i < l; i++) {
-					ReferenceBinding typeFound = (ReferenceBinding) typesFound.elementAt(i);
-					char[] fullyQualifiedTypeName =
-						CharOperation.concat(
-								typeFound.qualifiedPackageName(),
-								typeFound.qualifiedSourceName(),
-								'.');
+				int l= typesFound.size();
+				for (int i= 0; i < l; i++) {
+					ReferenceBinding typeFound= (ReferenceBinding)typesFound.elementAt(i);
+					char[] fullyQualifiedTypeName=
+							CharOperation.concat(
+									typeFound.qualifiedPackageName(),
+									typeFound.qualifiedSourceName(),
+									'.');
 					this.knownTypes.put(fullyQualifiedTypeName, KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
 				}
-				
+
 				checkCancel();
-				
-				this.foundConstructorsCount = 0;
+
+				this.foundConstructorsCount= 0;
 				this.nameEnvironment.findConstructorDeclarations(
 						token,
 						this.options.camelCaseMatch,
@@ -10274,30 +10734,30 @@ public final class CompletionEngine
 						this.monitor);
 				acceptConstructors(scope);
 			} else if (proposeType) {
-				int l = typesFound.size();
-				for (int i = 0; i < l; i++) {
-					ReferenceBinding typeFound = (ReferenceBinding) typesFound.elementAt(i);
-					char[] fullyQualifiedTypeName =
-						CharOperation.concat(
-								typeFound.qualifiedPackageName(),
-								typeFound.qualifiedSourceName(),
-								'.');
+				int l= typesFound.size();
+				for (int i= 0; i < l; i++) {
+					ReferenceBinding typeFound= (ReferenceBinding)typesFound.elementAt(i);
+					char[] fullyQualifiedTypeName=
+							CharOperation.concat(
+									typeFound.qualifiedPackageName(),
+									typeFound.qualifiedSourceName(),
+									'.');
 					this.knownTypes.put(fullyQualifiedTypeName, KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
 				}
-				int searchFor = IJavaSearchConstants.TYPE;
-				if(this.assistNodeIsClass) {
-					searchFor = IJavaSearchConstants.CLASS;
-				} else if(this.assistNodeIsInterface) {
-					searchFor = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
-				} else if(this.assistNodeIsEnum) {
-					searchFor = IJavaSearchConstants.ENUM;
-				} else if(this.assistNodeIsAnnotation) {
-					searchFor = IJavaSearchConstants.ANNOTATION_TYPE;
+				int searchFor= IJavaSearchConstants.TYPE;
+				if (this.assistNodeIsClass) {
+					searchFor= IJavaSearchConstants.CLASS;
+				} else if (this.assistNodeIsInterface) {
+					searchFor= IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
+				} else if (this.assistNodeIsEnum) {
+					searchFor= IJavaSearchConstants.ENUM;
+				} else if (this.assistNodeIsAnnotation) {
+					searchFor= IJavaSearchConstants.ANNOTATION_TYPE;
 				}
-				
+
 				checkCancel();
-				
-				this.foundTypesCount = 0;
+
+				this.foundTypesCount= 0;
 				this.nameEnvironment.findTypes(
 						token,
 						proposeAllMemberTypes,
@@ -10307,94 +10767,103 @@ public final class CompletionEngine
 						this.monitor);
 				acceptTypes(scope);
 			}
-			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
-				
+			if (!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+
 				checkCancel();
-				
+
 				this.nameEnvironment.findPackages(token, this);
 			}
 		}
 	}
 
 	private void findTypesAndSubpackages(
-		char[] token,
-		PackageBinding packageBinding,
-		Scope scope) {
-		
-		boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
+			char[] token,
+			PackageBinding packageBinding,
+			Scope scope) {
 
-		boolean proposeType =
-			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
-			((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
-		
-		boolean proposeConstructor =
-			allowingLongComputationProposals &&
-			this.assistNodeIsConstructor &&
-			(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF) ||
-					!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF));
+		boolean allowingLongComputationProposals= isAllowingLongComputationProposals();
 
-		char[] qualifiedName =
-			CharOperation.concatWith(packageBinding.compoundName, token, '.');
+		boolean proposeType=
+				!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
+						((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
+
+		boolean proposeConstructor=
+				allowingLongComputationProposals &&
+						this.assistNodeIsConstructor &&
+						(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF) ||
+						!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF));
+
+		char[] qualifiedName=
+				CharOperation.concatWith(packageBinding.compoundName, token, '.');
 
 		if (token == null || token.length == 0) {
-			int length = qualifiedName.length;
+			int length= qualifiedName.length;
 			System.arraycopy(
-				qualifiedName,
-				0,
-				qualifiedName = new char[length + 1],
-				0,
-				length);
-			qualifiedName[length] = '.';
+					qualifiedName,
+					0,
+					qualifiedName= new char[length + 1],
+					0,
+					length);
+			qualifiedName[length]= '.';
 		}
 
-		this.qualifiedCompletionToken = qualifiedName;
+		this.qualifiedCompletionToken= qualifiedName;
 
 		if ((proposeType || proposeConstructor) && this.unitScope != null) {
-			int typeLength = qualifiedName.length;
-			SourceTypeBinding[] types = this.unitScope.topLevelTypes;
+			int typeLength= qualifiedName.length;
+			SourceTypeBinding[] types= this.unitScope.topLevelTypes;
 
-			for (int i = 0, length = types.length; i < length; i++) {
-				
+			for (int i= 0, length= types.length; i < length; i++) {
+
 				checkCancel();
-				
-				SourceTypeBinding sourceType = types[i];
-				
-				if (isForbidden(sourceType)) continue;
-				if (this.assistNodeIsClass && sourceType.isInterface()) continue;
-				if (this.assistNodeIsInterface && sourceType.isClass()) continue;
 
-				char[] qualifiedSourceTypeName = CharOperation.concatWith(sourceType.compoundName, '.');
+				SourceTypeBinding sourceType= types[i];
 
-				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue;
-				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue;
-				if (typeLength > qualifiedSourceTypeName.length) continue;
-				if (!(packageBinding == sourceType.getPackage())) continue;
+				if (isForbidden(sourceType))
+					continue;
+				if (this.assistNodeIsClass && sourceType.isInterface())
+					continue;
+				if (this.assistNodeIsInterface && sourceType.isClass())
+					continue;
+
+				char[] qualifiedSourceTypeName= CharOperation.concatWith(sourceType.compoundName, '.');
+
+				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME)
+					continue;
+				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME)
+					continue;
+				if (typeLength > qualifiedSourceTypeName.length)
+					continue;
+				if (!(packageBinding == sourceType.getPackage()))
+					continue;
 
 				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName)))	continue;
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName)))
+					continue;
 
 				if (this.options.checkDeprecation &&
 						sourceType.isViewedAsDeprecated() &&
 						!scope.isDefinedInSameUnit(sourceType))
 					continue;
 
-			    if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue;
-				int accessibility = IAccessRule.K_ACCESSIBLE;
-				if(sourceType.hasRestrictedAccess()) {
-					AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(sourceType);
-					if(accessRestriction != null) {
+				if (this.assistNodeIsExtendedType && sourceType.isFinal())
+					continue;
+				int accessibility= IAccessRule.K_ACCESSIBLE;
+				if (sourceType.hasRestrictedAccess()) {
+					AccessRestriction accessRestriction= this.lookupEnvironment.getAccessRestriction(sourceType);
+					if (accessRestriction != null) {
 						switch (accessRestriction.getProblemId()) {
 							case IProblem.ForbiddenReference:
 								if (this.options.checkForbiddenReference) {
 									continue;
 								}
-								accessibility = IAccessRule.K_NON_ACCESSIBLE;
+								accessibility= IAccessRule.K_NON_ACCESSIBLE;
 								break;
 							case IProblem.DiscouragedReference:
 								if (this.options.checkDiscouragedReference) {
 									continue;
 								}
-								accessibility = IAccessRule.K_DISCOURAGED;
+								accessibility= IAccessRule.K_DISCOURAGED;
 								break;
 						}
 					}
@@ -10402,31 +10871,31 @@ public final class CompletionEngine
 
 				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
 
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(qualifiedName, qualifiedSourceTypeName);
-				relevance += computeRelevanceForExpectingType(sourceType);
-				relevance += computeRelevanceForQualification(false);
-				relevance += computeRelevanceForRestrictions(accessibility);
+				int relevance= computeBaseRelevance();
+				relevance+= computeRelevanceForResolution();
+				relevance+= computeRelevanceForInterestingProposal();
+				relevance+= computeRelevanceForCaseMatching(qualifiedName, qualifiedSourceTypeName);
+				relevance+= computeRelevanceForExpectingType(sourceType);
+				relevance+= computeRelevanceForQualification(false);
+				relevance+= computeRelevanceForRestrictions(accessibility);
 
 				if (sourceType.isAnnotationType()) {
-					relevance += computeRelevanceForAnnotation();
+					relevance+= computeRelevanceForAnnotation();
 				} else if (sourceType.isInterface()) {
-					relevance += computeRelevanceForInterface();
+					relevance+= computeRelevanceForInterface();
 				} else if (sourceType.isClass()) {
-					relevance += computeRelevanceForClass();
-					relevance += computeRelevanceForException(sourceType.sourceName);
+					relevance+= computeRelevanceForClass();
+					relevance+= computeRelevanceForException(sourceType.sourceName);
 				}
-				
-				this.noProposal = false;
-				if(proposeType &&
+
+				this.noProposal= false;
+				if (proposeType &&
 						(!this.assistNodeIsConstructor ||
 								!allowingLongComputationProposals ||
 								hasStaticMemberTypes(sourceType, null, this.unitScope) ||
 								hasMemberTypesInEnclosingScope(sourceType, scope)) ||
 								hasArrayTypeAsExpectedSuperTypes()) {
-					char[] typeName = sourceType.sourceName();
+					char[] typeName= sourceType.sourceName();
 					createTypeProposal(
 							sourceType,
 							typeName,
@@ -10438,7 +10907,7 @@ public final class CompletionEngine
 							null,
 							false);
 				}
-				
+
 				if (proposeConstructor) {
 					findConstructorsOrAnonymousTypes(
 							sourceType,
@@ -10452,31 +10921,32 @@ public final class CompletionEngine
 
 		if (proposeConstructor) {
 
-			
+
 			checkCancel();
-			
-			this.foundConstructorsCount = 0;
+
+			this.foundConstructorsCount= 0;
 			this.nameEnvironment.findConstructorDeclarations(
 					qualifiedName,
 					this.options.camelCaseMatch,
 					this,
 					this.monitor);
 			acceptConstructors(scope);
-		} if(proposeType) {
-			int searchFor = IJavaSearchConstants.TYPE;
-			if(this.assistNodeIsClass) {
-				searchFor = IJavaSearchConstants.CLASS;
-			} else if(this.assistNodeIsInterface) {
-				searchFor = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
-			} else if(this.assistNodeIsEnum) {
-				searchFor = IJavaSearchConstants.ENUM;
-			} else if(this.assistNodeIsAnnotation) {
-				searchFor = IJavaSearchConstants.ANNOTATION_TYPE;
+		}
+		if (proposeType) {
+			int searchFor= IJavaSearchConstants.TYPE;
+			if (this.assistNodeIsClass) {
+				searchFor= IJavaSearchConstants.CLASS;
+			} else if (this.assistNodeIsInterface) {
+				searchFor= IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
+			} else if (this.assistNodeIsEnum) {
+				searchFor= IJavaSearchConstants.ENUM;
+			} else if (this.assistNodeIsAnnotation) {
+				searchFor= IJavaSearchConstants.ANNOTATION_TYPE;
 			}
-			
+
 			checkCancel();
-			
-			this.foundTypesCount = 0;
+
+			this.foundTypesCount= 0;
 			this.nameEnvironment.findTypes(
 					qualifiedName,
 					false,
@@ -10486,34 +10956,36 @@ public final class CompletionEngine
 					this.monitor);
 			acceptTypes(scope);
 		}
-		
-		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+
+		if (!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 			this.nameEnvironment.findPackages(qualifiedName, this);
 		}
 	}
-	
+
 	private void findTypesFromExpectedTypes(char[] token, Scope scope, ObjectVector typesFound, boolean proposeType, boolean proposeConstructor) {
-		if(this.expectedTypesPtr > -1) {
-			boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
-			
-			int typeLength = token == null ? 0 : token.length;
-			
-			next : for (int i = 0; i <= this.expectedTypesPtr; i++) {
-				
+		if (this.expectedTypesPtr > -1) {
+			boolean allowingLongComputationProposals= isAllowingLongComputationProposals();
+
+			int typeLength= token == null ? 0 : token.length;
+
+			next: for (int i= 0; i <= this.expectedTypesPtr; i++) {
+
 				checkCancel();
-				
-				if(this.expectedTypes[i] instanceof ReferenceBinding) {
-					ReferenceBinding refBinding = (ReferenceBinding)this.expectedTypes[i];
-					
+
+				if (this.expectedTypes[i] instanceof ReferenceBinding) {
+					ReferenceBinding refBinding= (ReferenceBinding)this.expectedTypes[i];
+
 					if (typeLength > 0) {
-						if (typeLength > refBinding.sourceName.length) continue next;
-	
+						if (typeLength > refBinding.sourceName.length)
+							continue next;
+
 						if (!CharOperation.prefixEquals(token, refBinding.sourceName, false)
-								&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, refBinding.sourceName))) continue next;
+								&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, refBinding.sourceName)))
+							continue next;
 					}
 
 
-					if(refBinding.isTypeVariable() && this.assistNodeIsConstructor) {
+					if (refBinding.isTypeVariable() && this.assistNodeIsConstructor) {
 						// don't propose type variable if the completion is a constructor ('new |')
 						continue next;
 					}
@@ -10522,89 +10994,93 @@ public final class CompletionEngine
 							!scope.isDefinedInSameUnit(refBinding))
 						continue next;
 
-					int accessibility = IAccessRule.K_ACCESSIBLE;
-					if(refBinding.hasRestrictedAccess()) {
-						AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(refBinding);
-						if(accessRestriction != null) {
+					int accessibility= IAccessRule.K_ACCESSIBLE;
+					if (refBinding.hasRestrictedAccess()) {
+						AccessRestriction accessRestriction= this.lookupEnvironment.getAccessRestriction(refBinding);
+						if (accessRestriction != null) {
 							switch (accessRestriction.getProblemId()) {
 								case IProblem.ForbiddenReference:
 									if (this.options.checkForbiddenReference) {
 										continue next;
 									}
-									accessibility = IAccessRule.K_NON_ACCESSIBLE;
+									accessibility= IAccessRule.K_NON_ACCESSIBLE;
 									break;
 								case IProblem.DiscouragedReference:
 									if (this.options.checkDiscouragedReference) {
 										continue next;
 									}
-									accessibility = IAccessRule.K_DISCOURAGED;
+									accessibility= IAccessRule.K_DISCOURAGED;
 									break;
 							}
 						}
 					}
 
-					for (int j = 0; j < typesFound.size(); j++) {
-						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
+					for (int j= 0; j < typesFound.size(); j++) {
+						ReferenceBinding typeFound= (ReferenceBinding)typesFound.elementAt(j);
 						if (typeFound == refBinding.erasure()) {
 							continue next;
 						}
 					}
-					
+
 					typesFound.add(refBinding);
 
-					boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
+					boolean inSameUnit= this.unitScope.isDefinedInSameUnit(refBinding);
 
 					// top level types of the current unit are already proposed.
-					if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
-						char[] packageName = refBinding.qualifiedPackageName();
-						char[] typeName = refBinding.sourceName();
-						char[] completionName = typeName;
+					if (!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
+						char[] packageName= refBinding.qualifiedPackageName();
+						char[] typeName= refBinding.sourceName();
+						char[] completionName= typeName;
 
-						boolean isQualified = false;
+						boolean isQualified= false;
 						if (!this.insideQualifiedReference && !refBinding.isMemberType()) {
 							if (mustQualifyType(packageName, typeName, null, refBinding.modifiers)) {
 								if (packageName == null || packageName.length == 0)
 									if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 										continue next; // ignore types from the default package from outside it
-								completionName = CharOperation.concat(packageName, typeName, '.');
-								isQualified = true;
+								completionName= CharOperation.concat(packageName, typeName, '.');
+								isQualified= true;
 							}
 						}
 
-						if (this.assistNodeIsExtendedType && refBinding.isFinal()) continue next;
-						if(this.assistNodeIsClass) {
-							if(!refBinding.isClass()) continue next;
-						} else if(this.assistNodeIsInterface) {
-							if(!refBinding.isInterface() && !refBinding.isAnnotationType()) continue next;
+						if (this.assistNodeIsExtendedType && refBinding.isFinal())
+							continue next;
+						if (this.assistNodeIsClass) {
+							if (!refBinding.isClass())
+								continue next;
+						} else if (this.assistNodeIsInterface) {
+							if (!refBinding.isInterface() && !refBinding.isAnnotationType())
+								continue next;
 						} else if (this.assistNodeIsAnnotation) {
-							if(!refBinding.isAnnotationType()) continue next;
+							if (!refBinding.isAnnotationType())
+								continue next;
 						}
 
-						int relevance = computeBaseRelevance();
-						relevance += computeRelevanceForResolution();
-						relevance += computeRelevanceForInterestingProposal();
-						relevance += computeRelevanceForCaseMatching(token, typeName);
-						relevance += computeRelevanceForExpectingType(refBinding);
-						relevance += computeRelevanceForQualification(isQualified);
-						relevance += computeRelevanceForRestrictions(accessibility);
+						int relevance= computeBaseRelevance();
+						relevance+= computeRelevanceForResolution();
+						relevance+= computeRelevanceForInterestingProposal();
+						relevance+= computeRelevanceForCaseMatching(token, typeName);
+						relevance+= computeRelevanceForExpectingType(refBinding);
+						relevance+= computeRelevanceForQualification(isQualified);
+						relevance+= computeRelevanceForRestrictions(accessibility);
 
-						if(refBinding.isClass()) {
-							relevance += computeRelevanceForClass();
-							relevance += computeRelevanceForException(typeName);
-						} else if(refBinding.isEnum()) {
-							relevance += computeRelevanceForEnum();
-						} else if(refBinding.isInterface()) {
-							relevance += computeRelevanceForInterface();
+						if (refBinding.isClass()) {
+							relevance+= computeRelevanceForClass();
+							relevance+= computeRelevanceForException(typeName);
+						} else if (refBinding.isEnum()) {
+							relevance+= computeRelevanceForEnum();
+						} else if (refBinding.isInterface()) {
+							relevance+= computeRelevanceForInterface();
 						}
-						
+
 						if (proposeType &&
 								(!this.assistNodeIsConstructor ||
 										!allowingLongComputationProposals ||
-										hasStaticMemberTypes(refBinding, scope.enclosingSourceType() ,this.unitScope)) ||
+										hasStaticMemberTypes(refBinding, scope.enclosingSourceType(), this.unitScope)) ||
 										hasArrayTypeAsExpectedSuperTypes()) {
-							this.noProposal = false;
-							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+							this.noProposal= false;
+							if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(packageName);
 								proposal.setSignature(getSignature(refBinding));
 								proposal.setPackageName(packageName);
@@ -10616,12 +11092,12 @@ public final class CompletionEngine
 								proposal.setRelevance(relevance);
 								proposal.setAccessibility(accessibility);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
 						}
-						
+
 						if (proposeConstructor) {
 							findConstructorsOrAnonymousTypes(
 									refBinding,
@@ -10637,18 +11113,18 @@ public final class CompletionEngine
 	}
 
 	private void findTypesFromImports(char[] token, Scope scope, boolean proposeType, ObjectVector typesFound) {
-		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		next : for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
-			if(importBinding.isValidBinding()) {
-				Binding binding = importBinding.resolvedImport;
-				if(binding != null && binding.isValidBinding()) {
-					if(importBinding.onDemand) {
+		ImportBinding[] importBindings= scope.compilationUnitScope().imports;
+		next: for (int i= 0; i < importBindings.length; i++) {
+			ImportBinding importBinding= importBindings[i];
+			if (importBinding.isValidBinding()) {
+				Binding binding= importBinding.resolvedImport;
+				if (binding != null && binding.isValidBinding()) {
+					if (importBinding.onDemand) {
 						if (importBinding.isStatic()) {
-							if((binding.kind() & Binding.TYPE) != 0) {
+							if ((binding.kind() & Binding.TYPE) != 0) {
 								this.findMemberTypes(
 										token,
-										(ReferenceBinding) binding,
+										(ReferenceBinding)binding,
 										scope,
 										scope.enclosingSourceType(),
 										true,
@@ -10666,73 +11142,81 @@ public final class CompletionEngine
 						}
 					} else {
 						if ((binding.kind() & Binding.TYPE) != 0) {
-							ReferenceBinding typeBinding = (ReferenceBinding) binding;
-							int typeLength = token.length;
+							ReferenceBinding typeBinding= (ReferenceBinding)binding;
+							int typeLength= token.length;
 
-							if (!typeBinding.isStatic()) continue next;
+							if (!typeBinding.isStatic())
+								continue next;
 
-							if (typeLength > typeBinding.sourceName.length)	continue next;
+							if (typeLength > typeBinding.sourceName.length)
+								continue next;
 
 							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false)
-									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName))) continue next;
-							
-							int accessibility = IAccessRule.K_ACCESSIBLE;
-							if(typeBinding.hasRestrictedAccess()) {
-								AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(typeBinding);
-								if(accessRestriction != null) {
+									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName)))
+								continue next;
+
+							int accessibility= IAccessRule.K_ACCESSIBLE;
+							if (typeBinding.hasRestrictedAccess()) {
+								AccessRestriction accessRestriction= this.lookupEnvironment.getAccessRestriction(typeBinding);
+								if (accessRestriction != null) {
 									switch (accessRestriction.getProblemId()) {
 										case IProblem.ForbiddenReference:
 											if (this.options.checkForbiddenReference) {
 												continue next;
 											}
-											accessibility = IAccessRule.K_NON_ACCESSIBLE;
+											accessibility= IAccessRule.K_NON_ACCESSIBLE;
 											break;
 										case IProblem.DiscouragedReference:
 											if (this.options.checkDiscouragedReference) {
 												continue next;
 											}
-											accessibility = IAccessRule.K_DISCOURAGED;
+											accessibility= IAccessRule.K_DISCOURAGED;
 											break;
 									}
 								}
 							}
-							
-							if (typesFound.contains(typeBinding)) continue next;
-							
+
+							if (typesFound.contains(typeBinding))
+								continue next;
+
 							typesFound.add(typeBinding);
-							
-							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
-							if(this.assistNodeIsClass) {
-								if(!typeBinding.isClass()) continue;
-							} else if(this.assistNodeIsInterface) {
-								if(!typeBinding.isInterface() && !typeBinding.isAnnotationType()) continue;
+
+							if (this.assistNodeIsExtendedType && typeBinding.isFinal())
+								continue;
+							if (this.assistNodeIsClass) {
+								if (!typeBinding.isClass())
+									continue;
+							} else if (this.assistNodeIsInterface) {
+								if (!typeBinding.isInterface() && !typeBinding.isAnnotationType())
+									continue;
 							} else if (this.assistNodeIsAnnotation) {
-								if(!typeBinding.isAnnotationType()) continue;
+								if (!typeBinding.isAnnotationType())
+									continue;
 							}
-							
-							int relevance = computeBaseRelevance();
-							relevance += computeRelevanceForResolution();
-							relevance += computeRelevanceForInterestingProposal();
-							relevance += computeRelevanceForCaseMatching(token, typeBinding.sourceName);
-							relevance += computeRelevanceForExpectingType(typeBinding);
-							relevance += computeRelevanceForQualification(false);
-							relevance += computeRelevanceForRestrictions(accessibility);
-			
+
+							int relevance= computeBaseRelevance();
+							relevance+= computeRelevanceForResolution();
+							relevance+= computeRelevanceForInterestingProposal();
+							relevance+= computeRelevanceForCaseMatching(token, typeBinding.sourceName);
+							relevance+= computeRelevanceForExpectingType(typeBinding);
+							relevance+= computeRelevanceForQualification(false);
+							relevance+= computeRelevanceForRestrictions(accessibility);
+
 							if (typeBinding.isAnnotationType()) {
-								relevance += computeRelevanceForAnnotation();
-								relevance += computeRelevanceForAnnotationTarget(typeBinding);
+								relevance+= computeRelevanceForAnnotation();
+								relevance+= computeRelevanceForAnnotationTarget(typeBinding);
 							} else if (typeBinding.isInterface()) {
-								relevance += computeRelevanceForInterface();
-							} else if(typeBinding.isClass()){
-								relevance += computeRelevanceForClass();
-								relevance += computeRelevanceForException(typeBinding.sourceName);
+								relevance+= computeRelevanceForInterface();
+							} else if (typeBinding.isClass()) {
+								relevance+= computeRelevanceForClass();
+								relevance+= computeRelevanceForException(typeBinding.sourceName);
 							}
-							
-							if (proposeType && 
+
+							if (proposeType &&
 									(hasStaticMemberTypes(typeBinding, scope.enclosingSourceType(), this.unitScope) || hasArrayTypeAsExpectedSuperTypes())) {
-								this.noProposal = false;
-								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-									InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+								this.noProposal= false;
+								if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+									InternalCompletionProposal proposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
 									proposal.setDeclarationSignature(typeBinding.qualifiedPackageName());
 									proposal.setSignature(getSignature(typeBinding));
 									proposal.setPackageName(typeBinding.qualifiedPackageName());
@@ -10743,12 +11227,12 @@ public final class CompletionEngine
 									proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 									proposal.setRelevance(relevance);
 									this.requestor.accept(proposal);
-									if(DEBUG) {
+									if (DEBUG) {
 										this.printDebug(proposal);
 									}
 								}
 							}
-							
+
 							findConstructorsOrAnonymousTypes(
 									typeBinding,
 									scope,
@@ -10761,19 +11245,19 @@ public final class CompletionEngine
 			}
 		}
 	}
-	
+
 	private void findTypesFromStaticImports(char[] token, Scope scope, boolean proposeAllMemberTypes, ObjectVector typesFound) {
-		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
-			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
-				if(binding != null && binding.isValidBinding()) {
-					if(importBinding.onDemand) {
-						if((binding.kind() & Binding.TYPE) != 0) {
+		ImportBinding[] importBindings= scope.compilationUnitScope().imports;
+		for (int i= 0; i < importBindings.length; i++) {
+			ImportBinding importBinding= importBindings[i];
+			if (importBinding.isValidBinding() && importBinding.isStatic()) {
+				Binding binding= importBinding.resolvedImport;
+				if (binding != null && binding.isValidBinding()) {
+					if (importBinding.onDemand) {
+						if ((binding.kind() & Binding.TYPE) != 0) {
 							this.findMemberTypes(
 									token,
-									(ReferenceBinding) binding,
+									(ReferenceBinding)binding,
 									scope,
 									scope.enclosingSourceType(),
 									true,
@@ -10790,49 +11274,57 @@ public final class CompletionEngine
 						}
 					} else {
 						if ((binding.kind() & Binding.TYPE) != 0) {
-							ReferenceBinding typeBinding = (ReferenceBinding) binding;
-							int typeLength = token.length;
+							ReferenceBinding typeBinding= (ReferenceBinding)binding;
+							int typeLength= token.length;
 
-							if (!typeBinding.isStatic()) continue;
+							if (!typeBinding.isStatic())
+								continue;
 
-							if (typeLength > typeBinding.sourceName.length)	continue;
+							if (typeLength > typeBinding.sourceName.length)
+								continue;
 
 							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false)
-									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName)))	continue;
+									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName)))
+								continue;
 
-							if (typesFound.contains(typeBinding))  continue;
+							if (typesFound.contains(typeBinding))
+								continue;
 
 							typesFound.add(typeBinding);
 
-							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
-							if(this.assistNodeIsClass) {
-								if(!typeBinding.isClass()) continue;
-							} else if(this.assistNodeIsInterface) {
-								if(!typeBinding.isInterface() && !typeBinding.isAnnotationType()) continue;
+							if (this.assistNodeIsExtendedType && typeBinding.isFinal())
+								continue;
+							if (this.assistNodeIsClass) {
+								if (!typeBinding.isClass())
+									continue;
+							} else if (this.assistNodeIsInterface) {
+								if (!typeBinding.isInterface() && !typeBinding.isAnnotationType())
+									continue;
 							} else if (this.assistNodeIsAnnotation) {
-								if(!typeBinding.isAnnotationType()) continue;
+								if (!typeBinding.isAnnotationType())
+									continue;
 							}
 
-							int relevance = computeBaseRelevance();
-							relevance += computeRelevanceForResolution();
-							relevance += computeRelevanceForInterestingProposal();
-							relevance += computeRelevanceForCaseMatching(token, typeBinding.sourceName);
-							relevance += computeRelevanceForExpectingType(typeBinding);
-							relevance += computeRelevanceForQualification(false);
-							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+							int relevance= computeBaseRelevance();
+							relevance+= computeRelevanceForResolution();
+							relevance+= computeRelevanceForInterestingProposal();
+							relevance+= computeRelevanceForCaseMatching(token, typeBinding.sourceName);
+							relevance+= computeRelevanceForExpectingType(typeBinding);
+							relevance+= computeRelevanceForQualification(false);
+							relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
 							if (typeBinding.isClass()) {
-								relevance += computeRelevanceForClass();
-								relevance += computeRelevanceForException(typeBinding.sourceName);
-							} else if(typeBinding.isEnum()) {
-								relevance += computeRelevanceForEnum();
-							} else if(typeBinding.isInterface()) {
-								relevance += computeRelevanceForInterface();
+								relevance+= computeRelevanceForClass();
+								relevance+= computeRelevanceForException(typeBinding.sourceName);
+							} else if (typeBinding.isEnum()) {
+								relevance+= computeRelevanceForEnum();
+							} else if (typeBinding.isInterface()) {
+								relevance+= computeRelevanceForInterface();
 							}
 
-							this.noProposal = false;
-							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+							this.noProposal= false;
+							if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
 								proposal.setDeclarationSignature(typeBinding.qualifiedPackageName());
 								proposal.setSignature(getSignature(typeBinding));
 								proposal.setPackageName(typeBinding.qualifiedPackageName());
@@ -10843,7 +11335,7 @@ public final class CompletionEngine
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
@@ -10855,33 +11347,33 @@ public final class CompletionEngine
 	}
 
 	private void findUnresolvedReference(int completedNameStart, int completedNameEnd, BlockScope scope, char[][] discouragedNames) {
-		char[][] foundNames = findUnresolvedReferenceBefore(completedNameStart - 1, completedNameEnd, scope, discouragedNames);
+		char[][] foundNames= findUnresolvedReferenceBefore(completedNameStart - 1, completedNameEnd, scope, discouragedNames);
 		if (foundNames != null && foundNames.length > 1) {
-			int discouragedNamesLength = discouragedNames.length;
-			int foundNamesLength = foundNames.length;
-			int newLength = discouragedNamesLength + foundNamesLength;
-			System.arraycopy(discouragedNames, 0, discouragedNames = new char[newLength][], 0, discouragedNamesLength);
+			int discouragedNamesLength= discouragedNames.length;
+			int foundNamesLength= foundNames.length;
+			int newLength= discouragedNamesLength + foundNamesLength;
+			System.arraycopy(discouragedNames, 0, discouragedNames= new char[newLength][], 0, discouragedNamesLength);
 			System.arraycopy(foundNames, 0, discouragedNames, discouragedNamesLength, foundNamesLength);
 		}
 		findUnresolvedReferenceAfter(completedNameEnd + 1, scope, discouragedNames);
 	}
 
 	private char[][] findUnresolvedReferenceAfter(int from, BlockScope scope, final char[][] discouragedNames) {
-		final ArrayList proposedNames = new ArrayList();
+		final ArrayList proposedNames= new ArrayList();
 
-		UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor =
-			new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
-				public void acceptName(char[] name) {
-					CompletionEngine.this.acceptUnresolvedName(name);
-					proposedNames.add(name);
-				}
-			};
+		UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor=
+				new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
+					public void acceptName(char[] name) {
+						CompletionEngine.this.acceptUnresolvedName(name);
+						proposedNames.add(name);
+					}
+				};
 
-		ReferenceContext referenceContext = scope.referenceContext();
+		ReferenceContext referenceContext= scope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration md = (AbstractMethodDeclaration)referenceContext;
+			AbstractMethodDeclaration md= (AbstractMethodDeclaration)referenceContext;
 
-			UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+			UnresolvedReferenceNameFinder nameFinder= new UnresolvedReferenceNameFinder(this);
 			nameFinder.findAfter(
 					this.completionToken,
 					md.scope,
@@ -10891,15 +11383,15 @@ public final class CompletionEngine
 					discouragedNames,
 					nameRequestor);
 		} else if (referenceContext instanceof TypeDeclaration) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
-			FieldDeclaration[] fields = typeDeclaration.fields;
+			TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
+			FieldDeclaration[] fields= typeDeclaration.fields;
 			if (fields != null) {
-				done : for (int i = 0; i < fields.length; i++) {
+				done: for (int i= 0; i < fields.length; i++) {
 					if (fields[i] instanceof Initializer) {
-						Initializer initializer = (Initializer) fields[i];
+						Initializer initializer= (Initializer)fields[i];
 						if (initializer.block.sourceStart <= from &&
 								from < initializer.bodyEnd) {
-							UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+							UnresolvedReferenceNameFinder nameFinder= new UnresolvedReferenceNameFinder(this);
 							nameFinder.findAfter(
 										this.completionToken,
 										typeDeclaration.scope,
@@ -10915,7 +11407,7 @@ public final class CompletionEngine
 			}
 		}
 
-		int proposedNamesCount = proposedNames.size();
+		int proposedNamesCount= proposedNames.size();
 		if (proposedNamesCount > 0) {
 			return (char[][])proposedNames.toArray(new char[proposedNamesCount][]);
 		}
@@ -10924,26 +11416,26 @@ public final class CompletionEngine
 	}
 
 	private char[][] findUnresolvedReferenceBefore(int recordTo, int parseTo, BlockScope scope, final char[][] discouragedNames) {
-		final ArrayList proposedNames = new ArrayList();
+		final ArrayList proposedNames= new ArrayList();
 
-		UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor =
-			new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
-				public void acceptName(char[] name) {
-					CompletionEngine.this.acceptUnresolvedName(name);
-					proposedNames.add(name);
-				}
-			};
+		UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor=
+				new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
+					public void acceptName(char[] name) {
+						CompletionEngine.this.acceptUnresolvedName(name);
+						proposedNames.add(name);
+					}
+				};
 
-		BlockScope upperScope = scope;
+		BlockScope upperScope= scope;
 		while (upperScope.enclosingMethodScope() != null) {
-			upperScope = upperScope.enclosingMethodScope();
+			upperScope= upperScope.enclosingMethodScope();
 		}
 
-		ReferenceContext referenceContext = upperScope.referenceContext();
+		ReferenceContext referenceContext= upperScope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration md = (AbstractMethodDeclaration)referenceContext;
+			AbstractMethodDeclaration md= (AbstractMethodDeclaration)referenceContext;
 
-			UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+			UnresolvedReferenceNameFinder nameFinder= new UnresolvedReferenceNameFinder(this);
 			nameFinder.findBefore(
 					this.completionToken,
 					md.scope,
@@ -10954,19 +11446,19 @@ public final class CompletionEngine
 					discouragedNames,
 					nameRequestor);
 		} else if (referenceContext instanceof TypeDeclaration) {
-			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
+			TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
 
 
-			done : {
-				FieldDeclaration[] fields = typeDeclaration.fields;
+			done: {
+				FieldDeclaration[] fields= typeDeclaration.fields;
 				if (fields != null) {
-					for (int i = 0; i < fields.length; i++) {
+					for (int i= 0; i < fields.length; i++) {
 						if (fields[i] instanceof Initializer) {
-							Initializer initializer = (Initializer) fields[i];
+							Initializer initializer= (Initializer)fields[i];
 							if (initializer.block.sourceStart <= recordTo &&
 									recordTo < initializer.bodyEnd) {
 
-								UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+								UnresolvedReferenceNameFinder nameFinder= new UnresolvedReferenceNameFinder(this);
 								nameFinder.findBefore(
 										this.completionToken,
 										typeDeclaration.scope,
@@ -10984,7 +11476,7 @@ public final class CompletionEngine
 			}
 		}
 
-		int proposedNamesCount = proposedNames.size();
+		int proposedNamesCount= proposedNames.size();
 		if (proposedNamesCount > 0) {
 			return (char[][])proposedNames.toArray(new char[proposedNamesCount][]);
 		}
@@ -10993,51 +11485,51 @@ public final class CompletionEngine
 	}
 
 	private char[][] findVariableFromUnresolvedReference(LocalDeclaration variable, BlockScope scope, final char[][] discouragedNames) {
-		final TypeReference type = variable.type;
-		if(type != null &&
+		final TypeReference type= variable.type;
+		if (type != null &&
 				type.resolvedType != null &&
-				type.resolvedType.problemId() == ProblemReasons.NoError){
+				type.resolvedType.problemId() == ProblemReasons.NoError) {
 
-			final ArrayList proposedNames = new ArrayList();
+			final ArrayList proposedNames= new ArrayList();
 
-			UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor =
-				new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
-					public void acceptName(char[] name) {
-						int relevance = computeBaseRelevance();
-						relevance += computeRelevanceForInterestingProposal();
-						relevance += computeRelevanceForCaseMatching(CompletionEngine.this.completionToken, name);
-						relevance += R_NAME_FIRST_PREFIX;
-						relevance += R_NAME_FIRST_SUFFIX;
-						relevance += R_NAME_LESS_NEW_CHARACTERS;
-						relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for variable name
+			UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor=
+					new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
+						public void acceptName(char[] name) {
+							int relevance= computeBaseRelevance();
+							relevance+= computeRelevanceForInterestingProposal();
+							relevance+= computeRelevanceForCaseMatching(CompletionEngine.this.completionToken, name);
+							relevance+= R_NAME_FIRST_PREFIX;
+							relevance+= R_NAME_FIRST_SUFFIX;
+							relevance+= R_NAME_LESS_NEW_CHARACTERS;
+							relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for variable name
 
-						// accept result
-						CompletionEngine.this.noProposal = false;
-						if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
-							InternalCompletionProposal proposal =  CompletionEngine.this.createProposal(CompletionProposal.VARIABLE_DECLARATION, CompletionEngine.this.actualCompletionPosition);
-							proposal.setSignature(getSignature(type.resolvedType));
-							proposal.setPackageName(type.resolvedType.qualifiedPackageName());
-							proposal.setTypeName(type.resolvedType.qualifiedSourceName());
-							proposal.setName(name);
-							proposal.setCompletion(name);
-							//proposal.setFlags(Flags.AccDefault);
-							proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
-							proposal.setTokenRange(CompletionEngine.this.tokenStart - CompletionEngine.this.offset, CompletionEngine.this.tokenEnd - CompletionEngine.this.offset);
-							proposal.setRelevance(relevance);
-							CompletionEngine.this.requestor.accept(proposal);
-							if(DEBUG) {
-								CompletionEngine.this.printDebug(proposal);
+							// accept result
+							CompletionEngine.this.noProposal= false;
+							if (!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
+								InternalCompletionProposal proposal= CompletionEngine.this.createProposal(CompletionProposal.VARIABLE_DECLARATION, CompletionEngine.this.actualCompletionPosition);
+								proposal.setSignature(getSignature(type.resolvedType));
+								proposal.setPackageName(type.resolvedType.qualifiedPackageName());
+								proposal.setTypeName(type.resolvedType.qualifiedSourceName());
+								proposal.setName(name);
+								proposal.setCompletion(name);
+								//proposal.setFlags(Flags.AccDefault);
+								proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+								proposal.setTokenRange(CompletionEngine.this.tokenStart - CompletionEngine.this.offset, CompletionEngine.this.tokenEnd - CompletionEngine.this.offset);
+								proposal.setRelevance(relevance);
+								CompletionEngine.this.requestor.accept(proposal);
+								if (DEBUG) {
+									CompletionEngine.this.printDebug(proposal);
+								}
 							}
+							proposedNames.add(name);
 						}
-						proposedNames.add(name);
-					}
-				};
+					};
 
-			ReferenceContext referenceContext = scope.referenceContext();
+			ReferenceContext referenceContext= scope.referenceContext();
 			if (referenceContext instanceof AbstractMethodDeclaration) {
-				AbstractMethodDeclaration md = (AbstractMethodDeclaration)referenceContext;
+				AbstractMethodDeclaration md= (AbstractMethodDeclaration)referenceContext;
 
-				UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+				UnresolvedReferenceNameFinder nameFinder= new UnresolvedReferenceNameFinder(this);
 				nameFinder.find(
 						this.completionToken,
 						md,
@@ -11045,15 +11537,15 @@ public final class CompletionEngine
 						discouragedNames,
 						nameRequestor);
 			} else if (referenceContext instanceof TypeDeclaration) {
-				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
-				FieldDeclaration[] fields = typeDeclaration.fields;
+				TypeDeclaration typeDeclaration= (TypeDeclaration)referenceContext;
+				FieldDeclaration[] fields= typeDeclaration.fields;
 				if (fields != null) {
-					done : for (int i = 0; i < fields.length; i++) {
+					done: for (int i= 0; i < fields.length; i++) {
 						if (fields[i] instanceof Initializer) {
-							Initializer initializer = (Initializer) fields[i];
+							Initializer initializer= (Initializer)fields[i];
 							if (initializer.bodyStart <= variable.sourceStart &&
 									variable.sourceStart < initializer.bodyEnd) {
-								UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+								UnresolvedReferenceNameFinder nameFinder= new UnresolvedReferenceNameFinder(this);
 								nameFinder.find(
 										this.completionToken,
 										initializer,
@@ -11068,7 +11560,7 @@ public final class CompletionEngine
 				}
 			}
 
-			int proposedNamesCount = proposedNames.size();
+			int proposedNamesCount= proposedNames.size();
 			if (proposedNamesCount > 0) {
 				return (char[][])proposedNames.toArray(new char[proposedNamesCount][]);
 			}
@@ -11087,50 +11579,52 @@ public final class CompletionEngine
 			final char[][] forbiddenNames,
 			boolean forCollection,
 			int dim,
-			int kind){
+			int kind) {
 
-		if(sourceName == null || sourceName.length == 0)
+		if (sourceName == null || sourceName.length == 0)
 			return;
 
 		// compute variable name for non base type
 		final char[] displayName;
 		if (!forCollection) {
-			if (dim > 0){
-				int l = qualifiedSourceName.length;
-				displayName = new char[l+(2*dim)];
+			if (dim > 0) {
+				int l= qualifiedSourceName.length;
+				displayName= new char[l + (2 * dim)];
 				System.arraycopy(qualifiedSourceName, 0, displayName, 0, l);
-				for(int i = 0; i < dim; i++){
-					displayName[l+(i*2)] = '[';
-					displayName[l+(i*2)+1] = ']';
+				for (int i= 0; i < dim; i++) {
+					displayName[l + (i * 2)]= '[';
+					displayName[l + (i * 2) + 1]= ']';
 				}
 			} else {
-				displayName = qualifiedSourceName;
+				displayName= qualifiedSourceName;
 			}
 		} else {
-			displayName = typeBinding.qualifiedSourceName();
+			displayName= typeBinding.qualifiedSourceName();
 		}
 
-		final char[] t = token;
-		final char[] q = qualifiedPackageName;
-		INamingRequestor namingRequestor = new INamingRequestor() {
-			void accept(char[] name, int prefixAndSuffixRelevance, int reusedCharacters){
-				int l = forbiddenNames == null ? 0 : forbiddenNames.length;
-				for (int i = 0; i < l; i++) {
-					if (CharOperation.equals(forbiddenNames[i], name, false)) return;
+		final char[] t= token;
+		final char[] q= qualifiedPackageName;
+		INamingRequestor namingRequestor= new INamingRequestor() {
+			void accept(char[] name, int prefixAndSuffixRelevance, int reusedCharacters) {
+				int l= forbiddenNames == null ? 0 : forbiddenNames.length;
+				for (int i= 0; i < l; i++) {
+					if (CharOperation.equals(forbiddenNames[i], name, false))
+						return;
 				}
 
 				if (CharOperation.prefixEquals(t, name, false)) {
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(t, name);
-					relevance += prefixAndSuffixRelevance;
-					if(reusedCharacters > 0) relevance += R_NAME_LESS_NEW_CHARACTERS;
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for variable name
+					int relevance= computeBaseRelevance();
+					relevance+= computeRelevanceForInterestingProposal();
+					relevance+= computeRelevanceForCaseMatching(t, name);
+					relevance+= prefixAndSuffixRelevance;
+					if (reusedCharacters > 0)
+						relevance+= R_NAME_LESS_NEW_CHARACTERS;
+					relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for variable name
 
 					// accept result
-					CompletionEngine.this.noProposal = false;
-					if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
-						InternalCompletionProposal proposal =  CompletionEngine.this.createProposal(CompletionProposal.VARIABLE_DECLARATION, CompletionEngine.this.actualCompletionPosition);
+					CompletionEngine.this.noProposal= false;
+					if (!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
+						InternalCompletionProposal proposal= CompletionEngine.this.createProposal(CompletionProposal.VARIABLE_DECLARATION, CompletionEngine.this.actualCompletionPosition);
 						proposal.setSignature(getSignature(typeBinding));
 						proposal.setPackageName(q);
 						proposal.setTypeName(displayName);
@@ -11141,19 +11635,19 @@ public final class CompletionEngine
 						proposal.setTokenRange(CompletionEngine.this.tokenStart - CompletionEngine.this.offset, CompletionEngine.this.tokenEnd - CompletionEngine.this.offset);
 						proposal.setRelevance(relevance);
 						CompletionEngine.this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							CompletionEngine.this.printDebug(proposal);
 						}
 					}
 				}
 			}
 
-			public void acceptNameWithoutPrefixAndSuffix(char[] name,int reusedCharacters) {
+			public void acceptNameWithoutPrefixAndSuffix(char[] name, int reusedCharacters) {
 				accept(name, 0, reusedCharacters);
 			}
 
 			public void acceptNameWithPrefix(char[] name, boolean isFirstPrefix, int reusedCharacters) {
-				accept(name, isFirstPrefix ? R_NAME_FIRST_PREFIX :  R_NAME_PREFIX, reusedCharacters);
+				accept(name, isFirstPrefix ? R_NAME_FIRST_PREFIX : R_NAME_PREFIX, reusedCharacters);
 			}
 
 			public void acceptNameWithPrefixAndSuffix(char[] name, boolean isFirstPrefix, boolean isFirstSuffix, int reusedCharacters) {
@@ -11162,6 +11656,7 @@ public final class CompletionEngine
 						(isFirstPrefix ? R_NAME_FIRST_PREFIX : R_NAME_PREFIX) + (isFirstSuffix ? R_NAME_FIRST_SUFFIX : R_NAME_SUFFIX),
 						reusedCharacters);
 			}
+
 			public void acceptNameWithSuffix(char[] name, boolean isFirstSuffix, int reusedCharacters) {
 				accept(name, isFirstSuffix ? R_NAME_FIRST_SUFFIX : R_NAME_SUFFIX, reusedCharacters);
 			}
@@ -11189,7 +11684,7 @@ public final class CompletionEngine
 			char[][] discouragedNames,
 			final char[][] forbiddenNames,
 			int dim,
-			int kind){
+			int kind) {
 		findVariableName(
 				token,
 				qualifiedPackageName,
@@ -11202,6 +11697,7 @@ public final class CompletionEngine
 				dim,
 				kind);
 	}
+
 	private void findVariableNameForCollection(
 			char[] token,
 			char[] qualifiedPackageName,
@@ -11210,7 +11706,7 @@ public final class CompletionEngine
 			final TypeBinding typeBinding,
 			char[][] discouragedNames,
 			final char[][] forbiddenNames,
-			int kind){
+			int kind) {
 
 		findVariableName(
 				token,
@@ -11224,52 +11720,54 @@ public final class CompletionEngine
 				1,
 				kind);
 	}
-	private void findVariableNames(char[] name, TypeReference type , char[][] discouragedNames, char[][] forbiddenNames, int kind){
-		if(type != null &&
-			type.resolvedType != null) {
-			TypeBinding tb = type.resolvedType;
+
+	private void findVariableNames(char[] name, TypeReference type, char[][] discouragedNames, char[][] forbiddenNames, int kind) {
+		if (type != null &&
+				type.resolvedType != null) {
+			TypeBinding tb= type.resolvedType;
 
 			if (tb.problemId() == ProblemReasons.NoError &&
 					tb != Scope.getBaseType(VOID)) {
 				findVariableName(
-					name,
-					tb.leafComponentType().qualifiedPackageName(),
-					tb.leafComponentType().qualifiedSourceName(),
-					tb.leafComponentType().sourceName(),
-					tb,
-					discouragedNames,
-					forbiddenNames,
-					type.dimensions(),
-					kind);
-				
+						name,
+						tb.leafComponentType().qualifiedPackageName(),
+						tb.leafComponentType().qualifiedSourceName(),
+						tb.leafComponentType().sourceName(),
+						tb,
+						discouragedNames,
+						forbiddenNames,
+						type.dimensions(),
+						kind);
+
 				if (tb.isParameterizedType() &&
 						tb.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false) != null) {
-					ParameterizedTypeBinding ptb = ((ParameterizedTypeBinding) tb);
-					TypeBinding[] arguments = ptb.arguments;
+					ParameterizedTypeBinding ptb= ((ParameterizedTypeBinding)tb);
+					TypeBinding[] arguments= ptb.arguments;
 					if (arguments != null && arguments.length == 1) {
-						TypeBinding argument = arguments[0];
+						TypeBinding argument= arguments[0];
 						findVariableNameForCollection(
-							name,
-							argument.leafComponentType().qualifiedPackageName(),
-							argument.leafComponentType().qualifiedSourceName(),
-							argument.leafComponentType().sourceName(),
-							tb,
-							discouragedNames,
-							forbiddenNames,
-							kind);
+								name,
+								argument.leafComponentType().qualifiedPackageName(),
+								argument.leafComponentType().qualifiedSourceName(),
+								argument.leafComponentType().sourceName(),
+								tb,
+								discouragedNames,
+								forbiddenNames,
+								kind);
 					}
 				}
 			}
 		}
 
 	}
+
 	private void findVariablesAndMethods(
-		char[] token,
-		Scope scope,
-		InvocationSite invocationSite,
-		Scope invocationScope,
-		boolean insideTypeAnnotation,
-		boolean insideAnnotationAttribute) {
+			char[] token,
+			Scope scope,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean insideTypeAnnotation,
+			boolean insideAnnotationAttribute) {
 
 		if (token == null)
 			return;
@@ -11277,32 +11775,32 @@ public final class CompletionEngine
 		// Should local variables hide fields from the receiver type or any of its enclosing types?
 		// we know its an implicit field/method access... see BlockScope getBinding/getImplicitMethod
 
-		boolean staticsOnly = false;
+		boolean staticsOnly= false;
 		// need to know if we're in a static context (or inside a constructor)
-		int tokenLength = token.length;
+		int tokenLength= token.length;
 
-		ObjectVector localsFound = new ObjectVector();
-		ObjectVector fieldsFound = new ObjectVector();
-		ObjectVector methodsFound = new ObjectVector();
+		ObjectVector localsFound= new ObjectVector();
+		ObjectVector fieldsFound= new ObjectVector();
+		ObjectVector methodsFound= new ObjectVector();
 
-		Scope currentScope = scope;
+		Scope currentScope= scope;
 
 		if (!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-			done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+			done1: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 				switch (currentScope.kind) {
 
-					case Scope.METHOD_SCOPE :
+					case Scope.METHOD_SCOPE:
 						// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-						MethodScope methodScope = (MethodScope) currentScope;
-						staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+						MethodScope methodScope= (MethodScope)currentScope;
+						staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 
-					//$FALL-THROUGH$
-					case Scope.BLOCK_SCOPE :
-						BlockScope blockScope = (BlockScope) currentScope;
+						//$FALL-THROUGH$
+					case Scope.BLOCK_SCOPE:
+						BlockScope blockScope= (BlockScope)currentScope;
 
-						next : for (int i = 0, length = blockScope.locals.length; i < length; i++) {
-							LocalVariableBinding local = blockScope.locals[i];
+						next: for (int i= 0, length= blockScope.locals.length; i < length; i++) {
+							LocalVariableBinding local= blockScope.locals[i];
 
 							if (local == null)
 								break next;
@@ -11317,32 +11815,32 @@ public final class CompletionEngine
 							if (local.isSecret())
 								continue next;
 
-							for (int f = 0; f < localsFound.size; f++) {
-								LocalVariableBinding otherLocal =
-									(LocalVariableBinding) localsFound.elementAt(f);
+							for (int f= 0; f < localsFound.size; f++) {
+								LocalVariableBinding otherLocal=
+										(LocalVariableBinding)localsFound.elementAt(f);
 								if (CharOperation.equals(otherLocal.name, local.name, true))
 									continue next;
 							}
 							localsFound.add(local);
 
-							int relevance = computeBaseRelevance();
-							relevance += computeRelevanceForResolution();
-							relevance += computeRelevanceForInterestingProposal(local);
-							relevance += computeRelevanceForCaseMatching(token, local.name);
-							relevance += computeRelevanceForExpectingType(local.type);
-							relevance += computeRelevanceForEnumConstant(local.type);
-							relevance += computeRelevanceForQualification(false);
-							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
-							this.noProposal = false;
-							if(!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.LOCAL_VARIABLE_REF, this.actualCompletionPosition);
+							int relevance= computeBaseRelevance();
+							relevance+= computeRelevanceForResolution();
+							relevance+= computeRelevanceForInterestingProposal(local);
+							relevance+= computeRelevanceForCaseMatching(token, local.name);
+							relevance+= computeRelevanceForExpectingType(local.type);
+							relevance+= computeRelevanceForEnumConstant(local.type);
+							relevance+= computeRelevanceForQualification(false);
+							relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
+							this.noProposal= false;
+							if (!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
+								InternalCompletionProposal proposal= createProposal(CompletionProposal.LOCAL_VARIABLE_REF, this.actualCompletionPosition);
 								proposal.setSignature(
-									local.type == null
-									? createTypeSignature(
-											CharOperation.NO_CHAR,
-											local.declaration.type.toString().toCharArray())
-									: getSignature(local.type));
-								if(local.type == null) {
+										local.type == null
+												? createTypeSignature(
+														CharOperation.NO_CHAR,
+														local.declaration.type.toString().toCharArray())
+												: getSignature(local.type));
+								if (local.type == null) {
 									//proposal.setPackageName(null);
 									proposal.setTypeName(local.declaration.type.toString().toCharArray());
 								} else {
@@ -11356,103 +11854,103 @@ public final class CompletionEngine
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
 								this.requestor.accept(proposal);
-								if(DEBUG) {
+								if (DEBUG) {
 									this.printDebug(proposal);
 								}
 							}
 						}
 						break;
 
-					case Scope.COMPILATION_UNIT_SCOPE :
+					case Scope.COMPILATION_UNIT_SCOPE:
 						break done1;
 				}
-				currentScope = currentScope.parent;
+				currentScope= currentScope.parent;
 			}
 		}
-		
+
 		checkCancel();
 
-		boolean proposeField = !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
-		boolean proposeMethod = !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
+		boolean proposeField= !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
+		boolean proposeMethod= !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
 
-		staticsOnly = false;
-		currentScope = scope;
+		staticsOnly= false;
+		currentScope= scope;
 
-		if(proposeField || proposeMethod) {
-			done2 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+		if (proposeField || proposeMethod) {
+			done2: while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
 				switch (currentScope.kind) {
-					case Scope.METHOD_SCOPE :
+					case Scope.METHOD_SCOPE:
 						// handle the error case inside an explicit constructor call (see MethodScope>>findField)
-						MethodScope methodScope = (MethodScope) currentScope;
-						staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+						MethodScope methodScope= (MethodScope)currentScope;
+						staticsOnly|= methodScope.isStatic | methodScope.isConstructorCall;
 						break;
-					case Scope.CLASS_SCOPE :
-						ClassScope classScope = (ClassScope) currentScope;
-						SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+					case Scope.CLASS_SCOPE:
+						ClassScope classScope= (ClassScope)currentScope;
+						SourceTypeBinding enclosingType= classScope.referenceContext.binding;
 						/*				if (tokenLength == 0) { // only search inside the type itself if no prefix was provided
 											findFields(token, enclosingType.fields(), classScope, fieldsFound, staticsOnly);
 											findMethods(token, enclosingType.methods(), classScope, methodsFound, staticsOnly, false);
 											break done;
 										} else { */
-						if(!insideTypeAnnotation) {
-							if(proposeField) {
+						if (!insideTypeAnnotation) {
+							if (proposeField) {
 								findFields(
-									token,
-									enclosingType,
-									classScope,
-									fieldsFound,
-									localsFound,
-									staticsOnly,
-									invocationSite,
-									invocationScope,
-									true,
-									true,
-									null,
-									null,
-									null,
-									false,
-									null,
-									-1,
-									-1);
+										token,
+										enclosingType,
+										classScope,
+										fieldsFound,
+										localsFound,
+										staticsOnly,
+										invocationSite,
+										invocationScope,
+										true,
+										true,
+										null,
+										null,
+										null,
+										false,
+										null,
+										-1,
+										-1);
 							}
-							if(proposeMethod && !insideAnnotationAttribute) {
+							if (proposeMethod && !insideAnnotationAttribute) {
 								findMethods(
-									token,
-									null,
-									null,
-									enclosingType,
-									classScope,
-									methodsFound,
-									staticsOnly,
-									false,
-									invocationSite,
-									invocationScope,
-									true,
-									false,
-									true,
-									null,
-									null,
-									null,
-									false,
-									null,
-									-1,
-									-1);
+										token,
+										null,
+										null,
+										enclosingType,
+										classScope,
+										methodsFound,
+										staticsOnly,
+										false,
+										invocationSite,
+										invocationScope,
+										true,
+										false,
+										true,
+										null,
+										null,
+										null,
+										false,
+										null,
+										-1,
+										-1);
 							}
 						}
-						staticsOnly |= enclosingType.isStatic();
-						insideTypeAnnotation = false;
+						staticsOnly|= enclosingType.isStatic();
+						insideTypeAnnotation= false;
 						//				}
 						break;
 
-					case Scope.COMPILATION_UNIT_SCOPE :
+					case Scope.COMPILATION_UNIT_SCOPE:
 						break done2;
 				}
-				currentScope = currentScope.parent;
+				currentScope= currentScope.parent;
 			}
-			
+
 			checkCancel();
-			
+
 			findFieldsAndMethodsFromStaticImports(
 					token,
 					scope,
@@ -11467,9 +11965,9 @@ public final class CompletionEngine
 					proposeMethod);
 
 			if (this.assistNodeInJavadoc == 0) {
-				
+
 				checkCancel();
-				
+
 				// search in favorites import
 				findFieldsAndMethodsFromFavorites(
 						token,
@@ -11480,9 +11978,9 @@ public final class CompletionEngine
 						fieldsFound,
 						methodsFound);
 			}
-			
+
 			checkCancel();
-			
+
 			findEnumConstantsFromExpectedTypes(
 					token,
 					invocationScope,
@@ -11491,95 +11989,99 @@ public final class CompletionEngine
 	}
 
 	private char[] getCompletedTypeSignature(ReferenceBinding referenceBinding) {
-		char[] result = null;
-		StringBuffer sig = new StringBuffer(10);
+		char[] result= null;
+		StringBuffer sig= new StringBuffer(10);
 		if (!referenceBinding.isMemberType()) {
-			char[] typeSig = referenceBinding.genericTypeSignature();
+			char[] typeSig= referenceBinding.genericTypeSignature();
 			sig.append(typeSig, 0, typeSig.length);
 		} else if (!this.insideQualifiedReference) {
 			if (referenceBinding.isStatic()) {
-				char[] typeSig = referenceBinding.signature();
-				sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
+				char[] typeSig= referenceBinding.signature();
+				sig.append(typeSig, 0, typeSig.length - 1); // copy all but trailing semicolon
 
-				TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+				TypeVariableBinding[] typeVariables= referenceBinding.typeVariables();
 				if (typeVariables != Binding.NO_TYPE_VARIABLES) {
-				    sig.append(Signature.C_GENERIC_START);
-				    for (int i = 0, length = typeVariables.length; i < length; i++) {
-				        sig.append(typeVariables[i].genericTypeSignature());
-				    }
-				    sig.append(Signature.C_GENERIC_END);
+					sig.append(Signature.C_GENERIC_START);
+					for (int i= 0, length= typeVariables.length; i < length; i++) {
+						sig.append(typeVariables[i].genericTypeSignature());
+					}
+					sig.append(Signature.C_GENERIC_END);
 				}
 				sig.append(Signature.C_SEMICOLON);
 			} else {
-				char[] typeSig = referenceBinding.genericTypeSignature();
+				char[] typeSig= referenceBinding.genericTypeSignature();
 				sig.append(typeSig, 0, typeSig.length);
 			}
 		} else {
-			ReferenceBinding enclosingType = referenceBinding.enclosingType();
+			ReferenceBinding enclosingType= referenceBinding.enclosingType();
 			if (enclosingType.isParameterizedType()) {
-				char[] typeSig = referenceBinding.genericTypeSignature();
-				sig.append(typeSig, 0, typeSig.length-1);
+				char[] typeSig= referenceBinding.genericTypeSignature();
+				sig.append(typeSig, 0, typeSig.length - 1);
 
-				TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+				TypeVariableBinding[] typeVariables= referenceBinding.typeVariables();
 				if (typeVariables != Binding.NO_TYPE_VARIABLES) {
-				    sig.append(Signature.C_GENERIC_START);
-				    for (int i = 0, length = typeVariables.length; i < length; i++) {
-				        sig.append(typeVariables[i].genericTypeSignature());
-				    }
-				    sig.append(Signature.C_GENERIC_END);
+					sig.append(Signature.C_GENERIC_START);
+					for (int i= 0, length= typeVariables.length; i < length; i++) {
+						sig.append(typeVariables[i].genericTypeSignature());
+					}
+					sig.append(Signature.C_GENERIC_END);
 				}
 			} else {
-				char[] typeSig = referenceBinding.signature();
-				sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
+				char[] typeSig= referenceBinding.signature();
+				sig.append(typeSig, 0, typeSig.length - 1); // copy all but trailing semicolon
 
 				if (referenceBinding.isStatic()) {
-					TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+					TypeVariableBinding[] typeVariables= referenceBinding.typeVariables();
 					if (typeVariables != Binding.NO_TYPE_VARIABLES) {
-					    sig.append(Signature.C_GENERIC_START);
-					    for (int i = 0, length = typeVariables.length; i < length; i++) {
-					        sig.append(typeVariables[i].genericTypeSignature());
-					    }
-					    sig.append(Signature.C_GENERIC_END);
+						sig.append(Signature.C_GENERIC_START);
+						for (int i= 0, length= typeVariables.length; i < length; i++) {
+							sig.append(typeVariables[i].genericTypeSignature());
+						}
+						sig.append(Signature.C_GENERIC_END);
 					}
 				}
 			}
 			sig.append(Signature.C_SEMICOLON);
 		}
-		int sigLength = sig.length();
-		result = new char[sigLength];
+		int sigLength= sig.length();
+		result= new char[sigLength];
 		sig.getChars(0, sigLength, result, 0);
-		result = CharOperation.replaceOnCopy(result, '/', Signature.C_DOT);
+		result= CharOperation.replaceOnCopy(result, '/', Signature.C_DOT);
 		return result;
 	}
 
 	private ImportBinding[] getFavoriteReferenceBindings(Scope scope) {
-		if (this.favoriteReferenceBindings != null) return this.favoriteReferenceBindings;
+		if (this.favoriteReferenceBindings != null)
+			return this.favoriteReferenceBindings;
 
-		String[] favoriteReferences = this.requestor.getFavoriteReferences();
+		String[] favoriteReferences= this.requestor.getFavoriteReferences();
 
-		if (favoriteReferences == null || favoriteReferences.length == 0) return null;
+		if (favoriteReferences == null || favoriteReferences.length == 0)
+			return null;
 
-		ImportBinding[] resolvedImports = new ImportBinding[favoriteReferences.length];
+		ImportBinding[] resolvedImports= new ImportBinding[favoriteReferences.length];
 
-		int count = 0;
-		next : for (int i = 0; i < favoriteReferences.length; i++) {
-			String favoriteReference = favoriteReferences[i];
+		int count= 0;
+		next: for (int i= 0; i < favoriteReferences.length; i++) {
+			String favoriteReference= favoriteReferences[i];
 
 			int length;
-			if (favoriteReference == null || (length = favoriteReference.length()) == 0) continue next;
+			if (favoriteReference == null || (length= favoriteReference.length()) == 0)
+				continue next;
 
-			boolean onDemand = favoriteReference.charAt(length - 1) == '*';
+			boolean onDemand= favoriteReference.charAt(length - 1) == '*';
 
-			char[][] compoundName = CharOperation.splitOn('.', favoriteReference.toCharArray());
+			char[][] compoundName= CharOperation.splitOn('.', favoriteReference.toCharArray());
 			if (onDemand) {
-				compoundName = CharOperation.subarray(compoundName, 0, compoundName.length - 1);
+				compoundName= CharOperation.subarray(compoundName, 0, compoundName.length - 1);
 			}
 
 			// remove duplicate and conflicting
-			for (int j = 0; j < count; j++) {
-				ImportReference f = resolvedImports[j].reference;
+			for (int j= 0; j < count; j++) {
+				ImportReference f= resolvedImports[j].reference;
 
-				if (CharOperation.equals(f.tokens, compoundName)) continue next;
+				if (CharOperation.equals(f.tokens, compoundName))
+					continue next;
 
 				if (!onDemand && ((f.bits & ASTNode.OnDemand) == 0)) {
 					if (CharOperation.equals(f.tokens[f.tokens.length - 1], compoundName[compoundName.length - 1]))
@@ -11587,16 +12089,16 @@ public final class CompletionEngine
 				}
 			}
 
-			boolean isStatic = true;
+			boolean isStatic= true;
 
-			ImportReference importReference =
-				new ImportReference(
-						compoundName,
-						new long[compoundName.length],
-						onDemand,
-						isStatic ? ClassFileConstants.AccStatic : ClassFileConstants.AccDefault);
+			ImportReference importReference=
+					new ImportReference(
+							compoundName,
+							new long[compoundName.length],
+							onDemand,
+							isStatic ? ClassFileConstants.AccStatic : ClassFileConstants.AccDefault);
 
-			Binding importBinding = this.unitScope.findImport(compoundName, isStatic, onDemand);
+			Binding importBinding= this.unitScope.findImport(compoundName, isStatic, onDemand);
 
 			if (!importBinding.isValidBinding()) {
 				continue next;
@@ -11606,20 +12108,21 @@ public final class CompletionEngine
 				continue next;
 			}
 
-			resolvedImports[count++] =
-				new ImportBinding(compoundName, onDemand, importBinding, importReference);
+			resolvedImports[count++]=
+					new ImportBinding(compoundName, onDemand, importBinding, importReference);
 		}
 
 		if (resolvedImports.length > count)
-			System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[count], 0, count);
+			System.arraycopy(resolvedImports, 0, resolvedImports= new ImportBinding[count], 0, count);
 
-		return this.favoriteReferenceBindings = resolvedImports;
+		return this.favoriteReferenceBindings= resolvedImports;
 	}
-	
+
 	private INameEnvironment getNoCacheNameEnvironment() {
 		if (this.noCacheNameEnvironment == null) {
 			JavaModelManager.getJavaModelManager().cacheZipFiles(this);
-			this.noCacheNameEnvironment = new JavaSearchNameEnvironment(this.javaProject, this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/));
+			this.noCacheNameEnvironment= new JavaSearchNameEnvironment(this.javaProject, this.owner == null ? null : JavaModelManager.getJavaModelManager()
+					.getWorkingCopies(this.owner, true/*add primary WCs*/));
 		}
 		return this.noCacheNameEnvironment;
 	}
@@ -11628,28 +12131,31 @@ public final class CompletionEngine
 
 		return this.parser;
 	}
+
 	protected boolean hasArrayTypeAsExpectedSuperTypes() {
-		if ((this.expectedTypesFilter & ~SUBTYPE) != 0) return false;
-		
+		if ((this.expectedTypesFilter & ~SUBTYPE) != 0)
+			return false;
+
 		if (!this.hasComputedExpectedArrayTypes) {
-			if(this.expectedTypes != null) {
-				done : for (int i = 0; i <= this.expectedTypesPtr; i++) {
-					if(this.expectedTypes[i].isArrayType()) {
-						this.hasExpectedArrayTypes = true;
+			if (this.expectedTypes != null) {
+				done: for (int i= 0; i <= this.expectedTypesPtr; i++) {
+					if (this.expectedTypes[i].isArrayType()) {
+						this.hasExpectedArrayTypes= true;
 						break done;
 					}
 				}
 			}
-			
-			this.hasComputedExpectedArrayTypes = true;
+
+			this.hasComputedExpectedArrayTypes= true;
 		}
-		
+
 		return this.hasExpectedArrayTypes;
 	}
+
 	protected boolean hasPossibleAnnotationTarget(TypeBinding typeBinding, Scope scope) {
 		if (this.targetedElement == TagBits.AnnotationForPackage) {
-			long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
-			if(target != 0 && (target & TagBits.AnnotationForPackage) == 0) {
+			long target= typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+			if (target != 0 && (target & TagBits.AnnotationForPackage) == 0) {
 				return false;
 			}
 		} else if ((this.targetedElement & TagBits.AnnotationForType) != 0) {
@@ -11657,13 +12163,13 @@ public final class CompletionEngine
 					scope.parent.parent != null &&
 					scope.parent.referenceContext() instanceof CompletionOnAnnotationOfType &&
 					scope.parent.parent instanceof CompilationUnitScope) {
-				long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+				long target= typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
 				if ((this.targetedElement & TagBits.AnnotationForAnnotationType) != 0) {
-					if(target != 0 && (target &(TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType)) == 0) {
+					if (target != 0 && (target & (TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType)) == 0) {
 						return false;
 					}
 				} else {
-					if(target != 0 && (target &(TagBits.AnnotationForType)) == 0) {
+					if (target != 0 && (target & (TagBits.AnnotationForType)) == 0) {
 						return false;
 					}
 				}
@@ -11671,35 +12177,39 @@ public final class CompletionEngine
 		}
 		return true;
 	}
+
 	/**
 	 * Returns completion string inserted inside a specified inline tag.
+	 * 
 	 * @param completionName
 	 * @return char[] Completion text inclunding specified inline tag
 	 */
 	private char[] inlineTagCompletion(char[] completionName, char[] inlineTag) {
 		int tagLength= inlineTag.length;
-		int completionLength = completionName.length;
-		int inlineLength = 2+tagLength+1+completionLength+1;
-		char[] inlineCompletion = new char[inlineLength];
-		inlineCompletion[0] = '{';
-		inlineCompletion[1] = '@';
+		int completionLength= completionName.length;
+		int inlineLength= 2 + tagLength + 1 + completionLength + 1;
+		char[] inlineCompletion= new char[inlineLength];
+		inlineCompletion[0]= '{';
+		inlineCompletion[1]= '@';
 		System.arraycopy(inlineTag, 0, inlineCompletion, 2, tagLength);
-		inlineCompletion[tagLength+2] = ' ';
-		System.arraycopy(completionName, 0, inlineCompletion, tagLength+3, completionLength);
+		inlineCompletion[tagLength + 2]= ' ';
+		System.arraycopy(completionName, 0, inlineCompletion, tagLength + 3, completionLength);
 		// do not add space at end of inline tag (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=121026)
 		//inlineCompletion[inlineLength-2] = ' ';
-		inlineCompletion[inlineLength-1] = '}';
+		inlineCompletion[inlineLength - 1]= '}';
 		return inlineCompletion;
 	}
+
 	private boolean isAllowingLongComputationProposals() {
 		return this.monitor != null;
 	}
+
 	private boolean isForbidden(Binding binding) {
-		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
-			if(this.forbbidenBindings[i] == binding) {
+		for (int i= 0; i <= this.forbbidenBindingsPtr; i++) {
+			if (this.forbbidenBindings[i] == binding) {
 				return true;
 			}
-			if((this.forbbidenBindingsFilter & SUBTYPE) != 0) {
+			if ((this.forbbidenBindingsFilter & SUBTYPE) != 0) {
 				if (binding instanceof TypeBinding &&
 						this.forbbidenBindings[i] instanceof TypeBinding &&
 						((TypeBinding)binding).isCompatibleWith((TypeBinding)this.forbbidenBindings[i])) {
@@ -11712,83 +12222,77 @@ public final class CompletionEngine
 
 	private boolean isForbiddenType(char[] givenPkgName, char[] givenTypeName, char[][] enclosingTypeNames) {
 		// CharOperation.concatWith() handles the cases where input args are null/empty
-		char[] fullTypeName = CharOperation.concatWith(enclosingTypeNames, givenTypeName, '.');
-		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
+		char[] fullTypeName= CharOperation.concatWith(enclosingTypeNames, givenTypeName, '.');
+		for (int i= 0; i <= this.forbbidenBindingsPtr; i++) {
 			if (this.forbbidenBindings[i] instanceof TypeBinding) {
-				TypeBinding typeBinding = (TypeBinding) this.forbbidenBindings[i];
-				char[] currPkgName = typeBinding.qualifiedPackageName();
-				if (CharOperation.equals(givenPkgName, currPkgName))	{
-					char[] currTypeName = typeBinding.qualifiedSourceName();
+				TypeBinding typeBinding= (TypeBinding)this.forbbidenBindings[i];
+				char[] currPkgName= typeBinding.qualifiedPackageName();
+				if (CharOperation.equals(givenPkgName, currPkgName)) {
+					char[] currTypeName= typeBinding.qualifiedSourceName();
 					if (CharOperation.equals(fullTypeName, currTypeName)) {
 						return true;
 					}
 				}
 			}
 		}
-		
-		// filter packages ending with enum for projects above 1.5 
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264
-		if (MatchLocator.SHOULD_FILTER_ENUM && this.compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5 &&
-				CharOperation.endsWith(givenPkgName, DOT_ENUM)) { //note: it should be .enum and not just enum
-				return true;
-		}
-		
 		return false;
 	}
 
 	private boolean isIgnored(int kind) {
 		return this.requestor.isIgnored(kind);
 	}
+
 	boolean isIgnored(int kind, boolean missingTypes) {
 		return this.requestor.isIgnored(kind) ||
-			(missingTypes && !this.requestor.isAllowingRequiredProposals(kind, CompletionProposal.TYPE_REF));
+				(missingTypes && !this.requestor.isAllowingRequiredProposals(kind, CompletionProposal.TYPE_REF));
 	}
 
 	private boolean isIgnored(int kind, int requiredProposalKind) {
 		return this.requestor.isIgnored(kind) ||
-			!this.requestor.isAllowingRequiredProposals(kind, requiredProposalKind);
+				!this.requestor.isAllowingRequiredProposals(kind, requiredProposalKind);
 	}
-	private boolean isValidParent(ASTNode parent, ASTNode node, Scope scope){
 
-		if(parent instanceof ParameterizedSingleTypeReference) {
-			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
-			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
-			int nodeIndex = -1;
-			for(int i = length - 1 ; i > -1 ; i--) {
-				if(node == ref.typeArguments[i]) {
-					nodeIndex = i;
+	private boolean isValidParent(ASTNode parent, ASTNode node, Scope scope) {
+
+		if (parent instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference ref= (ParameterizedSingleTypeReference)parent;
+			TypeVariableBinding[] typeVariables= ((ReferenceBinding)ref.resolvedType).typeVariables();
+			int length= ref.typeArguments == null ? 0 : ref.typeArguments.length;
+			int nodeIndex= -1;
+			for (int i= length - 1; i > -1; i--) {
+				if (node == ref.typeArguments[i]) {
+					nodeIndex= i;
 					break;
 				}
 			}
-			if(nodeIndex > -1 && (typeVariables == null || typeVariables.length < nodeIndex + 1)) {
-				TypeBinding[] typeBindings = new TypeBinding[nodeIndex + 1];
-				for(int i = 0; i < nodeIndex; i++) {
-					typeBindings[i] = ref.typeArguments[i].resolvedType;
+			if (nodeIndex > -1 && (typeVariables == null || typeVariables.length < nodeIndex + 1)) {
+				TypeBinding[] typeBindings= new TypeBinding[nodeIndex + 1];
+				for (int i= 0; i < nodeIndex; i++) {
+					typeBindings[i]= ref.typeArguments[i].resolvedType;
 				}
-				typeBindings[nodeIndex] = scope.getJavaLangObject();
-				if(typeVariables == null || typeVariables.length == 0) {
+				typeBindings[nodeIndex]= scope.getJavaLangObject();
+				if (typeVariables == null || typeVariables.length == 0) {
 					scope.problemReporter().nonGenericTypeCannotBeParameterized(0, ref, ref.resolvedType, typeBindings);
 				} else {
 					scope.problemReporter().incorrectArityForParameterizedType(ref, ref.resolvedType, typeBindings);
 				}
 				return false;
 			}
-		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
-			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
-			TypeReference[][] arguments = ref.typeArguments;
-			int iLength = arguments == null ? 0 : arguments.length;
-			for (int i = 0; i < iLength; i++) {
-				int jLength = arguments[i] == null ? 0 : arguments[i].length;
-				for (int j = 0; j < jLength; j++) {
-					if(arguments[i][j] == node && (typeVariables == null || typeVariables.length <= j)) {
-						TypeBinding[] typeBindings = new TypeBinding[j + 1];
-						for(int k = 0; k < j; k++) {
-							typeBindings[k] = ref.typeArguments[i][k].resolvedType;
+		} else if (parent instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference ref= (ParameterizedQualifiedTypeReference)parent;
+			TypeVariableBinding[] typeVariables= ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeReference[][] arguments= ref.typeArguments;
+			int iLength= arguments == null ? 0 : arguments.length;
+			for (int i= 0; i < iLength; i++) {
+				int jLength= arguments[i] == null ? 0 : arguments[i].length;
+				for (int j= 0; j < jLength; j++) {
+					if (arguments[i][j] == node && (typeVariables == null || typeVariables.length <= j)) {
+						TypeBinding[] typeBindings= new TypeBinding[j + 1];
+						for (int k= 0; k < j; k++) {
+							typeBindings[k]= ref.typeArguments[i][k].resolvedType;
 						}
-						typeBindings[j] = scope.getJavaLangObject();
-						if(typeVariables == null || typeVariables.length == 0) {
+						typeBindings[j]= scope.getJavaLangObject();
+						if (typeVariables == null || typeVariables.length == 0) {
 							scope.problemReporter().nonGenericTypeCannotBeParameterized(0, ref, ref.resolvedType, typeBindings);
 						} else {
 							scope.problemReporter().incorrectArityForParameterizedType(ref, ref.resolvedType, typeBindings);
@@ -11800,41 +12304,43 @@ public final class CompletionEngine
 		}
 		return true;
 	}
+
 	private boolean mustQualifyType(ReferenceBinding type, char[] packageName, Scope scope) {
-		if(!mustQualifyType(
+		if (!mustQualifyType(
 				packageName,
 				type.sourceName(),
 				type.isMemberType() ? type.enclosingType().qualifiedSourceName() : null,
 				type.modifiers)) {
 			return false;
 		}
-		ReferenceBinding enclosingType = scope.enclosingSourceType();
+		ReferenceBinding enclosingType= scope.enclosingSourceType();
 		while (enclosingType != null) {
-			ReferenceBinding currentType = enclosingType;
+			ReferenceBinding currentType= enclosingType;
 			while (currentType != null) {
-				ReferenceBinding[] memberTypes = currentType.memberTypes();
-				if(memberTypes != null) {
-					for (int i = 0; i < memberTypes.length; i++) {
+				ReferenceBinding[] memberTypes= currentType.memberTypes();
+				if (memberTypes != null) {
+					for (int i= 0; i < memberTypes.length; i++) {
 						if (CharOperation.equals(memberTypes[i].sourceName, type.sourceName()) &&
 								memberTypes[i].canBeSeenBy(scope)) {
 							return memberTypes[i] != type;
 						}
 					}
 				}
-				currentType = currentType.superclass();
+				currentType= currentType.superclass();
 			}
-			enclosingType = enclosingType.enclosingType();
+			enclosingType= enclosingType.enclosingType();
 		}
 		return true;
 	}
-	private Initializer parseSnippeInitializer(char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
-		StringBuffer prefix = new StringBuffer();
+
+	private Initializer parseSnippeInitializer(char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic) {
+		StringBuffer prefix= new StringBuffer();
 		prefix.append("public class FakeType {\n "); //$NON-NLS-1$
-		if(isStatic) {
+		if (isStatic) {
 			prefix.append("static "); //$NON-NLS-1$
 		}
 		prefix.append("{\n"); //$NON-NLS-1$
-		for (int i = 0; i < localVariableTypeNames.length; i++) {
+		for (int i= 0; i < localVariableTypeNames.length; i++) {
 			ASTNode.printModifiers(localVariableModifiers[i], prefix);
 			prefix.append(' ');
 			prefix.append(localVariableTypeNames[i]);
@@ -11843,103 +12349,104 @@ public final class CompletionEngine
 			prefix.append(';');
 		}
 
-		char[] fakeSource = CharOperation.concat(prefix.toString().toCharArray(), snippet, "}}".toCharArray());//$NON-NLS-1$
-		this.offset = prefix.length();
+		char[] fakeSource= CharOperation.concat(prefix.toString().toCharArray(), snippet, "}}".toCharArray());//$NON-NLS-1$
+		this.offset= prefix.length();
 
-		String encoding = this.compilerOptions.defaultEncoding;
-		BasicCompilationUnit fakeUnit = new BasicCompilationUnit(
-			fakeSource,
-			null,
-			"FakeType.java", //$NON-NLS-1$
-			encoding);
+		String encoding= this.compilerOptions.defaultEncoding;
+		BasicCompilationUnit fakeUnit= new BasicCompilationUnit(
+				fakeSource,
+				null, "FakeType.java", //$NON-NLS-1$
+				encoding);
 
-		this.actualCompletionPosition = prefix.length() + position - 1;
+		this.actualCompletionPosition= prefix.length() + position - 1;
 
-		CompilationResult fakeResult = new CompilationResult(fakeUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
-		CompilationUnitDeclaration fakeAST = this.parser.dietParse(fakeUnit, fakeResult, this.actualCompletionPosition);
+		CompilationResult fakeResult= new CompilationResult(fakeUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
+		CompilationUnitDeclaration fakeAST= this.parser.dietParse(fakeUnit, fakeResult, this.actualCompletionPosition);
 
 		parseBlockStatements(fakeAST, this.actualCompletionPosition);
 
 		return (Initializer)fakeAST.types[0].fields[0];
 	}
+
 	protected void printDebug(CategorizedProblem error) {
-		if(CompletionEngine.DEBUG) {
+		if (CompletionEngine.DEBUG) {
 			System.out.print("COMPLETION - completionFailure("); //$NON-NLS-1$
 			System.out.print(error);
 			System.out.println(")"); //$NON-NLS-1$
 		}
 	}
-	protected void printDebug(CompletionProposal proposal){
-		StringBuffer buffer = new StringBuffer();
+
+	protected void printDebug(CompletionProposal proposal) {
+		StringBuffer buffer= new StringBuffer();
 		printDebug(proposal, 0, buffer);
 		System.out.println(buffer.toString());
 	}
 
-	private void printDebug(CompletionProposal proposal, int tab, StringBuffer buffer){
+	private void printDebug(CompletionProposal proposal, int tab, StringBuffer buffer) {
 		printDebugTab(tab, buffer);
 		buffer.append("COMPLETION - "); //$NON-NLS-1$
-		switch(proposal.getKind()) {
-			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
+		switch (proposal.getKind()) {
+			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION:
 				buffer.append("ANONYMOUS_CLASS_DECLARATION"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.FIELD_REF :
+			case CompletionProposal.FIELD_REF:
 				buffer.append("FIELD_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER :
+			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER:
 				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.KEYWORD :
+			case CompletionProposal.KEYWORD:
 				buffer.append("KEYWORD"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.LABEL_REF :
+			case CompletionProposal.LABEL_REF:
 				buffer.append("LABEL_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.LOCAL_VARIABLE_REF :
+			case CompletionProposal.LOCAL_VARIABLE_REF:
 				buffer.append("LOCAL_VARIABLE_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.METHOD_DECLARATION :
+			case CompletionProposal.METHOD_DECLARATION:
 				buffer.append("METHOD_DECLARATION"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.METHOD_REF :
+			case CompletionProposal.METHOD_REF:
 				buffer.append("METHOD_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER :
+			case CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER:
 				buffer.append("METHOD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.PACKAGE_REF :
+			case CompletionProposal.PACKAGE_REF:
 				buffer.append("PACKAGE_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.TYPE_REF :
+			case CompletionProposal.TYPE_REF:
 				buffer.append("TYPE_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.VARIABLE_DECLARATION :
+			case CompletionProposal.VARIABLE_DECLARATION:
 				buffer.append("VARIABLE_DECLARATION"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.POTENTIAL_METHOD_DECLARATION :
+			case CompletionProposal.POTENTIAL_METHOD_DECLARATION:
 				buffer.append("POTENTIAL_METHOD_DECLARATION"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.METHOD_NAME_REFERENCE :
+			case CompletionProposal.METHOD_NAME_REFERENCE:
 				buffer.append("METHOD_NAME_REFERENCE"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF :
+			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF:
 				buffer.append("ANNOTATION_ATTRIBUT_REF"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.FIELD_IMPORT :
+			case CompletionProposal.FIELD_IMPORT:
 				buffer.append("FIELD_IMPORT"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.METHOD_IMPORT :
+			case CompletionProposal.METHOD_IMPORT:
 				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.TYPE_IMPORT :
+			case CompletionProposal.TYPE_IMPORT:
 				buffer.append("TYPE_IMPORT"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.CONSTRUCTOR_INVOCATION :
+			case CompletionProposal.CONSTRUCTOR_INVOCATION:
 				buffer.append("CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION :
+			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION:
 				buffer.append("ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
 				break;
-			default :
+			default:
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
 				break;
 
@@ -11961,17 +12468,19 @@ public final class CompletionEngine
 
 		printDebugTab(tab, buffer);
 		buffer.append("\tFlags[");//$NON-NLS-1$
-		int flags = proposal.getFlags();
+		int flags= proposal.getFlags();
 		buffer.append(Flags.toString(flags));
-		if((flags & Flags.AccInterface) != 0) buffer.append("interface ");//$NON-NLS-1$
-		if((flags & Flags.AccEnum) != 0) buffer.append("enum ");//$NON-NLS-1$
+		if ((flags & Flags.AccInterface) != 0)
+			buffer.append("interface ");//$NON-NLS-1$
+		if ((flags & Flags.AccEnum) != 0)
+			buffer.append("enum ");//$NON-NLS-1$
 		buffer.append("]\n"); //$NON-NLS-1$
 
-		CompletionProposal[] proposals = proposal.getRequiredProposals();
-		if(proposals != null) {
+		CompletionProposal[] proposals= proposal.getRequiredProposals();
+		if (proposals != null) {
 			printDebugTab(tab, buffer);
 			buffer.append("\tRequiredProposals[");//$NON-NLS-1$
-			for (int i = 0; i < proposals.length; i++) {
+			for (int i= 0; i < proposals.length; i++) {
 				buffer.append("\n"); //$NON-NLS-1$
 				printDebug(proposals[i], tab + 2, buffer);
 			}
@@ -11981,19 +12490,19 @@ public final class CompletionEngine
 
 		printDebugTab(tab, buffer);
 		buffer.append("\tCompletionLocation[").append(proposal.getCompletionLocation()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		int start = proposal.getReplaceStart();
-		int end = proposal.getReplaceEnd();
+		int start= proposal.getReplaceStart();
+		int end= proposal.getReplaceEnd();
 		printDebugTab(tab, buffer);
 		buffer.append("\tReplaceStart[").append(start).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append("-ReplaceEnd[").append(end).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		start = proposal.getTokenStart();
-		end = proposal.getTokenEnd();
+		start= proposal.getTokenStart();
+		end= proposal.getTokenEnd();
 		printDebugTab(tab, buffer);
 		buffer.append("\tTokenStart[").append(start).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append("-TokenEnd[").append(end).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.source != null) {
 			printDebugTab(tab, buffer);
-			buffer.append("\tReplacedText[").append(this.source, start, end-start).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			buffer.append("\tReplacedText[").append(this.source, start, end - start).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		printDebugTab(tab, buffer);
 		buffer.append("\tTokenStart[").append(proposal.getTokenStart()).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -12006,11 +12515,11 @@ public final class CompletionEngine
 	}
 
 	private void printDebugTab(int tab, StringBuffer buffer) {
-		for (int i = 0; i < tab; i++) {
+		for (int i= 0; i < tab; i++) {
 			buffer.append('\t');
 		}
 	}
-	
+
 	private void proposeConstructor(AcceptedConstructor deferredProposal, Scope scope) {
 		if (deferredProposal.proposeConstructor) {
 			proposeConstructor(
@@ -12030,7 +12539,7 @@ public final class CompletionEngine
 					deferredProposal.extraFlags);
 		}
 	}
-	
+
 	private void proposeConstructor(
 			char[] simpleTypeName,
 			int parameterCount,
@@ -12046,57 +12555,57 @@ public final class CompletionEngine
 			boolean isQualified,
 			Scope scope,
 			int extraFlags) {
-		char[] typeCompletion = fullyQualifiedName;
-		if(isQualified) {
+		char[] typeCompletion= fullyQualifiedName;
+		if (isQualified) {
 			if (packageName == null || packageName.length == 0)
 				if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 					return; // ignore types from the default package from outside it
 		} else {
-			typeCompletion = simpleTypeName;
+			typeCompletion= simpleTypeName;
 		}
 
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForRestrictions(accessibility);
-		relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
-		relevance += computeRelevanceForExpectingType(packageName, simpleTypeName);
-		relevance += computeRelevanceForQualification(isQualified);
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForRestrictions(accessibility);
+		relevance+= computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
+		relevance+= computeRelevanceForExpectingType(packageName, simpleTypeName);
+		relevance+= computeRelevanceForQualification(isQualified);
 
-		boolean isInterface = false;
-		int kind = typeModifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
+		boolean isInterface= false;
+		int kind= typeModifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
 		switch (kind) {
 			case ClassFileConstants.AccAnnotation:
 			case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
-				relevance += computeRelevanceForAnnotation();
-				relevance += computeRelevanceForInterface();
-				isInterface = true;
+				relevance+= computeRelevanceForAnnotation();
+				relevance+= computeRelevanceForInterface();
+				isInterface= true;
 				break;
 			case ClassFileConstants.AccEnum:
-				relevance += computeRelevanceForEnum();
+				relevance+= computeRelevanceForEnum();
 				break;
 			case ClassFileConstants.AccInterface:
-				relevance += computeRelevanceForInterface();
-				isInterface = true;
+				relevance+= computeRelevanceForInterface();
+				isInterface= true;
 				break;
 			default:
-				relevance += computeRelevanceForClass();
-				relevance += computeRelevanceForException(simpleTypeName);
+				relevance+= computeRelevanceForClass();
+				relevance+= computeRelevanceForException(simpleTypeName);
 				break;
 		}
-		
+
 		char[] completion;
 		if (this.source != null
 					&& this.source.length > this.endPosition
 					&& this.source[this.endPosition] == '(') {
-			completion = CharOperation.NO_CHAR;
+			completion= CharOperation.NO_CHAR;
 		} else {
-			completion = new char[] { '(', ')' };
+			completion= new char[] { '(', ')' };
 		}
-		
-		InternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-		typeProposal.nameLookup = this.nameEnvironment.nameLookup;
-		typeProposal.completionEngine = this;
+
+		InternalCompletionProposal typeProposal= createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+		typeProposal.nameLookup= this.nameEnvironment.nameLookup;
+		typeProposal.completionEngine= this;
 		typeProposal.setDeclarationSignature(packageName);
 		typeProposal.setSignature(createNonGenericTypeSignature(packageName, typeName));
 		typeProposal.setPackageName(packageName);
@@ -12106,18 +12615,18 @@ public final class CompletionEngine
 		typeProposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 		typeProposal.setTokenRange(this.startPosition - this.offset, this.endPosition - this.offset);
 		typeProposal.setRelevance(relevance);
-		
+
 		switch (parameterCount) {
 			case -1: // default constructor
-				int flags = Flags.AccPublic;
+				int flags= Flags.AccPublic;
 				if (Flags.isDeprecated(typeModifiers)) {
-					flags |= Flags.AccDeprecated;
+					flags|= Flags.AccDeprecated;
 				}
-				
+
 				if (isInterface || (typeModifiers & ClassFileConstants.AccAbstract) != 0) {
-					this.noProposal = false;
-					if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-						InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(createNonGenericTypeSignature(packageName, typeName));
 						proposal.setDeclarationKey(createBindingKey(packageName, typeName));
 						proposal.setSignature(DEFAULT_CONSTRUCTOR_SIGNATURE);
@@ -12127,7 +12636,7 @@ public final class CompletionEngine
 						proposal.setParameterTypeNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setParameterNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setName(simpleTypeName);
-						proposal.setRequiredProposals(new CompletionProposal[]{typeProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
 						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(flags);
@@ -12135,14 +12644,14 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				} else {
-					this.noProposal = false;
-					if(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(createNonGenericTypeSignature(packageName, typeName));
 						proposal.setSignature(DEFAULT_CONSTRUCTOR_SIGNATURE);
 						proposal.setDeclarationPackageName(packageName);
@@ -12151,7 +12660,7 @@ public final class CompletionEngine
 						proposal.setParameterTypeNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setParameterNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setName(simpleTypeName);
-						proposal.setRequiredProposals(new CompletionProposal[]{typeProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
 						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(flags);
@@ -12159,18 +12668,18 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				}
 				break;
 			case 0: // constructor with no parameter
-				
+
 				if ((typeModifiers & ClassFileConstants.AccAbstract) != 0) {
-					this.noProposal = false;
-					if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-						InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(createNonGenericTypeSignature(packageName, typeName));
 						proposal.setDeclarationKey(createBindingKey(packageName, typeName));
 						proposal.setSignature(DEFAULT_CONSTRUCTOR_SIGNATURE);
@@ -12180,7 +12689,7 @@ public final class CompletionEngine
 						proposal.setParameterTypeNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setParameterNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setName(simpleTypeName);
-						proposal.setRequiredProposals(new CompletionProposal[]{typeProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
 						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(modifiers);
@@ -12188,14 +12697,14 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				} else {
-					this.noProposal = false;
-					if(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(createNonGenericTypeSignature(packageName, typeName));
 						proposal.setSignature(DEFAULT_CONSTRUCTOR_SIGNATURE);
 						proposal.setDeclarationPackageName(packageName);
@@ -12204,7 +12713,7 @@ public final class CompletionEngine
 						proposal.setParameterTypeNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setParameterNames(CharOperation.NO_CHAR_CHAR);
 						proposal.setName(simpleTypeName);
-						proposal.setRequiredProposals(new CompletionProposal[]{typeProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
 						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(modifiers);
@@ -12212,7 +12721,7 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
@@ -12221,21 +12730,22 @@ public final class CompletionEngine
 			default: // constructor with parameter
 				if (signature == null) {
 					// resolve type to found parameter types
-					signature = getResolvedSignature(parameterTypes, fullyQualifiedName, parameterCount, scope);
-					if (signature == null) return;
+					signature= getResolvedSignature(parameterTypes, fullyQualifiedName, parameterCount, scope);
+					if (signature == null)
+						return;
 				} else {
-					signature = CharOperation.replaceOnCopy(signature, '/', '.');
+					signature= CharOperation.replaceOnCopy(signature, '/', '.');
 				}
-				
-				int parameterNamesLength = parameterNames == null ? 0 : parameterNames.length;
+
+				int parameterNamesLength= parameterNames == null ? 0 : parameterNames.length;
 				if (parameterCount != parameterNamesLength) {
-					parameterNames = null;
+					parameterNames= null;
 				}
-				
+
 				if ((typeModifiers & ClassFileConstants.AccAbstract) != 0) {
-					this.noProposal = false;
-					if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-						InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(createNonGenericTypeSignature(packageName, typeName));
 						proposal.setDeclarationKey(createBindingKey(packageName, typeName));
 						proposal.setSignature(signature);
@@ -12249,7 +12759,7 @@ public final class CompletionEngine
 							proposal.setHasNoParameterNamesFromIndex(true);
 						}
 						proposal.setName(simpleTypeName);
-						proposal.setRequiredProposals(new CompletionProposal[]{typeProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
 						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(modifiers);
@@ -12257,14 +12767,14 @@ public final class CompletionEngine
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
 				} else {
-					this.noProposal = false;
-					if(!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
-						InternalCompletionProposal proposal =  createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
+					this.noProposal= false;
+					if (!isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
+						InternalCompletionProposal proposal= createProposal(CompletionProposal.CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(createNonGenericTypeSignature(packageName, typeName));
 						proposal.setSignature(signature);
 						proposal.setDeclarationPackageName(packageName);
@@ -12277,16 +12787,16 @@ public final class CompletionEngine
 							proposal.setHasNoParameterNamesFromIndex(true);
 						}
 						proposal.setName(simpleTypeName);
-						proposal.setRequiredProposals(new CompletionProposal[]{typeProposal});
+						proposal.setRequiredProposals(new CompletionProposal[] { typeProposal });
 						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(modifiers);
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
-						
+
 						this.requestor.accept(proposal);
-						if(DEBUG) {
+						if (DEBUG) {
 							this.printDebug(proposal);
 						}
 					}
@@ -12296,13 +12806,13 @@ public final class CompletionEngine
 	}
 
 	private void proposeNewMethod(char[] token, ReferenceBinding reference) {
-		if(!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for new method
+		if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
+			int relevance= computeBaseRelevance();
+			relevance+= computeRelevanceForResolution();
+			relevance+= computeRelevanceForInterestingProposal();
+			relevance+= computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for new method
 
-			InternalCompletionProposal proposal =  createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION, this.actualCompletionPosition);
+			InternalCompletionProposal proposal= createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION, this.actualCompletionPosition);
 			proposal.setDeclarationSignature(getSignature(reference));
 			proposal.setSignature(
 					createMethodSignature(
@@ -12325,7 +12835,7 @@ public final class CompletionEngine
 			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
-			if(DEBUG) {
+			if (DEBUG) {
 				this.printDebug(proposal);
 			}
 		}
@@ -12340,73 +12850,76 @@ public final class CompletionEngine
 			char[] fullyQualifiedName,
 			boolean isQualified,
 			Scope scope) {
-		char[] completionName = fullyQualifiedName;
-		if(isQualified) {
+		char[] completionName= fullyQualifiedName;
+		if (isQualified) {
 			if (packageName == null || packageName.length == 0)
 				if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 					return; // ignore types from the default package from outside it
 		} else {
-			completionName = simpleTypeName;
+			completionName= simpleTypeName;
 		}
 
-		TypeBinding guessedType = null;
+		TypeBinding guessedType= null;
 		if ((modifiers & ClassFileConstants.AccAnnotation) != 0 &&
 				this.assistNodeIsAnnotation &&
 				(this.targetedElement & TagBits.AnnotationTargetMASK) != 0) {
-			char[][] cn = CharOperation.splitOn('.', fullyQualifiedName);
+			char[][] cn= CharOperation.splitOn('.', fullyQualifiedName);
 
 			TypeReference ref;
 			if (cn.length == 1) {
-				ref = new SingleTypeReference(simpleTypeName, 0);
+				ref= new SingleTypeReference(simpleTypeName, 0);
 			} else {
-				ref = new QualifiedTypeReference(cn,new long[cn.length]);
+				ref= new QualifiedTypeReference(cn, new long[cn.length]);
 			}
 
 			switch (scope.kind) {
-				case Scope.METHOD_SCOPE :
-				case Scope.BLOCK_SCOPE :
-					guessedType = ref.resolveType((BlockScope)scope);
+				case Scope.METHOD_SCOPE:
+				case Scope.BLOCK_SCOPE:
+					guessedType= ref.resolveType((BlockScope)scope);
 					break;
-				case Scope.CLASS_SCOPE :
-					guessedType = ref.resolveType((ClassScope)scope);
+				case Scope.CLASS_SCOPE:
+					guessedType= ref.resolveType((ClassScope)scope);
 					break;
 			}
 
-			if (guessedType == null || !guessedType.isValidBinding()) return;
+			if (guessedType == null || !guessedType.isValidBinding())
+				return;
 
-			if (!hasPossibleAnnotationTarget(guessedType, scope)) return;
+			if (!hasPossibleAnnotationTarget(guessedType, scope))
+				return;
 		}
 
-		int relevance = computeBaseRelevance();
-		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
-		relevance += computeRelevanceForRestrictions(accessibility);
-		relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
-		relevance += computeRelevanceForExpectingType(packageName, simpleTypeName);
-		relevance += computeRelevanceForQualification(isQualified);
+		int relevance= computeBaseRelevance();
+		relevance+= computeRelevanceForResolution();
+		relevance+= computeRelevanceForInterestingProposal();
+		relevance+= computeRelevanceForRestrictions(accessibility);
+		relevance+= computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
+		relevance+= computeRelevanceForExpectingType(packageName, simpleTypeName);
+		relevance+= computeRelevanceForQualification(isQualified);
 
-		int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
+		int kind= modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
 		switch (kind) {
 			case ClassFileConstants.AccAnnotation:
 			case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
-				relevance += computeRelevanceForAnnotation();
-				if (guessedType != null) relevance += computeRelevanceForAnnotationTarget(guessedType);
-				relevance += computeRelevanceForInterface();
+				relevance+= computeRelevanceForAnnotation();
+				if (guessedType != null)
+					relevance+= computeRelevanceForAnnotationTarget(guessedType);
+				relevance+= computeRelevanceForInterface();
 				break;
 			case ClassFileConstants.AccEnum:
-				relevance += computeRelevanceForEnum();
+				relevance+= computeRelevanceForEnum();
 				break;
 			case ClassFileConstants.AccInterface:
-				relevance += computeRelevanceForInterface();
+				relevance+= computeRelevanceForInterface();
 				break;
 			default:
-				relevance += computeRelevanceForClass();
-				relevance += computeRelevanceForException(simpleTypeName);
+				relevance+= computeRelevanceForClass();
+				relevance+= computeRelevanceForException(simpleTypeName);
 				break;
 		}
 
-		this.noProposal = false;
-		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+		this.noProposal= false;
+		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			createTypeProposal(packageName, typeName, modifiers, accessibility, completionName, relevance);
 		}
 	}
@@ -12414,11 +12927,11 @@ public final class CompletionEngine
 	protected void reset() {
 
 		super.reset(false);
-		this.knownPkgs = new HashtableOfObject(10);
-		this.knownTypes = new HashtableOfObject(10);
+		this.knownPkgs= new HashtableOfObject(10);
+		this.knownTypes= new HashtableOfObject(10);
 		if (this.noCacheNameEnvironment != null) {
 			this.noCacheNameEnvironment.cleanup();
-			this.noCacheNameEnvironment = null;
+			this.noCacheNameEnvironment= null;
 			JavaModelManager.getJavaModelManager().flushZipFiles(this);
 		}
 	}
@@ -12437,70 +12950,71 @@ public final class CompletionEngine
 	}
 
 	private void setSourceRange(int start, int end, boolean emptyTokenAdjstment) {
-		this.startPosition = start;
-		if(emptyTokenAdjstment) {
-			int endOfEmptyToken = ((CompletionScanner)this.parser.scanner).endOfEmptyToken;
-			this.endPosition = endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
+		this.startPosition= start;
+		if (emptyTokenAdjstment) {
+			int endOfEmptyToken= ((CompletionScanner)this.parser.scanner).endOfEmptyToken;
+			this.endPosition= endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
 		} else {
-			this.endPosition = end + 1;
+			this.endPosition= end + 1;
 		}
 	}
 
 	private void setTokenRange(int start, int end) {
 		this.setTokenRange(start, end, true);
 	}
+
 	private void setTokenRange(int start, int end, boolean emptyTokenAdjstment) {
-		this.tokenStart = start;
-		if(emptyTokenAdjstment) {
-			int endOfEmptyToken = ((CompletionScanner)this.parser.scanner).endOfEmptyToken;
-			this.tokenEnd = endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
+		this.tokenStart= start;
+		if (emptyTokenAdjstment) {
+			int endOfEmptyToken= ((CompletionScanner)this.parser.scanner).endOfEmptyToken;
+			this.tokenEnd= endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
 		} else {
-			this.tokenEnd = end + 1;
+			this.tokenEnd= end + 1;
 		}
 	}
 
 	private char[] substituteMethodTypeParameterName(char firstName, char startChar, char endChar, char[][] excludedNames, char[][] otherParameterNames) {
-		char name = firstName;
-		next : while (true) {
-			for (int i = 0 ; i < excludedNames.length ; i++){
-				if(excludedNames[i].length == 1 && ScannerHelper.toLowerCase(excludedNames[i][0]) == ScannerHelper.toLowerCase(name)) {
+		char name= firstName;
+		next: while (true) {
+			for (int i= 0; i < excludedNames.length; i++) {
+				if (excludedNames[i].length == 1 && ScannerHelper.toLowerCase(excludedNames[i][0]) == ScannerHelper.toLowerCase(name)) {
 					name++;
-					if(name > endChar)
-						name = startChar;
-					if(name == firstName)
-						return substituteMethodTypeParameterName(new char[]{firstName}, excludedNames, otherParameterNames);
+					if (name > endChar)
+						name= startChar;
+					if (name == firstName)
+						return substituteMethodTypeParameterName(new char[] { firstName }, excludedNames, otherParameterNames);
 					continue next;
 				}
 			}
 
-			for (int i = 0; i < otherParameterNames.length; i++) {
-				if(otherParameterNames[i].length == 1 && ScannerHelper.toLowerCase(otherParameterNames[i][0]) == ScannerHelper.toLowerCase(name)) {
+			for (int i= 0; i < otherParameterNames.length; i++) {
+				if (otherParameterNames[i].length == 1 && ScannerHelper.toLowerCase(otherParameterNames[i][0]) == ScannerHelper.toLowerCase(name)) {
 					name++;
-					if(name > endChar)
-						name = startChar;
-					if(name == firstName)
-						return substituteMethodTypeParameterName(new char[]{firstName}, excludedNames, otherParameterNames);
+					if (name > endChar)
+						name= startChar;
+					if (name == firstName)
+						return substituteMethodTypeParameterName(new char[] { firstName }, excludedNames, otherParameterNames);
 					continue next;
 				}
 			}
 			break next;
 		}
-		return new char[]{name};
+		return new char[] { name };
 	}
 
 	private char[] substituteMethodTypeParameterName(char[] firstName, char[][] excludedNames, char[][] otherParameterNames) {
-		char[] name = firstName;
-		int count = 2;
-		next : while(true) {
-			for(int k = 0 ; k < excludedNames.length ; k++){
-				if(CharOperation.equals(name, excludedNames[k], false)) {
-					name = CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
+		char[] name= firstName;
+		int count= 2;
+		next: while (true) {
+			for (int k= 0; k < excludedNames.length; k++) {
+				if (CharOperation.equals(name, excludedNames[k], false)) {
+					name= CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
 					continue next;
 				}
 			}
-			for (int i = 0; i < otherParameterNames.length; i++) {
-				if(CharOperation.equals(name, otherParameterNames[i], false)) {
-					name = CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
+			for (int i= 0; i < otherParameterNames.length; i++) {
+				if (CharOperation.equals(name, otherParameterNames[i], false)) {
+					name= CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
 					continue next;
 				}
 			}
@@ -12510,40 +13024,41 @@ public final class CompletionEngine
 	}
 
 	private char[][] substituteMethodTypeParameterNames(TypeVariableBinding[] typeVariables, char[][] excludedNames) {
-		char[][] substituedParameterNames = new char[typeVariables.length][];
+		char[][] substituedParameterNames= new char[typeVariables.length][];
 
-		for (int i = 0; i < substituedParameterNames.length; i++) {
-			substituedParameterNames[i] = typeVariables[i].sourceName;
+		for (int i= 0; i < substituedParameterNames.length; i++) {
+			substituedParameterNames[i]= typeVariables[i].sourceName;
 		}
 
-		boolean foundConflicts = false;
+		boolean foundConflicts= false;
 
-		nextTypeParameter : for (int i = 0; i < typeVariables.length; i++) {
-			TypeVariableBinding typeVariableBinding = typeVariables[i];
-			char[] methodParameterName = typeVariableBinding.sourceName;
+		nextTypeParameter: for (int i= 0; i < typeVariables.length; i++) {
+			TypeVariableBinding typeVariableBinding= typeVariables[i];
+			char[] methodParameterName= typeVariableBinding.sourceName;
 
-			for (int j = 0; j < excludedNames.length; j++) {
-				char[] typeParameterName = excludedNames[j];
-				if(CharOperation.equals(typeParameterName, methodParameterName, false)) {
+			for (int j= 0; j < excludedNames.length; j++) {
+				char[] typeParameterName= excludedNames[j];
+				if (CharOperation.equals(typeParameterName, methodParameterName, false)) {
 					char[] substitution;
-					if(methodParameterName.length == 1) {
-						if(ScannerHelper.isUpperCase(methodParameterName[0])) {
-							substitution = substituteMethodTypeParameterName(methodParameterName[0], 'A', 'Z', excludedNames, substituedParameterNames);
+					if (methodParameterName.length == 1) {
+						if (ScannerHelper.isUpperCase(methodParameterName[0])) {
+							substitution= substituteMethodTypeParameterName(methodParameterName[0], 'A', 'Z', excludedNames, substituedParameterNames);
 						} else {
-							substitution = substituteMethodTypeParameterName(methodParameterName[0], 'a', 'z', excludedNames, substituedParameterNames);
+							substitution= substituteMethodTypeParameterName(methodParameterName[0], 'a', 'z', excludedNames, substituedParameterNames);
 						}
 					} else {
-						substitution = substituteMethodTypeParameterName(methodParameterName, excludedNames, substituedParameterNames);
+						substitution= substituteMethodTypeParameterName(methodParameterName, excludedNames, substituedParameterNames);
 					}
-					substituedParameterNames[i] = substitution;
+					substituedParameterNames[i]= substitution;
 
-					foundConflicts = true;
+					foundConflicts= true;
 					continue nextTypeParameter;
 				}
 			}
 		}
 
-		if(foundConflicts) return substituedParameterNames;
+		if (foundConflicts)
+			return substituedParameterNames;
 		return null;
 	}
 }

@@ -20,9 +20,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#acceptAnnotationTypeReference(char[][], int, int)
 	 */
 	public void acceptAnnotationTypeReference(
-		char[][] typeName,
-		int sourceStart,
-		int sourceEnd) {
+			char[][] typeName,
+			int sourceStart,
+			int sourceEnd) {
 		// default implementation: do nothing
 	}
 
@@ -37,9 +37,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#acceptConstructorReference(char[], int, int)
 	 */
 	public void acceptConstructorReference(
-		char[] typeName,
-		int argCount,
-		int sourcePosition) {
+			char[] typeName,
+			int argCount,
+			int sourcePosition) {
 		// default implementation: do nothing
 	}
 
@@ -54,11 +54,11 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#acceptImport(int, int, char[][], boolean, int)
 	 */
 	public void acceptImport(
-		int declarationStart,
-		int declarationEnd,
-		char[][] tokens,
-		boolean onDemand,
-		int modifiers) {
+			int declarationStart,
+			int declarationEnd,
+			char[][] tokens,
+			boolean onDemand,
+			int modifiers) {
 		// default implementation: do nothing
 	}
 
@@ -73,9 +73,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#acceptMethodReference(char[], int, int)
 	 */
 	public void acceptMethodReference(
-		char[] methodName,
-		int argCount,
-		int sourcePosition) {
+			char[] methodName,
+			int argCount,
+			int sourcePosition) {
 		// default implementation: do nothing
 	}
 
@@ -97,9 +97,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#acceptTypeReference(char[][], int, int)
 	 */
 	public void acceptTypeReference(
-		char[][] typeName,
-		int sourceStart,
-		int sourceEnd) {
+			char[][] typeName,
+			int sourceStart,
+			int sourceEnd) {
 		// default implementation: do nothing
 	}
 
@@ -114,9 +114,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	 * @see ISourceElementRequestor#acceptUnknownReference(char[][], int, int)
 	 */
 	public void acceptUnknownReference(
-		char[][] name,
-		int sourceStart,
-		int sourceEnd) {
+			char[][] name,
+			int sourceStart,
+			int sourceEnd) {
 		// default implementation: do nothing
 	}
 
@@ -203,4 +203,3 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 }
-

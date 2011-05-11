@@ -13,17 +13,20 @@ package org.eclipse.jdt.internal.compiler.env;
 public class AccessRestriction {
 
 	private AccessRule accessRule;
+
 	public byte classpathEntryType;
+
 	public static final byte
-		COMMAND_LINE = 0,
-		PROJECT = 1,
-		LIBRARY = 2;
+			COMMAND_LINE= 0,
+			PROJECT= 1,
+			LIBRARY= 2;
+
 	public String classpathEntryName;
 
 	public AccessRestriction(AccessRule accessRule, byte classpathEntryType, String classpathEntryName) {
-		this.accessRule = accessRule;
-		this.classpathEntryName = classpathEntryName;
-		this.classpathEntryType = classpathEntryType;
+		this.accessRule= accessRule;
+		this.classpathEntryName= classpathEntryName;
+		this.classpathEntryType= classpathEntryType;
 	}
 
 	public int getProblemId() {

@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 public class CompletionOnMethodName extends MethodDeclaration {
 	public int selectorEnd;
 
-	public CompletionOnMethodName(CompilationResult compilationResult){
+	public CompletionOnMethodName(CompilationResult compilationResult) {
 		super(compilationResult);
 	}
 
@@ -29,16 +29,18 @@ public class CompletionOnMethodName extends MethodDeclaration {
 		printReturnType(0, output);
 		output.append(this.selector).append('(');
 		if (this.arguments != null) {
-			for (int i = 0; i < this.arguments.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
+			for (int i= 0; i < this.arguments.length; i++) {
+				if (i > 0)
+					output.append(", "); //$NON-NLS-1$
 				this.arguments[i].print(0, output);
 			}
 		}
 		output.append(')');
 		if (this.thrownExceptions != null) {
 			output.append(" throws "); //$NON-NLS-1$
-			for (int i = 0; i < this.thrownExceptions.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
+			for (int i= 0; i < this.thrownExceptions.length; i++) {
+				if (i > 0)
+					output.append(", "); //$NON-NLS-1$
 				this.thrownExceptions[i].print(0, output);
 			}
 		}

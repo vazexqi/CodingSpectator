@@ -14,9 +14,10 @@ import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 
 /**
  * Element info for IImportDeclaration elements.
+ * 
  * @see org.eclipse.jdt.core.IImportDeclaration
  */
-public class ImportDeclarationElementInfo extends MemberElementInfo implements ISourceImport{
+public class ImportDeclarationElementInfo extends MemberElementInfo implements ISourceImport {
 
 	// empty element info
 }

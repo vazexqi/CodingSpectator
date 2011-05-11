@@ -29,6 +29,7 @@ public class JavadocArrayQualifiedTypeReference extends ArrayQualifiedTypeRefere
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
+
 	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}

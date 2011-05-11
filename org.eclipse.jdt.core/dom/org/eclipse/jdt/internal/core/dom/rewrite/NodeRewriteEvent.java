@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 public class NodeRewriteEvent extends RewriteEvent {
 
 	private Object originalValue;
+
 	private Object newValue;
 
 	public NodeRewriteEvent(Object originalValue, Object newValue) {
@@ -87,25 +88,25 @@ public class NodeRewriteEvent extends RewriteEvent {
 	public String toString() {
 		StringBuffer buf= new StringBuffer();
 		switch (getChangeKind()) {
-		case INSERTED:
-			buf.append(" [inserted: "); //$NON-NLS-1$
-			buf.append(getNewValue());
-			buf.append(']');
-			break;
-		case REPLACED:
-			buf.append(" [replaced: "); //$NON-NLS-1$
-			buf.append(getOriginalValue());
-			buf.append(" -> "); //$NON-NLS-1$
-			buf.append(getNewValue());
-			buf.append(']');
-			break;
-		case REMOVED:
-			buf.append(" [removed: "); //$NON-NLS-1$
-			buf.append(getOriginalValue());
-			buf.append(']');
-			break;
-		default:
-			buf.append(" [unchanged]"); //$NON-NLS-1$
+			case INSERTED:
+				buf.append(" [inserted: "); //$NON-NLS-1$
+				buf.append(getNewValue());
+				buf.append(']');
+				break;
+			case REPLACED:
+				buf.append(" [replaced: "); //$NON-NLS-1$
+				buf.append(getOriginalValue());
+				buf.append(" -> "); //$NON-NLS-1$
+				buf.append(getNewValue());
+				buf.append(']');
+				break;
+			case REMOVED:
+				buf.append(" [removed: "); //$NON-NLS-1$
+				buf.append(getOriginalValue());
+				buf.append(']');
+				break;
+			default:
+				buf.append(" [unchanged]"); //$NON-NLS-1$
 		}
 		return buf.toString();
 	}

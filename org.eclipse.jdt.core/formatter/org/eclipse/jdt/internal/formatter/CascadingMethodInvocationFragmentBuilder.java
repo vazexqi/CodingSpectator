@@ -18,16 +18,16 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 class CascadingMethodInvocationFragmentBuilder
-	extends ASTVisitor {
+		extends ASTVisitor {
 
 	ArrayList fragmentsList;
 
 	CascadingMethodInvocationFragmentBuilder() {
-		this.fragmentsList = new ArrayList();
+		this.fragmentsList= new ArrayList();
 	}
 
 	public MessageSend[] fragments() {
-		MessageSend[] fragments = new MessageSend[this.fragmentsList.size()];
+		MessageSend[] fragments= new MessageSend[this.fragmentsList.size()];
 		this.fragmentsList.toArray(fragments);
 		return fragments;
 	}
@@ -35,6 +35,7 @@ class CascadingMethodInvocationFragmentBuilder
 	public int size() {
 		return this.fragmentsList.size();
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */

@@ -17,20 +17,17 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 public abstract class RewriteEvent {
 
 	/**
-	 * Change kind to describe that the event is an insert event.
-	 * Does not apply for list events.
+	 * Change kind to describe that the event is an insert event. Does not apply for list events.
 	 */
 	public static final int INSERTED= 1;
 
 	/**
-	 * Change kind to describe that the event is an remove event.
-	 * Does not apply for list events.
+	 * Change kind to describe that the event is an remove event. Does not apply for list events.
 	 */
 	public static final int REMOVED= 2;
 
 	/**
-	 * Change kind to describe that the event is an replace event.
-	 * Does not apply for list events.
+	 * Change kind to describe that the event is an replace event. Does not apply for list events.
 	 */
 	public static final int REPLACED= 4;
 
@@ -55,7 +52,8 @@ public abstract class RewriteEvent {
 	public abstract boolean isListRewrite();
 
 	/**
-	 * @return Returns the original value. For lists this is a <code>List<code> of ASTNode's, for non-list
+	 * @return Returns the original value. For lists this is a
+	 *         <code>List<code> of ASTNode's, for non-list
 	 * events this can be an ASTNode (for node properties), Integer (for an integer property),
 	 * Boolean (for boolean node properties) or properties like Operator.
 	 * <code>null</code> is returned if the event is a insert event.
@@ -63,7 +61,8 @@ public abstract class RewriteEvent {
 	public abstract Object getOriginalValue();
 
 	/**
-	 * @return Returns the new value. For lists this is a <code>List<code> of ASTNode's, for non-list
+	 * @return Returns the new value. For lists this is a
+	 *         <code>List<code> of ASTNode's, for non-list
 	 * events this can be an ASTNode (for node properties), Integer (for an integer property),
 	 * Boolean (for boolean node properties) or properties like Operator.
 	 * <code>null</code> is returned if the event is a remove event.
@@ -72,7 +71,7 @@ public abstract class RewriteEvent {
 
 	/**
 	 * @return Return the events describing the changes in a list. returns <code>null</code> if the
-	 * event is not a list event.
+	 *         event is not a list event.
 	 */
 	public abstract RewriteEvent[] getChildren();
 

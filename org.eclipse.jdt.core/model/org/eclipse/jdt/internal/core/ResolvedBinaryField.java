@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle representing a binary field that is resolved.
- * The uniqueKey contains the genericSignature of the resolved field. Use BindingKey to decode it.
+ * Handle representing a binary field that is resolved. The uniqueKey contains the genericSignature
+ * of the resolved field. Use BindingKey to decode it.
  */
 public class ResolvedBinaryField extends BinaryField {
 
@@ -23,7 +23,7 @@ public class ResolvedBinaryField extends BinaryField {
 	 */
 	public ResolvedBinaryField(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
-		this.uniqueKey = uniqueKey;
+		this.uniqueKey= uniqueKey;
 	}
 
 	/* (non-Javadoc)
@@ -53,8 +53,8 @@ public class ResolvedBinaryField extends BinaryField {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryField(this.parent, this.name);
-		handle.occurrenceCount = this.occurrenceCount;
+		SourceRefElement handle= new BinaryField(this.parent, this.name);
+		handle.occurrenceCount= this.occurrenceCount;
 		return handle;
 	}
 }

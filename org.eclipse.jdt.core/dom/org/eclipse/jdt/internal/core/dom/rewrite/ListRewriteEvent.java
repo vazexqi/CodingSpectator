@@ -21,7 +21,9 @@ import org.eclipse.jdt.core.dom.ASTNode;
 public class ListRewriteEvent extends RewriteEvent {
 
 	public final static int NEW= 1;
+
 	public final static int OLD= 2;
+
 	public final static int BOTH= NEW | OLD;
 
 	/** original list of 'ASTNode' */
@@ -31,8 +33,9 @@ public class ListRewriteEvent extends RewriteEvent {
 	private List listEntries;
 
 	/**
-	 * Creates a ListRewriteEvent from the original ASTNodes. The resulting event
-	 * represents the unmodified list.
+	 * Creates a ListRewriteEvent from the original ASTNodes. The resulting event represents the
+	 * unmodified list.
+	 * 
 	 * @param originalNodes The original nodes (type ASTNode)
 	 */
 	public ListRewriteEvent(List originalNodes) {
@@ -41,6 +44,7 @@ public class ListRewriteEvent extends RewriteEvent {
 
 	/**
 	 * Creates a ListRewriteEvent from existing rewrite events.
+	 * 
 	 * @param children The rewrite events for this list.
 	 */
 	public ListRewriteEvent(RewriteEvent[] children) {
@@ -61,7 +65,7 @@ public class ListRewriteEvent extends RewriteEvent {
 			int nNodes= this.originalNodes.size();
 			this.listEntries= new ArrayList(nNodes * 2);
 			for (int i= 0; i < nNodes; i++) {
-				ASTNode node= (ASTNode) this.originalNodes.get(i);
+				ASTNode node= (ASTNode)this.originalNodes.get(i);
 				// all nodes unchanged
 				this.listEntries.add(new NodeRewriteEvent(node, node));
 			}
@@ -75,7 +79,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	public int getChangeKind() {
 		if (this.listEntries != null) {
 			for (int i= 0; i < this.listEntries.size(); i++) {
-				RewriteEvent curr= (RewriteEvent) this.listEntries.get(i);
+				RewriteEvent curr= (RewriteEvent)this.listEntries.get(i);
 				if (curr.getChangeKind() != UNCHANGED) {
 					return CHILDREN_CHANGED;
 				}
@@ -96,7 +100,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	 */
 	public RewriteEvent[] getChildren() {
 		List entries= getEntries();
-		return (RewriteEvent[]) entries.toArray(new RewriteEvent[entries.size()]);
+		return (RewriteEvent[])entries.toArray(new RewriteEvent[entries.size()]);
 	}
 
 	/* (non-Javadoc)
@@ -113,7 +117,7 @@ public class ListRewriteEvent extends RewriteEvent {
 		List entries= getEntries();
 		ArrayList res= new ArrayList(entries.size());
 		for (int i= 0; i < entries.size(); i++) {
-			RewriteEvent curr= (RewriteEvent) entries.get(i);
+			RewriteEvent curr= (RewriteEvent)entries.get(i);
 			Object newVal= curr.getNewValue();
 			if (newVal != null) {
 				res.add(newVal);
@@ -136,7 +140,7 @@ public class ListRewriteEvent extends RewriteEvent {
 		List entries= getEntries();
 		int nEntries= entries.size();
 		for (int i= 0; i < nEntries; i++) {
-			NodeRewriteEvent curr= (NodeRewriteEvent) entries.get(i);
+			NodeRewriteEvent curr= (NodeRewriteEvent)entries.get(i);
 			if (curr.getOriginalValue() == entry || curr.getNewValue() == entry) {
 				curr.setNewValue(newEntry);
 				if (curr.getNewValue() == null && curr.getOriginalValue() == null) { // removed an inserted node
@@ -150,7 +154,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	}
 
 	public void revertChange(NodeRewriteEvent event) {
-		Object originalValue = event.getOriginalValue();
+		Object originalValue= event.getOriginalValue();
 		if (originalValue == null) {
 			List entries= getEntries();
 			entries.remove(event);
@@ -162,7 +166,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	public int getIndex(ASTNode node, int kind) {
 		List entries= getEntries();
 		for (int i= entries.size() - 1; i >= 0; i--) {
-			RewriteEvent curr= (RewriteEvent) entries.get(i);
+			RewriteEvent curr= (RewriteEvent)entries.get(i);
 			if (((kind & OLD) != 0) && (curr.getOriginalValue() == node)) {
 				return i;
 			}
@@ -184,12 +188,12 @@ public class ListRewriteEvent extends RewriteEvent {
 	}
 
 	public void setNewValue(ASTNode newValue, int insertIndex) {
-		NodeRewriteEvent curr= (NodeRewriteEvent) getEntries().get(insertIndex);
+		NodeRewriteEvent curr= (NodeRewriteEvent)getEntries().get(insertIndex);
 		curr.setNewValue(newValue);
 	}
 
 	public int getChangeKind(int index) {
-		return ((NodeRewriteEvent) getEntries().get(index)).getChangeKind();
+		return ((NodeRewriteEvent)getEntries().get(index)).getChangeKind();
 	}
 
 	/* (non-Javadoc)

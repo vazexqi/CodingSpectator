@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class EmptyStatement extends Statement {
 
 	public EmptyStatement(int startPosition, int endPosition) {
-		this.sourceStart = startPosition;
-		this.sourceEnd = endPosition;
+		this.sourceStart= startPosition;
+		this.sourceEnd= endPosition;
 	}
 
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -37,7 +37,7 @@ public class EmptyStatement extends Statement {
 		return super.complainIfUnreachable(flowInfo, scope, complaintLevel);
 	}
 
-	public void generateCode(BlockScope currentScope, CodeStream codeStream){
+	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// no bytecode, no need to check for reachability or recording source positions
 	}
 
@@ -60,4 +60,3 @@ public class EmptyStatement extends Statement {
 
 
 }
-

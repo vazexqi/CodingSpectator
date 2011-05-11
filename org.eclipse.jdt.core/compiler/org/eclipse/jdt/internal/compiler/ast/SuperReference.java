@@ -40,10 +40,10 @@ public class SuperReference extends ThisReference {
 
 	public boolean isThis() {
 
-		return false ;
+		return false;
 	}
 
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		return output.append("super"); //$NON-NLS-1$
 
@@ -51,15 +51,15 @@ public class SuperReference extends ThisReference {
 
 	public TypeBinding resolveType(BlockScope scope) {
 
-		this.constant = Constant.NotAConstant;
+		this.constant= Constant.NotAConstant;
 		if (!checkAccess(scope.methodScope()))
 			return null;
-		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
+		ReferenceBinding enclosingReceiverType= scope.enclosingReceiverType();
 		if (enclosingReceiverType.id == T_JavaLangObject) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}
-		return this.resolvedType = enclosingReceiverType.superclass();
+		return this.resolvedType= enclosingReceiverType.superclass();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

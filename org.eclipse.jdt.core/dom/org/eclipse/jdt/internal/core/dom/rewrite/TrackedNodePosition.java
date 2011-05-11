@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite;
 
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
 
 /**
  *
@@ -23,6 +22,7 @@ import org.eclipse.jface.text.IRegion;
 public class TrackedNodePosition implements ITrackedNodePosition {
 
 	private final TextEditGroup group;
+
 	private final ASTNode node;
 
 	public TrackedNodePosition(TextEditGroup group, ASTNode node) {

@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
@@ -21,43 +22,53 @@ public class WeakHashSetOfCharArray {
 
 	public static class HashableWeakReference extends WeakReference {
 		public int hashCode;
+
 		public HashableWeakReference(char[] referent, ReferenceQueue queue) {
 			super(referent, queue);
-			this.hashCode = CharOperation.hashCode(referent);
+			this.hashCode= CharOperation.hashCode(referent);
 		}
+
 		public boolean equals(Object obj) {
-			if (!(obj instanceof HashableWeakReference)) return false;
-			char[] referent = (char[]) get();
-			char[] other = (char[]) ((HashableWeakReference) obj).get();
-			if (referent == null) return other == null;
+			if (!(obj instanceof HashableWeakReference))
+				return false;
+			char[] referent= (char[])get();
+			char[] other= (char[])((HashableWeakReference)obj).get();
+			if (referent == null)
+				return other == null;
 			return CharOperation.equals(referent, other);
 		}
+
 		public int hashCode() {
 			return this.hashCode;
 		}
+
 		public String toString() {
-			char[] referent = (char[]) get();
-			if (referent == null) return "[hashCode=" + this.hashCode + "] <referent was garbage collected>"; //$NON-NLS-1$  //$NON-NLS-2$
+			char[] referent= (char[])get();
+			if (referent == null)
+				return "[hashCode=" + this.hashCode + "] <referent was garbage collected>"; //$NON-NLS-1$  //$NON-NLS-2$
 			return "[hashCode=" + this.hashCode + "] \"" + new String(referent) + '\"'; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
 	HashableWeakReference[] values;
+
 	public int elementSize; // number of elements in the table
+
 	int threshold;
-	ReferenceQueue referenceQueue = new ReferenceQueue();
+
+	ReferenceQueue referenceQueue= new ReferenceQueue();
 
 	public WeakHashSetOfCharArray() {
 		this(5);
 	}
 
 	public WeakHashSetOfCharArray(int size) {
-		this.elementSize = 0;
-		this.threshold = size; // size represents the expected number of elements
-		int extraRoom = (int) (size * 1.75f);
+		this.elementSize= 0;
+		this.threshold= size; // size represents the expected number of elements
+		int extraRoom= (int)(size * 1.75f);
 		if (this.threshold == extraRoom)
 			extraRoom++;
-		this.values = new HashableWeakReference[extraRoom];
+		this.values= new HashableWeakReference[extraRoom];
 	}
 
 	/*
@@ -67,19 +78,18 @@ public class WeakHashSetOfCharArray {
 	 */
 	public char[] add(char[] array) {
 		cleanupGarbageCollectedValues();
-		int valuesLength = this.values.length,
-			index = (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
+		int valuesLength= this.values.length, index= (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
 		HashableWeakReference currentValue;
-		while ((currentValue = this.values[index]) != null) {
+		while ((currentValue= this.values[index]) != null) {
 			char[] referent;
-			if (CharOperation.equals(array, referent = (char[]) currentValue.get())) {
+			if (CharOperation.equals(array, referent= (char[])currentValue.get())) {
 				return referent;
 			}
 			if (++index == valuesLength) {
-				index = 0;
+				index= 0;
 			}
 		}
-		this.values[index] = new HashableWeakReference(array, this.referenceQueue);
+		this.values[index]= new HashableWeakReference(array, this.referenceQueue);
 
 		// assumes the threshold is never equal to the size of the table
 		if (++this.elementSize > this.threshold)
@@ -89,20 +99,21 @@ public class WeakHashSetOfCharArray {
 	}
 
 	private void addValue(HashableWeakReference value) {
-		char[] array = (char[]) value.get();
-		if (array == null) return;
-		int valuesLength = this.values.length;
-		int index = (value.hashCode & 0x7FFFFFFF) % valuesLength;
+		char[] array= (char[])value.get();
+		if (array == null)
+			return;
+		int valuesLength= this.values.length;
+		int index= (value.hashCode & 0x7FFFFFFF) % valuesLength;
 		HashableWeakReference currentValue;
-		while ((currentValue = this.values[index]) != null) {
-			if (CharOperation.equals(array, (char[]) currentValue.get())) {
+		while ((currentValue= this.values[index]) != null) {
+			if (CharOperation.equals(array, (char[])currentValue.get())) {
 				return;
 			}
 			if (++index == valuesLength) {
-				index = 0;
+				index= 0;
 			}
 		}
-		this.values[index] = value;
+		this.values[index]= value;
 
 		// assumes the threshold is never equal to the size of the table
 		if (++this.elementSize > this.threshold)
@@ -111,25 +122,25 @@ public class WeakHashSetOfCharArray {
 
 	private void cleanupGarbageCollectedValues() {
 		HashableWeakReference toBeRemoved;
-		while ((toBeRemoved = (HashableWeakReference) this.referenceQueue.poll()) != null) {
-			int hashCode = toBeRemoved.hashCode;
-			int valuesLength = this.values.length;
-			int index = (hashCode & 0x7FFFFFFF) % valuesLength;
+		while ((toBeRemoved= (HashableWeakReference)this.referenceQueue.poll()) != null) {
+			int hashCode= toBeRemoved.hashCode;
+			int valuesLength= this.values.length;
+			int index= (hashCode & 0x7FFFFFFF) % valuesLength;
 			HashableWeakReference currentValue;
-			while ((currentValue = this.values[index]) != null) {
+			while ((currentValue= this.values[index]) != null) {
 				if (currentValue == toBeRemoved) {
 					// replace the value at index with the last value with the same hash
-					int sameHash = index;
+					int sameHash= index;
 					int current;
-					while ((currentValue = this.values[current = (sameHash + 1) % valuesLength]) != null && currentValue.hashCode == hashCode)
-						sameHash = current;
-					this.values[index] = this.values[sameHash];
-					this.values[sameHash] = null;
+					while ((currentValue= this.values[current= (sameHash + 1) % valuesLength]) != null && currentValue.hashCode == hashCode)
+						sameHash= current;
+					this.values[index]= this.values[sameHash];
+					this.values[sameHash]= null;
 					this.elementSize--;
 					break;
 				}
 				if (++index == valuesLength) {
-					index = 0;
+					index= 0;
 				}
 			}
 		}
@@ -145,32 +156,32 @@ public class WeakHashSetOfCharArray {
 	 */
 	public char[] get(char[] array) {
 		cleanupGarbageCollectedValues();
-		int valuesLength = this.values.length;
-		int index = (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
+		int valuesLength= this.values.length;
+		int index= (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
 		HashableWeakReference currentValue;
-		while ((currentValue = this.values[index]) != null) {
+		while ((currentValue= this.values[index]) != null) {
 			char[] referent;
-			if (CharOperation.equals(array, referent = (char[]) currentValue.get())) {
+			if (CharOperation.equals(array, referent= (char[])currentValue.get())) {
 				return referent;
 			}
 			if (++index == valuesLength) {
-				index = 0;
+				index= 0;
 			}
 		}
 		return null;
 	}
 
 	private void rehash() {
-		WeakHashSetOfCharArray newHashSet = new WeakHashSetOfCharArray(this.elementSize * 2);		// double the number of expected elements
-		newHashSet.referenceQueue = this.referenceQueue;
+		WeakHashSetOfCharArray newHashSet= new WeakHashSetOfCharArray(this.elementSize * 2); // double the number of expected elements
+		newHashSet.referenceQueue= this.referenceQueue;
 		HashableWeakReference currentValue;
-		for (int i = 0, length = this.values.length; i < length; i++)
-			if ((currentValue = this.values[i]) != null)
+		for (int i= 0, length= this.values.length; i < length; i++)
+			if ((currentValue= this.values[i]) != null)
 				newHashSet.addValue(currentValue);
 
-		this.values = newHashSet.values;
-		this.threshold = newHashSet.threshold;
-		this.elementSize = newHashSet.elementSize;
+		this.values= newHashSet.values;
+		this.threshold= newHashSet.threshold;
+		this.elementSize= newHashSet.elementSize;
 	}
 
 	/*
@@ -179,19 +190,19 @@ public class WeakHashSetOfCharArray {
 	 */
 	public char[] remove(char[] array) {
 		cleanupGarbageCollectedValues();
-		int valuesLength = this.values.length;
-		int index = (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
+		int valuesLength= this.values.length;
+		int index= (CharOperation.hashCode(array) & 0x7FFFFFFF) % valuesLength;
 		HashableWeakReference currentValue;
-		while ((currentValue = this.values[index]) != null) {
+		while ((currentValue= this.values[index]) != null) {
 			char[] referent;
-			if (CharOperation.equals(array, referent = (char[]) currentValue.get())) {
+			if (CharOperation.equals(array, referent= (char[])currentValue.get())) {
 				this.elementSize--;
-				this.values[index] = null;
+				this.values[index]= null;
 				rehash();
 				return referent;
 			}
 			if (++index == valuesLength) {
-				index = 0;
+				index= 0;
 			}
 		}
 		return null;
@@ -202,11 +213,11 @@ public class WeakHashSetOfCharArray {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer("{"); //$NON-NLS-1$
-		for (int i = 0, length = this.values.length; i < length; i++) {
-			HashableWeakReference value = this.values[i];
+		StringBuffer buffer= new StringBuffer("{"); //$NON-NLS-1$
+		for (int i= 0, length= this.values.length; i < length; i++) {
+			HashableWeakReference value= this.values[i];
 			if (value != null) {
-				char[] ref = (char[]) value.get();
+				char[] ref= (char[])value.get();
 				if (ref != null) {
 					buffer.append('\"');
 					buffer.append(ref);

@@ -34,40 +34,44 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * before the cursor.
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnQualifiedAllocationExpression extends QualifiedAllocationExpression {
-public TypeBinding resolveType(BlockScope scope) {
-	if (this.arguments != null) {
-		int argsLength = this.arguments.length;
-		for (int a = argsLength; --a >= 0;)
-			this.arguments[a].resolveType(scope);
-	}
-
-	if (this.enclosingInstance != null) {
-		TypeBinding enclosingType = this.enclosingInstance.resolveType(scope);
-		if (enclosingType == null || !(enclosingType instanceof ReferenceBinding)) {
-			throw new CompletionNodeFound();
+	public TypeBinding resolveType(BlockScope scope) {
+		if (this.arguments != null) {
+			int argsLength= this.arguments.length;
+			for (int a= argsLength; --a >= 0;)
+				this.arguments[a].resolveType(scope);
 		}
-		this.resolvedType = ((SingleTypeReference) this.type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
-		if (!(this.resolvedType instanceof ReferenceBinding))
-			throw new CompletionNodeFound(); // no need to continue if its an array or base type
-		if (this.resolvedType.isInterface()) // handle the anonymous class definition case
-			this.resolvedType = scope.getJavaLangObject();
-	} else {
-		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
-		if (!(this.resolvedType instanceof ReferenceBinding))
-			throw new CompletionNodeFound(); // no need to continue if its an array or base type
+
+		if (this.enclosingInstance != null) {
+			TypeBinding enclosingType= this.enclosingInstance.resolveType(scope);
+			if (enclosingType == null || !(enclosingType instanceof ReferenceBinding)) {
+				throw new CompletionNodeFound();
+			}
+			this.resolvedType= ((SingleTypeReference)this.type).resolveTypeEnclosing(scope, (ReferenceBinding)enclosingType);
+			if (!(this.resolvedType instanceof ReferenceBinding))
+				throw new CompletionNodeFound(); // no need to continue if its an array or base type
+			if (this.resolvedType.isInterface()) // handle the anonymous class definition case
+				this.resolvedType= scope.getJavaLangObject();
+		} else {
+			this.resolvedType= this.type.resolveType(scope, true /* check bounds*/);
+			if (!(this.resolvedType instanceof ReferenceBinding))
+				throw new CompletionNodeFound(); // no need to continue if its an array or base type
+		}
+
+		throw new CompletionNodeFound(this, this.resolvedType, scope);
 	}
 
-	throw new CompletionNodeFound(this, this.resolvedType, scope);
-}
-public StringBuffer printExpression(int indent, StringBuffer output) {
-	if (this.enclosingInstance == null)
-		output.append("<CompleteOnAllocationExpression:" );  //$NON-NLS-1$
-	else
-		output.append("<CompleteOnQualifiedAllocationExpression:");  //$NON-NLS-1$
-	return super.printExpression(indent, output).append('>');
-}
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		if (this.enclosingInstance == null)
+			output.append("<CompleteOnAllocationExpression:"); //$NON-NLS-1$
+		else
+			output.append("<CompleteOnQualifiedAllocationExpression:"); //$NON-NLS-1$
+		return super.printExpression(indent, output).append('>');
+	}
 }

@@ -26,16 +26,16 @@ public class ClasspathValidation {
 	private JavaProject project;
 
 	public ClasspathValidation(JavaProject project) {
-		this.project = project;
+		this.project= project;
 	}
 
 	public void validate() {
 		JavaModelManager.PerProjectInfo perProjectInfo;
 		try {
-			perProjectInfo = this.project.getPerProjectInfo();
+			perProjectInfo= this.project.getPerProjectInfo();
 		} catch (JavaModelException e) {
 			// project doesn't exist
-			IProject resource = this.project.getProject();
+			IProject resource= this.project.getProject();
 			if (resource.isAccessible()) {
 				this.project.flushClasspathProblemMarkers(true/*flush cycle markers*/, true/*flush classpath format markers*/);
 
@@ -50,9 +50,9 @@ public class ClasspathValidation {
 		IPath outputLocation;
 		IJavaModelStatus status;
 		synchronized (perProjectInfo) {
-			rawClasspath = perProjectInfo.rawClasspath;
-			outputLocation = perProjectInfo.outputLocation;
-			status = perProjectInfo.rawClasspathStatus; // status has been set during POST_CHANGE
+			rawClasspath= perProjectInfo.rawClasspath;
+			outputLocation= perProjectInfo.outputLocation;
+			status= perProjectInfo.rawClasspathStatus; // status has been set during POST_CHANGE
 		}
 
 		// update classpath format problems
@@ -64,16 +64,16 @@ public class ClasspathValidation {
 		this.project.flushClasspathProblemMarkers(false/*cycle*/, false/*format*/);
 
 		if (rawClasspath != JavaProject.INVALID_CLASSPATH && outputLocation != null) {
-		 	for (int i = 0; i < rawClasspath.length; i++) {
-				status = ClasspathEntry.validateClasspathEntry(this.project, rawClasspath[i], false/*src attach*/, false /*not referred by a container*/);
+			for (int i= 0; i < rawClasspath.length; i++) {
+				status= ClasspathEntry.validateClasspathEntry(this.project, rawClasspath[i], false/*src attach*/, false /*not referred by a container*/);
 				if (!status.isOK()) {
 					this.project.createClasspathProblemMarker(status);
 				}
-			 }
-			status = ClasspathEntry.validateClasspath(this.project, rawClasspath, outputLocation);
+			}
+			status= ClasspathEntry.validateClasspath(this.project, rawClasspath, outputLocation);
 			if (!status.isOK())
 				this.project.createClasspathProblemMarker(status);
-		 }
+		}
 	}
 
 }

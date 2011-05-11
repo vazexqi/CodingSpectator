@@ -11,13 +11,13 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * A node event handler is an internal mechanism for receiving
- * notification of changes to nodes in an AST.
+ * A node event handler is an internal mechanism for receiving notification of changes to nodes in
+ * an AST.
  * <p>
- * The default implementation serves as the default event handler
- * that does nothing. Internal subclasses do all the real work.
+ * The default implementation serves as the default event handler that does nothing. Internal
+ * subclasses do all the real work.
  * </p>
- *
+ * 
  * @see AST#getEventHandler()
  */
 class NodeEventHandler {
@@ -30,9 +30,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node is about to lose a child.
-	 * The first half of an event pair. The default implementation does nothing.
-	 *
+	 * Reports that the given node is about to lose a child. The first half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node about to be modified
 	 * @param child the node about to be removed
 	 * @param property the child or child list property descriptor
@@ -45,9 +45,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node has just lose a child.
-	 * The second half of an event pair. The default implementation does nothing.
-	 *
+	 * Reports that the given node has just lose a child. The second half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node that was modified
 	 * @param child the child that was removed; note that this node is unparented
 	 * @param property the child or child list property descriptor
@@ -60,10 +60,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node is about to have a child replaced.
-	 * The first half of an event pair.
-	 * The default implementation does nothing.
-	 *
+	 * Reports that the given node is about to have a child replaced. The first half of an event
+	 * pair. The default implementation does nothing.
+	 * 
 	 * @param node the node about to be modified
 	 * @param child the node about to be replaced
 	 * @param newChild the replacement child; note that this node is unparented
@@ -77,9 +76,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node has had its child replaced. The second half
-	 * of an event pair. The default implementation does nothing.
-	 *
+	 * Reports that the given node has had its child replaced. The second half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node that was modified
 	 * @param child the node that was replaced; note that this node is unparented
 	 * @param newChild the replacement child
@@ -93,15 +92,13 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node is about to gain a child.
-	 * The first half of an event pair. The default implementation does nothing.
-	 *
+	 * Reports that the given node is about to gain a child. The first half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node that to be modified
-	 * @param child the node that is to be added as a child; note that this
-	 * node is unparented; in the case of a child list property, the exact
-	 * location of insertion is not supplied (but is known on the
-	 * corresponding <code>postAddChildEvent</code> to
-	 * follow)
+	 * @param child the node that is to be added as a child; note that this node is unparented; in
+	 *            the case of a child list property, the exact location of insertion is not supplied
+	 *            (but is known on the corresponding <code>postAddChildEvent</code> to follow)
 	 * @param property the child or child list property descriptor
 	 * @see #postAddChildEvent(ASTNode, ASTNode, StructuralPropertyDescriptor)
 	 * @since 3.0
@@ -112,9 +109,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node has just gained a child.
-	 * The second half of an event pair. The default implementation does nothing.
-	 *
+	 * Reports that the given node has just gained a child. The second half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node that was modified
 	 * @param child the node that was added as a child
 	 * @param property the child or child list property descriptor
@@ -127,10 +124,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node is about to change the value of a
-	 * non-child property. The first half of an event pair.
-	 * The default implementation does nothing.
-	 *
+	 * Reports that the given node is about to change the value of a non-child property. The first
+	 * half of an event pair. The default implementation does nothing.
+	 * 
 	 * @param node the node to be modified
 	 * @param property the property descriptor
 	 * @see #postValueChangeEvent(ASTNode, SimplePropertyDescriptor)
@@ -142,10 +138,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node has just changed the value of a
-	 * non-child property. The second half of an event pair.
-	 * The default implementation does nothing.
-	 *
+	 * Reports that the given node has just changed the value of a non-child property. The second
+	 * half of an event pair. The default implementation does nothing.
+	 * 
 	 * @param node the node that was modified
 	 * @param property the property descriptor
 	 * @see #preValueChangeEvent(ASTNode, SimplePropertyDescriptor)
@@ -157,10 +152,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node is about to be cloned.
-	 * The first half of an event pair.
-	 * The default implementation does nothing.
-	 *
+	 * Reports that the given node is about to be cloned. The first half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node to be modified
 	 * @see #postCloneNodeEvent(ASTNode, ASTNode)
 	 * @since 3.0
@@ -171,10 +165,9 @@ class NodeEventHandler {
 	}
 
 	/**
-	 * Reports that the given node has just been cloned.
-	 * The second half of an event pair.
-	 * The default implementation does nothing.
-	 *
+	 * Reports that the given node has just been cloned. The second half of an event pair. The
+	 * default implementation does nothing.
+	 * 
 	 * @param node the node that was modified
 	 * @param clone the clone of <code>node</code>
 	 * @see #preCloneNodeEvent(ASTNode)

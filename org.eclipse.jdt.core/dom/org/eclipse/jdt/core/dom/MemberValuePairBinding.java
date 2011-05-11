@@ -23,26 +23,30 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  * Internal class.
  */
 class MemberValuePairBinding implements IMemberValuePairBinding {
-	static final MemberValuePairBinding[] NoPair = new MemberValuePairBinding[0];
-	private static final Object NoValue = new Object();
-	private static final Object[] EmptyArray = new Object[0];
+	static final MemberValuePairBinding[] NoPair= new MemberValuePairBinding[0];
+
+	private static final Object NoValue= new Object();
+
+	private static final Object[] EmptyArray= new Object[0];
 
 	private ElementValuePair internalPair;
-	protected Object value = null;
+
+	protected Object value= null;
+
 	protected BindingResolver bindingResolver;
 
 	static void appendValue(Object value, StringBuffer buffer) {
 		if (value instanceof Object[]) {
-			Object[] values = (Object[]) value;
+			Object[] values= (Object[])value;
 			buffer.append('{');
-			for (int i = 0, l = values.length; i < l; i++) {
+			for (int i= 0, l= values.length; i < l; i++) {
 				if (i != 0)
 					buffer.append(", "); //$NON-NLS-1$
 				appendValue(values[i], buffer);
 			}
 			buffer.append('}');
 		} else if (value instanceof ITypeBinding) {
-			buffer.append(((ITypeBinding) value).getName());
+			buffer.append(((ITypeBinding)value).getName());
 			buffer.append(".class"); //$NON-NLS-1$
 		} else {
 			buffer.append(value);
@@ -54,7 +58,7 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 			return null;
 
 		if (internalObject instanceof Constant) {
-			Constant constant = (Constant) internalObject;
+			Constant constant= (Constant)internalObject;
 			switch (constant.typeID()) {
 				case TypeIds.T_boolean:
 					return Boolean.valueOf(constant.booleanValue());
@@ -76,25 +80,25 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 					return constant.stringValue();
 			}
 		} else if (internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-			return resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) internalObject);
+			return resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)internalObject);
 		} else if (internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding) {
-			return resolver.getAnnotationInstance((org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding) internalObject);
+			return resolver.getAnnotationInstance((org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding)internalObject);
 		} else if (internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.FieldBinding) {
-			return resolver.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.FieldBinding) internalObject);
+			return resolver.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.FieldBinding)internalObject);
 		} else if (internalObject instanceof Object[]) {
-			Object[] elements = (Object[]) internalObject;
-			int length = elements.length;
-			Object[] values = length == 0 ? EmptyArray : new Object[length];
-			for (int i = 0; i < length; i++)
-				values[i] = buildDOMValue(elements[i], resolver);
+			Object[] elements= (Object[])internalObject;
+			int length= elements.length;
+			Object[] values= length == 0 ? EmptyArray : new Object[length];
+			for (int i= 0; i < length; i++)
+				values[i]= buildDOMValue(elements[i], resolver);
 			return values;
 		}
 		return null;
 	}
 
 	MemberValuePairBinding(ElementValuePair pair, BindingResolver resolver) {
-		this.internalPair = pair;
-		this.bindingResolver = resolver;
+		this.internalPair= pair;
+		this.bindingResolver= resolver;
 	}
 
 	public IAnnotationBinding[] getAnnotations() {
@@ -125,7 +129,7 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 	public String getName() {
 		if (this.internalPair == null)
 			return null;
-		final char[] membername = this.internalPair.getName();
+		final char[] membername= this.internalPair.getName();
 		return membername == null ? null : new String(membername);
 	}
 
@@ -136,9 +140,9 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 	}
 
 	private void init() {
-		this.value = buildDOMValue(this.internalPair.getValue(), this.bindingResolver);
+		this.value= buildDOMValue(this.internalPair.getValue(), this.bindingResolver);
 		if (this.value == null)
-			this.value = NoValue;
+			this.value= NoValue;
 	}
 
 	char[] internalName() {
@@ -146,20 +150,21 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 	}
 
 	public boolean isDefault() {
-		Object value2 = getValue();
-		Object defaultValue = getMethodBinding().getDefaultValue();
+		Object value2= getValue();
+		Object defaultValue= getMethodBinding().getDefaultValue();
 		if (value2 instanceof IBinding) {
 			if (defaultValue instanceof IBinding) {
-				return ((IBinding) value2).isEqualTo((IBinding) defaultValue);
+				return ((IBinding)value2).isEqualTo((IBinding)defaultValue);
 			}
 			return false;
 		}
-		if (defaultValue == null) return false;
+		if (defaultValue == null)
+			return false;
 		return defaultValue.equals(value2);
 	}
 
 	public boolean isDeprecated() {
-		MethodBinding methodBinding = this.internalPair.getMethodBinding();
+		MethodBinding methodBinding= this.internalPair.getMethodBinding();
 		return methodBinding == null ? false : methodBinding.isDeprecated();
 	}
 
@@ -168,18 +173,18 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 			return true;
 		if (binding.getKind() != IBinding.MEMBER_VALUE_PAIR)
 			return false;
-		IMemberValuePairBinding other = (IMemberValuePairBinding) binding;
+		IMemberValuePairBinding other= (IMemberValuePairBinding)binding;
 		if (!getMethodBinding().isEqualTo(other.getMethodBinding())) {
 			return false;
 		}
-		Object otherValue = other.getValue();
-		Object currentValue = getValue();
+		Object otherValue= other.getValue();
+		Object currentValue= getValue();
 		if (currentValue == null) {
 			return otherValue == null;
 		}
 		if (currentValue instanceof IBinding) {
 			if (otherValue instanceof IBinding) {
-				return ((IBinding) currentValue).isEqualTo((IBinding) otherValue);
+				return ((IBinding)currentValue).isEqualTo((IBinding)otherValue);
 			}
 			return false;
 		}
@@ -199,7 +204,7 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		buffer.append(getName());
 		buffer.append(" = "); //$NON-NLS-1$
 		appendValue(getValue(), buffer);

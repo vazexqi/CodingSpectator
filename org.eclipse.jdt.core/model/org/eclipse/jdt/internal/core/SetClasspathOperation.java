@@ -24,40 +24,44 @@ import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 
 /**
  * This operation sets an <code>IJavaProject</code>'s classpath.
- *
+ * 
  * @see IJavaProject
  */
 public class SetClasspathOperation extends ChangeClasspathOperation {
 
 	IClasspathEntry[] newRawClasspath;
+
 	IClasspathEntry[] referencedEntries;
+
 	IPath newOutputLocation;
+
 	JavaProject project;
 
 	public SetClasspathOperation(
-		JavaProject project,
-		IClasspathEntry[] newRawClasspath,
-		IPath newOutputLocation,
-		boolean canChangeResource) {
+			JavaProject project,
+			IClasspathEntry[] newRawClasspath,
+			IPath newOutputLocation,
+			boolean canChangeResource) {
 
 		this(project, newRawClasspath, null, newOutputLocation, canChangeResource);
 	}
-	
+
 	/**
-	 * When executed, this operation sets the raw classpath and output location of the given project.
+	 * When executed, this operation sets the raw classpath and output location of the given
+	 * project.
 	 */
 	public SetClasspathOperation(
-		JavaProject project,
-		IClasspathEntry[] newRawClasspath,
-		IClasspathEntry[] referencedEntries,
-		IPath newOutputLocation,
-		boolean canChangeResource) {
+			JavaProject project,
+			IClasspathEntry[] newRawClasspath,
+			IClasspathEntry[] referencedEntries,
+			IPath newOutputLocation,
+			boolean canChangeResource) {
 
 		super(new IJavaElement[] { project }, canChangeResource);
-		this.project = project;
-		this.newRawClasspath = newRawClasspath;
-		this.referencedEntries = referencedEntries;
-		this.newOutputLocation = newOutputLocation;
+		this.project= project;
+		this.newRawClasspath= newRawClasspath;
+		this.referencedEntries= referencedEntries;
+		this.newOutputLocation= newOutputLocation;
 	}
 
 	/**
@@ -67,8 +71,8 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 		checkCanceled();
 		try {
 			// set raw classpath and null out resolved info
-			PerProjectInfo perProjectInfo = this.project.getPerProjectInfo();
-			ClasspathChange classpathChange = perProjectInfo.setRawClasspath(this.newRawClasspath, this.referencedEntries, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/);
+			PerProjectInfo perProjectInfo= this.project.getPerProjectInfo();
+			ClasspathChange classpathChange= perProjectInfo.setRawClasspath(this.newRawClasspath, this.referencedEntries, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/);
 
 			// if needed, generate delta, update project ref, create markers, ...
 			classpathChanged(classpathChange, true/*refresh if external linked folder already exists*/);
@@ -80,41 +84,42 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 			done();
 		}
 	}
-	
+
 	protected ISchedulingRule getSchedulingRule() {
 		if (this.canChangeResources) {
-			IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
+			IResourceRuleFactory ruleFactory= ResourcesPlugin.getWorkspace().getRuleFactory();
 			return new MultiRule(new ISchedulingRule[] {
-				// use project modification rule as this is needed to create the .classpath file if it doesn't exist yet, or to update project references
-				ruleFactory.modifyRule(this.project.getProject()),
-				
-				// and external project modification rule in case the external folders are modified
-				ruleFactory.modifyRule(JavaModelManager.getExternalManager().getExternalFoldersProject())
+					// use project modification rule as this is needed to create the .classpath file if it doesn't exist yet, or to update project references
+					ruleFactory.modifyRule(this.project.getProject()),
+
+					// and external project modification rule in case the external folders are modified
+					ruleFactory.modifyRule(JavaModelManager.getExternalManager().getExternalFoldersProject())
 			});
 		}
 		return super.getSchedulingRule();
 	}
 
-	public String toString(){
-		StringBuffer buffer = new StringBuffer(20);
+	public String toString() {
+		StringBuffer buffer= new StringBuffer(20);
 		buffer.append("SetClasspathOperation\n"); //$NON-NLS-1$
 		buffer.append(" - classpath : "); //$NON-NLS-1$
 		buffer.append("{"); //$NON-NLS-1$
-		for (int i = 0; i < this.newRawClasspath.length; i++) {
-			if (i > 0) buffer.append(","); //$NON-NLS-1$
-			IClasspathEntry element = this.newRawClasspath[i];
+		for (int i= 0; i < this.newRawClasspath.length; i++) {
+			if (i > 0)
+				buffer.append(","); //$NON-NLS-1$
+			IClasspathEntry element= this.newRawClasspath[i];
 			buffer.append(" ").append(element.toString()); //$NON-NLS-1$
 		}
-		buffer.append("\n - output location : ");  //$NON-NLS-1$
+		buffer.append("\n - output location : "); //$NON-NLS-1$
 		buffer.append(this.newOutputLocation.toString());
 		return buffer.toString();
 	}
 
 	public IJavaModelStatus verify() {
-		IJavaModelStatus status = super.verify();
+		IJavaModelStatus status= super.verify();
 		if (!status.isOK())
 			return status;
-		return ClasspathEntry.validateClasspath(	this.project, this.newRawClasspath, this.newOutputLocation);
+		return ClasspathEntry.validateClasspath(this.project, this.newRawClasspath, this.newOutputLocation);
 	}
 
 }

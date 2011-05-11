@@ -15,16 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Switch case AST node type. A switch case is a special kind of node used only
- * in switch statements. It is a <code>Statement</code> in name only.
+ * Switch case AST node type. A switch case is a special kind of node used only in switch
+ * statements. It is a <code>Statement</code> in name only.
  * <p>
+ * 
  * <pre>
  * SwitchCase:
- *		<b>case</b> Expression  <b>:</b>
- *		<b>default</b> <b>:</b>
+ * 	<b>case</b> Expression  <b>:</b>
+ * 	<b>default</b> <b>:</b>
  * </pre>
+ * 
  * </p>
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -32,33 +34,31 @@ public class SwitchCase extends Statement {
 
 	/**
 	 * The "expression" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
-		new ChildPropertyDescriptor(SwitchCase.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY=
+			new ChildPropertyDescriptor(SwitchCase.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(2);
+		List propertyList= new ArrayList(2);
 		createPropertyList(SwitchCase.class, propertyList);
 		addProperty(EXPRESSION_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -66,21 +66,22 @@ public class SwitchCase extends Statement {
 	}
 
 	/**
-	 * The expression; <code>null</code> for none; lazily initialized (but
-	 * does <b>not</b> default to none).
+	 * The expression; <code>null</code> for none; lazily initialized (but does <b>not</b> default
+	 * to none).
+	 * 
 	 * @see #expressionInitialized
 	 */
-	private Expression optionalExpression = null;
+	private Expression optionalExpression= null;
 
 	/**
 	 * Indicates whether <code>optionalExpression</code> has been initialized.
 	 */
-	private boolean expressionInitialized = false;
+	private boolean expressionInitialized= false;
 
 	/**
-	 * Creates a new AST node for a switch case pseudo-statement owned by the
-	 * given AST. By default, there is an unspecified, but legal, expression.
-	 *
+	 * Creates a new AST node for a switch case pseudo-statement owned by the given AST. By default,
+	 * there is an unspecified, but legal, expression.
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	SwitchCase(AST ast) {
@@ -102,7 +103,7 @@ public class SwitchCase extends Statement {
 			if (get) {
 				return getExpression();
 			} else {
-				setExpression((Expression) child);
+				setExpression((Expression)child);
 				return null;
 			}
 		}
@@ -121,11 +122,11 @@ public class SwitchCase extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		SwitchCase result = new SwitchCase(target);
+		SwitchCase result= new SwitchCase(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		result.setExpression(
-			(Expression) ASTNode.copySubtree(target, getExpression()));
+				(Expression)ASTNode.copySubtree(target, getExpression()));
 		return result;
 	}
 
@@ -141,7 +142,7 @@ public class SwitchCase extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
+		boolean visitChildren= visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getExpression());
 		}
@@ -149,9 +150,9 @@ public class SwitchCase extends Statement {
 	}
 
 	/**
-	 * Returns the expression of this switch case, or
-	 * <code>null</code> if there is none (the "default:" case).
-	 *
+	 * Returns the expression of this switch case, or <code>null</code> if there is none (the
+	 * "default:" case).
+	 * 
 	 * @return the expression node, or <code>null</code> if there is none
 	 */
 	public Expression getExpression() {
@@ -160,8 +161,8 @@ public class SwitchCase extends Statement {
 			synchronized (this) {
 				if (!this.expressionInitialized) {
 					preLazyInit();
-					this.optionalExpression = new SimpleName(this.ast);
-					this.expressionInitialized = true;
+					this.optionalExpression= new SimpleName(this.ast);
+					this.expressionInitialized= true;
 					postLazyInit(this.optionalExpression, EXPRESSION_PROPERTY);
 				}
 			}
@@ -170,37 +171,35 @@ public class SwitchCase extends Statement {
 	}
 
 	/**
-	 * Sets the expression of this switch case, or clears it (turns it into
-	 * the  "default:" case).
-	 *
-	 * @param expression the expression node, or <code>null</code> to
-	 *    turn it into the  "default:" case
+	 * Sets the expression of this switch case, or clears it (turns it into the "default:" case).
+	 * 
+	 * @param expression the expression node, or <code>null</code> to turn it into the "default:"
+	 *            case
 	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
+	 *                <ul>
+	 *                <li>the node belongs to a different AST</li>
+	 *                <li>the node already has a parent</li>
+	 *                <li>a cycle in would be created</li>
+	 *                </ul>
 	 */
 	public void setExpression(Expression expression) {
-		ASTNode oldChild = this.optionalExpression;
+		ASTNode oldChild= this.optionalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.optionalExpression = expression;
-		this.expressionInitialized = true;
+		this.optionalExpression= expression;
+		this.expressionInitialized= true;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
 	 * Returns whether this switch case represents the "default:" case.
 	 * <p>
-	 * This convenience method is equivalent to
-	 * <code>getExpression() == null</code>.
+	 * This convenience method is equivalent to <code>getExpression() == null</code>.
 	 * </p>
-	 *
-	 * @return <code>true</code> if this is the default switch case, and
-	 *    <code>false</code> if this is a non-default switch case
+	 * 
+	 * @return <code>true</code> if this is the default switch case, and <code>false</code> if this
+	 *         is a non-default switch case
 	 */
-	public boolean isDefault()  {
+	public boolean isDefault() {
 		return getExpression() == null;
 	}
 
@@ -215,8 +214,7 @@ public class SwitchCase extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return
-			memSize()
-			+ (this.optionalExpression == null ? 0 : this.optionalExpression.treeSize());
+		return memSize()
+				+ (this.optionalExpression == null ? 0 : this.optionalExpression.treeSize());
 	}
 }

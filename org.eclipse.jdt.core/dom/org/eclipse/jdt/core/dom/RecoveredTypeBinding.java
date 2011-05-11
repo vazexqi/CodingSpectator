@@ -29,42 +29,48 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 class RecoveredTypeBinding implements ITypeBinding {
 
 	private VariableDeclaration variableDeclaration;
+
 	private Type currentType;
+
 	private BindingResolver resolver;
+
 	private int dimensions;
+
 	private RecoveredTypeBinding innerTypeBinding;
+
 	private ITypeBinding[] typeArguments;
+
 	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 
 	RecoveredTypeBinding(BindingResolver resolver, VariableDeclaration variableDeclaration) {
-		this.variableDeclaration = variableDeclaration;
-		this.resolver = resolver;
-		this.currentType = getType();
-		this.dimensions = variableDeclaration.getExtraDimensions();
+		this.variableDeclaration= variableDeclaration;
+		this.resolver= resolver;
+		this.currentType= getType();
+		this.dimensions= variableDeclaration.getExtraDimensions();
 		if (this.currentType.isArrayType()) {
-			this.dimensions += ((ArrayType) this.currentType).getDimensions();
+			this.dimensions+= ((ArrayType)this.currentType).getDimensions();
 		}
 	}
 
 	RecoveredTypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
-		this.resolver = resolver;
-		this.dimensions = typeBinding.dimensions();
-		this.binding = typeBinding;
+		this.resolver= resolver;
+		this.dimensions= typeBinding.dimensions();
+		this.binding= typeBinding;
 	}
 
 	RecoveredTypeBinding(BindingResolver resolver, Type type) {
-		this.currentType = type;
-		this.resolver = resolver;
-		this.dimensions = 0;
+		this.currentType= type;
+		this.resolver= resolver;
+		this.dimensions= 0;
 		if (type.isArrayType()) {
-			this.dimensions += ((ArrayType) type).getDimensions();
+			this.dimensions+= ((ArrayType)type).getDimensions();
 		}
 	}
 
 	RecoveredTypeBinding(BindingResolver resolver, RecoveredTypeBinding typeBinding, int dimensions) {
-		this.innerTypeBinding = typeBinding;
-		this.dimensions = typeBinding.getDimensions() + dimensions;
-		this.resolver = resolver;
+		this.innerTypeBinding= typeBinding;
+		this.dimensions= typeBinding.getDimensions() + dimensions;
+		this.resolver= resolver;
 	}
 
 	/* (non-Javadoc)
@@ -94,19 +100,20 @@ class RecoveredTypeBinding implements ITypeBinding {
 	public ITypeBinding getGenericTypeOfWildcardType() {
 		return null;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getRank()
 	 */
 	public int getRank() {
 		return -1;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getComponentType()
 	 */
 	public ITypeBinding getComponentType() {
-		if (this.dimensions == 0) return null;
+		if (this.dimensions == 0)
+			return null;
 		return this.resolver.getTypeBinding(this, -1);
 	}
 
@@ -165,7 +172,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	public ITypeBinding getElementType() {
 		if (this.binding != null) {
 			if (this.binding.isArrayType()) {
-				ArrayBinding arrayBinding = (ArrayBinding) this.binding;
+				ArrayBinding arrayBinding= (ArrayBinding)this.binding;
 				return new RecoveredTypeBinding(this.resolver, arrayBinding.leafComponentType);
 			} else {
 				return new RecoveredTypeBinding(this.resolver, this.binding);
@@ -174,8 +181,8 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if (this.innerTypeBinding != null) {
 			return this.innerTypeBinding.getElementType();
 		}
-		if (this.currentType!= null && this.currentType.isArrayType()) {
-			return this.resolver.getTypeBinding(((ArrayType) this.currentType).getElementType());
+		if (this.currentType != null && this.currentType.isArrayType()) {
+			return this.resolver.getTypeBinding(((ArrayType)this.currentType).getElementType());
 		}
 		if (this.variableDeclaration != null && this.variableDeclaration.getExtraDimensions() != 0) {
 			return this.resolver.getTypeBinding(getType());
@@ -208,12 +215,12 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getName()
 	 */
 	public String getName() {
-		char[] brackets = new char[this.dimensions * 2];
-		for (int i = this.dimensions * 2 - 1; i >= 0; i -= 2) {
-			brackets[i] = ']';
-			brackets[i - 1] = '[';
+		char[] brackets= new char[this.dimensions * 2];
+		for (int i= this.dimensions * 2 - 1; i >= 0; i-= 2) {
+			brackets[i]= ']';
+			brackets[i - 1]= '[';
 		}
-		StringBuffer buffer = new StringBuffer(getInternalName());
+		StringBuffer buffer= new StringBuffer(getInternalName());
 		buffer.append(brackets);
 		return String.valueOf(buffer);
 	}
@@ -222,7 +229,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if (this.innerTypeBinding != null) {
 			return this.innerTypeBinding.getInternalName();
 		}
-		ReferenceBinding referenceBinding = getReferenceBinding();
+		ReferenceBinding referenceBinding= getReferenceBinding();
 		if (referenceBinding != null) {
 			return new String(referenceBinding.compoundName[referenceBinding.compoundName.length - 1]);
 		}
@@ -235,20 +242,21 @@ class RecoveredTypeBinding implements ITypeBinding {
 	public IPackageBinding getPackage() {
 		if (this.binding != null) {
 			switch (this.binding.kind()) {
-				case Binding.BASE_TYPE :
-				case Binding.ARRAY_TYPE :
-				case Binding.TYPE_PARAMETER : // includes capture scenario
-				case Binding.WILDCARD_TYPE :
+				case Binding.BASE_TYPE:
+				case Binding.ARRAY_TYPE:
+				case Binding.TYPE_PARAMETER: // includes capture scenario
+				case Binding.WILDCARD_TYPE:
 				case Binding.INTERSECTION_TYPE:
 					return null;
 			}
-			IPackageBinding packageBinding = this.resolver.getPackageBinding(this.binding.getPackage());
-			if (packageBinding != null) return packageBinding;
+			IPackageBinding packageBinding= this.resolver.getPackageBinding(this.binding.getPackage());
+			if (packageBinding != null)
+				return packageBinding;
 		}
 		if (this.innerTypeBinding != null && this.dimensions > 0) {
 			return null;
 		}
-		CompilationUnitScope scope = this.resolver.scope();
+		CompilationUnitScope scope= this.resolver.scope();
 		if (scope != null) {
 			return this.resolver.getPackageBinding(scope.getCurrentPackage());
 		}
@@ -259,13 +267,13 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getQualifiedName()
 	 */
 	public String getQualifiedName() {
-		ReferenceBinding referenceBinding = getReferenceBinding();
+		ReferenceBinding referenceBinding= getReferenceBinding();
 		if (referenceBinding != null) {
-			StringBuffer buffer = new StringBuffer();
-			char[] brackets = new char[this.dimensions * 2];
-			for (int i = this.dimensions * 2 - 1; i >= 0; i -= 2) {
-				brackets[i] = ']';
-				brackets[i - 1] = '[';
+			StringBuffer buffer= new StringBuffer();
+			char[] brackets= new char[this.dimensions * 2];
+			for (int i= this.dimensions * 2 - 1; i >= 0; i-= 2) {
+				brackets[i]= ']';
+				brackets[i - 1]= '[';
 			}
 			buffer.append(CharOperation.toString(referenceBinding.compoundName));
 			buffer.append(brackets);
@@ -278,12 +286,12 @@ class RecoveredTypeBinding implements ITypeBinding {
 	private ReferenceBinding getReferenceBinding() {
 		if (this.binding != null) {
 			if (this.binding.isArrayType()) {
-				ArrayBinding arrayBinding = (ArrayBinding) this.binding;
+				ArrayBinding arrayBinding= (ArrayBinding)this.binding;
 				if (arrayBinding.leafComponentType instanceof ReferenceBinding) {
-					return (ReferenceBinding) arrayBinding.leafComponentType;
+					return (ReferenceBinding)arrayBinding.leafComponentType;
 				}
 			} else if (this.binding instanceof ReferenceBinding) {
-				return (ReferenceBinding) this.binding;
+				return (ReferenceBinding)this.binding;
 			}
 		} else if (this.innerTypeBinding != null) {
 			return this.innerTypeBinding.getReferenceBinding();
@@ -295,7 +303,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getSuperclass()
 	 */
 	public ITypeBinding getSuperclass() {
-		if (getQualifiedName().equals("java.lang.Object")) {	//$NON-NLS-1$
+		if (getQualifiedName().equals("java.lang.Object")) { //$NON-NLS-1$
 			return null;
 		}
 		return this.resolver.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
@@ -306,7 +314,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding[] getTypeArguments() {
 		if (this.binding != null) {
-			return this.typeArguments = TypeBinding.NO_TYPE_BINDINGS;
+			return this.typeArguments= TypeBinding.NO_TYPE_BINDINGS;
 		}
 		if (this.typeArguments != null) {
 			return this.typeArguments;
@@ -317,20 +325,20 @@ class RecoveredTypeBinding implements ITypeBinding {
 		}
 
 		if (this.currentType.isParameterizedType()) {
-			ParameterizedType parameterizedType = (ParameterizedType) this.currentType;
-			List typeArgumentsList = parameterizedType.typeArguments();
-			int size = typeArgumentsList.size();
-			ITypeBinding[] temp = new ITypeBinding[size];
-			for (int i = 0; i < size; i++) {
-				ITypeBinding currentTypeBinding = ((Type) typeArgumentsList.get(i)).resolveBinding();
+			ParameterizedType parameterizedType= (ParameterizedType)this.currentType;
+			List typeArgumentsList= parameterizedType.typeArguments();
+			int size= typeArgumentsList.size();
+			ITypeBinding[] temp= new ITypeBinding[size];
+			for (int i= 0; i < size; i++) {
+				ITypeBinding currentTypeBinding= ((Type)typeArgumentsList.get(i)).resolveBinding();
 				if (currentTypeBinding == null) {
-					return this.typeArguments = TypeBinding.NO_TYPE_BINDINGS;
+					return this.typeArguments= TypeBinding.NO_TYPE_BINDINGS;
 				}
-				temp[i] = currentTypeBinding;
+				temp[i]= currentTypeBinding;
 			}
-			return this.typeArguments = temp;
+			return this.typeArguments= temp;
 		}
-		return this.typeArguments = TypeBinding.NO_TYPE_BINDINGS;
+		return this.typeArguments= TypeBinding.NO_TYPE_BINDINGS;
 	}
 
 	/* (non-Javadoc)
@@ -551,12 +559,12 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
-		IPackageBinding packageBinding = getPackage();
+		IPackageBinding packageBinding= getPackage();
 		if (packageBinding != null) {
-			final IJavaElement javaElement = packageBinding.getJavaElement();
+			final IJavaElement javaElement= packageBinding.getJavaElement();
 			if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 				// best effort: we don't know if the recovered binding is a binary or source binding, so go with a compilation unit
-				return ((PackageFragment) javaElement).getCompilationUnit(getInternalName() + SuffixConstants.SUFFIX_STRING_java);
+				return ((PackageFragment)javaElement).getCompilationUnit(getInternalName() + SuffixConstants.SUFFIX_STRING_java);
 			}
 		}
 		return null;
@@ -566,28 +574,28 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#getKey()
 	 */
 	public String getKey() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer= new StringBuffer();
 		buffer.append("Recovered#"); //$NON-NLS-1$
 		if (this.innerTypeBinding != null) {
 			buffer.append("innerTypeBinding") //$NON-NLS-1$
-			      .append(this.innerTypeBinding.getKey());
+					.append(this.innerTypeBinding.getKey());
 		} else if (this.currentType != null) {
 			buffer.append("currentType") //$NON-NLS-1$
-			      .append(this.currentType.toString());
+					.append(this.currentType.toString());
 		} else if (this.binding != null) {
 			buffer.append("typeBinding") //$NON-NLS-1$
-				  .append(this.binding.computeUniqueKey());
+					.append(this.binding.computeUniqueKey());
 		} else if (this.variableDeclaration != null) {
 			buffer
-				.append("variableDeclaration") //$NON-NLS-1$
-				.append(this.variableDeclaration.getClass())
-				.append(this.variableDeclaration.getName().getIdentifier())
-				.append(this.variableDeclaration.getExtraDimensions());
+					.append("variableDeclaration") //$NON-NLS-1$
+					.append(this.variableDeclaration.getClass())
+					.append(this.variableDeclaration.getName().getIdentifier())
+					.append(this.variableDeclaration.getExtraDimensions());
 		}
 		buffer.append(getDimensions());
 		if (this.typeArguments != null) {
 			buffer.append('<');
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+			for (int i= 0, max= this.typeArguments.length; i < max; i++) {
 				if (i != 0) {
 					buffer.append(',');
 				}
@@ -616,7 +624,8 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#isEqualTo(org.eclipse.jdt.core.dom.IBinding)
 	 */
 	public boolean isEqualTo(IBinding other) {
-		if (!other.isRecovered() || other.getKind() != IBinding.TYPE) return false;
+		if (!other.isRecovered() || other.getKind() != IBinding.TYPE)
+			return false;
 		return getKey().equals(other.getKey());
 	}
 
@@ -635,20 +644,21 @@ class RecoveredTypeBinding implements ITypeBinding {
 	}
 
 	private String getTypeNameFrom(Type type) {
-		if (type == null) return Util.EMPTY_STRING;
-		switch(type.getNodeType0()) {
-			case ASTNode.ARRAY_TYPE :
-				ArrayType arrayType = (ArrayType) type;
-				type = arrayType.getElementType();
+		if (type == null)
+			return Util.EMPTY_STRING;
+		switch (type.getNodeType0()) {
+			case ASTNode.ARRAY_TYPE:
+				ArrayType arrayType= (ArrayType)type;
+				type= arrayType.getElementType();
 				return getTypeNameFrom(type);
-			case ASTNode.PARAMETERIZED_TYPE :
-				ParameterizedType parameterizedType = (ParameterizedType) type;
-				StringBuffer buffer = new StringBuffer(getTypeNameFrom(parameterizedType.getType()));
-				ITypeBinding[] tArguments = getTypeArguments();
-				final int typeArgumentsLength = tArguments.length;
+			case ASTNode.PARAMETERIZED_TYPE:
+				ParameterizedType parameterizedType= (ParameterizedType)type;
+				StringBuffer buffer= new StringBuffer(getTypeNameFrom(parameterizedType.getType()));
+				ITypeBinding[] tArguments= getTypeArguments();
+				final int typeArgumentsLength= tArguments.length;
 				if (typeArgumentsLength != 0) {
 					buffer.append('<');
-					for (int i = 0; i < typeArgumentsLength; i++) {
+					for (int i= 0; i < typeArgumentsLength; i++) {
 						if (i > 0) {
 							buffer.append(',');
 						}
@@ -657,20 +667,20 @@ class RecoveredTypeBinding implements ITypeBinding {
 					buffer.append('>');
 				}
 				return String.valueOf(buffer);
-			case ASTNode.PRIMITIVE_TYPE :
-				PrimitiveType primitiveType = (PrimitiveType) type;
+			case ASTNode.PRIMITIVE_TYPE:
+				PrimitiveType primitiveType= (PrimitiveType)type;
 				return primitiveType.getPrimitiveTypeCode().toString();
-			case ASTNode.QUALIFIED_TYPE :
-				QualifiedType qualifiedType = (QualifiedType) type;
+			case ASTNode.QUALIFIED_TYPE:
+				QualifiedType qualifiedType= (QualifiedType)type;
 				return qualifiedType.getName().getIdentifier();
-			case ASTNode.SIMPLE_TYPE :
-				SimpleType simpleType = (SimpleType) type;
-				Name name = simpleType.getName();
+			case ASTNode.SIMPLE_TYPE:
+				SimpleType simpleType= (SimpleType)type;
+				Name name= simpleType.getName();
 				if (name.isQualifiedName()) {
-					QualifiedName qualifiedName = (QualifiedName) name;
+					QualifiedName qualifiedName= (QualifiedName)name;
 					return qualifiedName.getName().getIdentifier();
 				}
-				return ((SimpleName) name).getIdentifier();
+				return ((SimpleName)name).getIdentifier();
 		}
 		return Util.EMPTY_STRING;
 	}
@@ -679,23 +689,24 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if (this.currentType != null) {
 			return this.currentType;
 		}
-		if (this.variableDeclaration == null) return null;
-		switch(this.variableDeclaration.getNodeType()) {
-			case ASTNode.SINGLE_VARIABLE_DECLARATION :
-				SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) this.variableDeclaration;
+		if (this.variableDeclaration == null)
+			return null;
+		switch (this.variableDeclaration.getNodeType()) {
+			case ASTNode.SINGLE_VARIABLE_DECLARATION:
+				SingleVariableDeclaration singleVariableDeclaration= (SingleVariableDeclaration)this.variableDeclaration;
 				return singleVariableDeclaration.getType();
-			default :
+			default:
 				// this is a variable declaration fragment
-				ASTNode parent = this.variableDeclaration.getParent();
-				switch(parent.getNodeType()) {
-					case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
-						VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) parent;
+				ASTNode parent= this.variableDeclaration.getParent();
+				switch (parent.getNodeType()) {
+					case ASTNode.VARIABLE_DECLARATION_EXPRESSION:
+						VariableDeclarationExpression variableDeclarationExpression= (VariableDeclarationExpression)parent;
 						return variableDeclarationExpression.getType();
-					case ASTNode.VARIABLE_DECLARATION_STATEMENT :
-						VariableDeclarationStatement statement = (VariableDeclarationStatement) parent;
+					case ASTNode.VARIABLE_DECLARATION_STATEMENT:
+						VariableDeclarationStatement statement= (VariableDeclarationStatement)parent;
 						return statement.getType();
-					case ASTNode.FIELD_DECLARATION :
-						FieldDeclaration fieldDeclaration  = (FieldDeclaration) parent;
+					case ASTNode.FIELD_DECLARATION:
+						FieldDeclaration fieldDeclaration= (FieldDeclaration)parent;
 						return fieldDeclaration.getType();
 				}
 		}

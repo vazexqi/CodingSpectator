@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle representing a source method that is resolved.
- * The uniqueKey contains the genericSignature of the resolved method. Use BindingKey to decode it.
+ * Handle representing a source method that is resolved. The uniqueKey contains the genericSignature
+ * of the resolved method. Use BindingKey to decode it.
  */
 public class ResolvedSourceMethod extends SourceMethod {
 
@@ -23,7 +23,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 	 */
 	public ResolvedSourceMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
 		super(parent, name, parameterTypes);
-		this.uniqueKey = uniqueKey;
+		this.uniqueKey= uniqueKey;
 	}
 
 	/* (non-Javadoc)
@@ -32,6 +32,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 	public String getKey() {
 		return this.uniqueKey;
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IMethod#isResolved()
 	 */
@@ -52,8 +53,8 @@ public class ResolvedSourceMethod extends SourceMethod {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new SourceMethod(this.parent, this.name, this.parameterTypes);
-		handle.occurrenceCount = this.occurrenceCount;
+		SourceRefElement handle= new SourceMethod(this.parent, this.name, this.parameterTypes);
+		handle.occurrenceCount= this.occurrenceCount;
 		return handle;
 	}
 }

@@ -19,18 +19,20 @@ import org.eclipse.jdt.core.util.IConstantValueAttribute;
  * Default implementation of IConstantValueAttribute.
  */
 public class ConstantValueAttribute
-	extends ClassFileAttribute
-	implements IConstantValueAttribute {
+		extends ClassFileAttribute
+		implements IConstantValueAttribute {
 
 	private int constantValueIndex;
+
 	private IConstantPoolEntry constantPoolEntry;
 
 
 	ConstantValueAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		this.constantValueIndex = u2At(classFileBytes, 6, offset);
-		this.constantPoolEntry = constantPool.decodeEntry(this.constantValueIndex);
+		this.constantValueIndex= u2At(classFileBytes, 6, offset);
+		this.constantPoolEntry= constantPool.decodeEntry(this.constantValueIndex);
 	}
+
 	/**
 	 * @see IConstantValueAttribute#getConstantValue()
 	 */

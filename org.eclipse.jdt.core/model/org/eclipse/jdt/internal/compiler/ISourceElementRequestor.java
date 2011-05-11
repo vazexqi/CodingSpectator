@@ -48,61 +48,105 @@ public interface ISourceElementRequestor {
 
 	public static class TypeInfo {
 		public int declarationStart;
+
 		public int modifiers;
+
 		public char[] name;
+
 		public int nameSourceStart;
+
 		public int nameSourceEnd;
+
 		public char[] superclass;
+
 		public char[][] superinterfaces;
+
 		public TypeParameterInfo[] typeParameters;
+
 		public char[][] categories;
+
 		public boolean secondary;
+
 		public boolean anonymousMember;
+
 		public Annotation[] annotations;
+
 		public int extraFlags;
+
 		public TypeDeclaration node;
-		public HashMap childrenCategories = new HashMap();
+
+		public HashMap childrenCategories= new HashMap();
 	}
 
 	public static class TypeParameterInfo {
 		public int declarationStart;
+
 		public int declarationEnd;
+
 		public char[] name;
+
 		public int nameSourceStart;
+
 		public int nameSourceEnd;
+
 		public char[][] bounds;
 	}
 
 	public static class MethodInfo {
 		public boolean isConstructor;
+
 		public boolean isAnnotation;
+
 		public int declarationStart;
+
 		public int modifiers;
+
 		public char[] returnType;
+
 		public char[] name;
+
 		public int nameSourceStart;
+
 		public int nameSourceEnd;
+
 		public char[][] parameterTypes;
+
 		public char[][] parameterNames;
+
 		public char[][] exceptionTypes;
+
 		public TypeParameterInfo[] typeParameters;
+
 		public char[][] categories;
+
 		public Annotation[] annotations;
+
 		public char[] declaringPackageName;
+
 		public int declaringTypeModifiers;
+
 		public int extraFlags;
+
 		public AbstractMethodDeclaration node;
 	}
 
 	public static class FieldInfo {
 		public int declarationStart;
+
 		public int modifiers;
+
 		public char[] type;
+
 		public char[] name;
+
 		public int nameSourceStart;
+
 		public int nameSourceEnd;
+
 		public char[][] categories;
+
 		public Annotation[] annotations;
+
 		public FieldDeclaration node;
 	}
 
@@ -113,20 +157,15 @@ public interface ISourceElementRequestor {
 	void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition);
 
 	void acceptFieldReference(char[] fieldName, int sourcePosition);
+
 	/**
-	 * @param declarationStart
-	 *                   This is the position of the first character of the import
-	 *                   keyword.
-	 * @param declarationEnd
-	 *                   This is the position of the ';' ending the import statement or
-	 *                   the end of the comment following the import.
-	 * @param tokens
-	 *                   This are the tokens of the import like specified in the source.
-	 * @param onDemand
-	 *                   set to true if the import is an import on demand (e.g. import
-	 *                   java.io.*). False otherwise.
-	 * @param modifiers
-	 *                   can be set to static from 1.5 on.
+	 * @param declarationStart This is the position of the first character of the import keyword.
+	 * @param declarationEnd This is the position of the ';' ending the import statement or the end
+	 *            of the comment following the import.
+	 * @param tokens This are the tokens of the import like specified in the source.
+	 * @param onDemand set to true if the import is an import on demand (e.g. import java.io.*).
+	 *            False otherwise.
+	 * @param modifiers can be set to static from 1.5 on.
 	 */
 	void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers);
 

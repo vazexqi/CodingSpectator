@@ -21,10 +21,12 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 public abstract class SubRoutineStatement extends Statement {
 
 	public static void reenterAllExceptionHandlers(SubRoutineStatement[] subroutines, int max, CodeStream codeStream) {
-		if (subroutines == null) return;
-		if (max < 0) max = subroutines.length;
-		for (int i = 0; i < max; i++) {
-			SubRoutineStatement sub = subroutines[i];
+		if (subroutines == null)
+			return;
+		if (max < 0)
+			max= subroutines.length;
+		for (int i= 0; i < max; i++) {
+			SubRoutineStatement sub= subroutines[i];
 			sub.enterAnyExceptionHandler(codeStream);
 			sub.enterDeclaredExceptionHandlers(codeStream);
 		}
@@ -35,7 +37,7 @@ public abstract class SubRoutineStatement extends Statement {
 	public ExceptionLabel enterAnyExceptionHandler(CodeStream codeStream) {
 
 		if (this.anyExceptionLabel == null) {
-			this.anyExceptionLabel = new ExceptionLabel(codeStream, null /*any exception*/);
+			this.anyExceptionLabel= new ExceptionLabel(codeStream, null /*any exception*/);
 		}
 		this.anyExceptionLabel.placeStart();
 		return this.anyExceptionLabel;
@@ -58,6 +60,7 @@ public abstract class SubRoutineStatement extends Statement {
 
 	/**
 	 * Generate an invocation of a subroutine (e.g. jsr finally) in current context.
+	 * 
 	 * @param currentScope
 	 * @param codeStream
 	 * @param targetLocation

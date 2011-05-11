@@ -12,21 +12,22 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Literal extends Expression {
 
 	public Literal(int s, int e) {
 
-		this.sourceStart = s;
-		this.sourceEnd = e;
+		this.sourceStart= s;
+		this.sourceEnd= e;
 	}
 
 	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
+			BlockScope currentScope,
+			FlowContext flowContext,
+			FlowInfo flowInfo) {
 
 		return flowInfo;
 	}
@@ -35,20 +36,20 @@ public abstract class Literal extends Expression {
 
 	public abstract TypeBinding literalType(BlockScope scope);
 
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		return output.append(source());
-	 }
+	}
 
 	public TypeBinding resolveType(BlockScope scope) {
 		// compute the real value, which must range its type's range
-		this.resolvedType = literalType(scope);
+		this.resolvedType= literalType(scope);
 
 		// in case of error, constant did remain null
 		computeConstant();
 		if (this.constant == null) {
 			scope.problemReporter().constantOutOfRange(this, this.resolvedType);
-			this.constant = Constant.NotAConstant;
+			this.constant= Constant.NotAConstant;
 		}
 		return this.resolvedType;
 	}

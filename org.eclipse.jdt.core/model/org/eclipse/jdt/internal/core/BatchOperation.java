@@ -22,8 +22,9 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class BatchOperation extends JavaModelOperation {
 	protected IWorkspaceRunnable runnable;
+
 	public BatchOperation(IWorkspaceRunnable runnable) {
-		this.runnable = runnable;
+		this.runnable= runnable;
 	}
 
 	protected boolean canModifyRoots() {
@@ -44,7 +45,7 @@ public class BatchOperation extends JavaModelOperation {
 				if (ce.getStatus().getCode() == IResourceStatus.OPERATION_FAILED) {
 					Throwable e= ce.getStatus().getException();
 					if (e instanceof JavaModelException) {
-						throw (JavaModelException) e;
+						throw (JavaModelException)e;
 					}
 				}
 				throw new JavaModelException(ce);

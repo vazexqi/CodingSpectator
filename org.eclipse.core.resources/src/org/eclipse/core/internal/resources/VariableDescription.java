@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.core.internal.resources;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.Assert;
 
 /**
  * 

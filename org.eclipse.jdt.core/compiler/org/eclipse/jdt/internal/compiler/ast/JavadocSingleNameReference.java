@@ -11,7 +11,11 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 public class JavadocSingleNameReference extends SingleNameReference {
 
@@ -19,9 +23,9 @@ public class JavadocSingleNameReference extends SingleNameReference {
 
 	public JavadocSingleNameReference(char[] source, long pos, int tagStart, int tagEnd) {
 		super(source, pos);
-		this.tagSourceStart = tagStart;
-		this.tagSourceEnd = tagEnd;
-		this.bits |= InsideJavadoc;
+		this.tagSourceStart= tagStart;
+		this.tagSourceEnd= tagEnd;
+		this.bits|= InsideJavadoc;
 	}
 
 	public void resolve(BlockScope scope) {
@@ -33,20 +37,19 @@ public class JavadocSingleNameReference extends SingleNameReference {
 	 */
 	public void resolve(BlockScope scope, boolean warn, boolean considerParamRefAsUsage) {
 
-		LocalVariableBinding variableBinding = scope.findVariable(this.token);
+		LocalVariableBinding variableBinding= scope.findVariable(this.token);
 		if (variableBinding != null && variableBinding.isValidBinding() && ((variableBinding.tagBits & TagBits.IsArgument) != 0)) {
-			this.binding = variableBinding;
+			this.binding= variableBinding;
 			if (considerParamRefAsUsage) {
-				variableBinding.useFlag = LocalVariableBinding.USED;
+				variableBinding.useFlag= LocalVariableBinding.USED;
 			}
 			return;
 		}
 		if (warn) {
 			try {
-				MethodScope methScope = (MethodScope) scope;
+				MethodScope methScope= (MethodScope)scope;
 				scope.problemReporter().javadocUndeclaredParamTagName(this.token, this.sourceStart, this.sourceEnd, methScope.referenceMethod().modifiers);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				scope.problemReporter().javadocUndeclaredParamTagName(this.token, this.sourceStart, this.sourceEnd, -1);
 			}
 		}
@@ -60,6 +63,7 @@ public class JavadocSingleNameReference extends SingleNameReference {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
+
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)

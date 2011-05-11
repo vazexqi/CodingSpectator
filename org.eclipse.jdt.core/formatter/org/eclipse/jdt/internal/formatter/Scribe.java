@@ -50,189 +50,246 @@ import org.eclipse.text.edits.TextEdit;
 
 /**
  * This class is responsible for dumping formatted source
+ * 
  * @since 2.1
  */
 public class Scribe implements IJavaDocTagConstants {
 
-	private static final int INITIAL_SIZE = 100;
+	private static final int INITIAL_SIZE= 100;
 
 	private boolean checkLineWrapping;
+
 	/** one-based column */
 	public int column;
+
 	private int[][] commentPositions;
 
 	// Most specific alignment.
 	public Alignment currentAlignment;
+
 	public int currentToken;
 
 	// edits management
 	private OptimizedReplaceEdit[] edits;
+
 	public int editsIndex;
 
 	public CodeFormatterVisitor formatter;
+
 	public int indentationLevel;
+
 	public int lastNumberOfNewLines;
-	private boolean preserveLineBreakIndentation = false;
+
+	private boolean preserveLineBreakIndentation= false;
+
 	boolean formatBrace;
+
 	public int line;
 
 	private int[] lineEnds;
+
 	private int maxLines;
+
 	public Alignment memberAlignment;
-	public boolean needSpace = false;
+
+	public boolean needSpace= false;
 
 	// Line separator infos
 	final private String lineSeparator;
+
 	final private String lineSeparatorAndSpace;
+
 	final private char firstLS;
+
 	final private int lsLength;
 
 	public int nlsTagCounter;
+
 	public int pageWidth;
-	public boolean pendingSpace = false;
+
+	public boolean pendingSpace= false;
 
 	public Scanner scanner;
+
 	public int scannerEndPosition;
+
 	public int tabLength;
+
 	public int indentationSize;
+
 	private final IRegion[] regions;
+
 	private IRegion[] adaptedRegions;
+
 	public int tabChar;
+
 	public int numberOfIndentations;
+
 	private boolean useTabsOnlyForLeadingIndents;
 
-	/** empty lines*/
+	/** empty lines */
 	private final boolean indentEmptyLines;
-	int blank_lines_between_import_groups = -1;
+
+	int blank_lines_between_import_groups= -1;
 
 	/** disabling */
 	boolean editsEnabled;
+
 	boolean useTags;
 
 	/* Comments formatting */
-	private static final int INCLUDE_BLOCK_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
-	private static final int INCLUDE_JAVA_DOC = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_JAVA_DOC;
-	private static final int INCLUDE_LINE_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_SINGLE_LINE_COMMENT;
-	private static final int SKIP_FIRST_WHITESPACE_TOKEN = -2;
-	private static final int INVALID_TOKEN = 2000;
-	static final int NO_TRAILING_COMMENT = 0x0000;
-	static final int BASIC_TRAILING_COMMENT = 0x0100;
-	static final int COMPLEX_TRAILING_COMMENT = 0x0200;
-	static final int IMPORT_TRAILING_COMMENT = COMPLEX_TRAILING_COMMENT | 0x0001;
-	static final int UNMODIFIABLE_TRAILING_COMMENT = 0x0400;
-	private int formatComments = 0;
-	private int headerEndPosition = -1;
+	private static final int INCLUDE_BLOCK_COMMENTS= CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
+
+	private static final int INCLUDE_JAVA_DOC= CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_JAVA_DOC;
+
+	private static final int INCLUDE_LINE_COMMENTS= CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_SINGLE_LINE_COMMENT;
+
+	private static final int SKIP_FIRST_WHITESPACE_TOKEN= -2;
+
+	private static final int INVALID_TOKEN= 2000;
+
+	static final int NO_TRAILING_COMMENT= 0x0000;
+
+	static final int BASIC_TRAILING_COMMENT= 0x0100;
+
+	static final int COMPLEX_TRAILING_COMMENT= 0x0200;
+
+	static final int IMPORT_TRAILING_COMMENT= COMPLEX_TRAILING_COMMENT | 0x0001;
+
+	static final int UNMODIFIABLE_TRAILING_COMMENT= 0x0400;
+
+	private int formatComments= 0;
+
+	private int headerEndPosition= -1;
+
 	String commentIndentation; // indentation requested in comments (usually in javadoc root tags description)
 
 	// Class to store previous line comment information
 	static class LineComment {
-		boolean contiguous = false;
+		boolean contiguous= false;
+
 		int currentIndentation, indentation;
+
 		int lines;
+
 		char[] leadingSpaces;
 	}
-	final LineComment lastLineComment = new LineComment();
+
+	final LineComment lastLineComment= new LineComment();
 
 	// New way to format javadoc
 	private FormatterCommentParser formatterCommentParser; // specialized parser to format comments
 
 	// Disabling and enabling tags
 	OptimizedReplaceEdit previousDisabledEdit;
+
 	private char[] disablingTag, enablingTag;
 
 	// Well know strings
-	private String[] newEmptyLines = new String[10];
-	private static String[] COMMENT_INDENTATIONS = new String[20];
+	private String[] newEmptyLines= new String[10];
+
+	private static String[] COMMENT_INDENTATIONS= new String[20];
 
 	// final string buffers
 	private final StringBuffer tempBuffer= new StringBuffer();
-	private final StringBuffer blockCommentBuffer = new StringBuffer();
-	private final StringBuffer blockCommentTokensBuffer = new StringBuffer();
-	private final StringBuffer codeSnippetBuffer = new StringBuffer();
+
+	private final StringBuffer blockCommentBuffer= new StringBuffer();
+
+	private final StringBuffer blockCommentTokensBuffer= new StringBuffer();
+
+	private final StringBuffer codeSnippetBuffer= new StringBuffer();
+
 	private final StringBuffer javadocBlockRefBuffer= new StringBuffer();
-	private final StringBuffer javadocGapLinesBuffer = new StringBuffer();
-	private StringBuffer[] javadocHtmlTagBuffers = new StringBuffer[5];
-	private final StringBuffer javadocTextBuffer = new StringBuffer();
-	private final StringBuffer javadocTokensBuffer = new StringBuffer();
+
+	private final StringBuffer javadocGapLinesBuffer= new StringBuffer();
+
+	private StringBuffer[] javadocHtmlTagBuffers= new StringBuffer[5];
+
+	private final StringBuffer javadocTextBuffer= new StringBuffer();
+
+	private final StringBuffer javadocTokensBuffer= new StringBuffer();
 
 	Scribe(CodeFormatterVisitor formatter, long sourceLevel, IRegion[] regions, CodeSnippetParsingUtil codeSnippetParsingUtil, boolean includeComments) {
 		initializeScanner(sourceLevel, formatter.preferences);
-		this.formatter = formatter;
-		this.pageWidth = formatter.preferences.page_width;
-		this.tabLength = formatter.preferences.tab_size;
+		this.formatter= formatter;
+		this.pageWidth= formatter.preferences.page_width;
+		this.tabLength= formatter.preferences.tab_size;
 		this.indentationLevel= 0; // initialize properly
-		this.numberOfIndentations = 0;
-		this.useTabsOnlyForLeadingIndents = formatter.preferences.use_tabs_only_for_leading_indentations;
-		this.indentEmptyLines = formatter.preferences.indent_empty_lines;
-		this.tabChar = formatter.preferences.tab_char;
+		this.numberOfIndentations= 0;
+		this.useTabsOnlyForLeadingIndents= formatter.preferences.use_tabs_only_for_leading_indentations;
+		this.indentEmptyLines= formatter.preferences.indent_empty_lines;
+		this.tabChar= formatter.preferences.tab_char;
 		if (this.tabChar == DefaultCodeFormatterOptions.MIXED) {
-			this.indentationSize = formatter.preferences.indentation_size;
+			this.indentationSize= formatter.preferences.indentation_size;
 		} else {
-			this.indentationSize = this.tabLength;
+			this.indentationSize= this.tabLength;
 		}
-		this.lineSeparator = formatter.preferences.line_separator;
-		this.lineSeparatorAndSpace = this.lineSeparator+' ';
-		this.firstLS = this.lineSeparator.charAt(0);
-		this.lsLength = this.lineSeparator.length();
-		this.indentationLevel = formatter.preferences.initial_indentation_level * this.indentationSize;
+		this.lineSeparator= formatter.preferences.line_separator;
+		this.lineSeparatorAndSpace= this.lineSeparator + ' ';
+		this.firstLS= this.lineSeparator.charAt(0);
+		this.lsLength= this.lineSeparator.length();
+		this.indentationLevel= formatter.preferences.initial_indentation_level * this.indentationSize;
 		this.regions= regions;
 		if (codeSnippetParsingUtil != null) {
-			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
+			final RecordedParsingInformation information= codeSnippetParsingUtil.recordedParsingInformation;
 			if (information != null) {
-				this.lineEnds = information.lineEnds;
-				this.commentPositions = information.commentPositions;
+				this.lineEnds= information.lineEnds;
+				this.commentPositions= information.commentPositions;
 			}
 		}
-		if (formatter.preferences.comment_format_line_comment) this.formatComments |= CodeFormatter.K_SINGLE_LINE_COMMENT;
-		if (formatter.preferences.comment_format_block_comment) this.formatComments |= CodeFormatter.K_MULTI_LINE_COMMENT;
-		if (formatter.preferences.comment_format_javadoc_comment) this.formatComments |= CodeFormatter.K_JAVA_DOC;
-		if (includeComments) this.formatComments |= CodeFormatter.F_INCLUDE_COMMENTS;
+		if (formatter.preferences.comment_format_line_comment)
+			this.formatComments|= CodeFormatter.K_SINGLE_LINE_COMMENT;
+		if (formatter.preferences.comment_format_block_comment)
+			this.formatComments|= CodeFormatter.K_MULTI_LINE_COMMENT;
+		if (formatter.preferences.comment_format_javadoc_comment)
+			this.formatComments|= CodeFormatter.K_JAVA_DOC;
+		if (includeComments)
+			this.formatComments|= CodeFormatter.F_INCLUDE_COMMENTS;
 		reset();
 	}
 
 	/**
-	 * This method will adapt the selected regions if needed.
-	 * If a region should be adapted (see isAdaptableRegion(IRegion))
-	 * retrieve correct upper and lower bounds and replace the region.
+	 * This method will adapt the selected regions if needed. If a region should be adapted (see
+	 * isAdaptableRegion(IRegion)) retrieve correct upper and lower bounds and replace the region.
 	 */
 	private void adaptRegions() {
-		int max = this.regions.length;
+		int max= this.regions.length;
 		if (max == 1) {
 			// It's not necessary to adapt the single region which covers all the source
 			if (this.regions[0].getOffset() == 0 && this.regions[0].getLength() == this.scannerEndPosition) {
-				this.adaptedRegions = this.regions;
+				this.adaptedRegions= this.regions;
 				return;
 			}
 		}
-		this.adaptedRegions = new IRegion[max];
-		int commentIndex = 0;
-		for (int i = 0; i < max; i++) {
-			IRegion aRegion = this.regions[i];
-			int offset = aRegion.getOffset();
-			int length = aRegion.getLength();
+		this.adaptedRegions= new IRegion[max];
+		int commentIndex= 0;
+		for (int i= 0; i < max; i++) {
+			IRegion aRegion= this.regions[i];
+			int offset= aRegion.getOffset();
+			int length= aRegion.getLength();
 
 			// First look if the region starts or ends inside a comment
-			int index = getCommentIndex(commentIndex, offset);
-			int adaptedOffset = offset;
-			int adaptedLength = length;
+			int index= getCommentIndex(commentIndex, offset);
+			int adaptedOffset= offset;
+			int adaptedLength= length;
 			if (index >= 0) {
 				// the offset of the region is inside a comment => restart the region from the comment start
-				adaptedOffset = this.commentPositions[index][0];
+				adaptedOffset= this.commentPositions[index][0];
 				if (adaptedOffset >= 0) {
 					// adapt only javadoc or block commments. Since fix for bug
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=238210
 					// edits in line comments only concerns whitespaces hence can be
 					// treated as edits in code
-					adaptedLength = length + offset - adaptedOffset;
-					commentIndex = index;
+					adaptedLength= length + offset - adaptedOffset;
+					commentIndex= index;
 					// include also the indentation edit just before the comment if any
-					for (int j=0; j<this.editsIndex; j++) {
-						int editOffset = this.edits[j].offset;
-						int editEnd = editOffset + this.edits[j].length;
+					for (int j= 0; j < this.editsIndex; j++) {
+						int editOffset= this.edits[j].offset;
+						int editEnd= editOffset + this.edits[j].length;
 						if (editEnd == adaptedOffset) {
 							if (j > 0 && this.edits[j].replacement.trim().length() == 0) {
-								adaptedLength += adaptedOffset - this.edits[j].offset;
-								adaptedOffset = editOffset;
+								adaptedLength+= adaptedOffset - this.edits[j].offset;
+								adaptedOffset= editOffset;
 								break;
 							}
 						} else if (editEnd > adaptedOffset) {
@@ -241,19 +298,20 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 				}
 			}
-			index = getCommentIndex(commentIndex, offset+length-1);
+			index= getCommentIndex(commentIndex, offset + length - 1);
 			if (index >= 0 && this.commentPositions[index][0] >= 0) { // only javadoc or block comment
 				// the region end is inside a comment => set the region end at the comment end
-				int commentEnd = this.commentPositions[index][1];
-				if (commentEnd < 0) commentEnd = -commentEnd;
-				adaptedLength = commentEnd - adaptedOffset;
-				commentIndex = index;
+				int commentEnd= this.commentPositions[index][1];
+				if (commentEnd < 0)
+					commentEnd= -commentEnd;
+				adaptedLength= commentEnd - adaptedOffset;
+				commentIndex= index;
 			}
 			if (adaptedLength != length) {
 				// adapt the region and jump to next one
-				this.adaptedRegions[i] = new Region(adaptedOffset, adaptedLength);
+				this.adaptedRegions[i]= new Region(adaptedOffset, adaptedLength);
 			} else {
-				this.adaptedRegions[i] = aRegion;
+				this.adaptedRegions[i]= aRegion;
 			}
 		}
 	}
@@ -267,7 +325,7 @@ public class Scribe implements IJavaDocTagConstants {
 	private void adaptEdits() {
 
 		// See if adapting edits is really necessary
-		int max = this.regions.length;
+		int max= this.regions.length;
 		if (max == 1) {
 			if (this.regions[0].getOffset() == 0 && this.regions[0].getLength() == this.scannerEndPosition) {
 				// No need to adapt as the regions covers the whole source
@@ -276,186 +334,191 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 
 		// Sort edits
-		OptimizedReplaceEdit[] sortedEdits = new OptimizedReplaceEdit[this.editsIndex];
+		OptimizedReplaceEdit[] sortedEdits= new OptimizedReplaceEdit[this.editsIndex];
 		System.arraycopy(this.edits, 0, sortedEdits, 0, this.editsIndex);
 		Arrays.sort(sortedEdits, new Comparator() {
 			public int compare(Object o1, Object o2) {
-		    	OptimizedReplaceEdit edit1 = (OptimizedReplaceEdit) o1;
-		    	OptimizedReplaceEdit edit2 = (OptimizedReplaceEdit) o2;
+				OptimizedReplaceEdit edit1= (OptimizedReplaceEdit)o1;
+				OptimizedReplaceEdit edit2= (OptimizedReplaceEdit)o2;
 				return edit1.offset - edit2.offset;
-            }
+			}
 		});
 
 		// Adapt overlapping edits
-		int currentEdit = -1;
-		for (int i = 0; i < max; i++) {
-			IRegion region = this.adaptedRegions[i];
-			int offset = region.getOffset();
-			int length = region.getLength();
+		int currentEdit= -1;
+		for (int i= 0; i < max; i++) {
+			IRegion region= this.adaptedRegions[i];
+			int offset= region.getOffset();
+			int length= region.getLength();
 
 			// modify overlapping edits on the region (if any)
-			int index = adaptEdit(sortedEdits, currentEdit, offset, offset+length);
+			int index= adaptEdit(sortedEdits, currentEdit, offset, offset + length);
 			if (index != -1) {
-				currentEdit = index;
+				currentEdit= index;
 			}
 		}
 	}
 
 	/*
-     * Search whether a region overlap edit(s) at its start and/or at its end.
-     * If so, modify the concerned edits to keep only the modifications which are
-     * inside the given region.
-     * 
-     * The edit modification is done as follow:
-     * 1) start it from the region start if it overlaps the region's start
-     * 2) end it at the region end if it overlaps the region's end
-     * 3) remove from the replacement string the number of lines which are outside
-     * the region: before when overlapping region's start and after when overlapping
-     * region's end. Note that the trailing indentation of the replacement string is not
-     * kept when the region's end is overlapped because it's always outside the
-     * region.
-     */
-    private int adaptEdit(OptimizedReplaceEdit[] sortedEdits, int start, int regionStart, int regionEnd) {
-    	int bottom = start==-1?0:start, top = sortedEdits.length - 1;
-    	int topEnd = top;
-    	int i = 0;
-    	OptimizedReplaceEdit edit = null;
-    	int overlapIndex = -1;
-        int linesOutside= -1;
+	 * Search whether a region overlap edit(s) at its start and/or at its end.
+	 * If so, modify the concerned edits to keep only the modifications which are
+	 * inside the given region.
+	 * 
+	 * The edit modification is done as follow:
+	 * 1) start it from the region start if it overlaps the region's start
+	 * 2) end it at the region end if it overlaps the region's end
+	 * 3) remove from the replacement string the number of lines which are outside
+	 * the region: before when overlapping region's start and after when overlapping
+	 * region's end. Note that the trailing indentation of the replacement string is not
+	 * kept when the region's end is overlapped because it's always outside the
+	 * region.
+	 */
+	private int adaptEdit(OptimizedReplaceEdit[] sortedEdits, int start, int regionStart, int regionEnd) {
+		int bottom= start == -1 ? 0 : start, top= sortedEdits.length - 1;
+		int topEnd= top;
+		int i= 0;
+		OptimizedReplaceEdit edit= null;
+		int overlapIndex= -1;
+		int linesOutside= -1;
 
-    	// Look for an edit overlapping the region start
-    	while (bottom <= top) {
-    		i = bottom + (top - bottom) /2;
-    		edit = sortedEdits[i];
-    		int editStart = edit.offset;
-   			int editEnd = editStart + edit.length;
-    		if (regionStart < editStart) {  // the edit starts after the region's start => no possible overlap of region's start
-    			top = i-1;
-    			if (regionEnd < editStart) { // the edit starts after the region's end => no possible overlap of region's end
-    				topEnd = top;
-    			}
-    		} else {
-    			if (regionStart >= editEnd) { // the edit ends before the region's start => no possible overlap of region's start
-	    			bottom = i+1;
+		// Look for an edit overlapping the region start
+		while (bottom <= top) {
+			i= bottom + (top - bottom) / 2;
+			edit= sortedEdits[i];
+			int editStart= edit.offset;
+			int editEnd= editStart + edit.length;
+			if (regionStart < editStart) { // the edit starts after the region's start => no possible overlap of region's start
+				top= i - 1;
+				if (regionEnd < editStart) { // the edit starts after the region's end => no possible overlap of region's end
+					topEnd= top;
+				}
+			} else {
+				if (regionStart >= editEnd) { // the edit ends before the region's start => no possible overlap of region's start
+					bottom= i + 1;
 				} else {
 					// Count the lines of the edit which are outside the region
-					linesOutside = 0;
-					this.scanner.resetTo(editStart, editEnd-1);
+					linesOutside= 0;
+					this.scanner.resetTo(editStart, editEnd - 1);
 					while (!this.scanner.atEnd()) {
-						boolean before = this.scanner.currentPosition < regionStart;
-	                    char ch = (char) this.scanner.getNextChar();
-                    	if (ch == '\n' ) {
-                    		if (before) linesOutside++;
-                    	}
-                    }
+						boolean before= this.scanner.currentPosition < regionStart;
+						char ch= (char)this.scanner.getNextChar();
+						if (ch == '\n') {
+							if (before)
+								linesOutside++;
+						}
+					}
 
 					// Restart the edit at the beginning of the line where the region start
-					edit.offset = regionStart;
-					edit.length -= edit.offset - editStart;
+					edit.offset= regionStart;
+					edit.length-= edit.offset - editStart;
 
 					// Cut replacement string if necessary
-					int length = edit.replacement.length();
+					int length= edit.replacement.length();
 					if (length > 0) {
 
 						// Count the lines in replacement string
-						int linesReplaced = 0;
-						for (int idx=0; idx < length; idx++) {
-							if (edit.replacement.charAt(idx) == '\n') linesReplaced++;
+						int linesReplaced= 0;
+						for (int idx= 0; idx < length; idx++) {
+							if (edit.replacement.charAt(idx) == '\n')
+								linesReplaced++;
 						}
 
 						// As the edit starts outside the region, remove first lines from edit string if any
 						if (linesReplaced > 0) {
-					    	int linesCount = linesOutside >= linesReplaced ? linesReplaced : linesOutside;
-					    	if (linesCount > 0) {
-					    		int idx=0;
-					    		loop: while (idx < length) {
-					    			char ch = edit.replacement.charAt(idx);
-					    			switch (ch) {
-					    				case '\n':
-						    				linesCount--;
-						    				if (linesCount == 0) {
-						    					idx++;
-						    					break loop;
-						    				}
-						    				break;
-					    				case '\r':
-					    				case ' ':
-					    				case '\t':
-					    					break;
-					    				default:
-					    					break loop;
-					    			}
-					    			idx++;
-					    		}
-					    		if (idx >= length) {
-					    			edit.replacement = ""; //$NON-NLS-1$
-					    		} else {
-					    			edit.replacement = edit.replacement.substring(idx);
-					    		}
-					    	}
+							int linesCount= linesOutside >= linesReplaced ? linesReplaced : linesOutside;
+							if (linesCount > 0) {
+								int idx= 0;
+								loop: while (idx < length) {
+									char ch= edit.replacement.charAt(idx);
+									switch (ch) {
+										case '\n':
+											linesCount--;
+											if (linesCount == 0) {
+												idx++;
+												break loop;
+											}
+											break;
+										case '\r':
+										case ' ':
+										case '\t':
+											break;
+										default:
+											break loop;
+									}
+									idx++;
+								}
+								if (idx >= length) {
+									edit.replacement= ""; //$NON-NLS-1$
+								} else {
+									edit.replacement= edit.replacement.substring(idx);
+								}
+							}
 						}
 					}
-					overlapIndex = i;
+					overlapIndex= i;
 					break;
 				}
 			}
-    	}
+		}
 
-    	// Look for an edit overlapping the region end
-    	if (overlapIndex != -1) bottom = overlapIndex;
-    	while (bottom <= topEnd) {
-    		i = bottom + (topEnd - bottom) /2;
-    		edit = sortedEdits[i];
-    		int editStart = edit.offset;
-   			int editEnd = editStart + edit.length;
-    		if (regionEnd < editStart) {	// the edit starts after the region's end => no possible overlap of region's end
-    			topEnd = i-1;
-    		} else {
-    			if (regionEnd >= editEnd) {	// the edit ends before the region's end => no possible overlap of region's end
-	    			bottom = i+1;
+		// Look for an edit overlapping the region end
+		if (overlapIndex != -1)
+			bottom= overlapIndex;
+		while (bottom <= topEnd) {
+			i= bottom + (topEnd - bottom) / 2;
+			edit= sortedEdits[i];
+			int editStart= edit.offset;
+			int editEnd= editStart + edit.length;
+			if (regionEnd < editStart) { // the edit starts after the region's end => no possible overlap of region's end
+				topEnd= i - 1;
+			} else {
+				if (regionEnd >= editEnd) { // the edit ends before the region's end => no possible overlap of region's end
+					bottom= i + 1;
 				} else {
 					// Count the lines of the edit which are outside the region
-					linesOutside = 0;
-					this.scanner.resetTo(editStart, editEnd-1);
+					linesOutside= 0;
+					this.scanner.resetTo(editStart, editEnd - 1);
 					while (!this.scanner.atEnd()) {
-						boolean after = this.scanner.currentPosition >= regionEnd;
-	                    char ch = (char) this.scanner.getNextChar();
-                    	if (ch == '\n' ) {
-                    		if (after) linesOutside++;
-                    	}
-                    }
+						boolean after= this.scanner.currentPosition >= regionEnd;
+						char ch= (char)this.scanner.getNextChar();
+						if (ch == '\n') {
+							if (after)
+								linesOutside++;
+						}
+					}
 
 					// Cut replacement string if necessary
-					int length = edit.replacement.length();
+					int length= edit.replacement.length();
 					if (length > 0) {
 
 						// Count the lines in replacement string
-						int linesReplaced = 0;
-						for (int idx=0; idx < length; idx++) {
-							if (edit.replacement.charAt(idx) == '\n') linesReplaced++;
+						int linesReplaced= 0;
+						for (int idx= 0; idx < length; idx++) {
+							if (edit.replacement.charAt(idx) == '\n')
+								linesReplaced++;
 						}
 
 						// Set the replacement string to the number of missing new lines
 						// As the end of the edit is out of the region, the possible trailing
 						// indentation should not be added...
 						if (linesReplaced == 0) {
-			    			edit.replacement = ""; //$NON-NLS-1$
+							edit.replacement= ""; //$NON-NLS-1$
 						} else {
-							int linesCount = linesReplaced > linesOutside ? linesReplaced - linesOutside : 0;
+							int linesCount= linesReplaced > linesOutside ? linesReplaced - linesOutside : 0;
 							if (linesCount == 0) {
-				    			edit.replacement = ""; //$NON-NLS-1$
+								edit.replacement= ""; //$NON-NLS-1$
 							} else {
-								edit.replacement = getNewLineString(linesCount);
+								edit.replacement= getNewLineString(linesCount);
 							}
 						}
 					}
-					edit.length -= editEnd - regionEnd;
+					edit.length-= editEnd - regionEnd;
 					return i;
 				}
 			}
-    	}
-    	return overlapIndex;
-    }
+		}
+		return overlapIndex;
+	}
 
 	private final void addDeleteEdit(int start, int end) {
 		if (this.edits.length == this.editsIndex) {
@@ -476,31 +539,31 @@ public class Scribe implements IJavaDocTagConstants {
 	private final void addOptimizedReplaceEdit(int offset, int length, String replacement) {
 		if (!this.editsEnabled) {
 			if (this.previousDisabledEdit != null && this.previousDisabledEdit.offset == offset) {
-				replacement = this.previousDisabledEdit.replacement;
+				replacement= this.previousDisabledEdit.replacement;
 			}
-			this.previousDisabledEdit = null;
+			this.previousDisabledEdit= null;
 			if (replacement.indexOf(this.lineSeparator) >= 0) {
 				if (length == 0 || printNewLinesCharacters(offset, length)) {
-					this.previousDisabledEdit = new OptimizedReplaceEdit(offset, length, replacement);
+					this.previousDisabledEdit= new OptimizedReplaceEdit(offset, length, replacement);
 				}
 			}
 			return;
 		}
 		if (this.editsIndex > 0) {
 			// try to merge last two edits
-			final OptimizedReplaceEdit previous = this.edits[this.editsIndex-1];
-			final int previousOffset = previous.offset;
-			final int previousLength = previous.length;
-			final int endOffsetOfPreviousEdit = previousOffset + previousLength;
-			final int replacementLength = replacement.length();
-			final String previousReplacement = previous.replacement;
-			final int previousReplacementLength = previousReplacement.length();
+			final OptimizedReplaceEdit previous= this.edits[this.editsIndex - 1];
+			final int previousOffset= previous.offset;
+			final int previousLength= previous.length;
+			final int endOffsetOfPreviousEdit= previousOffset + previousLength;
+			final int replacementLength= replacement.length();
+			final String previousReplacement= previous.replacement;
+			final int previousReplacementLength= previousReplacement.length();
 			if (previousOffset == offset && previousLength == length && (replacementLength == 0 || previousReplacementLength == 0)) {
 				if (this.currentAlignment != null) {
-					final Location location = this.currentAlignment.location;
+					final Location location= this.currentAlignment.location;
 					if (location.editsIndex == this.editsIndex) {
 						location.editsIndex--;
-						location.textEdit = previous;
+						location.textEdit= previous;
 					}
 				}
 				this.editsIndex--;
@@ -509,61 +572,61 @@ public class Scribe implements IJavaDocTagConstants {
 			if (endOffsetOfPreviousEdit == offset) {
 				if (length != 0) {
 					if (replacementLength != 0) {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement + replacement);
+						this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement + replacement);
 					} else if (previousLength + length == previousReplacementLength) {
 						// check the characters. If they are identical, we can get rid of the previous edit
-						boolean canBeRemoved = true;
-						loop: for (int i = previousOffset; i < previousOffset + previousReplacementLength; i++) {
+						boolean canBeRemoved= true;
+						loop: for (int i= previousOffset; i < previousOffset + previousReplacementLength; i++) {
 							if (this.scanner.source[i] != previousReplacement.charAt(i - previousOffset)) {
-								this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousReplacementLength, previousReplacement);
-								canBeRemoved = false;
+								this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(previousOffset, previousReplacementLength, previousReplacement);
+								canBeRemoved= false;
 								break loop;
 							}
 						}
 						if (canBeRemoved) {
 							if (this.currentAlignment != null) {
-								final Location location = this.currentAlignment.location;
+								final Location location= this.currentAlignment.location;
 								if (location.editsIndex == this.editsIndex) {
 									location.editsIndex--;
-									location.textEdit = previous;
+									location.textEdit= previous;
 								}
 							}
 							this.editsIndex--;
 						}
 					} else {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement);
+						this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(previousOffset, previousLength + length, previousReplacement);
 					}
 				} else {
 					if (replacementLength != 0) {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength, previousReplacement + replacement);
+						this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(previousOffset, previousLength, previousReplacement + replacement);
 					}
 				}
 			} else if ((offset + length == previousOffset) && (previousLength + length == replacementLength + previousReplacementLength)) {
 				// check if both edits corresponds to the orignal source code
-				boolean canBeRemoved = true;
-				String totalReplacement = replacement + previousReplacement;
-				loop: for (int i = 0; i < previousLength + length; i++) {
+				boolean canBeRemoved= true;
+				String totalReplacement= replacement + previousReplacement;
+				loop: for (int i= 0; i < previousLength + length; i++) {
 					if (this.scanner.source[i + offset] != totalReplacement.charAt(i)) {
-						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(offset, previousLength + length, totalReplacement);
-						canBeRemoved = false;
+						this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(offset, previousLength + length, totalReplacement);
+						canBeRemoved= false;
 						break loop;
 					}
 				}
 				if (canBeRemoved) {
 					if (this.currentAlignment != null) {
-						final Location location = this.currentAlignment.location;
+						final Location location= this.currentAlignment.location;
 						if (location.editsIndex == this.editsIndex) {
 							location.editsIndex--;
-							location.textEdit = previous;
+							location.textEdit= previous;
 						}
 					}
 					this.editsIndex--;
 				}
 			} else {
-				this.edits[this.editsIndex++] = new OptimizedReplaceEdit(offset, length, replacement);
+				this.edits[this.editsIndex++]= new OptimizedReplaceEdit(offset, length, replacement);
 			}
 		} else {
-			this.edits[this.editsIndex++] = new OptimizedReplaceEdit(offset, length, replacement);
+			this.edits[this.editsIndex++]= new OptimizedReplaceEdit(offset, length, replacement);
 		}
 	}
 
@@ -572,11 +635,11 @@ public class Scribe implements IJavaDocTagConstants {
 			// resize
 			resize();
 		}
-		addOptimizedReplaceEdit(start,  end - start + 1, replacement);
+		addOptimizedReplaceEdit(start, end - start + 1, replacement);
 	}
 
-	public void alignFragment(Alignment alignment, int fragmentIndex){
-		alignment.fragmentIndex = fragmentIndex;
+	public void alignFragment(Alignment alignment, int fragmentIndex) {
+		alignment.fragmentIndex= fragmentIndex;
 		alignment.checkColumn();
 		alignment.performFragmentEffect();
 	}
@@ -588,95 +651,95 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private int consumeInvalidToken(int end) {
-	    this.scanner.resetTo(this.scanner.startPosition, end);
-    	// In case of invalid unicode character, consume the current backslash character before continuing
-    	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233228
-	    if (this.scanner.currentCharacter == '\\') {
-	    	this.scanner.currentPosition = this.scanner.startPosition+1;
-	    }
-	    int previousPosition = this.scanner.currentPosition;
-	    char ch = (char) this.scanner.getNextChar();
-	    if (this.scanner.atEnd()) {
-	    	// avoid infinite loop
-	    	return INVALID_TOKEN;
-	    }
-	    while (!this.scanner.atEnd() && ch != '*' && !ScannerHelper.isWhitespace(ch)) {
-	    	previousPosition = this.scanner.currentPosition;
-	    	ch = (char) this.scanner.getNextChar();
-	    }
-	    // restore last whitespace
-	    this.scanner.currentPosition = previousPosition;
-	    return INVALID_TOKEN;
-    }
+		this.scanner.resetTo(this.scanner.startPosition, end);
+		// In case of invalid unicode character, consume the current backslash character before continuing
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233228
+		if (this.scanner.currentCharacter == '\\') {
+			this.scanner.currentPosition= this.scanner.startPosition + 1;
+		}
+		int previousPosition= this.scanner.currentPosition;
+		char ch= (char)this.scanner.getNextChar();
+		if (this.scanner.atEnd()) {
+			// avoid infinite loop
+			return INVALID_TOKEN;
+		}
+		while (!this.scanner.atEnd() && ch != '*' && !ScannerHelper.isWhitespace(ch)) {
+			previousPosition= this.scanner.currentPosition;
+			ch= (char)this.scanner.getNextChar();
+		}
+		// restore last whitespace
+		this.scanner.currentPosition= previousPosition;
+		return INVALID_TOKEN;
+	}
 
-	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart){
+	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart) {
 		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart);
 	}
 
-	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, boolean adjust){
+	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, boolean adjust) {
 		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
 
-	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart){
+	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart) {
 		return createAlignment(kind, mode, tieBreakRule, count, sourceRestart, this.formatter.preferences.continuation_indentation, false);
 	}
 
-	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
+	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust) {
 		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
 	}
 
-	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust){
-		Alignment alignment = new Alignment(kind, mode, tieBreakRule, this, count, sourceRestart, continuationIndent);
+	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust) {
+		Alignment alignment= new Alignment(kind, mode, tieBreakRule, this, count, sourceRestart, continuationIndent);
 		// adjust break indentation
 		if (adjust && this.memberAlignment != null) {
-			Alignment current = this.memberAlignment;
+			Alignment current= this.memberAlignment;
 			while (current.enclosing != null) {
-				current = current.enclosing;
+				current= current.enclosing;
 			}
 			if ((current.mode & Alignment.M_MULTICOLUMN) != 0) {
-				final int indentSize = this.indentationSize;
-				switch(current.chunkKind) {
-					case Alignment.CHUNK_METHOD :
-					case Alignment.CHUNK_TYPE :
+				final int indentSize= this.indentationSize;
+				switch (current.chunkKind) {
+					case Alignment.CHUNK_METHOD:
+					case Alignment.CHUNK_TYPE:
 						if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
-							alignment.breakIndentationLevel = this.indentationLevel + indentSize;
+							alignment.breakIndentationLevel= this.indentationLevel + indentSize;
 						} else {
-							alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * indentSize;
+							alignment.breakIndentationLevel= this.indentationLevel + continuationIndent * indentSize;
 						}
 						alignment.update();
 						break;
-					case Alignment.CHUNK_FIELD :
+					case Alignment.CHUNK_FIELD:
 						if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
-							alignment.breakIndentationLevel = current.originalIndentationLevel + indentSize;
+							alignment.breakIndentationLevel= current.originalIndentationLevel + indentSize;
 						} else {
-							alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
+							alignment.breakIndentationLevel= current.originalIndentationLevel + continuationIndent * indentSize;
 						}
 						alignment.update();
 						break;
 				}
 			} else {
-				switch(current.mode & Alignment.SPLIT_MASK) {
-					case Alignment.M_COMPACT_SPLIT :
-					case Alignment.M_COMPACT_FIRST_BREAK_SPLIT :
-					case Alignment.M_NEXT_PER_LINE_SPLIT :
-					case Alignment.M_NEXT_SHIFTED_SPLIT :
-					case Alignment.M_ONE_PER_LINE_SPLIT :
-						final int indentSize = this.indentationSize;
-						switch(current.chunkKind) {
-							case Alignment.CHUNK_METHOD :
-							case Alignment.CHUNK_TYPE :
+				switch (current.mode & Alignment.SPLIT_MASK) {
+					case Alignment.M_COMPACT_SPLIT:
+					case Alignment.M_COMPACT_FIRST_BREAK_SPLIT:
+					case Alignment.M_NEXT_PER_LINE_SPLIT:
+					case Alignment.M_NEXT_SHIFTED_SPLIT:
+					case Alignment.M_ONE_PER_LINE_SPLIT:
+						final int indentSize= this.indentationSize;
+						switch (current.chunkKind) {
+							case Alignment.CHUNK_METHOD:
+							case Alignment.CHUNK_TYPE:
 								if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
-									alignment.breakIndentationLevel = this.indentationLevel + indentSize;
+									alignment.breakIndentationLevel= this.indentationLevel + indentSize;
 								} else {
-									alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * indentSize;
+									alignment.breakIndentationLevel= this.indentationLevel + continuationIndent * indentSize;
 								}
 								alignment.update();
 								break;
-							case Alignment.CHUNK_FIELD :
+							case Alignment.CHUNK_FIELD:
 								if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
-									alignment.breakIndentationLevel = current.originalIndentationLevel + indentSize;
+									alignment.breakIndentationLevel= current.originalIndentationLevel + indentSize;
 								} else {
-									alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * indentSize;
+									alignment.breakIndentationLevel= current.originalIndentationLevel + continuationIndent * indentSize;
 								}
 								alignment.update();
 								break;
@@ -689,57 +752,60 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	public Alignment createMemberAlignment(int kind, int mode, int count, int sourceRestart) {
-		Alignment mAlignment = createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart);
-		mAlignment.breakIndentationLevel = this.indentationLevel;
+		Alignment mAlignment= createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart);
+		mAlignment.breakIndentationLevel= this.indentationLevel;
 		return mAlignment;
 	}
 
-	public void enterAlignment(Alignment alignment){
-		alignment.enclosing = this.currentAlignment;
-		alignment.location.lastLocalDeclarationSourceStart = this.formatter.lastLocalDeclarationSourceStart;
-		this.currentAlignment = alignment;
+	public void enterAlignment(Alignment alignment) {
+		alignment.enclosing= this.currentAlignment;
+		alignment.location.lastLocalDeclarationSourceStart= this.formatter.lastLocalDeclarationSourceStart;
+		this.currentAlignment= alignment;
 	}
 
 	public void enterMemberAlignment(Alignment alignment) {
-		alignment.enclosing = this.memberAlignment;
-		alignment.location.lastLocalDeclarationSourceStart = this.formatter.lastLocalDeclarationSourceStart;
-		this.memberAlignment = alignment;
+		alignment.enclosing= this.memberAlignment;
+		alignment.location.lastLocalDeclarationSourceStart= this.formatter.lastLocalDeclarationSourceStart;
+		this.memberAlignment= alignment;
 	}
 
-	public void exitAlignment(Alignment alignment, boolean discardAlignment){
-		Alignment current = this.currentAlignment;
-		while (current != null){
-			if (current == alignment) break;
-			current = current.enclosing;
+	public void exitAlignment(Alignment alignment, boolean discardAlignment) {
+		Alignment current= this.currentAlignment;
+		while (current != null) {
+			if (current == alignment)
+				break;
+			current= current.enclosing;
 		}
 		if (current == null) {
-			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
+			throw new AbortFormatting("could not find matching alignment: " + alignment); //$NON-NLS-1$
 		}
-		this.indentationLevel = alignment.location.outputIndentationLevel;
-		this.numberOfIndentations = alignment.location.numberOfIndentations;
-		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;
-		if (discardAlignment){
-			this.currentAlignment = alignment.enclosing;
+		this.indentationLevel= alignment.location.outputIndentationLevel;
+		this.numberOfIndentations= alignment.location.numberOfIndentations;
+		this.formatter.lastLocalDeclarationSourceStart= alignment.location.lastLocalDeclarationSourceStart;
+		if (discardAlignment) {
+			this.currentAlignment= alignment.enclosing;
 		}
 	}
 
-	public void exitMemberAlignment(Alignment alignment){
-		Alignment current = this.memberAlignment;
-		while (current != null){
-			if (current == alignment) break;
-			current = current.enclosing;
+	public void exitMemberAlignment(Alignment alignment) {
+		Alignment current= this.memberAlignment;
+		while (current != null) {
+			if (current == alignment)
+				break;
+			current= current.enclosing;
 		}
 		if (current == null) {
-			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
+			throw new AbortFormatting("could not find matching alignment: " + alignment); //$NON-NLS-1$
 		}
-		this.indentationLevel = current.location.outputIndentationLevel;
-		this.numberOfIndentations = current.location.numberOfIndentations;
-		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;
-		this.memberAlignment = current.enclosing;
+		this.indentationLevel= current.location.outputIndentationLevel;
+		this.numberOfIndentations= current.location.numberOfIndentations;
+		this.formatter.lastLocalDeclarationSourceStart= alignment.location.lastLocalDeclarationSourceStart;
+		this.memberAlignment= current.enclosing;
 	}
 
 	/**
 	 * Answer actual indentation level based on true column position
+	 * 
 	 * @return int
 	 */
 	public int getColumnIndentationLevel() {
@@ -749,22 +815,22 @@ public class Scribe implements IJavaDocTagConstants {
 	public final int getCommentIndex(int position) {
 		if (this.commentPositions == null)
 			return -1;
-		int length = this.commentPositions.length;
+		int length= this.commentPositions.length;
 		if (length == 0) {
 			return -1;
 		}
-		int g = 0, d = length - 1;
-		int m = 0;
+		int g= 0, d= length - 1;
+		int m= 0;
 		while (g <= d) {
-			m = g + (d - g) / 2;
-			int bound = this.commentPositions[m][1];
+			m= g + (d - g) / 2;
+			int bound= this.commentPositions[m][1];
 			if (bound < 0) {
-				bound = -bound;
+				bound= -bound;
 			}
 			if (bound < position) {
-				g = m + 1;
+				g= m + 1;
 			} else if (bound > position) {
-				d = m - 1;
+				d= m - 1;
 			} else {
 				return m;
 			}
@@ -773,57 +839,60 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	/*
-     * Returns the index of the comment including the given offset position
-     * starting the search from the given start index.
-     *
-     * @param start The start index for the research
-     * @param position The position
-     * @return The index of the comment if the given position is located inside it, -1 otherwise
-     */
-    private int getCommentIndex(int start, int position) {
-    	int commentsLength = this.commentPositions == null ? 0 : this.commentPositions.length;
-    	if (commentsLength == 0) return -1;
-    	if (position == 0) {
-    		if (commentsLength > 0 && this.commentPositions[0][0]== 0) {
-    			return 0;
-    		}
-    		return -1;
-    	}
-    	int bottom = start, top = commentsLength - 1;
-    	int i = 0;
-    	int[] comment = null;
-    	while (bottom <= top) {
-    		i = bottom + (top - bottom) /2;
-    		comment = this.commentPositions[i];
-    		int commentStart = comment[0];
-    		if (commentStart < 0) commentStart = -commentStart;
-    		if (position < commentStart) {
-    			top = i-1;
-    		} else {
-    			int commentEnd = comment[1];
-    			if (commentEnd < 0) commentEnd = -commentEnd;
-    			if (position >= commentEnd) {
-    				bottom = i+1;
-    			} else {
-    				return i;
-    			}
-    		}
-    	}
-    	return -1;
-    }
+	 * Returns the index of the comment including the given offset position
+	 * starting the search from the given start index.
+	 *
+	 * @param start The start index for the research
+	 * @param position The position
+	 * @return The index of the comment if the given position is located inside it, -1 otherwise
+	 */
+	private int getCommentIndex(int start, int position) {
+		int commentsLength= this.commentPositions == null ? 0 : this.commentPositions.length;
+		if (commentsLength == 0)
+			return -1;
+		if (position == 0) {
+			if (commentsLength > 0 && this.commentPositions[0][0] == 0) {
+				return 0;
+			}
+			return -1;
+		}
+		int bottom= start, top= commentsLength - 1;
+		int i= 0;
+		int[] comment= null;
+		while (bottom <= top) {
+			i= bottom + (top - bottom) / 2;
+			comment= this.commentPositions[i];
+			int commentStart= comment[0];
+			if (commentStart < 0)
+				commentStart= -commentStart;
+			if (position < commentStart) {
+				top= i - 1;
+			} else {
+				int commentEnd= comment[1];
+				if (commentEnd < 0)
+					commentEnd= -commentEnd;
+				if (position >= commentEnd) {
+					bottom= i + 1;
+				} else {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
 
 	private IRegion getCoveringAdaptedRegion(int offset, int end) {
-		int index = getIndexOfAdaptedRegionAt(offset);
+		int index= getIndexOfAdaptedRegionAt(offset);
 
 		if (index < 0) {
-			index = -(index + 1);
+			index= -(index + 1);
 			index--;
 			if (index < 0) {
 				return null;
 			}
 		}
 
-		IRegion region = this.adaptedRegions[index];
+		IRegion region= this.adaptedRegions[index];
 		if ((region.getOffset() <= offset) && (end <= region.getOffset() + region.getLength() - 1)) {
 			return region;
 		}
@@ -831,40 +900,40 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private int getCurrentCommentIndentation(int start) {
-		int linePtr = -Arrays.binarySearch(this.lineEnds, start);
-		int indentation = 0;
-		int beginningOfLine = getLineEnd(linePtr - 1)+1;
+		int linePtr= -Arrays.binarySearch(this.lineEnds, start);
+		int indentation= 0;
+		int beginningOfLine= getLineEnd(linePtr - 1) + 1;
 		if (beginningOfLine == -1) {
-			beginningOfLine = 0;
+			beginningOfLine= 0;
 		}
-		int currentStartPosition = start;
-		char[] source = this.scanner.source;
+		int currentStartPosition= start;
+		char[] source= this.scanner.source;
 
 		// find the position of the beginning of the line containing the comment
 		while (beginningOfLine > currentStartPosition) {
 			if (linePtr > 0) {
-				beginningOfLine = getLineEnd(--linePtr)+1;
+				beginningOfLine= getLineEnd(--linePtr) + 1;
 			} else {
-				beginningOfLine = 0;
+				beginningOfLine= 0;
 				break;
 			}
 		}
-		for (int i=beginningOfLine; i < currentStartPosition ; i++) {
-			char currentCharacter = source[i];
+		for (int i= beginningOfLine; i < currentStartPosition; i++) {
+			char currentCharacter= source[i];
 			switch (currentCharacter) {
-				case '\t' :
+				case '\t':
 					if (this.tabLength != 0) {
-						int reminder = indentation % this.tabLength;
+						int reminder= indentation % this.tabLength;
 						if (reminder == 0) {
-							indentation += this.tabLength;
+							indentation+= this.tabLength;
 						} else {
-							indentation = ((indentation / this.tabLength) + 1) * this.tabLength;
+							indentation= ((indentation / this.tabLength) + 1) * this.tabLength;
 						}
 					}
 					break;
-				case '\r' :
-				case '\n' :
-					indentation = 0;
+				case '\r':
+				case '\n':
+					indentation= 0;
 					break;
 				default:
 					indentation++;
@@ -875,24 +944,24 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	int getCurrentIndentation(char[] whitespaces, int offset) {
-		if (whitespaces == null) return offset;
-		int length = whitespaces.length;
-		if (this.tabLength == 0) return length;
-		int indentation = offset;
-		for (int i=0; i<length; i++) {
-			char ch = whitespaces[i];
+		int length= whitespaces.length;
+		if (this.tabLength == 0)
+			return length;
+		int indentation= offset;
+		for (int i= 0; i < length; i++) {
+			char ch= whitespaces[i];
 			switch (ch) {
-				case '\t' :
-					int reminder = indentation % this.tabLength;
+				case '\t':
+					int reminder= indentation % this.tabLength;
 					if (reminder == 0) {
-						indentation += this.tabLength;
+						indentation+= this.tabLength;
 					} else {
-						indentation = ((indentation / this.tabLength) + 1) * this.tabLength;
+						indentation= ((indentation / this.tabLength) + 1) * this.tabLength;
 					}
 					break;
-				case '\r' :
-				case '\n' :
-					indentation = 0;
+				case '\r':
+				case '\n':
+					indentation= 0;
 					break;
 				default:
 					indentation++;
@@ -903,33 +972,33 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	int getCurrentIndentation(int start) {
-		int linePtr = Arrays.binarySearch(this.lineEnds, start);
+		int linePtr= Arrays.binarySearch(this.lineEnds, start);
 		if (linePtr < 0) {
-			linePtr = -linePtr - 1;
+			linePtr= -linePtr - 1;
 		}
-		int indentation = 0;
-		int beginningOfLine = getLineEnd(linePtr)+1;
+		int indentation= 0;
+		int beginningOfLine= getLineEnd(linePtr) + 1;
 		if (beginningOfLine == -1) {
-			beginningOfLine = 0;
+			beginningOfLine= 0;
 		}
-		char[] source = this.scanner.source;
+		char[] source= this.scanner.source;
 
-		for (int i=beginningOfLine; i<start; i++) {
-			char currentCharacter = source[i];
+		for (int i= beginningOfLine; i < start; i++) {
+			char currentCharacter= source[i];
 			switch (currentCharacter) {
-				case '\t' :
+				case '\t':
 					if (this.tabLength != 0) {
-						int reminder = indentation % this.tabLength;
+						int reminder= indentation % this.tabLength;
 						if (reminder == 0) {
-							indentation += this.tabLength;
+							indentation+= this.tabLength;
 						} else {
-							indentation = ((indentation / this.tabLength) + 1) * this.tabLength;
+							indentation= ((indentation / this.tabLength) + 1) * this.tabLength;
 						}
 					}
 					break;
-				case '\r' :
-				case '\n' :
-					indentation = 0;
+				case '\r':
+				case '\n':
+					indentation= 0;
 					break;
 				case ' ':
 					indentation++;
@@ -950,63 +1019,63 @@ public class Scribe implements IJavaDocTagConstants {
 			linesNumber++; // add an extra line breaks
 			if (this.indentEmptyLines) {
 				this.tempBuffer.setLength(0);
-				for (int i = 0; i < linesNumber; i++) {
+				for (int i= 0; i < linesNumber; i++) {
 					printIndentationIfNecessary(this.tempBuffer);
 					this.tempBuffer.append(this.lineSeparator);
 				}
-				emptyLines = this.tempBuffer.toString();
+				emptyLines= this.tempBuffer.toString();
 			} else {
-				emptyLines = getNewLineString(linesNumber);
+				emptyLines= getNewLineString(linesNumber);
 			}
-			this.lastNumberOfNewLines += linesNumber;
-			this.line += linesNumber;
-			this.column = 1;
-			this.needSpace = false;
-			this.pendingSpace = false;
+			this.lastNumberOfNewLines+= linesNumber;
+			this.line+= linesNumber;
+			this.column= 1;
+			this.needSpace= false;
+			this.pendingSpace= false;
 		} else if (this.lastNumberOfNewLines == 1) {
 			if (this.indentEmptyLines) {
 				this.tempBuffer.setLength(0);
-				for (int i = 0; i < linesNumber; i++) {
+				for (int i= 0; i < linesNumber; i++) {
 					printIndentationIfNecessary(this.tempBuffer);
 					this.tempBuffer.append(this.lineSeparator);
 				}
-				emptyLines = this.tempBuffer.toString();
+				emptyLines= this.tempBuffer.toString();
 			} else {
-				emptyLines = getNewLineString(linesNumber);
+				emptyLines= getNewLineString(linesNumber);
 			}
-			this.lastNumberOfNewLines += linesNumber;
-			this.line += linesNumber;
-			this.column = 1;
-			this.needSpace = false;
-			this.pendingSpace = false;
+			this.lastNumberOfNewLines+= linesNumber;
+			this.line+= linesNumber;
+			this.column= 1;
+			this.needSpace= false;
+			this.pendingSpace= false;
 		} else {
 			if ((this.lastNumberOfNewLines - 1) >= linesNumber) {
 				// there is no need to add new lines
 				return Util.EMPTY_STRING;
 			}
-			final int realNewLineNumber = linesNumber - this.lastNumberOfNewLines + 1;
+			final int realNewLineNumber= linesNumber - this.lastNumberOfNewLines + 1;
 			if (this.indentEmptyLines) {
 				this.tempBuffer.setLength(0);
-				for (int i = 0; i < realNewLineNumber; i++) {
+				for (int i= 0; i < realNewLineNumber; i++) {
 					printIndentationIfNecessary(this.tempBuffer);
 					this.tempBuffer.append(this.lineSeparator);
 				}
-				emptyLines = this.tempBuffer.toString();
+				emptyLines= this.tempBuffer.toString();
 			} else {
-				emptyLines = getNewLineString(realNewLineNumber);
+				emptyLines= getNewLineString(realNewLineNumber);
 			}
-			this.lastNumberOfNewLines += realNewLineNumber;
-			this.line += realNewLineNumber;
-			this.column = 1;
-			this.needSpace = false;
-			this.pendingSpace = false;
+			this.lastNumberOfNewLines+= realNewLineNumber;
+			this.line+= realNewLineNumber;
+			this.column= 1;
+			this.needSpace= false;
+			this.pendingSpace= false;
 		}
 		return emptyLines;
 	}
 
 	private int getIndexOfAdaptedRegionAt(int offset) {
 		if (this.adaptedRegions.length == 1) {
-			int offset2 = this.adaptedRegions[0].getOffset();
+			int offset2= this.adaptedRegions[0].getOffset();
 			if (offset2 == offset) {
 				return 0;
 			}
@@ -1014,8 +1083,8 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		return Arrays.binarySearch(this.adaptedRegions, new Region(offset, 0), new Comparator() {
 			public int compare(Object o1, Object o2) {
-				int r1Offset = ((IRegion)o1).getOffset();
-				int r2Offset = ((IRegion)o2).getOffset();
+				int r1Offset= ((IRegion)o1).getOffset();
+				int r2Offset= ((IRegion)o2).getOffset();
 
 				return r1Offset - r2Offset;
 			}
@@ -1036,7 +1105,7 @@ public class Scribe implements IJavaDocTagConstants {
 			return this.scannerEndPosition;
 		if (lineNumber <= 0)
 			return -1;
-		return this.lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line
+		return this.lineEnds[lineNumber - 1]; // next line start one character behind the lineEnd of the previous line
 	}
 
 	Alignment getMemberAlignment() {
@@ -1048,40 +1117,40 @@ public class Scribe implements IJavaDocTagConstants {
 			return Util.EMPTY_STRING;
 		}
 		if (this.lastNumberOfNewLines >= 1) {
-			this.column = 1; // ensure that the scribe is at the beginning of a new line
+			this.column= 1; // ensure that the scribe is at the beginning of a new line
 			return Util.EMPTY_STRING;
 		}
 		this.line++;
-		this.lastNumberOfNewLines = 1;
-		this.column = 1;
-		this.needSpace = false;
-		this.pendingSpace = false;
+		this.lastNumberOfNewLines= 1;
+		this.column= 1;
+		this.needSpace= false;
+		this.pendingSpace= false;
 		return this.lineSeparator;
 	}
 
 	private String getNewLineString(int linesCount) {
-		int length = this.newEmptyLines.length;
+		int length= this.newEmptyLines.length;
 		if (linesCount > length) {
-			System.arraycopy(this.newEmptyLines, 0, this.newEmptyLines = new String[linesCount+10], 0, length);
+			System.arraycopy(this.newEmptyLines, 0, this.newEmptyLines= new String[linesCount + 10], 0, length);
 		}
-		String newLineString = this.newEmptyLines[linesCount-1];
+		String newLineString= this.newEmptyLines[linesCount - 1];
 		if (newLineString == null) {
 			this.tempBuffer.setLength(0);
-			for (int j=0; j<linesCount; j++) {
+			for (int j= 0; j < linesCount; j++) {
 				this.tempBuffer.append(this.lineSeparator);
 			}
-			newLineString = this.tempBuffer.toString();
-			this.newEmptyLines[linesCount-1] = newLineString;
+			newLineString= this.tempBuffer.toString();
+			this.newEmptyLines[linesCount - 1]= newLineString;
 		}
 		return newLineString;
 	}
 
 	/**
-	 * Answer next indentation level based on column estimated position
-	 * (if column is not indented, then use indentationLevel)
+	 * Answer next indentation level based on column estimated position (if column is not indented,
+	 * then use indentationLevel)
 	 */
 	public int getNextIndentationLevel(int someColumn) {
-		int indent = someColumn - 1;
+		int indent= someColumn - 1;
 		if (indent == 0)
 			return this.indentationLevel;
 		if (this.tabChar == DefaultCodeFormatterOptions.TAB) {
@@ -1091,8 +1160,8 @@ public class Scribe implements IJavaDocTagConstants {
 			if (this.indentationSize == 0) {
 				return indent;
 			}
-			int rem = indent % this.indentationSize;
-			int addition = rem == 0 ? 0 : this.indentationSize - rem; // round to superior
+			int rem= indent % this.indentationSize;
+			int addition= rem == 0 ? 0 : this.indentationSize - rem; // round to superior
 			return indent + addition;
 		}
 		return indent;
@@ -1111,11 +1180,11 @@ public class Scribe implements IJavaDocTagConstants {
 				// or when there's no direct member alignment
 				// (additional fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=286601)
 				if (this.lastNumberOfNewLines == 0 || this.memberAlignment == null || this.memberAlignment.location.inputOffset < this.currentAlignment.location.inputOffset) {
-					
+
 					// Debug
 					if (DefaultCodeFormatter.DEBUG) {
 						System.out.println("Preserve empty lines:"); //$NON-NLS-1$
-						System.out.println(" - indentation level = "+this.indentationLevel); //$NON-NLS-1$
+						System.out.println(" - indentation level = " + this.indentationLevel); //$NON-NLS-1$
 						System.out.println(" - current alignment: "); //$NON-NLS-1$
 						System.out.print(this.currentAlignment.toString(new StringBuffer(), 1));
 						if (this.memberAlignment != null) {
@@ -1125,15 +1194,15 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 
 					// Reset indentation level to the location output
-					this.indentationLevel = this.currentAlignment.location.outputIndentationLevel;
+					this.indentationLevel= this.currentAlignment.location.outputIndentationLevel;
 
 					// Create new line
 					this.tempBuffer.setLength(0);
 					this.tempBuffer.append(getNewLine());
-					
+
 					// Look for current indentation
-					int currentIndentation = getCurrentIndentation(this.scanner.currentPosition);
-					
+					int currentIndentation= getCurrentIndentation(this.scanner.currentPosition);
+
 					// Determine whether the alignment indentation can be used or not
 					// So far, the best algorithm is to use it when
 					// 1. this is not the opening brace of a local declaration assignment
@@ -1141,50 +1210,50 @@ public class Scribe implements IJavaDocTagConstants {
 					//     or this is an array initializer alignment 
 					//     or this is an binary expression alignment
 					// 3. the indentation level is below the alignment break indentation
-					int currentTokenStartPosition = this.scanner.currentPosition;
-					int nextToken = -1;
+					int currentTokenStartPosition= this.scanner.currentPosition;
+					int nextToken= -1;
 					try {
-						nextToken = this.scanner.getNextToken();
+						nextToken= this.scanner.getNextToken();
 					} catch (InvalidInputException e) {
 						// skip
 					}
 					this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-					boolean canUseAlignmentIndentation = (nextToken != TerminalTokens.TokenNameLBRACE || this.currentAlignment.kind != Alignment.LOCAL_DECLARATION_ASSIGNMENT);
+					boolean canUseAlignmentIndentation= (nextToken != TerminalTokens.TokenNameLBRACE || this.currentAlignment.kind != Alignment.LOCAL_DECLARATION_ASSIGNMENT);
 					if (canUseAlignmentIndentation &&
 							(!this.formatBrace ||
 									this.currentAlignment.kind == Alignment.ARRAY_INITIALIZER ||
 									this.currentAlignment.kind == Alignment.BINARY_EXPRESSION) &&
 							this.indentationLevel < this.currentAlignment.breakIndentationLevel) {
-						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+						this.indentationLevel= this.currentAlignment.breakIndentationLevel;
 					}
-					
+
 					// Use the current indentation if over the computed indentation
 					if (this.indentationLevel < currentIndentation) {
-						this.indentationLevel = currentIndentation;
+						this.indentationLevel= currentIndentation;
 					}
-					
+
 					// Debug
 					if (DefaultCodeFormatter.DEBUG) {
-						System.out.println(" - format brace = "+this.formatBrace); //$NON-NLS-1$
-						System.out.println(" - current column = "+(currentIndentation+1)); //$NON-NLS-1$
-						System.out.println(" - current position = "+this.scanner.currentPosition); //$NON-NLS-1$
+						System.out.println(" - format brace = " + this.formatBrace); //$NON-NLS-1$
+						System.out.println(" - current column = " + (currentIndentation + 1)); //$NON-NLS-1$
+						System.out.println(" - current position = " + this.scanner.currentPosition); //$NON-NLS-1$
 						System.out.print(" - current line = "); //$NON-NLS-1$
-						int linePtr = Arrays.binarySearch(this.lineEnds, this.scanner.currentPosition);
+						int linePtr= Arrays.binarySearch(this.lineEnds, this.scanner.currentPosition);
 						if (linePtr < 0) {
-							linePtr = -linePtr - 1;
+							linePtr= -linePtr - 1;
 						}
-						int i = getLineEnd(linePtr)+1;
+						int i= getLineEnd(linePtr) + 1;
 						while (this.scanner.source[i] != '\r') {
 							System.out.print(this.scanner.source[i++]);
 						}
 						System.out.println();
-						System.out.println(" - indentation level = "+this.indentationLevel); //$NON-NLS-1$
+						System.out.println(" - indentation level = " + this.indentationLevel); //$NON-NLS-1$
 						System.out.println();
 					}
-					
+
 					// Set the flag to indicate that a specific indentation is currently in used
-					this.preserveLineBreakIndentation = true;
-					
+					this.preserveLineBreakIndentation= true;
+
 					// Print the computed indentation in the buffer
 					printIndentationIfNecessary(this.tempBuffer);
 					return this.tempBuffer.toString();
@@ -1196,14 +1265,14 @@ public class Scribe implements IJavaDocTagConstants {
 			return getEmptyLines(this.blank_lines_between_import_groups);
 		}
 		if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
-			int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
+			int linesToPreserve= Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
 			return getEmptyLines(linesToPreserve);
 		}
 		return getNewLine();
 	}
 
 	private IRegion getAdaptedRegionAt(int offset) {
-		int index = getIndexOfAdaptedRegionAt(offset);
+		int index= getIndexOfAdaptedRegionAt(offset);
 		if (index < 0) {
 			return null;
 		}
@@ -1217,44 +1286,43 @@ public class Scribe implements IJavaDocTagConstants {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583
 		adaptEdits();
 
-		MultiTextEdit edit = null;
-		int regionsLength = this.adaptedRegions.length;
+		MultiTextEdit edit= null;
+		int regionsLength= this.adaptedRegions.length;
 		int textRegionStart;
 		int textRegionEnd;
 		if (regionsLength == 1) {
-			IRegion lastRegion = this.adaptedRegions[0];
-			textRegionStart = lastRegion.getOffset();
-			textRegionEnd = textRegionStart + lastRegion.getLength();
+			IRegion lastRegion= this.adaptedRegions[0];
+			textRegionStart= lastRegion.getOffset();
+			textRegionEnd= textRegionStart + lastRegion.getLength();
 		} else {
-			textRegionStart = this.adaptedRegions[0].getOffset();
-			IRegion lastRegion = this.adaptedRegions[regionsLength - 1];
-			textRegionEnd = lastRegion.getOffset() + lastRegion.getLength();
+			textRegionStart= this.adaptedRegions[0].getOffset();
+			IRegion lastRegion= this.adaptedRegions[regionsLength - 1];
+			textRegionEnd= lastRegion.getOffset() + lastRegion.getLength();
 		}
 
-		int length = textRegionEnd - textRegionStart + 1;
+		int length= textRegionEnd - textRegionStart + 1;
 		if (textRegionStart <= 0) {
 			if (length <= 0) {
-				edit = new MultiTextEdit(0, 0);
+				edit= new MultiTextEdit(0, 0);
 			} else {
-				edit = new MultiTextEdit(0, textRegionEnd);
+				edit= new MultiTextEdit(0, textRegionEnd);
 			}
 		} else {
-			edit = new MultiTextEdit(textRegionStart, length - 1);
+			edit= new MultiTextEdit(textRegionStart, length - 1);
 		}
-		for (int i= 0, max = this.editsIndex; i < max; i++) {
-			OptimizedReplaceEdit currentEdit = this.edits[i];
+		for (int i= 0, max= this.editsIndex; i < max; i++) {
+			OptimizedReplaceEdit currentEdit= this.edits[i];
 			if (isValidEdit(currentEdit)) {
 				try {
 					edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
-				}
-				catch (MalformedTreeException ex) {
+				} catch (MalformedTreeException ex) {
 					// log exception in case of error
 					CommentFormatterUtil.log(ex);
- 					throw ex;
+					throw ex;
 				}
 			}
 		}
-		this.edits = null;
+		this.edits= null;
 		return edit;
 	}
 
@@ -1265,26 +1333,26 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		// search for closest breakable alignment, using tiebreak rules
 		// look for outermost breakable one
-		int relativeDepth = 0, outerMostDepth = -1;
-		Alignment targetAlignment = this.currentAlignment;
-		while (targetAlignment != null){
-			if (targetAlignment.tieBreakRule == Alignment.R_OUTERMOST && targetAlignment.couldBreak()){
-				outerMostDepth = relativeDepth;
+		int relativeDepth= 0, outerMostDepth= -1;
+		Alignment targetAlignment= this.currentAlignment;
+		while (targetAlignment != null) {
+			if (targetAlignment.tieBreakRule == Alignment.R_OUTERMOST && targetAlignment.couldBreak()) {
+				outerMostDepth= relativeDepth;
 			}
-			targetAlignment = targetAlignment.enclosing;
+			targetAlignment= targetAlignment.enclosing;
 			relativeDepth++;
 		}
 		if (outerMostDepth >= 0) {
 			throw new AlignmentException(AlignmentException.LINE_TOO_LONG, outerMostDepth);
 		}
 		// look for innermost breakable one
-		relativeDepth = 0;
-		targetAlignment = this.currentAlignment;
-		while (targetAlignment != null){
-			if (targetAlignment.couldBreak()){
+		relativeDepth= 0;
+		targetAlignment= this.currentAlignment;
+		while (targetAlignment != null) {
+			if (targetAlignment.couldBreak()) {
 				throw new AlignmentException(AlignmentException.LINE_TOO_LONG, relativeDepth);
 			}
-			targetAlignment = targetAlignment.enclosing;
+			targetAlignment= targetAlignment.enclosing;
 			relativeDepth++;
 		}
 		// did not find any breakable location - proceed
@@ -1293,18 +1361,18 @@ public class Scribe implements IJavaDocTagConstants {
 	private void handleLineTooLongSmartly() {
 		// search for closest breakable alignment, using tiebreak rules
 		// look for outermost breakable one
-		int relativeDepth = 0, outerMostDepth = -1;
-		Alignment targetAlignment = this.currentAlignment;
-		int previousKind = -1;
-		int insideMessage = 0;
-		boolean insideStringConcat = false;
-		while (targetAlignment != null){
-			boolean couldBreak = targetAlignment.tieBreakRule == Alignment.R_OUTERMOST ||
-				(!insideStringConcat &&
-						insideMessage > 0 && targetAlignment.kind == Alignment.MESSAGE_ARGUMENTS &&
+		int relativeDepth= 0, outerMostDepth= -1;
+		Alignment targetAlignment= this.currentAlignment;
+		int previousKind= -1;
+		int insideMessage= 0;
+		boolean insideStringConcat= false;
+		while (targetAlignment != null) {
+			boolean couldBreak= targetAlignment.tieBreakRule == Alignment.R_OUTERMOST ||
+					(!insideStringConcat &&
+							insideMessage > 0 && targetAlignment.kind == Alignment.MESSAGE_ARGUMENTS &&
 						(!targetAlignment.wasReset() || previousKind != Alignment.MESSAGE_SEND));
-			if (couldBreak && targetAlignment.couldBreak()){
-				outerMostDepth = relativeDepth;
+			if (couldBreak && targetAlignment.couldBreak()) {
+				outerMostDepth= relativeDepth;
 			}
 			switch (targetAlignment.kind) {
 				case Alignment.MESSAGE_ARGUMENTS:
@@ -1312,31 +1380,32 @@ public class Scribe implements IJavaDocTagConstants {
 					insideMessage++;
 					break;
 				case Alignment.STRING_CONCATENATION:
-					insideStringConcat = true;
+					insideStringConcat= true;
 					break;
 			}
-			previousKind = targetAlignment.kind;
-			targetAlignment = targetAlignment.enclosing;
+			previousKind= targetAlignment.kind;
+			targetAlignment= targetAlignment.enclosing;
 			relativeDepth++;
 		}
 		if (outerMostDepth >= 0) {
 			throw new AlignmentException(AlignmentException.LINE_TOO_LONG, outerMostDepth);
 		}
 		// look for innermost breakable one
-		relativeDepth = 0;
-		targetAlignment = this.currentAlignment;
-		AlignmentException alignmentException = null;
-		int msgArgsDepth = -1;
+		relativeDepth= 0;
+		targetAlignment= this.currentAlignment;
+		AlignmentException alignmentException= null;
+		int msgArgsDepth= -1;
 		while (targetAlignment != null) {
 			if (targetAlignment.kind == Alignment.MESSAGE_ARGUMENTS) {
-				msgArgsDepth = relativeDepth;
+				msgArgsDepth= relativeDepth;
 			}
 			if (alignmentException == null) {
 				if (targetAlignment.couldBreak()) {
 					// do not throw the exception immediately to have a chance to reset
 					// previously broken alignments (see bug 203588)
-					alignmentException = new AlignmentException(AlignmentException.LINE_TOO_LONG, relativeDepth);
-					if (insideStringConcat) throw alignmentException;
+					alignmentException= new AlignmentException(AlignmentException.LINE_TOO_LONG, relativeDepth);
+					if (insideStringConcat)
+						throw alignmentException;
 				}
 			} else if (targetAlignment.wasSplit) {
 				// reset the nearest already broken outermost alignment.
@@ -1345,12 +1414,12 @@ public class Scribe implements IJavaDocTagConstants {
 				if (!targetAlignment.wasReset()) {
 					targetAlignment.reset();
 					if (msgArgsDepth > alignmentException.relativeDepth) {
-						alignmentException.relativeDepth = msgArgsDepth;
+						alignmentException.relativeDepth= msgArgsDepth;
 					}
 					throw alignmentException;
 				}
 			}
-			targetAlignment = targetAlignment.enclosing;
+			targetAlignment= targetAlignment.enclosing;
 			relativeDepth++;
 		}
 		if (alignmentException != null) {
@@ -1358,8 +1427,8 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		// did not find any breakable location - proceed
 		if (this.currentAlignment != null) {
-			this.currentAlignment.blockAlign = false;
-			this.currentAlignment.tooLong = true;
+			this.currentAlignment.blockAlign= false;
+			this.currentAlignment.tooLong= true;
 		}
 	}
 
@@ -1368,20 +1437,21 @@ public class Scribe implements IJavaDocTagConstants {
 	 */
 	private boolean hasNLSTag(int sourceStart) {
 		// search the last comment where commentEnd < current lineEnd
-		if (this.lineEnds == null) return false;
-		int index = Arrays.binarySearch(this.lineEnds, sourceStart);
-		int currentLineEnd = getLineEnd(-index);
+		if (this.lineEnds == null)
+			return false;
+		int index= Arrays.binarySearch(this.lineEnds, sourceStart);
+		int currentLineEnd= getLineEnd(-index);
 		if (currentLineEnd != -1) {
-			int commentIndex = getCommentIndex(currentLineEnd);
+			int commentIndex= getCommentIndex(currentLineEnd);
 			if (commentIndex < 0) {
-				commentIndex = -commentIndex - 2;
+				commentIndex= -commentIndex - 2;
 			}
 			if (commentIndex >= 0 && commentIndex < this.commentPositions.length) {
-				int start = this.commentPositions[commentIndex][0];
+				int start= this.commentPositions[commentIndex][0];
 				if (start < 0) {
-					start = -start;
+					start= -start;
 					// check that we are on the same line
-					int lineIndexForComment = Arrays.binarySearch(this.lineEnds, start);
+					int lineIndexForComment= Arrays.binarySearch(this.lineEnds, start);
 					if (lineIndexForComment == index) {
 						return CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, start, currentLineEnd) != -1;
 					}
@@ -1392,65 +1462,66 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private boolean includesBlockComments() {
-	    return ((this.formatComments & INCLUDE_BLOCK_COMMENTS) == INCLUDE_BLOCK_COMMENTS && this.headerEndPosition < this.scanner.currentPosition) ||
-	    	(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
-    }
+		return ((this.formatComments & INCLUDE_BLOCK_COMMENTS) == INCLUDE_BLOCK_COMMENTS && this.headerEndPosition < this.scanner.currentPosition) ||
+				(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
+	}
 
 	private boolean includesJavadocComments() {
-	    return ((this.formatComments & INCLUDE_JAVA_DOC) == INCLUDE_JAVA_DOC && this.headerEndPosition < this.scanner.currentPosition) ||
-	    	(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
-    }
+		return ((this.formatComments & INCLUDE_JAVA_DOC) == INCLUDE_JAVA_DOC && this.headerEndPosition < this.scanner.currentPosition) ||
+				(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
+	}
 
 	private boolean includesLineComments() {
-	    return ((this.formatComments & INCLUDE_LINE_COMMENTS) == INCLUDE_LINE_COMMENTS && this.headerEndPosition < this.scanner.currentPosition) ||
-	    	(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
-    }
+		return ((this.formatComments & INCLUDE_LINE_COMMENTS) == INCLUDE_LINE_COMMENTS && this.headerEndPosition < this.scanner.currentPosition) ||
+				(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
+	}
 
 	boolean includesComments() {
-	    return (this.formatComments & CodeFormatter.F_INCLUDE_COMMENTS) != 0;
-    }
+		return (this.formatComments & CodeFormatter.F_INCLUDE_COMMENTS) != 0;
+	}
 
 	public void indent() {
-		this.indentationLevel += this.indentationSize;
+		this.indentationLevel+= this.indentationSize;
 		this.numberOfIndentations++;
 	}
 
 	private void initializeScanner(long sourceLevel, DefaultCodeFormatterOptions preferences) {
-		this.useTags = preferences.use_tags;
-		char[][] taskTags = null;
+		this.useTags= preferences.use_tags;
+		char[][] taskTags= null;
 		if (this.useTags) {
-			this.disablingTag = preferences.disabling_tag;
-			this.enablingTag = preferences.enabling_tag;
+			this.disablingTag= preferences.disabling_tag;
+			this.enablingTag= preferences.enabling_tag;
 			if (this.disablingTag == null) {
 				if (this.enablingTag != null) {
-					taskTags = new char[][] { this.enablingTag };
+					taskTags= new char[][] { this.enablingTag };
 				}
 			} else if (this.enablingTag == null) {
-				taskTags = new char[][] { this.disablingTag };
+				taskTags= new char[][] { this.disablingTag };
 			} else {
-				taskTags = new char[][] { this.disablingTag, this.enablingTag };
+				taskTags= new char[][] { this.disablingTag, this.enablingTag };
 			}
 		}
-		this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, taskTags, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		this.editsEnabled = true;
+		this.scanner= new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, taskTags, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+		this.editsEnabled= true;
 	}
 
 	private void initFormatterCommentParser() {
 		if (this.formatterCommentParser == null) {
-			this.formatterCommentParser = new FormatterCommentParser(this.scanner.sourceLevel);
+			this.formatterCommentParser= new FormatterCommentParser(this.scanner.sourceLevel);
 		}
 		this.formatterCommentParser.scanner.setSource(this.scanner.source);
-		this.formatterCommentParser.source = this.scanner.source;
-		this.formatterCommentParser.scanner.lineEnds = this.lineEnds;
-		this.formatterCommentParser.scanner.linePtr = this.maxLines;
-		this.formatterCommentParser.parseHtmlTags = this.formatter.preferences.comment_format_html;
+		this.formatterCommentParser.source= this.scanner.source;
+		this.formatterCommentParser.scanner.lineEnds= this.lineEnds;
+		this.formatterCommentParser.scanner.linePtr= this.maxLines;
+		this.formatterCommentParser.parseHtmlTags= this.formatter.preferences.comment_format_html;
 	}
 
 	private boolean isOnFirstColumn(int start) {
-		if (this.lineEnds == null) return start == 0;
-		int index = Arrays.binarySearch(this.lineEnds, start);
+		if (this.lineEnds == null)
+			return start == 0;
+		int index= Arrays.binarySearch(this.lineEnds, start);
 		// we want the line end of the previous line
-		int previousLineEnd = getLineEnd(-index - 1);
+		int previousLineEnd= getLineEnd(-index - 1);
 		return previousLineEnd != -1 && previousLineEnd == start - 1;
 	}
 
@@ -1460,10 +1531,10 @@ public class Scribe implements IJavaDocTagConstants {
 		final int editOffset= edit.offset;
 		if (editLength != 0) {
 
-			IRegion covering = getCoveringAdaptedRegion(editOffset, (editOffset + editLength - 1));
+			IRegion covering= getCoveringAdaptedRegion(editOffset, (editOffset + editLength - 1));
 			if (covering != null) {
 				if (editReplacementLength != 0 && editLength == editReplacementLength) {
-					for (int i = editOffset, max = editOffset + editLength; i < max; i++) {
+					for (int i= editOffset, max= editOffset + editLength; i < max; i++) {
 						if (this.scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
 							return true;
 						}
@@ -1473,19 +1544,19 @@ public class Scribe implements IJavaDocTagConstants {
 				return true;
 			}
 
-			IRegion starting = getAdaptedRegionAt(editOffset + editLength);
+			IRegion starting= getAdaptedRegionAt(editOffset + editLength);
 			if (starting != null) {
-				int i = editOffset;
-				for (int max = editOffset + editLength; i < max; i++) {
-					int replacementStringIndex = i - editOffset;
+				int i= editOffset;
+				for (int max= editOffset + editLength; i < max; i++) {
+					int replacementStringIndex= i - editOffset;
 					if (replacementStringIndex >= editReplacementLength || this.scanner.source[i] != edit.replacement.charAt(replacementStringIndex)) {
 						break;
 					}
 				}
 				if (i - editOffset != editReplacementLength && i != editOffset + editLength - 1) {
-					edit.offset = starting.getOffset();
-					edit.length = 0;
-					edit.replacement = edit.replacement.substring(i - editOffset);
+					edit.offset= starting.getOffset();
+					edit.length= 0;
+					edit.replacement= edit.replacement.substring(i - editOffset);
 					return true;
 				}
 			}
@@ -1493,26 +1564,26 @@ public class Scribe implements IJavaDocTagConstants {
 			return false;
 		}
 
-		IRegion covering = getCoveringAdaptedRegion(editOffset, editOffset);
+		IRegion covering= getCoveringAdaptedRegion(editOffset, editOffset);
 		if (covering != null) {
 			return true;
 		}
 
 		if (editOffset == this.scannerEndPosition) {
-			int index = Arrays.binarySearch(
-				this.adaptedRegions,
-				new Region(editOffset, 0),
-				new Comparator() {
-					public int compare(Object o1, Object o2) {
-						IRegion r1 = (IRegion)o1;
-						IRegion r2 = (IRegion)o2;
+			int index= Arrays.binarySearch(
+					this.adaptedRegions,
+					new Region(editOffset, 0),
+					new Comparator() {
+						public int compare(Object o1, Object o2) {
+							IRegion r1= (IRegion)o1;
+							IRegion r2= (IRegion)o2;
 
-						int r1End = r1.getOffset() + r1.getLength();
-						int r2End = r2.getOffset() + r2.getLength();
+							int r1End= r1.getOffset() + r1.getLength();
+							int r2End= r2.getOffset() + r2.getLength();
 
-						return r1End - r2End;
-					}
-				});
+							return r1End - r2End;
+						}
+					});
 			if (index < 0) {
 				return false;
 			}
@@ -1526,7 +1597,7 @@ public class Scribe implements IJavaDocTagConstants {
 			if (this.blank_lines_between_import_groups >= 0) {
 				printEmptyLines(this.blank_lines_between_import_groups, insertPosition);
 			} else if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
-				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
+				int linesToPreserve= Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
 				printEmptyLines(linesToPreserve, insertPosition);
 			} else {
 				printNewLine(insertPosition);
@@ -1538,7 +1609,7 @@ public class Scribe implements IJavaDocTagConstants {
 		if (this.checkLineWrapping && length + this.column > this.pageWidth) {
 			handleLineTooLong();
 		}
-		this.lastNumberOfNewLines = 0;
+		this.lastNumberOfNewLines= 0;
 		if (this.indentationLevel != 0) {
 			printIndentationIfNecessary();
 		}
@@ -1548,143 +1619,143 @@ public class Scribe implements IJavaDocTagConstants {
 		if (this.pendingSpace) {
 			addInsertEdit(this.scanner.getCurrentTokenStartPosition(), " "); //$NON-NLS-1$
 		}
-		this.pendingSpace = false;
-		this.needSpace = false;
-		this.column += length;
-		this.needSpace = true;
+		this.pendingSpace= false;
+		this.needSpace= false;
+		this.column+= length;
+		this.needSpace= true;
 	}
 
 	private void printBlockComment(boolean isJavadoc) {
-		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
-		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
-		boolean includesBlockComments = !isJavadoc && includesBlockComments();
+		int currentTokenStartPosition= this.scanner.getCurrentTokenStartPosition();
+		int currentTokenEndPosition= this.scanner.getCurrentTokenEndPosition() + 1;
+		boolean includesBlockComments= !isJavadoc && includesBlockComments();
 
 		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 		int currentCharacter;
-		boolean isNewLine = false;
-		int start = currentTokenStartPosition;
-		int nextCharacterStart = currentTokenStartPosition;
-		int previousStart = currentTokenStartPosition;
-		boolean onFirstColumn = isOnFirstColumn(start);
+		boolean isNewLine= false;
+		int start= currentTokenStartPosition;
+		int nextCharacterStart= currentTokenStartPosition;
+		int previousStart= currentTokenStartPosition;
+		boolean onFirstColumn= isOnFirstColumn(start);
 
-		boolean indentComment = false;
+		boolean indentComment= false;
 		if (this.indentationLevel != 0) {
 			if (isJavadoc
 					|| !this.formatter.preferences.never_indent_block_comments_on_first_column
 					|| !onFirstColumn) {
-				indentComment = true;
+				indentComment= true;
 				printIndentationIfNecessary();
 			}
 		}
 		if (this.pendingSpace) {
 			addInsertEdit(currentTokenStartPosition, " "); //$NON-NLS-1$
 		}
-		this.needSpace = false;
-		this.pendingSpace = false;
+		this.needSpace= false;
+		this.pendingSpace= false;
 
-		int commentColumn = this.column;
+		int commentColumn= this.column;
 		if (includesBlockComments) {
 			if (printBlockComment(currentTokenStartPosition, currentTokenEndPosition)) {
 				return;
 			}
 		}
 
-		int currentIndentationLevel = this.indentationLevel;
-		if ((commentColumn-1) > this.indentationLevel) {
-			this.indentationLevel = commentColumn-1;
+		int currentIndentationLevel= this.indentationLevel;
+		if ((commentColumn - 1) > this.indentationLevel) {
+			this.indentationLevel= commentColumn - 1;
 		}
-		int currentCommentIndentation = onFirstColumn ? 0 : getCurrentCommentIndentation(start);
-		boolean formatComment = (isJavadoc && (this.formatComments & CodeFormatter.K_JAVA_DOC) != 0) || (!isJavadoc && (this.formatComments & CodeFormatter.K_MULTI_LINE_COMMENT) != 0);
+		int currentCommentIndentation= onFirstColumn ? 0 : getCurrentCommentIndentation(start);
+		boolean formatComment= (isJavadoc && (this.formatComments & CodeFormatter.K_JAVA_DOC) != 0) || (!isJavadoc && (this.formatComments & CodeFormatter.K_MULTI_LINE_COMMENT) != 0);
 
 		try {
-			while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
-				nextCharacterStart = this.scanner.currentPosition;
+			while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter= this.scanner.getNextChar()) != -1) {
+				nextCharacterStart= this.scanner.currentPosition;
 
-				switch(currentCharacter) {
-					case '\r' :
-						start = previousStart;
-						isNewLine = true;
+				switch (currentCharacter) {
+					case '\r':
+						start= previousStart;
+						isNewLine= true;
 						if (this.scanner.getNextChar('\n')) {
-							currentCharacter = '\n';
-							nextCharacterStart = this.scanner.currentPosition;
+							currentCharacter= '\n';
+							nextCharacterStart= this.scanner.currentPosition;
 						}
 						break;
-					case '\n' :
-						start = previousStart;
-						isNewLine = true;
-						nextCharacterStart = this.scanner.currentPosition;
+					case '\n':
+						start= previousStart;
+						isNewLine= true;
+						nextCharacterStart= this.scanner.currentPosition;
 						break;
 					default:
 						if (isNewLine) {
-							this.column = 1;
+							this.column= 1;
 							this.line++;
-							isNewLine = false;
+							isNewLine= false;
 
-							boolean addSpace = false;
+							boolean addSpace= false;
 							if (onFirstColumn) {
 								if (formatComment) {
-									if (ScannerHelper.isWhitespace((char) currentCharacter)) {
-										int previousStartPosition = this.scanner.currentPosition;
-										while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
-											previousStart = nextCharacterStart;
-											previousStartPosition = this.scanner.currentPosition;
-											currentCharacter = this.scanner.getNextChar();
-											nextCharacterStart = this.scanner.currentPosition;
+									if (ScannerHelper.isWhitespace((char)currentCharacter)) {
+										int previousStartPosition= this.scanner.currentPosition;
+										while (currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char)currentCharacter)) {
+											previousStart= nextCharacterStart;
+											previousStartPosition= this.scanner.currentPosition;
+											currentCharacter= this.scanner.getNextChar();
+											nextCharacterStart= this.scanner.currentPosition;
 										}
 										if (currentCharacter == '\r' || currentCharacter == '\n') {
-											nextCharacterStart = previousStartPosition;
+											nextCharacterStart= previousStartPosition;
 										}
 									}
 									if (currentCharacter != '\r' && currentCharacter != '\n') {
-										addSpace = true;
+										addSpace= true;
 									}
 								}
 							} else {
-								if (ScannerHelper.isWhitespace((char) currentCharacter)) {
-									int previousStartPosition = this.scanner.currentPosition;
-									int currentIndentation = 0;
-									loop: while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
+								if (ScannerHelper.isWhitespace((char)currentCharacter)) {
+									int previousStartPosition= this.scanner.currentPosition;
+									int currentIndentation= 0;
+									loop: while (currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char)currentCharacter)) {
 										if (currentIndentation >= currentCommentIndentation) {
 											break loop;
 										}
-										previousStart = nextCharacterStart;
-										previousStartPosition = this.scanner.currentPosition;
-										switch(currentCharacter) {
-											case '\t' :
+										previousStart= nextCharacterStart;
+										previousStartPosition= this.scanner.currentPosition;
+										switch (currentCharacter) {
+											case '\t':
 												if (this.tabLength != 0) {
-													int reminder = currentIndentation % this.tabLength;
+													int reminder= currentIndentation % this.tabLength;
 													if (reminder == 0) {
-														currentIndentation += this.tabLength;
+														currentIndentation+= this.tabLength;
 													} else {
-														currentIndentation = ((currentIndentation / this.tabLength) + 1) * this.tabLength;
+														currentIndentation= ((currentIndentation / this.tabLength) + 1) * this.tabLength;
 													}
 												}
 												break;
-											default :
-												currentIndentation ++;
+											default:
+												currentIndentation++;
 										}
-										currentCharacter = this.scanner.getNextChar();
-										nextCharacterStart = this.scanner.currentPosition;
+										currentCharacter= this.scanner.getNextChar();
+										nextCharacterStart= this.scanner.currentPosition;
 									}
 									if (currentCharacter == '\r' || currentCharacter == '\n') {
-										nextCharacterStart = previousStartPosition;
+										nextCharacterStart= previousStartPosition;
 									}
 								}
 								if (formatComment) {
-									int previousStartTemp = previousStart;
-									int nextCharacterStartTemp = nextCharacterStart;
-									while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char) currentCharacter)) {
-										previousStart = nextCharacterStart;
-										currentCharacter = this.scanner.getNextChar();
-										nextCharacterStart = this.scanner.currentPosition;
+									int previousStartTemp= previousStart;
+									int nextCharacterStartTemp= nextCharacterStart;
+									while (currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && ScannerHelper.isWhitespace((char)currentCharacter)) {
+										previousStart= nextCharacterStart;
+										currentCharacter= this.scanner.getNextChar();
+										nextCharacterStart= this.scanner.currentPosition;
 									}
 									if (currentCharacter == '*') {
-										addSpace = true;
+										addSpace= true;
 									} else {
-										previousStart = previousStartTemp;
-										nextCharacterStart = nextCharacterStartTemp;
+										previousStart= previousStartTemp;
+										nextCharacterStart= nextCharacterStartTemp;
 									}
-									this.scanner.currentPosition = nextCharacterStart;
+									this.scanner.currentPosition= nextCharacterStart;
 								}
 							}
 							String replacement;
@@ -1697,67 +1768,67 @@ public class Scribe implements IJavaDocTagConstants {
 								if (addSpace) {
 									this.tempBuffer.append(' ');
 								}
-								replacement = this.tempBuffer.toString();
+								replacement= this.tempBuffer.toString();
 							} else {
-								replacement = addSpace ? this.lineSeparatorAndSpace : this.lineSeparator;
+								replacement= addSpace ? this.lineSeparatorAndSpace : this.lineSeparator;
 							}
 							addReplaceEdit(start, previousStart - 1, replacement);
 						} else {
-							this.column += (nextCharacterStart - previousStart);
+							this.column+= (nextCharacterStart - previousStart);
 						}
 				}
-				previousStart = nextCharacterStart;
-				this.scanner.currentPosition = nextCharacterStart;
+				previousStart= nextCharacterStart;
+				this.scanner.currentPosition= nextCharacterStart;
 			}
 		} finally {
-			this.indentationLevel = currentIndentationLevel;
+			this.indentationLevel= currentIndentationLevel;
 		}
-		this.lastNumberOfNewLines = 0;
-		this.needSpace = false;
+		this.lastNumberOfNewLines= 0;
+		this.needSpace= false;
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 	}
 
 	private boolean printBlockComment(int currentTokenStartPosition, int currentTokenEndPosition) {
 
 		// Compute indentation
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
-		int indentLevel = this.indentationLevel;
-		int indentations = this.numberOfIndentations;
+		int maxColumn= this.formatter.preferences.comment_line_length + 1;
+		int indentLevel= this.indentationLevel;
+		int indentations= this.numberOfIndentations;
 		switch (this.tabChar) {
 			case DefaultCodeFormatterOptions.TAB:
 				switch (this.tabLength) {
 					case 0:
-						this.indentationLevel = 0;
-						this.column = 1;
-						this.numberOfIndentations = 0;
+						this.indentationLevel= 0;
+						this.column= 1;
+						this.numberOfIndentations= 0;
 						break;
 					case 1:
-						this.indentationLevel = this.column - 1;
-						this.numberOfIndentations = this.indentationLevel;
+						this.indentationLevel= this.column - 1;
+						this.numberOfIndentations= this.indentationLevel;
 						break;
 					default:
-						this.indentationLevel = (this.column / this.tabLength) * this.tabLength;
-						this.column = this.indentationLevel + 1;
-						this.numberOfIndentations = this.indentationLevel / this.tabLength;
+						this.indentationLevel= (this.column / this.tabLength) * this.tabLength;
+						this.column= this.indentationLevel + 1;
+						this.numberOfIndentations= this.indentationLevel / this.tabLength;
 				}
 				break;
 			case DefaultCodeFormatterOptions.MIXED:
 				if (this.tabLength == 0) {
-					this.indentationLevel = 0;
-					this.column = 1;
-					this.numberOfIndentations = 0;
+					this.indentationLevel= 0;
+					this.column= 1;
+					this.numberOfIndentations= 0;
 				} else {
-					this.indentationLevel = this.column - 1;
-					this.numberOfIndentations = this.indentationLevel / this.tabLength;
+					this.indentationLevel= this.column - 1;
+					this.numberOfIndentations= this.indentationLevel / this.tabLength;
 				}
 				break;
 			case DefaultCodeFormatterOptions.SPACE:
 				if (this.indentationSize == 0) {
-					this.indentationLevel = 0;
-					this.column = 1;
-					this.numberOfIndentations = 0;
+					this.indentationLevel= 0;
+					this.column= 1;
+					this.numberOfIndentations= 0;
 				} else {
-					this.indentationLevel = this.column - 1;
+					this.indentationLevel= this.column - 1;
 				}
 				break;
 		}
@@ -1766,109 +1837,109 @@ public class Scribe implements IJavaDocTagConstants {
 		this.blockCommentBuffer.setLength(0);
 		this.scanner.getNextChar();
 		this.scanner.getNextChar();
-		this.column += 2;
-		this.scanner.skipComments = true;
+		this.column+= 2;
+		this.scanner.skipComments= true;
 		this.blockCommentTokensBuffer.setLength(0);
-		int editStart = this.scanner.currentPosition;
-		int editEnd = -1;
+		int editStart= this.scanner.currentPosition;
+		int editEnd= -1;
 
 		// Consume text token per token
-		int previousToken = -1;
-		boolean newLine = false;
-		boolean multiLines = false;
-		boolean hasMultiLines = false;
-		boolean hasTokens = false;
-		boolean bufferHasTokens = false;
-		boolean bufferHasNewLine = false;
-		boolean lineHasTokens = false;
-		int hasTextOnFirstLine = 0;
-		boolean firstWord = true;
-		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_block_comment;
-		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
-		boolean newLinesAtBoundaries = this.formatter.preferences.comment_new_lines_at_block_boundaries;
-		int scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, 0, this.maxLines);
-		int firstLine = scannerLine;
-		int lineNumber = scannerLine;
-		int lastTextLine = -1;
+		int previousToken= -1;
+		boolean newLine= false;
+		boolean multiLines= false;
+		boolean hasMultiLines= false;
+		boolean hasTokens= false;
+		boolean bufferHasTokens= false;
+		boolean bufferHasNewLine= false;
+		boolean lineHasTokens= false;
+		int hasTextOnFirstLine= 0;
+		boolean firstWord= true;
+		boolean clearBlankLines= this.formatter.preferences.comment_clear_blank_lines_in_block_comment;
+		boolean joinLines= this.formatter.preferences.join_lines_in_comments;
+		boolean newLinesAtBoundaries= this.formatter.preferences.comment_new_lines_at_block_boundaries;
+		int scannerLine= Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, 0, this.maxLines);
+		int firstLine= scannerLine;
+		int lineNumber= scannerLine;
+		int lastTextLine= -1;
 		while (!this.scanner.atEnd()) {
 
 			// Consume token
 			int token;
 			try {
-				token = this.scanner.getNextToken();
+				token= this.scanner.getNextToken();
 			} catch (InvalidInputException iie) {
-	    		token = consumeInvalidToken(currentTokenEndPosition-1);
-				newLine = false;
+				token= consumeInvalidToken(currentTokenEndPosition - 1);
+				newLine= false;
 			}
 
 			// Look at specific tokens
-    		boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE) && (!firstWord || !hasTokens);
-    		boolean isTokenStar = false;
+			boolean insertSpace= (previousToken == TerminalTokens.TokenNameWHITESPACE) && (!firstWord || !hasTokens);
+			boolean isTokenStar= false;
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
 					if (this.blockCommentTokensBuffer.length() > 0) {
 						if (hasTextOnFirstLine == 1 && multiLines) {
 							printBlockCommentHeaderLine(this.blockCommentBuffer);
-							hasTextOnFirstLine = -1;
+							hasTextOnFirstLine= -1;
 						}
 						this.blockCommentBuffer.append(this.blockCommentTokensBuffer);
-						this.column += this.blockCommentTokensBuffer.length();
+						this.column+= this.blockCommentTokensBuffer.length();
 						this.blockCommentTokensBuffer.setLength(0);
-						bufferHasTokens = true;
-						bufferHasNewLine = false;
+						bufferHasTokens= true;
+						bufferHasNewLine= false;
 					}
 					if (previousToken == -1) {
 						// do not remember the first whitespace
-						previousToken = SKIP_FIRST_WHITESPACE_TOKEN;
+						previousToken= SKIP_FIRST_WHITESPACE_TOKEN;
 					} else {
-						previousToken = token;
+						previousToken= token;
 					}
-					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+					lineNumber= Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine > 1 ? scannerLine - 2 : 0, this.maxLines);
 					if (lineNumber > scannerLine) {
-						hasMultiLines = true;
-						newLine = true;
+						hasMultiLines= true;
+						newLine= true;
 					}
-					scannerLine = lineNumber;
+					scannerLine= lineNumber;
 					continue;
 				case TerminalTokens.TokenNameMULTIPLY:
-					isTokenStar = true;
-					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+					isTokenStar= true;
+					lineNumber= Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine > 1 ? scannerLine - 2 : 0, this.maxLines);
 					if (lineNumber == firstLine && previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
 						this.blockCommentBuffer.append(' ');
 					}
-					previousToken = token;
+					previousToken= token;
 					if (this.scanner.currentCharacter == '/') {
-						editEnd = this.scanner.startPosition - 1;
+						editEnd= this.scanner.startPosition - 1;
 						// Add remaining buffered tokens
 						if (this.blockCommentTokensBuffer.length() > 0) {
 							this.blockCommentBuffer.append(this.blockCommentTokensBuffer);
-							this.column += this.blockCommentTokensBuffer.length();
+							this.column+= this.blockCommentTokensBuffer.length();
 						}
 						// end of comment
 						if (newLinesAtBoundaries) {
 							if (multiLines || hasMultiLines) {
-						    	this.blockCommentBuffer.append(this.lineSeparator);
-						    	this.column = 1;
-						    	printIndentationIfNecessary(this.blockCommentBuffer);
+								this.blockCommentBuffer.append(this.lineSeparator);
+								this.column= 1;
+								printIndentationIfNecessary(this.blockCommentBuffer);
 							}
 						}
 						this.blockCommentBuffer.append(' ');
-						this.column += BLOCK_FOOTER_LENGTH + 1;
-				    	this.scanner.getNextChar(); // reach the end of scanner
-				    	continue;
+						this.column+= BLOCK_FOOTER_LENGTH + 1;
+						this.scanner.getNextChar(); // reach the end of scanner
+						continue;
 					}
 					if (newLine) {
-						scannerLine = lineNumber;
-						newLine = false;
+						scannerLine= lineNumber;
+						newLine= false;
 						continue;
 					}
 					break;
 				case TerminalTokens.TokenNameMULTIPLY_EQUAL:
 					if (newLine) {
-						this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition-1);
+						this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition - 1);
 						this.scanner.getNextChar(); // consume the multiply
-						previousToken = TerminalTokens.TokenNameMULTIPLY;
-						scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+						previousToken= TerminalTokens.TokenNameMULTIPLY;
+						scannerLine= Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine > 1 ? scannerLine - 2 : 0, this.maxLines);
 						continue;
 					}
 					break;
@@ -1877,11 +1948,11 @@ public class Scribe implements IJavaDocTagConstants {
 					if (previousToken == -1) {
 						// Do not format comment starting with /*-
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=230944
-						this.indentationLevel = indentLevel;
-						this.numberOfIndentations = indentations;
-						this.lastNumberOfNewLines = 0;
-						this.needSpace = false;
-						this.scanner.skipComments = false;
+						this.indentationLevel= indentLevel;
+						this.numberOfIndentations= indentations;
+						this.lastNumberOfNewLines= 0;
+						this.needSpace= false;
+						this.scanner.skipComments= false;
 						this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 						return false;
 					}
@@ -1894,114 +1965,117 @@ public class Scribe implements IJavaDocTagConstants {
 			// Look at gap and insert corresponding lines if necessary
 			int linesGap;
 			int max;
-			lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+			lineNumber= Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine > 1 ? scannerLine - 2 : 0, this.maxLines);
 			if (lastTextLine == -1) {
-				linesGap = newLinesAtBoundaries ? lineNumber - firstLine : 0;
-				max = 0;
+				linesGap= newLinesAtBoundaries ? lineNumber - firstLine : 0;
+				max= 0;
 			} else {
-				linesGap = lineNumber - lastTextLine;
-				if (token == TerminalTokens.TokenNameAT && linesGap ==1) {
+				linesGap= lineNumber - lastTextLine;
+				if (token == TerminalTokens.TokenNameAT && linesGap == 1) {
 					// insert one blank line before root tags
-					linesGap = 2;
+					linesGap= 2;
 				}
-				max = joinLines && lineHasTokens ? 1 : 0;
+				max= joinLines && lineHasTokens ? 1 : 0;
 			}
 			if (linesGap > max) {
 				if (clearBlankLines) {
 					// TODO (frederic) see if there's a bug for the unremoved blank line for root tags
-					 if (token == TerminalTokens.TokenNameAT) {
-						 linesGap = 1;
-					 } else {
-						linesGap = (max==0 || !joinLines) ? 1 : 0;
-					 }
+					if (token == TerminalTokens.TokenNameAT) {
+						linesGap= 1;
+					} else {
+						linesGap= (max == 0 || !joinLines) ? 1 : 0;
+					}
 				}
-				for (int i=0; i<linesGap; i++) {
+				for (int i= 0; i < linesGap; i++) {
 					// Add remaining buffered tokens
 					if (this.blockCommentTokensBuffer.length() > 0) {
 						if (hasTextOnFirstLine == 1) {
 							printBlockCommentHeaderLine(this.blockCommentBuffer);
-							hasTextOnFirstLine = -1;
+							hasTextOnFirstLine= -1;
 						}
 						this.blockCommentBuffer.append(this.blockCommentTokensBuffer);
 						this.blockCommentTokensBuffer.setLength(0);
-						bufferHasTokens = true;
+						bufferHasTokens= true;
 					}
-			    	this.blockCommentBuffer.append(this.lineSeparator);
-			    	this.column = 1;
-			    	printIndentationIfNecessary(this.blockCommentBuffer);
-		    		this.blockCommentBuffer.append(BLOCK_LINE_PREFIX);
-		    		this.column += BLOCK_LINE_PREFIX_LENGTH;
-		    		firstWord = true;
-					multiLines = true;
-					bufferHasNewLine = true;
+					this.blockCommentBuffer.append(this.lineSeparator);
+					this.column= 1;
+					printIndentationIfNecessary(this.blockCommentBuffer);
+					this.blockCommentBuffer.append(BLOCK_LINE_PREFIX);
+					this.column+= BLOCK_LINE_PREFIX_LENGTH;
+					firstWord= true;
+					multiLines= true;
+					bufferHasNewLine= true;
 				}
-				insertSpace = insertSpace && linesGap == 0;
+				insertSpace= insertSpace && linesGap == 0;
 			}
-    		if (newLine) lineHasTokens = false;
+			if (newLine)
+				lineHasTokens= false;
 
 			// Increment column
-			int tokenStart = this.scanner.getCurrentTokenStartPosition();
-    		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
-    		hasTokens = true;
-    		if (!isTokenStar) lineHasTokens = true;
-    		if (hasTextOnFirstLine == 0 && !isTokenStar) {
-    			if (firstLine == lineNumber) {
-	    			hasTextOnFirstLine = 1;
-	    			this.column++; // include first space
-	    		} else {
-	    			hasTextOnFirstLine = -1;
-	    		}
-    		}
-    		int lastColumn = this.column + this.blockCommentTokensBuffer.length() + tokenLength;
-    		if (insertSpace) lastColumn++;
+			int tokenStart= this.scanner.getCurrentTokenStartPosition();
+			int tokenLength= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
+			hasTokens= true;
+			if (!isTokenStar)
+				lineHasTokens= true;
+			if (hasTextOnFirstLine == 0 && !isTokenStar) {
+				if (firstLine == lineNumber) {
+					hasTextOnFirstLine= 1;
+					this.column++; // include first space
+				} else {
+					hasTextOnFirstLine= -1;
+				}
+			}
+			int lastColumn= this.column + this.blockCommentTokensBuffer.length() + tokenLength;
+			if (insertSpace)
+				lastColumn++;
 
-    		// Append next token inserting a new line if max line is reached
+			// Append next token inserting a new line if max line is reached
 			if (lineHasTokens && !firstWord && lastColumn > maxColumn) {
-		    	String tokensString = this.blockCommentTokensBuffer.toString().trim();
-		    	int tokensStringLength = tokensString.length();
+				String tokensString= this.blockCommentTokensBuffer.toString().trim();
+				int tokensStringLength= tokensString.length();
 				// not enough space on the line
 				if (hasTextOnFirstLine == 1) {
 					printBlockCommentHeaderLine(this.blockCommentBuffer);
 				}
-				if ((this.indentationLevel+tokensStringLength+tokenLength) > maxColumn) {
+				if ((this.indentationLevel + tokensStringLength + tokenLength) > maxColumn) {
 					// there won't be enough room even if we break the line before the buffered tokens
 					// So add the buffered tokens now
 					this.blockCommentBuffer.append(this.blockCommentTokensBuffer);
-					this.column += this.blockCommentTokensBuffer.length();
+					this.column+= this.blockCommentTokensBuffer.length();
 					this.blockCommentTokensBuffer.setLength(0);
-					bufferHasNewLine = false;
-					bufferHasTokens = true;
+					bufferHasNewLine= false;
+					bufferHasTokens= true;
 				}
 				if (bufferHasTokens && !bufferHasNewLine) {
-			    	this.blockCommentBuffer.append(this.lineSeparator);
-			    	this.column = 1;
-			    	printIndentationIfNecessary(this.blockCommentBuffer);
-		    		this.blockCommentBuffer.append(BLOCK_LINE_PREFIX);
-			    	this.column += BLOCK_LINE_PREFIX_LENGTH;
+					this.blockCommentBuffer.append(this.lineSeparator);
+					this.column= 1;
+					printIndentationIfNecessary(this.blockCommentBuffer);
+					this.blockCommentBuffer.append(BLOCK_LINE_PREFIX);
+					this.column+= BLOCK_LINE_PREFIX_LENGTH;
 				}
-		    	if (this.blockCommentTokensBuffer.length() > 0) {
+				if (this.blockCommentTokensBuffer.length() > 0) {
 					this.blockCommentBuffer.append(tokensString);
-					this.column += tokensStringLength;
+					this.column+= tokensStringLength;
 					this.blockCommentTokensBuffer.setLength(0);
-		    	}
+				}
 				this.blockCommentBuffer.append(this.scanner.source, tokenStart, tokenLength);
-				bufferHasTokens = true;
-				bufferHasNewLine = false;
-				this.column += tokenLength;
-				multiLines = true;
-				hasTextOnFirstLine = -1;
+				bufferHasTokens= true;
+				bufferHasNewLine= false;
+				this.column+= tokenLength;
+				multiLines= true;
+				hasTextOnFirstLine= -1;
 			} else {
 				// append token to the line
-				if (insertSpace)  {
+				if (insertSpace) {
 					this.blockCommentTokensBuffer.append(' ');
 				}
 				this.blockCommentTokensBuffer.append(this.scanner.source, tokenStart, tokenLength);
 			}
-			previousToken = token;
-			newLine = false;
-    		firstWord = false;
-			scannerLine = lineNumber;
-			lastTextLine = lineNumber;
+			previousToken= token;
+			newLine= false;
+			firstWord= false;
+			scannerLine= lineNumber;
+			lastTextLine= lineNumber;
 		}
 
 		// Replace block comment text
@@ -2010,32 +2084,32 @@ public class Scribe implements IJavaDocTagConstants {
 				StringBuffer replacement;
 				if (hasTextOnFirstLine == 1) {
 					this.blockCommentTokensBuffer.setLength(0);
-					replacement = this.blockCommentTokensBuffer;
+					replacement= this.blockCommentTokensBuffer;
 					if ((hasMultiLines || multiLines)) {
-						int col = this.column;
+						int col= this.column;
 						replacement.append(this.lineSeparator);
-						this.column = 1;
+						this.column= 1;
 						printIndentationIfNecessary(replacement);
 						replacement.append(BLOCK_LINE_PREFIX);
-				    	this.column = col;
-					} else if (this.blockCommentBuffer.length()==0 || this.blockCommentBuffer.charAt(0)!=' ') {
+						this.column= col;
+					} else if (this.blockCommentBuffer.length() == 0 || this.blockCommentBuffer.charAt(0) != ' ') {
 						replacement.append(' ');
 					}
 					replacement.append(this.blockCommentBuffer);
 				} else {
-					replacement = this.blockCommentBuffer;
+					replacement= this.blockCommentBuffer;
 				}
 				addReplaceEdit(editStart, editEnd, replacement.toString());
 			}
 		}
 
 		// Reset
-		this.indentationLevel = indentLevel;
-		this.numberOfIndentations = indentations;
-		this.lastNumberOfNewLines = 0;
-		this.needSpace = false;
+		this.indentationLevel= indentLevel;
+		this.numberOfIndentations= indentations;
+		this.lastNumberOfNewLines= 0;
+		this.needSpace= false;
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
-		this.scanner.skipComments = false;
+		this.scanner.skipComments= false;
 		return true;
 	}
 
@@ -2043,41 +2117,40 @@ public class Scribe implements IJavaDocTagConstants {
 		if (!this.formatter.preferences.comment_new_lines_at_block_boundaries) {
 			buffer.insert(0, ' ');
 			this.column++;
-		}
-	    else if (buffer.length() == 0) {
-	    	buffer.append(this.lineSeparator);
-	    	this.column = 1;
-	    	printIndentationIfNecessary(buffer);
-	    	buffer.append(BLOCK_LINE_PREFIX);
-	    	this.column += BLOCK_LINE_PREFIX_LENGTH;
-	    } else {
-	    	this.tempBuffer.setLength(0);
-	    	this.tempBuffer.append(this.lineSeparator);
-	    	this.column = 1;
+		} else if (buffer.length() == 0) {
+			buffer.append(this.lineSeparator);
+			this.column= 1;
+			printIndentationIfNecessary(buffer);
+			buffer.append(BLOCK_LINE_PREFIX);
+			this.column+= BLOCK_LINE_PREFIX_LENGTH;
+		} else {
+			this.tempBuffer.setLength(0);
+			this.tempBuffer.append(this.lineSeparator);
+			this.column= 1;
 			printIndentationIfNecessary(this.tempBuffer);
-	    	this.tempBuffer.append(BLOCK_LINE_PREFIX);
-	    	this.column += BLOCK_LINE_PREFIX_LENGTH;
-	    	buffer.insert(0, this.tempBuffer.toString());
-	    }
-    }
+			this.tempBuffer.append(BLOCK_LINE_PREFIX);
+			this.column+= BLOCK_LINE_PREFIX_LENGTH;
+			buffer.insert(0, this.tempBuffer.toString());
+		}
+	}
 
 	public void printEndOfCompilationUnit() {
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
-			int currentTokenStartPosition = this.scanner.currentPosition;
-			boolean hasComment = false;
-			boolean hasLineComment = false;
-			boolean hasWhitespace = false;
-			int count = 0;
+			int currentTokenStartPosition= this.scanner.currentPosition;
+			boolean hasComment= false;
+			boolean hasLineComment= false;
+			boolean hasWhitespace= false;
+			int count= 0;
 			while (true) {
-				this.currentToken = this.scanner.getNextToken();
-				switch(this.currentToken) {
-					case TerminalTokens.TokenNameWHITESPACE :
-						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						count = 0;
-						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
-							switch(whiteSpaces[i]) {
-								case '\r' :
+				this.currentToken= this.scanner.getNextToken();
+				switch (this.currentToken) {
+					case TerminalTokens.TokenNameWHITESPACE:
+						char[] whiteSpaces= this.scanner.getCurrentTokenSource();
+						count= 0;
+						for (int i= 0, max= whiteSpaces.length; i < max; i++) {
+							switch (whiteSpaces[i]) {
+								case '\r':
 									if ((i + 1) < max) {
 										if (whiteSpaces[i + 1] == '\n') {
 											i++;
@@ -2085,12 +2158,12 @@ public class Scribe implements IJavaDocTagConstants {
 									}
 									count++;
 									break;
-								case '\n' :
+								case '\n':
 									count++;
 							}
 						}
 						if (count == 0) {
-							hasWhitespace = true;
+							hasWhitespace= true;
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						} else if (hasLineComment) {
 							preserveEmptyLines(count, this.scanner.getCurrentTokenStartPosition());
@@ -2105,9 +2178,9 @@ public class Scribe implements IJavaDocTagConstants {
 						} else {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						}
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameCOMMENT_LINE:
 						if (count >= 1) {
 							if (count > 1) {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
@@ -2117,13 +2190,13 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasWhitespace) {
 							space();
 						}
-						hasWhitespace = false;
+						hasWhitespace= false;
 						printLineComment();
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = true;
-						count = 0;
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasLineComment= true;
+						count= 0;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_BLOCK:
 						if (count >= 1) {
 							if (count > 1) {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
@@ -2133,14 +2206,14 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasWhitespace) {
 							space();
 						}
-						hasWhitespace = false;
+						hasWhitespace= false;
 						printBlockComment(false);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = false;
-						hasComment = true;
-						count = 0;
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasLineComment= false;
+						hasComment= true;
+						count= 0;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
 						if (count >= 1) {
 							if (count > 1) {
 								preserveEmptyLines(count - 1, this.scanner.startPosition);
@@ -2150,27 +2223,27 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasWhitespace) {
 							space();
 						}
-						hasWhitespace = false;
+						hasWhitespace= false;
 						if (includesJavadocComments()) {
 							printJavadocComment(this.scanner.startPosition, this.scanner.currentPosition);
 						} else {
 							printBlockComment(true);
 						}
 						printNewLine();
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = false;
-						hasComment = true;
-						count = 0;
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasLineComment= false;
+						hasComment= true;
+						count= 0;
 						break;
-					case TerminalTokens.TokenNameSEMICOLON :
+					case TerminalTokens.TokenNameSEMICOLON:
 						print(this.scanner.currentPosition - this.scanner.startPosition, this.formatter.preferences.insert_space_before_semicolon);
 						break;
-					case TerminalTokens.TokenNameEOF :
+					case TerminalTokens.TokenNameEOF:
 						if (count >= 1 || this.formatter.preferences.insert_new_line_at_end_of_file_if_missing) {
 							this.printNewLine(this.scannerEndPosition);
 						}
 						return;
-					default :
+					default:
 						// step back one token
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
@@ -2185,37 +2258,37 @@ public class Scribe implements IJavaDocTagConstants {
 	 * prints a code snippet
 	 */
 	private void printCodeSnippet(int startPosition, int endPosition, int linesGap) {
-		String snippet = new String(this.scanner.source, startPosition, endPosition - startPosition + 1);
-	
+		String snippet= new String(this.scanner.source, startPosition, endPosition - startPosition + 1);
+
 		// 1 - strip content prefix (@see JavaDocRegion#preprocessCodeSnippet)
-		int firstLine = Util.getLineNumber(startPosition, this.lineEnds, 0, this.maxLines) - 1;
-		int lastLine = Util.getLineNumber(endPosition, this.lineEnds, firstLine>1 ? firstLine-2 : 0, this.maxLines) - 1;
+		int firstLine= Util.getLineNumber(startPosition, this.lineEnds, 0, this.maxLines) - 1;
+		int lastLine= Util.getLineNumber(endPosition, this.lineEnds, firstLine > 1 ? firstLine - 2 : 0, this.maxLines) - 1;
 		this.codeSnippetBuffer.setLength(0);
 		if (firstLine == lastLine && linesGap == 0) {
 			this.codeSnippetBuffer.append(snippet);
 		} else {
-			boolean hasCharsAfterStar = false;
+			boolean hasCharsAfterStar= false;
 			if (linesGap == 0) {
-				this.codeSnippetBuffer.append(this.scanner.source, startPosition, this.lineEnds[firstLine]+1-startPosition);
+				this.codeSnippetBuffer.append(this.scanner.source, startPosition, this.lineEnds[firstLine] + 1 - startPosition);
 				firstLine++;
 			}
-			int initialLength = this.codeSnippetBuffer.length();
-			for (int currentLine=firstLine; currentLine<=lastLine; currentLine++) {
-				this.scanner.resetTo(this.lineEnds[currentLine-1]+1, this.lineEnds[currentLine]);
-				int lineStart = this.scanner.currentPosition;
-				boolean hasStar = false;
+			int initialLength= this.codeSnippetBuffer.length();
+			for (int currentLine= firstLine; currentLine <= lastLine; currentLine++) {
+				this.scanner.resetTo(this.lineEnds[currentLine - 1] + 1, this.lineEnds[currentLine]);
+				int lineStart= this.scanner.currentPosition;
+				boolean hasStar= false;
 				loop: while (!this.scanner.atEnd()) {
-					char ch = (char) this.scanner.getNextChar();
+					char ch= (char)this.scanner.getNextChar();
 					switch (ch) {
 						case ' ':
-						case '\t' :
-						case '\u000c' :
+						case '\t':
+						case '\u000c':
 							break;
-						case '\r' :
-						case '\n' :
+						case '\r':
+						case '\n':
 							break loop;
 						case '*':
-							hasStar = true;
+							hasStar= true;
 							break loop;
 						default:
 							if (ScannerHelper.isWhitespace(ch)) {
@@ -2225,18 +2298,18 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 				}
 				if (hasStar) {
-					lineStart = this.scanner.currentPosition;
+					lineStart= this.scanner.currentPosition;
 					if (!hasCharsAfterStar && !this.scanner.atEnd()) {
-						char ch = (char) this.scanner.getNextChar();
-						boolean atEnd = this.scanner.atEnd();
+						char ch= (char)this.scanner.getNextChar();
+						boolean atEnd= this.scanner.atEnd();
 						switch (ch) {
 							case ' ':
-							case '\t' :
-							case '\u000c' :
+							case '\t':
+							case '\u000c':
 								break;
-							case '\r' :
-							case '\n' :
-								atEnd = true;
+							case '\r':
+							case '\n':
+								atEnd= true;
 								break;
 							default:
 								if (!ScannerHelper.isWhitespace(ch)) {
@@ -2244,8 +2317,8 @@ public class Scribe implements IJavaDocTagConstants {
 										// A non whitespace character is just after the star
 										// then we need to restart from the beginning without
 										// consuming the space after the star
-										hasCharsAfterStar = true;
-										currentLine = firstLine-1;
+										hasCharsAfterStar= true;
+										currentLine= firstLine - 1;
 										this.codeSnippetBuffer.setLength(initialLength);
 										continue;
 									}
@@ -2256,44 +2329,44 @@ public class Scribe implements IJavaDocTagConstants {
 							// Until then, there's always a whitespace after each star
 							// of the comment, hence we need to consume it as it will
 							// be rewritten while reindenting the snippet lines
-							lineStart = this.scanner.currentPosition;
+							lineStart= this.scanner.currentPosition;
 						}
 					}
 				}
-				int end = currentLine == lastLine ? endPosition : this.lineEnds[currentLine];
-				this.codeSnippetBuffer.append(this.scanner.source, lineStart, end+1-lineStart);
+				int end= currentLine == lastLine ? endPosition : this.lineEnds[currentLine];
+				this.codeSnippetBuffer.append(this.scanner.source, lineStart, end + 1 - lineStart);
 			}
 		}
-	
+
 		// 2 - convert HTML to Java (@see JavaDocRegion#convertHtml2Java)
 		HTMLEntity2JavaReader reader= new HTMLEntity2JavaReader(new StringReader(this.codeSnippetBuffer.toString()));
 		char[] buf= new char[this.codeSnippetBuffer.length()]; // html2text never gets longer, only shorter!
 		String convertedSnippet;
 		try {
 			int read= reader.read(buf);
-			convertedSnippet = new String(buf, 0, read);
+			convertedSnippet= new String(buf, 0, read);
 		} catch (IOException e) {
 			// should not happen
 			CommentFormatterUtil.log(e);
 			return;
 		}
-	
+
 		// 3 - format snippet (@see JavaDocRegion#formatCodeSnippet)
 		// include comments in case of line comments are present in the snippet
-		String formattedSnippet = convertedSnippet;
-		Map options = this.formatter.preferences.getMap();
+		String formattedSnippet= convertedSnippet;
+		Map options= this.formatter.preferences.getMap();
 		if (this.scanner.sourceLevel > ClassFileConstants.JDK1_3) {
 			options.put(JavaCore.COMPILER_SOURCE, CompilerOptions.versionFromJdkLevel(this.scanner.sourceLevel));
 		}
 		TextEdit edit= CommentFormatterUtil.format2(CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS, convertedSnippet, 0, this.lineSeparator, options);
 		if (edit == null) {
 			// 3.a - not a valid code to format, keep initial buffer
-			formattedSnippet = this.codeSnippetBuffer.toString();
+			formattedSnippet= this.codeSnippetBuffer.toString();
 		} else {
 			// 3.b - valid code formatted
 			// 3.b.i - get the result
-			formattedSnippet = CommentFormatterUtil.evaluateFormatterEdit(convertedSnippet, edit, null);
-	
+			formattedSnippet= CommentFormatterUtil.evaluateFormatterEdit(convertedSnippet, edit, null);
+
 			// 3.b.ii- convert back to HTML (@see JavaDocRegion#convertJava2Html)
 			Java2HTMLEntityReader javaReader= new Java2HTMLEntityReader(new StringReader(formattedSnippet));
 			buf= new char[256];
@@ -2305,31 +2378,32 @@ public class Scribe implements IJavaDocTagConstants {
 					if (l != -1)
 						this.codeSnippetBuffer.append(buf, 0, l);
 				} while (l > 0);
-				formattedSnippet = this.codeSnippetBuffer.toString();
+				formattedSnippet= this.codeSnippetBuffer.toString();
 			} catch (IOException e) {
 				// should not happen
 				CommentFormatterUtil.log(e);
 				return;
 			}
 		}
-	
+
 		// 4 - add the content prefix (@see JavaDocRegion#postprocessCodeSnippet)
 		this.codeSnippetBuffer.setLength(0);
-		ILineTracker tracker = new DefaultLineTracker();
-		this.column = 1;
+		ILineTracker tracker= new DefaultLineTracker();
+		this.column= 1;
 		printIndentationIfNecessary(this.codeSnippetBuffer); // append indentation
 		this.codeSnippetBuffer.append(BLOCK_LINE_PREFIX);
-		String linePrefix = this.codeSnippetBuffer.toString();
+		String linePrefix= this.codeSnippetBuffer.toString();
 		this.codeSnippetBuffer.setLength(0);
-		String replacement = formattedSnippet;
+		String replacement= formattedSnippet;
 		tracker.set(formattedSnippet);
-		int numberOfLines = tracker.getNumberOfLines();
+		int numberOfLines= tracker.getNumberOfLines();
 		if (numberOfLines > 1) {
-			int lastLineOffset = -1;
-			for (int i=0; i<numberOfLines-1; i++) {
-				if (i>0) this.codeSnippetBuffer.append(linePrefix);
+			int lastLineOffset= -1;
+			for (int i= 0; i < numberOfLines - 1; i++) {
+				if (i > 0)
+					this.codeSnippetBuffer.append(linePrefix);
 				try {
-					lastLineOffset = tracker.getLineOffset(i+1);
+					lastLineOffset= tracker.getLineOffset(i + 1);
 					this.codeSnippetBuffer.append(formattedSnippet.substring(tracker.getLineOffset(i), lastLineOffset));
 				} catch (BadLocationException e) {
 					// should not happen
@@ -2339,9 +2413,9 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 			this.codeSnippetBuffer.append(linePrefix);
 			this.codeSnippetBuffer.append(formattedSnippet.substring(lastLineOffset));
-			replacement = this.codeSnippetBuffer.toString();
+			replacement= this.codeSnippetBuffer.toString();
 		}
-	
+
 		// 5 - replace old text with the formatted snippet
 		addReplaceEdit(startPosition, endPosition, replacement);
 	}
@@ -2354,27 +2428,28 @@ public class Scribe implements IJavaDocTagConstants {
 	 * Main method to print and format comments (javadoc, block and single line comments)
 	 */
 	void printComment(int kind, int trailing) {
-		final boolean rejectLineComment = kind  == CodeFormatter.K_MULTI_LINE_COMMENT || kind == CodeFormatter.K_JAVA_DOC;
-		final boolean rejectBlockComment = kind  == CodeFormatter.K_SINGLE_LINE_COMMENT || kind  == CodeFormatter.K_JAVA_DOC;
-		final boolean rejectJavadocComment = kind  == CodeFormatter.K_SINGLE_LINE_COMMENT || kind  == CodeFormatter.K_MULTI_LINE_COMMENT;
+		final boolean rejectLineComment= kind == CodeFormatter.K_MULTI_LINE_COMMENT || kind == CodeFormatter.K_JAVA_DOC;
+		final boolean rejectBlockComment= kind == CodeFormatter.K_SINGLE_LINE_COMMENT || kind == CodeFormatter.K_JAVA_DOC;
+		final boolean rejectJavadocComment= kind == CodeFormatter.K_SINGLE_LINE_COMMENT || kind == CodeFormatter.K_MULTI_LINE_COMMENT;
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
-			int currentTokenStartPosition = this.scanner.currentPosition;
-			boolean hasComment = false;
-			boolean hasLineComment = false;
-			boolean hasWhitespaces = false;
-			int lines = 0;
-			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				int foundTaskCount = this.scanner.foundTaskCount;
-				switch(this.currentToken) {
-					case TerminalTokens.TokenNameWHITESPACE :
-						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						int whitespacesStartPosition = this.scanner.getCurrentTokenStartPosition();
-						int whitespacesEndPosition = this.scanner.getCurrentTokenEndPosition();
-						lines = 0;
-						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
-							switch(whiteSpaces[i]) {
-								case '\r' :
+			int currentTokenStartPosition= this.scanner.currentPosition;
+			boolean hasComment= false;
+			boolean hasLineComment= false;
+			boolean hasWhitespaces= false;
+			int lines= 0;
+			int previousFoundTaskCount= this.scanner.foundTaskCount;
+			while ((this.currentToken= this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				int foundTaskCount= this.scanner.foundTaskCount;
+				switch (this.currentToken) {
+					case TerminalTokens.TokenNameWHITESPACE:
+						char[] whiteSpaces= this.scanner.getCurrentTokenSource();
+						int whitespacesStartPosition= this.scanner.getCurrentTokenStartPosition();
+						int whitespacesEndPosition= this.scanner.getCurrentTokenEndPosition();
+						lines= 0;
+						for (int i= 0, max= whiteSpaces.length; i < max; i++) {
+							switch (whiteSpaces[i]) {
+								case '\r':
 									if ((i + 1) < max) {
 										if (whiteSpaces[i + 1] == '\n') {
 											i++;
@@ -2382,45 +2457,45 @@ public class Scribe implements IJavaDocTagConstants {
 									}
 									lines++;
 									break;
-								case '\n' :
+								case '\n':
 									lines++;
 							}
 						}
 						// If following token is a line comment on the same line or the line just after,
 						// then it might be not really formatted as a trailing comment
-						boolean realTrailing = trailing > NO_TRAILING_COMMENT;
+						boolean realTrailing= trailing > NO_TRAILING_COMMENT;
 						if (realTrailing && this.scanner.currentCharacter == '/' && (lines == 0 || (lines == 1 && !hasLineComment && trailing == IMPORT_TRAILING_COMMENT))) {
 							// sometimes changing the trailing may not be the best idea
 							// for complex trailing comment, it's basically a good idea
-							boolean canChangeTrailing = (trailing & COMPLEX_TRAILING_COMMENT) != 0;
+							boolean canChangeTrailing= (trailing & COMPLEX_TRAILING_COMMENT) != 0;
 							// for basic trailing comment preceded by a line comment, then it depends on the comments relative position
 							// when following comment column (after having been rounded) is below the preceding one,
 							// then it becomes not a good idea to change the trailing flag
 							if (trailing == BASIC_TRAILING_COMMENT && hasLineComment) {
-								int currentCommentIndentation = getCurrentIndentation(whiteSpaces, 0);
-								int relativeIndentation = currentCommentIndentation - this.lastLineComment.currentIndentation;
+								int currentCommentIndentation= getCurrentIndentation(whiteSpaces, 0);
+								int relativeIndentation= currentCommentIndentation - this.lastLineComment.currentIndentation;
 								if (this.tabLength == 0) {
-									canChangeTrailing = relativeIndentation == 0;
+									canChangeTrailing= relativeIndentation == 0;
 								} else {
-									canChangeTrailing = relativeIndentation > -this.tabLength;
+									canChangeTrailing= relativeIndentation > -this.tabLength;
 								}
 							}
 							// if the trailing can be change, then look at the following tokens
 							if (canChangeTrailing) {
-								int currentPosition = this.scanner.currentPosition;
+								int currentPosition= this.scanner.currentPosition;
 								if (this.scanner.getNextToken() == TerminalTokens.TokenNameCOMMENT_LINE) {
-									realTrailing = !hasLineComment;
+									realTrailing= !hasLineComment;
 									switch (this.scanner.getNextToken()) {
 										case TerminalTokens.TokenNameCOMMENT_LINE:
 											// at least two contiguous line comments
 											// the formatter should not consider comments as trailing ones
-											realTrailing = false;
+											realTrailing= false;
 											break;
 										case TerminalTokens.TokenNameWHITESPACE:
 											if (this.scanner.getNextToken() == TerminalTokens.TokenNameCOMMENT_LINE) {
 												// at least two contiguous line comments
 												// the formatter should not consider comments as trailing ones
-												realTrailing = false;
+												realTrailing= false;
 											}
 											break;
 									}
@@ -2433,17 +2508,17 @@ public class Scribe implements IJavaDocTagConstants {
 						// is enough to have an empty line as the line end is included in the comment line...
 						// If comments are contiguous, store the white spaces to be able to compute the current comment indentation
 						if (lines > 1 || (lines == 1 && hasLineComment)) {
-							this.lastLineComment.contiguous = false;
+							this.lastLineComment.contiguous= false;
 						}
-						this.lastLineComment.leadingSpaces = whiteSpaces;
-						this.lastLineComment.lines = lines;
+						this.lastLineComment.leadingSpaces= whiteSpaces;
+						this.lastLineComment.lines= lines;
 						// Strategy to consume spaces and eventually leave at this stage
 						// depends on the fact that a trailing comment is expected or not
 						if (realTrailing) {
 							// if a line comment is consumed, no other comment can be on the same line after
 							if (hasLineComment) {
 								if (lines >= 1) {
-									currentTokenStartPosition = whitespacesStartPosition;
+									currentTokenStartPosition= whitespacesStartPosition;
 									preserveEmptyLines(lines, currentTokenStartPosition);
 									addDeleteEdit(currentTokenStartPosition, whitespacesEndPosition);
 									this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
@@ -2451,7 +2526,7 @@ public class Scribe implements IJavaDocTagConstants {
 								}
 								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 								return;
-							} 
+							}
 							// if one or several new lines are consumed, following comments cannot be considered as trailing ones
 							if (lines >= 1) {
 								if (hasComment) {
@@ -2461,15 +2536,15 @@ public class Scribe implements IJavaDocTagConstants {
 								return;
 							}
 							// delete consumed white spaces
-							hasWhitespaces = true;
-							currentTokenStartPosition = this.scanner.currentPosition;
+							hasWhitespaces= true;
+							currentTokenStartPosition= this.scanner.currentPosition;
 							addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
 						} else {
 							if (lines == 0) {
-								hasWhitespaces = true;
+								hasWhitespaces= true;
 								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
 							} else if (hasLineComment) {
-								currentTokenStartPosition = whitespacesStartPosition;
+								currentTokenStartPosition= whitespacesStartPosition;
 								preserveEmptyLines(lines, currentTokenStartPosition);
 								addDeleteEdit(currentTokenStartPosition, whitespacesEndPosition);
 							} else if (hasComment) {
@@ -2479,25 +2554,28 @@ public class Scribe implements IJavaDocTagConstants {
 									preserveEmptyLines(lines - 1, whitespacesStartPosition);
 								}
 								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
-							} else if (lines != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0 || this.blank_lines_between_import_groups > 0)) {
-								addReplaceEdit(whitespacesStartPosition, whitespacesEndPosition, getPreserveEmptyLines(lines-1));
+							} else if (lines != 0
+									&& (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0 || this.blank_lines_between_import_groups > 0)) {
+								addReplaceEdit(whitespacesStartPosition, whitespacesEndPosition, getPreserveEmptyLines(lines - 1));
 							} else {
 								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
 							}
 						}
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+					case TerminalTokens.TokenNameCOMMENT_LINE:
+						if (this.useTags && this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+								OptimizedReplaceEdit currentEdit= this.edits[this.editsIndex - 1];
+								if (this.scanner.startPosition == currentEdit.offset + currentEdit.length) {
 									printNewLinesBeforeDisablingComment();
 								}
 							}
+							previousFoundTaskCount= foundTaskCount;
 						}
-						if (rejectLineComment) break;
+						if (rejectLineComment)
+							break;
 						if (lines >= 1) {
 							if (lines > 1) {
 								preserveEmptyLines(lines - 1, this.scanner.getCurrentTokenStartPosition());
@@ -2507,32 +2585,34 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasWhitespaces) {
 							space();
 						}
-						hasWhitespaces = false;
+						hasWhitespaces= false;
 						printLineComment();
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = true;
-						lines = 0;
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasLineComment= true;
+						lines= 0;
+						if (this.useTags && !this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 						}
 						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+					case TerminalTokens.TokenNameCOMMENT_BLOCK:
+						if (this.useTags && this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+								OptimizedReplaceEdit currentEdit= this.edits[this.editsIndex - 1];
+								if (this.scanner.startPosition == currentEdit.offset + currentEdit.length) {
 									printNewLinesBeforeDisablingComment();
 								}
 							}
+							previousFoundTaskCount= foundTaskCount;
 						}
 						if (trailing > NO_TRAILING_COMMENT && lines >= 1) {
 							// a block comment on next line means that there's no trailing comment
 							this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 							return;
 						}
-						this.lastLineComment.contiguous = false;
-						if (rejectBlockComment) break;
+						this.lastLineComment.contiguous= false;
+						if (rejectBlockComment)
+							break;
 						if (lines >= 1) {
 							if (lines > 1) {
 								preserveEmptyLines(lines - 1, this.scanner.getCurrentTokenStartPosition());
@@ -2542,33 +2622,35 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasWhitespaces) {
 							space();
 						}
-						hasWhitespaces = false;
+						hasWhitespaces= false;
 						printBlockComment(false);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = false;
-						hasComment = true;
-						lines = 0;
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasLineComment= false;
+						hasComment= true;
+						lines= 0;
+						if (this.useTags && !this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 						}
 						break;
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
+						if (this.useTags && this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+								OptimizedReplaceEdit currentEdit= this.edits[this.editsIndex - 1];
+								if (this.scanner.startPosition == currentEdit.offset + currentEdit.length) {
 									printNewLinesBeforeDisablingComment();
 								}
 							}
+							previousFoundTaskCount= foundTaskCount;
 						}
 						if (trailing > NO_TRAILING_COMMENT) {
 							// a javadoc comment should not be considered as a trailing comment
 							this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 							return;
 						}
-						this.lastLineComment.contiguous = false;
-						if (rejectJavadocComment) break;
+						this.lastLineComment.contiguous= false;
+						if (rejectJavadocComment)
+							break;
 						if (lines >= 1) {
 							if (lines > 1) {
 								preserveEmptyLines(lines - 1, this.scanner.getCurrentTokenStartPosition());
@@ -2578,27 +2660,28 @@ public class Scribe implements IJavaDocTagConstants {
 						} else if (hasWhitespaces) {
 							space();
 						}
-						hasWhitespaces = false;
+						hasWhitespaces= false;
 						if (includesJavadocComments()) {
 							printJavadocComment(this.scanner.startPosition, this.scanner.currentPosition);
 						} else {
 							printBlockComment(true);
 						}
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						if (this.useTags && !this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 						}
 						printNewLine();
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasLineComment = false;
-						hasComment = true;
-						lines = 0;
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasLineComment= false;
+						hasComment= true;
+						lines= 0;
 						break;
-					default :
-						this.lastLineComment.contiguous = false;
+					default:
+						this.lastLineComment.contiguous= false;
 						// step back one token
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
 				}
+				previousFoundTaskCount= foundTaskCount;
 			}
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
@@ -2617,220 +2700,218 @@ public class Scribe implements IJavaDocTagConstants {
 		// this.scannerEndPosition = end;
 
 		// Set indentation level
-	    this.numberOfIndentations = level;
-	    this.indentationLevel = level * this.indentationSize;
-	    this.column = this.indentationLevel + 1;
+		this.numberOfIndentations= level;
+		this.indentationLevel= level * this.indentationSize;
+		this.column= this.indentationLevel + 1;
 
-	    // Print corresponding comment
-	    switch (kind) {
-	    	case CodeFormatter.K_SINGLE_LINE_COMMENT:
-			    printComment(kind, NO_TRAILING_COMMENT);
-	    		break;
-	    	case CodeFormatter.K_MULTI_LINE_COMMENT:
-			    printComment(kind, NO_TRAILING_COMMENT);
-	    		break;
-	    	case CodeFormatter.K_JAVA_DOC:
-	    		printJavadocComment(start, end);
-	    		break;
-	    }
-    }
+		// Print corresponding comment
+		switch (kind) {
+			case CodeFormatter.K_SINGLE_LINE_COMMENT:
+				printComment(kind, NO_TRAILING_COMMENT);
+				break;
+			case CodeFormatter.K_MULTI_LINE_COMMENT:
+				printComment(kind, NO_TRAILING_COMMENT);
+				break;
+			case CodeFormatter.K_JAVA_DOC:
+				printJavadocComment(start, end);
+				break;
+		}
+	}
 
 	private void printLineComment() {
-    	int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
-    	int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
-    	boolean includesLineComments = includesLineComments();
-    	boolean isNlsTag = false;
-    	if (CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, currentTokenStartPosition, currentTokenEndPosition) != -1) {
-    		this.nlsTagCounter = 0;
-    		isNlsTag = true;
-    	}
-    	this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
-    	int currentCharacter;
-    	int start = currentTokenStartPosition;
-    	int nextCharacterStart = currentTokenStartPosition;
+		int currentTokenStartPosition= this.scanner.getCurrentTokenStartPosition();
+		int currentTokenEndPosition= this.scanner.getCurrentTokenEndPosition() + 1;
+		boolean includesLineComments= includesLineComments();
+		boolean isNlsTag= false;
+		if (CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, currentTokenStartPosition, currentTokenEndPosition) != -1) {
+			this.nlsTagCounter= 0;
+			isNlsTag= true;
+		}
+		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
+		int currentCharacter;
+		int start= currentTokenStartPosition;
+		int nextCharacterStart= currentTokenStartPosition;
 
-    	// Print comment line indentation
-    	int commentIndentationLevel;
-   		boolean onFirstColumn = isOnFirstColumn(start);
-    	if (this.indentationLevel == 0) {
-    		commentIndentationLevel = this.column - 1;
-    	} else {
+		// Print comment line indentation
+		int commentIndentationLevel;
+		boolean onFirstColumn= isOnFirstColumn(start);
+		if (this.indentationLevel == 0) {
+			commentIndentationLevel= this.column - 1;
+		} else {
 			if (onFirstColumn &&
 					((includesLineComments && !this.formatter.preferences.comment_format_line_comment_starting_on_first_column) ||
-					 this.formatter.preferences.never_indent_line_comments_on_first_column)
-    			) {
-	   			commentIndentationLevel = this.column - 1;
-    		} else {
-    			// Indentation may be specific for contiguous comment
-    			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=293300
+						this.formatter.preferences.never_indent_line_comments_on_first_column)) {
+				commentIndentationLevel= this.column - 1;
+			} else {
+				// Indentation may be specific for contiguous comment
+				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=293300
 				if (this.lastLineComment.contiguous) {
 					// The leading spaces have been set while looping in the printComment(int) method
-					int currentCommentIndentation = getCurrentIndentation(this.lastLineComment.leadingSpaces, 0);
+					int currentCommentIndentation= getCurrentIndentation(this.lastLineComment.leadingSpaces, 0);
 					// Keep the current comment indentation when over the previous contiguous line comment
 					// and the previous comment has not been reindented
-					int relativeIndentation = currentCommentIndentation - this.lastLineComment.currentIndentation;
-					boolean similarCommentsIndentation = false;
+					int relativeIndentation= currentCommentIndentation - this.lastLineComment.currentIndentation;
+					boolean similarCommentsIndentation= false;
 					if (this.tabLength == 0) {
-						similarCommentsIndentation = relativeIndentation == 0;
+						similarCommentsIndentation= relativeIndentation == 0;
 					} else if (relativeIndentation > -this.tabLength) {
-						similarCommentsIndentation = relativeIndentation == 0 || currentCommentIndentation != 0 && this.lastLineComment.currentIndentation != 0;
+						similarCommentsIndentation= this.formatter.preferences.comment_format_line_comment_starting_on_first_column ||
+								(currentCommentIndentation != 0 && this.lastLineComment.currentIndentation != 0);
 					}
 					if (similarCommentsIndentation && this.lastLineComment.indentation != this.indentationLevel) {
-						int currentIndentationLevel = this.indentationLevel;
-						this.indentationLevel = this.lastLineComment.indentation ;
+						int currentIndentationLevel= this.indentationLevel;
+						this.indentationLevel= this.lastLineComment.indentation;
 						printIndentationIfNecessary();
-						this.indentationLevel = currentIndentationLevel;
-			   			commentIndentationLevel = this.lastLineComment.indentation ;
+						this.indentationLevel= currentIndentationLevel;
+						commentIndentationLevel= this.lastLineComment.indentation;
 					} else {
 						printIndentationIfNecessary();
-			   			commentIndentationLevel = this.column - 1;
+						commentIndentationLevel= this.column - 1;
 					}
 				} else {
 					if (this.currentAlignment != null && this.currentAlignment.kind == Alignment.ARRAY_INITIALIZER &&
-						this.indentationLevel < this.currentAlignment.breakIndentationLevel &&
-						this.lastLineComment.lines > 0)
-					{
-						int currentIndentationLevel = this.indentationLevel;
-						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
-		    			printIndentationIfNecessary();
-						this.indentationLevel = currentIndentationLevel;
-			   			commentIndentationLevel = this.currentAlignment.breakIndentationLevel;
+							this.indentationLevel < this.currentAlignment.breakIndentationLevel &&
+							this.lastLineComment.lines > 0) {
+						int currentIndentationLevel= this.indentationLevel;
+						this.indentationLevel= this.currentAlignment.breakIndentationLevel;
+						printIndentationIfNecessary();
+						this.indentationLevel= currentIndentationLevel;
+						commentIndentationLevel= this.currentAlignment.breakIndentationLevel;
 					} else {
-		    			printIndentationIfNecessary();
-			   			commentIndentationLevel = this.column - 1;
+						printIndentationIfNecessary();
+						commentIndentationLevel= this.column - 1;
 					}
 				}
-    		}
-    	}
-    	
-    	// Store line comment information
-   		this.lastLineComment.contiguous = true;
-		this.lastLineComment.currentIndentation = getCurrentCommentIndentation(currentTokenStartPosition);
-		this.lastLineComment.indentation = commentIndentationLevel;
-		
+			}
+		}
+
+		// Store line comment information
+		this.lastLineComment.contiguous= true;
+		this.lastLineComment.currentIndentation= getCurrentCommentIndentation(currentTokenStartPosition);
+		this.lastLineComment.indentation= commentIndentationLevel;
+
 		// Add pending space if necessary
-    	if (this.pendingSpace) {
-    		addInsertEdit(currentTokenStartPosition, " "); //$NON-NLS-1$
-    	}
-    	this.needSpace = false;
-    	this.pendingSpace = false;
-    	int previousStart = currentTokenStartPosition;
+		if (this.pendingSpace) {
+			addInsertEdit(currentTokenStartPosition, " "); //$NON-NLS-1$
+		}
+		this.needSpace= false;
+		this.pendingSpace= false;
+		int previousStart= currentTokenStartPosition;
 
 		if (!isNlsTag && includesLineComments && (!onFirstColumn || this.formatter.preferences.comment_format_line_comment_starting_on_first_column)) {
-			printLineComment(currentTokenStartPosition, currentTokenEndPosition-1);
+			printLineComment(currentTokenStartPosition, currentTokenEndPosition - 1);
 		} else {
 			// do nothing!?
-	    	loop: while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
-	    		nextCharacterStart = this.scanner.currentPosition;
+			loop: while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter= this.scanner.getNextChar()) != -1) {
+				nextCharacterStart= this.scanner.currentPosition;
 
-	    		switch(currentCharacter) {
-	    			case '\r' :
-	    				start = previousStart;
-	    				break loop;
-	    			case '\n' :
-	    				start = previousStart;
-	    				break loop;
-	    		}
-	    		previousStart = nextCharacterStart;
-	    	}
-	    	if (start != currentTokenStartPosition) {
-	    		// this means that the line comment doesn't end the file
-	    		addReplaceEdit(start, currentTokenEndPosition - 1, this.lineSeparator);
-	    		this.line++;
-	    		this.column = 1;
-	    		this.lastNumberOfNewLines = 1;
-	    	}
+				switch (currentCharacter) {
+					case '\r':
+						start= previousStart;
+						break loop;
+					case '\n':
+						start= previousStart;
+						break loop;
+				}
+				previousStart= nextCharacterStart;
+			}
+			if (start != currentTokenStartPosition) {
+				// this means that the line comment doesn't end the file
+				addReplaceEdit(start, currentTokenEndPosition - 1, this.lineSeparator);
+				this.line++;
+				this.column= 1;
+				this.lastNumberOfNewLines= 1;
+			}
 		}
-    	this.needSpace = false;
-    	this.pendingSpace = false;
-    	// realign to the proper value
-    	if (this.currentAlignment != null) {
-    		if (this.memberAlignment != null) {
-    			// select the last alignment
-    			if (this.currentAlignment.location.inputOffset > this.memberAlignment.location.inputOffset) {
-    				if (this.currentAlignment.couldBreak() && this.currentAlignment.wasSplit) {
-    					this.currentAlignment.performFragmentEffect();
-    				}
-    			} else {
-    				this.indentationLevel = Math.max(this.indentationLevel, this.memberAlignment.breakIndentationLevel);
-    			}
-    		} else if (this.currentAlignment.couldBreak() && this.currentAlignment.wasSplit) {
-    			this.currentAlignment.performFragmentEffect();
-    		}
-    	}
-    	this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
-    }
+		this.needSpace= false;
+		this.pendingSpace= false;
+		// realign to the proper value
+		if (this.currentAlignment != null) {
+			if (this.memberAlignment != null) {
+				// select the last alignment
+				if (this.currentAlignment.location.inputOffset > this.memberAlignment.location.inputOffset) {
+					if (this.currentAlignment.couldBreak() && this.currentAlignment.wasSplit) {
+						this.currentAlignment.performFragmentEffect();
+					}
+				} else {
+					this.indentationLevel= Math.max(this.indentationLevel, this.memberAlignment.breakIndentationLevel);
+				}
+			} else if (this.currentAlignment.couldBreak() && this.currentAlignment.wasSplit) {
+				this.currentAlignment.performFragmentEffect();
+			}
+		}
+		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
+	}
 
 	private void printLineComment(int commentStart, int commentEnd) {
 
 		// Compute indentation
-		int firstColumn = this.column;
-		int indentLevel = this.indentationLevel;
-		int indentations = this.numberOfIndentations;
-		this.indentationLevel = getNextIndentationLevel(firstColumn);
+		int firstColumn= this.column;
+		int indentLevel= this.indentationLevel;
+		int indentations= this.numberOfIndentations;
+		this.indentationLevel= getNextIndentationLevel(firstColumn);
 		if (this.indentationSize != 0) {
-			this.numberOfIndentations = this.indentationLevel / this.indentationSize;
-		}
-		else{
-			this.numberOfIndentations = 0;
+			this.numberOfIndentations= this.indentationLevel / this.indentationSize;
+		} else {
+			this.numberOfIndentations= 0;
 		}
 
 		// Consume the comment prefix
 		this.scanner.resetTo(commentStart, commentEnd);
 		this.scanner.getNextChar();
 		this.scanner.getNextChar();
-		this.column += 2;
+		this.column+= 2;
 
 		// Scan the text token per token to compact it and size it the max line length
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
-		int previousToken = -1;
-		int lastTokenEndPosition = commentStart;
-		int spaceStartPosition = -1;
-		int spaceEndPosition = -1;
-		this.scanner.skipComments = true;
-		String newLineString = null;
-		this.commentIndentation = null;
+		int maxColumn= this.formatter.preferences.comment_line_length + 1;
+		int previousToken= -1;
+		int lastTokenEndPosition= commentStart;
+		int spaceStartPosition= -1;
+		int spaceEndPosition= -1;
+		this.scanner.skipComments= true;
+		String newLineString= null;
+		this.commentIndentation= null;
 
 		// Consume text token per token
 		while (!this.scanner.atEnd()) {
 			int token;
 			try {
-				token = this.scanner.getNextToken();
+				token= this.scanner.getNextToken();
 			} catch (InvalidInputException iie) {
-	    		token = consumeInvalidToken(commentEnd);
+				token= consumeInvalidToken(commentEnd);
 			}
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
 					if (previousToken == -1) {
 						// do not remember the first whitespace
-						previousToken = SKIP_FIRST_WHITESPACE_TOKEN;
+						previousToken= SKIP_FIRST_WHITESPACE_TOKEN;
 					} else {
-						previousToken = token;
+						previousToken= token;
 					}
 					// Remember space position
-					spaceStartPosition = this.scanner.getCurrentTokenStartPosition();
-					spaceEndPosition = this.scanner.getCurrentTokenEndPosition();
+					spaceStartPosition= this.scanner.getCurrentTokenStartPosition();
+					spaceEndPosition= this.scanner.getCurrentTokenEndPosition();
 					continue;
 				case TerminalTokens.TokenNameEOF:
 					continue;
 				case TerminalTokens.TokenNameIdentifier:
 					if (previousToken == -1 || previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
-						char[] identifier = this.scanner.getCurrentTokenSource();
-						int startPosition = this.scanner.getCurrentTokenStartPosition();
-						int restartPosition = this.scanner.currentPosition;
+						char[] identifier= this.scanner.getCurrentTokenSource();
+						int startPosition= this.scanner.getCurrentTokenStartPosition();
+						int restartPosition= this.scanner.currentPosition;
 						if (CharOperation.equals(identifier, Parser.FALL_THROUGH_TAG, 0, 5/*length of string "$FALL"*/) && this.scanner.currentCharacter == '-') {
 							try {
 								this.scanner.getNextToken(); //  consume the '-'
-								token = this.scanner.getNextToken(); // consume the "THROUGH"
+								token= this.scanner.getNextToken(); // consume the "THROUGH"
 								if (token == TerminalTokens.TokenNameIdentifier) {
-									identifier = this.scanner.getCurrentTokenSource();
+									identifier= this.scanner.getCurrentTokenSource();
 									if (CharOperation.endsWith(Parser.FALL_THROUGH_TAG, identifier)) {
 										// the comment starts with a fall through
 										if (previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
-											addReplaceEdit(spaceStartPosition, startPosition-1, " "); //$NON-NLS-1$
+											addReplaceEdit(spaceStartPosition, startPosition - 1, " "); //$NON-NLS-1$
 										}
-										this.scanner.startPosition = startPosition;
-										previousToken = token;
+										this.scanner.startPosition= startPosition;
+										previousToken= token;
 										break;
 									}
 								}
@@ -2839,85 +2920,85 @@ public class Scribe implements IJavaDocTagConstants {
 							}
 						}
 						// this was not a valid fall-through tag, hence continue to process the comment normally
-						this.scanner.startPosition = startPosition;
-			    		this.scanner.currentPosition = restartPosition;
+						this.scanner.startPosition= startPosition;
+						this.scanner.currentPosition= restartPosition;
 					}
 					break;
 			}
-			int tokenStart = this.scanner.getCurrentTokenStartPosition();
-    		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
+			int tokenStart= this.scanner.getCurrentTokenStartPosition();
+			int tokenLength= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
 
 			// insert space at the beginning if not present
-			if (previousToken == -1 ) {
-    			addInsertEdit(this.scanner.startPosition, " "); //$NON-NLS-1$
+			if (previousToken == -1) {
+				addInsertEdit(this.scanner.startPosition, " "); //$NON-NLS-1$
 				this.column++;
 			}
 			// replace space at the beginning if present
 			else if (previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
-				addReplaceEdit(spaceStartPosition, this.scanner.startPosition-1, " "); //$NON-NLS-1$
+				addReplaceEdit(spaceStartPosition, this.scanner.startPosition - 1, " "); //$NON-NLS-1$
 				this.column++;
-				spaceStartPosition = -1; // do not use this position to split the comment
+				spaceStartPosition= -1; // do not use this position to split the comment
 			} else {
 				// not on the first token
-				boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE;
+				boolean insertSpace= previousToken == TerminalTokens.TokenNameWHITESPACE;
 				if (insertSpace) {
 					// count inserted space if any in token length
 					tokenLength++;
 				}
 				// insert new line if max line width is reached and a space was previously encountered
-				if (spaceStartPosition > 0 && (this.column+tokenLength) > maxColumn) {
+				if (spaceStartPosition > 0 && (this.column + tokenLength) > maxColumn) {
 					this.lastNumberOfNewLines++;
 					this.line++;
 					if (newLineString == null) {
 						this.tempBuffer.setLength(0);
 						this.tempBuffer.append(this.lineSeparator);
-						this.column = 1;
+						this.column= 1;
 						if (!this.formatter.preferences.never_indent_line_comments_on_first_column) {
 							printIndentationIfNecessary(this.tempBuffer);
 						}
-					    this.tempBuffer.append(LINE_COMMENT_PREFIX);
-						this.column += LINE_COMMENT_PREFIX_LENGTH;
-						newLineString = this.tempBuffer.toString();
-				    	firstColumn = this.column;
+						this.tempBuffer.append(LINE_COMMENT_PREFIX);
+						this.column+= LINE_COMMENT_PREFIX_LENGTH;
+						newLineString= this.tempBuffer.toString();
+						firstColumn= this.column;
 					} else {
-						this.column = firstColumn;
+						this.column= firstColumn;
 					}
 					if (lastTokenEndPosition > spaceEndPosition) {
-						this.column += lastTokenEndPosition - (spaceEndPosition + 1); // add all previous tokens lengths since last space
+						this.column+= lastTokenEndPosition - (spaceEndPosition + 1); // add all previous tokens lengths since last space
 					}
-					if (this.edits[this.editsIndex-1].offset == spaceStartPosition) {
+					if (this.edits[this.editsIndex - 1].offset == spaceStartPosition) {
 						// previous space was already edited, so remove it
 						this.editsIndex--;
 					}
 					addReplaceEdit(spaceStartPosition, spaceEndPosition, newLineString);
-					spaceStartPosition = -1;
+					spaceStartPosition= -1;
 					if (insertSpace) {
 						tokenLength--; // reduce token length as the space will be replaced by the new line
 					}
 				}
 				// replace space if needed
 				else if (insertSpace) {
-					addReplaceEdit(spaceStartPosition, this.scanner.startPosition-1, " "); //$NON-NLS-1$
+					addReplaceEdit(spaceStartPosition, this.scanner.startPosition - 1, " "); //$NON-NLS-1$
 				}
 			}
 			// update column position and store info of the current token
-			this.column += tokenLength;
-			previousToken = token;
-			lastTokenEndPosition = this.scanner.currentPosition;
+			this.column+= tokenLength;
+			previousToken= token;
+			lastTokenEndPosition= this.scanner.currentPosition;
 		}
-		this.scanner.skipComments = false;
+		this.scanner.skipComments= false;
 
 		// Skip separator if the comment is not at the end of file
-		this.indentationLevel = indentLevel;
-		this.numberOfIndentations = indentations;
-		this.lastNumberOfNewLines = 0;
+		this.indentationLevel= indentLevel;
+		this.numberOfIndentations= indentations;
+		this.lastNumberOfNewLines= 0;
 		this.scanner.resetTo(lastTokenEndPosition, commentEnd);
 		while (!this.scanner.atEnd()) {
-			spaceEndPosition = this.scanner.currentPosition;
+			spaceEndPosition= this.scanner.currentPosition;
 			this.scanner.getNextChar();
 			if (this.scanner.currentCharacter == '\n' || this.scanner.currentCharacter == '\r') {
 				// line comment is normally ended with new line
-				this.column = 1;
+				this.column= 1;
 				this.line++;
 				this.lastNumberOfNewLines++;
 				break;
@@ -2925,7 +3006,7 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 
 		// Replace the line separator at the end of the comment if any...
-		int startReplace = previousToken == SKIP_FIRST_WHITESPACE_TOKEN ? spaceStartPosition : lastTokenEndPosition;
+		int startReplace= previousToken == SKIP_FIRST_WHITESPACE_TOKEN ? spaceStartPosition : lastTokenEndPosition;
 		if (this.column == 1 && commentEnd >= startReplace) {
 			addReplaceEdit(startReplace, commentEnd, this.formatter.preferences.line_separator);
 		}
@@ -2936,8 +3017,9 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private void printEmptyLines(int linesNumber, int insertPosition) {
-		final String buffer = getEmptyLines(linesNumber);
-		if (Util.EMPTY_STRING == buffer) return;
+		final String buffer= getEmptyLines(linesNumber);
+		if (Util.EMPTY_STRING == buffer)
+			return;
 		addInsertEdit(insertPosition, buffer);
 	}
 
@@ -2946,92 +3028,103 @@ public class Scribe implements IJavaDocTagConstants {
 		printIndentationIfNecessary(this.tempBuffer);
 		if (this.tempBuffer.length() > 0) {
 			addInsertEdit(this.scanner.getCurrentTokenStartPosition(), this.tempBuffer.toString());
-			this.pendingSpace = false;
+			this.pendingSpace= false;
 		}
 	}
 
 	private void printIndentationIfNecessary(StringBuffer buffer) {
-		switch(this.tabChar) {
-			case DefaultCodeFormatterOptions.TAB :
-				boolean useTabsForLeadingIndents = this.useTabsOnlyForLeadingIndents;
-				int numberOfLeadingIndents = this.numberOfIndentations;
-				int indentationsAsTab = 0;
+		switch (this.tabChar) {
+			case DefaultCodeFormatterOptions.TAB:
+				boolean useTabsForLeadingIndents= this.useTabsOnlyForLeadingIndents;
+				int numberOfLeadingIndents= this.numberOfIndentations;
+				int indentationsAsTab= 0;
 				if (useTabsForLeadingIndents) {
 					while (this.column <= this.indentationLevel) {
 						if (this.tabLength > 0 && indentationsAsTab < numberOfLeadingIndents) {
-							if (buffer != null) buffer.append('\t');
+							if (buffer != null)
+								buffer.append('\t');
 							indentationsAsTab++;
-							int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
-							this.column += complement;
+							int complement= this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
+							this.column+= complement;
 						} else {
-							if (buffer != null) buffer.append(' ');
+							if (buffer != null)
+								buffer.append(' ');
 							this.column++;
 						}
-						this.needSpace = false;
+						this.needSpace= false;
 					}
 				} else if (this.tabLength > 0) {
 					while (this.column <= this.indentationLevel) {
-						if (buffer != null) buffer.append('\t');
-						int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
-						this.column += complement;
-						this.needSpace = false;
+						if (buffer != null)
+							buffer.append('\t');
+						int complement= this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
+						this.column+= complement;
+						this.needSpace= false;
 					}
 				}
 				break;
-			case DefaultCodeFormatterOptions.SPACE :
+			case DefaultCodeFormatterOptions.SPACE:
 				while (this.column <= this.indentationLevel) {
-					if (buffer != null) buffer.append(' ');
+					if (buffer != null)
+						buffer.append(' ');
 					this.column++;
-					this.needSpace = false;
+					this.needSpace= false;
 				}
 				break;
-			case DefaultCodeFormatterOptions.MIXED :
-				useTabsForLeadingIndents = this.useTabsOnlyForLeadingIndents;
-				numberOfLeadingIndents = this.numberOfIndentations;
-				indentationsAsTab = 0;
+			case DefaultCodeFormatterOptions.MIXED:
+				useTabsForLeadingIndents= this.useTabsOnlyForLeadingIndents;
+				numberOfLeadingIndents= this.numberOfIndentations;
+				indentationsAsTab= 0;
 				if (useTabsForLeadingIndents) {
-					final int columnForLeadingIndents = numberOfLeadingIndents * this.indentationSize;
+					final int columnForLeadingIndents= numberOfLeadingIndents * this.indentationSize;
 					while (this.column <= this.indentationLevel) {
 						if (this.column <= columnForLeadingIndents) {
 							if (this.tabLength > 0 && (this.column - 1 + this.tabLength) <= this.indentationLevel) {
-								if (buffer != null) buffer.append('\t');
-								this.column += this.tabLength;
+								if (buffer != null)
+									buffer.append('\t');
+								this.column+= this.tabLength;
 							} else if ((this.column - 1 + this.indentationSize) <= this.indentationLevel) {
 								// print one indentation
 								// note that this.indentationSize > 0 when entering in the following loop
 								// hence this.column will be incremented and then avoid endless loop (see bug 290905)
-								for (int i = 0, max = this.indentationSize; i < max; i++) {
-									if (buffer != null) buffer.append(' ');
+								for (int i= 0, max= this.indentationSize; i < max; i++) {
+									if (buffer != null)
+										buffer.append(' ');
 									this.column++;
 								}
 							} else {
-								if (buffer != null) buffer.append(' ');
+								if (buffer != null)
+									buffer.append(' ');
 								this.column++;
 							}
 						} else {
-							for (int i = this.column, max = this.indentationLevel; i <= max; i++) {
-								if (buffer != null) buffer.append(' ');
+							for (int i= this.column, max= this.indentationLevel; i <= max; i++) {
+								if (buffer != null)
+									buffer.append(' ');
 								this.column++;
 							}
 						}
-						this.needSpace = false;
+						this.needSpace= false;
 					}
 				} else {
 					while (this.column <= this.indentationLevel) {
 						if (this.tabLength > 0 && (this.column - 1 + this.tabLength) <= this.indentationLevel) {
-							if (buffer != null) buffer.append('\t');
-							this.column += this.tabLength;
+							if (buffer != null)
+								buffer.append('\t');
+							this.column+= this.tabLength;
 						} else if (this.indentationSize > 0 && (this.column - 1 + this.indentationSize) <= this.indentationLevel) {
 							// print one indentation
-							for (int i = 0, max = this.indentationSize; i < max; i++) {
-								if (buffer != null) buffer.append(' ');
+							for (int i= 0, max= this.indentationSize; i < max; i++) {
+								if (buffer != null)
+									buffer.append(' ');
 								this.column++;
 							}
 						} else {
-							if (buffer != null) buffer.append(' ');
+							if (buffer != null)
+								buffer.append(' ');
 							this.column++;
 						}
-						this.needSpace = false;
+						this.needSpace= false;
 					}
 				}
 				break;
@@ -3039,38 +3132,39 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private void printJavadocBlock(FormatJavadocBlock block) {
-		if( block == null) return;
+		if (block == null)
+			return;
 
 		// Init positions
-		int previousEnd = block.tagEnd;
-		int maxNodes = block.nodesPtr;
+		int previousEnd= block.tagEnd;
+		int maxNodes= block.nodesPtr;
 
 		// Compute indentation
-		boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
+		boolean headerLine= block.isHeaderLine() && this.lastNumberOfNewLines == 0;
+		int maxColumn= this.formatter.preferences.comment_line_length + 1;
 		if (headerLine) {
 			maxColumn++;
 		}
 
 		// format tag section if necessary
 		if (!block.isInlined()) {
-			this.lastNumberOfNewLines = 0;
+			this.lastNumberOfNewLines= 0;
 		}
 		if (block.isDescription()) {
 			if (!block.isInlined()) {
-			    this.commentIndentation = null;
+				this.commentIndentation= null;
 			}
 		} else {
-			int tagLength = previousEnd - block.sourceStart + 1;
-			this.column += tagLength;
+			int tagLength= previousEnd - block.sourceStart + 1;
+			this.column+= tagLength;
 			if (!block.isInlined()) {
-			    boolean indentRootTags = this.formatter.preferences.comment_indent_root_tags && !block.isInDescription();
-			    int commentIndentationLevel = 0;
+				boolean indentRootTags= this.formatter.preferences.comment_indent_root_tags && !block.isInDescription();
+				int commentIndentationLevel= 0;
 				if (indentRootTags) {
-				    commentIndentationLevel = tagLength + 1;
-					boolean indentParamTag = this.formatter.preferences.comment_indent_parameter_description && block.isInParamTag();
+					commentIndentationLevel= tagLength + 1;
+					boolean indentParamTag= this.formatter.preferences.comment_indent_parameter_description && block.isInParamTag();
 					if (indentParamTag) {
-						commentIndentationLevel += this.indentationSize;
+						commentIndentationLevel+= this.indentationSize;
 					}
 				}
 				setCommentIndentation(commentIndentationLevel);
@@ -3079,11 +3173,11 @@ public class Scribe implements IJavaDocTagConstants {
 			if (reference != null) {
 				// format reference
 				printJavadocBlockReference(block, reference);
-				previousEnd = reference.sourceEnd;
+				previousEnd= reference.sourceEnd;
 			}
 
 			// Nothing else to do if the tag has no node
-			if (maxNodes < 0)  {
+			if (maxNodes < 0) {
 				if (block.isInlined()) {
 					this.column++;
 				}
@@ -3092,196 +3186,202 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 
 		// tag section: iterate through the blocks composing this tag but the last one
-		int previousLine = Util.getLineNumber(previousEnd, this.lineEnds, 0, this.maxLines);
-		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
-		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
-		for (int i=0; i<=maxNodes; i++) {
-			FormatJavadocNode node = block.nodes[i];
-			int nodeStart = node.sourceStart;
+		int previousLine= Util.getLineNumber(previousEnd, this.lineEnds, 0, this.maxLines);
+		boolean clearBlankLines= this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
+		boolean joinLines= this.formatter.preferences.join_lines_in_comments;
+		for (int i= 0; i <= maxNodes; i++) {
+			FormatJavadocNode node= block.nodes[i];
+			int nodeStart= node.sourceStart;
 
 			// Print empty lines before the node
 			int newLines;
 			if (i == 0) {
-				newLines = this.formatter.preferences.comment_insert_new_line_for_parameter && block.isParamTag() ? 1 : 0;
-				if (nodeStart > (previousEnd+1)) {
+				newLines= this.formatter.preferences.comment_insert_new_line_for_parameter && block.isParamTag() ? 1 : 0;
+				if (nodeStart > (previousEnd + 1)) {
 					if (!clearBlankLines || !joinLines) {
-						int startLine = Util.getLineNumber(nodeStart, this.lineEnds, previousLine-1, this.maxLines);
-						int gapLine = previousLine;
-						if (joinLines) gapLine++; // if not preserving line break then gap must be at least of one line
+						int startLine= Util.getLineNumber(nodeStart, this.lineEnds, previousLine - 1, this.maxLines);
+						int gapLine= previousLine;
+						if (joinLines)
+							gapLine++; // if not preserving line break then gap must be at least of one line
 						if (startLine > gapLine) {
-							newLines = startLine - previousLine;
+							newLines= startLine - previousLine;
 						}
 						if (clearBlankLines) {
 							// clearing blank lines in this block means that break lines should be preserved, hence only keep one new line
-							if (newLines > 0)  newLines = 1;
+							if (newLines > 0)
+								newLines= 1;
 						}
 					}
 					if (newLines == 0 && (!node.isImmutable() || block.reference != null)) {
-						newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
+						newLines= printJavadocBlockNodesNewLines(block, node, previousEnd);
 					}
 					if (block.isImmutable()) {
 						printJavadocGapLinesForImmutableBlock(block);
 					} else {
-						printJavadocGapLines(previousEnd+1, nodeStart-1, newLines, clearBlankLines, false, null);
+						printJavadocGapLines(previousEnd + 1, nodeStart - 1, newLines, clearBlankLines, false, null);
 					}
 				} else {
 					this.tempBuffer.setLength(0);
 					if (newLines > 0) {
-						for (int j=0; j<newLines; j++) {
+						for (int j= 0; j < newLines; j++) {
 							printJavadocNewLine(this.tempBuffer);
 						}
 						addInsertEdit(nodeStart, this.tempBuffer.toString());
 					}
 				}
 			} else {
-				newLines = this.column > maxColumn ? 1 : 0;
-				if (!clearBlankLines && node.lineStart > (previousLine+1)) newLines = node.lineStart - previousLine;
-				if (newLines < node.linesBefore) newLines = node.linesBefore;
+				newLines= this.column > maxColumn ? 1 : 0;
+				if (!clearBlankLines && node.lineStart > (previousLine + 1))
+					newLines= node.lineStart - previousLine;
+				if (newLines < node.linesBefore)
+					newLines= node.linesBefore;
 				if (newLines == 0) {
-					newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
+					newLines= printJavadocBlockNodesNewLines(block, node, previousEnd);
 				}
-				if (newLines > 0 || nodeStart > (previousEnd+1)) {
-		   			printJavadocGapLines(previousEnd+1, nodeStart-1, newLines, clearBlankLines, false, null);
+				if (newLines > 0 || nodeStart > (previousEnd + 1)) {
+					printJavadocGapLines(previousEnd + 1, nodeStart - 1, newLines, clearBlankLines, false, null);
 				}
 			}
 			if (headerLine && newLines > 0) {
-				headerLine = false;
+				headerLine= false;
 				maxColumn--;
 			}
 
 			// Print node
 			if (node.isText()) {
-				FormatJavadocText text = (FormatJavadocText) node;
+				FormatJavadocText text= (FormatJavadocText)node;
 				if (text.isImmutable()) {
 					// Indent if new line was added
 					if (text.isImmutableHtmlTag() && newLines > 0 && this.commentIndentation != null) {
-				    	addInsertEdit(node.sourceStart, this.commentIndentation);
-				    	this.column += this.commentIndentation.length();
+						addInsertEdit(node.sourceStart, this.commentIndentation);
+						this.column+= this.commentIndentation.length();
 					}
 					printJavadocImmutableText(text, block, newLines > 0);
-					this.column += getTextLength(block, text);
+					this.column+= getTextLength(block, text);
 				} else if (text.isHtmlTag()) {
-					printJavadocHtmlTag(text, block, newLines>0);
+					printJavadocHtmlTag(text, block, newLines > 0);
 				} else {
-					printJavadocText(text, block, newLines>0);
+					printJavadocText(text, block, newLines > 0);
 				}
 			} else {
 				if (newLines > 0 && this.commentIndentation != null) {
-			    	addInsertEdit(node.sourceStart, this.commentIndentation);
-			    	this.column += this.commentIndentation.length();
+					addInsertEdit(node.sourceStart, this.commentIndentation);
+					this.column+= this.commentIndentation.length();
 				}
 				printJavadocBlock((FormatJavadocBlock)node);
 			}
 
 			// Print empty lines before the node
-			previousEnd = node.sourceEnd;
-			previousLine = Util.getLineNumber(previousEnd, this.lineEnds, node.lineStart > 1 ? node.lineStart-2 : 0, this.maxLines);
+			previousEnd= node.sourceEnd;
+			previousLine= Util.getLineNumber(previousEnd, this.lineEnds, node.lineStart > 1 ? node.lineStart - 2 : 0, this.maxLines);
 		}
-		this.lastNumberOfNewLines = 0;
+		this.lastNumberOfNewLines= 0;
 	}
 
 	private int printJavadocBlockNodesNewLines(FormatJavadocBlock block, FormatJavadocNode node, int previousEnd) {
-	   	int maxColumn = this.formatter.preferences.comment_line_length+1;
-    	int nodeStart = node.sourceStart;
- 	    try {
-			this.scanner.resetTo(nodeStart , node.sourceEnd);
-	    	int length = 0;
-	    	boolean newLine = false;
-			boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
-			int firstColumn = 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
-			if (this.commentIndentation != null) firstColumn += this.commentIndentation.length();
-			if (headerLine) maxColumn++;
-			FormatJavadocText text = null;
-			boolean isImmutableNode = node.isImmutable();
-			boolean nodeIsText = node.isText();
+		int maxColumn= this.formatter.preferences.comment_line_length + 1;
+		int nodeStart= node.sourceStart;
+		try {
+			this.scanner.resetTo(nodeStart, node.sourceEnd);
+			int length= 0;
+			boolean newLine= false;
+			boolean headerLine= block.isHeaderLine() && this.lastNumberOfNewLines == 0;
+			int firstColumn= 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
+			if (this.commentIndentation != null)
+				firstColumn+= this.commentIndentation.length();
+			if (headerLine)
+				maxColumn++;
+			FormatJavadocText text= null;
+			boolean isImmutableNode= node.isImmutable();
+			boolean nodeIsText= node.isText();
 			if (nodeIsText) {
-	    		text = (FormatJavadocText)node;
+				text= (FormatJavadocText)node;
 			} else {
-				FormatJavadocBlock inlinedBlock = (FormatJavadocBlock)node;
+				FormatJavadocBlock inlinedBlock= (FormatJavadocBlock)node;
 				if (isImmutableNode) {
-					text = (FormatJavadocText) inlinedBlock.getLastNode();
+					text= (FormatJavadocText)inlinedBlock.getLastNode();
 					if (text != null) {
-			    		length += inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1;  // tag length
-				    	if (nodeStart > (previousEnd+1)) {
-				    		length++; // include space between nodes
-				    	}
-						this.scanner.resetTo(text.sourceStart , node.sourceEnd);
+						length+= inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1; // tag length
+						if (nodeStart > (previousEnd + 1)) {
+							length++; // include space between nodes
+						}
+						this.scanner.resetTo(text.sourceStart, node.sourceEnd);
 					}
 				}
 			}
-	    	if (text != null) {
-    			if (isImmutableNode) {
-			    	if (nodeStart > (previousEnd+1)) {
-			    		length++; // include space between nodes
-			    	}
-    				int lastColumn = this.column + length;
-	    			while (!this.scanner.atEnd()) {
-	    				try {
-		    				int token = this.scanner.getNextToken();
-		    				switch (token) {
-		    					case TerminalTokens.TokenNameWHITESPACE:
-		    						if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
-		    							return 0;
-		    						}
-									lastColumn = getCurrentIndentation(this.scanner.getCurrentTokenSource(), lastColumn);
-		    						break;
-		    					case TerminalTokens.TokenNameMULTIPLY:
-		    						if (newLine) {
-		    							newLine = false;
-		    							continue;
-		    						}
-		    						lastColumn++;
-		    						break;
-		    					default:
-					    			lastColumn += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-		    						break;
-		    				}
-	    				}
-	    				catch (InvalidInputException iie) {
-	    					// maybe an unterminated string or comment
-			    			lastColumn += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-	    				}
-	    				if (lastColumn > maxColumn) {
-	    					return 1;
+			if (text != null) {
+				if (isImmutableNode) {
+					if (nodeStart > (previousEnd + 1)) {
+						length++; // include space between nodes
+					}
+					int lastColumn= this.column + length;
+					while (!this.scanner.atEnd()) {
+						try {
+							int token= this.scanner.getNextToken();
+							switch (token) {
+								case TerminalTokens.TokenNameWHITESPACE:
+									if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
+										return 0;
+									}
+									lastColumn= getCurrentIndentation(this.scanner.getCurrentTokenSource(), lastColumn);
+									break;
+								case TerminalTokens.TokenNameMULTIPLY:
+									if (newLine) {
+										newLine= false;
+										continue;
+									}
+									lastColumn++;
+									break;
+								default:
+									lastColumn+= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+									break;
+							}
+						} catch (InvalidInputException iie) {
+							// maybe an unterminated string or comment
+							lastColumn+= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
 						}
-	    			}
-	    			return 0;
-    			}
-    			if (text.isHtmlTag()) {
-    				if (text.getHtmlTagID() == JAVADOC_SINGLE_BREAK_TAG_ID) {
-    					// never break before single break tag
-    					return 0;
-    				}
-	    			// read the html tag
-    				this.scanner.getNextToken();
-	    			if (this.scanner.getNextToken() == TerminalTokens.TokenNameDIVIDE) {
-	    				length++;
-	    				this.scanner.getNextToken();
-	    			}
-	    			length += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-	    			this.scanner.getNextToken(); // '>'
-	    			length++;
-	    		} else {
-	    			while (true) {
-	    				int token = this.scanner.getNextToken();
-	    				if (token == TerminalTokens.TokenNameWHITESPACE || token == TerminalTokens.TokenNameEOF) break;
-		    			int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-		    			length += tokenLength;
-		    			if ((this.column + length) >= maxColumn) {
-		    				break;
-		    			}
-	    			}
-	    		}
-	    	} else {
-	    		FormatJavadocBlock inlinedBlock = (FormatJavadocBlock) node;
-	    		length += inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1;  // tag length
-	    		if (inlinedBlock.reference != null) {
-		    		length++; // space between tag and reference
+						if (lastColumn > maxColumn) {
+							return 1;
+						}
+					}
+					return 0;
+				}
+				if (text.isHtmlTag()) {
+					if (text.getHtmlTagID() == JAVADOC_SINGLE_BREAK_TAG_ID) {
+						// never break before single break tag
+						return 0;
+					}
+					// read the html tag
+					this.scanner.getNextToken();
+					if (this.scanner.getNextToken() == TerminalTokens.TokenNameDIVIDE) {
+						length++;
+						this.scanner.getNextToken();
+					}
+					length+= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+					this.scanner.getNextToken(); // '>'
+					length++;
+				} else {
+					while (true) {
+						int token= this.scanner.getNextToken();
+						if (token == TerminalTokens.TokenNameWHITESPACE || token == TerminalTokens.TokenNameEOF)
+							break;
+						int tokenLength= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+						length+= tokenLength;
+						if ((this.column + length) >= maxColumn) {
+							break;
+						}
+					}
+				}
+			} else {
+				FormatJavadocBlock inlinedBlock= (FormatJavadocBlock)node;
+				length+= inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1; // tag length
+				if (inlinedBlock.reference != null) {
+					length++; // space between tag and reference
 					this.scanner.resetTo(inlinedBlock.reference.sourceStart, inlinedBlock.reference.sourceEnd);
-					int previousToken = -1;
+					int previousToken= -1;
 					loop: while (!this.scanner.atEnd()) {
-						int token = this.scanner.getNextToken();
-			    		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+						int token= this.scanner.getNextToken();
+						int tokenLength= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
 						switch (token) {
 							case TerminalTokens.TokenNameWHITESPACE:
 								if (previousToken == TerminalTokens.TokenNameCOMMA) { // space between method arguments
@@ -3291,69 +3391,71 @@ public class Scribe implements IJavaDocTagConstants {
 							case TerminalTokens.TokenNameMULTIPLY:
 								break;
 							default:
-								length += tokenLength;
-								if ((this.column+length) > maxColumn) {
+								length+= tokenLength;
+								if ((this.column + length) > maxColumn) {
 									break loop;
 								}
-					    		break;
+								break;
 						}
-						previousToken = token;
-		    		}
-	    		}
-	    		length++; // one more for closing brace
-	    	}
-	    	if (nodeStart > (previousEnd+1)) {
-	    		length++; // include space between nodes
-	    	}
-    		if ((firstColumn + length) >= maxColumn && node == block.nodes[0]) {
-    			// Do not split in this peculiar case as length would be also over the max
-    			// length on next line
-    			return 0;
-    		}
+						previousToken= token;
+					}
+				}
+				length++; // one more for closing brace
+			}
+			if (nodeStart > (previousEnd + 1)) {
+				length++; // include space between nodes
+			}
+			if ((firstColumn + length) >= maxColumn && node == block.nodes[0]) {
+				// Do not split in this peculiar case as length would be also over the max
+				// length on next line
+				return 0;
+			}
 			if ((this.column + length) > maxColumn) {
-	    		return 1;
-	    	}
-	    } catch (InvalidInputException iie) {
-	    	// Assume length is one
-	    	int tokenLength = 1;
-	    	if (nodeStart > (previousEnd+1)) {
-	    		tokenLength++; // include space between nodes
-	    	}
+				return 1;
+			}
+		} catch (InvalidInputException iie) {
+			// Assume length is one
+			int tokenLength= 1;
+			if (nodeStart > (previousEnd + 1)) {
+				tokenLength++; // include space between nodes
+			}
 			if ((this.column + tokenLength) > maxColumn) {
-	    		return 1;
-	    	}
-	    }
-	    return 0;
-    }
+				return 1;
+			}
+		}
+		return 0;
+	}
 
 	private void printJavadocBlockReference(FormatJavadocBlock block, FormatJavadocReference reference) {
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
-		boolean headerLine = block.isHeaderLine();
-		boolean inlined = block.isInlined();
-		if (headerLine) maxColumn++;
+		int maxColumn= this.formatter.preferences.comment_line_length + 1;
+		boolean headerLine= block.isHeaderLine();
+		boolean inlined= block.isInlined();
+		if (headerLine)
+			maxColumn++;
 
 		// First we need to know what is the indentation
-		this.scanner.resetTo(block.tagEnd+1, reference.sourceEnd);
+		this.scanner.resetTo(block.tagEnd + 1, reference.sourceEnd);
 		this.javadocBlockRefBuffer.setLength(0);
-		boolean needFormat = false;
-		int previousToken = -1;
-		int spacePosition = -1;
-		String newLineString = null;
-		int firstColumn = -1;
+		boolean needFormat= false;
+		int previousToken= -1;
+		int spacePosition= -1;
+		String newLineString= null;
+		int firstColumn= -1;
 		while (!this.scanner.atEnd()) {
 			int token;
 			try {
-				token = this.scanner.getNextToken();
-	    		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+				token= this.scanner.getNextToken();
+				int tokenLength= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
 				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE:
-						if (previousToken != -1 || tokenLength > 1 || this.scanner.currentCharacter != ' ') needFormat = true;
+						if (previousToken != -1 || tokenLength > 1 || this.scanner.currentCharacter != ' ')
+							needFormat= true;
 						switch (previousToken) {
-							case TerminalTokens.TokenNameMULTIPLY :
+							case TerminalTokens.TokenNameMULTIPLY:
 							case TerminalTokens.TokenNameLPAREN:
 								break;
-							default:	// space between method arguments
-								spacePosition = this.javadocBlockRefBuffer.length();
+							default: // space between method arguments
+								spacePosition= this.javadocBlockRefBuffer.length();
 								// $FALL-THROUGH$ - fall through next case
 							case -1:
 								this.javadocBlockRefBuffer.append(' ');
@@ -3364,60 +3466,60 @@ public class Scribe implements IJavaDocTagConstants {
 					case TerminalTokens.TokenNameMULTIPLY:
 						break;
 					default:
-						if (!inlined && spacePosition > 0 && (this.column+tokenLength) > maxColumn) {
+						if (!inlined && spacePosition > 0 && (this.column + tokenLength) > maxColumn) {
 							// not enough space on the line
 							this.lastNumberOfNewLines++;
 							this.line++;
 							if (newLineString == null) {
 								this.tempBuffer.setLength(0);
 								this.tempBuffer.append(this.lineSeparator);
-						    	this.column = 1;
-						    	printIndentationIfNecessary(this.tempBuffer);
-					    		this.tempBuffer.append(BLOCK_LINE_PREFIX);
-					    		this.column += BLOCK_LINE_PREFIX_LENGTH;
+								this.column= 1;
+								printIndentationIfNecessary(this.tempBuffer);
+								this.tempBuffer.append(BLOCK_LINE_PREFIX);
+								this.column+= BLOCK_LINE_PREFIX_LENGTH;
 								if (this.commentIndentation != null) {
-							    	this.tempBuffer.append(this.commentIndentation);
-							    	this.column += this.commentIndentation.length();
-						    	}
-						    	newLineString = this.tempBuffer.substring(0, this.tempBuffer.length()-1); // remove last space as buffer will be inserted before a space
-						    	firstColumn = this.column;
+									this.tempBuffer.append(this.commentIndentation);
+									this.column+= this.commentIndentation.length();
+								}
+								newLineString= this.tempBuffer.substring(0, this.tempBuffer.length() - 1); // remove last space as buffer will be inserted before a space
+								firstColumn= this.column;
 							} else {
-								this.column = firstColumn;
+								this.column= firstColumn;
 							}
-							this.column = firstColumn + this.javadocBlockRefBuffer.length() - spacePosition - 1;
+							this.column= firstColumn + this.javadocBlockRefBuffer.length() - spacePosition - 1;
 							this.javadocBlockRefBuffer.insert(spacePosition, newLineString);
 							if (headerLine) {
-								headerLine = false;
+								headerLine= false;
 								maxColumn--;
 							}
-							spacePosition = -1;
+							spacePosition= -1;
 						}
 						this.javadocBlockRefBuffer.append(this.scanner.source, this.scanner.startPosition, tokenLength);
-			    		this.column += tokenLength;
-			    		break;
+						this.column+= tokenLength;
+						break;
 				}
-				previousToken = token;
+				previousToken= token;
 			} catch (InvalidInputException iie) {
 				// does not happen as syntax is correct
 			}
 		}
 		if (needFormat) {
-		    addReplaceEdit(block.tagEnd+1, reference.sourceEnd, this.javadocBlockRefBuffer.toString());
+			addReplaceEdit(block.tagEnd + 1, reference.sourceEnd, this.javadocBlockRefBuffer.toString());
 		}
-    }
+	}
 
 	private int getTextLength(FormatJavadocBlock block, FormatJavadocText text) {
 
 		// Special case for immutable tags
 		if (text.isImmutable()) {
-			this.scanner.resetTo(text.sourceStart , text.sourceEnd);
-			int textLength = 0;
+			this.scanner.resetTo(text.sourceStart, text.sourceEnd);
+			int textLength= 0;
 			while (!this.scanner.atEnd()) {
 				try {
-	                int token = this.scanner.getNextToken();
-	    			if (token == TerminalTokens.TokenNameWHITESPACE) {
+					int token= this.scanner.getNextToken();
+					if (token == TerminalTokens.TokenNameWHITESPACE) {
 						if (CharOperation.indexOf('\n', this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition) >= 0) {
-							textLength = 0;
+							textLength= 0;
 							this.scanner.getNextChar();
 							if (this.scanner.currentCharacter == '*') {
 								this.scanner.getNextChar();
@@ -3429,52 +3531,52 @@ public class Scribe implements IJavaDocTagConstants {
 							}
 							continue;
 						}
-	    			}
-	    			textLength += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-                } catch (InvalidInputException e) {
-   					// maybe an unterminated string or comment
-	    			textLength += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
-                }
+					}
+					textLength+= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+				} catch (InvalidInputException e) {
+					// maybe an unterminated string or comment
+					textLength+= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+				}
 			}
 			return textLength;
 		}
 
 		// Simple for one line tags
-	    if (block.isOneLineTag()) {
-	    	return text.sourceEnd - text.sourceStart + 1;
-	    }
+		if (block.isOneLineTag()) {
+			return text.sourceEnd - text.sourceStart + 1;
+		}
 
-	    // Find last line
-    	int startLine = Util.getLineNumber(text.sourceStart, this.lineEnds, 0, this.maxLines);
-    	int endLine = startLine;
-    	int previousEnd = -1;
-    	for (int i=0; i<=text.separatorsPtr; i++) {
-    		int end = (int) (text.separators[i] >>> 32);
-    		endLine = Util.getLineNumber(end, this.lineEnds, endLine-1, this.maxLines);
-    		if (endLine > startLine) {
-    			return previousEnd - text.sourceStart + 1;
-    		}
-    		previousEnd = end;
-    	}
+		// Find last line
+		int startLine= Util.getLineNumber(text.sourceStart, this.lineEnds, 0, this.maxLines);
+		int endLine= startLine;
+		int previousEnd= -1;
+		for (int i= 0; i <= text.separatorsPtr; i++) {
+			int end= (int)(text.separators[i] >>> 32);
+			endLine= Util.getLineNumber(end, this.lineEnds, endLine - 1, this.maxLines);
+			if (endLine > startLine) {
+				return previousEnd - text.sourceStart + 1;
+			}
+			previousEnd= end;
+		}
 
-    	// This was a one line text
+		// This was a one line text
 		return text.sourceEnd - text.sourceStart + 1;
-    }
+	}
 
 	/*
 	 * Print and formats a javadoc comments
 	 */
 	void printJavadocComment(int start, int end) {
-		int lastIndentationLevel = this.indentationLevel;
+		int lastIndentationLevel= this.indentationLevel;
 		try {
 			// parse the comment on the fly
-			this.scanner.resetTo(start, end-1);
-			if (! this.formatterCommentParser.parse(start, end-1)) {
+			this.scanner.resetTo(start, end - 1);
+			if (!this.formatterCommentParser.parse(start, end - 1)) {
 				// problem occurred while parsing the javadoc, early abort formatting
 				return;
 			}
 
-			FormatJavadoc javadoc = (FormatJavadoc) this.formatterCommentParser.docComment;
+			FormatJavadoc javadoc= (FormatJavadoc)this.formatterCommentParser.docComment;
 
 			// handle indentation
 			if (this.indentationLevel != 0) {
@@ -3492,36 +3594,36 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 
 			// init properly
-			this.needSpace = false;
-			this.pendingSpace = false;
-			int length = javadoc.blocks.length;
+			this.needSpace= false;
+			this.pendingSpace= false;
+			int length= javadoc.blocks.length;
 
 			// format empty lines between before the first block
-			FormatJavadocBlock previousBlock = javadoc.blocks[0];
-			this.lastNumberOfNewLines = 0;
-			int currentLine = this.line;
-			int firstBlockStart = previousBlock.sourceStart;
+			FormatJavadocBlock previousBlock= javadoc.blocks[0];
+			this.lastNumberOfNewLines= 0;
+			int currentLine= this.line;
+			int firstBlockStart= previousBlock.sourceStart;
 			printIndentationIfNecessary(null);
-			this.column += JAVADOC_HEADER_LENGTH; // consider that the header is already scanned
+			this.column+= JAVADOC_HEADER_LENGTH; // consider that the header is already scanned
 
 			// If there are several blocks in the javadoc
-			int index = 1;
+			int index= 1;
 			if (length > 1) {
 				// format the description if any
 				if (previousBlock.isDescription()) {
 					printJavadocBlock(previousBlock);
-					FormatJavadocBlock block = javadoc.blocks[index++];
-					int newLines = this.formatter.preferences.comment_insert_empty_line_before_root_tags ? 2 : 1;
-					printJavadocGapLines(previousBlock.sourceEnd+1, block.sourceStart-1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
-					previousBlock = block;
+					FormatJavadocBlock block= javadoc.blocks[index++];
+					int newLines= this.formatter.preferences.comment_insert_empty_line_before_root_tags ? 2 : 1;
+					printJavadocGapLines(previousBlock.sourceEnd + 1, block.sourceStart - 1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
+					previousBlock= block;
 				}
 
 				// format all tags but the last one composing this comment
 				while (index < length) {
 					printJavadocBlock(previousBlock);
-					FormatJavadocBlock block = javadoc.blocks[index++];
-					printJavadocGapLines(previousBlock.sourceEnd+1, block.sourceStart-1, 1, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
-					previousBlock = block;
+					FormatJavadocBlock block= javadoc.blocks[index++];
+					printJavadocGapLines(previousBlock.sourceEnd + 1, block.sourceStart - 1, 1, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
+					previousBlock= block;
 				}
 			}
 
@@ -3529,16 +3631,15 @@ public class Scribe implements IJavaDocTagConstants {
 			printJavadocBlock(previousBlock);
 
 			// format the header and footer empty spaces
-			int newLines = (this.formatter.preferences.comment_new_lines_at_javadoc_boundaries && (this.line > currentLine || javadoc.isMultiLine())) ? 1 : 0;
-			printJavadocGapLines(javadoc.textStart, firstBlockStart-1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
-			printJavadocGapLines(previousBlock.sourceEnd+1, javadoc.textEnd, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, true, null);
-		}
-		finally {
+			int newLines= (this.formatter.preferences.comment_new_lines_at_javadoc_boundaries && (this.line > currentLine || javadoc.isMultiLine())) ? 1 : 0;
+			printJavadocGapLines(javadoc.textStart, firstBlockStart - 1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
+			printJavadocGapLines(previousBlock.sourceEnd + 1, javadoc.textEnd, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, true, null);
+		} finally {
 			// reset the scanner
 			this.scanner.resetTo(end, this.scannerEndPosition - 1);
-			this.needSpace = false;
-			this.indentationLevel = lastIndentationLevel;
-			this.lastNumberOfNewLines = 0;
+			this.needSpace= false;
+			this.indentationLevel= lastIndentationLevel;
+			this.lastNumberOfNewLines= 0;
 		}
 	}
 
@@ -3551,7 +3652,7 @@ public class Scribe implements IJavaDocTagConstants {
 			// If no lines to set in the gap then just insert a space if there's enough room to
 			if (newLines == 0) {
 				if (output == null) {
-					addReplaceEdit(textStartPosition, textEndPosition,  " "); //$NON-NLS-1$
+					addReplaceEdit(textStartPosition, textEndPosition, " "); //$NON-NLS-1$
 				} else {
 					output.append(' ');
 				}
@@ -3563,16 +3664,16 @@ public class Scribe implements IJavaDocTagConstants {
 			if (textStartPosition > textEndPosition) {
 				if (newLines > 0) {
 					this.javadocGapLinesBuffer.setLength(0);
-					for (int i=0; i<newLines; i++) {
+					for (int i= 0; i < newLines; i++) {
 						this.javadocGapLinesBuffer.append(this.lineSeparator);
-						this.column = 1;
+						this.column= 1;
 						printIndentationIfNecessary(this.javadocGapLinesBuffer);
 						if (footer) {
 							this.javadocGapLinesBuffer.append(' ');
 							this.column++;
 						} else {
 							this.javadocGapLinesBuffer.append(BLOCK_LINE_PREFIX);
-							this.column += BLOCK_LINE_PREFIX_LENGTH;
+							this.column+= BLOCK_LINE_PREFIX_LENGTH;
 						}
 					}
 					if (output == null) {
@@ -3587,24 +3688,24 @@ public class Scribe implements IJavaDocTagConstants {
 			// There's enough room and some lines to set...
 			// Skip the text token per token to keep existing stars when possible
 			this.scanner.resetTo(textStartPosition, textEndPosition);
-			this.scanner.recordLineSeparator = true;
-			this.scanner.linePtr = Util.getLineNumber(textStartPosition, this.lineEnds, 0, this.maxLines) - 2;
-			int linePtr = this.scanner.linePtr;
-			int lineCount = 0;
-			int start = textStartPosition;
-			boolean endsOnMultiply = false;
+			this.scanner.recordLineSeparator= true;
+			this.scanner.linePtr= Util.getLineNumber(textStartPosition, this.lineEnds, 0, this.maxLines) - 2;
+			int linePtr= this.scanner.linePtr;
+			int lineCount= 0;
+			int start= textStartPosition;
+			boolean endsOnMultiply= false;
 			while (!this.scanner.atEnd()) {
 				switch (this.scanner.getNextToken()) {
 					case TerminalTokens.TokenNameMULTIPLY:
 						// we just need to replace each lines between '*' with the javadoc formatted ones
-						int linesGap = this.scanner.linePtr - linePtr;
+						int linesGap= this.scanner.linePtr - linePtr;
 						if (linesGap > 0) {
 							this.javadocGapLinesBuffer.setLength(0);
 							if (lineCount > 0) {
 								// TODO https://bugs.eclipse.org/bugs/show_bug.cgi?id=49619
-								this.javadocGapLinesBuffer.append( ' ');
+								this.javadocGapLinesBuffer.append(' ');
 							}
-							for (int i = 0; i < linesGap ; i++) {
+							for (int i= 0; i < linesGap; i++) {
 								if (clearBlankLines && lineCount >= newLines) {
 									// leave as the required new lines have been inserted
 									// so remove any remaining blanks and leave
@@ -3618,26 +3719,26 @@ public class Scribe implements IJavaDocTagConstants {
 									return;
 								}
 								this.javadocGapLinesBuffer.append(this.lineSeparator);
-								this.column = 1;
+								this.column= 1;
 								printIndentationIfNecessary(this.javadocGapLinesBuffer);
-								if (i == (linesGap-1)) {
+								if (i == (linesGap - 1)) {
 									this.javadocGapLinesBuffer.append(' ');
 									this.column++;
 								} else {
 									this.javadocGapLinesBuffer.append(BLOCK_LINE_PREFIX);
-									this.column += BLOCK_LINE_PREFIX_LENGTH;
+									this.column+= BLOCK_LINE_PREFIX_LENGTH;
 								}
 								lineCount++;
 							}
-							int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
-							int tokenLength = this.scanner.currentPosition - currentTokenStartPosition;
+							int currentTokenStartPosition= this.scanner.getCurrentTokenStartPosition();
+							int tokenLength= this.scanner.currentPosition - currentTokenStartPosition;
 							if (output == null) {
-								addReplaceEdit(start, currentTokenStartPosition-1, this.javadocGapLinesBuffer.toString());
+								addReplaceEdit(start, currentTokenStartPosition - 1, this.javadocGapLinesBuffer.toString());
 							} else {
 								output.append(this.javadocGapLinesBuffer);
 								output.append(this.scanner.source, currentTokenStartPosition, tokenLength);
 							}
-							this.column += tokenLength;
+							this.column+= tokenLength;
 							if (footer && clearBlankLines && lineCount == newLines) {
 								if (textEndPosition >= currentTokenStartPosition) {
 									if (output == null) {
@@ -3648,12 +3749,12 @@ public class Scribe implements IJavaDocTagConstants {
 							}
 						}
 						// next start is just after the current token
-						start = this.scanner.currentPosition;
-						linePtr = this.scanner.linePtr;
-						endsOnMultiply = true;
+						start= this.scanner.currentPosition;
+						linePtr= this.scanner.linePtr;
+						endsOnMultiply= true;
 						break;
 					default:
-						endsOnMultiply = false;
+						endsOnMultiply= false;
 						break;
 				}
 			}
@@ -3664,26 +3765,26 @@ public class Scribe implements IJavaDocTagConstants {
 				this.javadocGapLinesBuffer.setLength(0);
 				if (lineCount > 0) {
 					// TODO https://bugs.eclipse.org/bugs/show_bug.cgi?id=49619
-					this.javadocGapLinesBuffer.append( ' ');
+					this.javadocGapLinesBuffer.append(' ');
 				}
-				for (int i = lineCount; i < newLines-1; i++) {
+				for (int i= lineCount; i < newLines - 1; i++) {
 					printJavadocNewLine(this.javadocGapLinesBuffer);
 				}
 				this.javadocGapLinesBuffer.append(this.lineSeparator);
-				this.column = 1;
+				this.column= 1;
 				printIndentationIfNecessary(this.javadocGapLinesBuffer);
 				if (footer) {
 					this.javadocGapLinesBuffer.append(' ');
 					this.column++;
 				} else {
 					this.javadocGapLinesBuffer.append(BLOCK_LINE_PREFIX);
-					this.column += BLOCK_LINE_PREFIX_LENGTH;
+					this.column+= BLOCK_LINE_PREFIX_LENGTH;
 				}
 				if (output == null) {
 					if (textEndPosition >= start) {
 						addReplaceEdit(start, textEndPosition, this.javadocGapLinesBuffer.toString());
 					} else {
-						addInsertEdit(textEndPosition+1, this.javadocGapLinesBuffer.toString());
+						addInsertEdit(textEndPosition + 1, this.javadocGapLinesBuffer.toString());
 					}
 				} else {
 					output.append(this.javadocGapLinesBuffer);
@@ -3698,7 +3799,7 @@ public class Scribe implements IJavaDocTagConstants {
 							this.javadocGapLinesBuffer.append(' ');
 						}
 						this.javadocGapLinesBuffer.append(this.lineSeparator);
-						this.column = 1;
+						this.column= 1;
 						printIndentationIfNecessary(this.javadocGapLinesBuffer);
 					}
 					this.javadocGapLinesBuffer.append(' ');
@@ -3707,27 +3808,25 @@ public class Scribe implements IJavaDocTagConstants {
 					} else {
 						output.append(this.javadocGapLinesBuffer);
 					}
-					this.needSpace = false;
+					this.needSpace= false;
 				} else if (endsOnMultiply) {
 					if (output == null) {
-						addInsertEdit(textEndPosition+1, " "); //$NON-NLS-1$
+						addInsertEdit(textEndPosition + 1, " "); //$NON-NLS-1$
 					} else {
 						output.append(' ');
 					}
-					this.needSpace = false;
+					this.needSpace= false;
 				}
 				this.column++;
 			}
-		}
-		catch (InvalidInputException iie) {
+		} catch (InvalidInputException iie) {
 			// there's nothing to do if this exception happens
-		}
-		finally {
-			this.scanner.recordLineSeparator = false;
-			this.needSpace = false;
-			this.scanner.resetTo(textEndPosition+1, this.scannerEndPosition - 1);
-			this.lastNumberOfNewLines += newLines;
-			this.line += newLines;
+		} finally {
+			this.scanner.recordLineSeparator= false;
+			this.needSpace= false;
+			this.scanner.resetTo(textEndPosition + 1, this.scannerEndPosition - 1);
+			this.lastNumberOfNewLines+= newLines;
+			this.line+= newLines;
 		}
 	}
 
@@ -3735,16 +3834,16 @@ public class Scribe implements IJavaDocTagConstants {
 
 		try {
 			// Iterate on text line separators
-			int textLineStart = text.lineStart;
-			this.scanner.tokenizeWhiteSpace = false;
-			String newLineString = null;
-			for (int idx=0, max=text.separatorsPtr; idx<=max ; idx++) {
-				int start = (int) text.separators[idx];
-				int lineStart = Util.getLineNumber(start, this.lineEnds, textLineStart-1, this.maxLines);
+			int textLineStart= text.lineStart;
+			this.scanner.tokenizeWhiteSpace= false;
+			String newLineString= null;
+			for (int idx= 0, max= text.separatorsPtr; idx <= max; idx++) {
+				int start= (int)text.separators[idx];
+				int lineStart= Util.getLineNumber(start, this.lineEnds, textLineStart - 1, this.maxLines);
 				while (textLineStart < lineStart) {
-					int end = this.lineEnds[textLineStart-1];
+					int end= this.lineEnds[textLineStart - 1];
 					this.scanner.resetTo(end, start);
-					int token = this.scanner.getNextToken();
+					int token= this.scanner.getNextToken();
 					switch (token) {
 						case TerminalTokens.TokenNameMULTIPLY:
 						case TerminalTokens.TokenNameMULTIPLY_EQUAL:
@@ -3757,25 +3856,23 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					if (newLineString == null) {
 						this.tempBuffer.setLength(0);
-						this.column = 1;
+						this.column= 1;
 						printIndentationIfNecessary(this.tempBuffer);
 						this.tempBuffer.append(BLOCK_LINE_PREFIX);
-						this.column += BLOCK_LINE_PREFIX_LENGTH;
-						newLineString = this.tempBuffer.toString();
+						this.column+= BLOCK_LINE_PREFIX_LENGTH;
+						newLineString= this.tempBuffer.toString();
 					}
-					addReplaceEdit(end+1, this.scanner.getCurrentTokenEndPosition(), newLineString);
+					addReplaceEdit(end + 1, this.scanner.getCurrentTokenEndPosition(), newLineString);
 					textLineStart++;
 				}
 			}
-		}
-		catch (InvalidInputException iie) {
+		} catch (InvalidInputException iie) {
 			// leave
-		}
-		finally {
+		} finally {
 			// Reset
-			this.needSpace = false;
-			this.scanner.tokenizeWhiteSpace = true;
-			this.scanner.resetTo(text.sourceEnd+1, this.scannerEndPosition - 1);
+			this.needSpace= false;
+			this.scanner.tokenizeWhiteSpace= true;
+			this.scanner.resetTo(text.sourceEnd + 1, this.scannerEndPosition - 1);
 		}
 	}
 
@@ -3789,103 +3886,103 @@ public class Scribe implements IJavaDocTagConstants {
 	private void printJavadocGapLinesForImmutableBlock(FormatJavadocBlock block) {
 
 		// Init
-		int firstLineEnd = -1; // not initialized
-		int newLineStart = -1; // not initialized
-		int secondLineStart = -1; // not initialized
-		int starPosition = -1; // not initialized
-		int offset = 0;
-		int start = block.tagEnd + 1;
-		int end = block.nodes[0].sourceStart-1;
+		int firstLineEnd= -1; // not initialized
+		int newLineStart= -1; // not initialized
+		int secondLineStart= -1; // not initialized
+		int starPosition= -1; // not initialized
+		int offset= 0;
+		int start= block.tagEnd + 1;
+		int end= block.nodes[0].sourceStart - 1;
 		this.scanner.resetTo(start, end);
-		int lineStart = block.lineStart;
-		int lineEnd = Util.getLineNumber(block.nodes[0].sourceEnd, this.lineEnds, lineStart-1, this.maxLines);
-		boolean multiLinesBlock = lineEnd > (lineStart+1);
-		int previousPosition = this.scanner.currentPosition;
-		String newLineString = null;
-		int indentationColumn = 0;
-		int leadingSpaces = -1;
+		int lineStart= block.lineStart;
+		int lineEnd= Util.getLineNumber(block.nodes[0].sourceEnd, this.lineEnds, lineStart - 1, this.maxLines);
+		boolean multiLinesBlock= lineEnd > (lineStart + 1);
+		int previousPosition= this.scanner.currentPosition;
+		String newLineString= null;
+		int indentationColumn= 0;
+		int leadingSpaces= -1;
 
 		// Scan the existing gap
 		while (!this.scanner.atEnd()) {
-			char ch = (char) this.scanner.getNextChar();
+			char ch= (char)this.scanner.getNextChar();
 			switch (ch) {
-				case '\t' :
+				case '\t':
 					// increase the corresponding counter from the appropriate tab value
 					if (secondLineStart > 0 || firstLineEnd < 0) {
-						int reminder = this.tabLength == 0 ? 0 : offset % this.tabLength;
+						int reminder= this.tabLength == 0 ? 0 : offset % this.tabLength;
 						if (reminder == 0) {
-							offset += this.tabLength;
+							offset+= this.tabLength;
 						} else {
-							offset = ((offset / this.tabLength) + 1) * this.tabLength;
+							offset= ((offset / this.tabLength) + 1) * this.tabLength;
 						}
 					} else if (leadingSpaces >= 0) {
-						int reminder = this.tabLength == 0 ? 0 : offset % this.tabLength;
+						int reminder= this.tabLength == 0 ? 0 : offset % this.tabLength;
 						if (reminder == 0) {
-							leadingSpaces += this.tabLength;
+							leadingSpaces+= this.tabLength;
 						} else {
-							leadingSpaces = ((offset / this.tabLength) + 1) * this.tabLength;
+							leadingSpaces= ((offset / this.tabLength) + 1) * this.tabLength;
 						}
 					}
 					break;
-				case '\r' :
-				case '\n' :
+				case '\r':
+				case '\n':
 					// new line, store the end of the first one
 					if (firstLineEnd < 0) {
-						firstLineEnd = previousPosition;
+						firstLineEnd= previousPosition;
 					}
 					// print indentation if there were spaces without any star on the line
 					if (leadingSpaces > 0 && multiLinesBlock) {
 						if (newLineString == null) {
-							this.column = 1;
+							this.column= 1;
 							this.tempBuffer.setLength(0);
 							printIndentationIfNecessary(this.tempBuffer);
 							this.tempBuffer.append(BLOCK_LINE_PREFIX);
-							this.column += BLOCK_LINE_PREFIX_LENGTH;
-							newLineString = this.tempBuffer.toString();
-							indentationColumn = this.column;
+							this.column+= BLOCK_LINE_PREFIX_LENGTH;
+							newLineString= this.tempBuffer.toString();
+							indentationColumn= this.column;
 						} else {
-							this.column = indentationColumn;
+							this.column= indentationColumn;
 						}
-						addReplaceEdit(newLineStart, newLineStart+indentationColumn-2, newLineString);
+						addReplaceEdit(newLineStart, newLineStart + indentationColumn - 2, newLineString);
 					}
 					// store line start and reset positions
-					newLineStart = this.scanner.currentPosition;
-					leadingSpaces = 0;
-					starPosition = -1;
+					newLineStart= this.scanner.currentPosition;
+					leadingSpaces= 0;
+					starPosition= -1;
 					if (multiLinesBlock) {
-						offset = 0;
-						secondLineStart = -1;
+						offset= 0;
+						secondLineStart= -1;
 					}
 					break;
-				case '*' :
+				case '*':
 					// store line start position if this is the first star of the line
 					if (starPosition < 0 && firstLineEnd > 0) {
-						secondLineStart = this.scanner.currentPosition;
-						starPosition = this.scanner.currentPosition;
-						leadingSpaces = -1;
+						secondLineStart= this.scanner.currentPosition;
+						starPosition= this.scanner.currentPosition;
+						leadingSpaces= -1;
 					}
 					break;
-				default :
+				default:
 					// increment offset if line has started
 					if (secondLineStart > 0) {
 						// skip first white space after the first '*'
 						if (secondLineStart == starPosition) {
-							secondLineStart = this.scanner.currentPosition;
+							secondLineStart= this.scanner.currentPosition;
 						} else {
 							// print indentation before the following characters
 							if (offset == 0 && multiLinesBlock) {
 								if (newLineString == null) {
 									this.tempBuffer.setLength(0);
-									this.column = 1;
+									this.column= 1;
 									printIndentationIfNecessary(this.tempBuffer);
 									this.tempBuffer.append(BLOCK_LINE_PREFIX);
-									this.column += BLOCK_LINE_PREFIX_LENGTH;
-									indentationColumn = this.column;
-									newLineString = this.tempBuffer.toString();
+									this.column+= BLOCK_LINE_PREFIX_LENGTH;
+									indentationColumn= this.column;
+									newLineString= this.tempBuffer.toString();
 								} else {
-									this.column = indentationColumn;
+									this.column= indentationColumn;
 								}
-								addReplaceEdit(newLineStart, secondLineStart-1, newLineString);
+								addReplaceEdit(newLineStart, secondLineStart - 1, newLineString);
 							}
 							offset++;
 						}
@@ -3898,347 +3995,351 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					break;
 			}
-			previousPosition = this.scanner.currentPosition;
+			previousPosition= this.scanner.currentPosition;
 		}
-		
+
 		// Increment the columns from the numbers of characters counted on the line
 		if (multiLinesBlock) {
-			this.column += offset;
+			this.column+= offset;
 		} else {
 			this.column++;
 		}
-		
+
 		// Replace the new line with a single space when there's only one separator
 		// or, if necessary, print the indentation on the last line
 		if (!multiLinesBlock) {
 			addReplaceEdit(firstLineEnd, end, " "); //$NON-NLS-1$
-		}
-		else if (secondLineStart > 0) {
+		} else if (secondLineStart > 0) {
 			if (newLineString == null) {
 				this.tempBuffer.setLength(0);
-				this.column = 1;
+				this.column= 1;
 				printIndentationIfNecessary(this.tempBuffer);
 				this.tempBuffer.append(BLOCK_LINE_PREFIX);
-				this.column += BLOCK_LINE_PREFIX_LENGTH;
-				newLineString = this.tempBuffer.toString();
-				indentationColumn = this.column;
+				this.column+= BLOCK_LINE_PREFIX_LENGTH;
+				newLineString= this.tempBuffer.toString();
+				indentationColumn= this.column;
 			} else {
-				this.column = indentationColumn;
+				this.column= indentationColumn;
 			}
-			addReplaceEdit(newLineStart, secondLineStart-1, newLineString);
-		}
-		else if (leadingSpaces > 0) {
+			addReplaceEdit(newLineStart, secondLineStart - 1, newLineString);
+		} else if (leadingSpaces > 0) {
 			if (newLineString == null) {
 				this.tempBuffer.setLength(0);
-				this.column = 1;
+				this.column= 1;
 				printIndentationIfNecessary(this.tempBuffer);
 				this.tempBuffer.append(BLOCK_LINE_PREFIX);
-				this.column += BLOCK_LINE_PREFIX_LENGTH;
-				newLineString = this.tempBuffer.toString();
-				indentationColumn = this.column;
+				this.column+= BLOCK_LINE_PREFIX_LENGTH;
+				newLineString= this.tempBuffer.toString();
+				indentationColumn= this.column;
 			} else {
-				this.column = indentationColumn;
+				this.column= indentationColumn;
 			}
-			addReplaceEdit(newLineStart, newLineStart+indentationColumn-2, newLineString);
+			addReplaceEdit(newLineStart, newLineStart + indentationColumn - 2, newLineString);
 		}
 
 		// Reset
-		this.needSpace = false;
-		this.scanner.resetTo(end+1, this.scannerEndPosition - 1);
+		this.needSpace= false;
+		this.scanner.resetTo(end + 1, this.scannerEndPosition - 1);
 	}
 
 	private int printJavadocHtmlTag(FormatJavadocText text, FormatJavadocBlock block, boolean textOnNewLine) {
 
 		// Compute indentation if necessary
-		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
-		boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
-		int firstColumn = 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
-		if (headerLine) firstColumn++;
+		boolean clearBlankLines= this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
+		boolean headerLine= block.isHeaderLine() && this.lastNumberOfNewLines == 0;
+		int firstColumn= 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
+		if (headerLine)
+			firstColumn++;
 
 		// Local variables init
-		int textStart = text.sourceStart;
-		int nextStart = textStart;
-		int startLine = Util.getLineNumber(textStart, this.lineEnds, 0, this.maxLines);
-	    int htmlTagID = text.getHtmlTagID();
-	    if (text.depth >= this.javadocHtmlTagBuffers.length) {
-	    	int length = this.javadocHtmlTagBuffers.length;
-	    	System.arraycopy(this.javadocHtmlTagBuffers, 0, this.javadocHtmlTagBuffers = new StringBuffer[text.depth+6], 0, length);
-	    }
-	    StringBuffer buffer = this.javadocHtmlTagBuffers[text.depth];
-	    if (buffer == null) {
-	    	buffer = new StringBuffer();
-	    	this.javadocHtmlTagBuffers[text.depth] = buffer;
-	    } else {
-	    	buffer.setLength(0);
-	    }
+		int textStart= text.sourceStart;
+		int nextStart= textStart;
+		int startLine= Util.getLineNumber(textStart, this.lineEnds, 0, this.maxLines);
+		int htmlTagID= text.getHtmlTagID();
+		if (text.depth >= this.javadocHtmlTagBuffers.length) {
+			int length= this.javadocHtmlTagBuffers.length;
+			System.arraycopy(this.javadocHtmlTagBuffers, 0, this.javadocHtmlTagBuffers= new StringBuffer[text.depth + 6], 0, length);
+		}
+		StringBuffer buffer= this.javadocHtmlTagBuffers[text.depth];
+		if (buffer == null) {
+			buffer= new StringBuffer();
+			this.javadocHtmlTagBuffers[text.depth]= buffer;
+		} else {
+			buffer.setLength(0);
+		}
 
-	    // New line will be added before next node
-	    int max = text.separatorsPtr;
-		int linesAfter = 0;
-		int previousEnd = -1;
-	    boolean isHtmlBreakTag = htmlTagID == JAVADOC_SINGLE_BREAK_TAG_ID;
-		boolean isHtmlSeparatorTag = htmlTagID == JAVADOC_SEPARATOR_TAGS_ID;
+		// New line will be added before next node
+		int max= text.separatorsPtr;
+		int linesAfter= 0;
+		int previousEnd= -1;
+		boolean isHtmlBreakTag= htmlTagID == JAVADOC_SINGLE_BREAK_TAG_ID;
+		boolean isHtmlSeparatorTag= htmlTagID == JAVADOC_SEPARATOR_TAGS_ID;
 		if (isHtmlBreakTag) {
 			return 1;
 		}
 
 		// Iterate on text line separators
-		boolean isCode = htmlTagID == JAVADOC_CODE_TAGS_ID;
-		for (int idx=0, ptr=0; idx<=max || (text.htmlNodesPtr != -1 && ptr <= text.htmlNodesPtr); idx++) {
+		boolean isCode= htmlTagID == JAVADOC_CODE_TAGS_ID;
+		for (int idx= 0, ptr= 0; idx <= max || (text.htmlNodesPtr != -1 && ptr <= text.htmlNodesPtr); idx++) {
 
 			// append text to buffer realigning with the line length
-			int end = (idx > max) ? text.sourceEnd : (int) (text.separators[idx] >>> 32);
-			int nodeKind = 0; // text break
+			int end= (idx > max) ? text.sourceEnd : (int)(text.separators[idx] >>> 32);
+			int nodeKind= 0; // text break
 			if (text.htmlNodesPtr >= 0 && ptr <= text.htmlNodesPtr && end > text.htmlNodes[ptr].sourceStart) {
-				FormatJavadocNode node = text.htmlNodes[ptr];
-				FormatJavadocText htmlTag = node.isText() ? (FormatJavadocText) node : null;
-				int newLines = htmlTag == null ? 0 : htmlTag.linesBefore;
+				FormatJavadocNode node= text.htmlNodes[ptr];
+				FormatJavadocText htmlTag= node.isText() ? (FormatJavadocText)node : null;
+				int newLines= htmlTag == null ? 0 : htmlTag.linesBefore;
 				if (linesAfter > newLines) {
-					newLines = linesAfter;
+					newLines= linesAfter;
 					if (newLines > 1 && clearBlankLines) {
-						if (idx < 2 || (text.htmlIndexes[idx-2] & JAVADOC_TAGS_ID_MASK) != JAVADOC_CODE_TAGS_ID) {
-							newLines = 1;
+						if (idx < 2 || (text.htmlIndexes[idx - 2] & JAVADOC_TAGS_ID_MASK) != JAVADOC_CODE_TAGS_ID) {
+							newLines= 1;
 						}
 					}
 				}
 				if (textStart < previousEnd) {
 					addReplaceEdit(textStart, previousEnd, buffer.toString());
 				}
-				boolean immutable = node.isImmutable();
+				boolean immutable= node.isImmutable();
 				if (newLines == 0) {
-					newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
+					newLines= printJavadocBlockNodesNewLines(block, node, previousEnd);
 				}
-				int nodeStart = node.sourceStart;
-				if (newLines > 0 || (idx > 1 && nodeStart > (previousEnd+1))) {
-					printJavadocGapLines(previousEnd+1, nodeStart-1, newLines, clearBlankLines, false, null);
+				int nodeStart= node.sourceStart;
+				if (newLines > 0 || (idx > 1 && nodeStart > (previousEnd + 1))) {
+					printJavadocGapLines(previousEnd + 1, nodeStart - 1, newLines, clearBlankLines, false, null);
 				}
-				if (newLines > 0) textOnNewLine = true;
+				if (newLines > 0)
+					textOnNewLine= true;
 				buffer.setLength(0);
 				if (node.isText()) {
 					if (immutable) {
 						// do not change immutable tags, just increment column
 						if (textOnNewLine && this.commentIndentation != null) {
-					    	addInsertEdit(node.sourceStart, this.commentIndentation);
-					    	this.column += this.commentIndentation.length();
+							addInsertEdit(node.sourceStart, this.commentIndentation);
+							this.column+= this.commentIndentation.length();
 						}
 						printJavadocImmutableText(htmlTag, block, textOnNewLine);
-						this.column += getTextLength(block, htmlTag);
-						linesAfter = 0;
+						this.column+= getTextLength(block, htmlTag);
+						linesAfter= 0;
 					} else {
-						linesAfter = printJavadocHtmlTag(htmlTag, block, textOnNewLine);
+						linesAfter= printJavadocHtmlTag(htmlTag, block, textOnNewLine);
 					}
-					nodeKind = 1; // text
+					nodeKind= 1; // text
 				} else {
 					if (textOnNewLine && this.commentIndentation != null) {
-				    	addInsertEdit(node.sourceStart, this.commentIndentation);
-				    	this.column += this.commentIndentation.length();
+						addInsertEdit(node.sourceStart, this.commentIndentation);
+						this.column+= this.commentIndentation.length();
 					}
 					printJavadocBlock((FormatJavadocBlock)node);
-					linesAfter = 0;
-					nodeKind = 2; // block
+					linesAfter= 0;
+					nodeKind= 2; // block
 				}
-				textStart = node.sourceEnd+1;
+				textStart= node.sourceEnd + 1;
 				ptr++;
-				if (idx > max)  {
+				if (idx > max) {
 					return linesAfter;
 				}
 			} else {
 				if (idx > 0 && linesAfter > 0) {
-					printJavadocGapLines(previousEnd+1, nextStart-1, linesAfter, clearBlankLines, false, buffer);
-					textOnNewLine = true;
+					printJavadocGapLines(previousEnd + 1, nextStart - 1, linesAfter, clearBlankLines, false, buffer);
+					textOnNewLine= true;
 				}
-				boolean needIndentation = textOnNewLine;
+				boolean needIndentation= textOnNewLine;
 				if (idx > 0) {
-					if (!needIndentation && text.isTextAfterHtmlSeparatorTag(idx-1)) {
-						needIndentation = true;
+					if (!needIndentation && text.isTextAfterHtmlSeparatorTag(idx - 1)) {
+						needIndentation= true;
 					}
 				}
-				this.needSpace = idx > 1 && (previousEnd+1) < nextStart; // There's no space between text and html tag or inline block => do not insert space a the beginning of the text
-				printJavadocTextLine(buffer, nextStart, end, block, idx==0, needIndentation, idx==0/* opening html tag?*/ || text.htmlIndexes[idx-1] != -1);
-				linesAfter = 0;
-			    if (idx==0) {
-			    	if (isHtmlSeparatorTag) {
-				    	linesAfter = 1;
-				    }
-				} else if (text.htmlIndexes[idx-1] == JAVADOC_SINGLE_BREAK_TAG_ID) {
-			    	linesAfter = 1;
-			    }
+				this.needSpace= idx > 1 && (previousEnd + 1) < nextStart; // There's no space between text and html tag or inline block => do not insert space a the beginning of the text
+				printJavadocTextLine(buffer, nextStart, end, block, idx == 0, needIndentation, idx == 0/* opening html tag?*/|| text.htmlIndexes[idx - 1] != -1);
+				linesAfter= 0;
+				if (idx == 0) {
+					if (isHtmlSeparatorTag) {
+						linesAfter= 1;
+					}
+				} else if (text.htmlIndexes[idx - 1] == JAVADOC_SINGLE_BREAK_TAG_ID) {
+					linesAfter= 1;
+				}
 			}
 
 			// Replace with current buffer if there are several empty lines between text lines
-			nextStart = (int) text.separators[idx];
-			int endLine = Util.getLineNumber(end, this.lineEnds, startLine-1, this.maxLines);
-			startLine = Util.getLineNumber(nextStart, this.lineEnds, endLine-1, this.maxLines);
-			int linesGap = startLine - endLine;
+			nextStart= (int)text.separators[idx];
+			int endLine= Util.getLineNumber(end, this.lineEnds, startLine - 1, this.maxLines);
+			startLine= Util.getLineNumber(nextStart, this.lineEnds, endLine - 1, this.maxLines);
+			int linesGap= startLine - endLine;
 			if (linesGap > 0) {
 				if (clearBlankLines) {
 					// keep previously computed lines after
 				} else {
-					if (idx==0 || linesGap > 1 || (idx < max && nodeKind==1 && (text.htmlIndexes[idx-1] & JAVADOC_TAGS_ID_MASK) != JAVADOC_IMMUTABLE_TAGS_ID)) {
+					if (idx == 0 || linesGap > 1 || (idx < max && nodeKind == 1 && (text.htmlIndexes[idx - 1] & JAVADOC_TAGS_ID_MASK) != JAVADOC_IMMUTABLE_TAGS_ID)) {
 						if (linesAfter < linesGap) {
-							linesAfter = linesGap;
+							linesAfter= linesGap;
 						}
 					}
 				}
 			}
-			textOnNewLine = linesAfter > 0;
+			textOnNewLine= linesAfter > 0;
 
 			// print <pre> tag
 			if (isCode) {
-    			int codeEnd = (int) (text.separators[max] >>> 32);
-    			if (codeEnd > end) {
-    				if (this.formatter.preferences.comment_format_source) {
-						if (textStart < end) addReplaceEdit(textStart, end, buffer.toString());
+				int codeEnd= (int)(text.separators[max] >>> 32);
+				if (codeEnd > end) {
+					if (this.formatter.preferences.comment_format_source) {
+						if (textStart < end)
+							addReplaceEdit(textStart, end, buffer.toString());
 						// See whether there's a space before the code
 						if (linesGap > 0) {
-							int lineStart = this.scanner.getLineStart(startLine);
+							int lineStart= this.scanner.getLineStart(startLine);
 							if (nextStart > lineStart) { // if code starts at the line, then no leading space is needed
-								this.scanner.resetTo(lineStart, nextStart-1);
+								this.scanner.resetTo(lineStart, nextStart - 1);
 								try {
-									int token = this.scanner.getNextToken();
+									int token= this.scanner.getNextToken();
 									if (token == TerminalTokens.TokenNameWHITESPACE) {
 										// skip indentation
-										token = this.scanner.getNextToken();
+										token= this.scanner.getNextToken();
 									}
 									if (token == TerminalTokens.TokenNameMULTIPLY) {
-										nextStart = this.scanner.currentPosition;
+										nextStart= this.scanner.currentPosition;
 									}
-								}
-								catch (InvalidInputException iie) {
+								} catch (InvalidInputException iie) {
 									// skip
 								}
 							}
 						}
 						// Format gap lines before code
-						int newLines = linesGap;
-						if (newLines == 0) newLines=1;
-						this.needSpace = false;
-						printJavadocGapLines(end+1, nextStart-1, newLines, false/* clear first blank lines inside <pre> tag as done by old formatter */, false, null);
+						int newLines= linesGap;
+						if (newLines == 0)
+							newLines= 1;
+						this.needSpace= false;
+						printJavadocGapLines(end + 1, nextStart - 1, newLines, false/* clear first blank lines inside <pre> tag as done by old formatter */, false, null);
 						// Format the code
 						printCodeSnippet(nextStart, codeEnd, linesGap);
 						// Format the gap lines after the code
-						nextStart = (int) text.separators[max];
-	    				printJavadocGapLines(codeEnd+1, nextStart-1, 1, false/* clear blank lines inside <pre> tag as done by old formatter */, false, null);
-	    				return 2;
-    				}
-    			} else {
-					nextStart = (int) text.separators[max];
-					if ((nextStart-1) > (end+1)) {
-						int line1 = Util.getLineNumber(end+1, this.lineEnds, startLine-1, this.maxLines);
-						int line2 = Util.getLineNumber(nextStart-1, this.lineEnds, line1-1, this.maxLines);
-	    				int gapLines = line2-line1-1;
-						printJavadocGapLines(end+1, nextStart-1, gapLines, false/* never clear blank lines inside <pre> tag*/, false, null);
-						if (gapLines > 0) textOnNewLine = true;
+						nextStart= (int)text.separators[max];
+						printJavadocGapLines(codeEnd + 1, nextStart - 1, 1, false/* clear blank lines inside <pre> tag as done by old formatter */, false, null);
+						return 2;
 					}
-    			}
+				} else {
+					nextStart= (int)text.separators[max];
+					if ((nextStart - 1) > (end + 1)) {
+						int line1= Util.getLineNumber(end + 1, this.lineEnds, startLine - 1, this.maxLines);
+						int line2= Util.getLineNumber(nextStart - 1, this.lineEnds, line1 - 1, this.maxLines);
+						int gapLines= line2 - line1 - 1;
+						printJavadocGapLines(end + 1, nextStart - 1, gapLines, false/* never clear blank lines inside <pre> tag*/, false, null);
+						if (gapLines > 0)
+							textOnNewLine= true;
+					}
+				}
 				return 1;
 			}
 
 			// store previous end
-			previousEnd = end;
+			previousEnd= end;
 		}
 
 		// Insert last gap
-	    boolean closingTag = isHtmlBreakTag || (text.htmlIndexes != null && (text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID);
-		boolean isValidHtmlSeparatorTag = max > 0 && isHtmlSeparatorTag && closingTag;
+		boolean closingTag= isHtmlBreakTag || (text.htmlIndexes != null && (text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID);
+		boolean isValidHtmlSeparatorTag= max > 0 && isHtmlSeparatorTag && closingTag;
 		if (previousEnd != -1) {
-		    if (isValidHtmlSeparatorTag) {
-				if (linesAfter == 0) linesAfter = 1;
+			if (isValidHtmlSeparatorTag) {
+				if (linesAfter == 0)
+					linesAfter= 1;
 			}
 			if (linesAfter > 0) {
-				printJavadocGapLines(previousEnd+1, nextStart-1, linesAfter, clearBlankLines, false, buffer);
-				textOnNewLine = linesAfter > 0;
+				printJavadocGapLines(previousEnd + 1, nextStart - 1, linesAfter, clearBlankLines, false, buffer);
+				textOnNewLine= linesAfter > 0;
 			}
 		}
 
-	    // Print closing tag
-		boolean needIndentation = textOnNewLine;
+		// Print closing tag
+		boolean needIndentation= textOnNewLine;
 		if (!needIndentation && !isHtmlBreakTag && text.htmlIndexes != null && text.isTextAfterHtmlSeparatorTag(max)) {
-			needIndentation = true;
+			needIndentation= true;
 		}
-		this.needSpace = !closingTag && max > 0 // not a single or not closed tag (e.g. <br>)
-			&& (previousEnd+1) < nextStart; // There's no space between text and html tag or inline block => do not insert space a the beginning of the text
+		this.needSpace= !closingTag && max > 0 // not a single or not closed tag (e.g. <br>)
+				&& (previousEnd + 1) < nextStart; // There's no space between text and html tag or inline block => do not insert space a the beginning of the text
 		printJavadocTextLine(buffer, nextStart, text.sourceEnd, block, max <= 0, needIndentation, closingTag/* closing html tag*/);
 		if (textStart < text.sourceEnd) {
 			addReplaceEdit(textStart, text.sourceEnd, buffer.toString());
 		}
 
 		// Reset
-		this.needSpace = false;
-		this.scanner.resetTo(text.sourceEnd+1, this.scannerEndPosition - 1);
+		this.needSpace= false;
+		this.scanner.resetTo(text.sourceEnd + 1, this.scannerEndPosition - 1);
 
 		// Return the new lines to insert after
-	    return isValidHtmlSeparatorTag ? 1 : 0;
-    }
+		return isValidHtmlSeparatorTag ? 1 : 0;
+	}
 
 	private void printJavadocNewLine(StringBuffer buffer) {
-	    buffer.append(this.lineSeparator);
-	    this.column = 1;
-	    printIndentationIfNecessary(buffer);
-	    buffer.append(BLOCK_LINE_PREFIX);
-	    this.column += BLOCK_LINE_PREFIX_LENGTH;
-	    this.line++;
-	    this.lastNumberOfNewLines++;
+		buffer.append(this.lineSeparator);
+		this.column= 1;
+		printIndentationIfNecessary(buffer);
+		buffer.append(BLOCK_LINE_PREFIX);
+		this.column+= BLOCK_LINE_PREFIX_LENGTH;
+		this.line++;
+		this.lastNumberOfNewLines++;
 	}
 
 	private void printJavadocText(FormatJavadocText text, FormatJavadocBlock block, boolean textOnNewLine) {
 
-		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
-		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
+		boolean clearBlankLines= this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
+		boolean joinLines= this.formatter.preferences.join_lines_in_comments;
 		this.javadocTextBuffer.setLength(0);
-		int textStart = text.sourceStart;
-		int nextStart = textStart;
-		int startLine = Util.getLineNumber(textStart, this.lineEnds, 0, this.maxLines);
+		int textStart= text.sourceStart;
+		int nextStart= textStart;
+		int startLine= Util.getLineNumber(textStart, this.lineEnds, 0, this.maxLines);
 
 		// Iterate on text line separators
-		for (int idx=0, max=text.separatorsPtr; idx<=max ; idx++) {
+		for (int idx= 0, max= text.separatorsPtr; idx <= max; idx++) {
 
 			// append text to buffer realigning with the line length
-			int end = (int) (text.separators[idx] >>> 32);
-			boolean needIndentation = textOnNewLine;
+			int end= (int)(text.separators[idx] >>> 32);
+			boolean needIndentation= textOnNewLine;
 			if (idx > 0) {
-				if (!needIndentation && text.isTextAfterHtmlSeparatorTag(idx-1)) {
-					needIndentation = true;
+				if (!needIndentation && text.isTextAfterHtmlSeparatorTag(idx - 1)) {
+					needIndentation= true;
 				}
 			}
-			this.needSpace = idx > 0;
-			printJavadocTextLine(this.javadocTextBuffer, nextStart, end, block, idx==0 || (!joinLines && textOnNewLine)/*first text?*/, needIndentation, false /*not an html tag*/);
-			textOnNewLine = false;
+			this.needSpace= idx > 0;
+			printJavadocTextLine(this.javadocTextBuffer, nextStart, end, block, idx == 0 || (!joinLines && textOnNewLine)/*first text?*/, needIndentation, false /*not an html tag*/);
+			textOnNewLine= false;
 
 			// Replace with current buffer if there are several empty lines between text lines
-			nextStart = (int) text.separators[idx];
+			nextStart= (int)text.separators[idx];
 			if (!clearBlankLines || !joinLines) {
-				int endLine = Util.getLineNumber(end, this.lineEnds, startLine-1, this.maxLines);
-				startLine = Util.getLineNumber(nextStart, this.lineEnds, endLine-1, this.maxLines);
-				int gapLine = endLine;
-				if (joinLines) gapLine++; // if not preserving line break then gap must be at least of one line
+				int endLine= Util.getLineNumber(end, this.lineEnds, startLine - 1, this.maxLines);
+				startLine= Util.getLineNumber(nextStart, this.lineEnds, endLine - 1, this.maxLines);
+				int gapLine= endLine;
+				if (joinLines)
+					gapLine++; // if not preserving line break then gap must be at least of one line
 				if (startLine > gapLine) {
 					addReplaceEdit(textStart, end, this.javadocTextBuffer.toString());
-					textStart = nextStart;
+					textStart= nextStart;
 					this.javadocTextBuffer.setLength(0);
-					int newLines = startLine - endLine;
-					if (clearBlankLines) newLines = 1;
-					printJavadocGapLines(end+1, nextStart-1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
-					textOnNewLine = true;
-				}
-				else if (startLine > endLine) {
-					textOnNewLine = !joinLines;
+					int newLines= startLine - endLine;
+					if (clearBlankLines)
+						newLines= 1;
+					printJavadocGapLines(end + 1, nextStart - 1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
+					textOnNewLine= true;
+				} else if (startLine > endLine) {
+					textOnNewLine= !joinLines;
 				}
 			}
 		}
 
 		// Replace remaining line
-		boolean needIndentation = textOnNewLine;
-		this.needSpace = text.separatorsPtr >= 0;
-		printJavadocTextLine(this.javadocTextBuffer, nextStart, text.sourceEnd, block, text.separatorsPtr==-1 /* first text?*/, needIndentation, false /*not an html tag*/);
+		boolean needIndentation= textOnNewLine;
+		this.needSpace= text.separatorsPtr >= 0;
+		printJavadocTextLine(this.javadocTextBuffer, nextStart, text.sourceEnd, block, text.separatorsPtr == -1 /* first text?*/, needIndentation, false /*not an html tag*/);
 		// TODO Bring back following optimization
 		// if (lastNewLines != this.lastNumberOfNewLines || (this.column - currentColumn) != (text.sourceEnd - text.sourceStart + 1)) {
-			addReplaceEdit(textStart, text.sourceEnd, this.javadocTextBuffer.toString());
+		addReplaceEdit(textStart, text.sourceEnd, this.javadocTextBuffer.toString());
 		// }
 
 		// Reset
-		this.needSpace = false;
-		this.scanner.resetTo(text.sourceEnd+1, this.scannerEndPosition - 1);
+		this.needSpace= false;
+		this.scanner.resetTo(text.sourceEnd + 1, this.scannerEndPosition - 1);
 	}
 
 	/*
@@ -4246,173 +4347,173 @@ public class Scribe implements IJavaDocTagConstants {
 	 */
 	private void printJavadocTextLine(StringBuffer buffer, int textStart, int textEnd, FormatJavadocBlock block, boolean firstText, boolean needIndentation, boolean isHtmlTag) {
 
-		boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
+		boolean headerLine= block.isHeaderLine() && this.lastNumberOfNewLines == 0;
 
 		// First we need to know what is the indentation
 		this.javadocTokensBuffer.setLength(0);
-		int firstColumn = 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
+		int firstColumn= 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
+		int maxColumn= this.formatter.preferences.comment_line_length + 1;
 		if (headerLine) {
 			firstColumn++;
 			maxColumn++;
 		}
 		if (needIndentation && this.commentIndentation != null) {
 			buffer.append(this.commentIndentation);
-	    	this.column += this.commentIndentation.length();
-	    	firstColumn += this.commentIndentation.length();
+			this.column+= this.commentIndentation.length();
+			firstColumn+= this.commentIndentation.length();
 		}
 		if (this.column < firstColumn) {
-			this.column = firstColumn;
+			this.column= firstColumn;
 		}
 
 		// Scan the text token per token to compact it and size it the max line length
-		String newLineString = null;
+		String newLineString= null;
 		try {
 			this.scanner.resetTo(textStart, textEnd);
-			this.scanner.skipComments = true;
-			int previousToken = -1;
-			boolean textOnNewLine = needIndentation;
+			this.scanner.skipComments= true;
+			int previousToken= -1;
+			boolean textOnNewLine= needIndentation;
 
 			// Consume text token per token
-    		while (!this.scanner.atEnd()) {
+			while (!this.scanner.atEnd()) {
 				int token;
 				try {
-					token = this.scanner.getNextToken();
+					token= this.scanner.getNextToken();
 				} catch (InvalidInputException iie) {
-					token = consumeInvalidToken(textEnd);
+					token= consumeInvalidToken(textEnd);
 				}
-	    		int tokensBufferLength = this.javadocTokensBuffer.length();
-    			int tokenStart = this.scanner.getCurrentTokenStartPosition();
-	    		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
-				boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE || this.needSpace) && !textOnNewLine;
-				String tokensBufferString = this.javadocTokensBuffer.toString().trim();
+				int tokensBufferLength= this.javadocTokensBuffer.length();
+				int tokenStart= this.scanner.getCurrentTokenStartPosition();
+				int tokenLength= (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
+				boolean insertSpace= (previousToken == TerminalTokens.TokenNameWHITESPACE || this.needSpace) && !textOnNewLine;
+				String tokensBufferString= this.javadocTokensBuffer.toString().trim();
 				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE:
 						if (tokensBufferLength > 0) {
-							boolean shouldSplit = (this.column+tokensBufferLength) > maxColumn // the max length is reached
-								&& !isHtmlTag
-								&& (insertSpace || tokensBufferLength > 1) // allow to split at the beginning only when starting with an identifier or a token with a length > 1
-								&& tokensBufferString.charAt(0) != '@'; // avoid to split just before a '@'
+							boolean shouldSplit= (this.column + tokensBufferLength) > maxColumn // the max length is reached
+									&& !isHtmlTag
+									&& (insertSpace || tokensBufferLength > 1) // allow to split at the beginning only when starting with an identifier or a token with a length > 1
+									&& tokensBufferString.charAt(0) != '@'; // avoid to split just before a '@'
 							if (shouldSplit) {
 								this.lastNumberOfNewLines++;
 								this.line++;
 								if (newLineString == null) {
 									this.tempBuffer.setLength(0);
 									this.tempBuffer.append(this.lineSeparator);
-							    	this.column = 1;
-							    	printIndentationIfNecessary(this.tempBuffer);
-						    		this.tempBuffer.append(BLOCK_LINE_PREFIX);
-							    	this.column += BLOCK_LINE_PREFIX_LENGTH;
+									this.column= 1;
+									printIndentationIfNecessary(this.tempBuffer);
+									this.tempBuffer.append(BLOCK_LINE_PREFIX);
+									this.column+= BLOCK_LINE_PREFIX_LENGTH;
 									if (this.commentIndentation != null) {
 										this.tempBuffer.append(this.commentIndentation);
-								    	this.column += this.commentIndentation.length();
+										this.column+= this.commentIndentation.length();
 									}
-						    		firstColumn = this.column;
-						    		newLineString = this.tempBuffer.toString();
+									firstColumn= this.column;
+									newLineString= this.tempBuffer.toString();
 								} else {
-									this.column = firstColumn;
+									this.column= firstColumn;
 								}
 								buffer.append(newLineString);
 								buffer.append(tokensBufferString);
-								this.column += tokensBufferString.length();
+								this.column+= tokensBufferString.length();
 								if (headerLine) {
 									firstColumn--;
 									maxColumn--;
-									headerLine = false;
+									headerLine= false;
 								}
 							} else {
 								buffer.append(this.javadocTokensBuffer);
-								this.column += tokensBufferLength;
+								this.column+= tokensBufferLength;
 							}
 							this.javadocTokensBuffer.setLength(0);
 						}
-						textOnNewLine = false;
-						previousToken = token;
+						textOnNewLine= false;
+						previousToken= token;
 						continue;
 					case TerminalTokens.TokenNameCharacterLiteral:
 						if (this.scanner.currentPosition > this.scanner.eofPosition) {
 							this.scanner.resetTo(this.scanner.startPosition, textEnd);
 							this.scanner.getNextChar();
-							token = 1;
+							token= 1;
 						}
 						break;
 				}
-	    		int lastColumn = this.column + tokensBufferLength + tokenLength;
-	    		if (insertSpace) lastColumn++;
-				boolean shouldSplit = lastColumn > maxColumn // the max length is reached
-					&& (!isHtmlTag || previousToken == -1) // not an html tag or just at the beginning of it
-					&& token != TerminalTokens.TokenNameAT && (tokensBufferLength == 0 || this.javadocTokensBuffer.charAt(tokensBufferLength-1) != '@'); // avoid to split just before a '@'
+				int lastColumn= this.column + tokensBufferLength + tokenLength;
+				if (insertSpace)
+					lastColumn++;
+				boolean shouldSplit= lastColumn > maxColumn // the max length is reached
+						&& (!isHtmlTag || previousToken == -1) // not an html tag or just at the beginning of it
+						&& token != TerminalTokens.TokenNameAT && (tokensBufferLength == 0 || this.javadocTokensBuffer.charAt(tokensBufferLength - 1) != '@'); // avoid to split just before a '@'
 				if (shouldSplit) {
 					// not enough space on the line
-					if ((tokensBufferLength > 0 || tokenLength < maxColumn) && !isHtmlTag && tokensBufferLength > 0 && (firstColumn+tokensBufferLength+tokenLength) >= maxColumn) {
+					if ((tokensBufferLength > 0 || tokenLength < maxColumn) && !isHtmlTag && tokensBufferLength > 0 && (firstColumn + tokensBufferLength + tokenLength) >= maxColumn) {
 						// there won't be enough room even if we break the line before the buffered tokens
 						// So add the buffered tokens now
 						buffer.append(this.javadocTokensBuffer);
-						this.column += tokensBufferLength;
+						this.column+= tokensBufferLength;
 						this.javadocTokensBuffer.setLength(0);
-						tokensBufferLength = 0;
-						textOnNewLine = false;
+						tokensBufferLength= 0;
+						textOnNewLine= false;
 					}
-					if ((tokensBufferLength > 0 || /*(firstColumn+tokenLength) < maxColumn || (insertSpace &&*/ this.column > firstColumn) && (!textOnNewLine || !firstText)) {
+					if ((tokensBufferLength > 0 || /*(firstColumn+tokenLength) < maxColumn || (insertSpace &&*/this.column > firstColumn) && (!textOnNewLine || !firstText)) {
 						this.lastNumberOfNewLines++;
 						this.line++;
 						if (newLineString == null) {
 							this.tempBuffer.setLength(0);
 							this.tempBuffer.append(this.lineSeparator);
-					    	this.column = 1;
-					    	printIndentationIfNecessary(this.tempBuffer);
-				    		this.tempBuffer.append(BLOCK_LINE_PREFIX);
-					    	this.column += BLOCK_LINE_PREFIX_LENGTH;
+							this.column= 1;
+							printIndentationIfNecessary(this.tempBuffer);
+							this.tempBuffer.append(BLOCK_LINE_PREFIX);
+							this.column+= BLOCK_LINE_PREFIX_LENGTH;
 							if (this.commentIndentation != null) {
 								this.tempBuffer.append(this.commentIndentation);
-						    	this.column += this.commentIndentation.length();
+								this.column+= this.commentIndentation.length();
 							}
-				    		firstColumn = this.column;
-				    		newLineString = this.tempBuffer.toString();
+							firstColumn= this.column;
+							newLineString= this.tempBuffer.toString();
 						} else {
-							this.column = firstColumn;
+							this.column= firstColumn;
 						}
 						buffer.append(newLineString);
 					}
-			    	if (tokensBufferLength > 0) {
-			    		String tokensString = tokensBufferString;
+					if (tokensBufferLength > 0) {
+						String tokensString= tokensBufferString;
 						buffer.append(tokensString);
-						this.column += tokensString.length();
+						this.column+= tokensString.length();
 						this.javadocTokensBuffer.setLength(0);
-						tokensBufferLength = 0;
-		    		}
+						tokensBufferLength= 0;
+					}
 					buffer.append(this.scanner.source, tokenStart, tokenLength);
-					this.column += tokenLength;
-					textOnNewLine = false;
+					this.column+= tokenLength;
+					textOnNewLine= false;
 					if (headerLine) {
 						firstColumn--;
 						maxColumn--;
-						headerLine = false;
+						headerLine= false;
 					}
-    			} else {
+				} else {
 					// append token to the line
-		    		if (insertSpace) {
-		    			this.javadocTokensBuffer.append(' ');
-		    		}
+					if (insertSpace) {
+						this.javadocTokensBuffer.append(' ');
+					}
 					this.javadocTokensBuffer.append(this.scanner.source, tokenStart, tokenLength);
-    			}
-				previousToken = token;
-    			this.needSpace = false;
-    			if (headerLine && lastColumn == maxColumn && this.scanner.atEnd()) {
+				}
+				previousToken= token;
+				this.needSpace= false;
+				if (headerLine && lastColumn == maxColumn && this.scanner.atEnd()) {
 					this.lastNumberOfNewLines++;
 					this.line++;
-    			}
-    		}
-		}
-		finally {
-			this.scanner.skipComments = false;
+				}
+			}
+		} finally {
+			this.scanner.skipComments= false;
 			// Add remaining buffered tokens
 			if (this.javadocTokensBuffer.length() > 0) {
 				buffer.append(this.javadocTokensBuffer);
-				this.column += this.javadocTokensBuffer.length();
+				this.column+= this.javadocTokensBuffer.length();
 			}
 		}
-    }
+	}
 
 	public void printModifiers(Annotation[] annotations, ASTVisitor visitor) {
 		printModifiers(annotations, visitor, ICodeFormatterConstants.ANNOTATION_UNSPECIFIED);
@@ -4420,62 +4521,60 @@ public class Scribe implements IJavaDocTagConstants {
 
 	public void printModifiers(Annotation[] annotations, ASTVisitor visitor, int annotationSourceKind) {
 		try {
-			int annotationsLength = annotations != null ? annotations.length : 0;
-			int annotationsIndex = 0;
-			boolean isFirstModifier = true;
-			int currentTokenStartPosition = this.scanner.currentPosition;
-			boolean hasComment = false;
-			boolean hasModifiers = false;
-			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				int foundTaskCount = this.scanner.foundTaskCount;
-				switch(this.currentToken) {
-					case TerminalTokens.TokenNamepublic :
-					case TerminalTokens.TokenNameprotected :
-					case TerminalTokens.TokenNameprivate :
-					case TerminalTokens.TokenNamestatic :
-					case TerminalTokens.TokenNameabstract :
-					case TerminalTokens.TokenNamefinal :
-					case TerminalTokens.TokenNamenative :
-					case TerminalTokens.TokenNamesynchronized :
-					case TerminalTokens.TokenNametransient :
-					case TerminalTokens.TokenNamevolatile :
-					case TerminalTokens.TokenNamestrictfp :
-						hasModifiers = true;
+			int annotationsLength= annotations != null ? annotations.length : 0;
+			int annotationsIndex= 0;
+			boolean isFirstModifier= true;
+			int currentTokenStartPosition= this.scanner.currentPosition;
+			boolean hasComment= false;
+			boolean hasModifiers= false;
+			while ((this.currentToken= this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch (this.currentToken) {
+					case TerminalTokens.TokenNamepublic:
+					case TerminalTokens.TokenNameprotected:
+					case TerminalTokens.TokenNameprivate:
+					case TerminalTokens.TokenNamestatic:
+					case TerminalTokens.TokenNameabstract:
+					case TerminalTokens.TokenNamefinal:
+					case TerminalTokens.TokenNamenative:
+					case TerminalTokens.TokenNamesynchronized:
+					case TerminalTokens.TokenNametransient:
+					case TerminalTokens.TokenNamevolatile:
+					case TerminalTokens.TokenNamestrictfp:
+						hasModifiers= true;
 						print(this.scanner.currentPosition - this.scanner.startPosition, !isFirstModifier);
-						isFirstModifier = false;
-						currentTokenStartPosition = this.scanner.currentPosition;
+						isFirstModifier= false;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameAT :
-						hasModifiers = true;
+					case TerminalTokens.TokenNameAT:
+						hasModifiers= true;
 						if (!isFirstModifier) {
 							space();
 						}
 						this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 						if (annotationsIndex < annotationsLength) {
-							boolean insertSpaceBeforeBrace = this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer;
-							this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer = false;
+							boolean insertSpaceBeforeBrace= this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer;
+							this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer= false;
 							try {
-								annotations[annotationsIndex++].traverse(visitor, (BlockScope) null);
-							}
-							finally {
-								this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer = insertSpaceBeforeBrace;
+								annotations[annotationsIndex++].traverse(visitor, (BlockScope)null);
+							} finally {
+								this.formatter.preferences.insert_space_before_opening_brace_in_array_initializer= insertSpaceBeforeBrace;
 							}
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-							boolean shouldAddNewLine = false;
+							boolean shouldAddNewLine= false;
 							switch (annotationSourceKind) {
-								case ICodeFormatterConstants.ANNOTATION_ON_MEMBER :
+								case ICodeFormatterConstants.ANNOTATION_ON_MEMBER:
 									if (this.formatter.preferences.insert_new_line_after_annotation_on_member) {
-										shouldAddNewLine = true;
+										shouldAddNewLine= true;
 									}
 									break;
-								case ICodeFormatterConstants.ANNOTATION_ON_PARAMETER :
+								case ICodeFormatterConstants.ANNOTATION_ON_PARAMETER:
 									if (this.formatter.preferences.insert_new_line_after_annotation_on_parameter) {
-										shouldAddNewLine = true;
+										shouldAddNewLine= true;
 									}
 									break;
-								case ICodeFormatterConstants.ANNOTATION_ON_LOCAL_VARIABLE :
+								case ICodeFormatterConstants.ANNOTATION_ON_LOCAL_VARIABLE:
 									if (this.formatter.preferences.insert_new_line_after_annotation_on_local_variable) {
-										shouldAddNewLine = true;
+										shouldAddNewLine= true;
 									}
 									break;
 								default:
@@ -4487,50 +4586,30 @@ public class Scribe implements IJavaDocTagConstants {
 						} else {
 							return;
 						}
-						isFirstModifier = false;
-						currentTokenStartPosition = this.scanner.currentPosition;
+						isFirstModifier= false;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
-									printNewLinesBeforeDisablingComment();
-								}
-							}
-						}
-						printBlockComment(this.currentToken == TerminalTokens.TokenNameCOMMENT_JAVADOC);
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-						}
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasComment = true;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK:
+						printBlockComment(false);
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasComment= true;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
-									printNewLinesBeforeDisablingComment();
-								}
-							}
-						}
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
+						printBlockComment(true);
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasComment= true;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_LINE:
 						printLineComment();
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-						}
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameWHITESPACE :
+					case TerminalTokens.TokenNameWHITESPACE:
 						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						int count = 0;
-						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
-							switch(whiteSpaces[i]) {
-								case '\r' :
+						int count= 0;
+						char[] whiteSpaces= this.scanner.getCurrentTokenSource();
+						for (int i= 0, max= whiteSpaces.length; i < max; i++) {
+							switch (whiteSpaces[i]) {
+								case '\r':
 									if ((i + 1) < max) {
 										if (whiteSpaces[i + 1] == '\n') {
 											i++;
@@ -4538,15 +4617,15 @@ public class Scribe implements IJavaDocTagConstants {
 									}
 									count++;
 									break;
-								case '\n' :
+								case '\n':
 									count++;
 							}
 						}
 						if (count >= 1 && hasComment) {
 							printNewLine();
 						}
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasComment = false;
+						currentTokenStartPosition= this.scanner.currentPosition;
+						hasComment= false;
 						break;
 					default:
 						if (hasModifiers) {
@@ -4574,19 +4653,19 @@ public class Scribe implements IJavaDocTagConstants {
 			// ensure that the scribe is at the beginning of a new line
 			// only if no specific indentation has been previously set
 			if (!this.preserveLineBreakIndentation) {
-				this.column = 1; 
+				this.column= 1;
 			}
-			this.preserveLineBreakIndentation = false;
+			this.preserveLineBreakIndentation= false;
 			return;
 		}
 		addInsertEdit(insertPosition, this.lineSeparator);
 		this.line++;
-		this.lastNumberOfNewLines = 1;
-		this.column = 1;
-		this.needSpace = false;
-		this.pendingSpace = false;
-		this.preserveLineBreakIndentation = false;
-		this.lastLineComment.contiguous = false;
+		this.lastNumberOfNewLines= 1;
+		this.column= 1;
+		this.needSpace= false;
+		this.pendingSpace= false;
+		this.preserveLineBreakIndentation= false;
+		this.lastLineComment.contiguous= false;
 	}
 
 	/*
@@ -4595,39 +4674,40 @@ public class Scribe implements IJavaDocTagConstants {
 	private void printNewLinesBeforeDisablingComment() {
 
 		// Get the beginning of comment line
-		int linePtr = Arrays.binarySearch(this.lineEnds, this.scanner.startPosition);
+		int linePtr= Arrays.binarySearch(this.lineEnds, this.scanner.startPosition);
 		if (linePtr < 0) {
-			linePtr = -linePtr - 1;
+			linePtr= -linePtr - 1;
 		}
-		int indentation = 0;
-		int beginningOfLine = getLineEnd(linePtr)+1;
+		int indentation= 0;
+		int beginningOfLine= getLineEnd(linePtr) + 1;
 		if (beginningOfLine == -1) {
-			beginningOfLine = 0;
+			beginningOfLine= 0;
 		}
-		
+
 		// If the comment is in the middle of the line, then there's nothing to do
-		OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-		int offset = currentEdit.offset;
-		if (offset >= beginningOfLine) return;
+		OptimizedReplaceEdit currentEdit= this.edits[this.editsIndex - 1];
+		int offset= currentEdit.offset;
+		if (offset >= beginningOfLine)
+			return;
 
 		// Compute the comment indentation
-		int scannerStartPosition = this.scanner.startPosition;
-		int scannerEofPosition = this.scanner.eofPosition;
-		int scannerCurrentPosition = this.scanner.currentPosition;
-		char scannerCurrentChar = this.scanner.currentCharacter;
-		int length = currentEdit.length;
-		this.scanner.resetTo(beginningOfLine, offset+length-1);
+		int scannerStartPosition= this.scanner.startPosition;
+		int scannerEofPosition= this.scanner.eofPosition;
+		int scannerCurrentPosition= this.scanner.currentPosition;
+		char scannerCurrentChar= this.scanner.currentCharacter;
+		int length= currentEdit.length;
+		this.scanner.resetTo(beginningOfLine, offset + length - 1);
 		try {
 			while (!this.scanner.atEnd()) {
-				char ch = (char) this.scanner.getNextChar();
+				char ch= (char)this.scanner.getNextChar();
 				switch (ch) {
-					case '\t' :
+					case '\t':
 						if (this.tabLength != 0) {
-							int reminder = indentation % this.tabLength;
+							int reminder= indentation % this.tabLength;
 							if (reminder == 0) {
-								indentation += this.tabLength;
+								indentation+= this.tabLength;
 							} else {
-								indentation = ((indentation / this.tabLength) + 1) * this.tabLength;
+								indentation= ((indentation / this.tabLength) + 1) * this.tabLength;
 							}
 						}
 						break;
@@ -4639,46 +4719,45 @@ public class Scribe implements IJavaDocTagConstants {
 						return;
 				}
 			}
-		
+
 			// Split the existing edit to keep the change before the beginning of the last line
 			// but change the indentation after. Note that at this stage, the add*Edit methods
 			// cannot be longer used as the edits are disabled
 			String indentationString;
-			int currentIndentation = getCurrentIndentation(this.scanner.currentPosition);
+			int currentIndentation= getCurrentIndentation(this.scanner.currentPosition);
 			if (currentIndentation > 0 && this.indentationLevel > 0) {
-				int col = this.column;
+				int col= this.column;
 				this.tempBuffer.setLength(0);
 				printIndentationIfNecessary(this.tempBuffer);
-				indentationString = this.tempBuffer.toString();
-				this.column = col;
+				indentationString= this.tempBuffer.toString();
+				this.column= col;
 			} else {
-				indentationString = Util.EMPTY_STRING;
+				indentationString= Util.EMPTY_STRING;
 			}
-			String replacement = currentEdit.replacement;
+			String replacement= currentEdit.replacement;
 			if (replacement.length() == 0) {
 				// previous edit was a delete, as we're sure to have a new line before
 				// the comment, then the edit needs to be either replaced entirely with
 				// the expected indentation
-				this.edits[this.editsIndex-1] = new OptimizedReplaceEdit(beginningOfLine, offset+length-beginningOfLine, indentationString);
+				this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(beginningOfLine, offset + length - beginningOfLine, indentationString);
 			} else {
-				int idx = replacement.lastIndexOf(this.lineSeparator);
+				int idx= replacement.lastIndexOf(this.lineSeparator);
 				if (idx >= 0) {
 					// replace current edit if it contains a line separator
-					int start = idx + this.lsLength;
+					int start= idx + this.lsLength;
 					this.tempBuffer.setLength(0);
 					this.tempBuffer.append(replacement.substring(0, start));
 					if (indentationString != Util.EMPTY_STRING) {
 						this.tempBuffer.append(indentationString);
 					}
-					this.edits[this.editsIndex-1] = new OptimizedReplaceEdit(offset, length, this.tempBuffer.toString());
+					this.edits[this.editsIndex - 1]= new OptimizedReplaceEdit(offset, length, this.tempBuffer.toString());
 				}
 			}
-		}
-		finally {
-			this.scanner.startPosition = scannerStartPosition;
-			this.scanner.eofPosition = scannerEofPosition;
-			this.scanner.currentPosition = scannerCurrentPosition;
-			this.scanner.currentCharacter = scannerCurrentChar;
+		} finally {
+			this.scanner.startPosition= scannerStartPosition;
+			this.scanner.eofPosition= scannerEofPosition;
+			this.scanner.currentPosition= scannerCurrentPosition;
+			this.scanner.currentCharacter= scannerCurrentChar;
 		}
 	}
 
@@ -4687,45 +4766,46 @@ public class Scribe implements IJavaDocTagConstants {
 	 * the line separator is replaced if necessary, the other white spaces are untouched.
 	 */
 	private boolean printNewLinesCharacters(int offset, int length) {
-		boolean foundNewLine = false;
-		int scannerStartPosition = this.scanner.startPosition;
-		int scannerEofPosition = this.scanner.eofPosition;
-		int scannerCurrentPosition = this.scanner.currentPosition;
-		char scannerCurrentChar = this.scanner.currentCharacter;
-		this.scanner.resetTo(offset, offset+length-1);
+		boolean foundNewLine= false;
+		int scannerStartPosition= this.scanner.startPosition;
+		int scannerEofPosition= this.scanner.eofPosition;
+		int scannerCurrentPosition= this.scanner.currentPosition;
+		char scannerCurrentChar= this.scanner.currentCharacter;
+		this.scanner.resetTo(offset, offset + length - 1);
 		try {
 			while (!this.scanner.atEnd()) {
-				int start = this.scanner.currentPosition;
-				char ch = (char) this.scanner.getNextChar();
-				boolean needReplace = ch != this.firstLS;
+				int start= this.scanner.currentPosition;
+				char ch= (char)this.scanner.getNextChar();
+				boolean needReplace= ch != this.firstLS;
 				switch (ch) {
 					case '\r':
-						if (this.scanner.atEnd()) break;
-						ch = (char) this.scanner.getNextChar();
-						if (ch != '\n') break;
-						needReplace = needReplace || this.lsLength != 2;
+						if (this.scanner.atEnd())
+							break;
+						ch= (char)this.scanner.getNextChar();
+						if (ch != '\n')
+							break;
+						needReplace= needReplace || this.lsLength != 2;
 						//$FALL-THROUGH$
 					case '\n':
 						if (needReplace) {
-							if (this.editsIndex == 0 || this.edits[this.editsIndex-1].offset != start) {
-								this.edits[this.editsIndex++] = new OptimizedReplaceEdit(start, this.scanner.currentPosition-start, this.lineSeparator);
+							if (this.editsIndex == 0 || this.edits[this.editsIndex - 1].offset != start) {
+								this.edits[this.editsIndex++]= new OptimizedReplaceEdit(start, this.scanner.currentPosition - start, this.lineSeparator);
 							}
 						}
-						foundNewLine = true;
+						foundNewLine= true;
 						break;
 				}
 			}
+		} finally {
+			this.scanner.startPosition= scannerStartPosition;
+			this.scanner.eofPosition= scannerEofPosition;
+			this.scanner.currentPosition= scannerCurrentPosition;
+			this.scanner.currentCharacter= scannerCurrentChar;
 		}
-		finally {
-			this.scanner.startPosition = scannerStartPosition;
-			this.scanner.eofPosition = scannerEofPosition;
-			this.scanner.currentPosition = scannerCurrentPosition;
-			this.scanner.currentCharacter = scannerCurrentChar;
-		}
-		return foundNewLine;		
+		return foundNewLine;
 	}
 
-	public void printNextToken(int expectedTokenType){
+	public void printNextToken(int expectedTokenType) {
 		printNextToken(expectedTokenType, false);
 	}
 
@@ -4734,26 +4814,25 @@ public class Scribe implements IJavaDocTagConstants {
 		switch (expectedTokenType) {
 			case TerminalTokens.TokenNameRBRACE:
 			case TerminalTokens.TokenNameLBRACE:
-				this.formatBrace = true;
+				this.formatBrace= true;
 		}
 		try {
 			printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 			try {
-				this.currentToken = this.scanner.getNextToken();
+				this.currentToken= this.scanner.getNextToken();
 				if (expectedTokenType != this.currentToken) {
-					throw new AbortFormatting("unexpected token type, expecting:"+expectedTokenType+", actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
+					throw new AbortFormatting("unexpected token type, expecting:" + expectedTokenType + ", actual:" + this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 				}
 				print(this.scanner.currentPosition - this.scanner.startPosition, considerSpaceIfAny);
 			} catch (InvalidInputException e) {
 				throw new AbortFormatting(e);
 			}
-		}
-		finally {
+		} finally {
 			// Flush brace flag
 			switch (expectedTokenType) {
 				case TerminalTokens.TokenNameRBRACE:
 				case TerminalTokens.TokenNameLBRACE:
-					this.formatBrace = false;
+					this.formatBrace= false;
 			}
 		}
 	}
@@ -4762,19 +4841,19 @@ public class Scribe implements IJavaDocTagConstants {
 		printNextToken(expectedTokenTypes, false);
 	}
 
-	public void printNextToken(int[] expectedTokenTypes, boolean considerSpaceIfAny){
+	public void printNextToken(int[] expectedTokenTypes, boolean considerSpaceIfAny) {
 		printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
 		try {
-			this.currentToken = this.scanner.getNextToken();
+			this.currentToken= this.scanner.getNextToken();
 			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
-				StringBuffer expectations = new StringBuffer(5);
-				for (int i = 0; i < expectedTokenTypes.length; i++){
+				StringBuffer expectations= new StringBuffer(5);
+				for (int i= 0; i < expectedTokenTypes.length; i++) {
 					if (i > 0) {
 						expectations.append(',');
 					}
 					expectations.append(expectedTokenTypes[i]);
 				}
-				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
+				throw new AbortFormatting("unexpected token type, expecting:[" + expectations.toString() + "], actual:" + this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
 			}
 			print(this.scanner.currentPosition - this.scanner.startPosition, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
@@ -4783,81 +4862,81 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	public void printArrayQualifiedReference(int numberOfTokens, int sourceEnd) {
-		int currentTokenStartPosition = this.scanner.currentPosition;
-		int numberOfIdentifiers = 0;
+		int currentTokenStartPosition= this.scanner.currentPosition;
+		int numberOfIdentifiers= 0;
 		try {
 			do {
 				printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
-				switch(this.currentToken = this.scanner.getNextToken()) {
-					case TerminalTokens.TokenNameEOF :
+				switch (this.currentToken= this.scanner.getNextToken()) {
+					case TerminalTokens.TokenNameEOF:
 						return;
-					case TerminalTokens.TokenNameWHITESPACE :
+					case TerminalTokens.TokenNameWHITESPACE:
 						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_BLOCK:
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
 						printBlockComment(false);
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameCOMMENT_LINE:
 						printLineComment();
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameIdentifier :
+					case TerminalTokens.TokenNameIdentifier:
 						print(this.scanner.currentPosition - this.scanner.startPosition, false);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						if (++ numberOfIdentifiers == numberOfTokens) {
+						currentTokenStartPosition= this.scanner.currentPosition;
+						if (++numberOfIdentifiers == numberOfTokens) {
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						}
 						break;
-					case TerminalTokens.TokenNameDOT :
+					case TerminalTokens.TokenNameDOT:
 						print(this.scanner.currentPosition - this.scanner.startPosition, false);
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameRPAREN:
-						currentTokenStartPosition = this.scanner.startPosition;
+						currentTokenStartPosition= this.scanner.startPosition;
 						// $FALL-THROUGH$ - fall through default case...
 					default:
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
 				}
 			} while (this.scanner.currentPosition <= sourceEnd);
-		} catch(InvalidInputException e) {
+		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
 	}
 
 	public void printQualifiedReference(int sourceEnd, boolean expectParenthesis) {
-		int currentTokenStartPosition = this.scanner.currentPosition;
+		int currentTokenStartPosition= this.scanner.currentPosition;
 		try {
 			do {
 				printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
-				switch(this.currentToken = this.scanner.getNextToken()) {
-					case TerminalTokens.TokenNameEOF :
+				switch (this.currentToken= this.scanner.getNextToken()) {
+					case TerminalTokens.TokenNameEOF:
 						return;
-					case TerminalTokens.TokenNameWHITESPACE :
+					case TerminalTokens.TokenNameWHITESPACE:
 						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_BLOCK:
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
 						printBlockComment(false);
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameCOMMENT_LINE:
 						printLineComment();
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
-					case TerminalTokens.TokenNameIdentifier :
-					case TerminalTokens.TokenNameDOT :
+					case TerminalTokens.TokenNameIdentifier:
+					case TerminalTokens.TokenNameDOT:
 						print(this.scanner.currentPosition - this.scanner.startPosition, false);
-						currentTokenStartPosition = this.scanner.currentPosition;
+						currentTokenStartPosition= this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameRPAREN:
 						if (expectParenthesis) {
-							currentTokenStartPosition = this.scanner.startPosition;
+							currentTokenStartPosition= this.scanner.startPosition;
 						}
 						// $FALL-THROUGH$ - fall through default case...
 					default:
@@ -4865,14 +4944,14 @@ public class Scribe implements IJavaDocTagConstants {
 						return;
 				}
 			} while (this.scanner.currentPosition <= sourceEnd);
-		} catch(InvalidInputException e) {
+		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
 	}
 
 	private void printRule(StringBuffer stringBuffer) {
 		// only called if this.tabLength > 0
-		for (int i = 0; i < this.pageWidth; i++){
+		for (int i= 0; i < this.pageWidth; i++) {
 			if ((i % this.tabLength) == 0) {
 				stringBuffer.append('+');
 			} else {
@@ -4881,55 +4960,55 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		stringBuffer.append(this.lineSeparator);
 
-		for (int i = 0; i < (this.pageWidth / this.tabLength); i++) {
+		for (int i= 0; i < (this.pageWidth / this.tabLength); i++) {
 			stringBuffer.append(i);
 			stringBuffer.append('\t');
 		}
 	}
 
-	void redoAlignment(AlignmentException e){
+	void redoAlignment(AlignmentException e) {
 		if (e.relativeDepth > 0) { // if exception targets a distinct context
 			e.relativeDepth--; // record fact that current context got traversed
-			this.currentAlignment = this.currentAlignment.enclosing; // pop currentLocation
+			this.currentAlignment= this.currentAlignment.enclosing; // pop currentLocation
 			throw e; // rethrow
 		}
 		// reset scribe/scanner to restart at this given location
 		resetAt(this.currentAlignment.location);
 		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition - 1);
 		// clean alignment chunkKind so it will think it is a new chunk again
-		this.currentAlignment.chunkKind = 0;
+		this.currentAlignment.chunkKind= 0;
 	}
 
-	void redoMemberAlignment(AlignmentException e){
+	void redoMemberAlignment(AlignmentException e) {
 		// reset scribe/scanner to restart at this given location
 		resetAt(this.memberAlignment.location);
 		this.scanner.resetTo(this.memberAlignment.location.inputOffset, this.scanner.eofPosition - 1);
 		// clean alignment chunkKind so it will think it is a new chunk again
-		this.memberAlignment.chunkKind = 0;
+		this.memberAlignment.chunkKind= 0;
 	}
 
 	public void reset() {
-		this.checkLineWrapping = true;
-		this.line = 0;
-		this.column = 1;
-		this.editsIndex = 0;
-		this.nlsTagCounter = 0;
+		this.checkLineWrapping= true;
+		this.line= 0;
+		this.column= 1;
+		this.editsIndex= 0;
+		this.nlsTagCounter= 0;
 	}
 
 	private void resetAt(Location location) {
-		this.line = location.outputLine;
-		this.column = location.outputColumn;
-		this.indentationLevel = location.outputIndentationLevel;
-		this.numberOfIndentations = location.numberOfIndentations;
-		this.lastNumberOfNewLines = location.lastNumberOfNewLines;
-		this.needSpace = location.needSpace;
-		this.pendingSpace = location.pendingSpace;
-		this.editsIndex = location.editsIndex;
-		this.nlsTagCounter = location.nlsTagCounter;
+		this.line= location.outputLine;
+		this.column= location.outputColumn;
+		this.indentationLevel= location.outputIndentationLevel;
+		this.numberOfIndentations= location.numberOfIndentations;
+		this.lastNumberOfNewLines= location.lastNumberOfNewLines;
+		this.needSpace= location.needSpace;
+		this.pendingSpace= location.pendingSpace;
+		this.editsIndex= location.editsIndex;
+		this.nlsTagCounter= location.nlsTagCounter;
 		if (this.editsIndex > 0) {
-			this.edits[this.editsIndex - 1] = location.textEdit;
+			this.edits[this.editsIndex - 1]= location.textEdit;
 		}
-		this.formatter.lastLocalDeclarationSourceStart = location.lastLocalDeclarationSourceStart;
+		this.formatter.lastLocalDeclarationSourceStart= location.lastLocalDeclarationSourceStart;
 	}
 
 	/**
@@ -4937,35 +5016,35 @@ public class Scribe implements IJavaDocTagConstants {
 	 */
 	public void resetScanner(char[] compilationUnitSource) {
 		this.scanner.setSource(compilationUnitSource);
-		this.scannerEndPosition = compilationUnitSource.length;
+		this.scannerEndPosition= compilationUnitSource.length;
 		this.scanner.resetTo(0, this.scannerEndPosition - 1);
-		this.edits = new OptimizedReplaceEdit[INITIAL_SIZE];
-		this.maxLines = this.lineEnds == null ? -1 : this.lineEnds.length - 1;
-		this.scanner.lineEnds = this.lineEnds;
-		this.scanner.linePtr = this.maxLines;
+		this.edits= new OptimizedReplaceEdit[INITIAL_SIZE];
+		this.maxLines= this.lineEnds == null ? -1 : this.lineEnds.length - 1;
+		this.scanner.lineEnds= this.lineEnds;
+		this.scanner.linePtr= this.maxLines;
 		initFormatterCommentParser();
 	}
 
 	private void resize() {
-		System.arraycopy(this.edits, 0, (this.edits = new OptimizedReplaceEdit[this.editsIndex * 2]), 0, this.editsIndex);
+		System.arraycopy(this.edits, 0, (this.edits= new OptimizedReplaceEdit[this.editsIndex * 2]), 0, this.editsIndex);
 	}
 
 	private void setCommentIndentation(int commentIndentationLevel) {
 		if (commentIndentationLevel == 0) {
-		    this.commentIndentation = null;
+			this.commentIndentation= null;
 		} else {
-			int length = COMMENT_INDENTATIONS.length;
+			int length= COMMENT_INDENTATIONS.length;
 			if (commentIndentationLevel > length) {
-				System.arraycopy(COMMENT_INDENTATIONS, 0, COMMENT_INDENTATIONS = new String[commentIndentationLevel+10], 0, length);
+				System.arraycopy(COMMENT_INDENTATIONS, 0, COMMENT_INDENTATIONS= new String[commentIndentationLevel + 10], 0, length);
 			}
-			this.commentIndentation = COMMENT_INDENTATIONS[commentIndentationLevel-1];
+			this.commentIndentation= COMMENT_INDENTATIONS[commentIndentationLevel - 1];
 			if (this.commentIndentation == null) {
 				this.tempBuffer.setLength(0);
-				for (int i=0; i<commentIndentationLevel; i++) {
+				for (int i= 0; i < commentIndentationLevel; i++) {
 					this.tempBuffer.append(' ');
 				}
-				this.commentIndentation = this.tempBuffer.toString();
-				COMMENT_INDENTATIONS[commentIndentationLevel-1] = this.commentIndentation;
+				this.commentIndentation= this.tempBuffer.toString();
+				COMMENT_INDENTATIONS[commentIndentationLevel - 1]= this.commentIndentation;
 			}
 		}
 	}
@@ -4977,60 +5056,61 @@ public class Scribe implements IJavaDocTagConstants {
 	 * disabling/enabling tags in a comment, hence the last one will be the one really
 	 * changing the formatter behavior...
 	 */
-	private void setEditsEnabled(int count) {
-		for (int i=0; i<count; i++) {
+	private void setEditsEnabled(int count, int previous) {
+		for (int i= previous; i < count; i++) {
 			if (this.disablingTag != null && CharOperation.equals(this.scanner.foundTaskTags[i], this.disablingTag)) {
-				this.editsEnabled = false;
+				this.editsEnabled= false;
 			}
 			if (this.enablingTag != null && CharOperation.equals(this.scanner.foundTaskTags[i], this.enablingTag)) {
-				this.editsEnabled = true;
+				this.editsEnabled= true;
 			}
 		}
 	}
 
 	void setIncludeComments(boolean on) {
 		if (on) {
-			this.formatComments |= CodeFormatter.F_INCLUDE_COMMENTS;
+			this.formatComments|= CodeFormatter.F_INCLUDE_COMMENTS;
 		} else {
-			this.formatComments &= ~CodeFormatter.F_INCLUDE_COMMENTS;
+			this.formatComments&= ~CodeFormatter.F_INCLUDE_COMMENTS;
 		}
 	}
 
 	void setHeaderComment(int position) {
-		this.headerEndPosition = position;
+		this.headerEndPosition= position;
 	}
 
 	public void space() {
-		if (!this.needSpace) return;
-		this.lastNumberOfNewLines = 0;
-		this.pendingSpace = true;
+		if (!this.needSpace)
+			return;
+		this.lastNumberOfNewLines= 0;
+		this.pendingSpace= true;
 		this.column++;
-		this.needSpace = false;
+		this.needSpace= false;
 	}
 
 	public String toString() {
-		StringBuffer stringBuffer = new StringBuffer();
+		StringBuffer stringBuffer= new StringBuffer();
 		stringBuffer
-			.append("(page width = " + this.pageWidth + ") - (tabChar = ");//$NON-NLS-1$//$NON-NLS-2$
-		switch(this.tabChar) {
-			case DefaultCodeFormatterOptions.TAB :
-				 stringBuffer.append("TAB");//$NON-NLS-1$
-				 break;
-			case DefaultCodeFormatterOptions.SPACE :
-				 stringBuffer.append("SPACE");//$NON-NLS-1$
-				 break;
-			default :
-				 stringBuffer.append("MIXED");//$NON-NLS-1$
+				.append("(page width = " + this.pageWidth + ") - (tabChar = ");//$NON-NLS-1$//$NON-NLS-2$
+		switch (this.tabChar) {
+			case DefaultCodeFormatterOptions.TAB:
+				stringBuffer.append("TAB");//$NON-NLS-1$
+				break;
+			case DefaultCodeFormatterOptions.SPACE:
+				stringBuffer.append("SPACE");//$NON-NLS-1$
+				break;
+			default:
+				stringBuffer.append("MIXED");//$NON-NLS-1$
 		}
 		stringBuffer
-			.append(") - (tabSize = " + this.tabLength + ")")//$NON-NLS-1$//$NON-NLS-2$
-			.append(this.lineSeparator)
-			.append("(line = " + this.line + ") - (column = " + this.column + ") - (identationLevel = " + this.indentationLevel + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
-			.append(this.lineSeparator)
-			.append("(needSpace = " + this.needSpace + ") - (lastNumberOfNewLines = " + this.lastNumberOfNewLines + ") - (checkLineWrapping = " + this.checkLineWrapping + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
-			.append(this.lineSeparator)
-			.append("==================================================================================")	//$NON-NLS-1$
-			.append(this.lineSeparator);
+				.append(") - (tabSize = " + this.tabLength + ")")//$NON-NLS-1$//$NON-NLS-2$
+				.append(this.lineSeparator)
+				.append("(line = " + this.line + ") - (column = " + this.column + ") - (identationLevel = " + this.indentationLevel + ")") //$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
+				.append(this.lineSeparator)
+				.append("(needSpace = " + this.needSpace + ") - (lastNumberOfNewLines = " + this.lastNumberOfNewLines + ") - (checkLineWrapping = " + this.checkLineWrapping + ")") //$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$
+				.append(this.lineSeparator)
+				.append("==================================================================================") //$NON-NLS-1$
+				.append(this.lineSeparator);
 		if (this.tabLength > 0) {
 			printRule(stringBuffer);
 		}
@@ -5038,7 +5118,7 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	public void unIndent() {
-		this.indentationLevel -= this.indentationSize;
+		this.indentationLevel-= this.indentationSize;
 		this.numberOfIndentations--;
 	}
 }

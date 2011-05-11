@@ -33,16 +33,18 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class SelectionOnImportReference extends ImportReference {
 
-public SelectionOnImportReference(char[][] tokens , long[] positions, int modifiers) {
-	super(tokens, positions, false, modifiers);
-}
-public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
-
-	printIndent(indent, output).append("<SelectOnImport:"); //$NON-NLS-1$
-	for (int i = 0; i < this.tokens.length; i++) {
-		if (i > 0) output.append('.');
-		output.append(this.tokens[i]);
+	public SelectionOnImportReference(char[][] tokens, long[] positions, int modifiers) {
+		super(tokens, positions, false, modifiers);
 	}
-	return output.append('>');
-}
+
+	public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
+
+		printIndent(indent, output).append("<SelectOnImport:"); //$NON-NLS-1$
+		for (int i= 0; i < this.tokens.length; i++) {
+			if (i > 0)
+				output.append('.');
+			output.append(this.tokens[i]);
+		}
+		return output.append('>');
+	}
 }

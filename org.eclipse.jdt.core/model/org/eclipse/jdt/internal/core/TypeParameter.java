@@ -10,60 +10,67 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
-	static final ITypeParameter[] NO_TYPE_PARAMETERS = new ITypeParameter[0];
+	static final ITypeParameter[] NO_TYPE_PARAMETERS= new ITypeParameter[0];
 
 	protected String name;
 
 	public TypeParameter(JavaElement parent, String name) {
 		super(parent);
-		this.name = name;
+		this.name= name;
 	}
 
 	public boolean equals(Object o) {
-		if (!(o instanceof TypeParameter)) return false;
+		if (!(o instanceof TypeParameter))
+			return false;
 		return super.equals(o);
 	}
 
 	public String[] getBounds() throws JavaModelException {
-		TypeParameterElementInfo info = (TypeParameterElementInfo) getElementInfo();
+		TypeParameterElementInfo info= (TypeParameterElementInfo)getElementInfo();
 		return CharOperation.toStrings(info.bounds);
 	}
-	
+
 	public String[] getBoundsSignatures() throws JavaModelException {
-		
-		String[] boundSignatures = null;
-		TypeParameterElementInfo info = (TypeParameterElementInfo) this.getElementInfo();
-		
+
+		String[] boundSignatures= null;
+		TypeParameterElementInfo info= (TypeParameterElementInfo)this.getElementInfo();
+
 		// For a binary type or method, the signature is already available from the .class file.
 		// No need to construct again
 		if (this.parent instanceof BinaryMember) {
-			char[][] boundsSignatures = info.boundsSignatures;
+			char[][] boundsSignatures= info.boundsSignatures;
 			if (boundsSignatures == null || boundsSignatures.length == 0) {
-				return CharOperation.NO_STRINGS;	
+				return CharOperation.NO_STRINGS;
 			}
 			return CharOperation.toStrings(info.boundsSignatures);
 		}
-		
-		char[][] bounds = info.bounds;
+
+		char[][] bounds= info.bounds;
 		if (bounds == null || bounds.length == 0) {
 			return CharOperation.NO_STRINGS;
 		}
-	
-		int boundsLength = bounds.length;
-		boundSignatures = new String[boundsLength];
-		for (int i = 0; i < boundsLength; i++) {
-			boundSignatures[i] = new String(Signature.createCharArrayTypeSignature(bounds[i], false));
+
+		int boundsLength= bounds.length;
+		boundSignatures= new String[boundsLength];
+		for (int i= 0; i < boundsLength; i++) {
+			boundSignatures[i]= new String(Signature.createCharArrayTypeSignature(bounds[i], false));
 		}
 		return boundSignatures;
 	}
-	
+
 	public IMember getDeclaringMember() {
-			return (IMember) getParent();
+		return (IMember)getParent();
 	}
 
 	public String getElementName() {
@@ -82,13 +89,13 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		SourceMapper mapper= getSourceMapper();
 		if (mapper != null) {
 			// ensure the class file's buffer is open so that source ranges are computed
-			ClassFile classFile = (ClassFile)getClassFile();
+			ClassFile classFile= (ClassFile)getClassFile();
 			if (classFile != null) {
 				classFile.getBuffer();
 				return mapper.getNameRange(this);
 			}
 		}
-		TypeParameterElementInfo info = (TypeParameterElementInfo) getElementInfo();
+		TypeParameterElementInfo info= (TypeParameterElementInfo)getElementInfo();
 		return new SourceRange(info.nameStart, info.nameEnd - info.nameStart + 1);
 	}
 
@@ -99,7 +106,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		SourceMapper mapper= getSourceMapper();
 		if (mapper != null) {
 			// ensure the class file's buffer is open so that source ranges are computed
-			ClassFile classFile = (ClassFile)getClassFile();
+			ClassFile classFile= (ClassFile)getClassFile();
 			if (classFile != null) {
 				classFile.getBuffer();
 				return mapper.getSourceRange(this);

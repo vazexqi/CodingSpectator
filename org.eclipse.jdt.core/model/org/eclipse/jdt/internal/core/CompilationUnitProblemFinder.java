@@ -15,10 +15,19 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -31,59 +40,57 @@ import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * Responsible for resolving types inside a compilation unit being reconciled,
- * reporting the discovered problems to a given IProblemRequestor.
+ * Responsible for resolving types inside a compilation unit being reconciled, reporting the
+ * discovered problems to a given IProblemRequestor.
  */
 public class CompilationUnitProblemFinder extends Compiler {
 
 	/**
 	 * Answer a new CompilationUnitVisitor using the given name environment and compiler options.
-	 * The environment and options will be in effect for the lifetime of the compiler.
-	 * When the compiler is run, compilation results are sent to the given requestor.
-	 *
-	 *  @param environment org.eclipse.jdt.internal.compiler.api.env.INameEnvironment
-	 *      Environment used by the compiler in order to resolve type and package
-	 *      names. The name environment implements the actual connection of the compiler
-	 *      to the outside world (e.g. in batch mode the name environment is performing
-	 *      pure file accesses, reuse previous build state or connection to repositories).
-	 *      Note: the name environment is responsible for implementing the actual classpath
-	 *            rules.
-	 *
-	 *  @param policy org.eclipse.jdt.internal.compiler.api.problem.IErrorHandlingPolicy
-	 *      Configurable part for problem handling, allowing the compiler client to
-	 *      specify the rules for handling problems (stop on first error or accumulate
-	 *      them all) and at the same time perform some actions such as opening a dialog
-	 *      in UI when compiling interactively.
-	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
-	 *
-	 *	@param compilerOptions The compiler options to use for the resolution.
-	 *
-	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
-	 *      Component which will receive and persist all compilation results and is intended
-	 *      to consume them as they are produced. Typically, in a batch compiler, it is
-	 *      responsible for writing out the actual .class files to the file system.
-	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
-	 *
-	 *  @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory
-	 *      Factory used inside the compiler to create problem descriptors. It allows the
-	 *      compiler client to supply its own representation of compilation problems in
-	 *      order to avoid object conversions. Note that the factory is not supposed
-	 *      to accumulate the created problems, the compiler will gather them all and hand
-	 *      them back as part of the compilation unit result.
+	 * The environment and options will be in effect for the lifetime of the compiler. When the
+	 * compiler is run, compilation results are sent to the given requestor.
+	 * 
+	 * @param environment org.eclipse.jdt.internal.compiler.api.env.INameEnvironment Environment
+	 *            used by the compiler in order to resolve type and package names. The name
+	 *            environment implements the actual connection of the compiler to the outside world
+	 *            (e.g. in batch mode the name environment is performing pure file accesses, reuse
+	 *            previous build state or connection to repositories). Note: the name environment is
+	 *            responsible for implementing the actual classpath rules.
+	 * 
+	 * @param policy org.eclipse.jdt.internal.compiler.api.problem.IErrorHandlingPolicy Configurable
+	 *            part for problem handling, allowing the compiler client to specify the rules for
+	 *            handling problems (stop on first error or accumulate them all) and at the same
+	 *            time perform some actions such as opening a dialog in UI when compiling
+	 *            interactively.
+	 * @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
+	 * 
+	 * @param compilerOptions The compiler options to use for the resolution.
+	 * 
+	 * @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor Component which
+	 *            will receive and persist all compilation results and is intended to consume them
+	 *            as they are produced. Typically, in a batch compiler, it is responsible for
+	 *            writing out the actual .class files to the file system.
+	 * @see org.eclipse.jdt.internal.compiler.CompilationResult
+	 * 
+	 * @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory Factory
+	 *            used inside the compiler to create problem descriptors. It allows the compiler
+	 *            client to supply its own representation of compilation problems in order to avoid
+	 *            object conversions. Note that the factory is not supposed to accumulate the
+	 *            created problems, the compiler will gather them all and hand them back as part of
+	 *            the compilation unit result.
 	 */
 	protected CompilationUnitProblemFinder(
-		INameEnvironment environment,
-		IErrorHandlingPolicy policy,
-		CompilerOptions compilerOptions,
-		ICompilerRequestor requestor,
-		IProblemFactory problemFactory) {
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			CompilerOptions compilerOptions,
+			ICompilerRequestor requestor,
+			IProblemFactory problemFactory) {
 
 		super(environment,
-			policy,
-			compilerOptions,
-			requestor,
-			problemFactory
-		);
+				policy,
+				compilerOptions,
+				requestor,
+				problemFactory);
 	}
 
 	/**
@@ -94,18 +101,18 @@ public class CompilationUnitProblemFinder extends Compiler {
 //		while (sourceTypes[0].getEnclosingType() != null)
 //			sourceTypes[0] = sourceTypes[0].getEnclosingType();
 
-		CompilationResult result =
-			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
+		CompilationResult result=
+				new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 
 		// need to hold onto this
-		CompilationUnitDeclaration unit =
-			SourceTypeConverter.buildCompilationUnit(
-				sourceTypes,//sourceTypes[0] is always toplevel here
-				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
-				| SourceTypeConverter.MEMBER_TYPE // need member types
-				| SourceTypeConverter.FIELD_INITIALIZATION, // need field initialization
-				this.lookupEnvironment.problemReporter,
-				result);
+		CompilationUnitDeclaration unit=
+				SourceTypeConverter.buildCompilationUnit(
+						sourceTypes,//sourceTypes[0] is always toplevel here
+						SourceTypeConverter.FIELD_AND_METHOD // need field and methods
+								| SourceTypeConverter.MEMBER_TYPE // need member types
+								| SourceTypeConverter.FIELD_INITIALIZATION, // need field initialization
+						this.lookupEnvironment.problemReporter,
+						result);
 
 		if (unit != null) {
 			this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
@@ -114,11 +121,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	protected static CompilerOptions getCompilerOptions(Map settings, boolean creatingAST, boolean statementsRecovery) {
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		compilerOptions.performMethodsFullRecovery = statementsRecovery;
-		compilerOptions.performStatementsRecovery = statementsRecovery;
-		compilerOptions.parseLiteralExpressionsAsConstants = !creatingAST; /*parse literal expressions as constants only if not creating a DOM AST*/
-		compilerOptions.storeAnnotations = creatingAST; /*store annotations in the bindings if creating a DOM AST*/
+		CompilerOptions compilerOptions= new CompilerOptions(settings);
+		compilerOptions.performMethodsFullRecovery= statementsRecovery;
+		compilerOptions.performStatementsRecovery= statementsRecovery;
+		compilerOptions.parseLiteralExpressionsAsConstants= !creatingAST; /*parse literal expressions as constants only if not creating a DOM AST*/
+		compilerOptions.storeAnnotations= creatingAST; /*store annotations in the bindings if creating a DOM AST*/
 		return compilerOptions;
 	}
 
@@ -151,78 +158,78 @@ public class CompilationUnitProblemFinder extends Compiler {
 			boolean creatingAST,
 			int reconcileFlags,
 			IProgressMonitor monitor)
-		throws JavaModelException {
+			throws JavaModelException {
 
-		JavaProject project = (JavaProject) unitElement.getJavaProject();
-		CancelableNameEnvironment environment = null;
-		CancelableProblemFactory problemFactory = null;
-		CompilationUnitProblemFinder problemFinder = null;
-		CompilationUnitDeclaration unit = null;
+		JavaProject project= (JavaProject)unitElement.getJavaProject();
+		CancelableNameEnvironment environment= null;
+		CancelableProblemFactory problemFactory= null;
+		CompilationUnitProblemFinder problemFinder= null;
+		CompilationUnitDeclaration unit= null;
 		try {
-			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor);
-			problemFactory = new CancelableProblemFactory(monitor);
-			CompilerOptions compilerOptions = getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0));
-			boolean ignoreMethodBodies = (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
-			compilerOptions.ignoreMethodBodies = ignoreMethodBodies;
-			problemFinder = new CompilationUnitProblemFinder(
-				environment,
-				getHandlingPolicy(),
-				compilerOptions,
-				getRequestor(),
-				problemFactory);
-			boolean analyzeAndGenerateCode = true;
+			environment= new CancelableNameEnvironment(project, workingCopyOwner, monitor);
+			problemFactory= new CancelableProblemFactory(monitor);
+			CompilerOptions compilerOptions= getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0));
+			boolean ignoreMethodBodies= (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
+			compilerOptions.ignoreMethodBodies= ignoreMethodBodies;
+			problemFinder= new CompilationUnitProblemFinder(
+					environment,
+					getHandlingPolicy(),
+					compilerOptions,
+					getRequestor(),
+					problemFactory);
+			boolean analyzeAndGenerateCode= true;
 			if (ignoreMethodBodies) {
-				analyzeAndGenerateCode = false;
+				analyzeAndGenerateCode= false;
 			}
 			try {
 				if (parser != null) {
-					problemFinder.parser = parser;
-					unit = parser.parseCompilationUnit(unitElement, true/*full parse*/, monitor);
+					problemFinder.parser= parser;
+					unit= parser.parseCompilationUnit(unitElement, true/*full parse*/, monitor);
 					problemFinder.resolve(
-						unit,
-						unitElement,
-						true, // verify methods
-						analyzeAndGenerateCode, // analyze code
-						analyzeAndGenerateCode); // generate code
-				} else {
-					unit =
-						problemFinder.resolve(
+							unit,
 							unitElement,
 							true, // verify methods
 							analyzeAndGenerateCode, // analyze code
 							analyzeAndGenerateCode); // generate code
+				} else {
+					unit=
+							problemFinder.resolve(
+									unitElement,
+									true, // verify methods
+									analyzeAndGenerateCode, // analyze code
+									analyzeAndGenerateCode); // generate code
 				}
 			} catch (AbortCompilation e) {
 				problemFinder.handleInternalException(e, unit);
 			}
 			if (unit != null) {
-				CompilationResult unitResult = unit.compilationResult;
-				CategorizedProblem[] unitProblems = unitResult.getProblems();
-				int length = unitProblems == null ? 0 : unitProblems.length;
+				CompilationResult unitResult= unit.compilationResult;
+				CategorizedProblem[] unitProblems= unitResult.getProblems();
+				int length= unitProblems == null ? 0 : unitProblems.length;
 				if (length > 0) {
-					CategorizedProblem[] categorizedProblems = new CategorizedProblem[length];
+					CategorizedProblem[] categorizedProblems= new CategorizedProblem[length];
 					System.arraycopy(unitProblems, 0, categorizedProblems, 0, length);
 					problems.put(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, categorizedProblems);
 				}
-				unitProblems = unitResult.getTasks();
-				length = unitProblems == null ? 0 : unitProblems.length;
+				unitProblems= unitResult.getTasks();
+				length= unitProblems == null ? 0 : unitProblems.length;
 				if (length > 0) {
-					CategorizedProblem[] categorizedProblems = new CategorizedProblem[length];
+					CategorizedProblem[] categorizedProblems= new CategorizedProblem[length];
 					System.arraycopy(unitProblems, 0, categorizedProblems, 0, length);
 					problems.put(IJavaModelMarker.TASK_MARKER, categorizedProblems);
 				}
 				if (NameLookup.VERBOSE) {
-					System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-					System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+					System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+					System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		} catch (OperationCanceledException e) {
 			// catch this exception so as to not enter the catch(RuntimeException e) below
 			throw e;
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			// avoid breaking other tools due to internal compiler failure (40334)
-			String lineDelimiter = unitElement.findRecommendedLineSeparator();
-			StringBuffer message = new StringBuffer("Exception occurred during problem detection:");  //$NON-NLS-1$
+			String lineDelimiter= unitElement.findRecommendedLineSeparator();
+			StringBuffer message= new StringBuffer("Exception occurred during problem detection:"); //$NON-NLS-1$
 			message.append(lineDelimiter);
 			message.append("----------------------------------- SOURCE BEGIN -------------------------------------"); //$NON-NLS-1$
 			message.append(lineDelimiter);
@@ -235,7 +242,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			if (environment != null)
 				environment.setMonitor(null); // don't hold a reference to this external object
 			if (problemFactory != null)
-				problemFactory.monitor = null; // don't hold a reference to this external object
+				problemFactory.monitor= null; // don't hold a reference to this external object
 			// NB: unit.cleanUp() is done by caller
 			if (problemFinder != null && !creatingAST)
 				problemFinder.lookupEnvironment.reset();
@@ -260,7 +267,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
 	 */
 	public void initializeParser() {
-		this.parser = new CommentRecorderParser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
+		this.parser= new CommentRecorderParser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
 	}
 }
-

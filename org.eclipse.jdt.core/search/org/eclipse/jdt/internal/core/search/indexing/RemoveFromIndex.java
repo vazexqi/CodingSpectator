@@ -19,17 +19,21 @@ class RemoveFromIndex extends IndexRequest {
 
 	public RemoveFromIndex(String resourceName, IPath containerPath, IndexManager manager) {
 		super(containerPath, manager);
-		this.resourceName = resourceName;
+		this.resourceName= resourceName;
 	}
+
 	public boolean execute(IProgressMonitor progressMonitor) {
 
-		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
+		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled())
+			return true;
 
 		/* ensure no concurrent write access to index */
-		Index index = this.manager.getIndex(this.containerPath, true, /*reuse index file*/ false /*create if none*/);
-		if (index == null) return true;
-		ReadWriteMonitor monitor = index.monitor;
-		if (monitor == null) return true; // index got deleted since acquired
+		Index index= this.manager.getIndex(this.containerPath, true, /*reuse index file*/false /*create if none*/);
+		if (index == null)
+			return true;
+		ReadWriteMonitor monitor= index.monitor;
+		if (monitor == null)
+			return true; // index got deleted since acquired
 
 		try {
 			monitor.enterWrite(); // ask permission to write
@@ -39,6 +43,7 @@ class RemoveFromIndex extends IndexRequest {
 		}
 		return true;
 	}
+
 	public String toString() {
 		return "removing " + this.resourceName + " from index " + this.containerPath; //$NON-NLS-1$ //$NON-NLS-2$
 	}

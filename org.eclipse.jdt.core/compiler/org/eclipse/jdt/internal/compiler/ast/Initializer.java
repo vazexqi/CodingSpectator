@@ -12,31 +12,38 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 
 public class Initializer extends FieldDeclaration {
 
 	public Block block;
+
 	public int lastVisibleFieldID;
+
 	public int bodyStart;
+
 	public int bodyEnd;
 
 	public Initializer(Block block, int modifiers) {
-		this.block = block;
-		this.modifiers = modifiers;
+		this.block= block;
+		this.modifiers= modifiers;
 
 		if (block != null) {
-			this.declarationSourceStart = this.sourceStart = block.sourceStart;
+			this.declarationSourceStart= this.sourceStart= block.sourceStart;
 		}
 	}
 
 	public FlowInfo analyseCode(
-		MethodScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
+			MethodScope currentScope,
+			FlowContext flowContext,
+			FlowInfo flowInfo) {
 
 		if (this.block != null) {
 			return this.block.analyseCode(currentScope, flowContext, flowInfo);
@@ -45,9 +52,8 @@ public class Initializer extends FieldDeclaration {
 	}
 
 	/**
-	 * Code generation for a non-static initializer:
-	 *    standard block code gen
-	 *
+	 * Code generation for a non-static initializer: standard block code gen
+	 * 
 	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
@@ -56,8 +62,9 @@ public class Initializer extends FieldDeclaration {
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
-		int pc = codeStream.position;
-		if (this.block != null) this.block.generateCode(currentScope, codeStream);
+		int pc= codeStream.position;
+		if (this.block != null)
+			this.block.generateCode(currentScope, codeStream);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
@@ -74,9 +81,9 @@ public class Initializer extends FieldDeclaration {
 	}
 
 	public void parseStatements(
-		Parser parser,
-		TypeDeclaration typeDeclaration,
-		CompilationUnitDeclaration unit) {
+			Parser parser,
+			TypeDeclaration typeDeclaration,
+			CompilationUnitDeclaration unit) {
 
 		//fill up the method body with statement
 		parser.parse(this, typeDeclaration, unit);
@@ -87,7 +94,8 @@ public class Initializer extends FieldDeclaration {
 		if (this.modifiers != 0) {
 			printIndent(indent, output);
 			printModifiers(this.modifiers, output);
-			if (this.annotations != null) printAnnotations(this.annotations, output);
+			if (this.annotations != null)
+				printAnnotations(this.annotations, output);
 			output.append("{\n"); //$NON-NLS-1$
 			if (this.block != null) {
 				this.block.printBody(indent, output);
@@ -104,28 +112,30 @@ public class Initializer extends FieldDeclaration {
 
 	public void resolve(MethodScope scope) {
 
-		FieldBinding previousField = scope.initializedField;
-		int previousFieldID = scope.lastVisibleFieldID;
+		FieldBinding previousField= scope.initializedField;
+		int previousFieldID= scope.lastVisibleFieldID;
 		try {
-			scope.initializedField = null;
-			scope.lastVisibleFieldID = this.lastVisibleFieldID;
+			scope.initializedField= null;
+			scope.lastVisibleFieldID= this.lastVisibleFieldID;
 			if (isStatic()) {
-				ReferenceBinding declaringType = scope.enclosingSourceType();
+				ReferenceBinding declaringType= scope.enclosingSourceType();
 				if (declaringType.isNestedType() && !declaringType.isStatic())
 					scope.problemReporter().innerTypesCannotDeclareStaticInitializers(
-						declaringType,
-						this);
+							declaringType,
+							this);
 			}
-			if (this.block != null) this.block.resolve(scope);
+			if (this.block != null)
+				this.block.resolve(scope);
 		} finally {
-		    scope.initializedField = previousField;
-			scope.lastVisibleFieldID = previousFieldID;
+			scope.initializedField= previousField;
+			scope.lastVisibleFieldID= previousFieldID;
 		}
 	}
 
 	public void traverse(ASTVisitor visitor, MethodScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (this.block != null) this.block.traverse(visitor, scope);
+			if (this.block != null)
+				this.block.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

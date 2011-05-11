@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * Number literal nodes.
- *
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -28,34 +28,32 @@ public class NumberLiteral extends Expression {
 
 	/**
 	 * The "token" structural property of this node type.
+	 * 
 	 * @since 3.0
 	 */
-	public static final SimplePropertyDescriptor TOKEN_PROPERTY =
-		new SimplePropertyDescriptor(NumberLiteral.class, "token", String.class, MANDATORY); //$NON-NLS-1$
+	public static final SimplePropertyDescriptor TOKEN_PROPERTY=
+			new SimplePropertyDescriptor(NumberLiteral.class, "token", String.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
+	 * A list of property descriptors (element type: {@link StructuralPropertyDescriptor}), or null
+	 * if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(2);
+		List propertyList= new ArrayList(2);
 		createPropertyList(NumberLiteral.class, propertyList);
 		addProperty(TOKEN_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS= reapPropertyList(propertyList);
 	}
 
 	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
+	 * Returns a list of structural property descriptors for this node type. Clients must not modify
+	 * the result.
+	 * 
+	 * @param apiLevel the API level; one of the <code>AST.JLS*</code> constants
+	 * 
+	 * @return a list of property descriptors (element type: {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
@@ -65,15 +63,15 @@ public class NumberLiteral extends Expression {
 	/**
 	 * The token string; defaults to the integer literal "0".
 	 */
-	private String tokenValue = "0";//$NON-NLS-1$
+	private String tokenValue= "0";//$NON-NLS-1$
 
 	/**
-	 * Creates a new unparented number literal node owned by the given AST.
-	 * By default, the number literal is the token "<code>0</code>".
+	 * Creates a new unparented number literal node owned by the given AST. By default, the number
+	 * literal is the token "<code>0</code>".
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
-	 *
+	 * 
 	 * @param ast the AST that is to own this node
 	 */
 	NumberLiteral(AST ast) {
@@ -95,7 +93,7 @@ public class NumberLiteral extends Expression {
 			if (get) {
 				return getToken();
 			} else {
-				setToken((String) value);
+				setToken((String)value);
 				return null;
 			}
 		}
@@ -114,7 +112,7 @@ public class NumberLiteral extends Expression {
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		NumberLiteral result = new NumberLiteral(target);
+		NumberLiteral result= new NumberLiteral(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setToken(getToken());
 		return result;
@@ -137,9 +135,9 @@ public class NumberLiteral extends Expression {
 	}
 
 	/**
-	 * Returns the token of this number literal node. The value is the sequence
-	 * of characters that would appear in the source program.
-	 *
+	 * Returns the token of this number literal node. The value is the sequence of characters that
+	 * would appear in the source program.
+	 * 
 	 * @return the numeric literal token
 	 */
 	public String getToken() {
@@ -147,9 +145,9 @@ public class NumberLiteral extends Expression {
 	}
 
 	/**
-	 * Sets the token of this number literal node. The value is the sequence
-	 * of characters that would appear in the source program.
-	 *
+	 * Sets the token of this number literal node. The value is the sequence of characters that
+	 * would appear in the source program.
+	 * 
 	 * @param token the numeric literal token
 	 * @exception IllegalArgumentException if the argument is incorrect
 	 */
@@ -158,23 +156,23 @@ public class NumberLiteral extends Expression {
 		if (token == null || token.length() == 0) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = this.ast.scanner;
-		char[] source = token.toCharArray();
+		Scanner scanner= this.ast.scanner;
+		char[] source= token.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
-		scanner.tokenizeComments = false;
-		scanner.tokenizeWhiteSpace = false;
+		scanner.tokenizeComments= false;
+		scanner.tokenizeWhiteSpace= false;
 		try {
-			int tokenType = scanner.getNextToken();
-			switch(tokenType) {
+			int tokenType= scanner.getNextToken();
+			switch (tokenType) {
 				case TerminalTokens.TokenNameDoubleLiteral:
 				case TerminalTokens.TokenNameIntegerLiteral:
 				case TerminalTokens.TokenNameFloatingPointLiteral:
 				case TerminalTokens.TokenNameLongLiteral:
 					break;
-				case TerminalTokens.TokenNameMINUS :
-					tokenType = scanner.getNextToken();
-					switch(tokenType) {
+				case TerminalTokens.TokenNameMINUS:
+					tokenType= scanner.getNextToken();
+					switch (tokenType) {
 						case TerminalTokens.TokenNameDoubleLiteral:
 						case TerminalTokens.TokenNameIntegerLiteral:
 						case TerminalTokens.TokenNameFloatingPointLiteral:
@@ -187,14 +185,14 @@ public class NumberLiteral extends Expression {
 				default:
 					throw new IllegalArgumentException("Invalid number literal : >" + token + "<");//$NON-NLS-1$//$NON-NLS-2$
 			}
-		} catch(InvalidInputException e) {
+		} catch (InvalidInputException e) {
 			throw new IllegalArgumentException();
 		} finally {
-			scanner.tokenizeComments = true;
-			scanner.tokenizeWhiteSpace = true;
+			scanner.tokenizeComments= true;
+			scanner.tokenizeWhiteSpace= true;
 		}
 		preValueChange(TOKEN_PROPERTY);
-		this.tokenValue = token;
+		this.tokenValue= token;
 		postValueChange(TOKEN_PROPERTY);
 	}
 
@@ -203,14 +201,15 @@ public class NumberLiteral extends Expression {
 	 */
 	void internalSetToken(String token) {
 		preValueChange(TOKEN_PROPERTY);
-		this.tokenValue = token;
+		this.tokenValue= token;
 		postValueChange(TOKEN_PROPERTY);
 	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4 + stringSize(this.tokenValue);
+		int size= BASE_NODE_SIZE + 1 * 4 + stringSize(this.tokenValue);
 		return size;
 	}
 

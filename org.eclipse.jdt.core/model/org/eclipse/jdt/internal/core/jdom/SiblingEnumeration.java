@@ -12,45 +12,45 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
 
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /**
- * SiblingEnumeration provides an enumeration on a linked list
- * of sibling DOM nodes.
- *
+ * SiblingEnumeration provides an enumeration on a linked list of sibling DOM nodes.
+ * 
  * @see java.util.Enumeration
- * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
- * powerful, fine-grained DOM/AST API found in the
- * org.eclipse.jdt.core.dom package.
+ * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more powerful, fine-grained
+ *             DOM/AST API found in the org.eclipse.jdt.core.dom package.
  */
-/* package */ class SiblingEnumeration implements Enumeration {
+/* package */class SiblingEnumeration implements Enumeration {
 
 	/**
-	 * The current location in the linked list
-	 * of DOM nodes.
+	 * The current location in the linked list of DOM nodes.
 	 */
 	protected IDOMNode fCurrentElement;
-/**
- * Creates an enumeration of silbings starting at the given node.
- * If the given node is <code>null</code> the enumeration is empty.
- */
-SiblingEnumeration(IDOMNode child) {
-	this.fCurrentElement= child;
-}
-/**
- * @see java.util.Enumeration#hasMoreElements()
- */
-public boolean hasMoreElements() {
-	return this.fCurrentElement != null;
-}
-/**
- * @see java.util.Enumeration#nextElement()
- */
-public Object nextElement() {
-	IDOMNode curr=  this.fCurrentElement;
-	if (curr != null) {
-		this.fCurrentElement= this.fCurrentElement.getNextNode();
+
+	/**
+	 * Creates an enumeration of silbings starting at the given node. If the given node is
+	 * <code>null</code> the enumeration is empty.
+	 */
+	SiblingEnumeration(IDOMNode child) {
+		this.fCurrentElement= child;
 	}
-	return curr;
-}
+
+	/**
+	 * @see java.util.Enumeration#hasMoreElements()
+	 */
+	public boolean hasMoreElements() {
+		return this.fCurrentElement != null;
+	}
+
+	/**
+	 * @see java.util.Enumeration#nextElement()
+	 */
+	public Object nextElement() {
+		IDOMNode curr= this.fCurrentElement;
+		if (curr != null) {
+			this.fCurrentElement= this.fCurrentElement.getNextNode();
+		}
+		return curr;
+	}
 }

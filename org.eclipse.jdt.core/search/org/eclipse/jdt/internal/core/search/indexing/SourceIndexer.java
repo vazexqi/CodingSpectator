@@ -24,13 +24,11 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
  * A SourceIndexer indexes java files using a java parser. The following items are indexed:
- * Declarations of:
- * - Classes<br>
+ * Declarations of: - Classes<br>
  * - Interfaces; <br>
  * - Methods;<br>
  * - Fields;<br>
- * References to:
- * - Methods (with number of arguments); <br>
+ * References to: - Methods (with number of arguments); <br>
  * - Fields;<br>
  * - Types;<br>
  * - Constructors.
@@ -40,30 +38,32 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 	public SourceIndexer(SearchDocument document) {
 		super(document);
 	}
+
 	public void indexDocument() {
 		// Create a new Parser
-		SourceIndexerRequestor requestor = new SourceIndexerRequestor(this);
-		String documentPath = this.document.getPath();
-		SourceElementParser parser = this.document.getParser();
+		SourceIndexerRequestor requestor= new SourceIndexerRequestor(this);
+		String documentPath= this.document.getPath();
+		SourceElementParser parser= this.document.getParser();
 		if (parser == null) {
-			IPath path = new Path(documentPath);
-			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
-			parser = JavaModelManager.getJavaModelManager().indexManager.getSourceElementParser(JavaCore.create(project), requestor);
+			IPath path= new Path(documentPath);
+			IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+			parser= JavaModelManager.getJavaModelManager().indexManager.getSourceElementParser(JavaCore.create(project), requestor);
 		} else {
 			parser.setRequestor(requestor);
 		}
 
 		// Launch the parser
-		char[] source = null;
-		char[] name = null;
+		char[] source= null;
+		char[] name= null;
 		try {
-			source = this.document.getCharContents();
-			name = documentPath.toCharArray();
-		} catch(Exception e){
+			source= this.document.getCharContents();
+			name= documentPath.toCharArray();
+		} catch (Exception e) {
 			// ignore
 		}
-		if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
-		CompilationUnit compilationUnit = new CompilationUnit(source, name);
+		if (source == null || name == null)
+			return; // could not retrieve document info (e.g. resource was discarded)
+		CompilationUnit compilationUnit= new CompilationUnit(source, name);
 		try {
 			parser.parseCompilationUnit(compilationUnit, true/*full parse*/, null/*no progress*/);
 		} catch (Exception e) {

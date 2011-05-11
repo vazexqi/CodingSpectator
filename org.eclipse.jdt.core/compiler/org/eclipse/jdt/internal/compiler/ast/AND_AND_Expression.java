@@ -11,16 +11,21 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 //dedicated treatment for the &&
 public class AND_AND_Expression extends BinaryExpression {
 
-	int rightInitStateIndex = -1;
-	int mergedInitStateIndex = -1;
+	int rightInitStateIndex= -1;
+
+	int mergedInitStateIndex= -1;
 
 	public AND_AND_Expression(Expression left, Expression right, int operator) {
 		super(left, right, operator);
@@ -28,44 +33,44 @@ public class AND_AND_Expression extends BinaryExpression {
 
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
-		Constant cst = this.left.optimizedBooleanConstant();
-		boolean isLeftOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
-		boolean isLeftOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
+		Constant cst= this.left.optimizedBooleanConstant();
+		boolean isLeftOptimizedTrue= cst != Constant.NotAConstant && cst.booleanValue() == true;
+		boolean isLeftOptimizedFalse= cst != Constant.NotAConstant && cst.booleanValue() == false;
 
 		if (isLeftOptimizedTrue) {
 			// TRUE && anything
 			// need to be careful of scenario:
 			//  (x && y) && !z, if passing the left info to the right, it would
 			// be swapped by the !
-			FlowInfo mergedInfo = this.left.analyseCode(currentScope, flowContext, flowInfo)
+			FlowInfo mergedInfo= this.left.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
-			mergedInfo = this.right.analyseCode(currentScope, flowContext, mergedInfo);
-			this.mergedInitStateIndex = currentScope.methodScope()
+			mergedInfo= this.right.analyseCode(currentScope, flowContext, mergedInfo);
+			this.mergedInitStateIndex= currentScope.methodScope()
 					.recordInitializationStates(mergedInfo);
 			return mergedInfo;
 		}
 
-		FlowInfo leftInfo = this.left.analyseCode(currentScope, flowContext, flowInfo);
+		FlowInfo leftInfo= this.left.analyseCode(currentScope, flowContext, flowInfo);
 		// need to be careful of scenario:
 		//  (x && y) && !z, if passing the left info to the right, it would be
 		// swapped by the !
-		FlowInfo rightInfo = leftInfo.initsWhenTrue().unconditionalCopy();
-		this.rightInitStateIndex = currentScope.methodScope().recordInitializationStates(rightInfo);
+		FlowInfo rightInfo= leftInfo.initsWhenTrue().unconditionalCopy();
+		this.rightInitStateIndex= currentScope.methodScope().recordInitializationStates(rightInfo);
 
-		int previousMode = rightInfo.reachMode();
+		int previousMode= rightInfo.reachMode();
 		if (isLeftOptimizedFalse) {
 			if ((rightInfo.reachMode() & FlowInfo.UNREACHABLE) == 0) {
 				currentScope.problemReporter().fakeReachable(this.right);
 				rightInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
 		}
-		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
-		FlowInfo mergedInfo = FlowInfo.conditional(
+		rightInfo= this.right.analyseCode(currentScope, flowContext, rightInfo);
+		FlowInfo mergedInfo= FlowInfo.conditional(
 				rightInfo.safeInitsWhenTrue(),
 				leftInfo.initsWhenFalse().unconditionalInits().mergedWith(
 						rightInfo.initsWhenFalse().setReachMode(previousMode).unconditionalInits()));
 		// reset after trueMergedInfo got extracted
-		this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+		this.mergedInitStateIndex= currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 
@@ -74,7 +79,7 @@ public class AND_AND_Expression extends BinaryExpression {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
-		int pc = codeStream.position;
+		int pc= codeStream.position;
 		if (this.constant != Constant.NotAConstant) {
 			// inlined value
 			if (valueRequired)
@@ -82,7 +87,7 @@ public class AND_AND_Expression extends BinaryExpression {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		Constant cst = this.right.constant;
+		Constant cst= this.right.constant;
 		if (cst != Constant.NotAConstant) {
 			// <expr> && true --> <expr>
 			if (cst.booleanValue() == true) {
@@ -90,7 +95,8 @@ public class AND_AND_Expression extends BinaryExpression {
 			} else {
 				// <expr> && false --> false
 				this.left.generateCode(currentScope, codeStream, false);
-				if (valueRequired) codeStream.iconst_0();
+				if (valueRequired)
+					codeStream.iconst_0();
 			}
 			if (this.mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
@@ -101,16 +107,16 @@ public class AND_AND_Expression extends BinaryExpression {
 			return;
 		}
 
-		BranchLabel falseLabel = new BranchLabel(codeStream), endLabel;
-		cst = this.left.optimizedBooleanConstant();
-		boolean leftIsConst = cst != Constant.NotAConstant;
-		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
+		BranchLabel falseLabel= new BranchLabel(codeStream), endLabel;
+		cst= this.left.optimizedBooleanConstant();
+		boolean leftIsConst= cst != Constant.NotAConstant;
+		boolean leftIsTrue= leftIsConst && cst.booleanValue() == true;
 
-		cst = this.right.optimizedBooleanConstant();
-		boolean rightIsConst = cst != Constant.NotAConstant;
-		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
+		cst= this.right.optimizedBooleanConstant();
+		boolean rightIsConst= cst != Constant.NotAConstant;
+		boolean rightIsTrue= rightIsConst && cst.booleanValue() == true;
 
-		generateOperands : {
+		generateOperands: {
 			if (leftIsConst) {
 				this.left.generateCode(currentScope, codeStream, false);
 				if (!leftIsTrue) {
@@ -155,7 +161,7 @@ public class AND_AND_Expression extends BinaryExpression {
 						falseLabel.place();
 						codeStream.iconst_0();
 					} else {
-						codeStream.goto_(endLabel = new BranchLabel(codeStream));
+						codeStream.goto_(endLabel= new BranchLabel(codeStream));
 						codeStream.decrStackSize(1);
 						falseLabel.place();
 						codeStream.iconst_0();
@@ -184,9 +190,9 @@ public class AND_AND_Expression extends BinaryExpression {
 		}
 
 		// <expr> && true --> <expr>
-		Constant cst = this.right.constant;
+		Constant cst= this.right.constant;
 		if (cst != Constant.NotAConstant && cst.booleanValue() == true) {
-			int pc = codeStream.position;
+			int pc= codeStream.position;
 			this.left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			if (this.mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
@@ -194,20 +200,20 @@ public class AND_AND_Expression extends BinaryExpression {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		cst = this.left.optimizedBooleanConstant();
-		boolean leftIsConst = cst != Constant.NotAConstant;
-		boolean leftIsTrue = leftIsConst && cst.booleanValue() == true;
+		cst= this.left.optimizedBooleanConstant();
+		boolean leftIsConst= cst != Constant.NotAConstant;
+		boolean leftIsTrue= leftIsConst && cst.booleanValue() == true;
 
-		cst = this.right.optimizedBooleanConstant();
-		boolean rightIsConst = cst != Constant.NotAConstant;
-		boolean rightIsTrue = rightIsConst && cst.booleanValue() == true;
+		cst= this.right.optimizedBooleanConstant();
+		boolean rightIsConst= cst != Constant.NotAConstant;
+		boolean rightIsTrue= rightIsConst && cst.booleanValue() == true;
 
 		// default case
-		generateOperands : {
+		generateOperands: {
 			if (falseLabel == null) {
 				if (trueLabel != null) {
 					// implicit falling through the FALSE case
-					BranchLabel internalFalseLabel = new BranchLabel(codeStream);
+					BranchLabel internalFalseLabel= new BranchLabel(codeStream);
 					this.left.generateOptimizedBoolean(currentScope, codeStream, null, internalFalseLabel, !leftIsConst);
 					// need value, e.g. if (a == 1 && ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a!=1
 					if (leftIsConst && !leftIsTrue) {
@@ -232,7 +238,8 @@ public class AND_AND_Expression extends BinaryExpression {
 					this.left.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, !leftIsConst);
 					// need value, e.g. if (a == 1 && ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a!=1
 					if (leftIsConst && !leftIsTrue) {
-						if (valueRequired) codeStream.goto_(falseLabel);
+						if (valueRequired)
+							codeStream.goto_(falseLabel);
 						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 						break generateOperands; // no need to generate right operand
 					}
@@ -263,9 +270,9 @@ public class AND_AND_Expression extends BinaryExpression {
 	 * @see org.eclipse.jdt.internal.compiler.ast.BinaryExpression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public TypeBinding resolveType(BlockScope scope) {
-		TypeBinding result = super.resolveType(scope);
+		TypeBinding result= super.resolveType(scope);
 		// check whether comparing identical expressions
-		Binding leftDirect = Expression.getDirectBinding(this.left);
+		Binding leftDirect= Expression.getDirectBinding(this.left);
 		if (leftDirect != null && leftDirect == Expression.getDirectBinding(this.right)) {
 			if (!(this.right instanceof Assignment))
 				scope.problemReporter().comparingIdenticalExpressions(this);

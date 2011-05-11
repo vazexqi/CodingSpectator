@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -33,7 +34,7 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class UserLibraryManager {
 
-	public final static String CP_USERLIBRARY_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".userLibrary."; //$NON-NLS-1$
+	public final static String CP_USERLIBRARY_PREFERENCES_PREFIX= JavaCore.PLUGIN_ID + ".userLibrary."; //$NON-NLS-1$
 
 	private Map userLibraries;
 
@@ -45,7 +46,7 @@ public class UserLibraryManager {
 	 * Gets the library for a given name or <code>null</code> if no such library exists.
 	 */
 	public synchronized UserLibrary getUserLibrary(String libName) {
-		return (UserLibrary) this.userLibraries.get(libName);
+		return (UserLibrary)this.userLibraries.get(libName);
 	}
 
 	/*
@@ -53,36 +54,36 @@ public class UserLibraryManager {
 	 * is the name appended to the CONTAINER_ID.
 	 */
 	public synchronized String[] getUserLibraryNames() {
-		Set set = this.userLibraries.keySet();
-		return (String[]) set.toArray(new String[set.size()]);
+		Set set= this.userLibraries.keySet();
+		return (String[])set.toArray(new String[set.size()]);
 	}
 
 	private void initialize() {
-		this.userLibraries = new HashMap();
-		IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
+		this.userLibraries= new HashMap();
+		IEclipsePreferences instancePreferences= JavaModelManager.getJavaModelManager().getInstancePreferences();
 		String[] propertyNames;
 		try {
-			propertyNames = instancePreferences.keys();
+			propertyNames= instancePreferences.keys();
 		} catch (BackingStoreException e) {
 			Util.log(e, "Exception while initializing user libraries"); //$NON-NLS-1$
 			return;
 		}
 
-		boolean preferencesNeedFlush = false;
-		for (int i = 0, length = propertyNames.length; i < length; i++) {
-			String propertyName = propertyNames[i];
+		boolean preferencesNeedFlush= false;
+		for (int i= 0, length= propertyNames.length; i < length; i++) {
+			String propertyName= propertyNames[i];
 			if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
-				String propertyValue = instancePreferences.get(propertyName, null);
+				String propertyValue= instancePreferences.get(propertyName, null);
 				if (propertyValue != null) {
 					String libName= propertyName.substring(CP_USERLIBRARY_PREFERENCES_PREFIX.length());
-					StringReader reader = new StringReader(propertyValue);
+					StringReader reader= new StringReader(propertyValue);
 					UserLibrary library;
 					try {
-						library = UserLibrary.createFromString(reader);
+						library= UserLibrary.createFromString(reader);
 					} catch (IOException e) {
 						Util.log(e, "Exception while initializing user library " + libName); //$NON-NLS-1$
 						instancePreferences.remove(propertyName);
-						preferencesNeedFlush = true;
+						preferencesNeedFlush= true;
 						continue;
 					}
 					this.userLibraries.put(libName, library);
@@ -101,14 +102,14 @@ public class UserLibraryManager {
 	public void updateUserLibrary(String libName, String encodedUserLibrary) {
 		try {
 			// find affected projects
-			IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(libName);
-			IJavaProject[] allJavaProjects = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProjects();
-			ArrayList affectedProjects = new ArrayList();
+			IPath containerPath= new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(libName);
+			IJavaProject[] allJavaProjects= JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProjects();
+			ArrayList affectedProjects= new ArrayList();
 			for (int i= 0; i < allJavaProjects.length; i++) {
-				IJavaProject javaProject = allJavaProjects[i];
+				IJavaProject javaProject= allJavaProjects[i];
 				IClasspathEntry[] entries= javaProject.getRawClasspath();
 				for (int j= 0; j < entries.length; j++) {
-					IClasspathEntry entry = entries[j];
+					IClasspathEntry entry= entries[j];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
 						if (containerPath.equals(entry.getPath())) {
 							affectedProjects.add(javaProject);
@@ -119,7 +120,7 @@ public class UserLibraryManager {
 			}
 
 			// decode user library
-			UserLibrary userLibrary = encodedUserLibrary == null ? null : UserLibrary.createFromString(new StringReader(encodedUserLibrary));
+			UserLibrary userLibrary= encodedUserLibrary == null ? null : UserLibrary.createFromString(new StringReader(encodedUserLibrary));
 
 			synchronized (this) {
 				// update user libraries map
@@ -131,30 +132,30 @@ public class UserLibraryManager {
 			}
 
 			// update affected projects
-			int length = affectedProjects.size();
+			int length= affectedProjects.size();
 			if (length == 0)
 				return;
-			IJavaProject[] projects = new IJavaProject[length];
+			IJavaProject[] projects= new IJavaProject[length];
 			affectedProjects.toArray(projects);
-			IClasspathContainer[] containers = new IClasspathContainer[length];
+			IClasspathContainer[] containers= new IClasspathContainer[length];
 			if (userLibrary != null) {
-				UserLibraryClasspathContainer container = new UserLibraryClasspathContainer(libName);
-				for (int i = 0; i < length; i++) {
-					containers[i] = container;
+				UserLibraryClasspathContainer container= new UserLibraryClasspathContainer(libName);
+				for (int i= 0; i < length; i++) {
+					containers[i]= container;
 				}
 			}
 			JavaCore.setClasspathContainer(containerPath, projects, containers, null);
 		} catch (IOException e) {
-			Util.log(e, "Exception while decoding user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.log(e, "Exception while decoding user library '" + libName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (JavaModelException e) {
-			Util.log(e, "Exception while setting user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.log(e, "Exception while setting user library '" + libName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
-	public void removeUserLibrary(String libName)  {
+	public void removeUserLibrary(String libName) {
 		synchronized (this.userLibraries) {
-			IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
-			String propertyName = CP_USERLIBRARY_PREFERENCES_PREFIX+libName;
+			IEclipsePreferences instancePreferences= JavaModelManager.getJavaModelManager().getInstancePreferences();
+			String propertyName= CP_USERLIBRARY_PREFERENCES_PREFIX + libName;
 			instancePreferences.remove(propertyName);
 			try {
 				instancePreferences.flush();
@@ -165,12 +166,12 @@ public class UserLibraryManager {
 		// this.userLibraries was updated during the PreferenceChangeEvent (see preferenceChange(...))
 	}
 
-	public void setUserLibrary(String libName, IClasspathEntry[] entries, boolean isSystemLibrary)  {
+	public void setUserLibrary(String libName, IClasspathEntry[] entries, boolean isSystemLibrary) {
 		synchronized (this.userLibraries) {
-			IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
-			String propertyName = CP_USERLIBRARY_PREFERENCES_PREFIX+libName;
+			IEclipsePreferences instancePreferences= JavaModelManager.getJavaModelManager().getInstancePreferences();
+			String propertyName= CP_USERLIBRARY_PREFERENCES_PREFIX + libName;
 			try {
-				String propertyValue = UserLibrary.serialize(entries, isSystemLibrary);
+				String propertyValue= UserLibrary.serialize(entries, isSystemLibrary);
 				instancePreferences.put(propertyName, propertyValue); // sends out a PreferenceChangeEvent (see preferenceChange(...))
 			} catch (IOException e) {
 				Util.log(e, "Exception while serializing user library " + libName); //$NON-NLS-1$

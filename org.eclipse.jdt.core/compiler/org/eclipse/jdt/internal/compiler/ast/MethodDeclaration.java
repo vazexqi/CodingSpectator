@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class MethodDeclaration extends AbstractMethodDeclaration {
 
 	public TypeReference returnType;
+
 	public TypeParameter[] typeParameters;
 
 	/**
@@ -49,7 +50,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 			if (!this.binding.isUsed() && !this.binding.isAbstract()) {
 				if (this.binding.isPrivate()
-					|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == 0)
+						|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding | ExtraCompilerModifiers.AccImplementing)) == 0)
 						&& this.binding.isOrEnclosedByPrivateType())) {
 					if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 						this.scope.problemReporter().unusedPrivateMethod(this);
@@ -65,36 +66,36 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.binding.isAbstract() || this.binding.isNative())
 				return;
 
-			ExceptionHandlingFlowContext methodContext =
-				new ExceptionHandlingFlowContext(
-					initializationContext,
-					this,
-					this.binding.thrownExceptions,
-					null,
-					this.scope,
-					FlowInfo.DEAD_END);
+			ExceptionHandlingFlowContext methodContext=
+					new ExceptionHandlingFlowContext(
+							initializationContext,
+							this,
+							this.binding.thrownExceptions,
+							null,
+							this.scope,
+							FlowInfo.DEAD_END);
 
 			// tag parameters as being set
 			if (this.arguments != null) {
-				for (int i = 0, count = this.arguments.length; i < count; i++) {
+				for (int i= 0, count= this.arguments.length; i < count; i++) {
 					flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
 				}
 			}
 			// propagate to statements
 			if (this.statements != null) {
-				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
-				for (int i = 0, count = this.statements.length; i < count; i++) {
-					Statement stat = this.statements[i];
-					if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
-						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
+				int complaintLevel= (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
+				for (int i= 0, count= this.statements.length; i < count; i++) {
+					Statement stat= this.statements[i];
+					if ((complaintLevel= stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
+						flowInfo= stat.analyseCode(this.scope, methodContext, flowInfo);
 					}
 				}
 			}
 			// check for missing returning path
-			TypeBinding returnTypeBinding = this.binding.returnType;
+			TypeBinding returnTypeBinding= this.binding.returnType;
 			if ((returnTypeBinding == TypeBinding.VOID) || isAbstract()) {
 				if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-					this.bits |= ASTNode.NeedFreeReturn;
+					this.bits|= ASTNode.NeedFreeReturn;
 				}
 			} else {
 				if (flowInfo != FlowInfo.DEAD_END) {
@@ -106,7 +107,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// check unused parameters
 			this.scope.checkUnusedParameters(this.binding);
 		} catch (AbortMethod e) {
-			this.ignoreFurtherInvestigation = true;
+			this.ignoreFurtherInvestigation= true;
 		}
 	}
 
@@ -120,14 +121,15 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 
 	public StringBuffer printReturnType(int indent, StringBuffer output) {
-		if (this.returnType == null) return output;
+		if (this.returnType == null)
+			return output;
 		return this.returnType.printExpression(0, output).append(' ');
 	}
 
 	public void resolveStatements() {
 		// ========= abort on fatal error =============
 		if (this.returnType != null && this.binding != null) {
-			this.returnType.resolvedType = this.binding.returnType;
+			this.returnType.resolvedType= this.binding.returnType;
 			// record the return type binding
 		}
 		// check if method with constructor name
@@ -136,53 +138,54 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 
 		if (this.typeParameters != null) {
-			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
+			for (int i= 0, length= this.typeParameters.length; i < length; i++) {
 				this.typeParameters[i].resolve(this.scope);
 			}
 		}
 
 		// check @Override annotation
-		final CompilerOptions compilerOptions = this.scope.compilerOptions();
+		final CompilerOptions compilerOptions= this.scope.compilerOptions();
 		checkOverride: {
-			if (this.binding == null) break checkOverride;
-			long complianceLevel = compilerOptions.complianceLevel;
-			if (complianceLevel < ClassFileConstants.JDK1_5) break checkOverride;
-			int bindingModifiers = this.binding.modifiers;
-			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
-			boolean hasUnresolvedArguments = (this.binding.tagBits & TagBits.HasUnresolvedArguments) != 0;
-			if (hasOverrideAnnotation  && !hasUnresolvedArguments) {
+			if (this.binding == null)
+				break checkOverride;
+			long complianceLevel= compilerOptions.complianceLevel;
+			if (complianceLevel < ClassFileConstants.JDK1_5)
+				break checkOverride;
+			int bindingModifiers= this.binding.modifiers;
+			boolean hasOverrideAnnotation= (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
+			boolean hasUnresolvedArguments= (this.binding.tagBits & TagBits.HasUnresolvedArguments) != 0;
+			if (hasOverrideAnnotation && !hasUnresolvedArguments) {
 				// no static method is considered overriding
-				if ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
+				if ((bindingModifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
 					break checkOverride;
 				//	in 1.5, strictly for overriding superclass method
 				//	in 1.6 and above, also tolerate implementing interface method
 				if (complianceLevel >= ClassFileConstants.JDK1_6
-						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
+						&& ((bindingModifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
 					break checkOverride;
 				// claims to override, and doesn't actually do so
 				this.scope.problemReporter().methodMustOverride(this, complianceLevel);
 			} else {
 				//In case of  a concrete class method, we have to check if it overrides(in 1.5 and above) OR implements a method(1.6 and above).
 				//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
-				if (!this.binding.declaringClass.isInterface()){
-						if((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
-							this.scope.problemReporter().missingOverrideAnnotation(this);
-						} else {
-							if(complianceLevel >= ClassFileConstants.JDK1_6
+				if (!this.binding.declaringClass.isInterface()) {
+					if ((bindingModifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
+						this.scope.problemReporter().missingOverrideAnnotation(this);
+					} else {
+						if (complianceLevel >= ClassFileConstants.JDK1_6
 								&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
 								&& this.binding.isImplementing()) {
-									// actually overrides, but did not claim to do so
-									this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
-							}
-							
+							// actually overrides, but did not claim to do so
+							this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
 						}
-				}
-				else {	//For 1.6 and above only
+
+					}
+				} else { //For 1.6 and above only
 					//In case of a interface class method, we have to check if it overrides a method (isImplementing returns true in case it overrides)
 					//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
-					if(complianceLevel >= ClassFileConstants.JDK1_6
+					if (complianceLevel >= ClassFileConstants.JDK1_6
 							&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
-							&& (((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) || this.binding.isImplementing())){
+							&& (((bindingModifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) || this.binding.isImplementing())) {
 						// actually overrides, but did not claim to do so
 						this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
 					}
@@ -192,11 +195,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 		// by grammatical construction, interface methods are always abstract
 		switch (TypeDeclaration.kind(this.scope.referenceType().modifiers)) {
-			case TypeDeclaration.ENUM_DECL :
-				if (this.selector == TypeConstants.VALUES) break;
-				if (this.selector == TypeConstants.VALUEOF) break;
+			case TypeDeclaration.ENUM_DECL:
+				if (this.selector == TypeConstants.VALUES)
+					break;
+				if (this.selector == TypeConstants.VALUEOF)
+					break;
 				//$FALL-THROUGH$
-			case TypeDeclaration.CLASS_DECL :
+			case TypeDeclaration.CLASS_DECL:
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body
 				if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
@@ -214,55 +219,56 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		// TagBits.OverridingMethodWithSupercall is set during the resolveStatements() call
 		if (compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
 			if (this.binding != null) {
-        		int bindingModifiers = this.binding.modifiers;
-        		if ((bindingModifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccOverriding
-        				&& (this.bits & ASTNode.OverridingMethodWithSupercall) == 0) {
-        			this.scope.problemReporter().overridesMethodWithoutSuperInvocation(this.binding);
-        		}
+				int bindingModifiers= this.binding.modifiers;
+				if ((bindingModifiers & (ExtraCompilerModifiers.AccOverriding | ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccOverriding
+						&& (this.bits & ASTNode.OverridingMethodWithSupercall) == 0) {
+					this.scope.problemReporter().overridesMethodWithoutSuperInvocation(this.binding);
+				}
 			}
 		}
 	}
 
 	public void traverse(
-		ASTVisitor visitor,
-		ClassScope classScope) {
+			ASTVisitor visitor,
+			ClassScope classScope) {
 
 		if (visitor.visit(this, classScope)) {
 			if (this.javadoc != null) {
 				this.javadoc.traverse(visitor, this.scope);
 			}
 			if (this.annotations != null) {
-				int annotationsLength = this.annotations.length;
-				for (int i = 0; i < annotationsLength; i++)
+				int annotationsLength= this.annotations.length;
+				for (int i= 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, this.scope);
 			}
 			if (this.typeParameters != null) {
-				int typeParametersLength = this.typeParameters.length;
-				for (int i = 0; i < typeParametersLength; i++) {
+				int typeParametersLength= this.typeParameters.length;
+				for (int i= 0; i < typeParametersLength; i++) {
 					this.typeParameters[i].traverse(visitor, this.scope);
 				}
 			}
 			if (this.returnType != null)
 				this.returnType.traverse(visitor, this.scope);
 			if (this.arguments != null) {
-				int argumentLength = this.arguments.length;
-				for (int i = 0; i < argumentLength; i++)
+				int argumentLength= this.arguments.length;
+				for (int i= 0; i < argumentLength; i++)
 					this.arguments[i].traverse(visitor, this.scope);
 			}
 			if (this.thrownExceptions != null) {
-				int thrownExceptionsLength = this.thrownExceptions.length;
-				for (int i = 0; i < thrownExceptionsLength; i++)
+				int thrownExceptionsLength= this.thrownExceptions.length;
+				for (int i= 0; i < thrownExceptionsLength; i++)
 					this.thrownExceptions[i].traverse(visitor, this.scope);
 			}
 			if (this.statements != null) {
-				int statementsLength = this.statements.length;
-				for (int i = 0; i < statementsLength; i++)
+				int statementsLength= this.statements.length;
+				for (int i= 0; i < statementsLength; i++)
 					this.statements[i].traverse(visitor, this.scope);
 			}
 		}
 		visitor.endVisit(this, classScope);
 	}
+
 	public TypeParameter[] typeParameters() {
-	    return this.typeParameters;
+		return this.typeParameters;
 	}
 }

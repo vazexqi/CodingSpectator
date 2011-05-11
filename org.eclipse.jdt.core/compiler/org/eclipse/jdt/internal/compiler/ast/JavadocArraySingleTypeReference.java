@@ -21,12 +21,13 @@ public class JavadocArraySingleTypeReference extends ArrayTypeReference {
 
 	public JavadocArraySingleTypeReference(char[] name, int dim, long pos) {
 		super(name, dim, pos);
-		this.bits |= InsideJavadoc;
+		this.bits|= InsideJavadoc;
 	}
 
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
+
 	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}

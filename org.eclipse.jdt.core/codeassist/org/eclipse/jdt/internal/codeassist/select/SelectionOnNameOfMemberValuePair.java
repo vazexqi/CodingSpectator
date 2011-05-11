@@ -32,7 +32,7 @@ public class SelectionOnNameOfMemberValuePair extends MemberValuePair {
 	public void resolveTypeExpecting(BlockScope scope, TypeBinding requiredType) {
 		super.resolveTypeExpecting(scope, requiredType);
 
-		if(this.binding != null) {
+		if (this.binding != null) {
 			throw new SelectionNodeFound(this.binding);
 		}
 		throw new SelectionNodeFound();

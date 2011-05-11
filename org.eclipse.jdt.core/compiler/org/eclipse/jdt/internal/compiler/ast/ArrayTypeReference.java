@@ -19,10 +19,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayTypeReference extends SingleTypeReference {
 	public int dimensions;
+
 	public int originalSourceEnd;
 
 	/**
 	 * ArrayTypeReference constructor comment.
+	 * 
 	 * @param source char[]
 	 * @param dimensions int
 	 * @param pos int
@@ -30,27 +32,29 @@ public class ArrayTypeReference extends SingleTypeReference {
 	public ArrayTypeReference(char[] source, int dimensions, long pos) {
 
 		super(source, pos);
-		this.originalSourceEnd = this.sourceEnd;
-		this.dimensions = dimensions ;
+		this.originalSourceEnd= this.sourceEnd;
+		this.dimensions= dimensions;
 	}
 
 	public int dimensions() {
 
 		return this.dimensions;
 	}
+
 	/**
 	 * @return char[][]
 	 */
-	public char [][] getParameterizedTypeName(){
-		int dim = this.dimensions;
-		char[] dimChars = new char[dim*2];
-		for (int i = 0; i < dim; i++) {
-			int index = i*2;
-			dimChars[index] = '[';
-			dimChars[index+1] = ']';
+	public char[][] getParameterizedTypeName() {
+		int dim= this.dimensions;
+		char[] dimChars= new char[dim * 2];
+		for (int i= 0; i < dim; i++) {
+			int index= i * 2;
+			dimChars[index]= '[';
+			dimChars[index + 1]= ']';
 		}
-		return new char[][]{ CharOperation.concat(this.token, dimChars) };
+		return new char[][] { CharOperation.concat(this.token, dimChars) };
 	}
+
 	protected TypeBinding getTypeBinding(Scope scope) {
 
 		if (this.resolvedType != null) {
@@ -59,21 +63,21 @@ public class ArrayTypeReference extends SingleTypeReference {
 		if (this.dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		TypeBinding leafComponentType = scope.getType(this.token);
+		TypeBinding leafComponentType= scope.getType(this.token);
 		return scope.createArrayType(leafComponentType, this.dimensions);
 
 	}
 
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		super.printExpression(indent, output);
 		if ((this.bits & IsVarArgs) != 0) {
-			for (int i= 0 ; i < this.dimensions - 1; i++) {
+			for (int i= 0; i < this.dimensions - 1; i++) {
 				output.append("[]"); //$NON-NLS-1$
 			}
 			output.append("..."); //$NON-NLS-1$
 		} else {
-			for (int i= 0 ; i < this.dimensions; i++) {
+			for (int i= 0; i < this.dimensions; i++) {
 				output.append("[]"); //$NON-NLS-1$
 			}
 		}

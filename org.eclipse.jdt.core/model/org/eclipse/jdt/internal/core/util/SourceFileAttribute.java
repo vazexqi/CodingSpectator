@@ -20,32 +20,35 @@ import org.eclipse.jdt.core.util.ISourceAttribute;
  * Default implementation of ISourceAttribute
  */
 public class SourceFileAttribute
-	extends ClassFileAttribute
-	implements ISourceAttribute {
+		extends ClassFileAttribute
+		implements ISourceAttribute {
 
 	private int sourceFileIndex;
+
 	private char[] sourceFileName;
 
 	/**
 	 * Constructor for SourceFileAttribute.
+	 * 
 	 * @param classFileBytes
 	 * @param constantPool
 	 * @param offset
 	 * @throws ClassFormatException
 	 */
 	public SourceFileAttribute(
-		byte[] classFileBytes,
-		IConstantPool constantPool,
-		int offset)
-		throws ClassFormatException {
+			byte[] classFileBytes,
+			IConstantPool constantPool,
+			int offset)
+			throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
-		this.sourceFileIndex = u2At(classFileBytes, 6, offset);
-		IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.sourceFileIndex);
+		this.sourceFileIndex= u2At(classFileBytes, 6, offset);
+		IConstantPoolEntry constantPoolEntry= constantPool.decodeEntry(this.sourceFileIndex);
 		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
-		this.sourceFileName = constantPoolEntry.getUtf8Value();
+		this.sourceFileName= constantPoolEntry.getUtf8Value();
 	}
+
 	/**
 	 * @see ISourceAttribute#getSourceFileIndex()
 	 */

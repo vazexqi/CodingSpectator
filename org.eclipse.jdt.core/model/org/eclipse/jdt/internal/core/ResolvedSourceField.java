@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.core;
 
 /**
- * Handle representing a source field that is resolved.
- * The uniqueKey contains the genericSignature of the resolved field. Use BindingKey to decode it.
+ * Handle representing a source field that is resolved. The uniqueKey contains the genericSignature
+ * of the resolved field. Use BindingKey to decode it.
  */
 public class ResolvedSourceField extends SourceField {
 
@@ -23,7 +23,7 @@ public class ResolvedSourceField extends SourceField {
 	 */
 	public ResolvedSourceField(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
-		this.uniqueKey = uniqueKey;
+		this.uniqueKey= uniqueKey;
 	}
 
 	/* (non-Javadoc)
@@ -53,8 +53,8 @@ public class ResolvedSourceField extends SourceField {
 	}
 
 	public JavaElement unresolved() {
-		SourceRefElement handle = new SourceField(this.parent, this.name);
-		handle.occurrenceCount = this.occurrenceCount;
+		SourceRefElement handle= new SourceField(this.parent, this.name);
+		handle.occurrenceCount= this.occurrenceCount;
 		return handle;
 	}
 }

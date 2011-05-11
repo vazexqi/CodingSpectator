@@ -10,25 +10,11 @@
  *******************************************************************************/
 package org.eclipse.core.internal.localstore;
 
-import org.eclipse.core.internal.resources.Container;
-import org.eclipse.core.internal.resources.File;
-import org.eclipse.core.internal.resources.Folder;
-import org.eclipse.core.internal.resources.ICoreConstants;
-import org.eclipse.core.internal.resources.Resource;
-import org.eclipse.core.internal.resources.ResourceInfo;
-import org.eclipse.core.internal.resources.ResourceStatus;
-import org.eclipse.core.internal.resources.Workspace;
+import org.eclipse.core.internal.resources.*;
 import org.eclipse.core.internal.utils.Messages;
 import org.eclipse.core.internal.utils.Policy;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.osgi.util.NLS;
 
 //
@@ -36,9 +22,6 @@ import org.eclipse.osgi.util.NLS;
  * Visits a unified tree, and synchronizes the file system with the resource tree. After the visit
  * is complete, the file system will be synchronized with the workspace tree with respect to
  * resource existence, gender, and timestamp.
- * 
- * @author Stas Negara - Changed methods createResource, deleteResource, and resourceChanged to send
- *         the appropriate notifications.
  */
 public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreConstants {
 	/** control constants */
@@ -106,8 +89,6 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 		/* Mark this resource as having unknown children */
 		info.set(ICoreConstants.M_CHILDREN_UNKNOWN);
 		target.getLocalManager().updateLocalSync(info, node.getLastModified());
-		//CODINGSPECTATOR
-		Resource.resourceListener.externallyCreatedResource(target);
 	}
 
 	protected void deleteResource(UnifiedTreeNode node, Resource target) throws CoreException {
@@ -127,8 +108,6 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 		if (target.exists(flags, false))
 			target.deleteResource(true, errors);
 		node.setExistsWorkspace(false);
-		//CODINGSPECTATOR
-		Resource.resourceListener.externallyModifiedResource(target, true);
 	}
 
 	protected void fileToFolder(UnifiedTreeNode node, Resource target) throws CoreException {
@@ -196,8 +175,6 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 		// forget content-related caching flags		
 		info.clear(ICoreConstants.M_CONTENT_CACHE);
 		workspace.updateModificationStamp(info);
-		//CODINGSPECTATOR
-		Resource.resourceListener.externallyModifiedResource(target, false);
 	}
 
 	public boolean resourcesChanged() {

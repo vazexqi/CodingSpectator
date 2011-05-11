@@ -25,11 +25,13 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 
 public class AssistCompilationUnit extends CompilationUnit {
 	private Map infoCache;
+
 	private Map bindingCache;
+
 	public AssistCompilationUnit(ICompilationUnit compilationUnit, WorkingCopyOwner owner, Map bindingCache, Map infoCache) {
 		super((PackageFragment)compilationUnit.getParent(), compilationUnit.getElementName(), owner);
-		this.bindingCache = bindingCache;
-		this.infoCache = infoCache;
+		this.bindingCache= bindingCache;
+		this.infoCache= infoCache;
 	}
 
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
@@ -49,7 +51,7 @@ public class AssistCompilationUnit extends CompilationUnit {
 	}
 
 	public boolean hasChildren() throws JavaModelException {
-		JavaElementInfo info = (JavaElementInfo)this.infoCache.get(this);
+		JavaElementInfo info= (JavaElementInfo)this.infoCache.get(this);
 		return info.getChildren().length > 0;
 	}
 }

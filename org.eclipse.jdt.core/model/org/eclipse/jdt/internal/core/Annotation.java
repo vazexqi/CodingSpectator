@@ -23,10 +23,12 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class Annotation extends SourceRefElement implements IAnnotation {
 
-	public static final IAnnotation[] NO_ANNOTATIONS = new IAnnotation[0];
-	public static final IMemberValuePair[] NO_MEMBER_VALUE_PAIRS = new IMemberValuePair[0];
+	public static final IAnnotation[] NO_ANNOTATIONS= new IAnnotation[0];
+
+	public static final IMemberValuePair[] NO_MEMBER_VALUE_PAIRS= new IMemberValuePair[0];
 
 	protected String name;
+
 	// require to distinguish same annotations in different member value pairs
 	protected String memberValuePairName;
 
@@ -36,15 +38,15 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 
 	public Annotation(JavaElement parent, String name, String memberValuePairName) {
 		super(parent);
-		this.name = name;
-		this.memberValuePairName = memberValuePairName;
+		this.name= name;
+		this.memberValuePairName= memberValuePairName;
 	}
 
 	public boolean equals(Object o) {
 		if (!(o instanceof Annotation)) {
 			return false;
 		}
-		Annotation other = (Annotation) o;
+		Annotation other= (Annotation)o;
 		if (this.memberValuePairName == null) {
 			if (other.memberValuePairName != null)
 				return false;
@@ -56,7 +58,7 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 
 	public IMember getDeclaringMember() {
-		return (IMember) getParent();
+		return (IMember)getParent();
 	}
 
 	public String getElementName() {
@@ -72,17 +74,17 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 
 	public IMemberValuePair[] getMemberValuePairs() throws JavaModelException {
-		Object info = getElementInfo();
+		Object info= getElementInfo();
 		if (info instanceof AnnotationInfo)
-			return ((AnnotationInfo) info).members;
-		IBinaryElementValuePair[] binaryAnnotations = ((IBinaryAnnotation) info).getElementValuePairs();
-		int length = binaryAnnotations.length;
-		IMemberValuePair[] result = new IMemberValuePair[length];
-		for (int i = 0; i < length; i++) {
-			IBinaryElementValuePair binaryAnnotation = binaryAnnotations[i];
-			MemberValuePair memberValuePair = new MemberValuePair(new String(binaryAnnotation.getName()));
-			memberValuePair.value = Util.getAnnotationMemberValue(this, memberValuePair, binaryAnnotation.getValue());
-			result[i] = memberValuePair;
+			return ((AnnotationInfo)info).members;
+		IBinaryElementValuePair[] binaryAnnotations= ((IBinaryAnnotation)info).getElementValuePairs();
+		int length= binaryAnnotations.length;
+		IMemberValuePair[] result= new IMemberValuePair[length];
+		for (int i= 0; i < length; i++) {
+			IBinaryElementValuePair binaryAnnotation= binaryAnnotations[i];
+			MemberValuePair memberValuePair= new MemberValuePair(new String(binaryAnnotation.getName()));
+			memberValuePair.value= Util.getAnnotationMemberValue(this, memberValuePair, binaryAnnotation.getValue());
+			result[i]= memberValuePair;
 		}
 		return result;
 	}
@@ -90,16 +92,16 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	public ISourceRange getNameRange() throws JavaModelException {
 		SourceMapper mapper= getSourceMapper();
 		if (mapper != null) {
-			ClassFile classFile = (ClassFile)getClassFile();
+			ClassFile classFile= (ClassFile)getClassFile();
 			if (classFile != null) {
 				// ensure the class file's buffer is open so that source ranges are computed
 				classFile.getBuffer();
 				return mapper.getNameRange(this);
 			}
 		}
-		Object info = getElementInfo();
+		Object info= getElementInfo();
 		if (info instanceof AnnotationInfo) {
-			AnnotationInfo annotationInfo = (AnnotationInfo) info;
+			AnnotationInfo annotationInfo= (AnnotationInfo)info;
 			return new SourceRange(annotationInfo.nameStart, annotationInfo.nameEnd - annotationInfo.nameStart + 1);
 		}
 		return null;
@@ -112,7 +114,7 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 		SourceMapper mapper= getSourceMapper();
 		if (mapper != null) {
 			// ensure the class file's buffer is open so that source ranges are computed
-			ClassFile classFile = (ClassFile)getClassFile();
+			ClassFile classFile= (ClassFile)getClassFile();
 			if (classFile != null) {
 				classFile.getBuffer();
 				return mapper.getSourceRange(this);
@@ -126,10 +128,10 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((this.memberValuePairName == null) ? 0 : this.memberValuePairName.hashCode());
-		result = prime * result + this.name.hashCode();
+		final int prime= 31;
+		int result= super.hashCode();
+		result= prime * result + ((this.memberValuePairName == null) ? 0 : this.memberValuePairName.hashCode());
+		result= prime * result + this.name.hashCode();
 		return result;
 	}
 

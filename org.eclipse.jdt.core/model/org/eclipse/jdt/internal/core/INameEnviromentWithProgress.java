@@ -14,10 +14,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 
 /**
- * The name environment provides a callback API that the compiler
- * can use to look up types, compilation units, and packages in the
- * current environment.  The name environment is passed to the compiler
- * on creation.
+ * The name environment provides a callback API that the compiler can use to look up types,
+ * compilation units, and packages in the current environment. The name environment is passed to the
+ * compiler on creation.
  * 
  * This name environment can be canceled using the monitor passed as an argument to
  * {@link #setMonitor(IProgressMonitor)}.
@@ -25,10 +24,10 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * @since 3.6
  */
 public interface INameEnviromentWithProgress extends INameEnvironment {
-	
+
 	/**
-	 * Set the monitor for the given name environment. In order to be able to cancel this name environment calls,
-	 * a non-null monitor should be given. 
+	 * Set the monitor for the given name environment. In order to be able to cancel this name
+	 * environment calls, a non-null monitor should be given.
 	 * 
 	 * @param monitor the given monitor
 	 */

@@ -32,76 +32,77 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 public class Clinit extends AbstractMethodDeclaration {
 
-	private FieldBinding assertionSyntheticFieldBinding = null;
-	private FieldBinding classLiteralSyntheticField = null;
+	private FieldBinding assertionSyntheticFieldBinding= null;
+
+	private FieldBinding classLiteralSyntheticField= null;
 
 	public Clinit(CompilationResult compilationResult) {
 		super(compilationResult);
-		this.modifiers = 0;
-		this.selector = TypeConstants.CLINIT;
+		this.modifiers= 0;
+		this.selector= TypeConstants.CLINIT;
 	}
 
 	public void analyseCode(
-		ClassScope classScope,
-		InitializationFlowContext staticInitializerFlowContext,
-		FlowInfo flowInfo) {
+			ClassScope classScope,
+			InitializationFlowContext staticInitializerFlowContext,
+			FlowInfo flowInfo) {
 
 		if (this.ignoreFurtherInvestigation)
 			return;
 		try {
-			ExceptionHandlingFlowContext clinitContext =
-				new ExceptionHandlingFlowContext(
-					staticInitializerFlowContext.parent,
-					this,
-					Binding.NO_EXCEPTIONS,
-					staticInitializerFlowContext,
-					this.scope,
-					FlowInfo.DEAD_END);
+			ExceptionHandlingFlowContext clinitContext=
+					new ExceptionHandlingFlowContext(
+							staticInitializerFlowContext.parent,
+							this,
+							Binding.NO_EXCEPTIONS,
+							staticInitializerFlowContext,
+							this.scope,
+							FlowInfo.DEAD_END);
 
 			// check for missing returning path
 			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-				this.bits |= ASTNode.NeedFreeReturn;
+				this.bits|= ASTNode.NeedFreeReturn;
 			}
 
 			// check missing blank final field initializations
-			flowInfo = flowInfo.mergedWith(staticInitializerFlowContext.initsOnReturn);
-			FieldBinding[] fields = this.scope.enclosingSourceType().fields();
-			for (int i = 0, count = fields.length; i < count; i++) {
+			flowInfo= flowInfo.mergedWith(staticInitializerFlowContext.initsOnReturn);
+			FieldBinding[] fields= this.scope.enclosingSourceType().fields();
+			for (int i= 0, count= fields.length; i < count; i++) {
 				FieldBinding field;
-				if ((field = fields[i]).isStatic()
-					&& field.isFinal()
-					&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
+				if ((field= fields[i]).isStatic()
+						&& field.isFinal()
+						&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
 					this.scope.problemReporter().uninitializedBlankFinalField(
-						field,
-						this.scope.referenceType().declarationOf(field.original()));
+							field,
+							this.scope.referenceType().declarationOf(field.original()));
 					// can complain against the field decl, since only one <clinit>
 				}
 			}
 			// check static initializers thrown exceptions
 			staticInitializerFlowContext.checkInitializerExceptions(
-				this.scope,
-				clinitContext,
-				flowInfo);
+					this.scope,
+					clinitContext,
+					flowInfo);
 		} catch (AbortMethod e) {
-			this.ignoreFurtherInvestigation = true;
+			this.ignoreFurtherInvestigation= true;
 		}
 	}
 
 	/**
 	 * Bytecode generation for a <clinit> method
-	 *
+	 * 
 	 * @param classScope org.eclipse.jdt.internal.compiler.lookup.ClassScope
 	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
 	 */
 	public void generateCode(ClassScope classScope, ClassFile classFile) {
 
-		int clinitOffset = 0;
+		int clinitOffset= 0;
 		if (this.ignoreFurtherInvestigation) {
 			// should never have to add any <clinit> problem method
 			return;
 		}
 		try {
-			clinitOffset = classFile.contentsOffset;
+			clinitOffset= classFile.contentsOffset;
 			this.generateCode(classScope, classFile, clinitOffset);
 		} catch (AbortMethod e) {
 			// should never occur
@@ -114,18 +115,18 @@ public class Clinit extends AbstractMethodDeclaration {
 			if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
 				// a branch target required a goto_w, restart code gen in wide mode.
 				try {
-					classFile.contentsOffset = clinitOffset;
+					classFile.contentsOffset= clinitOffset;
 					classFile.methodCount--;
 					classFile.codeStream.resetInWideMode(); // request wide mode
 					this.generateCode(classScope, classFile, clinitOffset);
 					// restart method generation
 				} catch (AbortMethod e2) {
-					classFile.contentsOffset = clinitOffset;
+					classFile.contentsOffset= clinitOffset;
 					classFile.methodCount--;
 				}
 			} else {
 				// produce a problem method accounting for this fatal error
-				classFile.contentsOffset = clinitOffset;
+				classFile.contentsOffset= clinitOffset;
 				classFile.methodCount--;
 			}
 		}
@@ -133,29 +134,29 @@ public class Clinit extends AbstractMethodDeclaration {
 
 	/**
 	 * Bytecode generation for a <clinit> method
-	 *
+	 * 
 	 * @param classScope org.eclipse.jdt.internal.compiler.lookup.ClassScope
 	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile
 	 */
 	private void generateCode(
-		ClassScope classScope,
-		ClassFile classFile,
-		int clinitOffset) {
+			ClassScope classScope,
+			ClassFile classFile,
+			int clinitOffset) {
 
-		ConstantPool constantPool = classFile.constantPool;
-		int constantPoolOffset = constantPool.currentOffset;
-		int constantPoolIndex = constantPool.currentIndex;
+		ConstantPool constantPool= classFile.constantPool;
+		int constantPoolOffset= constantPool.currentOffset;
+		int constantPoolIndex= constantPool.currentIndex;
 		classFile.generateMethodInfoHeaderForClinit();
-		int codeAttributeOffset = classFile.contentsOffset;
+		int codeAttributeOffset= classFile.contentsOffset;
 		classFile.generateCodeAttributeHeader();
-		CodeStream codeStream = classFile.codeStream;
+		CodeStream codeStream= classFile.codeStream;
 		resolve(classScope);
 
 		codeStream.reset(this, classFile);
-		TypeDeclaration declaringType = classScope.referenceContext;
+		TypeDeclaration declaringType= classScope.referenceContext;
 
 		// initialize local positions - including initializer scope.
-		MethodScope staticInitializerScope = declaringType.staticInitializerScope;
+		MethodScope staticInitializerScope= declaringType.staticInitializerScope;
 		staticInitializerScope.computeLocalVariablePositions(0, codeStream);
 
 		// 1.4 feature
@@ -166,10 +167,10 @@ public class Clinit extends AbstractMethodDeclaration {
 					classScope.outerMostClassScope().enclosingSourceType(),
 					this.classLiteralSyntheticField);
 			codeStream.invokeJavaLangClassDesiredAssertionStatus();
-			BranchLabel falseLabel = new BranchLabel(codeStream);
+			BranchLabel falseLabel= new BranchLabel(codeStream);
 			codeStream.ifne(falseLabel);
 			codeStream.iconst_1();
-			BranchLabel jumpLabel = new BranchLabel(codeStream);
+			BranchLabel jumpLabel= new BranchLabel(codeStream);
 			codeStream.decrStackSize(1);
 			codeStream.goto_(jumpLabel);
 			falseLabel.place();
@@ -178,14 +179,14 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.fieldAccess(Opcodes.OPC_putstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
 		}
 		// generate static fields/initializers/enum constants
-		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
-		BlockScope lastInitializerScope = null;
+		final FieldDeclaration[] fieldDeclarations= declaringType.fields;
+		BlockScope lastInitializerScope= null;
 		if (TypeDeclaration.kind(declaringType.modifiers) == TypeDeclaration.ENUM_DECL) {
-			int enumCount = 0;
-			int remainingFieldCount = 0;
+			int enumCount= 0;
+			int remainingFieldCount= 0;
 			if (fieldDeclarations != null) {
-				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-					FieldDeclaration fieldDecl = fieldDeclarations[i];
+				for (int i= 0, max= fieldDeclarations.length; i < max; i++) {
+					FieldDeclaration fieldDecl= fieldDeclarations[i];
 					if (fieldDecl.isStatic()) {
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
@@ -202,8 +203,8 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.anewarray(declaringType.binding);
 			if (enumCount > 0) {
 				if (fieldDeclarations != null) {
-					for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-						FieldDeclaration fieldDecl = fieldDeclarations[i];
+					for (int i= 0, max= fieldDeclarations.length; i < max; i++) {
+						FieldDeclaration fieldDecl= fieldDeclarations[i];
 						// $VALUES[i] = <enum-constant-i>
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							codeStream.dup();
@@ -217,21 +218,21 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.fieldAccess(Opcodes.OPC_putstatic, declaringType.enumValuesSyntheticfield, null /* default declaringClass */);
 			if (remainingFieldCount != 0) {
 				// if fields that are not enum constants need to be generated (static initializer/static field)
-				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-					FieldDeclaration fieldDecl = fieldDeclarations[i];
+				for (int i= 0, max= fieldDeclarations.length; i < max; i++) {
+					FieldDeclaration fieldDecl= fieldDeclarations[i];
 					switch (fieldDecl.getKind()) {
-						case AbstractVariableDeclaration.ENUM_CONSTANT :
+						case AbstractVariableDeclaration.ENUM_CONSTANT:
 							break;
-						case AbstractVariableDeclaration.INITIALIZER :
+						case AbstractVariableDeclaration.INITIALIZER:
 							if (!fieldDecl.isStatic())
 								break;
-							lastInitializerScope = ((Initializer) fieldDecl).block.scope;
+							lastInitializerScope= ((Initializer)fieldDecl).block.scope;
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							break;
-						case AbstractVariableDeclaration.FIELD :
+						case AbstractVariableDeclaration.FIELD:
 							if (!fieldDecl.binding.isStatic())
 								break;
-							lastInitializerScope = null;
+							lastInitializerScope= null;
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							break;
 					}
@@ -239,19 +240,19 @@ public class Clinit extends AbstractMethodDeclaration {
 			}
 		} else {
 			if (fieldDeclarations != null) {
-				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-					FieldDeclaration fieldDecl = fieldDeclarations[i];
+				for (int i= 0, max= fieldDeclarations.length; i < max; i++) {
+					FieldDeclaration fieldDecl= fieldDeclarations[i];
 					switch (fieldDecl.getKind()) {
-						case AbstractVariableDeclaration.INITIALIZER :
+						case AbstractVariableDeclaration.INITIALIZER:
 							if (!fieldDecl.isStatic())
 								break;
-							lastInitializerScope = ((Initializer) fieldDecl).block.scope;
+							lastInitializerScope= ((Initializer)fieldDecl).block.scope;
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							break;
-						case AbstractVariableDeclaration.FIELD :
+						case AbstractVariableDeclaration.FIELD:
 							if (!fieldDecl.binding.isStatic())
 								break;
-							lastInitializerScope = null;
+							lastInitializerScope= null;
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							break;
 					}
@@ -262,14 +263,14 @@ public class Clinit extends AbstractMethodDeclaration {
 		if (codeStream.position == 0) {
 			// do not need to output a Clinit if no bytecodes
 			// so we reset the offset inside the byte array contents.
-			classFile.contentsOffset = clinitOffset;
+			classFile.contentsOffset= clinitOffset;
 			// like we don't addd a method we need to undo the increment on the method count
 			classFile.methodCount--;
 			// reset the constant pool to its state before the clinit
 			constantPool.resetForClinit(constantPoolIndex, constantPoolOffset);
 		} else {
 			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-				int before = codeStream.position;
+				int before= codeStream.position;
 				codeStream.return_();
 				if (lastInitializerScope != null) {
 					// expand the last initializer variables to include the trailing return
@@ -280,7 +281,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.recordPositionsFrom(0, declaringType.sourceStart);
 			try {
 				classFile.completeCodeAttributeForClinit(codeAttributeOffset);
-			} catch(NegativeArraySizeException e) {
+			} catch (NegativeArraySizeException e) {
 				throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 			}
 		}
@@ -314,12 +315,12 @@ public class Clinit extends AbstractMethodDeclaration {
 
 	public void resolve(ClassScope classScope) {
 
-		this.scope = new MethodScope(classScope, classScope.referenceContext, true);
+		this.scope= new MethodScope(classScope, classScope.referenceContext, true);
 	}
 
 	public void traverse(
-		ASTVisitor visitor,
-		ClassScope classScope) {
+			ASTVisitor visitor,
+			ClassScope classScope) {
 
 		visitor.visit(this, classScope);
 		visitor.endVisit(this, classScope);
@@ -327,15 +328,15 @@ public class Clinit extends AbstractMethodDeclaration {
 
 	public void setAssertionSupport(FieldBinding assertionSyntheticFieldBinding, boolean needClassLiteralField) {
 
-		this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
+		this.assertionSyntheticFieldBinding= assertionSyntheticFieldBinding;
 
 		// we need to add the field right now, because the field infos are generated before the methods
 		if (needClassLiteralField) {
-			SourceTypeBinding sourceType =
-				this.scope.outerMostClassScope().enclosingSourceType();
+			SourceTypeBinding sourceType=
+					this.scope.outerMostClassScope().enclosingSourceType();
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=22334
 			if (!sourceType.isInterface() && !sourceType.isBaseType()) {
-				this.classLiteralSyntheticField = sourceType.addSyntheticFieldForClassLiteral(sourceType, this.scope);
+				this.classLiteralSyntheticField= sourceType.addSyntheticFieldForClassLiteral(sourceType, this.scope);
 			}
 		}
 	}

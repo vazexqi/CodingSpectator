@@ -19,17 +19,24 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class AbstractVariableDeclaration extends Statement implements InvocationSite {
 	public int declarationEnd;
+
 	/**
-	 * For local declarations (outside of for statement initialization) and field declarations,
-	 * the declarationSourceEnd covers multiple locals if any.
-	 * For local declarations inside for statement initialization, this is not the case.
+	 * For local declarations (outside of for statement initialization) and field declarations, the
+	 * declarationSourceEnd covers multiple locals if any. For local declarations inside for
+	 * statement initialization, this is not the case.
 	 */
 	public int declarationSourceEnd;
+
 	public int declarationSourceStart;
+
 	public int hiddenVariableDepth; // used to diagnose hiding scenarii
+
 	public Expression initialization;
+
 	public int modifiers;
+
 	public int modifiersSourceStart;
+
 	public Annotation[] annotations;
 
 	public char[] name;
@@ -40,12 +47,17 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return flowInfo;
 	}
 
-	public static final int FIELD = 1;
-	public static final int INITIALIZER = 2;
-	public static final int ENUM_CONSTANT = 3;
-	public static final int LOCAL_VARIABLE = 4;
-	public static final int PARAMETER = 5;
-	public static final int TYPE_PARAMETER = 6;
+	public static final int FIELD= 1;
+
+	public static final int INITIALIZER= 2;
+
+	public static final int ENUM_CONSTANT= 3;
+
+	public static final int LOCAL_VARIABLE= 4;
+
+	public static final int PARAMETER= 5;
+
+	public static final int TYPE_PARAMETER= 6;
 
 
 	/**
@@ -76,7 +88,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		printAsExpression(indent, output);
-		switch(getKind()) {
+		switch (getKind()) {
 			case ENUM_CONSTANT:
 				return output.append(',');
 			default:
@@ -87,13 +99,14 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	public StringBuffer printAsExpression(int indent, StringBuffer output) {
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
-		if (this.annotations != null) printAnnotations(this.annotations, output);
+		if (this.annotations != null)
+			printAnnotations(this.annotations, output);
 
 		if (this.type != null) {
 			this.type.print(0, output).append(' ');
 		}
 		output.append(this.name);
-		switch(getKind()) {
+		switch (getKind()) {
 			case ENUM_CONSTANT:
 				if (this.initialization != null) {
 					this.initialization.printExpression(indent, output);
@@ -124,7 +137,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 */
 	public void setDepth(int depth) {
 
-		this.hiddenVariableDepth = depth;
+		this.hiddenVariableDepth= depth;
 	}
 
 	/* (non-Javadoc)

@@ -24,13 +24,14 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class JavadocSingleTypeReference extends SingleTypeReference {
 
 	public int tagSourceStart, tagSourceEnd;
+
 	public PackageBinding packageBinding;
 
 	public JavadocSingleTypeReference(char[] source, long pos, int tagStart, int tagEnd) {
 		super(source, pos);
-		this.tagSourceStart = tagStart;
-		this.tagSourceEnd = tagEnd;
-		this.bits |= ASTNode.InsideJavadoc;
+		this.tagSourceStart= tagStart;
+		this.tagSourceEnd= tagEnd;
+		this.bits|= ASTNode.InsideJavadoc;
 	}
 
 	/*
@@ -38,39 +39,40 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 	 */
 	protected TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
-		this.constant = Constant.NotAConstant;
+		this.constant= Constant.NotAConstant;
 		if (this.resolvedType != null) { // is a shared type reference which was already resolved
 			if (this.resolvedType.isValidBinding()) {
 				return this.resolvedType;
 			} else {
 				switch (this.resolvedType.problemId()) {
-					case ProblemReasons.NotFound :
-					case ProblemReasons.NotVisible :
-					case ProblemReasons.InheritedNameHidesEnclosingName :
-						TypeBinding type = this.resolvedType.closestMatch();
+					case ProblemReasons.NotFound:
+					case ProblemReasons.NotVisible:
+					case ProblemReasons.InheritedNameHidesEnclosingName:
+						TypeBinding type= this.resolvedType.closestMatch();
 						return type;
-					default :
+					default:
 						return null;
 				}
 			}
 		}
-		this.resolvedType = getTypeBinding(scope);
+		this.resolvedType= getTypeBinding(scope);
 		// End resolution when getTypeBinding(scope) returns null. This may happen in
 		// certain circumstances, typically when an illegal access is done on a type
 		// variable (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=204749)
-		if (this.resolvedType == null) return null;
+		if (this.resolvedType == null)
+			return null;
 
 		if (!this.resolvedType.isValidBinding()) {
-			char[][] tokens = { this.token };
-			Binding binding = scope.getTypeOrPackage(tokens);
+			char[][] tokens= { this.token };
+			Binding binding= scope.getTypeOrPackage(tokens);
 			if (binding instanceof PackageBinding) {
-				this.packageBinding = (PackageBinding) binding;
+				this.packageBinding= (PackageBinding)binding;
 				// Valid package references are allowed in Javadoc (https://bugs.eclipse.org/bugs/show_bug.cgi?id=281609)
 			} else {
 				if (this.resolvedType.problemId() == ProblemReasons.NonStaticReferenceInStaticContext) {
-					TypeBinding closestMatch = this.resolvedType.closestMatch();
+					TypeBinding closestMatch= this.resolvedType.closestMatch();
 					if (closestMatch != null && closestMatch.isTypeVariable()) {
-						this.resolvedType = closestMatch; // ignore problem as we want report specific javadoc one instead
+						this.resolvedType= closestMatch; // ignore problem as we want report specific javadoc one instead
 						return this.resolvedType;
 					}
 				}
@@ -83,10 +85,11 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
 		// raw convert all enclosing types when dealing with Javadoc references
 		if (this.resolvedType.isGenericType() || this.resolvedType.isParameterizedType()) {
-			this.resolvedType = scope.environment().convertToRawType(this.resolvedType, true /*force the conversion of enclosing types*/);
+			this.resolvedType= scope.environment().convertToRawType(this.resolvedType, true /*force the conversion of enclosing types*/);
 		}
 		return this.resolvedType;
 	}
+
 	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}

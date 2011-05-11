@@ -15,9 +15,9 @@ import org.eclipse.jdt.core.IJavaElement;
 public class SourceConstructorWithChildrenInfo extends SourceConstructorInfo {
 
 	protected IJavaElement[] children;
-	
+
 	public SourceConstructorWithChildrenInfo(IJavaElement[] children) {
-		this.children = children;
+		this.children= children;
 	}
 
 	public IJavaElement[] getChildren() {

@@ -19,48 +19,55 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class TypeReferencePattern extends IntersectingPattern {
 
 	protected char[] qualification;
+
 	protected char[] simpleName;
 
 	protected char[] currentCategory;
 
 	/* Optimization: case where simpleName == null */
 	public int segmentsSize;
+
 	protected char[][] segments;
+
 	protected int currentSegment;
 
 	private final static char[][]
-		CATEGORIES = { REF, ANNOTATION_REF },
-		CATEGORIES_ANNOT_REF = { ANNOTATION_REF };
+			CATEGORIES= { REF, ANNOTATION_REF },
+			CATEGORIES_ANNOT_REF= { ANNOTATION_REF };
+
 	private char[][] categories;
-	char typeSuffix = TYPE_SUFFIX;
+
+	char typeSuffix= TYPE_SUFFIX;
 
 	public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
 		this(matchRule);
 
-		this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
-		this.simpleName = (this.isCaseSensitive || this.isCamelCase) ? simpleName : CharOperation.toLowerCase(simpleName);
+		this.qualification= this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
+		this.simpleName= (this.isCaseSensitive || this.isCamelCase) ? simpleName : CharOperation.toLowerCase(simpleName);
 
 		if (simpleName == null)
-			this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
+			this.segments= this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
 		else
-			this.segments = null;
+			this.segments= null;
 
 		if (this.segments == null)
 			if (this.qualification == null)
-				this.segmentsSize =  0;
+				this.segmentsSize= 0;
 			else
-				this.segmentsSize =  CharOperation.occurencesOf('.', this.qualification) + 1;
+				this.segmentsSize= CharOperation.occurencesOf('.', this.qualification) + 1;
 		else
-			this.segmentsSize = this.segments.length;
+			this.segmentsSize= this.segments.length;
 
-		this.mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
+		this.mustResolve= true; // always resolve (in case of a simple name reference being a potential match)
 	}
+
 	/*
 	 * Instantiate a type reference pattern with additional information for generics search
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, String typeSignature, int matchRule) {
 		this(qualification, simpleName, typeSignature, 0, TYPE_SUFFIX, matchRule);
 	}
+
 	/*
 	 * Instantiate a type reference pattern with additional information for generics search and search elements nature
 	 */
@@ -72,20 +79,20 @@ public class TypeReferencePattern extends IntersectingPattern {
 	 * Instanciate a type reference pattern with additional information for generics search, search elements nature and fine grain information
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, String typeSignature, int limitTo, char typeSuffix, int matchRule) {
-		this(qualification, simpleName,matchRule);
-		this.typeSuffix = typeSuffix;
+		this(qualification, simpleName, matchRule);
+		this.typeSuffix= typeSuffix;
 		if (typeSignature != null) {
 			// store type signatures and arguments
-			this.typeSignatures = Util.splitTypeLevelsSignature(typeSignature);
+			this.typeSignatures= Util.splitTypeLevelsSignature(typeSignature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 			if (hasTypeArguments()) {
-				this.segmentsSize = getTypeArguments().length + CharOperation.occurencesOf('/', this.typeSignatures[0]) - 1;
+				this.segmentsSize= getTypeArguments().length + CharOperation.occurencesOf('/', this.typeSignatures[0]) - 1;
 			}
 		}
-	    this.fineGrain = limitTo & 0xFFFFFFF0;
-	    if (this.fineGrain == IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) {
-	    	this.categories = CATEGORIES_ANNOT_REF;
-	    }
+		this.fineGrain= limitTo & 0xFFFFFFF0;
+		if (this.fineGrain == IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) {
+			this.categories= CATEGORIES_ANNOT_REF;
+		}
 	}
 
 	/*
@@ -99,21 +106,24 @@ public class TypeReferencePattern extends IntersectingPattern {
 	 * Instanciate a type reference pattern with additional information for generics search
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, IType type, int limitTo, int matchRule) {
-		this(qualification, simpleName,matchRule);
+		this(qualification, simpleName, matchRule);
 		storeTypeSignaturesAndArguments(type);
-	    this.fineGrain = limitTo & 0xFFFFFFF0;
+		this.fineGrain= limitTo & 0xFFFFFFF0;
 	}
 
 	TypeReferencePattern(int matchRule) {
 		super(TYPE_REF_PATTERN, matchRule);
-		this.categories = CATEGORIES;
+		this.categories= CATEGORIES;
 	}
+
 	public void decodeIndexKey(char[] key) {
-		this.simpleName = key;
+		this.simpleName= key;
 	}
+
 	public SearchPattern getBlankPattern() {
 		return new TypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 	}
+
 	public char[] getIndexKey() {
 		if (this.simpleName != null)
 			return this.simpleName;
@@ -123,11 +133,14 @@ public class TypeReferencePattern extends IntersectingPattern {
 			return this.segments[this.currentSegment];
 		return null;
 	}
+
 	public char[][] getIndexCategories() {
 		return this.categories;
 	}
+
 	protected boolean hasNextQuery() {
-		if (this.segments == null) return false;
+		if (this.segments == null)
+			return false;
 
 		// Optimization, e.g. type reference is 'org.eclipse.jdt.core.*'
 		// if package has at least 4 segments, don't look at the first 2 since they are mostly
@@ -142,11 +155,12 @@ public class TypeReferencePattern extends IntersectingPattern {
 	protected void resetQuery() {
 		/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
 		if (this.segments != null)
-			this.currentSegment = this.segments.length - 1;
+			this.currentSegment= this.segments.length - 1;
 	}
+
 	protected StringBuffer print(StringBuffer output) {
-		String patternClassName = getClass().getName();
-		output.append(patternClassName.substring(patternClassName.lastIndexOf('.')+1));
+		String patternClassName= getClass().getName();
+		output.append(patternClassName.substring(patternClassName.lastIndexOf('.') + 1));
 		output.append(": qualification<"); //$NON-NLS-1$
 		if (this.qualification != null)
 			output.append(this.qualification);

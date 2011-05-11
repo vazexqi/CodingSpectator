@@ -26,20 +26,23 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class MemberValuePair extends ASTNode {
 
 	public char[] name;
+
 	public Expression value;
+
 	public MethodBinding binding;
+
 	/**
-	 *  The representation of this pair in the type system.
+	 * The representation of this pair in the type system.
 	 */
-	public ElementValuePair compilerElementPair = null;
+	public ElementValuePair compilerElementPair= null;
 
 	public MemberValuePair(char[] token, int sourceStart, int sourceEnd, Expression value) {
-		this.name = token;
-		this.sourceStart = sourceStart;
-		this.sourceEnd = sourceEnd;
-		this.value = value;
+		this.name= token;
+		this.sourceStart= sourceStart;
+		this.sourceEnd= sourceEnd;
+		this.value= value;
 		if (value instanceof ArrayInitializer) {
-			value.bits |= IsAnnotationDefaultValue;
+			value.bits|= IsAnnotationDefaultValue;
 		}
 	}
 
@@ -48,8 +51,8 @@ public class MemberValuePair extends ASTNode {
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
 		output
-			.append(this.name)
-			.append(" = "); //$NON-NLS-1$
+				.append(this.name)
+				.append(" = "); //$NON-NLS-1$
 		this.value.print(0, output);
 		return output;
 	}
@@ -57,7 +60,7 @@ public class MemberValuePair extends ASTNode {
 	public void resolveTypeExpecting(BlockScope scope, TypeBinding requiredType) {
 
 		if (this.value == null) {
-			this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
+			this.compilerElementPair= new ElementValuePair(this.name, this.value, this.binding);
 			return;
 		}
 		if (requiredType == null) {
@@ -67,44 +70,41 @@ public class MemberValuePair extends ASTNode {
 			} else {
 				this.value.resolveType(scope);
 			}
-			this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
+			this.compilerElementPair= new ElementValuePair(this.name, this.value, this.binding);
 			return;
 		}
 
 		this.value.setExpectedType(requiredType); // needed in case of generic method invocation
 		TypeBinding valueType;
 		if (this.value instanceof ArrayInitializer) {
-			ArrayInitializer initializer = (ArrayInitializer) this.value;
-			valueType = initializer.resolveTypeExpecting(scope, this.binding.returnType);
+			ArrayInitializer initializer= (ArrayInitializer)this.value;
+			valueType= initializer.resolveTypeExpecting(scope, this.binding.returnType);
 		} else if (this.value instanceof ArrayAllocationExpression) {
 			scope.problemReporter().annotationValueMustBeArrayInitializer(this.binding.declaringClass, this.name, this.value);
 			this.value.resolveType(scope);
-			valueType = null; // no need to pursue
+			valueType= null; // no need to pursue
 		} else {
-			valueType = this.value.resolveType(scope);
+			valueType= this.value.resolveType(scope);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=248897
-			ASTVisitor visitor = new ASTVisitor() {
+			ASTVisitor visitor= new ASTVisitor() {
 				public boolean visit(SingleNameReference reference, BlockScope scop) {
 					if (reference.binding instanceof LocalVariableBinding) {
-						((LocalVariableBinding) reference.binding).useFlag = LocalVariableBinding.USED;
+						((LocalVariableBinding)reference.binding).useFlag= LocalVariableBinding.USED;
 					}
 					return true;
 				}
 			};
 			this.value.traverse(visitor, scope);
 		}
-		this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
+		this.compilerElementPair= new ElementValuePair(this.name, this.value, this.binding);
 		if (valueType == null)
 			return;
 
-		TypeBinding leafType = requiredType.leafComponentType();
-		if (!(this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
-				|| valueType.isCompatibleWith(requiredType))) {
+		TypeBinding leafType= requiredType.leafComponentType();
+		if (!(this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType) || valueType.isCompatibleWith(requiredType))) {
 
 			if (!(requiredType.isArrayType()
-					&& requiredType.dimensions() == 1
-					&& (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
-							|| valueType.isCompatibleWith(leafType)))) {
+					&& requiredType.dimensions() == 1 && (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType) || valueType.isCompatibleWith(leafType)))) {
 
 				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
 					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
@@ -121,22 +121,23 @@ public class MemberValuePair extends ASTNode {
 		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
 		checkAnnotationMethodType: {
 			switch (leafType.erasure().id) {
-				case T_byte :
-				case T_short :
-				case T_char :
-				case T_int :
-				case T_long :
-				case T_float :
-				case T_double :
-				case T_boolean :
-				case T_JavaLangString :
+				case T_byte:
+				case T_short:
+				case T_char:
+				case T_int:
+				case T_long:
+				case T_float:
+				case T_double:
+				case T_boolean:
+				case T_JavaLangString:
 					if (this.value instanceof ArrayInitializer) {
-						ArrayInitializer initializer = (ArrayInitializer) this.value;
-						final Expression[] expressions = initializer.expressions;
+						ArrayInitializer initializer= (ArrayInitializer)this.value;
+						final Expression[] expressions= initializer.expressions;
 						if (expressions != null) {
-							for (int i =0, max = expressions.length; i < max; i++) {
-								Expression expression = expressions[i];
-								if (expression.resolvedType == null) continue; // fault-tolerance
+							for (int i= 0, max= expressions.length; i < max; i++) {
+								Expression expression= expressions[i];
+								if (expression.resolvedType == null)
+									continue; // fault-tolerance
 								if (expression.constant == Constant.NotAConstant) {
 									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expressions[i], false);
 								}
@@ -150,13 +151,13 @@ public class MemberValuePair extends ASTNode {
 						}
 					}
 					break checkAnnotationMethodType;
-				case T_JavaLangClass :
+				case T_JavaLangClass:
 					if (this.value instanceof ArrayInitializer) {
-						ArrayInitializer initializer = (ArrayInitializer) this.value;
-						final Expression[] expressions = initializer.expressions;
+						ArrayInitializer initializer= (ArrayInitializer)this.value;
+						final Expression[] expressions= initializer.expressions;
 						if (expressions != null) {
-							for (int i =0, max = expressions.length; i < max; i++) {
-								Expression currentExpression = expressions[i];
+							for (int i= 0, max= expressions.length; i < max; i++) {
+								Expression currentExpression= expressions[i];
 								if (!(currentExpression instanceof ClassLiteralAccess)) {
 									scope.problemReporter().annotationValueMustBeClassLiteral(this.binding.declaringClass, this.name, currentExpression);
 								}
@@ -171,18 +172,18 @@ public class MemberValuePair extends ASTNode {
 				if (this.value instanceof NullLiteral) {
 					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, true);
 				} else if (this.value instanceof ArrayInitializer) {
-					ArrayInitializer initializer = (ArrayInitializer) this.value;
-					final Expression[] expressions = initializer.expressions;
+					ArrayInitializer initializer= (ArrayInitializer)this.value;
+					final Expression[] expressions= initializer.expressions;
 					if (expressions != null) {
-						for (int i =0, max = expressions.length; i < max; i++) {
-							Expression currentExpression = expressions[i];
+						for (int i= 0, max= expressions.length; i < max; i++) {
+							Expression currentExpression= expressions[i];
 							if (currentExpression instanceof NullLiteral) {
 								scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, currentExpression, true);
 							} else if (currentExpression instanceof NameReference) {
-								NameReference nameReference = (NameReference) currentExpression;
-								final Binding nameReferenceBinding = nameReference.binding;
+								NameReference nameReference= (NameReference)currentExpression;
+								final Binding nameReferenceBinding= nameReference.binding;
 								if (nameReferenceBinding.kind() == Binding.FIELD) {
-									FieldBinding fieldBinding = (FieldBinding) nameReferenceBinding;
+									FieldBinding fieldBinding= (FieldBinding)nameReferenceBinding;
 									if (!fieldBinding.declaringClass.isEnum()) {
 										scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, currentExpression, true);
 									}
@@ -191,10 +192,10 @@ public class MemberValuePair extends ASTNode {
 						}
 					}
 				} else if (this.value instanceof NameReference) {
-					NameReference nameReference = (NameReference) this.value;
-					final Binding nameReferenceBinding = nameReference.binding;
+					NameReference nameReference= (NameReference)this.value;
+					final Binding nameReferenceBinding= nameReference.binding;
 					if (nameReferenceBinding.kind() == Binding.FIELD) {
-						FieldBinding fieldBinding = (FieldBinding) nameReferenceBinding;
+						FieldBinding fieldBinding= (FieldBinding)nameReferenceBinding;
 						if (!fieldBinding.declaringClass.isEnum()) {
 							if (!fieldBinding.type.isArrayType()) {
 								scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, true);
@@ -203,7 +204,7 @@ public class MemberValuePair extends ASTNode {
 							}
 						}
 					}
-				}  else {
+				} else {
 					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, true);
 				}
 				break checkAnnotationMethodType;
@@ -212,11 +213,11 @@ public class MemberValuePair extends ASTNode {
 				if (!valueType.leafComponentType().isAnnotationType()) { // check annotation type and also reject null literal
 					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
 				} else if (this.value instanceof ArrayInitializer) {
-					ArrayInitializer initializer = (ArrayInitializer) this.value;
-					final Expression[] expressions = initializer.expressions;
+					ArrayInitializer initializer= (ArrayInitializer)this.value;
+					final Expression[] expressions= initializer.expressions;
 					if (expressions != null) {
-						for (int i =0, max = expressions.length; i < max; i++) {
-							Expression currentExpression = expressions[i];
+						for (int i= 0, max= expressions.length; i < max; i++) {
+							Expression currentExpression= expressions[i];
 							if (currentExpression instanceof NullLiteral || !(currentExpression instanceof Annotation)) {
 								scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, currentExpression, leafType);
 							}

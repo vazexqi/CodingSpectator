@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageDeclaration;
 
 /**
@@ -21,46 +21,54 @@ public class PackageDeclaration extends SourceRefElement implements IPackageDecl
 
 	String name;
 
-protected PackageDeclaration(CompilationUnit parent, String name) {
-	super(parent);
-	this.name = name;
-}
-public boolean equals(Object o) {
-	if (!(o instanceof PackageDeclaration)) return false;
-	return super.equals(o);
-}
-public String getElementName() {
-	return this.name;
-}
-/**
- * @see IJavaElement
- */
-public int getElementType() {
-	return PACKAGE_DECLARATION;
-}
-/**
- * @see JavaElement#getHandleMemento()
- */
-protected char getHandleMementoDelimiter() {
-	return JavaElement.JEM_PACKAGEDECLARATION;
-}
+	protected PackageDeclaration(CompilationUnit parent, String name) {
+		super(parent);
+		this.name= name;
+	}
+
+	public boolean equals(Object o) {
+		if (!(o instanceof PackageDeclaration))
+			return false;
+		return super.equals(o);
+	}
+
+	public String getElementName() {
+		return this.name;
+	}
+
+	/**
+	 * @see IJavaElement
+	 */
+	public int getElementType() {
+		return PACKAGE_DECLARATION;
+	}
+
+	/**
+	 * @see JavaElement#getHandleMemento()
+	 */
+	protected char getHandleMementoDelimiter() {
+		return JavaElement.JEM_PACKAGEDECLARATION;
+	}
+
 /*
  * @see JavaElement#getPrimaryElement(boolean)
  */
-public IJavaElement getPrimaryElement(boolean checkOwner) {
-	CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
-	if (checkOwner && cu.isPrimary()) return this;
-	return cu.getPackageDeclaration(this.name);
-}
-/**
- * @private Debugging purposes
- */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
-	buffer.append(tabString(tab));
-	buffer.append("package "); //$NON-NLS-1$
-	toStringName(buffer);
-	if (info == null) {
-		buffer.append(" (not open)"); //$NON-NLS-1$
+	public IJavaElement getPrimaryElement(boolean checkOwner) {
+		CompilationUnit cu= (CompilationUnit)getAncestor(COMPILATION_UNIT);
+		if (checkOwner && cu.isPrimary())
+			return this;
+		return cu.getPackageDeclaration(this.name);
 	}
-}
+
+	/**
+	 * @private Debugging purposes
+	 */
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+		buffer.append(tabString(tab));
+		buffer.append("package "); //$NON-NLS-1$
+		toStringName(buffer);
+		if (info == null) {
+			buffer.append(" (not open)"); //$NON-NLS-1$
+		}
+	}
 }

@@ -24,90 +24,105 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * which should be replaced by the completion.
  */
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
-	public static final int K_TYPE = 0;
-	public static final int K_CLASS = 1;
-	public static final int K_INTERFACE = 2;
-	public static final int K_EXCEPTION = 3;
+	public static final int K_TYPE= 0;
 
-	private int kind = K_TYPE;
+	public static final int K_CLASS= 1;
+
+	public static final int K_INTERFACE= 2;
+
+	public static final int K_EXCEPTION= 3;
+
+	private int kind= K_TYPE;
+
 	public char[] completionIdentifier;
-	
+
 	public boolean isConstructorType;
-	
-public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
-	this(previousIdentifiers, completionIdentifier, positions, K_TYPE);
-}
-public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions, int kind) {
-	super(previousIdentifiers, positions);
-	this.completionIdentifier = completionIdentifier;
-	this.kind = kind;
-}
-public void aboutToResolve(Scope scope) {
-	getTypeBinding(scope);
-}
+
+	public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
+		this(previousIdentifiers, completionIdentifier, positions, K_TYPE);
+	}
+
+	public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions, int kind) {
+		super(previousIdentifiers, positions);
+		this.completionIdentifier= completionIdentifier;
+		this.kind= kind;
+	}
+
+	public void aboutToResolve(Scope scope) {
+		getTypeBinding(scope);
+	}
+
 /*
  * No expansion of the completion reference into an array one
  */
-public TypeReference copyDims(int dim){
-	return this;
-}
-protected TypeBinding getTypeBinding(Scope scope) {
-	// it can be a package, type or member type
-	Binding binding = scope.parent.getTypeOrPackage(this.tokens); // step up from the ClassScope
-	if (!binding.isValidBinding()) {
-		scope.problemReporter().invalidType(this, (TypeBinding) binding);
+	public TypeReference copyDims(int dim) {
+		return this;
+	}
 
-		if (binding.problemId() == ProblemReasons.NotFound) {
-			throw new CompletionNodeFound(this, binding, scope);
+	protected TypeBinding getTypeBinding(Scope scope) {
+		// it can be a package, type or member type
+		Binding binding= scope.parent.getTypeOrPackage(this.tokens); // step up from the ClassScope
+		if (!binding.isValidBinding()) {
+			scope.problemReporter().invalidType(this, (TypeBinding)binding);
+
+			if (binding.problemId() == ProblemReasons.NotFound) {
+				throw new CompletionNodeFound(this, binding, scope);
+			}
+
+			throw new CompletionNodeFound();
 		}
 
-		throw new CompletionNodeFound();
+		throw new CompletionNodeFound(this, binding, scope);
 	}
 
-	throw new CompletionNodeFound(this, binding, scope);
-}
-public boolean isClass(){
-	return this.kind == K_CLASS;
-}
-
-public boolean isInterface(){
-	return this.kind == K_INTERFACE;
-}
-
-public boolean isException(){
-	return this.kind == K_EXCEPTION;
-}
-
-public boolean isSuperType(){
-	return this.kind == K_CLASS || this.kind == K_INTERFACE;
-}
-public void setKind(int kind) {
-	this.kind = kind;
-}
-public StringBuffer printExpression(int indent, StringBuffer output) {
-	switch (this.kind) {
-		case K_CLASS :
-			output.append("<CompleteOnClass:");//$NON-NLS-1$
-			break;
-		case K_INTERFACE :
-			output.append("<CompleteOnInterface:");//$NON-NLS-1$
-			break;
-		case K_EXCEPTION :
-			output.append("<CompleteOnException:");//$NON-NLS-1$
-			break;
-		default :
-			output.append("<CompleteOnType:");//$NON-NLS-1$
-			break;
+	public boolean isClass() {
+		return this.kind == K_CLASS;
 	}
-	for (int i = 0; i < this.tokens.length; i++) {
-		output.append(this.tokens[i]);
-		output.append('.');
+
+	public boolean isInterface() {
+		return this.kind == K_INTERFACE;
 	}
-	output.append(this.completionIdentifier).append('>');
-	return output;
-}
+
+	public boolean isException() {
+		return this.kind == K_EXCEPTION;
+	}
+
+	public boolean isSuperType() {
+		return this.kind == K_CLASS || this.kind == K_INTERFACE;
+	}
+
+	public void setKind(int kind) {
+		this.kind= kind;
+	}
+
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		switch (this.kind) {
+			case K_CLASS:
+				output.append("<CompleteOnClass:");//$NON-NLS-1$
+				break;
+			case K_INTERFACE:
+				output.append("<CompleteOnInterface:");//$NON-NLS-1$
+				break;
+			case K_EXCEPTION:
+				output.append("<CompleteOnException:");//$NON-NLS-1$
+				break;
+			default:
+				output.append("<CompleteOnType:");//$NON-NLS-1$
+				break;
+		}
+		for (int i= 0; i < this.tokens.length; i++) {
+			output.append(this.tokens[i]);
+			output.append('.');
+		}
+		output.append(this.completionIdentifier).append('>');
+		return output;
+	}
 }

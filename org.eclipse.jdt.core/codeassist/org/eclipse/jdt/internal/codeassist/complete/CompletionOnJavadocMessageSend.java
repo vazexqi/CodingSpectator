@@ -13,28 +13,29 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 
 public class CompletionOnJavadocMessageSend extends JavadocMessageSend implements CompletionOnJavadoc {
-	public int completionFlags = JAVADOC;
+	public int completionFlags= JAVADOC;
+
 	public int separatorPosition;
 
 	public CompletionOnJavadocMessageSend(JavadocMessageSend method, int position) {
 		super(method.selector, method.nameSourcePosition);
-		this.arguments = method.arguments;
-		this.receiver = method.receiver;
-		this.sourceEnd = method.sourceEnd;
-		this.tagValue = method.tagValue;
-		this.separatorPosition = position;
+		this.arguments= method.arguments;
+		this.receiver= method.receiver;
+		this.sourceEnd= method.sourceEnd;
+		this.tagValue= method.tagValue;
+		this.separatorPosition= position;
 	}
 
 	public CompletionOnJavadocMessageSend(JavadocMessageSend method, int position, int flags) {
 		this(method, position);
-		this.completionFlags |= flags;
+		this.completionFlags|= flags;
 	}
 
 	/**
 	 * @param flags The completionFlags to set.
 	 */
 	public void addCompletionFlags(int flags) {
-		this.completionFlags |= flags;
+		this.completionFlags|= flags;
 	}
 
 	public boolean completeAnException() {
@@ -55,7 +56,7 @@ public class CompletionOnJavadocMessageSend extends JavadocMessageSend implement
 
 	/**
 	 * Get completion node flags.
-	 *
+	 * 
 	 * @return int Flags of the javadoc completion node.
 	 */
 	public int getCompletionFlags() {
@@ -71,32 +72,37 @@ public class CompletionOnJavadocMessageSend extends JavadocMessageSend implement
 		indent++;
 		if (this.completionFlags > 0) {
 			output.append('\n');
-			for (int i=0; i<indent; i++) output.append('\t');
+			for (int i= 0; i < indent; i++)
+				output.append('\t');
 			output.append("infos:"); //$NON-NLS-1$
-			char separator = 0;
+			char separator= 0;
 			if (completeAnException()) {
 				output.append("exception"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeInText()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("text"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeBaseTypes()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("base types"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			if (completeFormalReference()) {
-				if (separator != 0) output.append(separator);
+				if (separator != 0)
+					output.append(separator);
 				output.append("formal reference"); //$NON-NLS-1$
-				separator = ',';
+				separator= ',';
 			}
 			output.append('\n');
 		}
 		indent--;
-		for (int i=0; i<indent; i++) output.append('\t');
+		for (int i= 0; i < indent; i++)
+			output.append('\t');
 		return output.append('>');
 	}
 }

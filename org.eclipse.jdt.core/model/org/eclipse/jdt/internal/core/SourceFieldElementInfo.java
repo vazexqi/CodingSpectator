@@ -33,28 +33,30 @@ public class SourceFieldElementInfo extends AnnotatableInfo implements ISourceFi
  * Returns the initialization source for this field.
  * Returns null if the field is not a constant or if it has no initialization.
  */
-public char[] getInitializationSource() {
-	return this.initializationSource;
-}
-/**
- * Returns the type name of the field.
- */
-public char[] getTypeName() {
-	return this.typeName;
-}
-/**
- * Returns the type signature of the field.
- *
- * @see Signature
- */
-protected String getTypeSignature() {
-	return Signature.createTypeSignature(this.typeName, false);
-}
+	public char[] getInitializationSource() {
+		return this.initializationSource;
+	}
 
-/**
- * Sets the type name of the field.
- */
-protected void setTypeName(char[] typeName) {
-	this.typeName = typeName;
-}
+	/**
+	 * Returns the type name of the field.
+	 */
+	public char[] getTypeName() {
+		return this.typeName;
+	}
+
+	/**
+	 * Returns the type signature of the field.
+	 * 
+	 * @see Signature
+	 */
+	protected String getTypeSignature() {
+		return Signature.createTypeSignature(this.typeName, false);
+	}
+
+	/**
+	 * Sets the type name of the field.
+	 */
+	protected void setTypeName(char[] typeName) {
+		this.typeName= typeName;
+	}
 }

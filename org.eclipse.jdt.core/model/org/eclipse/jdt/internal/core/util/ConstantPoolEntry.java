@@ -14,52 +14,71 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 
 /**
  * Default implementation of IConstantPoolEntry
- *
+ * 
  * @since 2.0
  */
 public class ConstantPoolEntry implements IConstantPoolEntry {
 
 	private int kind;
+
 	private int classInfoNameIndex;
+
 	private int classIndex;
+
 	private int nameAndTypeIndex;
+
 	private int stringIndex;
+
 	private char[] stringValue;
+
 	private int integerValue;
+
 	private float floatValue;
+
 	private double doubleValue;
+
 	private long longValue;
+
 	private int nameAndTypeDescriptorIndex;
+
 	private int nameAndTypeNameIndex;
+
 	private char[] className;
+
 	private char[] fieldName;
+
 	private char[] methodName;
+
 	private char[] fieldDescriptor;
+
 	private char[] methodDescriptor;
+
 	private char[] utf8Value;
+
 	private int utf8Length;
+
 	private char[] classInfoName;
 
 	public ConstantPoolEntry() {
-		this.classInfoNameIndex = -1;
-		this.classIndex = -1;
-		this.nameAndTypeIndex = -1;
-		this.stringIndex = -1;
-		this.stringValue = null;
-		this.integerValue = -1;
-		this.floatValue = -0.0f;
-		this.doubleValue = -0-0;
-		this.longValue = -1;
-		this.nameAndTypeDescriptorIndex = -1;
-		this.nameAndTypeNameIndex = -1;
-		this.className = null;
-		this.fieldName = null;
-		this.methodName = null;
-		this.fieldDescriptor = null;
-		this.methodDescriptor = null;
-		this.utf8Value = null;
-		this.utf8Length = -1;
-		this.classInfoName = null;
+		this.classInfoNameIndex= -1;
+		this.classIndex= -1;
+		this.nameAndTypeIndex= -1;
+		this.stringIndex= -1;
+		this.stringValue= null;
+		this.integerValue= -1;
+		this.floatValue= -0.0f;
+		this.doubleValue= -0 - 0;
+		this.longValue= -1;
+		this.nameAndTypeDescriptorIndex= -1;
+		this.nameAndTypeNameIndex= -1;
+		this.className= null;
+		this.fieldName= null;
+		this.methodName= null;
+		this.fieldDescriptor= null;
+		this.methodDescriptor= null;
+		this.utf8Value= null;
+		this.utf8Length= -1;
+		this.classInfoName= null;
 	}
 
 	/**
@@ -71,10 +90,11 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 
 	/**
 	 * Sets the kind.
+	 * 
 	 * @param kind The kind to set
 	 */
 	public void setKind(int kind) {
-		this.kind = kind;
+		this.kind= kind;
 	}
 
 	/**
@@ -205,78 +225,88 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 
 	/**
 	 * Sets the classInfoNameIndex.
+	 * 
 	 * @param classInfoNameIndex The classInfoNameIndex to set
 	 */
 	public void setClassInfoNameIndex(int classInfoNameIndex) {
-		this.classInfoNameIndex = classInfoNameIndex;
+		this.classInfoNameIndex= classInfoNameIndex;
 	}
 
 	/**
 	 * Sets the classIndex.
+	 * 
 	 * @param classIndex The classIndex to set
 	 */
 	public void setClassIndex(int classIndex) {
-		this.classIndex = classIndex;
+		this.classIndex= classIndex;
 	}
 
 	/**
 	 * Sets the nameAndTypeIndex.
+	 * 
 	 * @param nameAndTypeIndex The nameAndTypeIndex to set
 	 */
 	public void setNameAndTypeIndex(int nameAndTypeIndex) {
-		this.nameAndTypeIndex = nameAndTypeIndex;
+		this.nameAndTypeIndex= nameAndTypeIndex;
 	}
 
 	/**
 	 * Sets the stringIndex.
+	 * 
 	 * @param stringIndex The stringIndex to set
 	 */
 	public void setStringIndex(int stringIndex) {
-		this.stringIndex = stringIndex;
+		this.stringIndex= stringIndex;
 	}
 
 	/**
 	 * Sets the stringValue.
+	 * 
 	 * @param stringValue The stringValue to set
 	 */
 	public void setStringValue(char[] stringValue) {
-		this.stringValue = stringValue;
+		this.stringValue= stringValue;
 	}
 
 	/**
 	 * Sets the integerValue.
+	 * 
 	 * @param integerValue The integerValue to set
 	 */
 	public void setIntegerValue(int integerValue) {
-		this.integerValue = integerValue;
+		this.integerValue= integerValue;
 	}
 
 	/**
 	 * Sets the floatValue.
+	 * 
 	 * @param floatValue The floatValue to set
 	 */
 	public void setFloatValue(float floatValue) {
-		this.floatValue = floatValue;
+		this.floatValue= floatValue;
 	}
 
 	/**
 	 * Sets the doubleValue.
+	 * 
 	 * @param doubleValue The doubleValue to set
 	 */
 	public void setDoubleValue(double doubleValue) {
-		this.doubleValue = doubleValue;
+		this.doubleValue= doubleValue;
 	}
 
 	/**
 	 * Sets the longValue.
+	 * 
 	 * @param longValue The longValue to set
 	 */
 	public void setLongValue(long longValue) {
-		this.longValue = longValue;
+		this.longValue= longValue;
 	}
 
 	/**
 	 * Gets the nameAndTypeDescriptorIndex.
+	 * 
 	 * @return Returns a int
 	 */
 	public int getNameAndTypeDescriptorIndex() {
@@ -285,14 +315,16 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 
 	/**
 	 * Sets the nameAndTypeDescriptorIndex.
+	 * 
 	 * @param nameAndTypeDescriptorIndex The nameAndTypeDescriptorIndex to set
 	 */
 	public void setNameAndTypeDescriptorIndex(int nameAndTypeDescriptorIndex) {
-		this.nameAndTypeDescriptorIndex = nameAndTypeDescriptorIndex;
+		this.nameAndTypeDescriptorIndex= nameAndTypeDescriptorIndex;
 	}
 
 	/**
 	 * Gets the nameAndTypeNameIndex.
+	 * 
 	 * @return Returns a int
 	 */
 	public int getNameAndTypeNameIndex() {
@@ -301,66 +333,74 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 
 	/**
 	 * Sets the nameAndTypeNameIndex.
+	 * 
 	 * @param nameAndTypeNameIndex The nameAndTypeNameIndex to set
 	 */
 	public void setNameAndTypeNameIndex(int nameAndTypeNameIndex) {
-		this.nameAndTypeNameIndex = nameAndTypeNameIndex;
+		this.nameAndTypeNameIndex= nameAndTypeNameIndex;
 	}
 
 	/**
 	 * Sets the className.
+	 * 
 	 * @param className The className to set
 	 */
 	public void setClassName(char[] className) {
-		this.className = className;
+		this.className= className;
 	}
 
 	/**
 	 * Sets the fieldName.
+	 * 
 	 * @param fieldName The fieldName to set
 	 */
 	public void setFieldName(char[] fieldName) {
-		this.fieldName = fieldName;
+		this.fieldName= fieldName;
 	}
 
 	/**
 	 * Sets the methodName.
+	 * 
 	 * @param methodName The methodName to set
 	 */
 	public void setMethodName(char[] methodName) {
-		this.methodName = methodName;
+		this.methodName= methodName;
 	}
 
 	/**
 	 * Sets the fieldDescriptor.
+	 * 
 	 * @param fieldDescriptor The fieldDescriptor to set
 	 */
 	public void setFieldDescriptor(char[] fieldDescriptor) {
-		this.fieldDescriptor = fieldDescriptor;
+		this.fieldDescriptor= fieldDescriptor;
 	}
 
 	/**
 	 * Sets the methodDescriptor.
+	 * 
 	 * @param methodDescriptor The methodDescriptor to set
 	 */
 	public void setMethodDescriptor(char[] methodDescriptor) {
-		this.methodDescriptor = methodDescriptor;
+		this.methodDescriptor= methodDescriptor;
 	}
 
 	/**
 	 * Sets the utf8Value.
+	 * 
 	 * @param utf8Value The utf8Value to set
 	 */
 	public void setUtf8Value(char[] utf8Value) {
-		this.utf8Value = utf8Value;
+		this.utf8Value= utf8Value;
 	}
 
 	/**
 	 * Sets the classInfoName.
+	 * 
 	 * @param classInfoName The classInfoName to set
 	 */
 	public void setClassInfoName(char[] classInfoName) {
-		this.classInfoName = classInfoName;
+		this.classInfoName= classInfoName;
 	}
 
 	/**
@@ -372,32 +412,33 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 
 	/**
 	 * Sets the utf8Length.
+	 * 
 	 * @param utf8Length The utf8Length to set
 	 */
 	public void setUtf8Length(int utf8Length) {
-		this.utf8Length = utf8Length;
+		this.utf8Length= utf8Length;
 	}
 
 	public void reset() {
-		this.kind = 0;
-		this.classInfoNameIndex = 0;
-		this.classIndex = 0;
-		this.nameAndTypeIndex = 0;
-		this.stringIndex = 0;
-		this.stringValue = null;
-		this.integerValue = 0;
-		this.floatValue = 0.0f;
-		this.doubleValue = 0.0;
-		this.longValue = 0L;
-		this.nameAndTypeDescriptorIndex = 0;
-		this.nameAndTypeNameIndex = 0;
-		this.className = null;
-		this.fieldName = null;
-		this.methodName = null;
-		this.fieldDescriptor = null;
-		this.methodDescriptor = null;
-		this.utf8Value = null;
-		this.utf8Length = 0;
-		this.classInfoName = null;
+		this.kind= 0;
+		this.classInfoNameIndex= 0;
+		this.classIndex= 0;
+		this.nameAndTypeIndex= 0;
+		this.stringIndex= 0;
+		this.stringValue= null;
+		this.integerValue= 0;
+		this.floatValue= 0.0f;
+		this.doubleValue= 0.0;
+		this.longValue= 0L;
+		this.nameAndTypeDescriptorIndex= 0;
+		this.nameAndTypeNameIndex= 0;
+		this.className= null;
+		this.fieldName= null;
+		this.methodName= null;
+		this.fieldDescriptor= null;
+		this.methodDescriptor= null;
+		this.utf8Value= null;
+		this.utf8Length= 0;
+		this.classInfoName= null;
 	}
 }

@@ -24,40 +24,43 @@ class PackageFragmentInfo extends OpenableElementInfo {
 	 */
 	protected Object[] nonJavaResources;
 
-/**
- * Create and initialize a new instance of the receiver
- */
-public PackageFragmentInfo() {
-	this.nonJavaResources = null;
-}
-/**
- */
-boolean containsJavaResources() {
-	return this.children.length != 0;
-}
-/**
- * Returns an array of non-java resources contained in the receiver.
- */
-Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot rootHandle) {
-	if (this.nonJavaResources == null) {
-		try {
-			this.nonJavaResources =
-				PackageFragmentRootInfo.computeFolderNonJavaResources(
-					rootHandle,
-					(IContainer)underlyingResource,
-					rootHandle.fullInclusionPatternChars(),
-					rootHandle.fullExclusionPatternChars());
-		} catch (JavaModelException e) {
-			// root doesn't exist: consider package has no nonJavaResources
-			this.nonJavaResources = NO_NON_JAVA_RESOURCES;
-		}
+	/**
+	 * Create and initialize a new instance of the receiver
+	 */
+	public PackageFragmentInfo() {
+		this.nonJavaResources= null;
 	}
-	return this.nonJavaResources;
-}
-/**
- * Set the nonJavaResources to res value
+
+	/**
  */
-void setNonJavaResources(Object[] resources) {
-	this.nonJavaResources = resources;
-}
+	boolean containsJavaResources() {
+		return this.children.length != 0;
+	}
+
+	/**
+	 * Returns an array of non-java resources contained in the receiver.
+	 */
+	Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot rootHandle) {
+		if (this.nonJavaResources == null) {
+			try {
+				this.nonJavaResources=
+						PackageFragmentRootInfo.computeFolderNonJavaResources(
+								rootHandle,
+								(IContainer)underlyingResource,
+								rootHandle.fullInclusionPatternChars(),
+								rootHandle.fullExclusionPatternChars());
+			} catch (JavaModelException e) {
+				// root doesn't exist: consider package has no nonJavaResources
+				this.nonJavaResources= NO_NON_JAVA_RESOURCES;
+			}
+		}
+		return this.nonJavaResources;
+	}
+
+	/**
+	 * Set the nonJavaResources to res value
+	 */
+	void setNonJavaResources(Object[] resources) {
+		this.nonJavaResources= resources;
+	}
 }

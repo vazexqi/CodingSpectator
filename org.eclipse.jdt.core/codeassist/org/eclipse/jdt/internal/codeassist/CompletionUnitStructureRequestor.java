@@ -58,7 +58,9 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	private ASTNode assistNode;
 
 	private Map bindingCache;
+
 	private Map elementCache;
+
 	private Map elementWithProblemCache;
 
 	public CompletionUnitStructureRequestor(
@@ -71,11 +73,11 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 			Map elementWithProblemCache,
 			Map newElements) {
 		super(unit, unitInfo, newElements);
-		this.parser = parser;
-		this.assistNode = assistNode;
-		this.bindingCache = bindingCache;
-		this.elementCache = elementCache;
-		this.elementWithProblemCache = elementWithProblemCache;
+		this.parser= parser;
+		this.assistNode= assistNode;
+		this.bindingCache= bindingCache;
+		this.elementCache= elementCache;
+		this.elementWithProblemCache= elementWithProblemCache;
 	}
 
 	protected Annotation createAnnotation(JavaElement parent, String name) {
@@ -83,8 +85,8 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 
 	protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
-		String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
-		AssistSourceField field = new AssistSourceField(parent, fieldName, this.bindingCache, this.newElements);
+		String fieldName= JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+		AssistSourceField field= new AssistSourceField(parent, fieldName, this.bindingCache, this.newElements);
 		if (fieldInfo.node.binding != null) {
 			this.bindingCache.put(field, fieldInfo.node.binding);
 			this.elementCache.put(fieldInfo.node.binding, field);
@@ -107,9 +109,9 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 
 	protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
-		String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
-		String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
-		AssistSourceMethod method = new AssistSourceMethod(parent, selector, parameterTypeSigs, this.bindingCache, this.newElements);
+		String selector= JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
+		String[] parameterTypeSigs= convertTypeNamesToSigs(methodInfo.parameterTypes);
+		AssistSourceMethod method= new AssistSourceMethod(parent, selector, parameterTypeSigs, this.bindingCache, this.newElements);
 		if (methodInfo.node.binding != null) {
 			this.bindingCache.put(method, methodInfo.node.binding);
 			this.elementCache.put(methodInfo.node.binding, method);
@@ -120,12 +122,12 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 
 	protected PackageDeclaration createPackageDeclaration(JavaElement parent, String name) {
-		return new AssistPackageDeclaration((CompilationUnit) parent, name, this.newElements);
+		return new AssistPackageDeclaration((CompilationUnit)parent, name, this.newElements);
 	}
 
 	protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
 		String nameString= new String(typeInfo.name);
-		AssistSourceType type = new AssistSourceType(parent, nameString, this.bindingCache, this.newElements);
+		AssistSourceType type= new AssistSourceType(parent, nameString, this.bindingCache, this.newElements);
 		if (typeInfo.node.binding != null) {
 			this.bindingCache.put(type, typeInfo.node.binding);
 			this.elementCache.put(typeInfo.node.binding, type);
@@ -156,22 +158,26 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 			org.eclipse.jdt.internal.core.MemberValuePair memberValuePair,
 			Expression expression) {
 		if (expression instanceof CompletionOnSingleNameReference) {
-			CompletionOnSingleNameReference reference = (CompletionOnSingleNameReference) expression;
-			if (reference.token.length == 0) return null;
+			CompletionOnSingleNameReference reference= (CompletionOnSingleNameReference)expression;
+			if (reference.token.length == 0)
+				return null;
 		} else if (expression instanceof CompletionOnQualifiedNameReference) {
-			CompletionOnQualifiedNameReference reference = (CompletionOnQualifiedNameReference) expression;
-			if (reference.tokens[reference.tokens.length - 1].length == 0) return null;
+			CompletionOnQualifiedNameReference reference= (CompletionOnQualifiedNameReference)expression;
+			if (reference.tokens[reference.tokens.length - 1].length == 0)
+				return null;
 		}
 		return super.getMemberValue(memberValuePair, expression);
 	}
-	protected IMemberValuePair[] getMemberValuePairs(MemberValuePair[] memberValuePairs) {
-		int membersLength = memberValuePairs.length;
-		int membersCount = 0;
-		IMemberValuePair[] members = new IMemberValuePair[membersLength];
-		next : for (int j = 0; j < membersLength; j++) {
-			if (memberValuePairs[j] instanceof CompletionOnMemberValueName) continue next;
 
-			members[membersCount++] = getMemberValuePair(memberValuePairs[j]);
+	protected IMemberValuePair[] getMemberValuePairs(MemberValuePair[] memberValuePairs) {
+		int membersLength= memberValuePairs.length;
+		int membersCount= 0;
+		IMemberValuePair[] members= new IMemberValuePair[membersLength];
+		next: for (int j= 0; j < membersLength; j++) {
+			if (memberValuePairs[j] instanceof CompletionOnMemberValueName)
+				continue next;
+
+			members[membersCount++]= getMemberValuePair(memberValuePairs[j]);
 		}
 
 		if (membersCount > membersLength) {
@@ -181,32 +187,37 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 
 	protected static boolean hasEmptyName(TypeReference reference, ASTNode assistNode) {
-		if (reference == null) return false;
+		if (reference == null)
+			return false;
 
-		if (reference.sourceStart <= assistNode.sourceStart && assistNode.sourceEnd <= reference.sourceEnd) return false;
+		if (reference.sourceStart <= assistNode.sourceStart && assistNode.sourceEnd <= reference.sourceEnd)
+			return false;
 
 		if (reference instanceof CompletionOnSingleTypeReference ||
 				reference instanceof CompletionOnQualifiedTypeReference ||
 				reference instanceof CompletionOnParameterizedQualifiedTypeReference) {
-			char[][] typeName = reference.getTypeName();
-			if (typeName[typeName.length - 1].length == 0) return true;
+			char[][] typeName= reference.getTypeName();
+			if (typeName[typeName.length - 1].length == 0)
+				return true;
 		}
 		if (reference instanceof ParameterizedSingleTypeReference) {
-			ParameterizedSingleTypeReference parameterizedReference = (ParameterizedSingleTypeReference) reference;
-			TypeReference[] typeArguments = parameterizedReference.typeArguments;
+			ParameterizedSingleTypeReference parameterizedReference= (ParameterizedSingleTypeReference)reference;
+			TypeReference[] typeArguments= parameterizedReference.typeArguments;
 			if (typeArguments != null) {
-				for (int i = 0; i < typeArguments.length; i++) {
-					if (hasEmptyName(typeArguments[i], assistNode)) return true;
+				for (int i= 0; i < typeArguments.length; i++) {
+					if (hasEmptyName(typeArguments[i], assistNode))
+						return true;
 				}
 			}
 		} else if (reference instanceof ParameterizedQualifiedTypeReference) {
-			ParameterizedQualifiedTypeReference parameterizedReference = (ParameterizedQualifiedTypeReference) reference;
-			TypeReference[][] typeArguments = parameterizedReference.typeArguments;
+			ParameterizedQualifiedTypeReference parameterizedReference= (ParameterizedQualifiedTypeReference)reference;
+			TypeReference[][] typeArguments= parameterizedReference.typeArguments;
 			if (typeArguments != null) {
-				for (int i = 0; i < typeArguments.length; i++) {
+				for (int i= 0; i < typeArguments.length; i++) {
 					if (typeArguments[i] != null) {
-						for (int j = 0; j < typeArguments[i].length; j++) {
-							if (hasEmptyName(typeArguments[i][j], assistNode)) return true;
+						for (int j= 0; j < typeArguments[i].length; j++) {
+							if (hasEmptyName(typeArguments[i][j], assistNode))
+								return true;
 						}
 					}
 				}

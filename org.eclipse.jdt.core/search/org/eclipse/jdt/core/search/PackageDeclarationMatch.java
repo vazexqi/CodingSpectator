@@ -14,19 +14,19 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
- * A Java search match that represents a package declaration.
- * The element is an <code>IPackageFragment</code>.
+ * A Java search match that represents a package declaration. The element is an
+ * <code>IPackageFragment</code>.
  * <p>
  * This class is intended to be instantiated and subclassed by clients.
  * </p>
- *
+ * 
  * @since 3.0
  */
 public class PackageDeclarationMatch extends SearchMatch {
 
 	/**
 	 * Creates a new package declaration match.
-	 *
+	 * 
 	 * @param element the package declaration
 	 * @param accuracy one of A_ACCURATE or A_INACCURATE
 	 * @param offset the offset the match starts at, or -1 if unknown
