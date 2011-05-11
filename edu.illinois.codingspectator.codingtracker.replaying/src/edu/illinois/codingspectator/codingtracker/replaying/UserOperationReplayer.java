@@ -115,7 +115,12 @@ public class UserOperationReplayer {
 				String selectedFilePath= fileDialog.open();
 				if (selectedFilePath != null) {
 					String operationsRecord= ResourceHelper.readFileContent(new File(selectedFilePath));
-					userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					try {
+						userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					} catch (RuntimeException e) {
+						showMessage("Wrong format. Could not load user operations from file: " + selectedFilePath);
+						throw e;
+					}
 					if (userOperations.size() > 0) {
 						resetAction.setEnabled(true);
 						findAction.setEnabled(true);
