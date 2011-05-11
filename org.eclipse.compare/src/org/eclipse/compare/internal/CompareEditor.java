@@ -72,8 +72,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
  * A CompareEditor takes a ICompareEditorInput as input. Most functionality is delegated to the
  * ICompareEditorInput.
  * 
- * @author Stas Negara - Added sending notifications before and after saving the editor contents in
- *         method doSave.
+ * @author Stas Negara - Added sending notifications about saved editor contents in method doSave.
  */
 public class CompareEditor extends EditorPart implements IReusableEditor, ISaveablesSource, IPropertyChangeListener, ISaveablesLifecycleListener {
 
@@ -549,12 +548,13 @@ public class CompareEditor extends EditorPart implements IReusableEditor, ISavea
 		WorkspaceModifyOperation operation= new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor pm) throws CoreException {
 				if (input instanceof CompareEditorInput) {
-					//CODINGSPECTATOR: added code that accesses Resource.resourceListener and try/finally block
-					Resource.resourceListener.aboutToSaveCompareEditor(CompareEditor.this);
+					//CODINGSPECTATOR: added variable 'success' and all code accessing it, and a try/finally block
+					boolean success= false;
 					try {
 						((CompareEditorInput)input).saveChanges(pm);
+						success= true;
 					} finally {
-						Resource.resourceListener.savedCompareEditor(CompareEditor.this);
+						Resource.resourceListener.savedCompareEditor(CompareEditor.this, success);
 					}
 				}
 			}

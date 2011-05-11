@@ -1,6 +1,7 @@
 Changed Files
 =============
 
+model/org/eclipse/jdt/internal/core/Buffer.java
 model/org/eclipse/jdt/internal/core/DocumentAdapter.java
 
 

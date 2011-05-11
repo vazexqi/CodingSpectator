@@ -25,8 +25,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * The standard implementation of {@link IFile}.
  * 
- * @author Stas Negara - Added sending notifications about saving a file in method setContents.
- *         Also, added event notifications in method create.
+ * @author Stas Negara - Added sending notifications about creating a file in method create.
  */
 public class File extends Resource implements IFile {
 
@@ -360,8 +359,6 @@ public class File extends Resource implements IFile {
 			if (workspace.shouldValidate)
 				workspace.validateSave(this);
 			final ISchedulingRule rule= workspace.getRuleFactory().modifyRule(this);
-			//CODINGSPECTATOR: introduced variable 'success' and all code that checks/affects it.
-			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				ResourceInfo info= getResourceInfo(false, false);
@@ -369,12 +366,10 @@ public class File extends Resource implements IFile {
 				workspace.beginOperation(true);
 				IFileInfo fileInfo= getStore().fetchInfo();
 				internalSetContents(content, fileInfo, updateFlags, false, Policy.subMonitorFor(monitor, Policy.opWork));
-				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
-				resourceListener.savedFile(this, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

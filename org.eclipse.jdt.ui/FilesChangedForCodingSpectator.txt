@@ -84,6 +84,9 @@ ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineMethodActio
 # For verifying captured extract interface refactorings.
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/constraints/SuperTypeRefactoringProcessor.java
 
+# For sending save notifications
+ui/org/eclipse/jdt/internal/ui/javaeditor/DocumentAdapter.java
+
 Added Files
 ===========
 

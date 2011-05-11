@@ -43,10 +43,6 @@ public class ResourceListener extends BasicListener implements IResourceListener
 		ADDED, REMOVED, CHANGED
 	};
 
-	private boolean lastSavedFileSuccess= false;
-
-	private boolean isSavingCompareEditor= false;
-
 	//Populated sets:
 
 	private final Set<IFile> externallyAddedJavaFiles= new HashSet<IFile>();
@@ -142,25 +138,23 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	@Override
-	public void savedFile(IFile file, boolean success) {
-		if (ResourceHelper.isJavaFile(file)) {
-			lastSavedFileSuccess= success;
-			if (!isSavingCompareEditor) { //compare editor saving is handled in a different method
-				operationRecorder.recordSavedFile(file, success);
-			}
+	public void savedFile(IPath filePath, boolean success) {
+		IResource resource= ResourceHelper.findWorkspaceMember(filePath);
+		if (resource instanceof IFile) {
+			savedFile((IFile)resource, success);
 		}
 	}
 
 	@Override
-	public void aboutToSaveCompareEditor(Object compareEditor) {
-		isSavingCompareEditor= true;
-		lastSavedFileSuccess= false;
+	public void savedFile(IFile file, boolean success) {
+		if (ResourceHelper.isJavaFile(file)) {
+			operationRecorder.recordSavedFile(file, success);
+		}
 	}
 
 	@Override
-	public void savedCompareEditor(Object compareEditor) {
-		isSavingCompareEditor= false;
-		operationRecorder.recordSavedCompareEditor((CompareEditor)compareEditor, lastSavedFileSuccess);
+	public void savedCompareEditor(Object compareEditor, boolean success) {
+		operationRecorder.recordSavedCompareEditor((CompareEditor)compareEditor, success);
 	}
 
 	private boolean isRecordedResource(IResource resource) {

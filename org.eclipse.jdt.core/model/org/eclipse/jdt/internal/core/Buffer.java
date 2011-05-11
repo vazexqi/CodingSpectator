@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
@@ -33,6 +34,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * @see IBuffer
+ * 
+ * @author Stas Negara - Added saving event notification to method save.
  */
 public class Buffer implements IBuffer {
 	protected IFile file;
@@ -377,6 +380,8 @@ public class Buffer implements IBuffer {
 		if (!hasUnsavedChanges())
 			return;
 
+		//CODINGSPECTATOR: added variable 'success' and all code accessing it, and finally block
+		boolean success= false;
 		// use a platform operation to update the resource contents
 		try {
 			String stringContents= getContents();
@@ -427,10 +432,13 @@ public class Buffer implements IBuffer {
 			} else {
 				this.file.create(stream, force, null);
 			}
+			success= true;
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
+		} finally {
+			Resource.resourceListener.savedFile(file, success);
 		}
 
 		// the resource no longer has unsaved changes

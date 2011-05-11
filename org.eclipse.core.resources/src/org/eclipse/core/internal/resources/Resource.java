@@ -71,10 +71,10 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		public void savedFile(IFile file, boolean success) {//stub
 		}
 
-		public void aboutToSaveCompareEditor(Object compareEditor) {//stub
+		public void savedFile(IPath filePath, boolean success) {//stub
 		}
 
-		public void savedCompareEditor(Object compareEditor) {//stub
+		public void savedCompareEditor(Object compareEditor, boolean success) {//stub
 		}
 	};
 
