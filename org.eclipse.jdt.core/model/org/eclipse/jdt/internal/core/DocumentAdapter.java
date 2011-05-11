@@ -10,20 +10,38 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 
-/*
+/**
  * Adapts an IBuffer to IDocument
+ * 
+ * @author Stas Negara - Added a document listener (obtained via a factory) to every new instance
+ *         of DocumentAdapter.  
  */
 public class DocumentAdapter extends Document {
 
 	private IBuffer buffer;
+	
+	//CODINGSPECTATOR
+	private static IDocumentListenersFactory documentListenersFactory= null;
 
+	//CODINGSPECTATOR
+	public static void setDocumentListenersFactory(IDocumentListenersFactory newDocumentListenersFactory){
+		documentListenersFactory= newDocumentListenersFactory;
+	}
+	
 	public DocumentAdapter(IBuffer buffer) {
 		super(buffer.getContents());
-		this.buffer= buffer;
+		this.buffer = buffer;
+		//CODINGSPECTATOR
+		IResource underlyingResource = buffer.getUnderlyingResource();
+		if (documentListenersFactory != null && underlyingResource instanceof IFile && underlyingResource.exists()){
+			addDocumentListener(documentListenersFactory.getDocumentListener((IFile) underlyingResource));			
+		}
 	}
 
 	public void set(String text) {

@@ -1,0 +1,10 @@
+Changed Files
+=============
+
+model/org/eclipse/jdt/internal/core/DocumentAdapter.java
+
+
+Added Files
+===========
+
+model/org/eclipse/jdt/internal/core/IDocumentListenersFactory.java

@@ -26,6 +26,12 @@ import org.eclipse.core.runtime.content.IContentTypeMatcher;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * 
+ * @author Stas Negara - Added sending a notification about moving the project in method move, and
+ *         creating the project in method create.
+ * 
+ */
 public class Project extends Container implements IProject {
 
 	/**
@@ -263,6 +269,8 @@ public class Project extends Container implements IProject {
 			monitor.beginTask(Messages.resources_create, Policy.totalWork);
 			checkValidPath(path, PROJECT, false);
 			final ISchedulingRule rule= workspace.getRuleFactory().createRule(this);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				if (description == null) {
@@ -309,10 +317,12 @@ public class Project extends Container implements IProject {
 				if (hasContent)
 					info.set(ICoreConstants.M_CHILDREN_UNKNOWN);
 				workspace.getSaveManager().requestSnapshot();
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.createdResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -603,6 +613,7 @@ public class Project extends Container implements IProject {
 		info.setSyncInfo(null);
 	}
 
+	//CODINGSPECTATOR - Note: No need to record this event directly, because copying of children will be recorded in Resource.copy(IPath...).
 	protected void internalCopy(IProjectDescription destDesc, int updateFlags, IProgressMonitor monitor) throws CoreException {
 		monitor= Policy.monitorFor(monitor);
 		try {
@@ -894,6 +905,8 @@ public class Project extends Container implements IProject {
 			monitor.beginTask(message, Policy.totalWork);
 			IProject destination= workspace.getRoot().getProject(description.getName());
 			final ISchedulingRule rule= workspace.getRuleFactory().moveRule(this, destination);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.move API
@@ -922,10 +935,12 @@ public class Project extends Container implements IProject {
 				tree.makeInvalid();
 				if (!tree.getStatus().isOK())
 					throw new ResourceException(tree.getStatus());
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.movedResource(this, destination.getFullPath(), updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
