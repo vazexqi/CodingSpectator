@@ -36,7 +36,7 @@ import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
  * @author Stas Negara
  * 
  */
-//FIXME: Look at RefreshLocalVisitor and FileSystemResourceManager.refresh to detect external resources deletions and modifications
+//TODO: This listener is not used, consider deleting this class.
 @SuppressWarnings("restriction")
 public class ResourceChangeListener extends BasicListener implements IResourceChangeListener {
 
@@ -144,7 +144,7 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		boolean hasChangedKnownFiles= false;
 		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
 			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-			Map<IFile, String> newVersions= ResourceHelper.getEntriesVersions(cvsEntriesFile, relativePath);
+			Map<IFile, String> newVersions= ResourceHelper.getEntriesRevisions(cvsEntriesFile, relativePath);
 			boolean isInitialCommit= false;
 			for (Entry<IFile, String> newEntry : newVersions.entrySet()) {
 				IFile entryFile= newEntry.getKey();
@@ -188,10 +188,10 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
 			if (cvsEntriesFile.exists()) {
 				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-				Map<IFile, String> newVersions= ResourceHelper.getEntriesVersions(cvsEntriesFile, relativePath);
+				Map<IFile, String> newVersions= ResourceHelper.getEntriesRevisions(cvsEntriesFile, relativePath);
 				File trackedCVSEntriesFile= knownFilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
 				if (trackedCVSEntriesFile.exists()) {
-					Map<IFile, String> previousVersions= ResourceHelper.getEntriesVersions(trackedCVSEntriesFile, relativePath);
+					Map<IFile, String> previousVersions= ResourceHelper.getEntriesRevisions(trackedCVSEntriesFile, relativePath);
 					processCVSVersionsDifference(newVersions, previousVersions);
 					knownFilesRecorder.addCVSEntriesFile(cvsEntriesFile); //overwrite the existing tracked entries file with the new one
 					hasChangedKnownFiles= true;
@@ -281,14 +281,14 @@ public class ResourceChangeListener extends BasicListener implements IResourceCh
 	}
 
 	private void recordSets() {
-		//operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
-		//operationRecorder.recordSavedConflictEditors(savedConflictEditors.keySet(), new HashSet<IFile>(savedConflictEditors.values()));
-		//operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
-		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
-		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFiles, true, true);
-		operationRecorder.recordCommittedFiles(cvsInitiallyCommittedJavaFiles, true, false);
-		operationRecorder.recordCommittedFiles(svnCommittedJavaFiles, false, true);
-		operationRecorder.recordCommittedFiles(cvsCommittedJavaFiles, false, false);
+//		operationRecorder.recordSavedFiles(savedJavaFiles, isRefactoring);
+//		operationRecorder.recordSavedConflictEditors(savedConflictEditors.keySet(), new HashSet<IFile>(savedConflictEditors.values()));
+//		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles);
+//		operationRecorder.recordUpdatedFiles(updatedJavaFiles);
+//		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFiles, true, true);
+//		operationRecorder.recordCommittedFiles(cvsInitiallyCommittedJavaFiles, true, false);
+//		operationRecorder.recordCommittedFiles(svnCommittedJavaFiles, false, true);
+//		operationRecorder.recordCommittedFiles(cvsCommittedJavaFiles, false, false);
 	}
 
 	private void updateDirtyAndKnownFiles() {

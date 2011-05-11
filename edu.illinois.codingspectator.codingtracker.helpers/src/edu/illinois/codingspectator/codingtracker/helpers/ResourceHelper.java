@@ -57,8 +57,6 @@ public class ResourceHelper {
 		return charset;
 	}
 
-	//TODO: In the following 2 methods check that the file actually exists. 
-
 	public static String readFileContent(IFile workspaceFile) {
 		return readFileContent(getFileForResource(workspaceFile), getCharsetForFile(workspaceFile));
 	}
@@ -162,8 +160,8 @@ public class ResourceHelper {
 		return FileBuffers.getTextFileBufferManager().getTextFileBuffer(fullFilePath, LocationKind.IFILE);
 	}
 
-	public static Map<IFile, String> getEntriesVersions(IFile cvsEntriesFile, IPath relativePath) {
-		return getEntriesVersions(getFileForResource(cvsEntriesFile), relativePath, getCharsetForFile(cvsEntriesFile));
+	public static Map<IFile, String> getEntriesRevisions(IFile cvsEntriesFile, IPath relativePath) {
+		return getEntriesRevisions(getFileForResource(cvsEntriesFile), relativePath, getCharsetForFile(cvsEntriesFile));
 	}
 
 	/**
@@ -173,24 +171,24 @@ public class ResourceHelper {
 	 * @param relativePath
 	 * @return
 	 */
-	public static Map<IFile, String> getEntriesVersions(File cvsEntriesFile, IPath relativePath) {
-		return getEntriesVersions(cvsEntriesFile, relativePath, UNIVERSAL_CHARSET);
+	public static Map<IFile, String> getEntriesRevisions(File cvsEntriesFile, IPath relativePath) {
+		return getEntriesRevisions(cvsEntriesFile, relativePath, UNIVERSAL_CHARSET);
 	}
 
-	private static Map<IFile, String> getEntriesVersions(File cvsEntriesFile, IPath relativePath, Charset charset) {
+	private static Map<IFile, String> getEntriesRevisions(File cvsEntriesFile, IPath relativePath, Charset charset) {
 		String[] entries= readFileContent(cvsEntriesFile, charset).split("\n");
-		Map<IFile, String> entriesVersions= new HashMap<IFile, String>();
+		Map<IFile, String> entriesRevisions= new HashMap<IFile, String>();
 		for (String entry : entries) {
 			String[] entryElements= entry.split("/");
 			if (entryElements.length > 2 && entryElements[0].isEmpty() && entryElements[1].endsWith(".java")) {
 				IPath entryFilePath= relativePath.append(entryElements[1]);
 				IResource entryFile= findWorkspaceMember(entryFilePath);
 				if (entryFile != null) {
-					entriesVersions.put((IFile)entryFile, entryElements[2]);
+					entriesRevisions.put((IFile)entryFile, entryElements[2]);
 				}
 			}
 		}
-		return entriesVersions;
+		return entriesRevisions;
 	}
 
 	public static File getFileForResource(IResource resource) {

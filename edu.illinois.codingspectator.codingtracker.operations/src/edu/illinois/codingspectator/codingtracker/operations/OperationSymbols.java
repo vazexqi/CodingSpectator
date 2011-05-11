@@ -44,6 +44,8 @@ public abstract class OperationSymbols {
 
 	public static final char FILE_SAVED_SYMBOL= 's';
 
+	//Includes actual external modifications and deletions, deletions that happen as a part of an update, 
+	//and modifications that are result of 'Revert' operation
 	public static final char RESOURCE_EXTERNALLY_MODIFIED_SYMBOL= 'x';
 
 	public static final char FILE_UPDATED_SYMBOL= 'm';

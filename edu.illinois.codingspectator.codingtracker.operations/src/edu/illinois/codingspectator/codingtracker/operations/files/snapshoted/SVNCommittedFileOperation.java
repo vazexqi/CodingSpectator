@@ -18,8 +18,8 @@ public class SVNCommittedFileOperation extends CommittedFileOperation {
 		super();
 	}
 
-	public SVNCommittedFileOperation(IFile committedFile) {
-		super(committedFile);
+	public SVNCommittedFileOperation(IFile committedFile, String revision, String committedRevision) {
+		super(committedFile, revision, committedRevision);
 	}
 
 	@Override

@@ -78,7 +78,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  * 
  * @author Stas Negara - Added field resourceListener and assigned a default stub to it. Added event
- *         notifications for move, copy, and delete.
+ *         notifications to methods move, copy, delete, and refreshLocal.
  * 
  */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
@@ -99,6 +99,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		}
 
 		public void externallyModifiedResource(IResource resource, boolean isDeleted) {
+		}
+
+		public void externallyCreatedResource(IResource resource) {
+		}
+
+		public void refreshedResource(IResource resource) {
 		}
 
 		public void savedFile(IFile file, boolean success) {
@@ -1754,6 +1760,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				Policy.log(e);
 				throw e;
 			} finally {
+				//CODINGSPECTATOR
+				resourceListener.refreshedResource(this);
 				workspace.endOperation(rule, build, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

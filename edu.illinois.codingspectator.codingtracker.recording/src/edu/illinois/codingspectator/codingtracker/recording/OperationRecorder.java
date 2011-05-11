@@ -178,9 +178,10 @@ public class OperationRecorder {
 		TextRecorder.record(new DeletedResourceOperation(deletedResource, updateFlags, success));
 	}
 
-	public void recordExternallyModifiedResource(IResource externallyModifiedResource, boolean isDeleted) {
-		knownFilesRecorder.removeKnownFilesForResource(externallyModifiedResource);
-		TextRecorder.record(new ExternallyModifiedResourceOperation(externallyModifiedResource, isDeleted));
+	public void recordExternallyModifiedFiles(Set<IFile> externallyModifiedJavaFiles, boolean areDeleted) {
+		for (IFile externallyModifiedJavaFile : externallyModifiedJavaFiles) {
+			TextRecorder.record(new ExternallyModifiedResourceOperation(externallyModifiedJavaFile, areDeleted));
+		}
 	}
 
 	public void recordSavedFile(IFile savedFile, boolean success) {
@@ -197,33 +198,36 @@ public class OperationRecorder {
 		//ensureFileIsKnown(EditorHelper.getEditedJavaFile(compareEditor), false);
 	}
 
-	public void recordUpdatedFiles(Set<IFile> updatedFiles) {
-		for (IFile file : updatedFiles) {
-			TextRecorder.record(new UpdatedFileOperation(file));
+	public void recordUpdatedFiles(Set<FileRevision> updatedFileRevisions) {
+		for (FileRevision fileRevision : updatedFileRevisions) {
+			TextRecorder.record(new UpdatedFileOperation(fileRevision.getFile(), fileRevision.getRevision(), fileRevision.getCommittedRevision()));
 		}
 	}
 
 	/**
 	 * Records the committed files including their content.
 	 * 
-	 * @param committedFiles
+	 * @param committedFileRevisions
 	 * @param isInitialCommit
 	 * @param isSVNCommit
 	 */
-	public void recordCommittedFiles(Set<IFile> committedFiles, boolean isInitialCommit, boolean isSVNCommit) {
-		if (committedFiles.size() > 0) {
-			for (IFile file : committedFiles) {
+	public void recordCommittedFiles(Set<FileRevision> committedFileRevisions, boolean isInitialCommit, boolean isSVNCommit) {
+		if (committedFileRevisions.size() > 0) {
+			for (FileRevision fileRevision : committedFileRevisions) {
+				IFile file= fileRevision.getFile();
+				String revision= fileRevision.getRevision();
+				String committedRevision= fileRevision.getCommittedRevision();
 				if (isInitialCommit) {
 					if (isSVNCommit) {
-						TextRecorder.record(new SVNInitiallyCommittedFileOperation(file));
+						TextRecorder.record(new SVNInitiallyCommittedFileOperation(file, revision, committedRevision));
 					} else {
-						TextRecorder.record(new CVSInitiallyCommittedFileOperation(file));
+						TextRecorder.record(new CVSInitiallyCommittedFileOperation(file, revision, committedRevision));
 					}
 				} else {
 					if (isSVNCommit) {
-						TextRecorder.record(new SVNCommittedFileOperation(file));
+						TextRecorder.record(new SVNCommittedFileOperation(file, revision, committedRevision));
 					} else {
-						TextRecorder.record(new CVSCommittedFileOperation(file));
+						TextRecorder.record(new CVSCommittedFileOperation(file, revision, committedRevision));
 					}
 				}
 				knownFilesRecorder.addKnownFile(file, ResourceHelper.getCharsetNameForFile(file));

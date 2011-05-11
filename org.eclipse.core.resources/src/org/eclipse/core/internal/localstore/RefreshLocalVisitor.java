@@ -37,8 +37,8 @@ import org.eclipse.osgi.util.NLS;
  * is complete, the file system will be synchronized with the workspace tree with respect to
  * resource existence, gender, and timestamp.
  * 
- * @author Stas Negara - Changed methods deleteResource and resourceChanged to send the appropriate
- *         notifications.
+ * @author Stas Negara - Changed methods createResource, deleteResource, and resourceChanged to send
+ *         the appropriate notifications.
  */
 public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreConstants {
 	/** control constants */
@@ -106,11 +106,11 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 		/* Mark this resource as having unknown children */
 		info.set(ICoreConstants.M_CHILDREN_UNKNOWN);
 		target.getLocalManager().updateLocalSync(info, node.getLastModified());
+		//CODINGSPECTATOR
+		Resource.resourceListener.externallyCreatedResource(target);
 	}
 
 	protected void deleteResource(UnifiedTreeNode node, Resource target) throws CoreException {
-		//CODINGSPECTATOR
-		Resource.resourceListener.externallyModifiedResource(target, true);
 		ResourceInfo info= target.getResourceInfo(false, false);
 		int flags= target.getFlags(info);
 		//don't delete linked resources
@@ -127,6 +127,8 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 		if (target.exists(flags, false))
 			target.deleteResource(true, errors);
 		node.setExistsWorkspace(false);
+		//CODINGSPECTATOR
+		Resource.resourceListener.externallyModifiedResource(target, true);
 	}
 
 	protected void fileToFolder(UnifiedTreeNode node, Resource target) throws CoreException {
@@ -186,8 +188,6 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 	}
 
 	protected void resourceChanged(UnifiedTreeNode node, Resource target) {
-		//CODINGSPECTATOR
-		Resource.resourceListener.externallyModifiedResource(target, false);
 		ResourceInfo info= target.getResourceInfo(false, true);
 		if (info == null)
 			return;
@@ -196,6 +196,8 @@ public class RefreshLocalVisitor implements IUnifiedTreeVisitor, ILocalStoreCons
 		// forget content-related caching flags		
 		info.clear(ICoreConstants.M_CONTENT_CACHE);
 		workspace.updateModificationStamp(info);
+		//CODINGSPECTATOR
+		Resource.resourceListener.externallyModifiedResource(target, false);
 	}
 
 	public boolean resourcesChanged() {
