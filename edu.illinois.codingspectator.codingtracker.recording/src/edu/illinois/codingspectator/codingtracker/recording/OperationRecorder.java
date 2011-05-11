@@ -21,6 +21,7 @@ import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
 import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.FileRevision;
 import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;

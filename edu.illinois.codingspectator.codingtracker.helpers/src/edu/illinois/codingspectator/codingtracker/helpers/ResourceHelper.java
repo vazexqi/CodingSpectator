@@ -12,7 +12,9 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -189,6 +191,14 @@ public class ResourceHelper {
 			}
 		}
 		return entriesRevisions;
+	}
+
+	public static Set<IFile> getFilesFromRevisions(Set<FileRevision> fileRevisions) {
+		Set<IFile> files= new HashSet<IFile>();
+		for (FileRevision fileRevision : fileRevisions) {
+			files.add(fileRevision.getFile());
+		}
+		return files;
 	}
 
 	public static File getFileForResource(IResource resource) {

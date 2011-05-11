@@ -3,32 +3,26 @@
  */
 package edu.illinois.codingspectator.codingtracker.listeners;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 
 import org.eclipse.compare.internal.CompareEditor;
-import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.internal.resources.IResourceListener;
 import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.internal.wc.admin.SVNAdminArea;
 import org.tmatesoft.svn.core.internal.wc.admin.SVNAdminAreaFactory;
 import org.tmatesoft.svn.core.internal.wc.admin.SVNEntry;
 
-import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.codingtracker.helpers.FileRevision;
 import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
-import edu.illinois.codingspectator.codingtracker.recording.FileRevision;
 
 
 /**
@@ -55,10 +49,6 @@ public class ResourceListener extends BasicListener implements IResourceListener
 
 	private final Set<IFile> svnChangedJavaFiles= new HashSet<IFile>();
 
-	private final Set<IFile> cvsEntriesAddedSet= new HashSet<IFile>();
-
-	private final Set<IFile> cvsEntriesChangedOrRemovedSet= new HashSet<IFile>();
-
 	//Calculated sets:
 
 	private final Set<IFile> externallyModifiedJavaFiles= new HashSet<IFile>();
@@ -67,11 +57,7 @@ public class ResourceListener extends BasicListener implements IResourceListener
 
 	private final Set<FileRevision> svnInitiallyCommittedJavaFileRevisions= new HashSet<FileRevision>();
 
-	private final Set<FileRevision> cvsInitiallyCommittedJavaFileRevisions= new HashSet<FileRevision>();
-
 	private final Set<FileRevision> svnCommittedJavaFileRevisions= new HashSet<FileRevision>();
-
-	private final Set<FileRevision> cvsCommittedJavaFileRevisions= new HashSet<FileRevision>();
 
 	//SVN entries caching
 
@@ -165,13 +151,7 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	private void handleExternalFileManipulation(IFile file, Manipulation manipulation) {
-		if (file.getName().equals("Entries") && file.getParent().getName().equals("CVS")) {
-			if (manipulation == Manipulation.ADDED) {
-				cvsEntriesAddedSet.add(file);
-			} else {
-				cvsEntriesChangedOrRemovedSet.add(file);
-			}
-		} else if (ResourceHelper.isJavaFile(file)) {
+		if (ResourceHelper.isJavaFile(file)) {
 			switch (manipulation) {
 				case ADDED:
 					externallyAddedJavaFiles.add(file);
@@ -223,109 +203,8 @@ public class ResourceListener extends BasicListener implements IResourceListener
 
 	private void calculateSets() {
 		//should be done only in this order
-		calculateCVSSets();
 		calculateSVNSets();
 		calculateExternallyModifiedJavaFiles();
-	}
-
-	private void calculateCVSSets() {
-		processAddedCVSEntriesFiles();
-		processChangedOrRemovedCVSEntriesFiles();
-	}
-
-	private void processAddedCVSEntriesFiles() {
-		boolean hasChangedKnownFiles= false;
-		for (IFile cvsEntriesFile : cvsEntriesAddedSet) {
-			IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-			Map<IFile, String> newRevisions= ResourceHelper.getEntriesRevisions(cvsEntriesFile, relativePath);
-			boolean isInitialCommit= false;
-			for (Entry<IFile, String> newEntry : newRevisions.entrySet()) {
-				IFile entryFile= newEntry.getKey();
-				FileRevision fileRevision= getCVSFileRevision(entryFile, newEntry.getValue());
-				if (externallyChangedJavaFiles.contains(entryFile)) {
-					updatedJavaFileRevisions.add(fileRevision);
-				} else if (!externallyAddedJavaFiles.contains(entryFile)) {
-					cvsInitiallyCommittedJavaFileRevisions.add(fileRevision);
-					isInitialCommit= true;
-				}
-			}
-			if (isInitialCommit || doesContainKnownFiles(relativePath)) {
-				knownFilesRecorder.addCVSEntriesFile(cvsEntriesFile);
-				hasChangedKnownFiles= true;
-			}
-		}
-		if (hasChangedKnownFiles) {
-			knownFilesRecorder.recordKnownFiles();
-		}
-	}
-
-	private boolean doesContainKnownFiles(IPath path) {
-		IResource resource= ResourceHelper.findWorkspaceMember(path);
-		if (resource instanceof Folder) {
-			Folder containerFolder= (Folder)resource;
-			try {
-				IResource[] members= containerFolder.members();
-				for (IResource member : members) {
-					if (member instanceof IFile && knownFilesRecorder.isFileKnown((IFile)member, false)) {
-						return true;
-					}
-				}
-			} catch (CoreException e) {
-				Debugger.logExceptionToErrorLog(e, Messages.Recorder_CVSFolderMembersFailure);
-			}
-		}
-		return false;
-	}
-
-	private void processChangedOrRemovedCVSEntriesFiles() {
-		boolean hasChangedKnownFiles= false;
-		for (IFile cvsEntriesFile : cvsEntriesChangedOrRemovedSet) {
-			if (cvsEntriesFile.exists()) {
-				IPath relativePath= cvsEntriesFile.getFullPath().removeLastSegments(2);
-				Map<IFile, String> newRevisions= ResourceHelper.getEntriesRevisions(cvsEntriesFile, relativePath);
-				File trackedCVSEntriesFile= knownFilesRecorder.getTrackedCVSEntriesFile(cvsEntriesFile);
-				if (trackedCVSEntriesFile.exists()) {
-					Map<IFile, String> previousRevisions= ResourceHelper.getEntriesRevisions(trackedCVSEntriesFile, relativePath);
-					processCVSRevisionsDifference(newRevisions, previousRevisions);
-					knownFilesRecorder.addCVSEntriesFile(cvsEntriesFile); //overwrite the existing tracked entries file with the new one
-					hasChangedKnownFiles= true;
-				} else {
-					for (Entry<IFile, String> newEntry : newRevisions.entrySet()) {
-						IFile entryFile= newEntry.getKey();
-						if (externallyChangedJavaFiles.contains(entryFile)) {
-							updatedJavaFileRevisions.add(getCVSFileRevision(entryFile, newEntry.getValue()));
-						}
-					}
-				}
-			} else {
-				// CVS entries file was deleted, so stop tracking it
-				knownFilesRecorder.removeKnownFile(cvsEntriesFile);
-				hasChangedKnownFiles= true;
-			}
-		}
-		if (hasChangedKnownFiles) {
-			knownFilesRecorder.recordKnownFiles();
-		}
-	}
-
-	private void processCVSRevisionsDifference(Map<IFile, String> newRevisions, Map<IFile, String> previousRevisions) {
-		for (Entry<IFile, String> newEntry : newRevisions.entrySet()) {
-			IFile entryFile= newEntry.getKey();
-			String newRevision= newEntry.getValue();
-			FileRevision newFileRevision= getCVSFileRevision(entryFile, newRevision);
-			String previousRevision= previousRevisions.get(entryFile);
-			if (previousRevision == null) {
-				if (!externallyAddedJavaFiles.contains(entryFile)) {
-					cvsInitiallyCommittedJavaFileRevisions.add(newFileRevision);
-				}
-			} else if (!previousRevision.equals(newRevision)) {
-				if (externallyChangedJavaFiles.contains(entryFile)) {
-					updatedJavaFileRevisions.add(newFileRevision);
-				} else {
-					cvsCommittedJavaFileRevisions.add(newFileRevision);
-				}
-			}
-		}
 	}
 
 	private void calculateSVNSets() {
@@ -365,13 +244,11 @@ public class ResourceListener extends BasicListener implements IResourceListener
 		operationRecorder.recordExternallyModifiedFiles(externallyModifiedJavaFiles, false);
 		operationRecorder.recordUpdatedFiles(updatedJavaFileRevisions);
 		operationRecorder.recordCommittedFiles(svnInitiallyCommittedJavaFileRevisions, true, true);
-		operationRecorder.recordCommittedFiles(cvsInitiallyCommittedJavaFileRevisions, true, false);
 		operationRecorder.recordCommittedFiles(svnCommittedJavaFileRevisions, false, true);
-		operationRecorder.recordCommittedFiles(cvsCommittedJavaFileRevisions, false, false);
 	}
 
 	private void updateKnownFiles() {
-		externallyRemovedJavaFiles.addAll(getFilesFromRevisions(updatedJavaFileRevisions)); //updated files become unknown (like removed)
+		externallyRemovedJavaFiles.addAll(ResourceHelper.getFilesFromRevisions(updatedJavaFileRevisions)); //updated files become unknown (like removed)
 		externallyRemovedJavaFiles.addAll(externallyModifiedJavaFiles); //externally modified files become unknown
 		knownFilesRecorder.removeKnownFiles(externallyRemovedJavaFiles);
 	}
@@ -382,19 +259,10 @@ public class ResourceListener extends BasicListener implements IResourceListener
 		externallyRemovedJavaFiles.clear();
 		svnAddedJavaFiles.clear();
 		svnChangedJavaFiles.clear();
-		cvsEntriesAddedSet.clear();
-		cvsEntriesChangedOrRemovedSet.clear();
 		externallyModifiedJavaFiles.clear();
 		updatedJavaFileRevisions.clear();
 		svnInitiallyCommittedJavaFileRevisions.clear();
-		cvsInitiallyCommittedJavaFileRevisions.clear();
 		svnCommittedJavaFileRevisions.clear();
-		cvsCommittedJavaFileRevisions.clear();
-	}
-
-	private FileRevision getCVSFileRevision(IFile file, String revision) {
-		//CVS does not have a separate committed revision, so use a placeholder "0" instead
-		return new FileRevision(file, revision, "0");
 	}
 
 	private FileRevision getSVNFileRevision(IFile file) {
@@ -419,14 +287,6 @@ public class ResourceListener extends BasicListener implements IResourceListener
 			//ignore all other exceptions as well
 		}
 		return fileRevision;
-	}
-
-	private Set<IFile> getFilesFromRevisions(Set<FileRevision> fileRevisions) {
-		Set<IFile> files= new HashSet<IFile>();
-		for (FileRevision fileRevision : fileRevisions) {
-			files.add(fileRevision.getFile());
-		}
-		return files;
 	}
 
 }
