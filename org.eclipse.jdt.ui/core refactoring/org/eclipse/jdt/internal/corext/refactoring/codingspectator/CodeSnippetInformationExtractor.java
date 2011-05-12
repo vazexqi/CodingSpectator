@@ -1,74 +1,77 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.CoreException;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import org.eclipse.jdt.internal.corext.refactoring.nls.NLSUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
-public class CodeSnippetInformationExtractor {
-	private static final String DEFAULT_NULL_ASTNODE_CODE_SNIPPET= "EMPTY CODE SNIPPET"; //$NON-NLS-1$
+/**
+ * 
+ * @author Mohsen Vakilian
+ * @author nchen
+ * 
+ */
+public abstract class CodeSnippetInformationExtractor {
+	protected static final String DEFAULT_NULL_ASTNODE_CODE_SNIPPET= "EMPTY CODE SNIPPET"; //$NON-NLS-1$
 
-	private static final String DEFAULT_SELECTED_TEXT= "CODINGSPECTATOR: Selection is not available"; //$NON-NLS-1$
+	protected static final String DEFAULT_SELECTED_TEXT= "CODINGSPECTATOR: Selection is not available"; //$NON-NLS-1$
 
-	private static final String DEFAULT_NULL_RELATIVE_SELECTION= "-1 -1"; //$NON-NLS-1$
+	protected static final String DEFAULT_NULL_RELATIVE_SELECTION= "-1 -1"; //$NON-NLS-1$
 
-	private ITypeRoot typeRoot;
+	protected ITypeRoot typeRoot;
 
-	private int selectionStart;
+	public abstract CodeSnippetInformation extractCodeSnippetInformation();
 
-	private int selectionLength;
+	protected abstract ASTNode findTargetNode() throws CoreException;
 
-	public CodeSnippetInformationExtractor(ITypeRoot typeRoot, int selectionStart, int selectionLength) {
-		this.typeRoot= typeRoot;
-		this.selectionStart= selectionStart;
-		this.selectionLength= selectionLength;
+	public String getText(int start, int length) throws CoreException {
+		return getContents().substring(start, start + length);
 	}
 
-	public CodeSnippetInformation extractCodeSnippetInformation() {
-		String codeSnippet= getCodeSnippet();
-		String relativeOffset= getSnippetRelativeOffset(getCodeSnippetNode());
-		String selectedText= getSelectedText();
-		return new CodeSnippetInformation(codeSnippet, relativeOffset, selectedText);
-	}
-
-	private String getSelectedText() {
-		String selectedText= DEFAULT_SELECTED_TEXT;
-		try {
-			selectedText= typeRoot.getBuffer().getText(selectionStart, selectionLength);
-		} catch (IndexOutOfBoundsException e) {
-			JavaPlugin.log(e);
-		} catch (JavaModelException e) {
-			JavaPlugin.log(e);
+	private String getContents() throws CoreException {
+		IResource resource= typeRoot.getResource();
+		if (resource.getType() != IResource.FILE) {
+			throw new IllegalArgumentException("Expected the resource to be a file.");
 		}
-
-		return selectedText;
+		IFile file= (IFile)resource;
+		String contents= NLSUtil.readString(file.getContents(), file.getCharset());
+		return contents;
 	}
 
 	public String getCodeSnippet() {
-		ASTNode node= getCodeSnippetNode();
-		if (node != null) {
-			try {
-				return typeRoot.getBuffer().getText(node.getStartPosition(), node.getLength());
-			} catch (IndexOutOfBoundsException e) {
-				JavaPlugin.log(e);
-			} catch (JavaModelException e) {
-				JavaPlugin.log(e);
+		try {
+			ASTNode node= getCodeSnippetNode();
+			if (node != null) {
+				return getText(node.getStartPosition(), node.getLength());
 			}
+		} catch (CoreException e) {
+			JavaPlugin.log(e);
 		}
 
 		return DEFAULT_NULL_ASTNODE_CODE_SNIPPET;
 	}
 
 	public ASTNode getCodeSnippetNode() {
-		ASTNode node= findTargetNode();
+		ASTNode node;
+		try {
+			node= findTargetNode();
+		} catch (CoreException e) {
+			return null;
+		}
 
 		if (node == null) {
 			return null;
@@ -82,20 +85,13 @@ public class CodeSnippetInformationExtractor {
 		return node;
 	}
 
-	public String getSnippetRelativeOffset(ASTNode node) {
-		String snippetOffset= DEFAULT_NULL_RELATIVE_SELECTION;
-
-		if (node != null) {
-			snippetOffset= Integer.toString(selectionStart - node.getStartPosition()) + " " + selectionLength; //$NON-NLS-1$
+	protected CompilationUnit getCompilationUnitASTFromTypeRoot() throws CoreException {
+		if (typeRoot instanceof ICompilationUnit) {
+			return new RefactoringASTParser(AST.JLS3).parse(getContents(), (ICompilationUnit)typeRoot, false, false, null);
+		} else if (typeRoot instanceof IClassFile) {
+			return new RefactoringASTParser(AST.JLS3).parse(getContents(), (IClassFile)typeRoot, false, false, null);
 		}
-		return snippetOffset;
+		throw new IllegalArgumentException("typeRoot was expected to be either ICompilationUnit or IClassFile");
 	}
 
-	public ASTNode findTargetNode() {
-
-		ASTNode localNode= RefactoringASTParser.parseWithASTProvider(typeRoot, false, new NullProgressMonitor());
-
-		// see (org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring.checkInitialConditions(IProgressMonitor))
-		return NodeFinder.perform(localNode, selectionStart, selectionLength);
-	}
 }

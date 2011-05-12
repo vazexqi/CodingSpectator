@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingspectator.ui.tests.extractsuperclass;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -35,12 +34,6 @@ public class T03 extends RefactoringTest {
 		bot.invokeRefactoringFromMenu(EXTRACT_SUPERCLASS_MENU_ITEM);
 		bot.fillTextField(SUPERCLASS_NAME_LABEL, NEW_SUPERCLASS_NAME);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
-	}
-
-	@Override
-	protected void doRefactoringShouldBeLogged() throws CoreException {
-		super.doRefactoringShouldBeLogged();
-		printMessage("The selection is not what the user has exactly selected.");
 	}
 
 }

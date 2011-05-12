@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
@@ -55,7 +56,7 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * </p>
  * 
  * @author Mohsen Vakilian, nchen - Recorded invocations of the refactoring when it is not
- *         available.
+ *         available; captured more precise information about selection
  * 
  * @since 3.2
  */
@@ -137,6 +138,9 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	 */
 	public void run(final IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			final IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isExtractSupertypeAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
 				RefactoringExecutionStarter.startExtractSupertypeRefactoring(members, getShell());
@@ -150,6 +154,9 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	 */
 	public void run(final ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			final IMember member= getSelectedMemberFromEditor();
@@ -163,7 +170,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
 			}
 		} catch (JavaModelException exception) {
 			ExceptionHandler.handle(exception, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

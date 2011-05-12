@@ -26,12 +26,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -42,7 +45,12 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
-public class MoveStaticMembersAction extends SelectionDispatchAction{
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Captured unavailable invocations of the refactoring.
+ * 
+ */
+public class MoveStaticMembersAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
 
@@ -86,6 +94,9 @@ public class MoveStaticMembersAction extends SelectionDispatchAction{
 
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			IMember[] members= getSelectedMembers(selection);
 			for (int index= 0; index < members.length; index++) {
 				if (!ActionUtil.isEditable(getShell(), members[index]))
@@ -100,13 +111,19 @@ public class MoveStaticMembersAction extends SelectionDispatchAction{
 
 	public void run(ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			IMember member= getSelectedMemberFromEditor();
 			if (!ActionUtil.isEditable(fEditor, getShell(), member))
 				return;
-			IMember[] array= new IMember[]{member};
-			if (member != null && RefactoringAvailabilityTester.isMoveStaticMembersAvailable(array)){
+			IMember[] array= new IMember[] { member };
+			if (member != null && RefactoringAvailabilityTester.isMoveStaticMembersAvailable(array)) {
 				RefactoringExecutionStarter.startMoveStaticMembersRefactoring(array, getShell());
 			} else {
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE_STATIC_MEMBERS, RefactoringMessages.MoveMembersAction_unavailable);
+
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.MoveMembersAction_unavailable);
 			}
 		} catch (JavaModelException e) {
@@ -114,22 +131,22 @@ public class MoveStaticMembersAction extends SelectionDispatchAction{
 		}
 	}
 
-	private static IMember[] getSelectedMembers(IStructuredSelection selection){
+	private static IMember[] getSelectedMembers(IStructuredSelection selection) {
 		if (selection.isEmpty())
 			return null;
 
-		for  (final Iterator iterator= selection.iterator(); iterator.hasNext(); ) {
-			if (! (iterator.next() instanceof IMember))
+		for (final Iterator iterator= selection.iterator(); iterator.hasNext();) {
+			if (!(iterator.next() instanceof IMember))
 				return null;
 		}
 		Set memberSet= new HashSet();
 		memberSet.addAll(Arrays.asList(selection.toArray()));
-		return (IMember[]) memberSet.toArray(new IMember[memberSet.size()]);
+		return (IMember[])memberSet.toArray(new IMember[memberSet.size()]);
 	}
 
-	private IMember getSelectedMemberFromEditor() throws JavaModelException{
+	private IMember getSelectedMemberFromEditor() throws JavaModelException {
 		IJavaElement element= SelectionConverter.getElementAtOffset(fEditor);
-		if (element == null || ! (element instanceof IMember))
+		if (element == null || !(element instanceof IMember))
 			return null;
 		return (IMember)element;
 	}
