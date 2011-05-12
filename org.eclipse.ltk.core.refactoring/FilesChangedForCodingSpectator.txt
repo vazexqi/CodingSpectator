@@ -7,6 +7,7 @@ src/org/eclipse/ltk/core/refactoring/participants/RenameRefactoring.java
 
 src/org/eclipse/ltk/core/refactoring/Change.java
 src/org/eclipse/ltk/core/refactoring/CompositeChange.java
+src/org/eclipse/ltk/core/refactoring/TextFileChange.java
 src/org/eclipse/ltk/internal/core/refactoring/UndoableOperation2ChangeAdapter.java
 
 src/org/eclipse/ltk/core/refactoring/participants/MoveRefactoring.java

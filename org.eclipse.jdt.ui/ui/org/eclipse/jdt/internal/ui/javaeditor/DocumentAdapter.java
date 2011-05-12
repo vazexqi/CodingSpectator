@@ -19,7 +19,6 @@ import java.util.Set;
 import org.eclipse.swt.widgets.Display;
 
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.internal.resources.Resource;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -66,8 +65,6 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * Adapts <code>IDocument</code> to <code>IBuffer</code>. Uses the same algorithm as the text widget
  * to determine the buffer's line delimiter. All text inserted into the buffer is converted to this
  * line delimiter. This class is <code>public</code> for test purposes only.
- * 
- * @author Stas Negara - Added saving event notification to method save.
  */
 public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCapability {
 
@@ -528,14 +525,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 	public void save(IProgressMonitor progress, boolean force) throws JavaModelException {
 		try {
 			if (fTextFileBuffer != null) {
-				//CODINGSPECTATOR: added variable 'success' and all code accessing it, and a try/finally block
-				boolean success= false;
-				try {
-					fTextFileBuffer.commit(progress, force);
-					success= true;
-				} finally {
-					Resource.resourceListener.savedFile(fTextFileBuffer.getLocation(), success);
-				}
+				fTextFileBuffer.commit(progress, force);
 			}
 		} catch (CoreException e) {
 			throw new JavaModelException(e);

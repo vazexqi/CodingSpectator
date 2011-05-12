@@ -1,4 +1,5 @@
 Changed Files
 =============
 
+src/org/eclipse/ui/editors/text/TextFileDocumentProvider.java
 src/org/eclipse/ui/texteditor/AbstractDecoratedTextEditor.java
