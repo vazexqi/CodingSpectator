@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.refactoringproblems.logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Set;
@@ -66,9 +67,9 @@ public class ProblemChanges {
 	 */
 	public void log() {
 		SafeRecorder safeRecorder= new SafeRecorder("refactorings/refactoring-problems.log");
-		StringOutputStream stringOutputStream= new StringOutputStream();
+		ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
 		try {
-			XMLWriter xmlWriter= new XMLWriter(stringOutputStream);
+			XMLWriter xmlWriter= new XMLWriter(outputStream);
 			final String problemChangesTag= "problem-changes";
 			xmlWriter.startTag(problemChangesTag, null);
 			addTo(afterMinusBefore, "after-minus-before", afterTimestamp, xmlWriter);
@@ -79,6 +80,6 @@ public class ProblemChanges {
 			Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to serialize the compilation problems.", e));
 		}
 		final String XMLWriter_XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-		safeRecorder.record(stringOutputStream.toString().substring(XMLWriter_XML_VERSION.length()));
+		safeRecorder.record(outputStream.toString().substring(XMLWriter_XML_VERSION.length()));
 	}
 }
