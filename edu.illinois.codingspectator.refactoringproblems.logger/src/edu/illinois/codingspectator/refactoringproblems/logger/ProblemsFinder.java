@@ -117,6 +117,8 @@ class DefaultProblemWrapper {
 
 	private int severity;
 
+	private static String PROBLEM_TAG= "problem";
+
 	@SuppressWarnings("restriction")
 	public DefaultProblemWrapper(String problemMarker, CategorizedProblem problem) {
 		this.problemMarker= problemMarker;
@@ -231,7 +233,8 @@ class DefaultProblemWrapper {
 		parameters.put("startPosition", startPosition);
 		parameters.put("severity", severity);
 
-		xmlWriter.printTag("problem", parameters);
+		xmlWriter.startTag(PROBLEM_TAG, parameters);
+		xmlWriter.endTag(PROBLEM_TAG);
 		xmlWriter.flush();
 	}
 }
