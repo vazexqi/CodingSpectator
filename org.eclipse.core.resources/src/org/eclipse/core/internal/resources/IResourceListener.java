@@ -27,8 +27,6 @@ public interface IResourceListener {
 
 	public void savedFile(IFile file, boolean success);
 
-	public void savedFile(IPath filePath, boolean success);
-
 	public void savedCompareEditor(Object compareEditor, boolean success);
 
 }

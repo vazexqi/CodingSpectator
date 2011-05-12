@@ -11,8 +11,6 @@
 package org.eclipse.ltk.core.refactoring;
 
 
-import org.eclipse.core.internal.resources.Resource;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -54,9 +52,6 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
  * </p>
  * 
  * @since 3.0
- * 
- * @author Stas Negara - Added saving event notification to method commit.
- * 
  */
 public class TextFileChange extends TextChange {
 
@@ -235,14 +230,7 @@ public class TextFileChange extends TextChange {
 	 */
 	protected void commit(IDocument document, IProgressMonitor pm) throws CoreException {
 		if (needsSaving()) {
-			//CODINGSPECTATOR: added variable 'success' and all code accessing it, and a try/finally block
-			boolean success= false;
-			try {
-				fBuffer.commit(pm, false);
-				success= true;
-			} finally {
-				Resource.resourceListener.savedFile(fBuffer.getLocation(), success);
-			}
+			fBuffer.commit(pm, false);
 		}
 	}
 

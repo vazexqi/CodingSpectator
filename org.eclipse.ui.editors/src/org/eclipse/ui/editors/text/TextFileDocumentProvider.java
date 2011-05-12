@@ -26,7 +26,6 @@ import org.osgi.framework.Bundle;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.internal.resources.Resource;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -108,9 +107,6 @@ import org.eclipse.ui.texteditor.ISchedulingRuleProvider;
  * </p>
  * 
  * @since 3.0
- * 
- * @author Stas Negara - Added saving event notification to method saveDocument.
- * 
  */
 public class TextFileDocumentProvider implements IDocumentProvider, IDocumentProviderExtension, IDocumentProviderExtension2, IDocumentProviderExtension3, IDocumentProviderExtension5,
 		IStorageDocumentProvider, IDocumentProviderExtension4 {
@@ -859,20 +855,10 @@ public class TextFileDocumentProvider implements IDocumentProvider, IDocumentPro
 			return;
 
 		DocumentProviderOperation operation= createSaveOperation(element, document, overwrite);
-		//CODINGSPECTATOR: added variable 'success' and all code accessing it, and a try/finally block
-		boolean success= false;
-		try {
-			if (operation != null)
-				executeOperation(operation, monitor);
-			else
-				getParentProvider().saveDocument(monitor, element, document, overwrite);
-			success= true;
-		} finally {
-			FileInfo fileInfo= getFileInfo(element);
-			if (fileInfo != null) {
-				Resource.resourceListener.savedFile(fileInfo.fTextFileBuffer.getLocation(), success);
-			}
-		}
+		if (operation != null)
+			executeOperation(operation, monitor);
+		else
+			getParentProvider().saveDocument(monitor, element, document, overwrite);
 	}
 
 	protected DocumentProviderOperation createSaveOperation(final Object element, final IDocument document, final boolean overwrite) throws CoreException {

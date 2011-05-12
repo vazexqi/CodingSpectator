@@ -22,6 +22,9 @@ import edu.illinois.codingspectator.codingtracker.listeners.document.FileDocumen
  */
 public class FileBufferListener extends BasicListener implements IFileBufferListener {
 
+	private boolean isPossibleCommitStart= false;
+
+
 	public static void register() {
 		FileBuffers.getTextFileBufferManager().addFileBufferListener(new FileBufferListener());
 	}
@@ -56,17 +59,33 @@ public class FileBufferListener extends BasicListener implements IFileBufferList
 	}
 
 	@Override
-	public void bufferDisposed(IFileBuffer buffer) {
-		//do nothing
+	public void stateChanging(IFileBuffer buffer) {
+		if (buffer.isDirty()) {
+			isPossibleCommitStart= true;
+		}
 	}
 
 	@Override
-	public void stateChanging(IFileBuffer buffer) {
-		//do nothing
+	public void stateChangeFailed(IFileBuffer buffer) {
+		isPossibleCommitStart= false;
 	}
 
 	@Override
 	public void dirtyStateChanged(IFileBuffer buffer, boolean isDirty) {
+		if (isPossibleCommitStart && !isDirty && buffer.isSynchronized()) { //was committed
+			IResource resource= ResourceHelper.findWorkspaceMember(buffer.getLocation());
+			if (resource instanceof IFile) {
+				IFile file= (IFile)resource;
+				if (ResourceHelper.isJavaFile(file)) {
+					operationRecorder.recordSavedFile(file, true);
+				}
+			}
+		}
+		isPossibleCommitStart= false;
+	}
+
+	@Override
+	public void bufferDisposed(IFileBuffer buffer) {
 		//do nothing
 	}
 
@@ -82,11 +101,6 @@ public class FileBufferListener extends BasicListener implements IFileBufferList
 
 	@Override
 	public void underlyingFileDeleted(IFileBuffer buffer) {
-		//do nothing
-	}
-
-	@Override
-	public void stateChangeFailed(IFileBuffer buffer) {
 		//do nothing
 	}
 

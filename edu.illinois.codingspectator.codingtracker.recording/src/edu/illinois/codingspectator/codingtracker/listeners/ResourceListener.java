@@ -124,14 +124,6 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	}
 
 	@Override
-	public void savedFile(IPath filePath, boolean success) {
-		IResource resource= ResourceHelper.findWorkspaceMember(filePath);
-		if (resource instanceof IFile) {
-			savedFile((IFile)resource, success);
-		}
-	}
-
-	@Override
 	public void savedFile(IFile file, boolean success) {
 		if (ResourceHelper.isJavaFile(file)) {
 			operationRecorder.recordSavedFile(file, success);
