@@ -31,7 +31,7 @@ public class T02 extends RefactoringTest {
 	@Override
 	protected void doRefactoringShouldBeLogged() throws CoreException {
 		super.doRefactoringShouldBeLogged();
-		printMessage("The list of selected members in the captured refactoring should be empty.");
+		printMessage("This test does not select any members. Therefore, CodingSpectator cannot find an ITypeRoot. Thus, CodingSpectator fails to capture any selection information.");
 	}
 
 }
