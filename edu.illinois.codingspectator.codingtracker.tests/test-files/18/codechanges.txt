@@ -1,0 +1,253 @@
+l1305482409484#f/edu.illinois.test/src/p1/p2/BaseBaseTest.java#package p1.p2;
+
+public class BaseBaseTest {
+
+	protected static final int deltaIndex = 5;
+	public static BaseBaseTest createBaseBaseTest() {
+		return new BaseBaseTest();
+	}
+
+	protected BaseBaseTestData data = new BaseBaseTestData(3);
+
+	protected BaseBaseTest() {
+		super();
+	}
+
+}#1305482425375#e/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305482425390#t{##44#1#1305482425390#h#{#44#0#1305482426468#f/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#package p1.p2;
+
+public class BaseBaseTestData {
+	private int sumFactor;
+
+	public BaseBaseTestData(int sumFactor) {
+		this.setSumFactor(sumFactor);
+	}
+
+	public void setSumFactor(int sumFactor) {
+		this.sumFactor = sumFactor;
+	}
+
+	public int getSumFactor() {
+		return sumFactor;
+	}
+}#1305482429484#e/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1305482429484#t{##48#1#1305482429484#h#{#48#0#1305482430281#f/edu.illinois.test/src/p1/p2/BaseInterface.java#package p1.p2;
+
+public interface BaseInterface {
+
+	public abstract void method2();
+
+}#1305482432875#e/edu.illinois.test/src/p1/p2/BaseInterface.java#1305482432875#t{##49#1#1305482432875#h#{#49#0#1305482433265#f/edu.illinois.test/src/p1/p2/BaseTest2.java#package p1.p2;
+
+public class BaseTest2 extends BaseBaseTest implements BaseInterface {
+
+	public static void indirectTest(BaseTest2 baseTest2) {
+		baseTest2.test();
+	}
+
+	/* (non-Javadoc)
+	 * @see p1.p2.BaseInterface~#method2()
+	 */
+	public void method2(){
+		Runnable myRunnable = new MyRunnable();
+		int k=deltaIndex;
+		int product = k * k;
+		int j = data.getSumFactor() + product;
+	}
+	
+	public BaseInterface returnMe(){
+		return new BaseTest2();
+	}
+	
+	public void test(){
+		returnMe().method2();
+	}
+
+	public void pullMeUp() {
+		String str="up";
+	}
+	
+	public void multipleParameters(MultipleParameters parameterObject){
+		
+	}
+	
+	public void testMe(String str){
+		String myString = str;
+	}
+	
+}
+#1305482436234#e/edu.illinois.test/src/p1/p2/BaseTest2.java#1305482436234#t{##87#1#1305482436234#h#{#87#0#1305482436687#f/edu.illinois.test/src/p1/p2/DerivedTest1.java#package p1.p2;
+
+public class DerivedTest1 extends BaseTest2 {
+
+	public void method2(){
+		long l;
+	}
+
+	public void pushMeDown() {
+		String str="aaa";
+	}
+	
+}
+#1305482439781#e/edu.illinois.test/src/p1/p2/DerivedTest1.java#1305482439781#t{##62#1#1305482439781#h#{#62#0#1305482440359#f/edu.illinois.test/src/p1/p2/DerivedTest2.java#package p1.p2;
+
+public class DerivedTest2 extends BaseTest2 {
+
+	public void method2(){
+		String s;
+	}
+
+	public void pushMeDown() {
+		String str="aaa";
+	}
+	
+}
+#1305482443718#e/edu.illinois.test/src/p1/p2/DerivedTest2.java#1305482443718#t{##62#1#1305482443718#h#{#62#0#1305482444093#f/edu.illinois.test/src/p1/p2/MultipleParameters.java#package p1.p2;
+
+public class MultipleParameters {
+	public int i;
+	public long l;
+	public String s;
+
+	public MultipleParameters(int i, long l, String s) {
+		this.i = i;
+		this.l = l;
+		this.s = s;
+	}
+}#1305482447187#e/edu.illinois.test/src/p1/p2/MultipleParameters.java#1305482447187#t{##50#1#1305482447203#h#{#50#0#1305482447562#f/edu.illinois.test/src/p1/p2/MyRunnable.java#package p1.p2;
+
+public class MyRunnable implements Runnable {
+	public void run(){
+		int l;
+	}
+}#1305482450578#e/edu.illinois.test/src/p1/p2/MyRunnable.java#1305482450593#t{##62#1#1305482450593#h#{#62#0#1305482451000#e/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305483234718#tBaseBaseTest##109#12#1305483234718#t#Object#109#0#1305483234718#s/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1#1305483234859#hObject##109#6#1305483248734#h#BaseBaseTest#109#0#1305483248750#h##0#0#1305483248750#s/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1#1305483248781#dBaseBaseTest##109#12#1305483251687#d#Object#109#0#1305483251703#d##0#0#1305483251703#s/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1#1305483251734#tpackage p1.p2;
+
+public class BaseBaseTest {
+
+	protected static final int deltaIndex = 5;
+	public static Object createBaseBaseTest() {
+		return new BaseBaseTest();
+	}
+
+	protected BaseBaseTestData data = new BaseBaseTestData(3);
+
+	protected BaseBaseTest() {
+		super();
+	}
+
+}##0#287#1305483255562#h#package p1.p2;
+
+public class BaseBaseTest {
+
+	protected static final int deltaIndex = 5;
+	public static Object createBaseBaseTest() {
+		return new BaseBaseTest();
+	}
+
+	protected BaseBaseTestData data = new BaseBaseTestData(3);
+
+	protected BaseBaseTest() {
+		super();
+	}
+
+}#0#0#1305483256421#e/edu.illinois.test/src/p1/p2/BaseTest2.java#1305483556687#t	#
+	#724#1#1305483556687#t#p#727#0#1305483557828#t#u#728#0#1305483558109#t#b#729#0#1305483558250#t#l#730#0#1305483558359#t#i#731#0#1305483558531#t#c#732#0#1305483558656#t# #733#0#1305483558781#t#v#734#0#1305483558906#t#o#735#0#1305483559062#t#i#736#0#1305483559250#t#d#737#0#1305483559343#t# #738#0#1305483559609#t#t#739#0#1305483560046#t#e#740#0#1305483560156#t#s#741#0#1305483560328#t#t#742#0#1305483560421#t#G#743#0#1305483560984#t#e#744#0#1305483561109#t#n#745#0#1305483561218#t#e#746#0#1305483561265#t#r#747#0#1305483561421#t#i#748#0#1305483561531#t#c#749#0#1305483561609#t#T#750#0#1305483563562#t#y#751#0#1305483563765#ty##751#1#1305483564421#tT##750#1#1305483564578#t#T#750#0#1305483565546#t#y#751#0#1305483565718#t#p#752#0#1305483565796#t#e#753#0#1305483565937#t#s#754#0#1305483566125#t#()#755#0#1305483567140#t#{#757#0#1305483567828#t#
+		
+	}#758#0#1305483568046#t#L#762#0#1305483571875#t#i#763#0#1305483572046#t#n#764#0#1305483572250#t#k#765#0#1305483572437#t#e#766#0#1305483572531#t#d#767#0#1305483572812#t#L#768#0#1305483573406#t#i#769#0#1305483573593#t#s#770#0#1305483573671#t#t#771#0#1305483573890#t#<>#772#0#1305483574265#t<##772#1#1305483575078#t>##772#1#1305483575078#t# #772#0#1305483581062#t#l#773#0#1305483581718#t#i#774#0#1305483581890#t#s#775#0#1305483581968#t#t#776#0#1305483582171#t# #777#0#1305483582265#t#=#778#0#1305483583187#t# #779#0#1305483583484#t#n#780#0#1305483583703#t#e#781#0#1305483583796#t#w#782#0#1305483583968#t# #783#0#1305483584062#t#L#784#0#1305483584609#t#i#785#0#1305483584812#t#n#786#0#1305483584984#t#k#787#0#1305483585187#t#e#788#0#1305483585265#t#d#789#0#1305483585406#t#L#790#0#1305483585828#t#i#791#0#1305483586046#t#s#792#0#1305483586187#t#t#793#0#1305483586453#t#()#794#0#1305483587312#t#;#796#0#1305483587640#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305483588203#t#import java.util.LinkedList;
+#16#0#1305483594203#t#
+#16#0#1305483594203#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305483597171#t#
+		#829#0#1305483607609#t#l#833#0#1305483608031#t#i#834#0#1305483608203#t#s#835#0#1305483608328#t#t#836#0#1305483608546#t#.#837#0#1305483608671#t#a#838#0#1305483610875#t#d#839#0#1305483611203#tad#add(arg0)#838#2#1305483611703#targ0#"#842#4#1305483613000#t#a#843#0#1305483613265#t#a#844#0#1305483613453#t#a#845#0#1305483613609#t#"#846#0#1305483614437#t#;#848#0#1305483615921#t#
+		#849#0#1305483616234#t#l#853#0#1305483617937#t#i#854#0#1305483618125#t#s#855#0#1305483618218#t#t#856#0#1305483618406#t#.#857#0#1305483618500#t#g#858#0#1305483618968#t#e#859#0#1305483619125#t#t#860#0#1305483619187#tget#get(index)#858#3#1305483619921#tindex#0#862#5#1305483621421#t0#0#862#1#1305483622562#t#;#864#0#1305483622578#tlist.get(0)##853#11#1305483625265#t#list.get(0)#853#0#1305483625265#t# = #853#0#1305483625265#t#object#853#0#1305483625265#t# #853#0#1305483625281#t#Object#853#0#1305483625281#tObject object#S#853#13#1305483628984#t#t#854#0#1305483629234#t#r#855#0#1305483629375#t#i#856#0#1305483629437#t#n#857#0#1305483629625#t#g#858#0#1305483629656#t# #859#0#1305483629812#t#s#860#0#1305483629921#t#t#861#0#1305483630109#t#r#862#0#1305483630265#t#(#866#0#1305483632296#t#S#867#0#1305483632421#t#t#868#0#1305483632640#t#r#869#0#1305483632781#t#i#870#0#1305483632828#t#n#871#0#1305483633031#t#g#872#0#1305483633109#t#)#873#0#1305483633390#t# #874#0#1305483633687#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305483634031#t#
+	#891#0#1305483650046#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305483650734#tlist.get(0)##875#11#1305483666734#t(String) ##866#9#1305483666734#t#list.get(0)#866#0#1305483666750#tLinkedList##816#10#1305483666750#t##816#0#1305483666750#t#<String>#816#0#1305483666750#t#LinkedList#816#0#1305483666750#tLinkedList##794#10#1305483666750#t##794#0#1305483666750#t#<String>#794#0#1305483666750#t#LinkedList#794#0#1305483666750#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305483666781#tpackage p1.p2;
+
+import java.util.LinkedList;
+
+public class BaseTest2 extends BaseBaseTest implements BaseInterface {
+
+	public static void indirectTest(BaseTest2 baseTest2) {
+		baseTest2.test();
+	}
+
+	/* (non-Javadoc)
+	 * @see p1.p2.BaseInterface~#method2()
+	 */
+	public void method2(){
+		Runnable myRunnable = new MyRunnable();
+		int k=deltaIndex;
+		int product = k * k;
+		int j = data.getSumFactor() + product;
+	}
+	
+	public BaseInterface returnMe(){
+		return new BaseTest2();
+	}
+	
+	public void test(){
+		returnMe().method2();
+	}
+
+	public void pullMeUp() {
+		String str="up";
+	}
+	
+	public void multipleParameters(MultipleParameters parameterObject){
+		
+	}
+	
+	public void testMe(String str){
+		String myString = str;
+	}
+
+	public void testGenericTypes(){
+		LinkedList<String> list = new LinkedList<String>();
+		list.add("aaa");
+		String str = list.get(0);
+	}
+	
+}
+##0#906#1305483684000#h#package p1.p2;
+
+import java.util.LinkedList;
+
+public class BaseTest2 extends BaseBaseTest implements BaseInterface {
+
+	public static void indirectTest(BaseTest2 baseTest2) {
+		baseTest2.test();
+	}
+
+	/* (non-Javadoc)
+	 * @see p1.p2.BaseInterface~#method2()
+	 */
+	public void method2(){
+		Runnable myRunnable = new MyRunnable();
+		int k=deltaIndex;
+		int product = k * k;
+		int j = data.getSumFactor() + product;
+	}
+	
+	public BaseInterface returnMe(){
+		return new BaseTest2();
+	}
+	
+	public void test(){
+		returnMe().method2();
+	}
+
+	public void pullMeUp() {
+		String str="up";
+	}
+	
+	public void multipleParameters(MultipleParameters parameterObject){
+		
+	}
+	
+	public void testMe(String str){
+		String myString = str;
+	}
+
+	public void testGenericTypes(){
+		LinkedList<String> list = new LinkedList<String>();
+		list.add("aaa");
+		String str = list.get(0);
+	}
+	
+}
+#0#0#1305483684734#c/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305484226312#c/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1305484226359#c/edu.illinois.test/src/p1/p2/BaseInterface.java#1305484226375#c/edu.illinois.test/src/p1/p2/BaseTest2.java#1305484226390#c/edu.illinois.test/src/p1/p2/DerivedTest1.java#1305484226437#c/edu.illinois.test/src/p1/p2/DerivedTest2.java#1305484226453#c/edu.illinois.test/src/p1/p2/MultipleParameters.java#1305484226484#c/edu.illinois.test/src/p1/p2/MyRunnable.java#1305484226500#

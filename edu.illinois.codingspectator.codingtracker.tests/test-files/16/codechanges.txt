@@ -1,0 +1,231 @@
+l1305480097093#f/edu.illinois.test/src/p1/p2/BaseBaseTest.java#package p1.p2;
+
+public class BaseBaseTest {
+
+	protected static final int deltaIndex = 5;
+	protected final int sumFactor = 3;
+
+	public BaseBaseTest() {
+		super();
+	}
+
+}#1305480122609#e/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305480122625#t{##44#1#1305480122640#h#{#44#0#1305480123250#f/edu.illinois.test/src/p1/p2/BaseInterface.java#package p1.p2;
+
+public interface BaseInterface {
+
+	public abstract void method2();
+
+}#1305480126125#e/edu.illinois.test/src/p1/p2/BaseInterface.java#1305480126125#t{##49#1#1305480126125#h#{#49#0#1305480126765#f/edu.illinois.test/src/p1/p2/BaseTest2.java#package p1.p2;
+
+public class BaseTest2 extends BaseBaseTest implements BaseInterface {
+
+	/* (non-Javadoc)
+	 * @see p1.p2.BaseInterface~#method2()
+	 */
+	public void method2(){
+		Runnable myRunnable = new MyRunnable();
+		int k=deltaIndex;
+		int product = k * k;
+		int j = sumFactor + product;
+	}
+	
+	public BaseInterface returnMe(){
+		return new BaseTest2();
+	}
+	
+	public void test(){
+		returnMe().method2();
+	}
+
+	public void pullMeUp() {
+		String str="up";
+	}
+	
+}
+#1305480129984#e/edu.illinois.test/src/p1/p2/BaseTest2.java#1305480129984#t{##87#1#1305480129984#h#{#87#0#1305480130375#f/edu.illinois.test/src/p1/p2/DerivedTest1.java#package p1.p2;
+
+public class DerivedTest1 extends BaseTest2 {
+
+	public void method2(){
+		long l;
+	}
+
+	public void pushMeDown() {
+		String str="aaa";
+	}
+	
+}
+#1305480133203#e/edu.illinois.test/src/p1/p2/DerivedTest1.java#1305480133203#t{##62#1#1305480133203#h#{#62#0#1305480133578#f/edu.illinois.test/src/p1/p2/DerivedTest2.java#package p1.p2;
+
+public class DerivedTest2 extends BaseTest2 {
+
+	public void method2(){
+		String s;
+	}
+
+	public void pushMeDown() {
+		String str="aaa";
+	}
+	
+}
+#1305480136562#e/edu.illinois.test/src/p1/p2/DerivedTest2.java#1305480136562#t{##62#1#1305480136562#h#{#62#0#1305480136937#f/edu.illinois.test/src/p1/p2/MyRunnable.java#package p1.p2;
+
+public class MyRunnable implements Runnable {
+	public void run(){
+		int l;
+	}
+}#1305480139609#e/edu.illinois.test/src/p1/p2/MyRunnable.java#1305480139609#t{##62#1#1305480139609#h#{#62#0#1305480139890#D398#org.eclipse.jdt.core.builder.cleanOutputFolder#clean#org.eclipse.jdt.core.builder.duplicateResourceTask#warning#org.eclipse.jdt.core.builder.invalidClasspath#abort#org.eclipse.jdt.core.builder.recreateModifiedClassFileInOutputFolder#ignore#org.eclipse.jdt.core.builder.resourceCopyExclusionFilter#*.launch#org.eclipse.jdt.core.circularClasspath#error#org.eclipse.jdt.core.classpath.exclusionPatterns#enabled#org.eclipse.jdt.core.classpath.multipleOutputLocations#enabled#org.eclipse.jdt.core.codeComplete.argumentPrefixes##org.eclipse.jdt.core.codeComplete.argumentSuffixes##org.eclipse.jdt.core.codeComplete.camelCaseMatch#enabled#org.eclipse.jdt.core.codeComplete.deprecationCheck#disabled#org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck#disabled#org.eclipse.jdt.core.codeComplete.fieldPrefixes##org.eclipse.jdt.core.codeComplete.fieldSuffixes##org.eclipse.jdt.core.codeComplete.forbiddenReferenceCheck#enabled#org.eclipse.jdt.core.codeComplete.forceImplicitQualification#disabled#org.eclipse.jdt.core.codeComplete.localPrefixes##org.eclipse.jdt.core.codeComplete.localSuffixes##org.eclipse.jdt.core.codeComplete.staticFieldPrefixes##org.eclipse.jdt.core.codeComplete.staticFieldSuffixes##org.eclipse.jdt.core.codeComplete.staticFinalFieldPrefixes##org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes##org.eclipse.jdt.core.codeComplete.suggestStaticImports#enabled#org.eclipse.jdt.core.codeComplete.visibilityCheck#enabled#org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode#enabled#org.eclipse.jdt.core.compiler.codegen.targetPlatform#1.6#org.eclipse.jdt.core.compiler.codegen.unusedLocal#preserve#org.eclipse.jdt.core.compiler.compliance#1.6#org.eclipse.jdt.core.compiler.debug.lineNumber#generate#org.eclipse.jdt.core.compiler.debug.localVariable#generate#org.eclipse.jdt.core.compiler.debug.sourceFile#generate#org.eclipse.jdt.core.compiler.doc.comment.support#enabled#org.eclipse.jdt.core.compiler.generateClassFiles#enabled#org.eclipse.jdt.core.compiler.maxProblemPerUnit#100#org.eclipse.jdt.core.compiler.problem.annotationSuperInterface#warning#org.eclipse.jdt.core.compiler.problem.assertIdentifier#error#org.eclipse.jdt.core.compiler.problem.autoboxing#ignore#org.eclipse.jdt.core.compiler.problem.comparingIdentical#warning#org.eclipse.jdt.core.compiler.problem.deadCode#warning#org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement#disabled#org.eclipse.jdt.core.compiler.problem.deprecation#warning#org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode#disabled#org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod#disabled#org.eclipse.jdt.core.compiler.problem.discouragedReference#warning#org.eclipse.jdt.core.compiler.problem.emptyStatement#ignore#org.eclipse.jdt.core.compiler.problem.enumIdentifier#error#org.eclipse.jdt.core.compiler.problem.fallthroughCase#ignore#org.eclipse.jdt.core.compiler.problem.fatalOptionalError#disabled#org.eclipse.jdt.core.compiler.problem.fieldHiding#ignore#org.eclipse.jdt.core.compiler.problem.finalParameterBound#warning#org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally#warning#org.eclipse.jdt.core.compiler.problem.forbiddenReference#error#org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock#warning#org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod#warning#org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch#ignore#org.eclipse.jdt.core.compiler.problem.indirectStaticAccess#ignore#org.eclipse.jdt.core.compiler.problem.invalidImport#error#org.eclipse.jdt.core.compiler.problem.invalidJavadoc#ignore#org.eclipse.jdt.core.compiler.problem.invalidJavadocTags#disabled#org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef#disabled#org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef#disabled#org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility#public#org.eclipse.jdt.core.compiler.problem.localVariableHiding#ignore#org.eclipse.jdt.core.compiler.problem.methodWithConstructorName#warning#org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation#ignore#org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod#ignore#org.eclipse.jdt.core.compiler.problem.missingJavadocComments#ignore#org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding#disabled#org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility#public#org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription#return_tag#org.eclipse.jdt.core.compiler.problem.missingJavadocTags#ignore#org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding#disabled#org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility#public#org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation#ignore#org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation#enabled#org.eclipse.jdt.core.compiler.problem.missingSerialVersion#warning#org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod#ignore#org.eclipse.jdt.core.compiler.problem.noEffectAssignment#warning#org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion#warning#org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral#ignore#org.eclipse.jdt.core.compiler.problem.nullReference#warning#org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation#ignore#org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod#warning#org.eclipse.jdt.core.compiler.problem.parameterAssignment#ignore#org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment#ignore#org.eclipse.jdt.core.compiler.problem.potentialNullReference#ignore#org.eclipse.jdt.core.compiler.problem.rawTypeReference#warning#org.eclipse.jdt.core.compiler.problem.redundantNullCheck#ignore#org.eclipse.jdt.core.compiler.problem.redundantSuperinterface#ignore#org.eclipse.jdt.core.compiler.problem.specialParameterHidingField#disabled#org.eclipse.jdt.core.compiler.problem.staticAccessReceiver#warning#org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors#disabled#org.eclipse.jdt.core.compiler.problem.suppressWarnings#enabled#org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation#ignore#org.eclipse.jdt.core.compiler.problem.tasks#warning#org.eclipse.jdt.core.compiler.problem.typeParameterHiding#warning#org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation#warning#org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock#ignore#org.eclipse.jdt.core.compiler.problem.unhandledWarningToken#warning#org.eclipse.jdt.core.compiler.problem.unnecessaryElse#ignore#org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck#ignore#org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess#ignore#org.eclipse.jdt.core.compiler.problem.unreachableCode#error#org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException#ignore#org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable#enabled#org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference#enabled#org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding#disabled#org.eclipse.jdt.core.compiler.problem.unusedImport#warning#org.eclipse.jdt.core.compiler.problem.unusedLabel#warning#org.eclipse.jdt.core.compiler.problem.unusedLocal#warning#org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation#ignore#org.eclipse.jdt.core.compiler.problem.unusedParameter#ignore#org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference#enabled#org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract#disabled#org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete#disabled#org.eclipse.jdt.core.compiler.problem.unusedPrivateMember#warning#org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation#warning#org.eclipse.jdt.core.compiler.problem.unusedWarningToken#warning#org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast#warning#org.eclipse.jdt.core.compiler.processAnnotations#disabled#org.eclipse.jdt.core.compiler.source#1.6#org.eclipse.jdt.core.compiler.taskCaseSensitive#enabled#org.eclipse.jdt.core.compiler.taskPriorities#NORMAL,HIGH,NORMAL#org.eclipse.jdt.core.compiler.taskTags#TODO,FIXME,XXX#org.eclipse.jdt.core.computeJavaBuildOrder#ignore#org.eclipse.jdt.core.encoding#UTF-8#org.eclipse.jdt.core.formatter.align_type_members_on_columns#false#org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression#16#org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation#0#org.eclipse.jdt.core.formatter.alignment_for_arguments_in_enum_constant#16#org.eclipse.jdt.core.formatter.alignment_for_arguments_in_explicit_constructor_call#16#org.eclipse.jdt.core.formatter.alignment_for_arguments_in_method_invocation#16#org.eclipse.jdt.core.formatter.alignment_for_arguments_in_qualified_allocation_expression#16#org.eclipse.jdt.core.formatter.alignment_for_assignment#0#org.eclipse.jdt.core.formatter.alignment_for_binary_expression#16#org.eclipse.jdt.core.formatter.alignment_for_compact_if#16#org.eclipse.jdt.core.formatter.alignment_for_conditional_expression#80#org.eclipse.jdt.core.formatter.alignment_for_enum_constants#0#org.eclipse.jdt.core.formatter.alignment_for_expressions_in_array_initializer#16#org.eclipse.jdt.core.formatter.alignment_for_method_declaration#0#org.eclipse.jdt.core.formatter.alignment_for_multiple_fields#16#org.eclipse.jdt.core.formatter.alignment_for_parameters_in_constructor_declaration#16#org.eclipse.jdt.core.formatter.alignment_for_parameters_in_method_declaration#0#org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation#16#org.eclipse.jdt.core.formatter.alignment_for_superclass_in_type_declaration#16#org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_enum_declaration#16#org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_type_declaration#16#org.eclipse.jdt.core.formatter.alignment_for_throws_clause_in_constructor_declaration#16#org.eclipse.jdt.core.formatter.alignment_for_throws_clause_in_method_declaration#16#org.eclipse.jdt.core.formatter.blank_lines_after_imports#1#org.eclipse.jdt.core.formatter.blank_lines_after_package#1#org.eclipse.jdt.core.formatter.blank_lines_before_field#0#org.eclipse.jdt.core.formatter.blank_lines_before_first_class_body_declaration#0#org.eclipse.jdt.core.formatter.blank_lines_before_imports#1#org.eclipse.jdt.core.formatter.blank_lines_before_member_type#1#org.eclipse.jdt.core.formatter.blank_lines_before_method#1#org.eclipse.jdt.core.formatter.blank_lines_before_new_chunk#1#org.eclipse.jdt.core.formatter.blank_lines_before_package#0#org.eclipse.jdt.core.formatter.blank_lines_between_import_groups#1#org.eclipse.jdt.core.formatter.blank_lines_between_type_declarations#1#org.eclipse.jdt.core.formatter.brace_position_for_annotation_type_declaration#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_anonymous_type_declaration#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_array_initializer#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_block#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_block_in_case#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_constructor_declaration#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_enum_constant#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_enum_declaration#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_method_declaration#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_switch#end_of_line#org.eclipse.jdt.core.formatter.brace_position_for_type_declaration#end_of_line#org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_block_comment#false#org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_javadoc_comment#false#org.eclipse.jdt.core.formatter.comment.format_block_comments#true#org.eclipse.jdt.core.formatter.comment.format_header#false#org.eclipse.jdt.core.formatter.comment.format_html#true#org.eclipse.jdt.core.formatter.comment.format_javadoc_comments#true#org.eclipse.jdt.core.formatter.comment.format_line_comments#true#org.eclipse.jdt.core.formatter.comment.format_source_code#true#org.eclipse.jdt.core.formatter.comment.indent_parameter_description#true#org.eclipse.jdt.core.formatter.comment.indent_root_tags#true#org.eclipse.jdt.core.formatter.comment.insert_new_line_before_root_tags#insert#org.eclipse.jdt.core.formatter.comment.insert_new_line_for_parameter#insert#org.eclipse.jdt.core.formatter.comment.line_length#80#org.eclipse.jdt.core.formatter.comment.new_lines_at_block_boundaries#true#org.eclipse.jdt.core.formatter.comment.new_lines_at_javadoc_boundaries#true#org.eclipse.jdt.core.formatter.compact_else_if#true#org.eclipse.jdt.core.formatter.continuation_indentation#2#org.eclipse.jdt.core.formatter.continuation_indentation_for_array_initializer#2#org.eclipse.jdt.core.formatter.disabling_tag#@formatter:off#org.eclipse.jdt.core.formatter.enabling_tag#@formatter:on#org.eclipse.jdt.core.formatter.format_guardian_clause_on_one_line#false#org.eclipse.jdt.core.formatter.format_line_comment_starting_on_first_column#true#org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_annotation_declaration_header#true#org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_enum_constant_header#true#org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_enum_declaration_header#true#org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_type_header#true#org.eclipse.jdt.core.formatter.indent_breaks_compare_to_cases#true#org.eclipse.jdt.core.formatter.indent_empty_lines#false#org.eclipse.jdt.core.formatter.indent_statements_compare_to_block#true#org.eclipse.jdt.core.formatter.indent_statements_compare_to_body#true#org.eclipse.jdt.core.formatter.indent_switchstatements_compare_to_cases#true#org.eclipse.jdt.core.formatter.indent_switchstatements_compare_to_switch#false#org.eclipse.jdt.core.formatter.indentation.size#4#org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_local_variable#insert#org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member#insert#org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_parameter#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_after_label#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_after_opening_brace_in_array_initializer#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_at_end_of_file_if_missing#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_before_catch_in_try_statement#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_before_closing_brace_in_array_initializer#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_before_else_in_if_statement#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_before_finally_in_try_statement#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_before_while_in_do_statement#do not insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_annotation_declaration#insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_anonymous_type_declaration#insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_block#insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_enum_constant#insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_enum_declaration#insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_method_body#insert#org.eclipse.jdt.core.formatter.insert_new_line_in_empty_type_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_after_and_in_type_parameter#insert#org.eclipse.jdt.core.formatter.insert_space_after_assignment_operator#insert#org.eclipse.jdt.core.formatter.insert_space_after_at_in_annotation#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_at_in_annotation_type_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_binary_operator#insert#org.eclipse.jdt.core.formatter.insert_space_after_closing_angle_bracket_in_type_arguments#insert#org.eclipse.jdt.core.formatter.insert_space_after_closing_angle_bracket_in_type_parameters#insert#org.eclipse.jdt.core.formatter.insert_space_after_closing_brace_in_block#insert#org.eclipse.jdt.core.formatter.insert_space_after_closing_paren_in_cast#insert#org.eclipse.jdt.core.formatter.insert_space_after_colon_in_assert#insert#org.eclipse.jdt.core.formatter.insert_space_after_colon_in_case#insert#org.eclipse.jdt.core.formatter.insert_space_after_colon_in_conditional#insert#org.eclipse.jdt.core.formatter.insert_space_after_colon_in_for#insert#org.eclipse.jdt.core.formatter.insert_space_after_colon_in_labeled_statement#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_allocation_expression#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_annotation#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_array_initializer#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_constructor_declaration_parameters#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_constructor_declaration_throws#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_enum_constant_arguments#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_enum_declarations#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_explicitconstructorcall_arguments#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_for_increments#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_for_inits#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_declaration_parameters#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_declaration_throws#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_invocation_arguments#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_multiple_field_declarations#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_multiple_local_declarations#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_parameterized_type_reference#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_superinterfaces#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_type_arguments#insert#org.eclipse.jdt.core.formatter.insert_space_after_comma_in_type_parameters#insert#org.eclipse.jdt.core.formatter.insert_space_after_ellipsis#insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_parameterized_type_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_type_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_type_parameters#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_brace_in_array_initializer#insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_bracket_in_array_allocation_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_bracket_in_array_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_annotation#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_cast#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_catch#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_constructor_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_enum_constant#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_for#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_if#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_method_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_method_invocation#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_parenthesized_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_switch#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_synchronized#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_while#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_postfix_operator#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_prefix_operator#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_question_in_conditional#insert#org.eclipse.jdt.core.formatter.insert_space_after_question_in_wildcard#do not insert#org.eclipse.jdt.core.formatter.insert_space_after_semicolon_in_for#insert#org.eclipse.jdt.core.formatter.insert_space_after_unary_operator#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_and_in_type_parameter#insert#org.eclipse.jdt.core.formatter.insert_space_before_assignment_operator#insert#org.eclipse.jdt.core.formatter.insert_space_before_at_in_annotation_type_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_binary_operator#insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_angle_bracket_in_parameterized_type_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_angle_bracket_in_type_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_angle_bracket_in_type_parameters#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_brace_in_array_initializer#insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_bracket_in_array_allocation_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_bracket_in_array_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_annotation#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_cast#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_catch#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_constructor_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_enum_constant#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_for#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_if#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_method_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_method_invocation#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_parenthesized_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_switch#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_synchronized#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_while#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_colon_in_assert#insert#org.eclipse.jdt.core.formatter.insert_space_before_colon_in_case#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_colon_in_conditional#insert#org.eclipse.jdt.core.formatter.insert_space_before_colon_in_default#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_colon_in_for#insert#org.eclipse.jdt.core.formatter.insert_space_before_colon_in_labeled_statement#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_allocation_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_annotation#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_array_initializer#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_constructor_declaration_parameters#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_constructor_declaration_throws#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_enum_constant_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_enum_declarations#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_explicitconstructorcall_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_for_increments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_for_inits#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_method_declaration_parameters#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_method_declaration_throws#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_method_invocation_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_multiple_field_declarations#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_multiple_local_declarations#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_parameterized_type_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_superinterfaces#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_type_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_comma_in_type_parameters#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_ellipsis#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_angle_bracket_in_parameterized_type_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_angle_bracket_in_type_arguments#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_angle_bracket_in_type_parameters#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_annotation_type_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_anonymous_type_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_array_initializer#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_block#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_constructor_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_enum_constant#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_enum_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_method_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_switch#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_type_declaration#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_bracket_in_array_allocation_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_bracket_in_array_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_bracket_in_array_type_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_annotation#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_annotation_type_member_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_catch#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_constructor_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_enum_constant#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_for#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_if#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_method_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_method_invocation#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_parenthesized_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_switch#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_synchronized#insert#org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_while#insert#org.eclipse.jdt.core.formatter.insert_space_before_parenthesized_expression_in_return#insert#org.eclipse.jdt.core.formatter.insert_space_before_parenthesized_expression_in_throw#insert#org.eclipse.jdt.core.formatter.insert_space_before_postfix_operator#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_prefix_operator#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_question_in_conditional#insert#org.eclipse.jdt.core.formatter.insert_space_before_question_in_wildcard#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_semicolon#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_semicolon_in_for#do not insert#org.eclipse.jdt.core.formatter.insert_space_before_unary_operator#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_brackets_in_array_type_reference#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_braces_in_array_initializer#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_brackets_in_array_allocation_expression#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_annotation_type_member_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_constructor_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_enum_constant#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_method_declaration#do not insert#org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_method_invocation#do not insert#org.eclipse.jdt.core.formatter.join_lines_in_comments#true#org.eclipse.jdt.core.formatter.join_wrapped_lines#true#org.eclipse.jdt.core.formatter.keep_else_statement_on_same_line#false#org.eclipse.jdt.core.formatter.keep_empty_array_initializer_on_one_line#false#org.eclipse.jdt.core.formatter.keep_imple_if_on_one_line#false#org.eclipse.jdt.core.formatter.keep_then_statement_on_same_line#false#org.eclipse.jdt.core.formatter.lineSplit#80#org.eclipse.jdt.core.formatter.never_indent_block_comments_on_first_column#false#org.eclipse.jdt.core.formatter.never_indent_line_comments_on_first_column#false#org.eclipse.jdt.core.formatter.number_of_blank_lines_at_beginning_of_method_body#0#org.eclipse.jdt.core.formatter.number_of_empty_lines_to_preserve#1#org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line#true#org.eclipse.jdt.core.formatter.tabulation.char#tab#org.eclipse.jdt.core.formatter.tabulation.size#4#org.eclipse.jdt.core.formatter.use_on_off_tags#false#org.eclipse.jdt.core.formatter.use_tabs_only_for_leading_indentations#false#org.eclipse.jdt.core.formatter.wrap_before_binary_operator#true#org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested#true#org.eclipse.jdt.core.incompatibleJDKLevel#ignore#org.eclipse.jdt.core.incompleteClasspath#error#org.eclipse.jdt.core.timeoutForParameterNameFromAttachedJavadoc#50#1305480221500#Eedu.illinois.test#6#org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode#enabled#org.eclipse.jdt.core.compiler.codegen.targetPlatform#1.6#org.eclipse.jdt.core.compiler.compliance#1.6#org.eclipse.jdt.core.compiler.problem.assertIdentifier#error#org.eclipse.jdt.core.compiler.problem.enumIdentifier#error#org.eclipse.jdt.core.compiler.source#1.6#1305480221515#J0#org.eclipse.jdt.ui.extract.class#edu.illinois.test#6#13#className#BaseBaseTestData#createField0#true#createFieldCount#1#createGetterSetter#false#createTopLevel#true#fieldName#data#input#/src<p1.p2{BaseBaseTest.java[BaseBaseTest#newFieldCount#1#newFieldName0#sumFactor#oldFieldCount#1#oldFieldName0#sumFactor#packageName#p1.p2#version#1.0#1305480199734#P/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1#0#1#package p1.p2;
+
+public class BaseBaseTestData {
+	public int sumFactor;
+
+	public BaseBaseTestData(int sumFactor) {
+		this.sumFactor = sumFactor;
+	}
+}#1305480221546#e/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305480221609#t#
+
+	#134#0#1305480221609#t#);#134#0#1305480221609#t#3#134#0#1305480221609#t#protected BaseBaseTestData data = new BaseBaseTestData(#134#0#1305480221609#t
+
+	##129#5#1305480221609#t3##127#1#1305480221609#t = ##124#3#1305480221625#t sumFactor##114#10#1305480221625#tprotected final int;##95#20#1305480221625#s/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1#1305480221718#e/edu.illinois.test/src/p1/p2/BaseTest2.java#1305480221750#tsumFactor##280#9#1305480221750#t#data.sumFactor#280#0#1305480221750#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480221828#K1#1305480221921#J1#org.eclipse.jdt.ui.extract.class#edu.illinois.test#6#13#className#BaseBaseTestData#createField0#true#createFieldCount#1#createGetterSetter#false#createTopLevel#true#fieldName#data#input#/src<p1.p2{BaseBaseTest.java[BaseBaseTest#newFieldCount#1#newFieldName0#sumFactor#oldFieldCount#1#oldFieldName0#sumFactor#packageName#p1.p2#version#1.0#1305480221921#hdata.sumFactor##280#14#1305480242265#h#sumFactor#280#0#1305480242265#h##0#0#1305480242265#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480242312#e/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305480242328#h#protected final int;#95#0#1305480242328#h# sumFactor#114#0#1305480242328#h# = #124#0#1305480242328#h#3#127#0#1305480242328#h#
+
+	#129#0#1305480242343#hprotected BaseBaseTestData data = new BaseBaseTestData(##134#55#1305480242343#h3##134#1#1305480242343#h);##134#2#1305480242343#h
+
+	##134#5#1305480242359#h##0#0#1305480242359#s/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1#1305480242375#N/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1#3#1305480242484#K1#1305480242515#J2#org.eclipse.jdt.ui.extract.class#edu.illinois.test#6#13#className#BaseBaseTestData#createField0#true#createFieldCount#1#createGetterSetter#false#createTopLevel#true#fieldName#data#input#/src<p1.p2{BaseBaseTest.java[BaseBaseTest#newFieldCount#1#newFieldName0#sumFactor#oldFieldCount#1#oldFieldName0#sumFactor#packageName#p1.p2#version#1.0#1305480221921#P/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1#0#1#package p1.p2;
+
+public class BaseBaseTestData {
+	public int sumFactor;
+
+	public BaseBaseTestData(int sumFactor) {
+		this.sumFactor = sumFactor;
+	}
+}#1305480245500#d#
+
+	#134#0#1305480245500#d#);#134#0#1305480245515#d#3#134#0#1305480245515#d#protected BaseBaseTestData data = new BaseBaseTestData(#134#0#1305480245515#d
+
+	##129#5#1305480245515#d3##127#1#1305480245531#d = ##124#3#1305480245531#d sumFactor##114#10#1305480245531#dprotected final int;##95#20#1305480245531#d##0#0#1305480245531#s/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1#1305480245546#e/edu.illinois.test/src/p1/p2/BaseTest2.java#1305480245562#dsumFactor##280#9#1305480245562#d#data.sumFactor#280#0#1305480245562#d##0#0#1305480245562#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480245609#K1#1305480245640#e/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305480251328#tpublic class BaseBaseTest {
+
+	protected static final int deltaIndex = 5;
+	protected BaseBaseTestData data = new BaseBaseTestData(3);
+
+	public BaseBaseTest() {
+		super();
+	}
+
+}##18#184#1305480251328#h#public class BaseBaseTest {
+
+	protected static final int deltaIndex = 5;
+	protected BaseBaseTestData data = new BaseBaseTestData(3);
+
+	public BaseBaseTest() {
+		super();
+	}
+
+}#18#0#1305480252000#e/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1305480257218#tpublic class BaseBaseTestData {
+	public int sumFactor;
+
+	public BaseBaseTestData(int sumFactor) {
+		this.sumFactor = sumFactor;
+	}
+}##18#138#1305480257218#h#public class BaseBaseTestData {
+	public int sumFactor;
+
+	public BaseBaseTestData(int sumFactor) {
+		this.sumFactor = sumFactor;
+	}
+}#18#0#1305480257828#e/edu.illinois.test/src/p1/p2/BaseTest2.java#1305480468203#t#
+	#488#0#1305480468203#t#p#491#0#1305480469203#t#u#492#0#1305480469734#t#b#493#0#1305480469843#t#l#494#0#1305480469984#t#i#495#0#1305480470187#t#c#496#0#1305480470296#t# #497#0#1305480470437#t#v#498#0#1305480470750#t#o#499#0#1305480470843#t#i#500#0#1305480471015#t#d#501#0#1305480471156#t# #502#0#1305480471421#t#m#503#0#1305480471656#t#u#504#0#1305480471843#t#l#505#0#1305480472015#t#t#506#0#1305480472171#t#i#507#0#1305480472250#t#p#508#0#1305480472390#t#l#509#0#1305480472515#t#e#510#0#1305480472687#t#P#511#0#1305480473484#t#a#512#0#1305480473875#t#r#513#0#1305480474109#t#a#514#0#1305480474312#t#m#515#0#1305480474437#t#e#516#0#1305480474546#t#t#517#0#1305480474750#t#e#518#0#1305480474812#t#r#519#0#1305480475015#t#s#520#0#1305480475203#t#()#521#0#1305480476312#t#i#522#0#1305480476703#t#n#523#0#1305480476875#t#t#524#0#1305480476953#t# #525#0#1305480477062#t#p#526#0#1305480477875#t#1#527#0#1305480478109#t#,#528#0#1305480478250#t# #529#0#1305480478390#t#l#530#0#1305480479812#t#o#531#0#1305480480015#t#n#532#0#1305480480218#t#g#533#0#1305480480359#t# #534#0#1305480480921#tp##526#1#1305480484140#t#i#526#0#1305480484250#t#l#535#0#1305480486046#t#1#536#0#1305480486187#t1##536#1#1305480488359#t1##527#1#1305480490000#t#,#535#0#1305480491781#t# #536#0#1305480492015#t#S#537#0#1305480492625#t#t#538#0#1305480492890#t#r#539#0#1305480493046#t#i#540#0#1305480493140#t#n#541#0#1305480493343#t# #542#0#1305480493687#t#s#543#0#1305480493875#ts##543#1#1305480494250#t ##542#1#1305480494421#t#g#542#0#1305480494609#t# #543#0#1305480494781#t#s#544#0#1305480494937#t#{#546#0#1305480496203#t#
+		
+	}#547#0#1305480496390#t#
+	#555#0#1305480498078#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480498671#t, String s##535#10#1305480555046#tlong l##529#6#1305480555046#t, ##527#2#1305480555046#tint i##522#5#1305480555046#t#MultipleParameters parameterObject#522#0#1305480555046#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480555078#hMultipleParameters parameterObject##522#34#1305480580093#h#int i#522#0#1305480580093#h#, #527#0#1305480580093#h#long l#529#0#1305480580109#h#, String s#535#0#1305480580109#h##0#0#1305480580109#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480580156#d, String s##535#10#1305480582812#dlong l##529#6#1305480582812#d, ##527#2#1305480582828#dint i##522#5#1305480582828#d#MultipleParameters parameterObject#522#0#1305480582828#d##0#0#1305480582828#s/edu.illinois.test/src/p1/p2/BaseTest2.java#1#1305480582843#tpublic class BaseTest2 extends BaseBaseTest implements BaseInterface {
+
+	/* (non-Javadoc)
+	 * @see p1.p2.BaseInterface~#method2()
+	 */
+	public void method2(){
+		Runnable myRunnable = new MyRunnable();
+		int k=deltaIndex;
+		int product = k * k;
+		int j = data.sumFactor + product;
+	}
+	
+	public BaseInterface returnMe(){
+		return new BaseTest2();
+	}
+	
+	public void test(){
+		returnMe().method2();
+	}
+
+	public void pullMeUp() {
+		String str="up";
+	}
+	
+	public void multipleParameters(MultipleParameters parameterObject){
+		
+	}
+	
+}##18#554#1305480586390#h#public class BaseTest2 extends BaseBaseTest implements BaseInterface {
+
+	/* (non-Javadoc)
+	 * @see p1.p2.BaseInterface~#method2()
+	 */
+	public void method2(){
+		Runnable myRunnable = new MyRunnable();
+		int k=deltaIndex;
+		int product = k * k;
+		int j = data.sumFactor + product;
+	}
+	
+	public BaseInterface returnMe(){
+		return new BaseTest2();
+	}
+	
+	public void test(){
+		returnMe().method2();
+	}
+
+	public void pullMeUp() {
+		String str="up";
+	}
+	
+	public void multipleParameters(MultipleParameters parameterObject){
+		
+	}
+	
+}#18#0#1305480587062#f/edu.illinois.test/src/p1/p2/MultipleParameters.java#package p1.p2;
+
+public class MultipleParameters {
+	public int i;
+	public long l;
+	public String s;
+
+	public MultipleParameters(int i, long l, String s) {
+		this.i = i;
+		this.l = l;
+		this.s = s;
+	}
+}#1305480582843#e/edu.illinois.test/src/p1/p2/MultipleParameters.java#1305480593171#tpackage p1.p2;
+
+public class MultipleParameters {
+	public int i;
+	public long l;
+	public String s;
+
+	public MultipleParameters(int i, long l, String s) {
+		this.i = i;
+		this.l = l;
+		this.s = s;
+	}
+}##0#212#1305480593171#h#package p1.p2;
+
+public class MultipleParameters {
+	public int i;
+	public long l;
+	public String s;
+
+	public MultipleParameters(int i, long l, String s) {
+		this.i = i;
+		this.l = l;
+		this.s = s;
+	}
+}#0#0#1305480593906#c/edu.illinois.test/src/p1/p2/BaseBaseTest.java#1305480843375#c/edu.illinois.test/src/p1/p2/BaseInterface.java#1305480843406#c/edu.illinois.test/src/p1/p2/BaseTest2.java#1305480843406#c/edu.illinois.test/src/p1/p2/DerivedTest1.java#1305480843437#c/edu.illinois.test/src/p1/p2/DerivedTest2.java#1305480843437#c/edu.illinois.test/src/p1/p2/MyRunnable.java#1305480843453#c/edu.illinois.test/src/p1/p2/BaseBaseTestData.java#1305480843484#c/edu.illinois.test/src/p1/p2/MultipleParameters.java#1305480843500#

@@ -75,7 +75,6 @@ public class CVSResourceChangeListener extends BasicListener implements IResourc
 			populateSets(delta);
 			//proceed only if this is a CVS operation (i.e. at least one CVS/Entries file is affected)
 			if (!cvsEntriesAddedSet.isEmpty() || !cvsEntriesChangedOrRemovedSet.isEmpty()) {
-				System.out.println("CVS operation recorded!!!");
 				calculateCVSSets();
 				recordSets();
 				updateKnownFiles();
