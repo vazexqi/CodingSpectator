@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.refactoringproblems.logger;
+package edu.illinois.codingspectator.refactoringproblems.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +21,8 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 
 /**
  * Deserializes a refactoring-problems log and returns a list of ProblemChanges (@see

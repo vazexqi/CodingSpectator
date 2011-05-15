@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingspectator.refactoringproblems.parser
+Bundle-SymbolicName: edu.illinois.codingspectator.refactoringproblems.parser
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.illinois.codingspectator.refactoringproblems.parser.Activator
+Bundle-Vendor: University of Illinois
+Require-Bundle: org.eclipse.core.runtime,
+ edu.illinois.codingspectator.refactoringproblems.logger
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
