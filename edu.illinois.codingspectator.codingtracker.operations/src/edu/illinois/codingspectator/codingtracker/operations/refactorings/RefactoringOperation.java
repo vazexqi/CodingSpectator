@@ -23,6 +23,7 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
 /**
+ * Concrete implementations of this operation are no longer recorded.
  * 
  * @author Stas Negara
  * 

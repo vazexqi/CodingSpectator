@@ -39,15 +39,15 @@ public class DeletedResourceOperation extends UpdatedResourceOperation {
 	public void replayBreakableResourceOperation() throws CoreException {
 		IResource resource= findResource();
 		if (resource != null) {
-			resource.delete(updateFlags, null);
-
-			//Explicitly close the editor of the deleted file such that the replayer does not complain about the wrong editor
-			//Note: this code is duplicated (with minor change) from ClosedFileOperation.replay()
-			ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
-			if (fileEditor != null && fileEditor == currentEditor) {
-				//Don't use getFileEditor().close(false), because it is executed asynchronously 
-				fileEditor.getSite().getPage().closeEditor(fileEditor, false);
+			//If not in test mode, explicitly close the editors of the files that are contained in the deleted resource such that the replayer 
+			//does not complain about the wrong editor, and do it before the resource is deleted such that the affected files still exist
+			if (!isInTestMode) {
+				for (ITextEditor fileEditor : EditorHelper.getExistingEditors(resourcePath)) {
+					//Don't use getFileEditor().close(false), because it is executed asynchronously 
+					fileEditor.getSite().getPage().closeEditor(fileEditor, false);
+				}
 			}
+			resource.delete(updateFlags, null);
 		}
 	}
 

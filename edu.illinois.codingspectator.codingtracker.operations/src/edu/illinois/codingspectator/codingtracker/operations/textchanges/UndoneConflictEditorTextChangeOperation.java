@@ -34,7 +34,7 @@ public class UndoneConflictEditorTextChangeOperation extends ConflictEditorTextC
 	}
 
 	@Override
-	protected void replayTextChange() throws ExecutionException {
+	protected void replaySpecificTextChange() throws ExecutionException {
 		getCurrentDocumentUndoManager().undo();
 	}
 

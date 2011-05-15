@@ -34,7 +34,7 @@ public class RedoneTextChangeOperation extends TextChangeOperation {
 	}
 
 	@Override
-	protected void replayTextChange() throws ExecutionException {
+	protected void replaySpecificTextChange() throws ExecutionException {
 		getCurrentDocumentUndoManager().redo();
 	}
 

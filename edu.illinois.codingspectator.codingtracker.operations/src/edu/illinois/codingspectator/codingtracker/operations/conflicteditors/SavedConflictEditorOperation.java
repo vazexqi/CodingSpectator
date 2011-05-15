@@ -62,7 +62,7 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 				//do nothing
 			}
 		} else {
-			Debugger.debugWarning("Ignored unsuccessful save of the conflict editor: " + this);
+			Debugger.debugWarning("Ignored unsuccessful save of the conflict editor:\n" + this);
 		}
 	}
 

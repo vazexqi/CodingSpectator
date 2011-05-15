@@ -17,6 +17,8 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
  */
 public abstract class UserOperation {
 
+	public static final boolean isInTestMode= System.getenv("TEST_MODE") != null;
+
 	protected static boolean isRefactoring= false;
 
 	protected static IEditorPart currentEditor= null;

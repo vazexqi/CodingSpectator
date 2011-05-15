@@ -119,4 +119,21 @@ public class RecorderReplayerTests {
 		}
 	}
 
+	public static class RenameMoveCopyDeleteRefactoringRecorderReplayerTest extends RecorderReplayerTest {
+		@Override
+		protected String getTestNumber() {
+			return "12";
+		}
+
+		@Override
+		protected String[] getTestFileNames() {
+			return new String[] { "MyActivator2.java" };
+		}
+
+		@Override
+		protected String[] getGeneratedFilePaths() {
+			return new String[] { "/edu.illinois.test2/MyActivator2.java" };
+		}
+	}
+
 }

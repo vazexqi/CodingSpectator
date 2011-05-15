@@ -34,7 +34,7 @@ public class PerformedTextChangeOperation extends TextChangeOperation {
 	}
 
 	@Override
-	protected void replayTextChange() throws BadLocationException {
+	protected void replaySpecificTextChange() throws BadLocationException {
 		currentDocument.replace(offset, length, newText);
 	}
 

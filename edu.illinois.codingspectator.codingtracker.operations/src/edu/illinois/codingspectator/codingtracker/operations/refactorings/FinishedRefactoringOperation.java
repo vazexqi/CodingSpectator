@@ -48,7 +48,7 @@ public class FinishedRefactoringOperation extends UserOperation {
 
 	@Override
 	public void replay() {
-		//do nothing
+		isRefactoring= false;
 	}
 
 	@Override

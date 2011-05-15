@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingspectator.codingtracker.helpers;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.ResourceNode;
@@ -148,12 +151,21 @@ public class EditorHelper {
 		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
 	}
 
-	public static ITextEditor getExistingEditor(String filePath) throws PartInitException {
+	public static Set<ITextEditor> getExistingEditors(String resourcePath) throws PartInitException {
+		Set<ITextEditor> existingEditors= new HashSet<ITextEditor>();
 		for (IEditorReference editorReference : JavaPlugin.getActivePage().getEditorReferences()) {
 			IEditorInput editorInput= editorReference.getEditorInput();
-			if (editorInput instanceof FileEditorInput && ((FileEditorInput)editorInput).getPath().toPortableString().endsWith(filePath)) {
-				return (ITextEditor)editorReference.getEditor(true);
+			if (editorInput instanceof FileEditorInput && (ResourceHelper.getPortableResourcePath(((FileEditorInput)editorInput).getFile()).startsWith(resourcePath))) {
+				existingEditors.add((ITextEditor)editorReference.getEditor(true));
 			}
+		}
+		return existingEditors;
+	}
+
+	public static ITextEditor getExistingEditor(String filePath) throws PartInitException {
+		Set<ITextEditor> existingEditors= getExistingEditors(filePath);
+		if (!existingEditors.isEmpty()) {
+			return existingEditors.iterator().next();
 		}
 		return null;
 	}

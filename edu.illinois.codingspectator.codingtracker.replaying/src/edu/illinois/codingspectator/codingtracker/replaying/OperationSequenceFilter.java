@@ -12,6 +12,8 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.FinishedRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.textchanges.TextChangeOperation;
@@ -50,8 +52,8 @@ public class OperationSequenceFilter extends ViewerFilter {
 		if (element instanceof TextChangeOperation) {
 			return showTextChanges;
 		}
-		if (element instanceof RefactoringOperation || element instanceof RefactoredSavedFileOperation
-				|| element instanceof StartedRefactoringOperation) {
+		if (element instanceof RefactoringOperation || element instanceof RefactoredSavedFileOperation || element instanceof StartedRefactoringOperation
+				|| element instanceof NewStartedRefactoringOperation || element instanceof FinishedRefactoringOperation) {
 			return showRefactorings;
 		}
 		if (element instanceof SnapshotedFileOperation) {

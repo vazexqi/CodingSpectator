@@ -9,6 +9,7 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
 /**
+ * This operation is no longer recorded.
  * 
  * @author Stas Negara
  * 

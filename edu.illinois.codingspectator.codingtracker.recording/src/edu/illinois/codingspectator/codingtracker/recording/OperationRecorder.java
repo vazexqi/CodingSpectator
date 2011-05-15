@@ -46,7 +46,7 @@ import edu.illinois.codingspectator.codingtracker.operations.options.ProjectOpti
 import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOptionsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
-import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation.Mode;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation.RefactoringMode;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.resources.CreatedResourceOperation;
@@ -165,6 +165,7 @@ public class OperationRecorder {
 	}
 
 	public void recordMovedResource(IResource movedResource, IPath destination, int updateFlags, boolean success) {
+		invalidateLastEditedFile(movedResource);
 		knownFilesRecorder.moveKnownFiles(movedResource, destination, success);
 		TextRecorder.record(new MovedResourceOperation(movedResource, destination, updateFlags, success));
 	}
@@ -175,6 +176,7 @@ public class OperationRecorder {
 	}
 
 	public void recordDeletedResource(IResource deletedResource, int updateFlags, boolean success) {
+		invalidateLastEditedFile(deletedResource);
 		knownFilesRecorder.removeKnownFilesForResource(deletedResource);
 		TextRecorder.record(new DeletedResourceOperation(deletedResource, updateFlags, success));
 	}
@@ -238,9 +240,7 @@ public class OperationRecorder {
 	}
 
 	public void recordClosedFile(IFile file) {
-		if (file.equals(lastEditedFile)) {
-			lastEditedFile= null;
-		}
+		invalidateLastEditedFile(file);
 		TextRecorder.record(new ClosedFileOperation(file));
 	}
 
@@ -273,16 +273,16 @@ public class OperationRecorder {
 	}
 
 	public void recordStartedRefactoring(RefactoringDescriptor refactoringDescriptor, int eventType) {
-		Mode mode= null;
+		RefactoringMode mode= null;
 		switch (eventType) {
 			case RefactoringExecutionEvent.ABOUT_TO_PERFORM:
-				mode= Mode.PERFORM;
+				mode= RefactoringMode.PERFORM;
 				break;
 			case RefactoringExecutionEvent.ABOUT_TO_REDO:
-				mode= Mode.REDO;
+				mode= RefactoringMode.REDO;
 				break;
 			case RefactoringExecutionEvent.ABOUT_TO_UNDO:
-				mode= Mode.UNDO;
+				mode= RefactoringMode.UNDO;
 				break;
 		}
 		TextRecorder.record(new NewStartedRefactoringOperation(mode, refactoringDescriptor));
@@ -361,6 +361,12 @@ public class OperationRecorder {
 		if (!knownFilesRecorder.areReferencingProjectsCurrent(projectName, referencingProjectNames)) {
 			knownFilesRecorder.recordReferencingProjects(projectName, referencingProjectNames);
 			TextRecorder.record(new ReferencingProjectsChangedOperation(projectName, referencingProjectNames));
+		}
+	}
+
+	private void invalidateLastEditedFile(IResource resource) {
+		if (lastEditedFile != null && resource.getFullPath().isPrefixOf(lastEditedFile.getFullPath())) {
+			lastEditedFile= null;
 		}
 	}
 

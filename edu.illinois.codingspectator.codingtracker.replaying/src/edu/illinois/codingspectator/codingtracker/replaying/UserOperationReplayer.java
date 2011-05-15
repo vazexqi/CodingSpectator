@@ -211,7 +211,7 @@ public class UserOperationReplayer {
 
 	private void replayAndAdvanceCurrentUserOperation() {
 		try {
-			if (currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
+			if (!UserOperation.isInTestMode && currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();

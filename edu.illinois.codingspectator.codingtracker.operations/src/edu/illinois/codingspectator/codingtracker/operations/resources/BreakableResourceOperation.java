@@ -42,10 +42,14 @@ public abstract class BreakableResourceOperation extends ResourceOperation {
 
 	@Override
 	public void replay() throws CoreException {
+		if (isInTestMode && isRefactoring) {
+			//Do not replay effects of refactorings in test mode, because refactorings are replayed as the whole.
+			return;
+		}
 		if (success) {
 			replayBreakableResourceOperation();
 		} else {
-			Debugger.debugWarning("Ignored unsuccessful resource operation: " + this);
+			Debugger.debugWarning("Ignored unsuccessful resource operation:\n" + this);
 		}
 	}
 

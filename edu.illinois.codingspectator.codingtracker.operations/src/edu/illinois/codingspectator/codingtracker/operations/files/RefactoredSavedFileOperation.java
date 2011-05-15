@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IFile;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
+ * This operation is no longer recorded.
  * 
  * @author Stas Negara
  * 
