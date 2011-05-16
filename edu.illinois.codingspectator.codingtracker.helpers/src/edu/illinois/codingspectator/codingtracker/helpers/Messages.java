@@ -16,7 +16,7 @@ public class Messages extends NLS {
 
 	public static String Recorder_WritePropertiesToFileException;
 
-	public static String Recorder_ReadUnknownFileException;
+	public static String Recorder_ReadFileException;
 
 	public static String Recorder_LaunchConfigurationException;
 

@@ -95,7 +95,7 @@ public class ResourceHelper {
 			}
 			fileContent= new String(bytes, charset);
 		} catch (Exception e) {
-			Debugger.logExceptionToErrorLog(e, Messages.Recorder_ReadUnknownFileException);
+			Debugger.logExceptionToErrorLog(e, Messages.Recorder_ReadFileException);
 		} finally {
 			if (inputStream != null) {
 				try {
