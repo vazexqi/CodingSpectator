@@ -66,7 +66,9 @@ public class ProblemsFinder {
 
 		problems= new HashSet<DefaultProblemWrapper>();
 		for (CompilationUnit compilationUnit : affectedCompilationUnits) {
-			computeProblems(compilationUnit);
+			if (compilationUnit.exists()) {
+				computeProblems(compilationUnit);
+			}
 		}
 
 		return problems;

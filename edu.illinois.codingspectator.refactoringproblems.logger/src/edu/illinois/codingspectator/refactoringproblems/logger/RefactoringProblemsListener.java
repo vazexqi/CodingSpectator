@@ -4,7 +4,9 @@
 package edu.illinois.codingspectator.refactoringproblems.logger;
 
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -73,15 +75,27 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		}
 	}
 
-	private void makeAffectedCompilationUnitsBecomeWorkingCopies() throws JavaModelException {
+	private Collection<CompilationUnit> makeAffectedCompilationUnitsBecomeWorkingCopies() throws JavaModelException {
+		Collection<CompilationUnit> compilationUnitsMadeWorkingCopies= new HashSet<CompilationUnit>();
 		for (CompilationUnit cu : affectedCompilationUnits) {
-			cu.becomeWorkingCopy(new NullProgressMonitor());
+			if (cu.exists() && !cu.isWorkingCopy()) {
+				cu.becomeWorkingCopy(new NullProgressMonitor());
+				compilationUnitsMadeWorkingCopies.add(cu);
+			}
+		}
+		return compilationUnitsMadeWorkingCopies;
+	}
+
+	private void revertWorkingCopyChanges(Collection<CompilationUnit> wereWorkingCopies) throws JavaModelException {
+		for (CompilationUnit cu : wereWorkingCopies) {
+			cu.discardWorkingCopy();
 		}
 	}
 
 	private void storeCurrentProblems() throws JavaModelException {
-		makeAffectedCompilationUnitsBecomeWorkingCopies();
+		Collection<CompilationUnit> compilationUnitsMadeWorkingCopies= makeAffectedCompilationUnitsBecomeWorkingCopies();
 		Set<DefaultProblemWrapper> computeProblems= problemsFinder.computeProblems(affectedCompilationUnits);
+		revertWorkingCopyChanges(compilationUnitsMadeWorkingCopies);
 		problemsComparer.pushNewProblemsSet(computeProblems);
 	}
 
