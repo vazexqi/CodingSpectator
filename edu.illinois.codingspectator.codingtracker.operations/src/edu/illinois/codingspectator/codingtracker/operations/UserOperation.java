@@ -19,7 +19,10 @@ public abstract class UserOperation {
 
 	public static final boolean isInTestMode= System.getenv("TEST_MODE") != null;
 
-	protected static boolean isRefactoring= false;
+	public static final boolean isOldFormat= System.getenv("OLD_CODINGTRACKER_FORMAT") != null;
+
+	//Made public to be able to assign when the replayer is loaded/reset
+	public static boolean isRefactoring= false;
 
 	protected static IEditorPart currentEditor= null;
 

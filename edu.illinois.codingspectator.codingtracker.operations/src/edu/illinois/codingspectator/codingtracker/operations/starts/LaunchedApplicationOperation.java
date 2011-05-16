@@ -63,7 +63,11 @@ public class LaunchedApplicationOperation extends UserOperation {
 		launchName= operationLexer.readString();
 		application= operationLexer.readString();
 		product= operationLexer.readString();
-		useProduct= operationLexer.readBoolean();
+		if (!isOldFormat) {
+			useProduct= operationLexer.readBoolean();
+		} else {
+			useProduct= Boolean.valueOf(operationLexer.readString());
+		}
 	}
 
 	@Override

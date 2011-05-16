@@ -37,7 +37,11 @@ public abstract class BreakableResourceOperation extends ResourceOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		success= operationLexer.readBoolean();
+		if (!isOldFormat) {
+			success= operationLexer.readBoolean();
+		} else {
+			success= true;
+		}
 	}
 
 	@Override

@@ -5,7 +5,9 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.texteditor.ITextEditor;
 
+import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.resources.BreakableResourceOperation;
@@ -40,12 +42,17 @@ public class SavedFileOperation extends BreakableResourceOperation {
 
 	@Override
 	public void replayBreakableResourceOperation() throws CoreException {
-		EditorHelper.getExistingEditor(resourcePath).doSave(null);
-		//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			//do nothing
+		ITextEditor editor= EditorHelper.getExistingEditor(resourcePath);
+		if (editor != null) {
+			editor.doSave(null);
+			//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//do nothing
+			}
+		} else {
+			Debugger.debugWarning("Ignored save of the non existent editor:\n" + this);
 		}
 	}
 

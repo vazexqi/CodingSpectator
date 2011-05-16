@@ -48,13 +48,17 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		isDeleted= operationLexer.readBoolean();
+		if (!isOldFormat) {
+			isDeleted= operationLexer.readBoolean();
+		} else {
+			isDeleted= false;
+		}
 	}
 
 	@Override
 	public void replay() throws CoreException {
 		IResource resource= findResource();
-		if (resource != null) {
+		if (resource != null && isDeleted) {
 			resource.delete(true, null);
 		}
 	}

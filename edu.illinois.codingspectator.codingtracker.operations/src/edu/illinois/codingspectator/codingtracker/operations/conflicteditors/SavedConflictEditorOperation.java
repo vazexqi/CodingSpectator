@@ -47,7 +47,11 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		success= operationLexer.readBoolean();
+		if (!isOldFormat) {
+			success= operationLexer.readBoolean();
+		} else {
+			success= true;
+		}
 	}
 
 	@SuppressWarnings("restriction")

@@ -148,6 +148,7 @@ public class UserOperationReplayer {
 	}
 
 	private void prepareForReplay() {
+		UserOperation.isRefactoring= false;
 		currentEditor= null;
 		userOperationsIterator= userOperations.iterator();
 		advanceCurrentUserOperation();
