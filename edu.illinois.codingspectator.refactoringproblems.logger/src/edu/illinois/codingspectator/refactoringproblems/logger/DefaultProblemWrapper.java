@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
  */
 
 @SuppressWarnings("restriction")
-class DefaultProblemWrapper {
+public class DefaultProblemWrapper {
 
 	private String problemMarker;
 

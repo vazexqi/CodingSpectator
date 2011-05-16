@@ -6,6 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.refactoringproblems.parser.Activator
 Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.jdt.core,
  edu.illinois.codingspectator.refactoringproblems.logger
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Export-Package: edu.illinois.codingspectator.refactoringproblems.parser
