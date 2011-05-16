@@ -61,6 +61,10 @@ public class RefactoringLog {
 		}
 	}
 
+	public static boolean isLogType(String logName) {
+		return logTypeToString.values().contains(logName);
+	}
+
 	public static LogType toLogType(String logTypeString) {
 		return stringToLogType.get(logTypeString);
 	}
@@ -77,7 +81,7 @@ public class RefactoringLog {
 		this((logType == LogType.ECLIPSE) ? RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings") : getRefactoringStorageLocation("refactorings/"
 				+ toString(logType)));
 	}
-	
+
 	public String getPathToRefactoringHistoryFolder() {
 		return fileStore.toURI().getPath();
 	}

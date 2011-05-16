@@ -28,6 +28,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
@@ -502,8 +503,15 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 		return watchedProcessorDelegate;
 	}
 
+	/**
+	 * @deprecated: Use getCodeSnippetInformation() instead.
+	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}
 
 	public String getDescriptorID() {
@@ -522,6 +530,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 	 * This method is based on {@link #createChange }. We ignored fChanges and fChangeManager because
 	 * fChangeManager may not be available, and we always want to return a non null refactoring
 	 * descriptor.
+	 * 
 	 * @return The constructed JavaRefactoringDecscriptor
 	 * 
 	 */

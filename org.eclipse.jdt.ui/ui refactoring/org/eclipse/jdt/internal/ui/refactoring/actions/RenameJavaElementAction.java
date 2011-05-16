@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.PreferenceConstants;
@@ -110,6 +111,9 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 	}
 
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		IJavaElement element= getJavaElement(selection);
 		if (element == null)
 			return;
@@ -146,6 +150,11 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 	}
 
 	public void doRun() {
+		ISelection selection= fEditor.getSelectionProvider().getSelection();
+		//Initialize the global store in doRun as opposed to run(ITextSelection) because doRun 
+		//is also invoked in org.eclipse.jdt.internal.ui.text.correction.proposals.RenameRefactoringProposal.apply(IDocument)
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)selection);
+
 		RenameLinkedMode activeLinkedMode= RenameLinkedMode.getActiveLinkedMode();
 		if (activeLinkedMode != null) {
 			if (activeLinkedMode.isCaretInLinkedPosition()) {
@@ -176,14 +185,8 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 			ExceptionHandler.handle(e, RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_exception);
 		}
 
-		//CODINGSPECTATOR: What is the best way to capture the selection in this case? Is the selection guaranteed to always be an ITextSelection?
-		ISelection selection= fEditor.getSelectionProvider().getSelection();
-		if (selection instanceof ITextSelection) {
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent((ITextSelection)selection, fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT,
-					RefactoringMessages.RenameJavaElementAction_not_available);
-		} else {
-			JavaPlugin.logErrorMessage("Failed to capture the selection for an unavailable rename unknown Java element refactoring.");
-		}
+		//CODINGSPECTATOR
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameJavaElementAction_not_available);
 
 		MessageDialog.openInformation(getShell(), RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_not_available);
 	}

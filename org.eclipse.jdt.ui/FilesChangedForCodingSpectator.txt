@@ -33,6 +33,8 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveStati
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/MoveMembersWizard.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInstanceMethodProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/MoveInstanceMethodAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/MoveStaticMembersAction.java
 
 # For capturing disallowed refactorings
 ui/org/eclipse/jdt/ui/actions/InlineAction.java
@@ -40,6 +42,7 @@ ui/org/eclipse/jdt/ui/actions/MoveAction.java
 ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
 ui/org/eclipse/jdt/ui/actions/RenameAction.java
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameJavaElementAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameResourceAction.java
 
 # For capturing the refactorings invoked by quick assist
 ui/org/eclipse/jdt/internal/ui/text/correction/QuickAssistProcessor.java
@@ -74,6 +77,16 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperT
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractInterfaceWizard.java
 ui/org/eclipse/jdt/ui/actions/ExtractInterfaceAction.java
 
+# For capturing introduce factory refactoring
+ui/org/eclipse/jdt/ui/actions/IntroduceFactoryAction.java
+
+# For initializing the global store of refactorings
+ui/org/eclipse/jdt/ui/actions/ExtractConstantAction.java
+ui/org/eclipse/jdt/ui/actions/ExtractTempAction.java
+ui/org/eclipse/jdt/ui/actions/InlineTempAction.java
+ui/org/eclipse/jdt/ui/actions/ConvertLocalToFieldAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/ReorgMoveAction.java
+
 META-INF/MANIFEST.MF
 plugin.xml
 
@@ -102,3 +115,10 @@ ui/org/eclipse/jdt/ui/actions/codingspectator/UnavailableRefactoringLogger.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/InlineRefactoringContribution.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/RenameUnknownJavaElementRefactoringContribution.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/RefactoringGlobalStore.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/StructuredSelectionCodeSnippetInformationExtractor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/TextSelectionCodeSnippetInformationExtractor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/NullCodeSnippetInformationExtractor.java
+
+org.eclipse.jdt.internal.corext.refactoring.codingspectator.CodeSnippetInformationFactory

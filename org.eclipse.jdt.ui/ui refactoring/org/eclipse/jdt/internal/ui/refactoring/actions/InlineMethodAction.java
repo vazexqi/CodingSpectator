@@ -18,7 +18,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.PlatformUI;
@@ -32,6 +31,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.JavaElementUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
@@ -56,7 +56,8 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * </p>
  * 
  * @author Mohsen Vakilian, nchen - Captured a possible unavailability of the inline method
- *         refactoring.
+ *         refactoring and structured selections. Also, initialized the global store of refactorings
+ *         at the beginning of the run methods.
  */
 public class InlineMethodAction extends SelectionDispatchAction {
 
@@ -98,6 +99,9 @@ public class InlineMethodAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			Assert.isTrue(RefactoringAvailabilityTester.isInlineMethodAvailable(selection));
 			IMethod method= (IMethod)selection.getFirstElement();
 			ISourceRange nameRange= method.getNameRange();
@@ -129,6 +133,9 @@ public class InlineMethodAction extends SelectionDispatchAction {
 	 * @see org.eclipse.jdt.ui.actions.SelectionDispatchAction#run(org.eclipse.jface.text.ITextSelection)
 	 */
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
 		if (typeRoot == null)
 			return;
@@ -143,8 +150,7 @@ public class InlineMethodAction extends SelectionDispatchAction {
 		CompilationUnit compilationUnit= RefactoringASTParser.parseWithASTProvider(typeRoot, true, null);
 		if (!RefactoringExecutionStarter.startInlineMethodRefactoring(typeRoot, compilationUnit, offset, length, getShell())) {
 			//CODINGSPECTATOR: I don't know under what circumstances the user hits this case of unavailability. But, I record the refactoring descriptor just to be safe.
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(new TextSelection(offset, length), fEditor, IJavaRefactorings.INLINE_METHOD,
-					RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE_METHOD, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.InlineMethodAction_dialog_title, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
 		}

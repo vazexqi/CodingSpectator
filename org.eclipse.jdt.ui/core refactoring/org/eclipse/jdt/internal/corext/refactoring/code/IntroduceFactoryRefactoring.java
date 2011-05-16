@@ -359,13 +359,20 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 
 			if (!fCUHandle.isStructureKnown()) {
 				RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.IntroduceFactory_syntaxError);
+
+				//CODINGSPECTATOR
 				logUnavailableRefactoring(status);
+
 				return status;
 			}
 
 			RefactoringStatus status= checkSelection(new SubProgressMonitor(pm, 1));
-			if (status.hasFatalError())
+
+			//CODINGSPECTATOR
+			if (status.hasFatalError()) {
 				logUnavailableRefactoring(status);
+			}
+
 			return status;
 		} finally {
 			pm.done();

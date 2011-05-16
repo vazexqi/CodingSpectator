@@ -453,8 +453,8 @@ public class ProcessorBasedRefactoring extends Refactoring implements IWatchedRe
 		if (isRefWizOpenOpCheckedInitConds()) {
 			if (fProcessor instanceof IWatchedProcessor) {
 				IWatchedProcessor watchedProcessor= (IWatchedProcessor)fProcessor;
-				Logger.logUnavailableRefactoringEvent(watchedProcessor.getDescriptorID(), watchedProcessor.getJavaProjectName(), watchedProcessor.getSelection(),
-							refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+				Logger.logUnavailableRefactoringEvent(watchedProcessor.getDescriptorID(), watchedProcessor.getJavaProjectName(), watchedProcessor.getCodeSnippetInformation(),
+						refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
 				unsetRefWizOpenOpCheckedInitConds();
 			}
 		}

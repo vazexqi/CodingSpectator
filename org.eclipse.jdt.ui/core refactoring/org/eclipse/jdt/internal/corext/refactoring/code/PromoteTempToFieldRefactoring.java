@@ -330,7 +330,9 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 				ResourceUtil.getFiles(new ICompilationUnit[] { fCu }),
 				getValidationContext());
 		if (result.hasFatalError()) {
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(result);
+
 			return result;
 		}
 
@@ -338,31 +340,46 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 
 		if (fTempDeclarationNode == null) {
 			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_select_declaration);
+
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(status);
+
 			return status;
 		}
 
 		if (!Checks.isDeclaredIn(fTempDeclarationNode, MethodDeclaration.class)) {
 			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_only_declared_in_methods);
+
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(status);
+
 			return status;
 		}
 
 		if (isMethodParameter()) {
 			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_method_parameters);
+
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(status);
+
 			return status;
 		}
 
 		if (isTempAnExceptionInCatchBlock()) {
 			RefactoringStatus status= RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.PromoteTempToFieldRefactoring_exceptions);
+
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(status);
+
 			return status;
 		}
 
 		result.merge(checkTempTypeForLocalTypeUsage());
 		if (result.hasFatalError()) {
+
+			//CODINGSPECTATOR
 			logUnavailableRefactoring(result);
+
 			return result;
 		}
 

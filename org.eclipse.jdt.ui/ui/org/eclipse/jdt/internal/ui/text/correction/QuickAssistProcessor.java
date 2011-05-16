@@ -32,6 +32,8 @@ import org.eclipse.core.resources.IFile;
 
 import org.eclipse.text.edits.InsertEdit;
 
+import org.eclipse.jface.text.ITextSelection;
+
 import org.eclipse.ui.IEditorPart;
 
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -124,6 +126,7 @@ import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractTempRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.InlineTempRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.code.PromoteTempToFieldRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 import org.eclipse.jdt.internal.corext.util.Messages;
 
@@ -2011,6 +2014,9 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 		/////////////////
 
 		protected void aboutToPerformChange() {
+			JavaEditor javaEditor= (JavaEditor)JavaPlugin.getActivePage().getActiveEditor();
+			ITextSelection selection= (ITextSelection)javaEditor.getSelectionProvider().getSelection();
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
 			Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, fRefactoringStatus, fRefactoring);
 		}
 

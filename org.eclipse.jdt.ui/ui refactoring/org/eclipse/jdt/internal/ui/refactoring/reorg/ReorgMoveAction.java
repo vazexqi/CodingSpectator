@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ReorgUtils;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
@@ -38,6 +39,11 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Captured the selection information.
+ * 
+ */
 public class ReorgMoveAction extends SelectionDispatchAction {
 	public ReorgMoveAction(IWorkbenchSite site) {
 		super(site);
@@ -79,7 +85,7 @@ public class ReorgMoveAction extends SelectionDispatchAction {
 	 * Note: This method is for internal use only. Clients should not call this method.
 	 * 
 	 * @param selection the selection
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
@@ -97,6 +103,9 @@ public class ReorgMoveAction extends SelectionDispatchAction {
 	}
 
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		if (ReorgUtils.containsOnlyProjects(selection.toList())) {
 			createWorkbenchAction(selection).run();
 			return;

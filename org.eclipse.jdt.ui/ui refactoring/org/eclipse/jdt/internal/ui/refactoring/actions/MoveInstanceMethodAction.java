@@ -25,12 +25,15 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -41,12 +44,18 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Captured unavailable invocations of the refactoring.
+ * 
+ */
 public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
 	 */
 	public MoveInstanceMethodAction(JavaEditor editor) {
@@ -77,7 +86,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
-    }
+	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
@@ -95,15 +104,19 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 			return null;
 
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IMethod))
+		if (!(first instanceof IMethod))
 			return null;
-		return (IMethod) first;
+		return (IMethod)first;
 	}
+
 	/*
 	 * @see SelectionDispatchAction#run(IStructuredSelection)
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			Assert.isTrue(RefactoringAvailabilityTester.isMoveMethodAvailable(selection));
 			IMethod method= getSingleSelectedMethod(selection);
 			Assert.isNotNull(method);
@@ -113,13 +126,16 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_unexpected_exception);
 		}
- 	}
+	}
 
 	/* (non-Javadoc)
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			run(selection, SelectionConverter.getInputAsCompilationUnit(fEditor));
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_unexpected_exception);
@@ -138,6 +154,9 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 		if (method != null) {
 			RefactoringExecutionStarter.startMoveMethodRefactoring(method, getShell());
 		} else {
+			//CODINGSPECTATOR
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE_METHOD, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
+
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
 		}
 	}
@@ -145,7 +164,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 	private static IMethod getMethod(ICompilationUnit cu, ITextSelection selection) throws JavaModelException {
 		IJavaElement element= SelectionConverter.getElementAtOffset(cu, selection);
 		if (element instanceof IMethod)
-			return (IMethod) element;
+			return (IMethod)element;
 		return null;
 	}
 }

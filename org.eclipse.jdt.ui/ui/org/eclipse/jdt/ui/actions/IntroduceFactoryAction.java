@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
@@ -38,15 +39,16 @@ import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * Action that encapsulates the a constructor call with a factory
- * method.
+ * Action that encapsulates the a constructor call with a factory method.
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 3.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Instrumented for CODINGSPECTATOR.
  */
 public class IntroduceFactoryAction extends SelectionDispatchAction {
 
@@ -54,8 +56,9 @@ public class IntroduceFactoryAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the Java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public IntroduceFactoryAction(JavaEditor editor) {
@@ -65,10 +68,10 @@ public class IntroduceFactoryAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>IntroduceFactoryAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>IntroduceFactoryAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public IntroduceFactoryAction(IWorkbenchSite site) {
@@ -99,9 +102,12 @@ public class IntroduceFactoryAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			// we have to call this here - no selection changed event is sent after a refactoring but it may still invalidate enablement
 			if (RefactoringAvailabilityTester.isIntroduceFactoryAvailable(selection)) {
-				IMethod method= (IMethod) selection.getFirstElement();
+				IMethod method= (IMethod)selection.getFirstElement();
 				if (!ActionUtil.isEditable(getShell(), method))
 					return;
 				ISourceRange range= method.getNameRange();
@@ -134,6 +140,9 @@ public class IntroduceFactoryAction extends SelectionDispatchAction {
 	}
 
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		RefactoringExecutionStarter.startIntroduceFactoryRefactoring(SelectionConverter.getInputAsCompilationUnit(fEditor), selection, getShell());

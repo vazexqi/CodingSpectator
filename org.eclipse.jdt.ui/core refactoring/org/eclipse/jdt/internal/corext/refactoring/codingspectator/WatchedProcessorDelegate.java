@@ -4,9 +4,11 @@ import java.util.Map;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 /**
@@ -33,27 +35,25 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 
 	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
 
-	// Mohsen: I've commented this method because we have added org.eclipse.jdt.core.manipulation to the repository and we no longer need to use reflection to access a private method.
-//	protected Map getArguments(JavaRefactoringDescriptor d) {
-//		try {
-//			Class c= JavaRefactoringDescriptor.class;
-//			Method getArgumentsMethod= c.getDeclaredMethod("getArguments", new Class[] {}); //$NON-NLS-1$
-//			getArgumentsMethod.setAccessible(true);
-//			return (Map)getArgumentsMethod.invoke(d, new Object[] {});
-//		} catch (Exception e) {
-//			JavaPlugin.log(e);
-//		}
-//		return new HashMap();
-//	}
-
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET, getCodeSnippet());
-		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, getSelection());
+		getCodeSnippetInformation().insertIntoMap(basicArguments);
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, refactoringStatus.toString());
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
+		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(RefactoringGlobalStore.getInstance().isInvokedThroughStructuredSelection()));
 		return basicArguments;
 	}
 
+	private ITypeRoot getEnclosingCompilationUnit() {
+		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
+		if (javaElementIfPossible == null) {
+			return null;
+		}
+		return (ITypeRoot)javaElementIfPossible.getAncestor(IJavaElement.COMPILATION_UNIT);
+	}
+
+	/**
+	 * @deprecated - Use getCodeSnippetInfomration instead.
+	 */
 	public String getSelection() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
 		if (javaElementIfPossible != null)
@@ -61,13 +61,34 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
 	}
 
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return CodeSnippetInformationFactory.extractCodeSnippetInformation(getEnclosingCompilationUnit());
+	}
 
+	/**
+	 * @deprecated - To be replaced with functionality in CodeSnippetInformationExtractor
+	 */
 	protected String getCodeSnippet() {
 		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
 		if (javaElementIfPossible != null)
 			return javaElementIfPossible.toString();
 		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
 	}
+
+// The following method doesn't seem to be used by anyone.
+//	public String getCodeSnippet(ASTNode node) {
+//		if (node != null) {
+//			try {
+//				return getEnclosingCompilationUnit().getBuffer().getText(node.getStartPosition(), node.getLength());
+//			} catch (IndexOutOfBoundsException e) {
+//				JavaPlugin.log(e);
+//			} catch (JavaModelException e) {
+//				JavaPlugin.log(e);
+//			}
+//		}
+//
+//		return "DEFAULT";
+//	}
 
 	private IJavaElement getJavaElementIfPossible() {
 		if (getElements() == null) {

@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
@@ -124,6 +125,9 @@ public class PushDownAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isPushDownAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
 				RefactoringExecutionStarter.startPushDownRefactoring(members, getShell());
@@ -137,6 +141,9 @@ public class PushDownAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IMember member= getSelectedMemberFromEditor();
@@ -146,11 +153,8 @@ public class PushDownAction extends SelectionDispatchAction {
 			} else {
 				//CODINGSPECTATOR
 				String errorMessage= RefactoringMessages.PushDownAction_To_activate;
-
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.PUSH_DOWN, errorMessage);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
-
-				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.PUSH_DOWN, errorMessage);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
