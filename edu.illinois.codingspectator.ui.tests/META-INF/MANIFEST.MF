@@ -12,6 +12,8 @@ Require-Bundle: org.eclipse.swtbot.go,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.jdt.core.manipulation,
  org.eclipse.jdt.ui,
- edu.illinois.codingspectator.data
+ edu.illinois.codingspectator.data,
+ edu.illinois.codingspectator.refactoringproblems.logger,
+ edu.illinois.codingspectator.refactoringproblems.parser
 Eclipse-RegisterBuddy: org.apache.log4j
 

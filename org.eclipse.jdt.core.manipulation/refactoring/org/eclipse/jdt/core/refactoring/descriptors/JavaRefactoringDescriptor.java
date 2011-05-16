@@ -415,9 +415,9 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 	// CODINGSPECTATOR
 	//////////////////
 	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
-		Map augmentedArguments= new HashMap(this.getArguments());
+		Map augmentedArguments= new HashMap(getArguments());
 		augmentedArguments.putAll(arguments);
-		return new JavaRefactoringDescriptor(this.getID(), this.getProject(), this.getDescription(), this.getComment(), augmentedArguments, this.getFlags());
+		return new JavaRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
 	}
 
 }

@@ -575,7 +575,9 @@ public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 
 			RefactoringStatus result= Checks.validateModifiesFiles(ResourceUtil.getFiles(new ICompilationUnit[] { fCu }), getValidationContext());
 			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
 				logUnavailableRefactoring(result);
+
 				return result;
 			}
 
@@ -589,6 +591,7 @@ public class ExtractTempRefactoring extends WatchedJavaRefactoring {
 			if (!result.hasFatalError() && isLiteralNodeSelected())
 				fReplaceAllOccurrences= false;
 
+			//CODINGSPECTATOR
 			if (result.hasFatalError()) {
 				logUnavailableRefactoring(result);
 			}

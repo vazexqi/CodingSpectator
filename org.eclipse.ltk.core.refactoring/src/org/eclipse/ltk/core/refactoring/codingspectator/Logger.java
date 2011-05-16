@@ -24,6 +24,8 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistorySeria
  */
 public class Logger {
 
+	public static IClearable clearable= new NullClearable();
+
 	public static final String NAVIGATION_HISTORY_ATTRIBUTE= "navigation-history"; //$NON-NLS-1$
 
 	private static final String MONITOR_UI= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
@@ -34,7 +36,7 @@ public class Logger {
 		}
 	}
 
-	static boolean doesMonitorUIExist() {
+	private static boolean doesMonitorUIExist() {
 		return Platform.getBundle(MONITOR_UI) != null;
 	}
 
@@ -44,7 +46,7 @@ public class Logger {
 		return null;
 	}
 
-	public static IWatchedRefactoring convertToWatchedRefactoring(Refactoring refactoring) {
+	private static IWatchedRefactoring convertToWatchedRefactoring(Refactoring refactoring) {
 		if (!(refactoring instanceof IWatchedRefactoring))
 			return null;
 
@@ -55,29 +57,21 @@ public class Logger {
 		return watchedRefactoring;
 	}
 
-	public static boolean isWatched(Refactoring refactoring) {
+	private static boolean isWatched(Refactoring refactoring) {
 		return convertToWatchedRefactoring(refactoring) != null;
 	}
 
-	public static void logRefactoringDescriptor(int refactoringEventType, RefactoringDescriptor refactoringDescriptor) {
+	private static void logRefactoringDescriptor(int refactoringEventType, RefactoringDescriptor refactoringDescriptor) {
 		if (refactoringDescriptor == null)
 			return;
 
+		//FIXME: Why does this method check Logger.doesMonitorUIExist()? 
 		if (!Logger.doesMonitorUIExist()) {
 			return;
 		}
 
 		logDebug(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoring descriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
+		serializeRefactoringEvent(refactoringDescriptor, refactoringEventType);
 	}
 
 	public static void logRefactoringEvent(int refactoringEventType, RefactoringStatus status, Refactoring refactoring) {
@@ -102,52 +96,39 @@ public class Logger {
 		}
 	}
 
-	public static RefactoringDescriptor appendNavigationHistory(NavigationHistory navigationHistory, RefactoringDescriptor refactoringDescriptor) {
-		if (navigationHistory != null) {
-			HashMap augmentedArguments= new HashMap();
-			augmentedArguments.put(NAVIGATION_HISTORY_ATTRIBUTE, navigationHistory.toString());
-			refactoringDescriptor= refactoringDescriptor.cloneByAugmenting(augmentedArguments);
-		}
-		return refactoringDescriptor;
+	private static RefactoringDescriptor augmentedDescriptor(RefactoringDescriptor refactoringDescriptor, String key, String value) {
+		HashMap augmentedArguments= new HashMap();
+		augmentedArguments.put(key, value);
+		return refactoringDescriptor.cloneByAugmenting(augmentedArguments);
 	}
 
-	/**
-	 * @deprecated
-	 * 
-	 * @param refactoring
-	 * @param project
-	 * @param selectionInformation
-	 * @param errorMessage
-	 */
-	public static void logUnavailableRefactoringEvent(String refactoring, String project, String selectionInformation, String errorMessage) {
-		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, selectionInformation, errorMessage);
-		logDebug(refactoringDescriptor.toString());
-
-		// Wrap it into a refactoring descriptor proxy
-		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
-
-		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
-
-		// Call RefactoringHistorySerializer to persist
-		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
-		serializer.historyNotification(event);
+	private static RefactoringDescriptor appendNavigationHistory(NavigationHistory navigationHistory, RefactoringDescriptor refactoringDescriptor) {
+		if (navigationHistory != null) {
+			refactoringDescriptor= augmentedDescriptor(refactoringDescriptor, NAVIGATION_HISTORY_ATTRIBUTE, navigationHistory.toString());
+		}
+		return refactoringDescriptor;
 	}
 
 	public static void logUnavailableRefactoringEvent(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {
 		RefactoringDescriptor refactoringDescriptor= getBasicRefactoringDescriptor(refactoring, project, info, errorMessage);
 		logDebug(refactoringDescriptor.toString());
+		serializeRefactoringEvent(refactoringDescriptor, RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE);
+	}
+
+	private static void serializeRefactoringEvent(RefactoringDescriptor refactoringDescriptor, int refactoringEventType) {
+		refactoringDescriptor= augmentedDescriptor(refactoringDescriptor, RefactoringDescriptor.CAPTURED_BY_CODINGSPECTATOR_ATTRIBUTE, String.valueOf(true));
 
 		// Wrap it into a refactoring descriptor proxy
 		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
 
 		// Wrap it into a refactoringdecriptor event using proxy
-		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE, proxy);
+		RefactoringHistoryEvent event= new RefactoringHistoryEvent(RefactoringCore.getHistoryService(), refactoringEventType, proxy);
 
 		// Call RefactoringHistorySerializer to persist
 		RefactoringHistorySerializer serializer= new RefactoringHistorySerializer();
 		serializer.historyNotification(event);
 
+		clearable.clearData();
 	}
 
 	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {
@@ -159,28 +140,6 @@ public class Logger {
 
 		// We used DefaultRefactoringDescriptor instead of a specific JavaRefactoringDescriptor even though we know which Java refactoring it is because it is not always possible to construct 
 		// a JavaRefactoringDescriptor. A JavaRefactoringDescritptor expects more information, and that information cannot be NULL (it explicitly checks for those and fails on assertion).
-		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
-	}
-
-	/**
-	 * 
-	 * @deprecated
-	 * 
-	 * @param refactoring
-	 * @param project
-	 * @param selection
-	 * @param errorMessage
-	 * @return
-	 */
-	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, String selection, String errorMessage) {
-		Map arguments= new HashMap();
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT, selection);
-		arguments.put(RefactoringDescriptor.ATTRIBUTE_STATUS, errorMessage);
-
-		String BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION= "CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring"; //$NON-NLS-1$
-
-		// We used DefaultRefactoringDescriptor instead of a specific JavaRefactoringDescriptor even though we know which Java refactoring it is because it is not always possible to construct 
-		// a JavaRefactoringDescriptor. A JavaRefactoringDescriptor expects more information, and that information cannot be NULL (it explicitly checks for those and fails on assertion).
 		return new DefaultRefactoringDescriptor(refactoring, project, BASIC_REFACTORING_DESCRIPTOR_DESCRIPTION, null, arguments, RefactoringDescriptor.NONE);
 	}
 

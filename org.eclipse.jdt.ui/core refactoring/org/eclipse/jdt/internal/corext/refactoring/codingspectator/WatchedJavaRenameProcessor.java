@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 
 public abstract class WatchedJavaRenameProcessor extends RenameProcessor implements IWatchedJavaProcessor {
@@ -12,8 +13,15 @@ public abstract class WatchedJavaRenameProcessor extends RenameProcessor impleme
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
+	/**
+	 * @deprecated: Use getCodeSnippetInformation() instead.
+	 */
 	public String getSelection() {
 		return getWatchedProcessorDelegate().getSelection();
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}
 
 	public String getJavaProjectName() {

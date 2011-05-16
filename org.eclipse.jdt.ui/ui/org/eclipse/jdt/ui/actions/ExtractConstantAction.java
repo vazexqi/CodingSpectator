@@ -16,6 +16,7 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractConstantRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
@@ -29,16 +30,19 @@ import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringStarter;
 
 /**
- * Extracts an expression into a constant field and replaces all occurrences of
- * the expression with the new constant.
- *
+ * Extracts an expression into a constant field and replaces all occurrences of the expression with
+ * the new constant.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
  */
 public class ExtractConstantAction extends SelectionDispatchAction {
 
@@ -46,8 +50,9 @@ public class ExtractConstantAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public ExtractConstantAction(JavaEditor editor) {
@@ -67,8 +72,9 @@ public class ExtractConstantAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection the Java text selection (internal type)
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void selectionChanged(JavaTextSelection selection) {
@@ -79,6 +85,9 @@ public class ExtractConstantAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction
 	 */
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		ExtractConstantRefactoring refactoring= new ExtractConstantRefactoring(SelectionConverter.getInputAsCompilationUnit(fEditor), selection.getOffset(), selection.getLength());

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 
 import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
@@ -49,7 +50,8 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.InlineMethodAction;
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
- * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability.
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability. Also, initialized the global
+ *          store of refactorings at the beginning of the run methods.
  */
 public class InlineAction extends SelectionDispatchAction {
 
@@ -110,6 +112,9 @@ public class InlineAction extends SelectionDispatchAction {
 	 * @see org.eclipse.jdt.ui.actions.SelectionDispatchAction#run(org.eclipse.jface.text.ITextSelection)
 	 */
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 
@@ -134,7 +139,7 @@ public class InlineAction extends SelectionDispatchAction {
 		// CODINGSPECTATOR: At the this point all we know is that the user has tried to perform an inline refactoring.
 		// But, we don't know what kind of inline he/she has been trying to do.
 		// Therefore, we use the descriptor ID of the unknown inline refactoring to report the user's attempt to perform an inline refactoring.  
-		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
 
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}
@@ -143,6 +148,9 @@ public class InlineAction extends SelectionDispatchAction {
 	 * @see org.eclipse.jdt.ui.actions.SelectionDispatchAction#run(org.eclipse.jface.viewers.IStructuredSelection)
 	 */
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		if (fInlineConstant.isEnabled())
 			fInlineConstant.run(selection);
 		else if (fInlineMethod.isEnabled())

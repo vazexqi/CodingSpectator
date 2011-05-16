@@ -290,13 +290,16 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 		return fExcludedVariableNames;
 	}
 
+	//CODINGSPECTATOR: Captured the cases where the refactoring is unavailable.
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask("", 7); //$NON-NLS-1$
 
 			RefactoringStatus result= Checks.validateEdit(fCu, getValidationContext());
 			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
 				logUnavailableRefactoring(result);
+
 				return result;
 			}
 			pm.worked(1);
@@ -310,7 +313,9 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 			result.merge(checkSelection(new SubProgressMonitor(pm, 3)));
 
 			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
 				logUnavailableRefactoring(result);
+
 				return result;
 			}
 

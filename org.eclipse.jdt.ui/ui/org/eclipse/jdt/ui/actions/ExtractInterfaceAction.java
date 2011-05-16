@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
@@ -52,7 +53,7 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @noextend This class is not intended to be subclassed by clients.
  * 
  * @author Balaji Ambresh Rajkumar nchen, Mohsen Vakilian - Captured when the refactoring is
- *         unavailable.
+ *         unavailable; captured more precise information about selection.
  */
 public class ExtractInterfaceAction extends SelectionDispatchAction {
 
@@ -105,6 +106,9 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(selection)) {
 				IType singleSelectedType= RefactoringAvailabilityTester.getSingleSelectedType(selection);
 				if (!ActionUtil.isEditable(getShell(), singleSelectedType))
@@ -143,6 +147,9 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(type)) {
 				if (!ActionUtil.isEditable(fEditor, getShell(), type))
@@ -151,11 +158,8 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 			} else {
 				//CODINGSPECTATOR
 				String errorMessage= RefactoringMessages.ExtractInterfaceAction_To_activate;
-
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
-
-				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(selection, fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

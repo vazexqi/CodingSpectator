@@ -1,6 +1,5 @@
 package edu.illinois.codingspectator.ui.tests.extractinterface;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -27,12 +26,6 @@ public class T01 extends RefactoringTest {
 
 		bot.fillTextField("Interface name:", NEW_INTERFACE_NAME);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
-	}
-
-	@Override
-	protected void doRefactoringShouldBeLogged() throws CoreException {
-		super.doRefactoringShouldBeLogged();
-		printMessage("The captured selection text is different from what the test has actullay selected.");
 	}
 
 }
