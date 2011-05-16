@@ -74,7 +74,7 @@ public class CodingSpectatorBot {
 	public void deleteEclipseRefactoringLog() throws CoreException {
 		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings")).delete(EFS.NONE, null);
 	}
-	
+
 	private void deleteProjectSpecificEclipseRefactoringLog(String projectName) throws CoreException {
 		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings").append(projectName)).delete(EFS.NONE, null);
 	}
@@ -105,7 +105,7 @@ public class CodingSpectatorBot {
 		}
 	}
 
-	public void createANewJavaClass(String projectName, String testFileName) throws Exception {
+	public void createANewJavaClass(String projectName, String testFileName) {
 		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();
