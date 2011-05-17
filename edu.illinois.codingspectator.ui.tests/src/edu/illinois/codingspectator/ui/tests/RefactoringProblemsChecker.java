@@ -3,9 +3,20 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.provider.FileInfo;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
+import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProblemsLogDeserializer;
 import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProblemsParserException;
 
@@ -16,30 +27,35 @@ import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProble
  */
 public class RefactoringProblemsChecker implements LogChecker {
 
-	IPath logPath;
-
+	private final IPath logPath;
+	private final String actualPath = RefactoringLog.getRefactoringStorageLocation("refactorings/").toOSString() + "refactoring-problems.log";
+	private final IFileStore fileStore= EFS.getLocalFileSystem().getStore(Path.fromOSString(actualPath));
+	
 	public RefactoringProblemsChecker(IPath logPath) {
 		this.logPath= logPath;
 	}
 
 	@Override
 	public void assertLogIsEmpty() {
-
+//		assertFalse(fileStore.fetchInfo().exists());
 	}
 
 	@Override
 	public void assertMatch() {
 		try {
-			//TODO: Parse actual and expected refactoring problems. Then, compare the problem modulo timestamps.
-			new RefactoringProblemsLogDeserializer().deserializeRefactoringProblemsLog(logPath.toOSString());
+			List<ProblemChanges> expectedProblems = new RefactoringProblemsLogDeserializer().deserializeRefactoringProblemsLog(logPath.toOSString());
+			List<ProblemChanges> actualProblems = new RefactoringProblemsLogDeserializer().deserializeRefactoringProblemsLog(actualPath);
+			assertEquals(expectedProblems, actualProblems);
 		} catch (RefactoringProblemsParserException e) {
 			//FIXME: Log exceptions
 			e.printStackTrace();
+			fail("the problems log descriptors do not match");
 		}
 	}
 
 	@Override
 	public void clean() throws CoreException {
+		fileStore.delete(EFS.NONE, null);
 	}
 
 }

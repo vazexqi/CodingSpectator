@@ -31,6 +31,46 @@ public class ProblemChanges {
 
 	Set<DefaultProblemWrapper> beforeMinusAfter;
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((afterMinusBefore == null) ? 0 : afterMinusBefore.hashCode());
+		result = prime
+				* result
+				+ ((beforeMinusAfter == null) ? 0 : beforeMinusAfter.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		} else if(obj instanceof ProblemChanges == false) {
+			return false;
+		}
+		ProblemChanges rhs = (ProblemChanges) obj;
+		return isEqual(afterMinusBefore, rhs.afterMinusBefore) &&
+		isEqual(beforeMinusAfter, rhs.beforeMinusAfter); 
+		
+	}
+	
+	private boolean isEqual(Set<DefaultProblemWrapper> lhs,
+			Set<DefaultProblemWrapper> rhs) {
+		
+		if(lhs.size() != rhs.size()) {
+			return false;
+		}
+		for (DefaultProblemWrapper problemEntry : rhs) {
+			if(lhs.contains(problemEntry) == false) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public ProblemChanges(long afterTimestamp, Set<DefaultProblemWrapper> afterMinusBefore, long beforeTimestamp, Set<DefaultProblemWrapper> beforeMinusAfter) {
 		this.afterTimestamp= afterTimestamp;
 		this.afterMinusBefore= afterMinusBefore;
