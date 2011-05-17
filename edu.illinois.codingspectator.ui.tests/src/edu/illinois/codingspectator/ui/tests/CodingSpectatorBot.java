@@ -40,7 +40,7 @@ public class CodingSpectatorBot {
 
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
-	protected static final int SLEEPTIME= 3000;
+	protected static final int SLEEPTIME= 2000;
 
 	SWTWorkbenchBot bot= new SWTWorkbenchBot();
 
@@ -74,7 +74,7 @@ public class CodingSpectatorBot {
 	public void deleteEclipseRefactoringLog() throws CoreException {
 		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings")).delete(EFS.NONE, null);
 	}
-	
+
 	private void deleteProjectSpecificEclipseRefactoringLog(String projectName) throws CoreException {
 		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings").append(projectName)).delete(EFS.NONE, null);
 	}
