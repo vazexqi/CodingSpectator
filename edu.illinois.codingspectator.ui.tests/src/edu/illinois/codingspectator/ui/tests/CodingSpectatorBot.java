@@ -105,7 +105,7 @@ public class CodingSpectatorBot {
 		}
 	}
 
-	public void createANewJavaClass(String projectName, String testFileName) throws Exception {
+	public void createANewJavaClass(String projectName, String testFileName) {
 		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();

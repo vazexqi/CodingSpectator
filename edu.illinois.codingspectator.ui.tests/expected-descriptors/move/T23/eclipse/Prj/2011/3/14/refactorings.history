@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;&apos; to &apos;edu.illinois.codingspectator.D&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Destination element: &apos;edu.illinois.codingspectator.D&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.E&apos;&#x0A;- Textual move only&#x0A;- Update references to refactored element" description="Move type" destination="/src&lt;edu.illinois.codingspectator{MoveCuTestFile.java[D" element1="/src&lt;edu.illinois.codingspectator{MoveCuTestFile.java[E" flags="589830" id="org.eclipse.jdt.ui.move" members="1" policy="org.eclipse.jdt.ui.moveMembers" stamp="1301361140139" version="1.0"/>
+</session>

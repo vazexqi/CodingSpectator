@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.CoreException;
  * @author Mohsen Vakilian
  * 
  */
-public class RefactoringLogChecker {
+public class RefactoringLogChecker implements LogChecker {
 
 	private String projectName;
 
