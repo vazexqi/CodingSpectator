@@ -11,6 +11,7 @@
 package org.eclipse.epp.usagedata.internal.gathering;
 
 import org.eclipse.epp.usagedata.internal.gathering.settings.UsageDataCaptureSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 
 /**
@@ -23,6 +24,10 @@ public class Startup implements IStartup {
 	// CODINGSPECTATOR
 	public void earlyStartup() {
 		getCaptureSettings().setEnabled(true);
+		IPreferenceStore preferenceStore= UsageDataCaptureActivator.getDefault().getPreferenceStore();
+		if (preferenceStore.needsSaving()) {
+			UsageDataCaptureActivator.getDefault().savePluginPreferences();
+		}
 	}
 
 	private UsageDataCaptureSettings getCaptureSettings() {
