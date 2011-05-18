@@ -78,7 +78,7 @@ public class ResourceHelper {
 	}
 
 	private static String readFileContent(File file, Charset charset) {
-		String fileContent= null;
+		String fileContent= ""; //Should return an empty string rather than null if something goes wrong
 		InputStream inputStream= null;
 		try {
 			inputStream= new FileInputStream(file);
