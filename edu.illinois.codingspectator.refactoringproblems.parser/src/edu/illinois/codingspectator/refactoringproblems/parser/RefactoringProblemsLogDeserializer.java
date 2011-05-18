@@ -49,7 +49,10 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 
 	List<ProblemChanges> allProblemChanges;
 
-	public RefactoringProblemsLogDeserializer() {
+	private boolean considerTimestamps;
+
+	public RefactoringProblemsLogDeserializer(boolean considerTimestamps) {
+		this.considerTimestamps= considerTimestamps;
 		this.problems= new HashSet<DefaultProblemWrapper>();
 		this.afterMinusBefore= new HashSet<DefaultProblemWrapper>();
 		this.beforeMinusAfter= new HashSet<DefaultProblemWrapper>();
@@ -133,10 +136,14 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 			DefaultProblemWrapper defaultProblemWrapper= new DefaultProblemWrapper(getStringAttribute(attributes, "problemMarker"), problem);
 			problems.add(defaultProblemWrapper);
 		} else if (qName.equals("after-minus-before")) {
-			afterTimestamp= getLongAttribute(attributes, "timestamp");
+			if (considerTimestamps) {
+				afterTimestamp= getLongAttribute(attributes, "timestamp");
+			}
 			problems.clear();
 		} else if (qName.equals("before-minus-after")) {
-			beforeTimestamp= getLongAttribute(attributes, "timestamp");
+			if (considerTimestamps) {
+				beforeTimestamp= getLongAttribute(attributes, "timestamp");
+			}
 			problems.clear();
 		} else if (qName.equals("problem-changes")) {
 			afterMinusBefore.clear();

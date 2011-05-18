@@ -25,49 +25,85 @@ import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 @SuppressWarnings("restriction")
 public class ProblemChanges {
 
+	public static final String REFACTORING_PROBLEMS_LOG= "refactoring-problems.log";
+
 	long beforeTimestamp, afterTimestamp;
 
 	Set<DefaultProblemWrapper> afterMinusBefore;
 
 	Set<DefaultProblemWrapper> beforeMinusAfter;
 
+//	@Override
+//	public int hashCode() {
+//		final int prime= 31;
+//		int result= 1;
+//		result= prime * result + ((afterMinusBefore == null) ? 0 : afterMinusBefore.hashCode());
+//		result= prime * result + ((beforeMinusAfter == null) ? 0 : beforeMinusAfter.hashCode());
+//		return result;
+//	}
+
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj) {
+//			return true;
+//		} else if (obj instanceof ProblemChanges == false) {
+//			return false;
+//		}
+//		ProblemChanges rhs= (ProblemChanges)obj;
+//		return isEqual(afterMinusBefore, rhs.afterMinusBefore) && isEqual(beforeMinusAfter, rhs.beforeMinusAfter);
+//
+//	}
+	
+	
+	
+
+//	private boolean isEqual(Set<DefaultProblemWrapper> lhs, Set<DefaultProblemWrapper> rhs) {
+//
+//		if (lhs.size() != rhs.size()) {
+//			return false;
+//		}
+//		for (DefaultProblemWrapper problemEntry : rhs) {
+//			if (lhs.contains(problemEntry) == false) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime
-				* result
-				+ ((afterMinusBefore == null) ? 0 : afterMinusBefore.hashCode());
-		result = prime
-				* result
-				+ ((beforeMinusAfter == null) ? 0 : beforeMinusAfter.hashCode());
+		final int prime= 31;
+		int result= 1;
+		result= prime * result + ((afterMinusBefore == null) ? 0 : afterMinusBefore.hashCode());
+		result= prime * result + (int)(afterTimestamp ^ (afterTimestamp >>> 32));
+		result= prime * result + ((beforeMinusAfter == null) ? 0 : beforeMinusAfter.hashCode());
+		result= prime * result + (int)(beforeTimestamp ^ (beforeTimestamp >>> 32));
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		} else if(obj instanceof ProblemChanges == false) {
+		if (obj == null)
 			return false;
-		}
-		ProblemChanges rhs = (ProblemChanges) obj;
-		return isEqual(afterMinusBefore, rhs.afterMinusBefore) &&
-		isEqual(beforeMinusAfter, rhs.beforeMinusAfter); 
-		
-	}
-	
-	private boolean isEqual(Set<DefaultProblemWrapper> lhs,
-			Set<DefaultProblemWrapper> rhs) {
-		
-		if(lhs.size() != rhs.size()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-		for (DefaultProblemWrapper problemEntry : rhs) {
-			if(lhs.contains(problemEntry) == false) {
+		ProblemChanges other= (ProblemChanges)obj;
+		if (afterMinusBefore == null) {
+			if (other.afterMinusBefore != null)
 				return false;
-			}
-		}
+		} else if (!afterMinusBefore.equals(other.afterMinusBefore))
+			return false;
+		if (afterTimestamp != other.afterTimestamp)
+			return false;
+		if (beforeMinusAfter == null) {
+			if (other.beforeMinusAfter != null)
+				return false;
+		} else if (!beforeMinusAfter.equals(other.beforeMinusAfter))
+			return false;
+		if (beforeTimestamp != other.beforeTimestamp)
+			return false;
 		return true;
 	}
 
@@ -106,7 +142,7 @@ public class ProblemChanges {
 	 * </problem-changes>
 	 */
 	public void log() {
-		SafeRecorder safeRecorder= new SafeRecorder("refactorings/refactoring-problems.log");
+		SafeRecorder safeRecorder= new SafeRecorder("refactorings/" + REFACTORING_PROBLEMS_LOG);
 		ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
 		try {
 			XMLWriter xmlWriter= new XMLWriter(outputStream);
@@ -119,7 +155,7 @@ public class ProblemChanges {
 		} catch (UnsupportedEncodingException e) {
 			Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to serialize the compilation problems.", e));
 		}
-		final String XMLWriter_XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		final String XMLWriter_XML_VERSION= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 		safeRecorder.record(outputStream.toString().substring(XMLWriter_XML_VERSION.length()));
 	}
 }

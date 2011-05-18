@@ -17,6 +17,8 @@ import org.eclipse.core.runtime.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
+
 /**
  * The methods marked with @Test annotation are final because if you override them, the order in
  * which SWTBot executes the test methods changes. To change the behavior of a SWTBot test method,
@@ -63,9 +65,8 @@ public abstract class RefactoringTest {
 				HashSet<String> expectedLogs= new HashSet<String>();
 				expectedLogs.addAll(Arrays.asList(fileStore.childNames(EFS.NONE, null)));
 
-				//TODO: Use the appropriate constant.
-				if (expectedLogs.contains("refactoring-problems.log")) {
-					logCheckers.add(new RefactoringProblemsChecker(getPathToExpectedResultsOfTest().append("refactoring-problems.log")));
+				if (expectedLogs.contains(ProblemChanges.REFACTORING_PROBLEMS_LOG)) {
+					logCheckers.add(new RefactoringProblemsChecker(getRefactoringProblemsLogPath()));
 				}
 				addRefactoringLogCheckers(expectedLogs);
 			} else {
@@ -74,6 +75,15 @@ public abstract class RefactoringTest {
 		}
 
 		return logCheckers;
+	}
+
+	private IPath getRefactoringProblemsLogPath() {
+		return getPathToExpectedResultsOfTest().append(ProblemChanges.REFACTORING_PROBLEMS_LOG);
+	}
+	
+	private IPath getActualRefactoringProblemsLogPath() {
+		String actualPath = RefactoringLog.getRefactoringStorageLocation("refactorings/").toOSString() + ProblemChanges.REFACTORING_PROBLEMS_LOG;
+		return Path.fromOSString(actualPath);
 	}
 
 	private void addRefactoringLogCheckers(Set<String> expectedHistoryFolderNames) {
@@ -112,6 +122,17 @@ public abstract class RefactoringTest {
 			logChecker.clean();
 		}
 	}
+	
+	private void cleanUpWorkspace() throws CoreException {
+		bot.deleteProject(getProjectName());
+		EFS.getLocalFileSystem().getStore(getActualRefactoringProblemsLogPath()).delete(EFS.NONE, null);
+		bot.sleep();
+		// Deleting a project is a refactoring that gets logged in .refactorings/.workspace.
+		// We need to delete the .refactoring folder after the deletion of the project,
+		// otherwise, the next test fails because it expects the refactoring history folder to be empty initially.
+		bot.deleteEclipseRefactoringLog();
+		bot.sleep();
+	}
 
 	// SWTBot tests run in the order in which they are declared.
 
@@ -128,6 +149,7 @@ public abstract class RefactoringTest {
 		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
+	//FIXME: Rename this method to logsShouldBeEmpty
 	@Test
 	public final void refactoringLogShouldBeEmpty() throws CoreException {
 		bot.sleep();
@@ -152,13 +174,7 @@ public abstract class RefactoringTest {
 
 	@Test
 	public final void deleteCurrentProject() throws CoreException {
-		bot.deleteProject(getProjectName());
-		bot.sleep();
-		// Deleting a project is a refactoring that gets logged in .refactorings/.workspace.
-		// We need to delete the .refactoring folder after the deletion of the project,
-		// otherwise, the next test fails because it expects the refactoring history folder to be empty initially.
-		bot.deleteEclipseRefactoringLog();
-		bot.sleep();
+		cleanUpWorkspace();
 		doRefactoringLogShouldBeEmpty();
 		bot.sleep();
 	}
