@@ -126,7 +126,7 @@ public abstract class RefactoringTest {
 	private void cleanUpWorkspace() throws CoreException {
 		bot.deleteProject(getProjectName());
 		EFS.getLocalFileSystem().getStore(getActualRefactoringProblemsLogPath()).delete(EFS.NONE, null);
-		bot.sleep();
+//		bot.sleep();
 		// Deleting a project is a refactoring that gets logged in .refactorings/.workspace.
 		// We need to delete the .refactoring folder after the deletion of the project,
 		// otherwise, the next test fails because it expects the refactoring history folder to be empty initially.
@@ -175,6 +175,7 @@ public abstract class RefactoringTest {
 	@Test
 	public final void deleteCurrentProject() throws CoreException {
 		cleanUpWorkspace();
+		bot.sleep();
 		doRefactoringLogShouldBeEmpty();
 		bot.sleep();
 	}
