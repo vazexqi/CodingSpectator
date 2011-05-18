@@ -6,7 +6,6 @@ package edu.illinois.codingspectator.refactoringproblems.logger;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -31,9 +30,8 @@ import org.eclipse.ui.IStartup;
 
 /**
  * 
- * This class is based on
- * edu.illinois.codingspectator.codingtracker.listeners.OperationHistoryListener and
- * edu.illinois.codingspectator.codingtracker.listeners.RefactoringExecutionListener
+ * This class is based on edu.illinois.codingtracker.listeners.OperationHistoryListener and
+ * edu.illinois.codingtracker.listeners.RefactoringExecutionListener
  * 
  * @author Balaji Ambresh Rajkumar
  * @author Mohsen Vakilian

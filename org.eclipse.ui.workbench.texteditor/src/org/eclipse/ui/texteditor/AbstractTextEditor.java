@@ -4767,7 +4767,7 @@ public abstract class AbstractTextEditor extends EditorPart implements ITextEdit
 			title= EditorMessages.Editor_error_activated_outofsync_title;
 			msg= NLSUtility.format(EditorMessages.Editor_error_activated_outofsync_message, inputName);
 
-			if (fHasBeenActivated && Platform.getBundle("edu.illinois.codingspectator.codingtracker.replaying") == null &&
+			if (fHasBeenActivated && Platform.getBundle("edu.illinois.codingtracker.replaying") == null &&
 					MessageDialog.openQuestion(shell, title, msg)) {
 
 

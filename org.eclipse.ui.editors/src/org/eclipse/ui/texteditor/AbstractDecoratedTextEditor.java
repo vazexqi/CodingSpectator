@@ -349,7 +349,7 @@ public abstract class AbstractDecoratedTextEditor extends StatusTextEditor {
 
 	//CODINGSPECTATOR: Overrode method createUndoRedoActions() such that while replaying the approvers are not registered in order to avoid confirmation dialog boxes.
 	protected void createUndoRedoActions() {
-		if (Platform.getBundle("edu.illinois.codingspectator.codingtracker.replaying") != null) { //$NON-NLS-1$
+		if (Platform.getBundle("edu.illinois.codingtracker.replaying") != null) { //$NON-NLS-1$
 			//do nothing
 		} else {
 			super.createUndoRedoActions();

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingtracker.recording
+Bundle-SymbolicName: edu.illinois.codingtracker.recording;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.illinois.codingtracker.recording.Activator
+Require-Bundle: org.eclipse.jdt.core,
+ edu.illinois.codingtracker.operations;visibility:=reexport,
+ edu.illinois.codingspectator.monitor.core,
+ org.eclipse.jdt.ui,
+ edu.illinois.codingspectator.saferecorder,
+ org.eclipse.jdt.junit,
+ org.eclipse.debug.core,
+ edu.illinois.codingspectator.data,
+ org.eclipse.team.core,
+ org.eclipse.core.filesystem,
+ org.tmatesoft.svn_1.3.4.eclipse
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: University of Ilinois
+Bundle-ActivationPolicy: lazy
+Export-Package: edu.illinois.codingtracker.recording

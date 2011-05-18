@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.jdt.ui.startup">
+      <startupListener
+            class="edu.illinois.codingtracker.listeners.JDTUIStartupListener"
+            id="edu.illinois.codingtracker.recording.startupListener"
+            name="edu.illinois.codingtracker.recording.startupListener">
+      </startupListener>
+   </extension>
+
+</plugin>

@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: edu.illinois.codingspectator.codingtracker.tests
-Bundle-SymbolicName: edu.illinois.codingspectator.codingtracker.tests
-Bundle-Version: 1.0.0.qualifier
-Require-Bundle: org.junit4;bundle-version="4.8.1",
- edu.illinois.codingspectator.codingtracker.recording
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: University of Illinois

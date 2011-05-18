@@ -6,10 +6,10 @@ package edu.illinois.codingspectator.saferecorder;
 import java.io.File;
 import java.io.IOException;
 
-import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.Messages;
-import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
+import edu.illinois.codingtracker.helpers.Debugger;
+import edu.illinois.codingtracker.helpers.Messages;
+import edu.illinois.codingtracker.helpers.ResourceHelper;
 
 /**
  * 
