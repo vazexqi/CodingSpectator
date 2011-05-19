@@ -269,6 +269,7 @@ public class MoveAction extends SelectionDispatchAction {
 		if (!fReorgMoveAction.isEnabled())
 			return false;
 
+		//CODINGSPECTATOR: Replaced run by runWithoutRecordingSelection to avoid recording a structured selection (issue #216).
 		fReorgMoveAction.runWithoutRecordingSelection(mockStructuredSelection);
 		return true;
 	}
