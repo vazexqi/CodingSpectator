@@ -179,7 +179,6 @@ public class ResourceListener extends BasicListener implements IResourceListener
 	 * @return
 	 */
 	private IFile getJavaSourceFileForSVNFile(IFile svnFile) {
-		IFile javaSourceFile= null;
 		String fileName= svnFile.getName();
 		if (fileName.endsWith(".java.svn-base")) {
 			IPath fileFullPath= svnFile.getFullPath();
@@ -187,10 +186,13 @@ public class ResourceListener extends BasicListener implements IResourceListener
 			if (parentDir.equals("text-base")) {
 				String javaSourceFileName= fileName.substring(0, fileName.lastIndexOf("."));
 				IPath javaSourceFilePath= fileFullPath.removeLastSegments(3).append(javaSourceFileName);
-				javaSourceFile= ResourceHelper.getWorkspaceRoot().getFile(javaSourceFilePath);
+				IResource javaResource= ResourceHelper.findWorkspaceMember(javaSourceFilePath);
+				if (javaResource instanceof IFile && javaResource.exists()) {
+					return (IFile)javaResource;
+				}
 			}
 		}
-		return javaSourceFile;
+		return null;
 	}
 
 	private void calculateSets() {
@@ -204,14 +206,14 @@ public class ResourceListener extends BasicListener implements IResourceListener
 			FileRevision fileRevision= getSVNFileRevision(file);
 			if (externallyChangedJavaFiles.contains(file)) {
 				updatedJavaFileRevisions.add(fileRevision); //if both the java file and its svn storage have changed, then its an update
-			} else {
+			} else if (!externallyAddedJavaFiles.contains(file)) {
 				svnCommittedJavaFileRevisions.add(fileRevision); //if only svn storage of a java file has changed, its a commit
 			}
 		}
 		for (IFile file : svnAddedJavaFiles) {
-			if (!externallyAddedJavaFiles.contains(file)) { //if only svn storage was added for a file, its an initial commit
+			//if only svn storage was added for a file, its an initial commit
+			if (!externallyAddedJavaFiles.contains(file) && !externallyChangedJavaFiles.contains(file)) {
 				svnInitiallyCommittedJavaFileRevisions.add(getSVNFileRevision(file));
-
 			}
 		}
 	}

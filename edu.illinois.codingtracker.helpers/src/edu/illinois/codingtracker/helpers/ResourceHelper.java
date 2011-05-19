@@ -185,7 +185,7 @@ public class ResourceHelper {
 			if (entryElements.length > 2 && entryElements[0].isEmpty() && entryElements[1].endsWith(".java")) {
 				IPath entryFilePath= relativePath.append(entryElements[1]);
 				IResource entryFile= findWorkspaceMember(entryFilePath);
-				if (entryFile != null) {
+				if (entryFile instanceof IFile && entryFile.exists()) {
 					entriesRevisions.put((IFile)entryFile, entryElements[2]);
 				}
 			}

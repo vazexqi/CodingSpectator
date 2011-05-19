@@ -194,13 +194,13 @@ public class CVSResourceChangeListener extends BasicListener implements IResourc
 			FileRevision newFileRevision= getCVSFileRevision(entryFile, newRevision);
 			String previousRevision= previousRevisions.get(entryFile);
 			if (previousRevision == null) {
-				if (!addedJavaFiles.contains(entryFile)) {
+				if (!addedJavaFiles.contains(entryFile) && !changedJavaFiles.contains(entryFile)) {
 					cvsInitiallyCommittedJavaFileRevisions.add(newFileRevision);
 				}
 			} else if (!previousRevision.equals(newRevision)) {
 				if (changedJavaFiles.contains(entryFile)) {
 					updatedJavaFileRevisions.add(newFileRevision);
-				} else {
+				} else if (!addedJavaFiles.contains(entryFile)) {
 					cvsCommittedJavaFileRevisions.add(newFileRevision);
 				}
 			}
