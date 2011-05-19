@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingspectator.ui.tests.pushdown;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -29,8 +28,8 @@ public class T02 extends RefactoringTest {
 	}
 
 	@Override
-	protected void doRefactoringShouldBeLogged() throws CoreException {
-		super.doRefactoringShouldBeLogged();
+	protected void doLogsShouldBeCorrect() throws Exception {
+		super.doLogsShouldBeCorrect();
 		printMessage("This test does not select any members. Therefore, CodingSpectator cannot find an ITypeRoot. Thus, CodingSpectator fails to capture any selection information.");
 	}
 

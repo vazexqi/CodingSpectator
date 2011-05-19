@@ -46,7 +46,7 @@ public class DefaultProblemWrapper {
 
 	private int severity;
 
-	private static String PROBLEM_TAG= "problem";
+	public static String PROBLEM_TAG_NAME= "problem";
 
 	public DefaultProblemWrapper(String problemMarker, CategorizedProblem problem) {
 		this.problemMarker= problemMarker;
@@ -148,7 +148,6 @@ public class DefaultProblemWrapper {
 				+ ", endPosition=" + endPosition + ", line=" + line + ", startPosition=" + startPosition + ", severity=" + severity + "]";
 	}
 
-	@SuppressWarnings("restriction")
 	public void addTo(XMLWriter xmlWriter) throws UnsupportedEncodingException {
 		HashMap<String, Object> parameters= new HashMap<String, Object>();
 		parameters.put("problemMarker", problemMarker);
@@ -161,8 +160,8 @@ public class DefaultProblemWrapper {
 		parameters.put("startPosition", startPosition);
 		parameters.put("severity", severity);
 
-		xmlWriter.startTag(PROBLEM_TAG, parameters);
-		xmlWriter.endTag(PROBLEM_TAG);
+		xmlWriter.startTag(PROBLEM_TAG_NAME, parameters);
+		xmlWriter.endTag(PROBLEM_TAG_NAME);
 		xmlWriter.flush();
 	}
 }

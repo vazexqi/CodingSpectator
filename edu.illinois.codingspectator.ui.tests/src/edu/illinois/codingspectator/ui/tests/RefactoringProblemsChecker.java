@@ -3,9 +3,15 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProblemsLogDeserializer;
 import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProblemsParserException;
 
@@ -16,30 +22,37 @@ import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProble
  */
 public class RefactoringProblemsChecker implements LogChecker {
 
-	IPath logPath;
+	private final IPath expectedLogPath;
+
+	private final IPath actualLogPath;
+
+	private final EFSFile actuaLogFile;
 
 	public RefactoringProblemsChecker(IPath logPath) {
-		this.logPath= logPath;
+		this.expectedLogPath= logPath;
+		this.actualLogPath= RefactoringLog.getRefactoringStorageLocation("refactorings").append(ProblemChanges.REFACTORING_PROBLEMS_LOG);
+		this.actuaLogFile= new EFSFile(actualLogPath);
 	}
 
 	@Override
 	public void assertLogIsEmpty() {
+		assertFalse(actuaLogFile.exists());
+	}
 
+	private List<ProblemChanges> getProblemChanges(IPath refactoringLogPath) throws RefactoringProblemsParserException {
+		return new RefactoringProblemsLogDeserializer(false).deserializeRefactoringProblemsLog(refactoringLogPath.toOSString());
 	}
 
 	@Override
-	public void assertMatch() {
-		try {
-			//TODO: Parse actual and expected refactoring problems. Then, compare the problem modulo timestamps.
-			new RefactoringProblemsLogDeserializer().deserializeRefactoringProblemsLog(logPath.toOSString());
-		} catch (RefactoringProblemsParserException e) {
-			//FIXME: Log exceptions
-			e.printStackTrace();
-		}
+	public void assertMatch() throws RefactoringProblemsParserException {
+		List<ProblemChanges> expectedProblems= getProblemChanges(expectedLogPath);
+		List<ProblemChanges> actualProblems= getProblemChanges(actualLogPath);
+		assertEquals(expectedProblems, actualProblems);
 	}
 
 	@Override
 	public void clean() throws CoreException {
+		actuaLogFile.delete();
 	}
 
 }

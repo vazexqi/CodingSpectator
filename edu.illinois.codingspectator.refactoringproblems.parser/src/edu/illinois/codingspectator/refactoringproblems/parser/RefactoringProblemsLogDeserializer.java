@@ -45,17 +45,24 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 
 	Set<DefaultProblemWrapper> afterMinusBefore, beforeMinusAfter;
 
-	long afterTimestamp, beforeTimestamp;
+	long refactoringTimestamp, afterTimestamp, beforeTimestamp;
 
 	List<ProblemChanges> allProblemChanges;
 
-	public RefactoringProblemsLogDeserializer() {
+	private boolean considerTimestamps;
+
+	public RefactoringProblemsLogDeserializer(boolean considerTimestamps) {
+		this.considerTimestamps= considerTimestamps;
 		this.problems= new HashSet<DefaultProblemWrapper>();
 		this.afterMinusBefore= new HashSet<DefaultProblemWrapper>();
 		this.beforeMinusAfter= new HashSet<DefaultProblemWrapper>();
 		this.afterTimestamp= -1;
 		this.beforeTimestamp= -1;
 		this.allProblemChanges= new ArrayList<ProblemChanges>();
+	}
+
+	public RefactoringProblemsLogDeserializer() {
+		this(true);
 	}
 
 	public List<ProblemChanges> deserializeRefactoringProblemsLog(String fileName) throws RefactoringProblemsParserException {
@@ -104,6 +111,14 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 		return Long.valueOf(attributes.getValue(attribute));
 	}
 
+	private long getTimestampAttribute(Attributes attributes, String attribute) {
+		if (considerTimestamps) {
+			return getLongAttribute(attributes, attribute);
+		} else {
+			return -1;
+		}
+	}
+
 	private String getStringAttribute(Attributes attributes, String attribute) {
 		return attributes.getValue(attribute);
 	}
@@ -120,7 +135,7 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		if (qName.equals("problem")) {
+		if (qName.equals(DefaultProblemWrapper.PROBLEM_TAG_NAME)) {
 			char[] fileName= getCharArrayAttribute(attributes, "fileName");
 			String message= getStringAttribute(attributes, "message");
 			int id= getIntAttribute(attributes, "id");
@@ -132,13 +147,14 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 			CategorizedProblem problem= new DefaultProblem(fileName, message, id, arguments, severity, startPosition, endPosition, line, -1);
 			DefaultProblemWrapper defaultProblemWrapper= new DefaultProblemWrapper(getStringAttribute(attributes, "problemMarker"), problem);
 			problems.add(defaultProblemWrapper);
-		} else if (qName.equals("after-minus-before")) {
-			afterTimestamp= getLongAttribute(attributes, "timestamp");
+		} else if (qName.equals(ProblemChanges.AFTER_MINUS_BEFORE_TAG_NAME)) {
+			afterTimestamp= getTimestampAttribute(attributes, ProblemChanges.TIMESTAMP_ATTRIBUTE_NAME);
 			problems.clear();
-		} else if (qName.equals("before-minus-after")) {
-			beforeTimestamp= getLongAttribute(attributes, "timestamp");
+		} else if (qName.equals(ProblemChanges.BEFORE_MINUS_AFTER_TAG_NAME)) {
+			beforeTimestamp= getTimestampAttribute(attributes, ProblemChanges.TIMESTAMP_ATTRIBUTE_NAME);
 			problems.clear();
-		} else if (qName.equals("problem-changes")) {
+		} else if (qName.equals(ProblemChanges.PROBLEM_CHANGES_TAG_NAME)) {
+			refactoringTimestamp= getTimestampAttribute(attributes, ProblemChanges.REFACTORING_TIMESTAMP_ATTRIBUTE_NAME);
 			afterMinusBefore.clear();
 			beforeMinusAfter.clear();
 		}
@@ -146,13 +162,13 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (qName.equals("after-minus-before")) {
+		if (qName.equals(ProblemChanges.AFTER_MINUS_BEFORE_TAG_NAME)) {
 			afterMinusBefore.addAll(problems);
-		} else if (qName.equals("before-minus-after")) {
+		} else if (qName.equals(ProblemChanges.BEFORE_MINUS_AFTER_TAG_NAME)) {
 			beforeMinusAfter.addAll(problems);
-		} else if (qName.equals("problem-changes")) {
-			//FIXME: Extract the refactoring-timestamp attribute and set it properly.
-			allProblemChanges.add(new ProblemChanges(-1, afterTimestamp, afterMinusBefore, beforeTimestamp, beforeMinusAfter));
+		} else if (qName.equals(ProblemChanges.PROBLEM_CHANGES_TAG_NAME)) {
+			allProblemChanges.add(new ProblemChanges(refactoringTimestamp, afterTimestamp, afterMinusBefore, beforeTimestamp, beforeMinusAfter));
 		}
 	}
+
 }

@@ -1,0 +1,12 @@
+<problem-changes refactoring-timestamp="1305832689395">
+	<after-minus-before timestamp="1305832689420">
+		<problem id="67109219" message="Duplicate method invalidExtractedMethod() in type InvalidExtractMethodTestFile" arguments="[invalidExtractedMethod, edu.illinois.codingspectator.InvalidExtractMethodTestFile, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidExtractMethodTestFile.java" line="16" severity="1" endPosition="404" startPosition="381">
+		</problem>
+		<problem id="67109219" message="Duplicate method invalidExtractedMethod() in type InvalidExtractMethodTestFile" arguments="[invalidExtractedMethod, edu.illinois.codingspectator.InvalidExtractMethodTestFile, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidExtractMethodTestFile.java" line="12" severity="1" endPosition="329" startPosition="306">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1305832689336">
+		<problem id="603979894" message="The method invalidExtractedMethod() from the type InvalidExtractMethodTestFile is never used locally" arguments="[edu.illinois.codingspectator.InvalidExtractMethodTestFile, invalidExtractedMethod, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidExtractMethodTestFile.java" line="12" severity="0" endPosition="324" startPosition="301">
+		</problem>
+	</before-minus-after>
+</problem-changes>

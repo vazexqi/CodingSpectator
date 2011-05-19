@@ -14,7 +14,7 @@ public interface LogChecker {
 
 	public void assertLogIsEmpty();
 
-	public void assertMatch();
+	public void assertMatch() throws Exception;
 
 	public void clean() throws CoreException;
 
