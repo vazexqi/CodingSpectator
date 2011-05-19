@@ -25,22 +25,39 @@ import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 @SuppressWarnings("restriction")
 public class ProblemChanges {
 
-	long beforeTimestamp, afterTimestamp;
+	private static final String PROBLEM_CHANGES_TAG_NAME= "problem-changes";
+
+	private static final String PROBLEM_REFACTORING_TIMESTAMP_ATTRIBUTE_NAME= "refactoring-timestamp";
+
+	private static final String BEFORE_MINUS_AFTER_TAG_NAME= "before-minus-after";
+
+	private static final String AFTER_MINUS_BEFORE_TAG_NAME= "after-minus-before";
+
+	private static final String TIMESTAMP_ATTRIBUTE_NAME= "timestamp";
+
+	long refactoringTimestamp, beforeTimestamp, afterTimestamp;
 
 	Set<DefaultProblemWrapper> afterMinusBefore;
 
 	Set<DefaultProblemWrapper> beforeMinusAfter;
 
-	public ProblemChanges(long afterTimestamp, Set<DefaultProblemWrapper> afterMinusBefore, long beforeTimestamp, Set<DefaultProblemWrapper> beforeMinusAfter) {
+	public ProblemChanges(long refactoringTimestamp, long afterTimestamp, Set<DefaultProblemWrapper> afterMinusBefore, long beforeTimestamp, Set<DefaultProblemWrapper> beforeMinusAfter) {
+		this.refactoringTimestamp= refactoringTimestamp;
 		this.afterTimestamp= afterTimestamp;
 		this.afterMinusBefore= afterMinusBefore;
 		this.beforeTimestamp= beforeTimestamp;
 		this.beforeMinusAfter= beforeMinusAfter;
 	}
 
+	private void startProblemChangesTag(XMLWriter xmlWriter) {
+		HashMap<String, Object> attributes= new HashMap<String, Object>();
+		attributes.put(PROBLEM_REFACTORING_TIMESTAMP_ATTRIBUTE_NAME, refactoringTimestamp);
+		xmlWriter.startTag(PROBLEM_CHANGES_TAG_NAME, attributes);
+	}
+
 	private void addTo(Set<DefaultProblemWrapper> problems, String tagName, long timestamp, XMLWriter xmlWriter) throws UnsupportedEncodingException {
 		HashMap<String, Object> attributes= new HashMap<String, Object>();
-		attributes.put("timestamp", timestamp);
+		attributes.put(TIMESTAMP_ATTRIBUTE_NAME, timestamp);
 		xmlWriter.startTag(tagName, attributes);
 		for (DefaultProblemWrapper problem : problems) {
 			problem.addTo(xmlWriter);
@@ -50,14 +67,26 @@ public class ProblemChanges {
 
 	@Override
 	public String toString() {
-		return "ProblemChanges [beforeTimestamp=" + beforeTimestamp + ", afterTimestamp=" + afterTimestamp + ", afterMinusBefore=" + afterMinusBefore + ", beforeMinusAfter=" + beforeMinusAfter + "]";
+		StringBuilder builder= new StringBuilder();
+		builder.append("ProblemChanges [refactoringTimestamp=");
+		builder.append(refactoringTimestamp);
+		builder.append(", beforeTimestamp=");
+		builder.append(beforeTimestamp);
+		builder.append(", afterTimestamp=");
+		builder.append(afterTimestamp);
+		builder.append(", afterMinusBefore=");
+		builder.append(afterMinusBefore);
+		builder.append(", beforeMinusAfter=");
+		builder.append(beforeMinusAfter);
+		builder.append("]");
+		return builder.toString();
 	}
 
 	/**
 	 * 
 	 * This method prints out the changes of the problems in the following format:
 	 * 
-	 * <problem-changes>
+	 * <problem-changes refactoring-timestamp="...">
 	 * 
 	 * <after-minus-before timestamp="...">...</after-minus-before>
 	 * 
@@ -70,16 +99,16 @@ public class ProblemChanges {
 		ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
 		try {
 			XMLWriter xmlWriter= new XMLWriter(outputStream);
-			final String problemChangesTag= "problem-changes";
-			xmlWriter.startTag(problemChangesTag, null);
-			addTo(afterMinusBefore, "after-minus-before", afterTimestamp, xmlWriter);
-			addTo(beforeMinusAfter, "before-minus-after", beforeTimestamp, xmlWriter);
-			xmlWriter.endTag(problemChangesTag);
+			startProblemChangesTag(xmlWriter);
+			addTo(afterMinusBefore, AFTER_MINUS_BEFORE_TAG_NAME, afterTimestamp, xmlWriter);
+			addTo(beforeMinusAfter, BEFORE_MINUS_AFTER_TAG_NAME, beforeTimestamp, xmlWriter);
+			xmlWriter.endTag(PROBLEM_CHANGES_TAG_NAME);
 			xmlWriter.close();
 		} catch (UnsupportedEncodingException e) {
 			Activator.getDefault().getLog().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "CODINGSPECTATOR: Failed to serialize the compilation problems.", e));
 		}
-		final String XMLWriter_XML_VERSION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+		final String XMLWriter_XML_VERSION= "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 		safeRecorder.record(outputStream.toString().substring(XMLWriter_XML_VERSION.length()));
 	}
+
 }

@@ -20,12 +20,15 @@ import java.io.Writer;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.epp.usagedata.internal.gathering.UsageDataCaptureActivator;
 import org.eclipse.epp.usagedata.internal.gathering.settings.UsageDataCaptureSettings;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
 import org.eclipse.epp.usagedata.internal.recording.filtering.PreferencesBasedFilter;
 import org.eclipse.epp.usagedata.internal.recording.filtering.UsageDataEventFilter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.PlatformUI;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * This class provides a convenient location to find the settings for this bundle. Some settings are
@@ -387,7 +390,11 @@ public class UsageDataRecordingSettings implements UploadSettings {
 
 	public void setCollectButNeverUpload(boolean value) {
 		getPreferencesStore().setValue(COLLECT_BUT_NEVER_UPLOAD_KEY, value);
-		UsageDataRecordingActivator.getDefault().savePluginPreferences();
+		try {
+			new InstanceScope().getNode(UsageDataCaptureActivator.PLUGIN_ID).flush();
+		} catch (BackingStoreException e) {
+			UsageDataCaptureActivator.getDefault().logException("Unable to flush preferences for " + UsageDataCaptureActivator.PLUGIN_ID, e);
+		}
 	}
 
 	public boolean isCollectButNeverUpload() {

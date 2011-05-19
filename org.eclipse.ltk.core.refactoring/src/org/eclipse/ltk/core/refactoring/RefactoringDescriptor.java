@@ -233,9 +233,6 @@ public abstract class RefactoringDescriptor implements Comparable {
 		fProject= project;
 		fComment= comment;
 		fFlags= flags;
-
-		//CODINGSPECTATOR
-		setTimeStamp(System.currentTimeMillis());
 	}
 
 	/**
@@ -457,9 +454,9 @@ public abstract class RefactoringDescriptor implements Comparable {
 		return buffer.toString();
 	}
 
-	//////////////////
-	// CODINGSPECTATOR
-	//////////////////
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 
 	/**
 	 * @param arguments A map of additional arguments

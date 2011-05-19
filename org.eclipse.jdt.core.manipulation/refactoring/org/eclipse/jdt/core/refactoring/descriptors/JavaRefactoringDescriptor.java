@@ -411,13 +411,17 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 		return status;
 	}
 
-	//////////////////
-	// CODINGSPECTATOR
-	//////////////////
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
 	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
 		Map augmentedArguments= new HashMap(getArguments());
 		augmentedArguments.putAll(arguments);
-		return new JavaRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
+		JavaRefactoringDescriptor augmentedDescriptor= new JavaRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
+		if (getTimeStamp() != -1) {
+			augmentedDescriptor.setTimeStamp(getTimeStamp());
+		}
+		return augmentedDescriptor;
 	}
 
 }

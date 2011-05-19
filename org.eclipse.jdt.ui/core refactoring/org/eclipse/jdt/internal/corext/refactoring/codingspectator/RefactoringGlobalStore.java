@@ -11,6 +11,8 @@ import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.IJavaElement;
 
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+
 /**
  * 
  * @author Mohsen Vakilian
@@ -58,8 +60,22 @@ public class RefactoringGlobalStore implements IClearable {
 		return instance;
 	}
 
+	public void clearData() {
+		resetInstance();
+	}
+
+	/**
+	 * This method specifies an object invariant.
+	 */
+	private void assertOnlyOneKindOfSelectionExists() {
+		if (doesSelectionInEditorExist() && doesStructuredSelectionExist()) {
+			JavaPlugin.log(new AssertionError("Capturing both structured and textual selections for a refactoring is unexpected.")); //$NON-NLS-1$
+		}
+	}
+
 	public void setSelectionInEditor(ITextSelection selection) {
 		selectionInEditor= selection;
+		assertOnlyOneKindOfSelectionExists();
 	}
 
 	public int getSelectionStart() {
@@ -74,13 +90,10 @@ public class RefactoringGlobalStore implements IClearable {
 		return selectionInEditor != null;
 	}
 
-	public void clearData() {
-		resetInstance();
-	}
-
 	public void setStructuredSelection(IStructuredSelection selection) {
 		structuredSelection= selection;
 		setInvokedThroughStructuredSelection();
+		assertOnlyOneKindOfSelectionExists();
 	}
 
 	private void setInvokedThroughStructuredSelection() {
@@ -102,6 +115,5 @@ public class RefactoringGlobalStore implements IClearable {
 	public IJavaElement getFirstSelectedJavaElement() {
 		return (IJavaElement)getStructuredSelectionList().get(0);
 	}
-
 
 }

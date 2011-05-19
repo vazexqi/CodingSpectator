@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.ui.tests.move;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -12,6 +13,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * class inside another class
  * 
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
+ * 
  */
 public class T23 extends RefactoringTest {
 

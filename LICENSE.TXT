@@ -63,14 +63,9 @@ Version 1.0.
  
 * CodingSpectator depends on the following projects that are licensed under the
 Eclipse Public License - Version 1.0.
-  * edu.illinois.codingspectator.jdt.helios.patch
-  * edu.illinois.codingspectator.jdt.heliosSR1.patch
-  * edu.illinois.codingspectator.jdt.heliosSR2.patch
-  * edu.illinois.codingspectator.platform.helios.patch
-  * edu.illinois.codingspectator.platform.heliosSR1.patch
-  * edu.illinois.codingspectator.platform.heliosSR2.patch
+  * edu.illinois.codingspectator.jdt.patch
+  * edu.illinois.codingspectator.platform.patch
   * edu.illinois.codingspectator.epp.usagedata.feature.patch
-  * edu.illinois.codingspectator.epp.usagedata.feature.heliosSR2.patch
   * edu.illinois.codingtracker.jdt.project.manipulation.feature
   * edu.illinois.codingtracker.jdt.project.manipulation
  
@@ -96,5 +91,3 @@ under the TMate Open Source License.
 under the Apache License - Version 2.0, and is available at
 http://jcommander.org/.
 
-* CodingSpectator depends on the SaxonHE library. SaxonHE is licensed under
-the Mozilla Public License and is available at http://saxon.sourceforge.net/.

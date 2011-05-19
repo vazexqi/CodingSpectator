@@ -65,11 +65,6 @@ public class Logger {
 		if (refactoringDescriptor == null)
 			return;
 
-		//FIXME: Why does this method check Logger.doesMonitorUIExist()? 
-		if (!Logger.doesMonitorUIExist()) {
-			return;
-		}
-
 		logDebug(refactoringDescriptor.toString());
 		serializeRefactoringEvent(refactoringDescriptor, refactoringEventType);
 	}
@@ -116,7 +111,15 @@ public class Logger {
 	}
 
 	private static void serializeRefactoringEvent(RefactoringDescriptor refactoringDescriptor, int refactoringEventType) {
+		// To disable CodingSpectator on target platforms, we instruct the users to remove the monitor.ui plugin from their target platform.
+		// Therefore, if the monitor.ui plug-in does not exist CodingSpectator won't log any refactorings. 
+		if (!Logger.doesMonitorUIExist()) {
+			return;
+		}
+
 		refactoringDescriptor= augmentedDescriptor(refactoringDescriptor, RefactoringDescriptor.CAPTURED_BY_CODINGSPECTATOR_ATTRIBUTE, String.valueOf(true));
+
+		setTheTimestampOfRefactoringIfNotAlreadySet(refactoringDescriptor);
 
 		// Wrap it into a refactoring descriptor proxy
 		RefactoringDescriptorProxy proxy= new RefactoringDescriptorProxyAdapter(refactoringDescriptor);
@@ -129,6 +132,12 @@ public class Logger {
 		serializer.historyNotification(event);
 
 		clearable.clearData();
+	}
+
+	private static void setTheTimestampOfRefactoringIfNotAlreadySet(RefactoringDescriptor refactoringDescriptor) {
+		if (refactoringDescriptor.getTimeStamp() == -1) {
+			refactoringDescriptor.setTimeStamp(System.currentTimeMillis());
+		}
 	}
 
 	private static RefactoringDescriptor getBasicRefactoringDescriptor(String refactoring, String project, CodeSnippetInformation info, String errorMessage) {
