@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingspectator.codingtracker.helpers;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.ITypedElement;
 import org.eclipse.compare.ResourceNode;
@@ -23,6 +26,7 @@ import org.eclipse.team.internal.ui.mapping.ModelCompareEditorInput;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
@@ -37,12 +41,12 @@ import org.eclipse.ui.texteditor.ITextEditor;
 @SuppressWarnings("restriction")
 public class EditorHelper {
 
-	public static boolean isConflictEditor(IEditorPart editor) {
-		if (!(editor instanceof CompareEditor)) {
+	public static boolean isConflictEditor(IWorkbenchPart part) {
+		if (!(part instanceof CompareEditor)) {
 			return false;
 		}
 		//TODO: Maybe some other inputs (not of a conflict editor) are good for tracking and are not ModelCompareEditorInput
-		if (((CompareEditor)editor).getEditorInput() instanceof ModelCompareEditorInput) {
+		if (((CompareEditor)part).getEditorInput() instanceof ModelCompareEditorInput) {
 			return false;
 		}
 		return true;
@@ -74,7 +78,7 @@ public class EditorHelper {
 					IResource resource= resourceNode.getResource();
 					if (resource instanceof IFile) {
 						IFile file= (IFile)resource;
-						if (isJavaFile(file)) {
+						if (ResourceHelper.isJavaFile(file)) {
 							javaFile= file;
 						}
 					}
@@ -89,7 +93,7 @@ public class EditorHelper {
 		IEditorInput editorInput= editor.getEditorInput();
 		if (editorInput instanceof FileEditorInput) {
 			IFile file= ((FileEditorInput)editorInput).getFile();
-			if (isJavaFile(file)) {
+			if (ResourceHelper.isJavaFile(file)) {
 				javaFile= file;
 			}
 		}
@@ -113,14 +117,6 @@ public class EditorHelper {
 		return editor.getHackedViewer();
 	}
 
-	private static boolean isJavaFile(IFile file) {
-		String fileExtension= file.getFileExtension();
-		if (fileExtension != null && fileExtension.equals("java")) {
-			return true;
-		}
-		return false;
-	}
-
 	public static ITextEditor openEditor(String filePath) throws CoreException {
 		ITextEditor fileEditor= getExistingEditor(filePath);
 		if (fileEditor != null) {
@@ -135,6 +131,14 @@ public class EditorHelper {
 		JavaPlugin.getActivePage().activate(editor);
 	}
 
+	public static IEditorPart getActiveEditor() {
+		return JavaPlugin.getActivePage().getActiveEditor();
+	}
+
+	public static void closeAllEditors() {
+		JavaPlugin.getActivePage().closeAllEditors(false);
+	}
+
 	/**
 	 * Has a side effect of bringing to top the newly created editor.
 	 * 
@@ -143,16 +147,25 @@ public class EditorHelper {
 	 * @throws PartInitException
 	 */
 	public static ITextEditor createEditor(String filePath) throws JavaModelException, PartInitException {
-		IFile file= (IFile)FileHelper.findWorkspaceMember(filePath);
+		IFile file= (IFile)ResourceHelper.findWorkspaceMember(filePath);
 		return (ITextEditor)JavaUI.openInEditor(JavaCore.createCompilationUnitFrom(file));
 	}
 
-	public static ITextEditor getExistingEditor(String filePath) throws PartInitException {
+	public static Set<ITextEditor> getExistingEditors(String resourcePath) throws PartInitException {
+		Set<ITextEditor> existingEditors= new HashSet<ITextEditor>();
 		for (IEditorReference editorReference : JavaPlugin.getActivePage().getEditorReferences()) {
 			IEditorInput editorInput= editorReference.getEditorInput();
-			if (editorInput instanceof FileEditorInput && ((FileEditorInput)editorInput).getPath().toPortableString().endsWith(filePath)) {
-				return (ITextEditor)editorReference.getEditor(true);
+			if (editorInput instanceof FileEditorInput && (ResourceHelper.getPortableResourcePath(((FileEditorInput)editorInput).getFile()).startsWith(resourcePath))) {
+				existingEditors.add((ITextEditor)editorReference.getEditor(true));
 			}
+		}
+		return existingEditors;
+	}
+
+	public static ITextEditor getExistingEditor(String filePath) throws PartInitException {
+		Set<ITextEditor> existingEditors= getExistingEditors(filePath);
+		if (!existingEditors.isEmpty()) {
+			return existingEditors.iterator().next();
 		}
 		return null;
 	}

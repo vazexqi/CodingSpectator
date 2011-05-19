@@ -51,10 +51,10 @@ import org.eclipse.jface.text.RewriteSessionEditProcessor;
 
 import org.eclipse.jdt.core.BufferChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IBuffer.ITextEditCapability;
 import org.eclipse.jdt.core.IBufferChangedListener;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.IBuffer.ITextEditCapability;
 
 import org.eclipse.jdt.ui.JavaUI;
 
@@ -62,10 +62,9 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 
 /**
- * Adapts <code>IDocument</code> to <code>IBuffer</code>. Uses the
- * same algorithm as the text widget to determine the buffer's line delimiter.
- * All text inserted into the buffer is converted to this line delimiter.
- * This class is <code>public</code> for test purposes only.
+ * Adapts <code>IDocument</code> to <code>IBuffer</code>. Uses the same algorithm as the text widget
+ * to determine the buffer's line delimiter. All text inserted into the buffer is converted to this
+ * line delimiter. This class is <code>public</code> for test purposes only.
  */
 public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCapability {
 
@@ -73,26 +72,75 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 	 * Internal implementation of a NULL instanceof IBuffer.
 	 */
 	static private class NullBuffer implements IBuffer {
-		public void addBufferChangedListener(IBufferChangedListener listener) {}
-		public void append(char[] text) {}
-		public void append(String text) {}
-		public void close() {}
-		public char getChar(int position) { return 0; }
-		public char[] getCharacters() { return null; }
-		public String getContents() { return null; }
-		public int getLength() { return 0; }
-		public IOpenable getOwner() { return null; }
-		public String getText(int offset, int length) { return null; }
-		public IResource getUnderlyingResource() { return null; }
-		public boolean hasUnsavedChanges() { return false; }
-		public boolean isClosed() { return false; }
-		public boolean isReadOnly() { return true; }
-		public void removeBufferChangedListener(IBufferChangedListener listener) {}
-		public void replace(int position, int length, char[] text) {}
-		public void replace(int position, int length, String text) {}
-		public void save(IProgressMonitor progress, boolean force) throws JavaModelException {}
-		public void setContents(char[] contents) {}
-		public void setContents(String contents) {}
+		public void addBufferChangedListener(IBufferChangedListener listener) {
+		}
+
+		public void append(char[] text) {
+		}
+
+		public void append(String text) {
+		}
+
+		public void close() {
+		}
+
+		public char getChar(int position) {
+			return 0;
+		}
+
+		public char[] getCharacters() {
+			return null;
+		}
+
+		public String getContents() {
+			return null;
+		}
+
+		public int getLength() {
+			return 0;
+		}
+
+		public IOpenable getOwner() {
+			return null;
+		}
+
+		public String getText(int offset, int length) {
+			return null;
+		}
+
+		public IResource getUnderlyingResource() {
+			return null;
+		}
+
+		public boolean hasUnsavedChanges() {
+			return false;
+		}
+
+		public boolean isClosed() {
+			return false;
+		}
+
+		public boolean isReadOnly() {
+			return true;
+		}
+
+		public void removeBufferChangedListener(IBufferChangedListener listener) {
+		}
+
+		public void replace(int position, int length, char[] text) {
+		}
+
+		public void replace(int position, int length, String text) {
+		}
+
+		public void save(IProgressMonitor progress, boolean force) throws JavaModelException {
+		}
+
+		public void setContents(char[] contents) {
+		}
+
+		public void setContents(String contents) {
+		}
 	}
 
 
@@ -102,7 +150,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 
 	/**
 	 * Run the given runnable in the UI thread.
-	 *
+	 * 
 	 * @param runnable the runnable
 	 * @since 3.3
 	 */
@@ -116,7 +164,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 
 
 	/**
-	 *  Executes a document set content call in the UI thread.
+	 * Executes a document set content call in the UI thread.
 	 */
 	protected class DocumentSetCommand implements Runnable {
 
@@ -140,7 +188,9 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 	protected class DocumentReplaceCommand implements Runnable {
 
 		private int fOffset;
+
 		private int fLength;
+
 		private String fText;
 
 		public void run() {
@@ -162,12 +212,13 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 
 	/**
 	 * Executes a document replace call in the UI thread.
-	 *
+	 * 
 	 * @since 3.4
 	 */
 	protected class ApplyTextEditCommand implements Runnable {
 
 		private TextEdit fEdit;
+
 		private UndoEdit fUndoEdit;
 
 		public void run() {
@@ -192,14 +243,19 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 	private static final boolean DEBUG_LINE_DELIMITERS= true;
 
 	private IOpenable fOwner;
+
 	private IFile fFile;
+
 	private ITextFileBuffer fTextFileBuffer;
+
 	private IDocument fDocument;
 
 	private boolean fIsClosed= true;
 
 	private DocumentSetCommand fSetCmd= new DocumentSetCommand();
+
 	private DocumentReplaceCommand fReplaceCmd= new DocumentReplaceCommand();
+
 	private ApplyTextEditCommand fTextEditCmd= new ApplyTextEditCommand();
 
 	private Set fLegalLineDelimiters;
@@ -218,7 +274,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 
 	/**
 	 * Constructs a new document adapter.
-	 *
+	 * 
 	 * @param owner the owner of this buffer
 	 * @param path the path of the file that backs the buffer
 	 * @since 3.2
@@ -253,7 +309,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 
 	/**
 	 * Constructs a new document adapter.
-	 *
+	 * 
 	 * @param owner the owner of this buffer
 	 * @param file the <code>IFile</code> that backs the buffer
 	 */
@@ -288,7 +344,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 
 	/**
 	 * Returns the adapted document.
-	 *
+	 * 
 	 * @return the adapted document
 	 */
 	public IDocument getDocument() {
@@ -468,8 +524,9 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 	 */
 	public void save(IProgressMonitor progress, boolean force) throws JavaModelException {
 		try {
-			if (fTextFileBuffer != null)
+			if (fTextFileBuffer != null) {
 				fTextFileBuffer.commit(progress, force);
+			}
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -512,7 +569,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 			// collect all line delimiters in the document
 			HashSet existingDelimiters= new HashSet();
 
-			for (int i= fDocument.getNumberOfLines() - 1; i >= 0; i-- ) {
+			for (int i= fDocument.getNumberOfLines() - 1; i >= 0; i--) {
 				try {
 					String curr= fDocument.getLineDelimiter(i);
 					if (curr != null) {
@@ -573,7 +630,7 @@ public class DocumentAdapter implements IBuffer, IDocumentListener, ITextEditCap
 		if (fBufferListeners != null && fBufferListeners.size() > 0) {
 			Iterator e= new ArrayList(fBufferListeners).iterator();
 			while (e.hasNext())
-				((IBufferChangedListener) e.next()).bufferChanged(event);
+				((IBufferChangedListener)e.next()).bufferChanged(event);
 		}
 	}
 

@@ -12,6 +12,7 @@ Export-Package: edu.illinois.codingspectator.codingtracker.operations,
  edu.illinois.codingspectator.codingtracker.operations.options,
  edu.illinois.codingspectator.codingtracker.operations.refactorings,
  edu.illinois.codingspectator.codingtracker.operations.references,
+ edu.illinois.codingspectator.codingtracker.operations.resources,
  edu.illinois.codingspectator.codingtracker.operations.starts,
  edu.illinois.codingspectator.codingtracker.operations.textchanges
 Require-Bundle: edu.illinois.codingspectator.codingtracker.helpers;visibility:=reexport,

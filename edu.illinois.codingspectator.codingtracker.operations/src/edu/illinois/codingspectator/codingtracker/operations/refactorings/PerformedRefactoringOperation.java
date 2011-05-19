@@ -14,6 +14,7 @@ import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 
 /**
+ * This operation is no longer recorded.
  * 
  * @author Stas Negara
  * 
@@ -51,7 +52,7 @@ public class PerformedRefactoringOperation extends RefactoringOperation {
 		RefactoringStatus initializationStatus= new RefactoringStatus();
 		Refactoring refactoring= refactoringDescriptor.createRefactoring(initializationStatus);
 		if (!initializationStatus.isOK()) {
-			Debugger.debug("***WARNING*** Failed to initialize a refactoring from its descriptor: " + refactoringDescriptor);
+			Debugger.debugWarning("Failed to initialize a refactoring from its descriptor: " + refactoringDescriptor);
 			unperformedRefactorings.add(getTime());
 			return;
 		}

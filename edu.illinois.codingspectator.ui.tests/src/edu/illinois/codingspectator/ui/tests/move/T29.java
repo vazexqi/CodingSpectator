@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.ui.tests.move;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -12,6 +13,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * variables from and to the same class.
  * 
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
+ * 
  */
 public class T29 extends RefactoringTest {
 
@@ -32,4 +35,5 @@ public class T29 extends RefactoringTest {
 		bot.getCurrentTree().expandNode(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName()).select(getTestFileName());
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
+
 }

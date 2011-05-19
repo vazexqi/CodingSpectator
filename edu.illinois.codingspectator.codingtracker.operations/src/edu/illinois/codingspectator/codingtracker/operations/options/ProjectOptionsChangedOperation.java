@@ -5,14 +5,12 @@ package edu.illinois.codingspectator.codingtracker.operations.options;
 
 import java.util.Map;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 
+import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
-import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 
 /**
  * 
@@ -50,16 +48,13 @@ public class ProjectOptionsChangedOperation extends OptionsChangedOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		projectName= operationLexer.getNextLexeme();
+		projectName= operationLexer.readString();
 		super.initializeFrom(operationLexer);
 	}
 
 	@Override
 	public void replay() throws Exception {
-		IJavaProject javaProject= JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName));
-		if (!javaProject.exists()) {
-			javaProject= JavaProjectHelper.createJavaProject(projectName, "bin");
-		}
+		IJavaProject javaProject= JavaProjectsUpkeeper.findOrCreateJavaProject(projectName);
 		javaProject.setOptions(options);
 	}
 

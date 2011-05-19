@@ -59,11 +59,15 @@ public class LaunchedApplicationOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		launchMode= operationLexer.getNextLexeme();
-		launchName= operationLexer.getNextLexeme();
-		application= operationLexer.getNextLexeme();
-		product= operationLexer.getNextLexeme();
-		useProduct= Boolean.valueOf(operationLexer.getNextLexeme());
+		launchMode= operationLexer.readString();
+		launchName= operationLexer.readString();
+		application= operationLexer.readString();
+		product= operationLexer.readString();
+		if (!isOldFormat) {
+			useProduct= operationLexer.readBoolean();
+		} else {
+			useProduct= Boolean.valueOf(operationLexer.readString());
+		}
 	}
 
 	@Override

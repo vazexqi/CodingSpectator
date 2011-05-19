@@ -67,15 +67,15 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		replacedText= operationLexer.getNextLexeme();
-		newText= operationLexer.getNextLexeme();
-		offset= Integer.valueOf(operationLexer.getNextLexeme());
-		length= Integer.valueOf(operationLexer.getNextLexeme());
+		replacedText= operationLexer.readString();
+		newText= operationLexer.readString();
+		offset= operationLexer.readInt();
+		length= operationLexer.readInt();
 	}
 
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
-		if (isRefactoring) {
+		if (isInTestMode && isRefactoring) {
 			isRecordedWhileRefactoring= true;
 		} else {
 			updateCurrentState();
@@ -84,14 +84,22 @@ public abstract class TextChangeOperation extends UserOperation {
 			if (!replacedText.equals(currentDocument.get(offset, length))) {
 				throw new RuntimeException("Replaced text is not present in the document: " + this);
 			}
-			//Timestamp updates are not reproducible, because the corresponding UndoableOperation2ChangeAdapter operation 
-			//is executed as a simple text change
-			if (!isTimestampUpdate()) {
-				replayTextChange();
-			}
+			replayTextChange();
 			currentViewer.setSelectedRange(offset, newText.length());
 			if (!newText.equals(currentDocument.get(offset, newText.length()))) {
 				throw new RuntimeException("New text does not appear in the document: " + this);
+			}
+		}
+	}
+
+	private void replayTextChange() throws BadLocationException, ExecutionException {
+		//Timestamp updates are not reproducible, because the corresponding UndoableOperation2ChangeAdapter operation 
+		//is executed as a simple text change
+		if (!isTimestampUpdate()) {
+			if (isInTestMode) {
+				replaySpecificTextChange();
+			} else {
+				currentDocument.replace(offset, length, newText);
 			}
 		}
 	}
@@ -132,6 +140,6 @@ public abstract class TextChangeOperation extends UserOperation {
 		return newText.isEmpty() && replacedText.isEmpty() && offset == 0 && length == 0;
 	}
 
-	protected abstract void replayTextChange() throws BadLocationException, ExecutionException;
+	protected abstract void replaySpecificTextChange() throws BadLocationException, ExecutionException;
 
 }

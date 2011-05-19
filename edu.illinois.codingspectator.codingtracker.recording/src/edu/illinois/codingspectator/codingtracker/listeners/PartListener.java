@@ -11,7 +11,6 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
@@ -60,7 +59,7 @@ public class PartListener extends BasicListener implements IPartListener {
 			closedFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)part);
 		}
 		if (closedFile != null) {
-			if (EditorHelper.isConflictEditor((EditorPart)part)) {
+			if (EditorHelper.isConflictEditor(part)) {
 				closeConflictEditor((CompareEditor)part);
 			} else {
 				closeRegularEditor(part, closedFile);

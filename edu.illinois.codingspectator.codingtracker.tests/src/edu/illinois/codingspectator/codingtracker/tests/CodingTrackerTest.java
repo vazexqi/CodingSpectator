@@ -7,8 +7,8 @@ import java.io.File;
 
 import org.junit.BeforeClass;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
-import edu.illinois.codingspectator.codingtracker.recording.KnownfilesRecorder;
+import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
+import edu.illinois.codingspectator.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
 
 /**
@@ -20,19 +20,19 @@ public abstract class CodingTrackerTest {
 
 	protected static File mainRecordFile= new File(TextRecorder.getMainRecordFilePath());
 
-	private static File knownFilesFolder= new File(KnownfilesRecorder.getKnownFilesPath());
+	private static File knownFilesFolder= new File(KnownFilesRecorder.getKnownFilesPath());
 
 	@BeforeClass
 	public static void before() {
 		//First clear workspace, then clear the record (otherwise, the record file may get spurious operations due to closing editors),
-		//and finally reset the knownfiles. 
-		FileHelper.clearWorkspace();
+		//and finally reset the known files. 
+		JavaProjectsUpkeeper.clearWorkspace();
 		mainRecordFile.delete();
 		resetKnownFiles();
 	}
 
 	private static void resetKnownFiles() {
-		KnownfilesRecorder.getInstance().reset();
+		KnownFilesRecorder.getInstance().reset();
 		clearFolderRecursively(knownFilesFolder);
 	}
 

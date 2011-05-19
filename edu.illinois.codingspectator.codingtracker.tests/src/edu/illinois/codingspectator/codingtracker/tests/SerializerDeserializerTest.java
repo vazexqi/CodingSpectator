@@ -9,7 +9,7 @@ import java.io.File;
 
 import org.junit.Test;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 import edu.illinois.codingspectator.codingtracker.recording.TextRecorder;
@@ -25,11 +25,11 @@ public class SerializerDeserializerTest extends CodingTrackerTest {
 
 	@Test
 	public void shouldDeserializeAndSerialize() {
-		String operationsRecord= FileHelper.readFileContent(operationsRecordFile);
+		String operationsRecord= ResourceHelper.readFileContent(operationsRecordFile);
 		for (UserOperation userOperation : OperationDeserializer.getUserOperations(operationsRecord)) {
 			TextRecorder.record(userOperation);
 		}
-		String generatedOperationsRecord= FileHelper.readFileContent(mainRecordFile);
+		String generatedOperationsRecord= ResourceHelper.readFileContent(mainRecordFile);
 		assertEquals(operationsRecord, generatedOperationsRecord);
 	}
 

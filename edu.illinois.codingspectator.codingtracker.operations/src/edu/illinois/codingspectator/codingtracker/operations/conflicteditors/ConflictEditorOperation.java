@@ -32,7 +32,7 @@ public abstract class ConflictEditorOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		editorID= operationLexer.getNextLexeme();
+		editorID= operationLexer.readString();
 	}
 
 	@Override

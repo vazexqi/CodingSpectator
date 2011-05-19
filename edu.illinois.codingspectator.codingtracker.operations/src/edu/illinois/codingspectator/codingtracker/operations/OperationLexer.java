@@ -43,7 +43,7 @@ public class OperationLexer {
 		return currentOperationSymbol;
 	}
 
-	public String getNextLexeme() {
+	private String getNextLexeme() {
 		int delimeterIndex= operationsRecord.indexOf(DELIMETER_SYMBOL, currentIndex);
 		while (isEscapedDelimeter(delimeterIndex)) {
 			delimeterIndex= operationsRecord.indexOf(DELIMETER_SYMBOL, delimeterIndex + 1);
@@ -51,6 +51,22 @@ public class OperationLexer {
 		String lexeme= operationsRecord.substring(currentIndex, delimeterIndex);
 		currentIndex= delimeterIndex + 1;
 		return unescapeString(lexeme);
+	}
+
+	public String readString() {
+		return getNextLexeme();
+	}
+
+	public int readInt() {
+		return Integer.parseInt(getNextLexeme());
+	}
+
+	public long readLong() {
+		return Long.parseLong(getNextLexeme());
+	}
+
+	public boolean readBoolean() {
+		return readInt() == 1 ? true : false;
 	}
 
 	private boolean isEscapedDelimeter(int delimeterIndex) {

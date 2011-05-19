@@ -18,8 +18,8 @@ public class CVSInitiallyCommittedFileOperation extends CommittedFileOperation {
 		super();
 	}
 
-	public CVSInitiallyCommittedFileOperation(IFile initiallyCommittedFile) {
-		super(initiallyCommittedFile);
+	public CVSInitiallyCommittedFileOperation(IFile initiallyCommittedFile, String revision, String committedRevision) {
+		super(initiallyCommittedFile, revision, committedRevision);
 	}
 
 	@Override

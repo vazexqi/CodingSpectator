@@ -111,4 +111,5 @@ public class RefactoringLog {
 		}
 		return refactoringDescriptors;
 	}
+
 }

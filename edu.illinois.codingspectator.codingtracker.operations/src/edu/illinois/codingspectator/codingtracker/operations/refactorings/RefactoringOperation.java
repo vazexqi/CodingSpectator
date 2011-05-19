@@ -23,6 +23,7 @@ import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
 /**
+ * Concrete implementations of this operation are no longer recorded.
  * 
  * @author Stas Negara
  * 
@@ -91,12 +92,12 @@ public abstract class RefactoringOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		id= operationLexer.getNextLexeme();
-		project= operationLexer.getNextLexeme();
-		flags= Integer.valueOf(operationLexer.getNextLexeme());
-		int argumentsCount= Integer.valueOf(operationLexer.getNextLexeme());
+		id= operationLexer.readString();
+		project= operationLexer.readString();
+		flags= operationLexer.readInt();
+		int argumentsCount= operationLexer.readInt();
 		for (int i= 0; i < argumentsCount; i++) {
-			arguments.put(operationLexer.getNextLexeme(), operationLexer.getNextLexeme());
+			arguments.put(operationLexer.readString(), operationLexer.readString());
 		}
 	}
 
@@ -105,7 +106,7 @@ public abstract class RefactoringOperation extends UserOperation {
 		isRefactoring= false;
 		RefactoringContribution refactoringContribution= RefactoringCore.getRefactoringContribution(id);
 		if (refactoringContribution == null) {
-			Debugger.debug("***WARNING*** Failed to get refactoring contribution for id: " + id);
+			Debugger.debugWarning("Failed to get refactoring contribution for id: " + id);
 			return;
 		}
 		RefactoringDescriptor refactoringDescriptor= refactoringContribution.createDescriptor(id, project.isEmpty() ? null : project, "Recorded refactoring", "", arguments, flags);

@@ -4,19 +4,18 @@
 package edu.illinois.codingspectator.ui.tests;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 
 /**
@@ -30,6 +29,7 @@ import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
  * @author Balaji Ambresh Rajkumar
  * 
  */
+@SuppressWarnings("restriction")
 public abstract class RefactoringTest {
 
 	protected static CodingSpectatorBot bot;
@@ -59,31 +59,26 @@ public abstract class RefactoringTest {
 	protected Collection<LogChecker> getLogCheckers() throws CoreException {
 		if (logCheckers == null) {
 			logCheckers= new ArrayList<LogChecker>();
-			IFileStore fileStore= EFS.getLocalFileSystem().getStore(getPathToExpectedResultsOfTest());
+			EFSFile file= new EFSFile(getPathToExpectedResultsOfTest());
 
-			if (fileStore.fetchInfo().exists()) {
+			if (file.exists()) {
 				HashSet<String> expectedLogs= new HashSet<String>();
-				expectedLogs.addAll(Arrays.asList(fileStore.childNames(EFS.NONE, null)));
+				expectedLogs.addAll(file.childNames());
 
 				if (expectedLogs.contains(ProblemChanges.REFACTORING_PROBLEMS_LOG)) {
-					logCheckers.add(new RefactoringProblemsChecker(getRefactoringProblemsLogPath()));
+					logCheckers.add(new RefactoringProblemsChecker(getExpectedRefactoringProblemsLogPath()));
 				}
 				addRefactoringLogCheckers(expectedLogs);
 			} else {
-				printMessage(String.format("Expected descriptors for %s are missing.", getTestName()));
+				printMessage(String.format("Expected logs for %s are missing.", getTestName()));
 			}
 		}
 
 		return logCheckers;
 	}
 
-	private IPath getRefactoringProblemsLogPath() {
+	private IPath getExpectedRefactoringProblemsLogPath() {
 		return getPathToExpectedResultsOfTest().append(ProblemChanges.REFACTORING_PROBLEMS_LOG);
-	}
-	
-	private IPath getActualRefactoringProblemsLogPath() {
-		String actualPath = RefactoringLog.getRefactoringStorageLocation("refactorings/").toOSString() + ProblemChanges.REFACTORING_PROBLEMS_LOG;
-		return Path.fromOSString(actualPath);
 	}
 
 	private void addRefactoringLogCheckers(Set<String> expectedHistoryFolderNames) {
@@ -98,7 +93,7 @@ public abstract class RefactoringTest {
 		return new Path(RefactoringLogUtils.EXPECTED_DESCRIPTORS).append(getRefactoringKind()).append(getTestName());
 	}
 
-	protected void doRefactoringLogShouldBeEmpty() throws CoreException {
+	protected void doLogsShouldBeEmpty() throws CoreException {
 		for (LogChecker logChecker : getLogCheckers()) {
 			logChecker.assertLogIsEmpty();
 		}
@@ -111,27 +106,15 @@ public abstract class RefactoringTest {
 		System.err.println(getClass() + ": " + message);
 	}
 
-	protected void doRefactoringShouldBeLogged() throws CoreException {
+	protected void doLogsShouldBeCorrect() throws Exception {
 		for (LogChecker logChecker : getLogCheckers()) {
 			logChecker.assertMatch();
 		}
 	}
 
-	protected void doCleanRefactoringHistory() throws CoreException {
-		for (LogChecker logChecker : getLogCheckers()) {
-			logChecker.clean();
-		}
-	}
-	
-	private void cleanUpWorkspace() throws CoreException {
-		bot.deleteProject(getProjectName());
-		EFS.getLocalFileSystem().getStore(getActualRefactoringProblemsLogPath()).delete(EFS.NONE, null);
-//		bot.sleep();
-		// Deleting a project is a refactoring that gets logged in .refactorings/.workspace.
-		// We need to delete the .refactoring folder after the deletion of the project,
-		// otherwise, the next test fails because it expects the refactoring history folder to be empty initially.
-		bot.deleteEclipseRefactoringLog();
-		bot.sleep();
+	protected void doCleanLogs() throws CoreException {
+		new EFSFile(CodingSpectatorDataPlugin.getStorageLocation()).delete();
+		new EFSFile(RefactoringCorePlugin.getDefault().getStateLocation()).delete();
 	}
 
 	// SWTBot tests run in the order in which they are declared.
@@ -149,11 +132,10 @@ public abstract class RefactoringTest {
 		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
-	//FIXME: Rename this method to logsShouldBeEmpty
 	@Test
-	public final void refactoringLogShouldBeEmpty() throws CoreException {
+	public final void logsShouldBeEmpty() throws CoreException {
 		bot.sleep();
-		doRefactoringLogShouldBeEmpty();
+		doLogsShouldBeEmpty();
 	}
 
 	@Test
@@ -162,21 +144,19 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public final void refactoringShouldBeLogged() throws CoreException {
+	public final void logsShouldBeCorrect() throws Exception {
 		bot.sleep();
-		doRefactoringShouldBeLogged();
+		doLogsShouldBeCorrect();
 	}
 
 	@Test
-	public final void cleanRefactoringHistory() throws CoreException {
-		doCleanRefactoringHistory();
+	public final void shouldCleanUpWorkspace() throws CoreException {
+		bot.deleteProject(getProjectName());
+		bot.sleep();
+		doCleanLogs();
+		bot.sleep();
+		doLogsShouldBeEmpty();
+		bot.sleep();
 	}
 
-	@Test
-	public final void deleteCurrentProject() throws CoreException {
-		cleanUpWorkspace();
-		bot.sleep();
-		doRefactoringLogShouldBeEmpty();
-		bot.sleep();
-	}
 }

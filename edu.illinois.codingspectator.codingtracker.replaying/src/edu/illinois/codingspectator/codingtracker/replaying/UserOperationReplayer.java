@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -22,8 +21,10 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.helpers.ViewerHelper;
+import edu.illinois.codingspectator.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
@@ -32,7 +33,6 @@ import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public class UserOperationReplayer {
 
 	private enum ReplayPace {
@@ -114,8 +114,13 @@ public class UserOperationReplayer {
 				FileDialog fileDialog= new FileDialog(operationSequenceView.getShell(), SWT.OPEN);
 				String selectedFilePath= fileDialog.open();
 				if (selectedFilePath != null) {
-					String operationsRecord= FileHelper.readFileContent(new File(selectedFilePath));
-					userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					String operationsRecord= ResourceHelper.readFileContent(new File(selectedFilePath));
+					try {
+						userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+					} catch (RuntimeException e) {
+						showMessage("Wrong format. Could not load user operations from file: " + selectedFilePath);
+						throw e;
+					}
 					if (userOperations.size() > 0) {
 						resetAction.setEnabled(true);
 						findAction.setEnabled(true);
@@ -134,7 +139,7 @@ public class UserOperationReplayer {
 		resetAction= new Action() {
 			@Override
 			public void run() {
-				FileHelper.clearWorkspace();
+				JavaProjectsUpkeeper.clearWorkspace();
 				prepareForReplay();
 			}
 		};
@@ -143,6 +148,7 @@ public class UserOperationReplayer {
 	}
 
 	private void prepareForReplay() {
+		UserOperation.isRefactoring= false;
 		currentEditor= null;
 		userOperationsIterator= userOperations.iterator();
 		advanceCurrentUserOperation();
@@ -206,7 +212,7 @@ public class UserOperationReplayer {
 
 	private void replayAndAdvanceCurrentUserOperation() {
 		try {
-			if (currentEditor != null && currentEditor != JavaPlugin.getActivePage().getActiveEditor()) {
+			if (!UserOperation.isInTestMode && currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();
@@ -215,7 +221,7 @@ public class UserOperationReplayer {
 				return;
 			}
 			currentUserOperation.replay();
-			currentEditor= JavaPlugin.getActivePage().getActiveEditor();
+			currentEditor= EditorHelper.getActiveEditor();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

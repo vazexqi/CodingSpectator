@@ -12,7 +12,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingspectator.codingtracker.listeners.document.FileDocumentListener;
 
 /**
  * 
@@ -21,7 +22,8 @@ import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
  */
 public class FileBufferListener extends BasicListener implements IFileBufferListener {
 
-	private final DocumentListener documentListener= new DocumentListener();
+	private boolean isPossibleCommitStart= false;
+
 
 	public static void register() {
 		FileBuffers.getTextFileBufferManager().addFileBufferListener(new FileBufferListener());
@@ -29,52 +31,61 @@ public class FileBufferListener extends BasicListener implements IFileBufferList
 
 	@Override
 	public void bufferContentAboutToBeReplaced(IFileBuffer buffer) {
-		IResource replacedResource= FileHelper.findWorkspaceMember(buffer.getLocation());
-		if (replacedResource instanceof IFile && replacedResource.exists()) {
-			if (buffer instanceof ITextFileBuffer) {//actually, should always be ITextFileBuffer
-				addDocumentListener((ITextFileBuffer)buffer);
-				replacedFile= (IFile)replacedResource;
+		isBufferContentAboutToBeReplaced= true;
+	}
+
+	@Override
+	public void bufferContentReplaced(IFileBuffer buffer) {
+		isBufferContentAboutToBeReplaced= false;
+	}
+
+	@Override
+	public void bufferCreated(IFileBuffer buffer) {
+		if (buffer instanceof ITextFileBuffer) {//actually, should always be ITextFileBuffer
+			addDocumentListener((ITextFileBuffer)buffer);
+		}
+	}
+
+	private void addDocumentListener(ITextFileBuffer textFileBuffer) {
+		//TODO: Check that there is no need to listen to buffers without the corresponding workspace resources.
+		IResource bufferResource= ResourceHelper.findWorkspaceMember(textFileBuffer.getLocation());
+		if (bufferResource instanceof IFile && bufferResource.exists()) {
+			IFile bufferFile= (IFile)bufferResource;
+			if (ResourceHelper.isJavaFile(bufferFile)) {
+				IDocument textFileBufferDocument= textFileBuffer.getDocument();
+				textFileBufferDocument.addDocumentListener(new FileDocumentListener(bufferFile));
 			}
 		}
 	}
 
 	@Override
-	public void bufferContentReplaced(IFileBuffer buffer) {
-		replacedFile= null;
-		if (buffer instanceof ITextFileBuffer) {//actually, should always be ITextFileBuffer
-			removeDocumentListener((ITextFileBuffer)buffer);
-		}
-	}
-
-	private void addDocumentListener(ITextFileBuffer textFileBuffer) {
-		IDocument textFileBufferDocument= textFileBuffer.getDocument();
-		//Add document listener only if the document is not current in order to avoid double listening.
-		if (textFileBufferDocument != currentDocument) {
-			textFileBufferDocument.addDocumentListener(documentListener);
-		}
-	}
-
-	private void removeDocumentListener(ITextFileBuffer textFileBuffer) {
-		textFileBuffer.getDocument().removeDocumentListener(documentListener);
-	}
-
-	@Override
-	public void bufferCreated(IFileBuffer buffer) {
-		//do nothing
-	}
-
-	@Override
-	public void bufferDisposed(IFileBuffer buffer) {
-		//do nothing
-	}
-
-	@Override
 	public void stateChanging(IFileBuffer buffer) {
-		//do nothing
+		if (buffer.isDirty()) {
+			isPossibleCommitStart= true;
+		}
+	}
+
+	@Override
+	public void stateChangeFailed(IFileBuffer buffer) {
+		isPossibleCommitStart= false;
 	}
 
 	@Override
 	public void dirtyStateChanged(IFileBuffer buffer, boolean isDirty) {
+		if (isPossibleCommitStart && !isDirty && buffer.isSynchronized()) { //was committed
+			IResource resource= ResourceHelper.findWorkspaceMember(buffer.getLocation());
+			if (resource instanceof IFile) {
+				IFile file= (IFile)resource;
+				if (ResourceHelper.isJavaFile(file)) {
+					operationRecorder.recordSavedFile(file, true);
+				}
+			}
+		}
+		isPossibleCommitStart= false;
+	}
+
+	@Override
+	public void bufferDisposed(IFileBuffer buffer) {
 		//do nothing
 	}
 
@@ -90,11 +101,6 @@ public class FileBufferListener extends BasicListener implements IFileBufferList
 
 	@Override
 	public void underlyingFileDeleted(IFileBuffer buffer) {
-		//do nothing
-	}
-
-	@Override
-	public void stateChangeFailed(IFileBuffer buffer) {
 		//do nothing
 	}
 

@@ -12,7 +12,6 @@ import edu.illinois.codingspectator.codingtracker.operations.conflicteditors.Sav
 import edu.illinois.codingspectator.codingtracker.operations.files.ClosedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.EditedUnsychronizedFileOperation;
-import edu.illinois.codingspectator.codingtracker.operations.files.ExternallyModifiedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingspectator.codingtracker.operations.files.UpdatedFileOperation;
@@ -29,10 +28,17 @@ import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionLa
 import edu.illinois.codingspectator.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.options.ProjectOptionsChangedOperation;
 import edu.illinois.codingspectator.codingtracker.operations.options.WorkspaceOptionsChangedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.FinishedRefactoringOperation;
+import edu.illinois.codingspectator.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.RedoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.refactorings.UndoneRefactoringOperation;
 import edu.illinois.codingspectator.codingtracker.operations.references.ReferencingProjectsChangedOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.CopiedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.CreatedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.DeletedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
+import edu.illinois.codingspectator.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.LaunchedApplicationOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingspectator.codingtracker.operations.starts.StartedRefactoringOperation;
@@ -69,6 +75,12 @@ public class OperationDeserializer {
 			case OperationSymbols.ECLIPSE_STARTED_SYMBOL:
 				userOperation= new StartedEclipseOperation();
 				break;
+			case OperationSymbols.REFACTORING_FINISHED_SYMBOL:
+				userOperation= new FinishedRefactoringOperation();
+				break;
+			case OperationSymbols.NEW_REFACTORING_STARTED_SYMBOL:
+				userOperation= new NewStartedRefactoringOperation();
+				break;
 			case OperationSymbols.REFACTORING_STARTED_SYMBOL:
 				userOperation= new StartedRefactoringOperation();
 				break;
@@ -90,14 +102,26 @@ public class OperationDeserializer {
 			case OperationSymbols.CONFLICT_EDITOR_SAVED_SYMBOL:
 				userOperation= new SavedConflictEditorOperation();
 				break;
+			case OperationSymbols.RESOURCE_CREATED_SYMBOL:
+				userOperation= new CreatedResourceOperation();
+				break;
+			case OperationSymbols.RESOURCE_MOVED_SYMBOL:
+				userOperation= new MovedResourceOperation();
+				break;
+			case OperationSymbols.RESOURCE_COPIED_SYMBOL:
+				userOperation= new CopiedResourceOperation();
+				break;
+			case OperationSymbols.RESOURCE_DELETED_SYMBOL:
+				userOperation= new DeletedResourceOperation();
+				break;
 			case OperationSymbols.FILE_CLOSED_SYMBOL:
 				userOperation= new ClosedFileOperation();
 				break;
 			case OperationSymbols.FILE_SAVED_SYMBOL:
 				userOperation= new SavedFileOperation();
 				break;
-			case OperationSymbols.FILE_EXTERNALLY_MODIFIED_SYMBOL:
-				userOperation= new ExternallyModifiedFileOperation();
+			case OperationSymbols.RESOURCE_EXTERNALLY_MODIFIED_SYMBOL:
+				userOperation= new ExternallyModifiedResourceOperation();
 				break;
 			case OperationSymbols.FILE_UPDATED_SYMBOL:
 				userOperation= new UpdatedFileOperation();

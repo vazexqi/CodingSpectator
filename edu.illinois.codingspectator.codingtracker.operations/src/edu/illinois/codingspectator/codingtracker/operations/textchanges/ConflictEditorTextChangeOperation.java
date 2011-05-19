@@ -38,7 +38,7 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		editorID= operationLexer.getNextLexeme();
+		editorID= operationLexer.readString();
 		super.initializeFrom(operationLexer);
 	}
 

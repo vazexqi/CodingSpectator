@@ -57,10 +57,10 @@ public class ReferencingProjectsChangedOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		projectName= operationLexer.getNextLexeme();
-		int referencingProjectsCount= Integer.valueOf(operationLexer.getNextLexeme());
+		projectName= operationLexer.readString();
+		int referencingProjectsCount= operationLexer.readInt();
 		for (int i= 0; i < referencingProjectsCount; i++) {
-			referencingProjectNames.add(operationLexer.getNextLexeme());
+			referencingProjectNames.add(operationLexer.readString());
 		}
 	}
 

@@ -31,9 +31,13 @@ public class Debugger {
 		}
 	}
 
+	public static void debugWarning(String message) {
+		debug("***WARNING*** " + message);
+	}
+
 	public static void debugFilePath(String message, IFile file) {
 		if (isInDebugMode) {
-			System.out.println(message + FileHelper.getPortableFilePath(file));
+			System.out.println(message + ResourceHelper.getPortableResourcePath(file));
 		}
 	}
 

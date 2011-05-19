@@ -5,21 +5,32 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 
+import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
+import edu.illinois.codingspectator.codingtracker.operations.OperationTextChunk;
 
 /**
+ * Note that code related to fields revision and committedRevision is duplicated from
+ * CommittedFileOperation to avoid playing with mixes (and Java disallows multiple inheritance).
  * 
  * @author Stas Negara
  * 
  */
 public class UpdatedFileOperation extends FileOperation {
 
+	private String revision;
+
+	private String committedRevision;
+
+
 	public UpdatedFileOperation() {
 		super();
 	}
 
-	public UpdatedFileOperation(IFile updatedFile) {
+	public UpdatedFileOperation(IFile updatedFile, String revision, String committedRevision) {
 		super(updatedFile);
+		this.revision= revision;
+		this.committedRevision= committedRevision;
 	}
 
 	@Override
@@ -33,8 +44,31 @@ public class UpdatedFileOperation extends FileOperation {
 	}
 
 	@Override
+	protected void populateTextChunk(OperationTextChunk textChunk) {
+		super.populateTextChunk(textChunk);
+		textChunk.append(revision);
+		textChunk.append(committedRevision);
+	}
+
+	@Override
+	protected void initializeFrom(OperationLexer operationLexer) {
+		super.initializeFrom(operationLexer);
+		revision= operationLexer.readString();
+		committedRevision= operationLexer.readString();
+	}
+
+	@Override
 	public void replay() {
 		//do nothing
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb= new StringBuffer();
+		sb.append("Revision " + revision + "\n");
+		sb.append("Committed revision " + committedRevision + "\n");
+		sb.append(super.toString());
+		return sb.toString();
 	}
 
 }

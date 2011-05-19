@@ -5,23 +5,29 @@ package edu.illinois.codingspectator.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.ui.texteditor.ITextEditor;
 
+import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
 import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
+import edu.illinois.codingspectator.codingtracker.operations.resources.BreakableResourceOperation;
 
 /**
+ * Note: This is an exception in the class hierarchy, because SavedFileOperation should extends
+ * FileOperation. But, it is needed to avoid duplicating the code required for breakable operations
+ * (as well as creating artificial multiple inheritance in Java).
  * 
  * @author Stas Negara
  * 
  */
-public class SavedFileOperation extends FileOperation {
+public class SavedFileOperation extends BreakableResourceOperation {
 
 	public SavedFileOperation() {
 		super();
 	}
 
-	public SavedFileOperation(IFile savedFile) {
-		super(savedFile);
+	public SavedFileOperation(IFile savedFile, boolean success) {
+		super(savedFile, success);
 	}
 
 	@Override
@@ -35,13 +41,18 @@ public class SavedFileOperation extends FileOperation {
 	}
 
 	@Override
-	public void replay() throws CoreException {
-		EditorHelper.getExistingEditor(filePath).doSave(null);
-		//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			//do nothing
+	public void replayBreakableResourceOperation() throws CoreException {
+		ITextEditor editor= EditorHelper.getExistingEditor(resourcePath);
+		if (editor != null) {
+			editor.doSave(null);
+			//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//do nothing
+			}
+		} else {
+			Debugger.debugWarning("Ignored save of the non existent editor:\n" + this);
 		}
 	}
 

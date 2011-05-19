@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
@@ -18,8 +17,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.IRefactoringExecutionListener;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
-import edu.illinois.codingspectator.codingtracker.helpers.Debugger;
-import edu.illinois.codingspectator.codingtracker.helpers.Messages;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 
 /**
  * 
@@ -35,20 +33,16 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 	@Override
 	public void executionNotification(RefactoringExecutionEvent event) {
 		int eventType= event.getEventType();
-		if (eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
-				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO) {
+		if (isBeginRefactoring(eventType)) {
 			isRefactoring= true;
 			trackProjectsAffectedByRefactoring(event);
-			operationRecorder.recordStartedRefactoring();
-		} else if (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE ||
-				eventType == RefactoringExecutionEvent.UNDONE) {
-			isRefactoring= false;
-			operationRecorder.recordExecutedRefactoring(getRefactoringDescriptor(event), eventType);
-		} else {
-			//Actually, should never reach here, as all possible 6 types of events are checked above
-			Exception e= new RuntimeException();
-			Debugger.logExceptionToErrorLog(e, Messages.Recorder_UnrecognizedRefactoringType + eventType);
+			operationRecorder.recordStartedRefactoring(getRefactoringDescriptor(event), eventType);
 		}
+	}
+
+	private boolean isBeginRefactoring(int eventType) {
+		return eventType == RefactoringExecutionEvent.ABOUT_TO_PERFORM || eventType == RefactoringExecutionEvent.ABOUT_TO_REDO ||
+				eventType == RefactoringExecutionEvent.ABOUT_TO_UNDO;
 	}
 
 	private void trackProjectsAffectedByRefactoring(RefactoringExecutionEvent event) {
@@ -71,7 +65,7 @@ public class RefactoringExecutionListener extends BasicListener implements IRefa
 		IProject refactoredProject= null;
 		String projectName= getRefactoringDescriptor(event).getProject();
 		if (projectName != null && Path.EMPTY.isValidSegment(projectName)) {
-			refactoredProject= ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+			refactoredProject= ResourceHelper.getWorkspaceRoot().getProject(projectName);
 		}
 		return refactoredProject;
 	}

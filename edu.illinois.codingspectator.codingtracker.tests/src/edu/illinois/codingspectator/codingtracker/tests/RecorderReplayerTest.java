@@ -11,10 +11,9 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.junit.Test;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingspectator.codingtracker.operations.UserOperation;
 
@@ -70,7 +69,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private void checkFilesAreEqual(File file1, File file2) {
-		assertEquals(FileHelper.readFileContent(file1), FileHelper.readFileContent(file2));
+		assertEquals(ResourceHelper.readFileContent(file1), ResourceHelper.readFileContent(file2));
 	}
 
 	private void replayUserOperations(List<UserOperation> userOperations) {
@@ -92,7 +91,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private List<UserOperation> loadUserOperationsFromFile(File recordFile) {
-		String operationsRecord= FileHelper.readFileContent(recordFile);
+		String operationsRecord= ResourceHelper.readFileContent(recordFile);
 		return OperationDeserializer.getUserOperations(operationsRecord);
 	}
 
@@ -102,7 +101,7 @@ public abstract class RecorderReplayerTest extends CodingTrackerTest {
 	}
 
 	private File getGeneratedFile(String workspaceRelativeFilePath) {
-		return FileHelper.getFileForResource(ResourcesPlugin.getWorkspace().getRoot().findMember(workspaceRelativeFilePath));
+		return ResourceHelper.getFileForResource(ResourceHelper.findWorkspaceMember(workspaceRelativeFilePath));
 	}
 
 	private String removeVolatileParts(UserOperation userOperation) {

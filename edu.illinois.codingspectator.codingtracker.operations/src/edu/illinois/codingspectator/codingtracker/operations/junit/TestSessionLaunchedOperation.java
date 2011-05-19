@@ -44,7 +44,7 @@ public class TestSessionLaunchedOperation extends JUnitOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		launchedProjectName= operationLexer.getNextLexeme();
+		launchedProjectName= operationLexer.readString();
 	}
 
 	@Override

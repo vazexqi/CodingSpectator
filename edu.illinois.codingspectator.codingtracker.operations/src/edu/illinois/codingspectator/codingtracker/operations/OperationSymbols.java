@@ -10,9 +10,13 @@ package edu.illinois.codingspectator.codingtracker.operations;
  */
 public abstract class OperationSymbols {
 
-	//Used symbols: 26 + 10, remaining symbols: J K L M N P Q R S T U V W X Y Z
+	//Used symbols: 26 + 16, remaining symbols: Q R S T U V W X Y Z
 
 	public static final char ECLIPSE_STARTED_SYMBOL= 'l';
+
+	public static final char NEW_REFACTORING_STARTED_SYMBOL= 'J';
+
+	public static final char REFACTORING_FINISHED_SYMBOL= 'K';
 
 	public static final char REFACTORING_STARTED_SYMBOL= 'b';
 
@@ -28,13 +32,21 @@ public abstract class OperationSymbols {
 
 	public static final char CONFLICT_EDITOR_SAVED_SYMBOL= 'z';
 
+	public static final char RESOURCE_CREATED_SYMBOL= 'P';
+
+	public static final char RESOURCE_MOVED_SYMBOL= 'L';
+
+	public static final char RESOURCE_COPIED_SYMBOL= 'M';
+
+	public static final char RESOURCE_DELETED_SYMBOL= 'N';
+
 	public static final char FILE_CLOSED_SYMBOL= 'c';
 
 	public static final char FILE_SAVED_SYMBOL= 's';
 
-	//Modification outside of Eclipse, or it may be a move/copy refactoring that overwrites a file displayed in a viewer, 
-	//or SVN performs Revert operation, or some dirty file is changed externally and then saved (without refreshing)
-	public static final char FILE_EXTERNALLY_MODIFIED_SYMBOL= 'x';
+	//Includes actual external modifications and deletions, deletions that happen as a part of an update, 
+	//and modifications that are result of 'Revert' operation
+	public static final char RESOURCE_EXTERNALLY_MODIFIED_SYMBOL= 'x';
 
 	public static final char FILE_UPDATED_SYMBOL= 'm';
 

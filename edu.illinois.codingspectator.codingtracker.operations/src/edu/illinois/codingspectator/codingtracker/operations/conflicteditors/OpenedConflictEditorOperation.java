@@ -8,9 +8,9 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 
-import edu.illinois.codingspectator.codingtracker.helpers.FileHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingspectator.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingspectator.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingspectator.codingtracker.operations.OperationLexer;
 import edu.illinois.codingspectator.codingtracker.operations.OperationSymbols;
@@ -34,7 +34,7 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 
 	public OpenedConflictEditorOperation(String editorID, IFile editedFile, String initialContent) {
 		super(editorID);
-		this.editedFilePath= FileHelper.getPortableFilePath(editedFile);
+		this.editedFilePath= ResourceHelper.getPortableResourcePath(editedFile);
 		this.initialContent= initialContent;
 	}
 
@@ -58,16 +58,16 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		editedFilePath= operationLexer.getNextLexeme();
-		initialContent= operationLexer.getNextLexeme();
+		editedFilePath= operationLexer.readString();
+		initialContent= operationLexer.readString();
 	}
 
 	@Override
 	public void replay() {
-		IResource editedFile= FileHelper.findWorkspaceMember(new Path(editedFilePath));
-		FileHelper.checkResourceExists(editedFile, "Conflict editor file does not exist: " + this);
+		IResource editedFile= ResourceHelper.findWorkspaceMember(new Path(editedFilePath));
+		ResourceHelper.checkResourceExists(editedFile, "Conflict editor file does not exist: " + this);
 		CompareUI.openCompareEditor(new DocumentCompareEditorInput(editedFile, initialContent));
-		CompareEditorsUpkeeper.addEditor(editorID, (CompareEditor)JavaPlugin.getActivePage().getActiveEditor());
+		CompareEditorsUpkeeper.addEditor(editorID, (CompareEditor)EditorHelper.getActiveEditor());
 	}
 
 	@Override

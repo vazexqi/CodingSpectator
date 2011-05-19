@@ -106,6 +106,10 @@ public class ReorgMoveAction extends SelectionDispatchAction {
 		//CODINGSPECTATOR
 		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
 
+		runWithoutRecordingSelection(selection);
+	}
+
+	public void runWithoutRecordingSelection(IStructuredSelection selection) {
 		if (ReorgUtils.containsOnlyProjects(selection.toList())) {
 			createWorkbenchAction(selection).run();
 			return;

@@ -6,7 +6,6 @@ package edu.illinois.codingspectator.refactoringproblems.logger;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -128,6 +127,10 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		return null;
 	}
 
+	private RefactoringDescriptor getRefactoringDescriptor(OperationHistoryEvent event) {
+		return getRefactoringDescriptor(event.getOperation());
+	}
+
 	private Set<CompilationUnit> getAffectedCompilationUnits(OperationHistoryEvent event) {
 		Set<CompilationUnit> affectedCompilationUnits= new HashSet<CompilationUnit>();
 		UndoableOperation2ChangeAdapter o= getUndoableOperation2ChangeAdapter(event.getOperation());
@@ -157,8 +160,12 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 	}
 
 	private boolean isRefactoringEvent(OperationHistoryEvent event) {
-		RefactoringDescriptor descriptor= getRefactoringDescriptor(event.getOperation());
+		RefactoringDescriptor descriptor= getRefactoringDescriptor(event);
 		return descriptor != null;
+	}
+
+	private long getRefactoringTimestamp(RefactoringExecutionEvent event) {
+		return event.getDescriptor().getTimeStamp();
 	}
 
 	/**
@@ -179,6 +186,7 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 	@Override
 	public void executionNotification(RefactoringExecutionEvent event) {
 		if (isRefactoringPerformedEvent(event)) {
+			problemsComparer.setRefactoringTimestamp(getRefactoringTimestamp(event));
 			storeAndCompareProblems();
 		}
 	}
@@ -199,38 +207,4 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		return (eventType == RefactoringExecutionEvent.PERFORMED || eventType == RefactoringExecutionEvent.REDONE || eventType == RefactoringExecutionEvent.UNDONE);
 	}
 
-}
-
-class ProblemsComparer {
-
-	private long previousTimestamp= -1;
-
-	private Set<DefaultProblemWrapper> previousProblems;
-
-	private long currentTimestamp= -1;
-
-	private Set<DefaultProblemWrapper> currentProblems;
-
-	public void pushNewProblemsSet(Set<DefaultProblemWrapper> problems) {
-		previousProblems= currentProblems;
-		previousTimestamp= currentTimestamp;
-		currentProblems= problems;
-		currentTimestamp= System.currentTimeMillis();
-	}
-
-	public ProblemChanges compareProblems() {
-		return new ProblemChanges(currentTimestamp, setDifference(currentProblems, previousProblems), previousTimestamp, setDifference(previousProblems, currentProblems));
-	}
-
-	/**
-	 * 
-	 * @param left
-	 * @param right
-	 * @return left - right
-	 */
-	public Set<DefaultProblemWrapper> setDifference(Set<DefaultProblemWrapper> left, Set<DefaultProblemWrapper> right) {
-		Set<DefaultProblemWrapper> copyOfLeft= new HashSet<DefaultProblemWrapper>(left);
-		copyOfLeft.removeAll(right);
-		return copyOfLeft;
-	}
 }
