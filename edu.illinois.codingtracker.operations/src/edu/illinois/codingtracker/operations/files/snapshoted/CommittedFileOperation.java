@@ -41,8 +41,13 @@ public abstract class CommittedFileOperation extends SnapshotedFileOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		revision= operationLexer.readString();
-		committedRevision= operationLexer.readString();
+		if (!isOldFormat) {
+			revision= operationLexer.readString();
+			committedRevision= operationLexer.readString();
+		} else {
+			revision= "";
+			committedRevision= "";
+		}
 	}
 
 	@Override
