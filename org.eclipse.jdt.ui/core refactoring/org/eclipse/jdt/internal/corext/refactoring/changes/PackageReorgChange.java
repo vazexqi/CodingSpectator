@@ -29,10 +29,17 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.INewNameQuery;
 import org.eclipse.jdt.internal.corext.util.JavaElementResourceMapping;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 abstract class PackageReorgChange extends ResourceChange {
 
 	private String fPackageHandle;
+
 	private String fDestinationHandle;
+
 	private INewNameQuery fNameQuery;
 
 	PackageReorgChange(IPackageFragment pack, IPackageFragmentRoot dest, INewNameQuery nameQuery) {
@@ -61,6 +68,11 @@ abstract class PackageReorgChange extends ResourceChange {
 		} finally {
 			pm.done();
 		}
+	}
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
 	}
 
 	public Object getModifiedElement() {

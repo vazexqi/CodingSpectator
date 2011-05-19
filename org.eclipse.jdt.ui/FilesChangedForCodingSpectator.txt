@@ -25,7 +25,9 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameCompil
 ui/org/eclipse/jdt/internal/ui/JavaPlugin.java
 
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/CompilationUnitReorgChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/PackageReorgChange.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenameCompilationUnitChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenamePackageChange.java
 
 ui refactoring/org/eclipse/jdt/internal/ui/refactoring/RefactoringExecutionHelper.java
 

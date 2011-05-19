@@ -12,7 +12,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
@@ -30,7 +29,7 @@ public class ProblemsFinder {
 
 	Set<DefaultProblemWrapper> problems;
 
-	Set<CompilationUnit> affectedCompilationUnits;
+	Set<ICompilationUnit> affectedCompilationUnits;
 
 	private final static Set<String> problemMarkersToReport;
 
@@ -41,15 +40,15 @@ public class ProblemsFinder {
 
 	/**
 	 * 
-	 * This method is based on org.eclipse.jdt.internal.core.CompilationUnit#reconcile(int, int,
+	 * This method is based on org.eclipse.jdt.internal.core.ICompilationUnit#reconcile(int, int,
 	 * WorkingCopyOwner, IProgressMonitor)
 	 * 
 	 * @param compilationUnit
 	 * @throws JavaModelException
 	 */
 	@SuppressWarnings("unchecked")
-	private void computeProblems(CompilationUnit compilationUnit) throws JavaModelException {
-		ReconcileWorkingCopyOperation op= new ReconcileWorkingCopyOperation(compilationUnit, CompilationUnit.NO_AST, ICompilationUnit.FORCE_PROBLEM_DETECTION, DefaultWorkingCopyOwner.PRIMARY);
+	private void computeProblems(ICompilationUnit compilationUnit) throws JavaModelException {
+		ReconcileWorkingCopyOperation op= new ReconcileWorkingCopyOperation(compilationUnit, ICompilationUnit.NO_AST, ICompilationUnit.FORCE_PROBLEM_DETECTION, DefaultWorkingCopyOwner.PRIMARY);
 		JavaModelManager manager= JavaModelManager.getJavaModelManager();
 		try {
 			manager.cacheZipFiles(this); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
@@ -61,11 +60,11 @@ public class ProblemsFinder {
 		}
 	}
 
-	public Set<DefaultProblemWrapper> computeProblems(Set<CompilationUnit> affectedCompilationUnits) throws JavaModelException {
+	public Set<DefaultProblemWrapper> computeProblems(Set<ICompilationUnit> affectedCompilationUnits) throws JavaModelException {
 		this.affectedCompilationUnits= affectedCompilationUnits;
 
 		problems= new HashSet<DefaultProblemWrapper>();
-		for (CompilationUnit compilationUnit : affectedCompilationUnits) {
+		for (ICompilationUnit compilationUnit : affectedCompilationUnits) {
 			if (compilationUnit.exists()) {
 				computeProblems(compilationUnit);
 			}

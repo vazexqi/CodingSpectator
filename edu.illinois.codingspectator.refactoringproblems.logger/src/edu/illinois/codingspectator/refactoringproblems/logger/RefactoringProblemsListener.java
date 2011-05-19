@@ -16,8 +16,9 @@ import org.eclipse.core.commands.operations.TriggeredOperations;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.ltk.core.refactoring.ChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
@@ -46,7 +47,7 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 
 	private ProblemsComparer problemsComparer;
 
-	private Set<CompilationUnit> affectedCompilationUnits;
+	private Set<ICompilationUnit> affectedCompilationUnits;
 
 	public RefactoringProblemsListener() {
 		problemsFinder= new ProblemsFinder();
@@ -73,9 +74,9 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		}
 	}
 
-	private Collection<CompilationUnit> makeAffectedCompilationUnitsBecomeWorkingCopies() throws JavaModelException {
-		Collection<CompilationUnit> compilationUnitsMadeWorkingCopies= new HashSet<CompilationUnit>();
-		for (CompilationUnit cu : affectedCompilationUnits) {
+	private Collection<ICompilationUnit> makeAffectedCompilationUnitsBecomeWorkingCopies() throws JavaModelException {
+		Collection<ICompilationUnit> compilationUnitsMadeWorkingCopies= new HashSet<ICompilationUnit>();
+		for (ICompilationUnit cu : affectedCompilationUnits) {
 			if (cu.exists() && !cu.isWorkingCopy()) {
 				cu.becomeWorkingCopy(new NullProgressMonitor());
 				compilationUnitsMadeWorkingCopies.add(cu);
@@ -84,14 +85,14 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		return compilationUnitsMadeWorkingCopies;
 	}
 
-	private void revertWorkingCopyChanges(Collection<CompilationUnit> wereWorkingCopies) throws JavaModelException {
-		for (CompilationUnit cu : wereWorkingCopies) {
+	private void revertWorkingCopyChanges(Collection<ICompilationUnit> wereWorkingCopies) throws JavaModelException {
+		for (ICompilationUnit cu : wereWorkingCopies) {
 			cu.discardWorkingCopy();
 		}
 	}
 
 	private void storeCurrentProblems() throws JavaModelException {
-		Collection<CompilationUnit> compilationUnitsMadeWorkingCopies= makeAffectedCompilationUnitsBecomeWorkingCopies();
+		Collection<ICompilationUnit> compilationUnitsMadeWorkingCopies= makeAffectedCompilationUnitsBecomeWorkingCopies();
 		Set<DefaultProblemWrapper> computeProblems= problemsFinder.computeProblems(affectedCompilationUnits);
 		revertWorkingCopyChanges(compilationUnitsMadeWorkingCopies);
 		problemsComparer.pushNewProblemsSet(computeProblems);
@@ -130,21 +131,34 @@ public class RefactoringProblemsListener implements IStartup, IOperationHistoryL
 		return getRefactoringDescriptor(event.getOperation());
 	}
 
-	private Set<CompilationUnit> getAffectedCompilationUnits(OperationHistoryEvent event) {
-		Set<CompilationUnit> affectedCompilationUnits= new HashSet<CompilationUnit>();
+	private Set<ICompilationUnit> getAffectedCompilationUnits(OperationHistoryEvent event) {
+		Set<ICompilationUnit> affectedCompilationUnits= new HashSet<ICompilationUnit>();
 		UndoableOperation2ChangeAdapter o= getUndoableOperation2ChangeAdapter(event.getOperation());
 		if (o != null) {
 			Object[] affectedObjects= o.getAllAffectedObjects();
 			if (affectedObjects != null) {
 				for (Object affectedObject : affectedObjects) {
-					if (affectedObject instanceof CompilationUnit) {
-						affectedCompilationUnits.add((CompilationUnit)affectedObject);
+					if (affectedObject instanceof ICompilationUnit) {
+						affectedCompilationUnits.add((ICompilationUnit)affectedObject);
+					} else if (affectedObject instanceof IPackageFragment) {
+						affectedCompilationUnits.addAll(getPackageCompilationUnits((IPackageFragment)affectedObject));
 					}
 				}
 			}
 		}
-
 		return affectedCompilationUnits;
+	}
+
+	private Set<ICompilationUnit> getPackageCompilationUnits(IPackageFragment packageFragment) {
+		Set<ICompilationUnit> packageCompilationUnits= new HashSet<ICompilationUnit>();
+		try {
+			for (ICompilationUnit compilationUnit : packageFragment.getCompilationUnits()) {
+				packageCompilationUnits.add(compilationUnit);
+			}
+		} catch (JavaModelException e) {
+			//do nothing
+		}
+		return packageCompilationUnits;
 	}
 
 	private boolean isAboutToRefactor(OperationHistoryEvent event) {

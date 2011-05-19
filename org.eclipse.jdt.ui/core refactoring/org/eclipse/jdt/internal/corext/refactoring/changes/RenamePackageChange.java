@@ -44,6 +44,11 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 
 	private static IPath createPath(String packageName) {
@@ -65,6 +70,11 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 		fRenameSubpackages= renameSubpackages;
 
 		setValidationMethod(VALIDATE_NOT_DIRTY);
+	}
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
 	}
 
 	private void addStamps(Map stamps, ICompilationUnit[] units) {
@@ -121,8 +131,8 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 			IPackageFragment[] allPackages= JavaElementUtil.getPackageAndSubpackages(pack);
 			Arrays.sort(allPackages, new Comparator() {
 				public int compare(Object o1, Object o2) {
-					String p1= ((IPackageFragment) o1).getElementName();
-					String p2= ((IPackageFragment) o2).getElementName();
+					String p1= ((IPackageFragment)o1).getElementName();
+					String p2= ((IPackageFragment)o2).getElementName();
 					return p1.compareTo(p2);
 				}
 			});
@@ -143,7 +153,7 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 
 	public String getName() {
 		String msg= fRenameSubpackages ? RefactoringCoreMessages.RenamePackageChange_name_with_subpackages : RefactoringCoreMessages.RenamePackageChange_name;
-		String[] keys= { BasicElementLabels.getJavaElementName(getOldName()), BasicElementLabels.getJavaElementName(getNewName())};
+		String[] keys= { BasicElementLabels.getJavaElementName(getOldName()), BasicElementLabels.getJavaElementName(getNewName()) };
 		return Messages.format(msg, keys);
 	}
 
@@ -152,7 +162,7 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 	}
 
 	private IPackageFragment getPackage() {
-		return (IPackageFragment) getModifiedElement();
+		return (IPackageFragment)getModifiedElement();
 	}
 
 	public RefactoringStatus isValid(IProgressMonitor pm) throws CoreException {
@@ -160,14 +170,14 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 		RefactoringStatus result;
 		try {
 			result= new RefactoringStatus();
-			IJavaElement element= (IJavaElement) getModifiedElement();
+			IJavaElement element= (IJavaElement)getModifiedElement();
 			// don't check for read-only since we don't go through
 			// validate edit.
 			result.merge(super.isValid(new SubProgressMonitor(pm, 1)));
 			if (result.hasFatalError())
 				return result;
 			if (element != null && element.exists() && element instanceof IPackageFragment) {
-				IPackageFragment pack= (IPackageFragment) element;
+				IPackageFragment pack= (IPackageFragment)element;
 				if (fRenameSubpackages) {
 					IPackageFragment[] allPackages= JavaElementUtil.getPackageAndSubpackages(pack);
 					SubProgressMonitor subPm= new SubProgressMonitor(pm, 1);
@@ -202,17 +212,17 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 	}
 
 	private void renamePackage(IPackageFragment pack, IProgressMonitor pm, IPath newPath, String newName) throws JavaModelException, CoreException {
-		if (! pack.exists())
+		if (!pack.exists())
 			return; // happens if empty parent with single subpackage is renamed, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=199045
 		pack.rename(newName, false, pm);
 		if (fCompilationUnitStamps != null) {
-			IPackageFragment newPack= (IPackageFragment) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFolder(newPath));
+			IPackageFragment newPack= (IPackageFragment)JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFolder(newPath));
 			if (newPack.exists()) {
 				ICompilationUnit[] units= newPack.getCompilationUnits();
 				for (int i= 0; i < units.length; i++) {
 					IResource resource= units[i].getResource();
 					if (resource != null) {
-						Long stamp= (Long) fCompilationUnitStamps.get(resource);
+						Long stamp= (Long)fCompilationUnitStamps.get(resource);
 						if (stamp != null) {
 							resource.revertModificationStamp(stamp.longValue());
 						}
