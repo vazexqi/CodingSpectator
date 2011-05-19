@@ -13,6 +13,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  */
 public class CodeSnippetInformationFactory {
 
+	//FIXME: Remove typeroot parameter
 	private static CodeSnippetInformationExtractor createCodeSnippetInformationExtractor(RefactoringGlobalStore store, ITypeRoot typeRoot) {
 		if (typeRoot == null) {
 			return new NullCodeSnippetInformationExtractor();
@@ -30,7 +31,7 @@ public class CodeSnippetInformationFactory {
 			}
 		} else {
 			if (store.doesSelectionInEditorExist()) {
-				return new TextSelectionCodeSnippetInformationExtractor(typeRoot, store.getSelectionStart(), store.getSelectionLength());
+				return new TextSelectionCodeSnippetInformationExtractor(store.getSelectedTypeRootInEditor(), store.getSelectionStart(), store.getSelectionLength());
 			} else {
 				return new NullCodeSnippetInformationExtractor();
 			}

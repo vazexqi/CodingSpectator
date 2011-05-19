@@ -10,6 +10,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.IClearable;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
@@ -26,9 +27,11 @@ public class RefactoringGlobalStore implements IClearable {
 		resetInstance();
 	}
 
+	private ITypeRoot selectedTypeRootInEditor;
+
 	private ITextSelection selectionInEditor;
 
-	IStructuredSelection structuredSelection;
+	private IStructuredSelection structuredSelection;
 
 	private boolean invokedThroughStructuredSelection;
 
@@ -108,12 +111,26 @@ public class RefactoringGlobalStore implements IClearable {
 		return structuredSelection != null;
 	}
 
+	//FIXME: Use structuredSelection.getFirstElement()
 	public List getStructuredSelectionList() {
 		return structuredSelection.toList();
 	}
 
 	public IJavaElement getFirstSelectedJavaElement() {
 		return (IJavaElement)getStructuredSelectionList().get(0);
+	}
+
+	public void setSelectedTypeRootInEditor(ITypeRoot selectedTypeRootInEditor) {
+		this.selectedTypeRootInEditor= selectedTypeRootInEditor;
+	}
+
+	public ITypeRoot getSelectedTypeRootInEditor() {
+		return selectedTypeRootInEditor;
+	}
+
+	public void setEditorSelectionInfo(ITypeRoot editorInputJavaElement, ITextSelection selection) {
+		setSelectedTypeRootInEditor(editorInputJavaElement);
+		setSelectionInEditor(selection);
 	}
 
 }

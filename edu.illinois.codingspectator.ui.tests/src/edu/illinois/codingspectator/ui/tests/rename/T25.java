@@ -8,6 +8,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
+ * Test that a rename refactoring that affects two files actually captures the right information
+ * i.e. the code snippet should show the invocation site of the refactoring.
+ * 
  * @author Mohsen Vakilian
  * @author nchen
  */

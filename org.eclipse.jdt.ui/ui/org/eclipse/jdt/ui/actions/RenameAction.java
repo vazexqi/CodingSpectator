@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGl
 import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.refactoring.actions.RenameJavaElementAction;
@@ -129,7 +130,7 @@ public class RenameAction extends SelectionDispatchAction {
 
 	public void run(ITextSelection selection) {
 		// CODINGSPECTATOR: Capture precise selection information
-		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 		if (fRenameJavaElement.canRunInEditor())
 			fRenameJavaElement.run(selection);
