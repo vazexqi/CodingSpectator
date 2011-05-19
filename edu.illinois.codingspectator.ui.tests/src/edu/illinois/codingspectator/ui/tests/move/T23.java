@@ -13,6 +13,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * class inside another class
  * 
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
+ * 
  */
 public class T23 extends RefactoringTest {
 

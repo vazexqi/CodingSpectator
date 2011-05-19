@@ -13,6 +13,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * variables from one class to another.
  * 
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
+ * 
  */
 public class T28 extends RefactoringTest {
 
@@ -37,4 +39,5 @@ public class T28 extends RefactoringTest {
 		bot.getCurrentTree().pressShortcut(org.eclipse.jface.bindings.keys.KeyStroke.getInstance('D'));
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
+
 }

@@ -13,6 +13,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * move multiple import statements from one source file to another.
  * 
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
+ * 
  */
 public class T26 extends RefactoringTest {
 
@@ -23,7 +25,6 @@ public class T26 extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-
 		final String destinationForImports= "DestinationFile";
 		bot.createANewJavaClass(getProjectName(), destinationForImports);
 		bot.sleep();
