@@ -151,7 +151,8 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 		} else if (qName.equals("before-minus-after")) {
 			beforeMinusAfter.addAll(problems);
 		} else if (qName.equals("problem-changes")) {
-			allProblemChanges.add(new ProblemChanges(afterTimestamp, afterMinusBefore, beforeTimestamp, beforeMinusAfter));
+			//FIXME: Extract the refactoring-timestamp attribute and set it properly.
+			allProblemChanges.add(new ProblemChanges(-1, afterTimestamp, afterMinusBefore, beforeTimestamp, beforeMinusAfter));
 		}
 	}
 }

@@ -78,7 +78,11 @@ public final class DefaultRefactoringDescriptor extends RefactoringDescriptor {
 	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
 		Map augmentedArguments= new HashMap(getArguments());
 		augmentedArguments.putAll(arguments);
-		return new DefaultRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
+		DefaultRefactoringDescriptor augmentedDescriptor= new DefaultRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
+		if (getTimeStamp() != -1) {
+			augmentedDescriptor.setTimeStamp(getTimeStamp());
+		}
+		return augmentedDescriptor;
 	}
 
 }
