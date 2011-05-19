@@ -269,7 +269,7 @@ public class MoveAction extends SelectionDispatchAction {
 		if (!fReorgMoveAction.isEnabled())
 			return false;
 
-		fReorgMoveAction.run(mockStructuredSelection);
+		fReorgMoveAction.runWithoutRecordingSelection(mockStructuredSelection);
 		return true;
 	}
 

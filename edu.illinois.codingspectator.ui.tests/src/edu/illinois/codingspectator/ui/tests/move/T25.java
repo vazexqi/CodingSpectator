@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.ui.tests.move;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -12,6 +13,8 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * move multiple import statements from one source file to another.
  * 
  * @author Balaji Ambresh Rajkumar
+ * @author Mohsen Vakilian
+ * 
  */
 public class T25 extends RefactoringTest {
 
