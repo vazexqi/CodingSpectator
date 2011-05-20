@@ -11,4 +11,8 @@ package edu.illinois.codingspectator.refactoringproblems.parser;
 @SuppressWarnings("serial")
 public class RefactoringProblemsParserException extends Exception {
 
+	public RefactoringProblemsParserException(Throwable cause) {
+		super(cause);
+	}
+
 }
