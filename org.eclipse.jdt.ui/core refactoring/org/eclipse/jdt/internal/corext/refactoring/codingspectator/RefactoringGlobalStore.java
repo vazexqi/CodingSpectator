@@ -1,7 +1,5 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
@@ -27,11 +25,13 @@ public class RefactoringGlobalStore implements IClearable {
 		resetInstance();
 	}
 
-	private ITypeRoot selectedTypeRootInEditor;
+	private ITypeRoot selectedTypeRoot;
 
 	private ITextSelection selectionInEditor;
 
-	private IStructuredSelection structuredSelection;
+	private IJavaElement selectedElement;
+
+	private String selectedElementsText;
 
 	private boolean invokedThroughStructuredSelection;
 
@@ -42,16 +42,6 @@ public class RefactoringGlobalStore implements IClearable {
 	private static void resetInstance() {
 		instance= new RefactoringGlobalStore();
 		Logger.clearable= instance;
-	}
-
-	private RefactoringGlobalStore(ITextSelection selectionInEditor, IStructuredSelection structuredSelection, boolean invokedThroughStructuredSelection) {
-		this.selectionInEditor= selectionInEditor;
-		this.structuredSelection= structuredSelection;
-		this.invokedThroughStructuredSelection= invokedThroughStructuredSelection;
-	}
-
-	public RefactoringGlobalStore getShallowCopy() {
-		return new RefactoringGlobalStore(selectionInEditor, structuredSelection, invokedThroughStructuredSelection);
 	}
 
 	public static RefactoringGlobalStore getNewInstance() {
@@ -94,7 +84,9 @@ public class RefactoringGlobalStore implements IClearable {
 	}
 
 	public void setStructuredSelection(IStructuredSelection selection) {
-		structuredSelection= selection;
+		selectedElement= (IJavaElement)selection.getFirstElement();
+		selectedElementsText= selection.toString();
+		selectedTypeRoot= (ITypeRoot)selectedElement.getAncestor(IJavaElement.COMPILATION_UNIT);
 		setInvokedThroughStructuredSelection();
 		assertOnlyOneKindOfSelectionExists();
 	}
@@ -108,29 +100,28 @@ public class RefactoringGlobalStore implements IClearable {
 	}
 
 	public boolean doesStructuredSelectionExist() {
-		return structuredSelection != null;
+		return selectedElement != null && selectedElementsText != null;
 	}
 
-	//FIXME: Use structuredSelection.getFirstElement()
-	public List getStructuredSelectionList() {
-		return structuredSelection.toList();
+	public IJavaElement getSelectedJavaElement() {
+		return selectedElement;
 	}
 
-	public IJavaElement getFirstSelectedJavaElement() {
-		return (IJavaElement)getStructuredSelectionList().get(0);
+	private void setSelectedTypeRoot(ITypeRoot selectedTypeRootInEditor) {
+		this.selectedTypeRoot= selectedTypeRootInEditor;
 	}
 
-	public void setSelectedTypeRootInEditor(ITypeRoot selectedTypeRootInEditor) {
-		this.selectedTypeRootInEditor= selectedTypeRootInEditor;
-	}
-
-	public ITypeRoot getSelectedTypeRootInEditor() {
-		return selectedTypeRootInEditor;
+	public ITypeRoot getSelectedTypeRoot() {
+		return selectedTypeRoot;
 	}
 
 	public void setEditorSelectionInfo(ITypeRoot editorInputJavaElement, ITextSelection selection) {
-		setSelectedTypeRootInEditor(editorInputJavaElement);
+		setSelectedTypeRoot(editorInputJavaElement);
 		setSelectionInEditor(selection);
+	}
+
+	public String getSelectedElementsText() {
+		return selectedElementsText;
 	}
 
 }

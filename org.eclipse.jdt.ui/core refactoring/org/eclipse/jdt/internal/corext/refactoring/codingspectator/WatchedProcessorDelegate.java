@@ -62,7 +62,7 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	public CodeSnippetInformation getCodeSnippetInformation() {
-		return CodeSnippetInformationFactory.extractCodeSnippetInformation(getEnclosingCompilationUnit());
+		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
 	}
 
 	/**
