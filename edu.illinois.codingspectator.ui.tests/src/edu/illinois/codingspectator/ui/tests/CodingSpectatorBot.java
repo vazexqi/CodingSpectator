@@ -5,7 +5,6 @@ package edu.illinois.codingspectator.ui.tests;
 
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -28,6 +27,7 @@ import org.osgi.framework.Bundle;
  * @author Mohsen Vakilian
  * @author nchen
  * @author Balaji Ambresh Rajkumar
+ * 
  */
 @SuppressWarnings("restriction")
 public class CodingSpectatorBot {
@@ -71,12 +71,16 @@ public class CodingSpectatorBot {
 		dismissJavaPerspectiveIfPresent();
 	}
 
-	public void deleteEclipseRefactoringLog() throws CoreException {
-		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings")).delete(EFS.NONE, null);
+	private EFSFile getEclipseRefactoringsEFSFile() {
+		return new EFSFile(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings"));
 	}
 
 	private void deleteProjectSpecificEclipseRefactoringLog(String projectName) throws CoreException {
-		EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation().append(".refactorings").append(projectName)).delete(EFS.NONE, null);
+		getEclipseRefactoringsEFSFile().append(projectName).delete();
+	}
+
+	public void deleteEclipseRefactoringLog() throws CoreException {
+		getEclipseRefactoringsEFSFile().delete();
 	}
 
 	public void deleteProject(String projectName) throws CoreException {

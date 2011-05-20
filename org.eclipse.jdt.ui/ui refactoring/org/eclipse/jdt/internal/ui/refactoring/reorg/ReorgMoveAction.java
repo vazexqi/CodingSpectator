@@ -109,6 +109,7 @@ public class ReorgMoveAction extends SelectionDispatchAction {
 		runWithoutRecordingSelection(selection);
 	}
 
+	//CODINGSPECTATOR: Extracted this method from run(IStructuredSelection).
 	public void runWithoutRecordingSelection(IStructuredSelection selection) {
 		if (ReorgUtils.containsOnlyProjects(selection.toList())) {
 			createWorkbenchAction(selection).run();
