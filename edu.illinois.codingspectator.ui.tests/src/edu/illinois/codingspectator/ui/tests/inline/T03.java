@@ -8,24 +8,28 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
+ * 
+ * This test checks that CodingSpectator records the user's attempt to invoke an inline refactoring
+ * on an abstract method.
+ * 
  * @author Mohsen Vakilian
  * @author nchen
  */
 public class T03 extends RefactoringTest {
 
-	private static final String INLINE_MENU_ITEM= "Inline...";
+	private static final String MENU_ITEM= "Inline...";
 
-	private static final String SELECTION= "args";
+	private static final String SELECTION= "abstractMethod";
 
 	@Override
 	protected String getTestFileName() {
-		return "InlineConstantTestFile";
+		return "InlineAbstractMethodTestFile";
 	}
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectElementToRefactor(getTestFileFullName(), 9, 37, SELECTION.length());
-		bot.invokeRefactoringFromMenu(INLINE_MENU_ITEM);
+		bot.selectElementToRefactor(getTestFileFullName(), 7, 18, SELECTION.length());
+		bot.invokeRefactoringFromMenu(MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 	}
 
