@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" code-snippet="public class IntroduceFactoryTestFile {&#x0A;&#x0A;    private Object o;&#x0A;&#x09;&#x0A;    public IntroduceFactoryTestFile(Object o) {&#x0A;        this.o = o;&#x0A;    }&#x0A;&#x0A;    public static void main(String[] args) {&#x0A;        System.out.println(new IntroduceFactoryTestFile(new Object()));&#x0A;    }&#x0A;&#x0A;}" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.introduce.factory" selection-in-code-snippet="60 0" selection-text="" stamp="1305932983861" status="Selected entity is not a constructor invocation or definition."/>
+</session>
