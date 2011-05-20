@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" code-snippet="/**&#x0A; * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.&#x0A; */&#x0A;package edu.illinois.codingspectator;&#x0A;&#x0A;public class ExtractLocalVariableTestFile {&#x0A;&#x0A;    public static void main(String[] args) {&#x0A;        System.out.println(&quot;Test&quot;);&#x0A;    }&#x0A;&#x0A;}&#x0A;" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.extract.temp" selection-in-code-snippet="269 7" selection-text="println" stamp="1305898345540" status="An expression must be selected to activate this refactoring."/>
+</session>
