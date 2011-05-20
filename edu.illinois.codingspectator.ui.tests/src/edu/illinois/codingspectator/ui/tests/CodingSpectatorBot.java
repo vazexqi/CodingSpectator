@@ -68,6 +68,7 @@ public class CodingSpectatorBot {
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
+		sleep();
 		dismissJavaPerspectiveIfPresent();
 	}
 
