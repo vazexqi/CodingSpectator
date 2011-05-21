@@ -1066,11 +1066,11 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * CODINGSPECTATOR: Extracted {@link #createRefactoringDescriptor()}.
+	 * CODINGSPECTATOR: Extracted {@link #getOriginalRefactoringDescriptor()}.
 	 */
 	public Change createChange(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		try {
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.PullUpRefactoring_Pull_Up, fChangeManager.getAllChanges());
+			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.PullUpRefactoring_Pull_Up, fChangeManager.getAllChanges());
 		} finally {
 			monitor.done();
 			clearCaches();
@@ -2037,7 +2037,7 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 	/**
 	 * Extracted the following method from {@link #createChange(IProgressMonitor)}
 	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		final Map arguments= new HashMap();
 		String project= null;
 		final IType declaring= getDeclaringType();

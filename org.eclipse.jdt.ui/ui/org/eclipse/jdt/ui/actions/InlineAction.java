@@ -140,7 +140,7 @@ public class InlineAction extends SelectionDispatchAction {
 		// CODINGSPECTATOR: At the this point all we know is that the user has tried to perform an inline refactoring.
 		// But, we don't know what kind of inline he/she has been trying to do.
 		// Therefore, we use the descriptor ID of the unknown inline refactoring to report the user's attempt to perform an inline refactoring.  
-		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
 
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}

@@ -123,7 +123,7 @@ public class MoveStaticMembersAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startMoveStaticMembersRefactoring(array, getShell());
 			} else {
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE_STATIC_MEMBERS, RefactoringMessages.MoveMembersAction_unavailable);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.MOVE_STATIC_MEMBERS, RefactoringMessages.MoveMembersAction_unavailable);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.MoveMembersAction_unavailable);
 			}

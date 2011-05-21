@@ -592,7 +592,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenamePackageRefactoring_creating_change, 1);
-			final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenamePackageRefactoring_change_name);
+			final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.RenamePackageRefactoring_change_name);
 			result.addAll(fChangeManager.getAllChanges());
 			fRenamePackageChange= new RenamePackageChange(fPackage, getNewElementName(), fRenameSubpackages);
 			result.add(fRenamePackageChange);
@@ -606,7 +606,7 @@ public class RenamePackageProcessor extends JavaRenameProcessor implements
 	}
 
 	//CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to JavaRefactoringDescriptor. 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fPackage.getJavaProject();
 		if (javaProject != null)

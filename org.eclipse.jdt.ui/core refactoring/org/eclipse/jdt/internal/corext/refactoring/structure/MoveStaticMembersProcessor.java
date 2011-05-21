@@ -1170,7 +1170,7 @@ public final class MoveStaticMembersProcessor extends WatchedJavaMoveProcessor i
 	//CODINGSPECTATOR
 	/////////////////
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createDescriptor();
 	}
 

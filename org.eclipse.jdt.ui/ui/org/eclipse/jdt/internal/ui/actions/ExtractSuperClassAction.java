@@ -171,7 +171,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
 			}
 		} catch (JavaModelException exception) {
 			ExceptionHandler.handle(exception, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

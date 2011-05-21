@@ -156,7 +156,7 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startChangeSignatureRefactoring(method, this, getShell());
 			} else {
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.CHANGE_METHOD_SIGNATURE, RefactoringMessages.ModifyParametersAction_unavailable);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.CHANGE_METHOD_SIGNATURE, RefactoringMessages.ModifyParametersAction_unavailable);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.ModifyParametersAction_unavailable);
 			}

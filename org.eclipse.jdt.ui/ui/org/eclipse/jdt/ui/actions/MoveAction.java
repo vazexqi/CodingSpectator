@@ -182,7 +182,7 @@ public class MoveAction extends SelectionDispatchAction {
 				return;
 
 			//CODINGSPECTATOR
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE, RefactoringMessages.MoveAction_select);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.MOVE, RefactoringMessages.MoveAction_select);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveAction_Move, RefactoringMessages.MoveAction_select);
 		} catch (JavaModelException e) {

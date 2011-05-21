@@ -153,7 +153,7 @@ public class PullUpAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startPullUpRefactoring(array, getShell());
 			} else {
 				//CODINGSPECTATOR: Log the unavailability of the refactoring before showing the error message.
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.PULL_UP, RefactoringMessages.PullUpAction_unavailable);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.PULL_UP, RefactoringMessages.PullUpAction_unavailable);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PullUpAction_unavailable);
 			}

@@ -154,7 +154,7 @@ public class PushDownAction extends SelectionDispatchAction {
 			} else {
 				//CODINGSPECTATOR
 				String errorMessage= RefactoringMessages.PushDownAction_To_activate;
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.PUSH_DOWN, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.PUSH_DOWN, errorMessage);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 			}
 		} catch (JavaModelException e) {

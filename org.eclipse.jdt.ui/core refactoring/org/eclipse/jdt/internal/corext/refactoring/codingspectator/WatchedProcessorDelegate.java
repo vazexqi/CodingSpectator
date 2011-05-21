@@ -8,7 +8,6 @@ import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 /**
@@ -27,13 +26,15 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		JavaRefactoringDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
-
-		return createRefactoringDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments, d.getFlags());
+		JavaRefactoringDescriptor originalRefactoringDescriptor= getOriginalRefactoringDescriptor();
+		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, originalRefactoringDescriptor.getArguments());
+		return originalRefactoringDescriptor.cloneByAugmenting(augmentedArguments);
+//		return createRefactoringDescriptor(originalRefactoringDescriptor.getProject(), originalRefactoringDescriptor.getDescription(), originalRefactoringDescriptor.getComment(), augmentedArguments, originalRefactoringDescriptor.getFlags());
 	}
 
-	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
+	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		throw new UnsupportedOperationException();
+	}
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		getCodeSnippetInformation().insertIntoMap(basicArguments);
@@ -41,14 +42,6 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_BY_QUICKASSIST, String.valueOf(isInvokedByQuickAssist()));
 		basicArguments.put(RefactoringDescriptor.ATTRIBUTE_INVOKED_THROUGH_STRUCTURED_SELECTION, String.valueOf(RefactoringGlobalStore.getInstance().isInvokedThroughStructuredSelection()));
 		return basicArguments;
-	}
-
-	private ITypeRoot getEnclosingCompilationUnit() {
-		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
-		if (javaElementIfPossible == null) {
-			return null;
-		}
-		return (ITypeRoot)javaElementIfPossible.getAncestor(IJavaElement.COMPILATION_UNIT);
 	}
 
 	/**
@@ -74,21 +67,6 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 			return javaElementIfPossible.toString();
 		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
 	}
-
-// The following method doesn't seem to be used by anyone.
-//	public String getCodeSnippet(ASTNode node) {
-//		if (node != null) {
-//			try {
-//				return getEnclosingCompilationUnit().getBuffer().getText(node.getStartPosition(), node.getLength());
-//			} catch (IndexOutOfBoundsException e) {
-//				JavaPlugin.log(e);
-//			} catch (JavaModelException e) {
-//				JavaPlugin.log(e);
-//			}
-//		}
-//
-//		return "DEFAULT";
-//	}
 
 	private IJavaElement getJavaElementIfPossible() {
 		if (getElements() == null) {
@@ -122,7 +100,8 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		return watchedProcessor.isInvokedByQuickAssist();
 	}
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
-		return watchedProcessor.createRefactoringDescriptor();
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return watchedProcessor.getOriginalRefactoringDescriptor();
 	}
+
 }

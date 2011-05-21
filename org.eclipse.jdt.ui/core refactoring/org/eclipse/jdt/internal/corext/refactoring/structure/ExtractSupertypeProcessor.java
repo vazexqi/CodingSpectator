@@ -287,11 +287,11 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * CODINGSPECTATOR: Extracted {@link #createRefactoringDescriptor()}.
+	 * CODINGSPECTATOR: Extracted {@link #getOriginalRefactoringDescriptor()}.
 	 */
 	public Change createChange(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		try {
-			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.ExtractSupertypeProcessor_extract_supertype,
+			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.ExtractSupertypeProcessor_extract_supertype,
 					fChangeManager.getAllChanges());
 			final IType declaring= getDeclaringType();
 			final IFile file= ResourceUtil.getFile(declaring.getCompilationUnit());
@@ -1143,7 +1143,7 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 	/**
 	 * Extracted the following method from {@link #createChange(IProgressMonitor)}
 	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		//CODINGSPECTATOR: If the fDestinationType is null, use some default descriptive name instead.
 		String destinationTypeString;
 		if (fDestinationType != null) {

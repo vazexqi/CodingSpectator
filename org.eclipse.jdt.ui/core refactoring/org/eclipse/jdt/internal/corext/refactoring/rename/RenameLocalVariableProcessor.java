@@ -361,7 +361,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenameTypeProcessor_creating_changes, 1);
 
-			fChange.setDescriptor(new RefactoringChangeDescriptor(createRefactoringDescriptor()));
+			fChange.setDescriptor(new RefactoringChangeDescriptor(getOriginalRefactoringDescriptor()));
 			return fChange;
 		} finally {
 			monitor.done();
@@ -369,7 +369,7 @@ public class RenameLocalVariableProcessor extends JavaRenameProcessor implements
 	}
 
 	//CODINGSPECTATOR: Generalized the return type of createRefactoringDescriptor from RenameJavaElementDescriptor to JavaRefactoringDescriptor. Also, changed the visibility of the method from private to protected.
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fCu.getJavaProject();
 		if (javaProject != null)

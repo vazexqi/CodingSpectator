@@ -1031,7 +1031,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenameTypeRefactoring_creating_change, 4);
-			final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameTypeProcessor_change_name);
+			final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.RenameTypeProcessor_change_name);
 
 			if (fChangeManager.containsChangesIn(fType.getCompilationUnit())) {
 				TextChange textChange= fChangeManager.get(fType.getCompilationUnit());
@@ -1062,7 +1062,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		}
 	}
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fType.getJavaProject();
 		if (javaProject != null)

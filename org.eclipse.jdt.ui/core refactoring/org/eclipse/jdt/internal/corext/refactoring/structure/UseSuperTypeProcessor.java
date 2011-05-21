@@ -534,7 +534,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 	 * @return The constructed JavaRefactoringDecscriptor
 	 * 
 	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 
 		IJavaProject project= null;
 		if (!fSubType.isBinary())

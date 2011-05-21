@@ -573,7 +573,7 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	 * .rename.JavaRenameProcessor#getSimpleRefactoringDescriptor.
 	 * 
 	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		throw new UnsupportedOperationException();
 	}
 

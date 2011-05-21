@@ -136,7 +136,7 @@ public class RenameAction extends SelectionDispatchAction {
 			fRenameJavaElement.run(selection);
 		else {
 			//CODINGSPECTATOR
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameAction_unavailable);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameAction_unavailable);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.RenameAction_rename, RefactoringMessages.RenameAction_unavailable);
 		}

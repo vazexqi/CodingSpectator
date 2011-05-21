@@ -151,7 +151,7 @@ public class InlineMethodAction extends SelectionDispatchAction {
 		CompilationUnit compilationUnit= RefactoringASTParser.parseWithASTProvider(typeRoot, true, null);
 		if (!RefactoringExecutionStarter.startInlineMethodRefactoring(typeRoot, compilationUnit, offset, length, getShell())) {
 			//CODINGSPECTATOR: I don't know under what circumstances the user hits this case of unavailability. But, I record the refactoring descriptor just to be safe.
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE_METHOD, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE_METHOD, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.InlineMethodAction_dialog_title, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
 		}

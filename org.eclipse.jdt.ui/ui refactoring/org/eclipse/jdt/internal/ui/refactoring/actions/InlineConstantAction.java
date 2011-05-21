@@ -157,7 +157,7 @@ public class InlineConstantAction extends SelectionDispatchAction {
 		CompilationUnit node= RefactoringASTParser.parseWithASTProvider(cu, true, null);
 		if (!RefactoringExecutionStarter.startInlineConstantRefactoring(cu, node, offset, length, getShell())) {
 			//CODINGSPECTATOR: I don't know under what circumstances the user hits this case of unavailability. But, I record the refactoring descriptor just to be safe.
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE_CONSTANT, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE_CONSTANT, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.InlineConstantAction_dialog_title, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
 		}

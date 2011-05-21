@@ -175,7 +175,7 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startUseSupertypeRefactoring(type, getShell());
 			} else {
 				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.USE_SUPER_TYPE, RefactoringMessages.UseSupertypeAction_to_activate);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.USE_SUPER_TYPE, RefactoringMessages.UseSupertypeAction_to_activate);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.UseSupertypeAction_to_activate);
 			}

@@ -690,7 +690,7 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		creatingChange= true;
 		try {
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.PushDownRefactoring_change_name, fChangeManager.getAllChanges());
+			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.PushDownRefactoring_change_name, fChangeManager.getAllChanges());
 		} finally {
 			pm.done();
 			clearCaches();
@@ -1066,7 +1066,7 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		final Map arguments= new HashMap();
 		String project= null;
 		final IType declaring= getDeclaringType();

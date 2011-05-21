@@ -156,7 +156,7 @@ public final class MoveInstanceMethodAction extends SelectionDispatchAction {
 			RefactoringExecutionStarter.startMoveMethodRefactoring(method, getShell());
 		} else {
 			//CODINGSPECTATOR
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE_METHOD, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.MOVE_METHOD, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveInstanceMethodAction_dialog_title, RefactoringMessages.MoveInstanceMethodAction_No_reference_or_declaration);
 		}

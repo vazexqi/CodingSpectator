@@ -255,7 +255,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 		try {
 			Change change= fChange;
 			if (change != null) {
-				change= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameTypeParameterProcessor_change_name, new Change[] { change });
+				change= new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.RenameTypeParameterProcessor_change_name, new Change[] { change });
 			}
 			return change;
 		} finally {
@@ -265,7 +265,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange.
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fTypeParameter.getJavaProject();
 		if (javaProject != null)

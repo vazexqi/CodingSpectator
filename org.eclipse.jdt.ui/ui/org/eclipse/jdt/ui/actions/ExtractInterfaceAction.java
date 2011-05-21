@@ -159,7 +159,7 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 			} else {
 				//CODINGSPECTATOR
 				String errorMessage= RefactoringMessages.ExtractInterfaceAction_To_activate;
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 			}
 		} catch (JavaModelException e) {

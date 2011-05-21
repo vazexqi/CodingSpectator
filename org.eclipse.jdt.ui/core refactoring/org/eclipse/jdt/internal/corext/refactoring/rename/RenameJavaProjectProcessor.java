@@ -197,7 +197,7 @@ public final class RenameJavaProjectProcessor extends JavaRenameProcessor implem
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask("", 1); //$NON-NLS-1$
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameJavaProjectRefactoring_rename, new Change[] { new RenameJavaProjectChange(
+			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.RenameJavaProjectRefactoring_rename, new Change[] { new RenameJavaProjectChange(
 					fProject, getNewElementName(), fUpdateReferences) });
 		} finally {
 			monitor.done();
@@ -205,7 +205,7 @@ public final class RenameJavaProjectProcessor extends JavaRenameProcessor implem
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange.
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		final String description= Messages.format(RefactoringCoreMessages.RenameJavaProjectProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fProject.getElementName()));
 		final String header= Messages.format(RefactoringCoreMessages.RenameJavaProjectChange_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fProject.getElementName()),
 				BasicElementLabels.getJavaElementName(getNewElementName()) });

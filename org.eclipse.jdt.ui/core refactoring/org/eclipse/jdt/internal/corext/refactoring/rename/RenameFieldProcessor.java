@@ -614,7 +614,7 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenameFieldRefactoring_checking, 1);
 			TextChange[] changes= fChangeManager.getAllChanges();
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), getProcessorName(), changes);
+			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), getProcessorName(), changes);
 		} finally {
 			monitor.done();
 		}
@@ -629,7 +629,7 @@ public class RenameFieldProcessor extends JavaRenameProcessor implements IRefere
 	 * @return return the refactoring descriptor for this refactoring
 	 * 
 	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fField.getJavaProject();
 		if (javaProject != null)

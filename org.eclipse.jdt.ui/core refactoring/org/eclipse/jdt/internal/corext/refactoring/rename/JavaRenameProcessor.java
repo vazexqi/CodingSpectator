@@ -104,8 +104,8 @@ public abstract class JavaRenameProcessor extends WatchedJavaRenameProcessor imp
 			super(watchedProcessor);
 		}
 
-		public JavaRefactoringDescriptor createRefactoringDescriptor() {
-			return JavaRenameProcessor.this.createRefactoringDescriptor();
+		public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+			return JavaRenameProcessor.this.getOriginalRefactoringDescriptor();
 		}
 
 		public Object[] getElements() {

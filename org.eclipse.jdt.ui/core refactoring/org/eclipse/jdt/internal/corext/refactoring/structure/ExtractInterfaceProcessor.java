@@ -340,7 +340,7 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		try {
 			monitor.beginTask("", 1); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.ExtractInterfaceProcessor_creating);
-			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.ExtractInterfaceRefactoring_name,
+			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.ExtractInterfaceRefactoring_name,
 					fChangeManager.getAllChanges());
 			final IFile file= ResourceUtil.getFile(fSubType.getCompilationUnit());
 			if (fSuperSource != null && fSuperSource.length() > 0)
@@ -1152,10 +1152,6 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 			super(watchedProcessor);
 		}
 
-		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-			return RefactoringSignatureDescriptorFactory.createExtractInterfaceDescriptor(project, description, comment, arguments, flags);
-		}
-
 	}
 
 	protected WatchedProcessorDelegate instantiateDelegate() {
@@ -1193,14 +1189,7 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	/**
-	 * Extracted this method from {@link #createChange(IProgressMonitor)} to be used by coding
-	 * spectator and the refactoring processor.
-	 * 
-	 * @return JavaRefactoringDescriptor the section that holds the change that is to be recorded
-	 *         and performed.
-	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	private ExtractInterfaceDescriptor createRefactoringDescriptor() {
 		final Map arguments= new HashMap();
 		String project= null;
 		final IJavaProject javaProject= fSubType.getJavaProject();
@@ -1239,6 +1228,10 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
 		arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
 		return descriptor;
+	}
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 }

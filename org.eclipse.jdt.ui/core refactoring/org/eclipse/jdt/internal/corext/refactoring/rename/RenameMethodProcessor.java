@@ -717,7 +717,7 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 			final List list= new ArrayList(changes.length);
 			list.addAll(Arrays.asList(changes));
 
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameMethodProcessor_change_name, (Change[])list.toArray(new Change[list.size()]));
+			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.RenameMethodProcessor_change_name, (Change[])list.toArray(new Change[list.size()]));
 		} finally {
 			monitor.done();
 		}
@@ -894,7 +894,7 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 	/////////////////
 
 	//CODINGSPECTATOR: Extracted createRefactoringDescriptor from createChange.
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fMethod.getJavaProject();
 		if (javaProject != null)

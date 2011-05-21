@@ -324,7 +324,7 @@ public final class JavaMoveProcessor extends WatchedJavaMoveProcessor implements
 	//CODINGSPECTATOR
 	/////////////////
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
 		if (changeDescriptor == null)
 			return null;

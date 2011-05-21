@@ -1665,7 +1665,7 @@ public final class MoveInstanceMethodProcessor extends WatchedJavaMoveProcessor 
 				return changes[0];
 			final List list= new ArrayList(changes.length);
 			list.addAll(Arrays.asList(changes));
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.MoveInstanceMethodRefactoring_name, (Change[])list.toArray(new Change[list.size()]));
+			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.MoveInstanceMethodRefactoring_name, (Change[])list.toArray(new Change[list.size()]));
 		} finally {
 			monitor.done();
 		}
@@ -2919,7 +2919,7 @@ public final class MoveInstanceMethodProcessor extends WatchedJavaMoveProcessor 
 	//CODINGSPECTATOR
 	/////////////////
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		final Map arguments= new HashMap();
 		String project= null;
 		final IJavaProject javaProject= fMethod.getJavaProject();

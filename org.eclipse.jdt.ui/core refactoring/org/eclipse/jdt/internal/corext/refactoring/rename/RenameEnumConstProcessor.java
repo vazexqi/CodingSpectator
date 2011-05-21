@@ -97,7 +97,7 @@ public final class RenameEnumConstProcessor extends RenameFieldProcessor {
 	}
 
 	//CODINGSPECTATOR: Changed the return type from RenameJavaElementDescriptor to JavaRefactoringDescriptor. 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		final IField field= getField();
 		String project= null;
 		IJavaProject javaProject= field.getJavaProject();
