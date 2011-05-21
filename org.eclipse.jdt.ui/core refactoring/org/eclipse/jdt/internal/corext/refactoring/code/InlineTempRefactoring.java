@@ -102,12 +102,14 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * 
- * @author nchen - Extended WatchedRefactoring.
- * @author Mohsen Vakilian - Added CODINGSPECTATOR markers. And, implemented
- *         WatchedJavaRefactoring#getDescriptorID.
+ * @author Mohsen Vakilian, nchen - Instrumented the class using WatchedJavaRefactoring.
  * 
  */
 public class InlineTempRefactoring extends WatchedJavaRefactoring {
+
+	private int fSelectionStart;
+
+	private int fSelectionLength;
 
 	private ICompilationUnit fCu;
 
@@ -301,7 +303,7 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineTempRefactoring_preview, 2);
 
-			final InlineLocalVariableDescriptor descriptor= getRefactoringDescriptor();
+			final InlineLocalVariableDescriptor descriptor= createRefactoringDescriptor();
 
 			CompilationUnitRewrite cuRewrite= new CompilationUnitRewrite(fCu, fASTRoot);
 			inlineTemp(cuRewrite);
@@ -487,32 +489,12 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 	//CODINGSPECTATOR
 	/////////////////
 
-	private InlineLocalVariableDescriptor getRefactoringDescriptor() {
-		String project= getJavaProjectName();
-
-		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
-		String text= null;
-		final IMethodBinding method= binding.getDeclaringMethod();
-		if (method != null)
-			text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
-		else
-			text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
-		final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
-		final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description,
-				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-
+	private InlineLocalVariableDescriptor createRefactoringDescriptor() {
 		final Map arguments= new HashMap();
-		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
-				RefactoringDescriptor.NONE);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
+		String project= null;
+		IJavaProject javaProject= fCu.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
 
 		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
 		String text= null;
@@ -526,18 +508,15 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
 		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
 		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
 		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
 				RefactoringDescriptor.NONE);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
+		return descriptor;
+	}
+
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 	protected ITypeRoot getJavaTypeRoot() {
