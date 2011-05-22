@@ -10,9 +10,6 @@ import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ITypeRoot;
-
 /**
  * This class serves as the base class for all refactorings that we instrument in JDT. It has a
  * couple of convenience methods for populating the refactoring descriptor.
@@ -47,14 +44,8 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	protected String getJavaProjectName() {
-		String project= null;
-		IJavaProject javaProject= getJavaTypeRoot().getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		return project;
+		return RefactoringGlobalStore.getInstance().getSelectedTypeRoot().getJavaProject().getElementName();
 	}
-
-	abstract protected ITypeRoot getJavaTypeRoot();
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
 		if (isRefWizOpenOpCheckedInitConds()) {
@@ -67,8 +58,6 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
 	}
 
-	protected String getDescriptorID() {
-		throw new UnsupportedOperationException();
-	}
+	abstract protected String getDescriptorID();
 
 }

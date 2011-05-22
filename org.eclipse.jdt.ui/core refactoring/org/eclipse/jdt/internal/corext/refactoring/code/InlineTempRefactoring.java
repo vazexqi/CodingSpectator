@@ -40,7 +40,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.dom.AST;
@@ -517,10 +516,6 @@ public class InlineTempRefactoring extends WatchedJavaRefactoring {
 
 	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createRefactoringDescriptor();
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fCu;
 	}
 
 	protected String getDescriptorID() {

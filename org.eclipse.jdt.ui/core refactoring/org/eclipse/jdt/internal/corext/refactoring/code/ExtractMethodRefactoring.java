@@ -45,7 +45,6 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -1160,6 +1159,10 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 		return result;
 	}
 
+	public ICompilationUnit getCompilationUnit() {
+		return fCUnit;
+	}
+
 	private RefactoringStatus initialize(JavaRefactoringArguments arguments) {
 		final String selection= arguments.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION);
 		if (selection == null)
@@ -1330,10 +1333,6 @@ public class ExtractMethodRefactoring extends WatchedJavaRefactoring {
 
 	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return getRefactoringDescriptor();
-	}
-
-	public ITypeRoot getJavaTypeRoot() {
-		return fCUnit;
 	}
 
 	protected String getDescriptorID() {

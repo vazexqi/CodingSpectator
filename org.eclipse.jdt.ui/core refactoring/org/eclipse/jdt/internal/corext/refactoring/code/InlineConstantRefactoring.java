@@ -46,7 +46,6 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -1117,10 +1116,6 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 
 	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createRefactoringDescriptor();
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fSelectionCu;
 	}
 
 	protected String getDescriptorID() {

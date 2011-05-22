@@ -588,10 +588,6 @@ public class InlineMethodRefactoring extends WatchedJavaRefactoring {
 		return createRefactoringDescriptor();
 	}
 
-	protected ITypeRoot getJavaTypeRoot() {
-		return fInitialTypeRoot;
-	}
-
 	protected String getDescriptorID() {
 		return IJavaRefactorings.INLINE_METHOD;
 	}

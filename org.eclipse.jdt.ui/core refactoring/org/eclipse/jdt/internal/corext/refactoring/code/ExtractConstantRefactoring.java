@@ -36,7 +36,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.SourceRange;
@@ -929,10 +928,6 @@ public class ExtractConstantRefactoring extends WatchedJavaRefactoring {
 
 	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createRefactoringDescriptor();
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fCu;
 	}
 
 	protected String getDescriptorID() {

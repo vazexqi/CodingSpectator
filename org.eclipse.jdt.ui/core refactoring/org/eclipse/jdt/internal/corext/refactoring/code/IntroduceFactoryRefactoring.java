@@ -40,7 +40,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -1427,10 +1426,6 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 
 	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createRefactoringDescriptor();
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fCUHandle;
 	}
 
 	protected String getDescriptorID() {
