@@ -40,7 +40,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -115,7 +114,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
  * constructor.
  * 
  * @author rfuhrer
- * @author nchen - Extended WatchedRefactoring.
+ * @author Mohsen Vakilian, nchen - Extended WatchedRefactoring.
  * 
  */
 public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
@@ -137,6 +136,20 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 	 * Handle for compilation unit in which the factory method/class/interface will be generated.
 	 */
 	private ICompilationUnit fFactoryUnitHandle;
+
+	/**
+	 * The start of the original textual selection in effect when this refactoring was initiated. If
+	 * the refactoring was initiated from a structured selection (e.g. from the outline view), then
+	 * this refers to the textual selection that corresponds to the structured selection item.
+	 */
+	private int fSelectionStart;
+
+	/**
+	 * The length of the original textual selection in effect when this refactoring was initiated.
+	 * If the refactoring was initiated from a structured selection (e.g. from the outline view),
+	 * then this refers to the textual selection that corresponds to the structured selection item.
+	 */
+	private int fSelectionLength;
 
 	/**
 	 * The AST node corresponding to the user's textual selection.
@@ -1129,7 +1142,7 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 	public Change createChange(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.IntroduceFactory_createChanges, fAllCallsTo.length);
-			final IntroduceFactoryDescriptor descriptor= getRefactoringDescriptor();
+			final IntroduceFactoryDescriptor descriptor= createRefactoringDescriptor();
 
 			final DynamicValidationStateChange result= new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.IntroduceFactory_name);
 			boolean hitInFactoryClass= false;
@@ -1165,33 +1178,6 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 		} finally {
 			pm.done();
 		}
-	}
-
-	private IntroduceFactoryDescriptor getRefactoringDescriptor() {
-		final ITypeBinding binding= fFactoryOwningClass.resolveBinding();
-		String project= getJavaProjectName();
-
-		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-		if (binding.isNested() && !binding.isMember())
-			flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		final String description= Messages.format(RefactoringCoreMessages.IntroduceFactoryRefactoring_descriptor_description_short,
-				BasicElementLabels.getJavaElementName(fCtorOwningClass.getName().getIdentifier()));
-		final String header= Messages.format(RefactoringCoreMessages.IntroduceFactory_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fNewMethodName),
-				BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), BindingLabelProvider.getBindingLabel(fCtorBinding, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceFactoryRefactoring_original_pattern,
-				BindingLabelProvider.getBindingLabel(fCtorBinding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceFactoryRefactoring_factory_pattern, BasicElementLabels.getJavaElementName(fNewMethodName)));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceFactoryRefactoring_owner_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		if (fProtectConstructor)
-			comment.addSetting(RefactoringCoreMessages.IntroduceFactoryRefactoring_declare_private);
-
-		final Map arguments= new HashMap();
-		final IntroduceFactoryDescriptor descriptor= RefactoringSignatureDescriptorFactory.createIntroduceFactoryDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + 1, JavaRefactoringDescriptorUtil.elementToHandle(project, binding.getJavaElement()));
-
-		return descriptor;
 	}
 
 	/* (non-Javadoc)
@@ -1407,10 +1393,14 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 	//CODINGSPECTATOR
 	/////////////////
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+	//Extracted from createChange.
+	private IntroduceFactoryDescriptor createRefactoringDescriptor() {
 		final ITypeBinding binding= fFactoryOwningClass.resolveBinding();
-		String project= getJavaProjectName();
-
+		final Map arguments= new HashMap();
+		String project= null;
+		IJavaProject javaProject= fCUHandle.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
 		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
 		if (binding.isNested() && !binding.isMember())
 			flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
@@ -1425,32 +1415,17 @@ public class IntroduceFactoryRefactoring extends WatchedJavaRefactoring {
 		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceFactoryRefactoring_owner_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
 		if (fProtectConstructor)
 			comment.addSetting(RefactoringCoreMessages.IntroduceFactoryRefactoring_declare_private);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
 		final IntroduceFactoryDescriptor descriptor= RefactoringSignatureDescriptorFactory.createIntroduceFactoryDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUHandle));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fNewMethodName);
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + 1, JavaRefactoringDescriptorUtil.elementToHandle(project, binding.getJavaElement()));
-
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(ATTRIBUTE_PROTECT, Boolean.valueOf(fProtectConstructor).toString());
 		return descriptor;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.corext.refactoring.code.WatchedRefactoring#populateRefactoringSpecificFields(java.lang.String, java.util.Map)
-	 * 
-	 * In IntroduceFactoryRefactoring, the "real" getRefactoringDescriptor relies on a binding attribute.
-	 * For the simple refactoring descriptor we have disabled it to confirm with our parent API (because of the parameter conflict).
-	 * Instead the binding is added as additional statement later.
-	 */
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCUHandle));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fNewMethodName);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_PROTECT, Boolean.valueOf(fProtectConstructor).toString());
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fCUHandle;
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 	protected String getDescriptorID() {

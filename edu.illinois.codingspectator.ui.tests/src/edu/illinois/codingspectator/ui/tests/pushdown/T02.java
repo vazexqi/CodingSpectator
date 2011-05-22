@@ -27,10 +27,4 @@ public class T02 extends RefactoringTest {
 		bot.clickButtons("Deselect All", IDialogConstants.CANCEL_LABEL);
 	}
 
-	@Override
-	protected void doLogsShouldBeCorrect() throws Exception {
-		super.doLogsShouldBeCorrect();
-		printMessage("This test does not select any members. Therefore, CodingSpectator cannot find an ITypeRoot. Thus, CodingSpectator fails to capture any selection information.");
-	}
-
 }

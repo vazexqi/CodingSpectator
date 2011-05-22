@@ -40,6 +40,7 @@ import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -155,7 +156,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 	public void run(final ITextSelection selection) {
 		try {
 			//CODINGSPECTATOR
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 			if (!ActionUtil.isEditable(fEditor))
 				return;
@@ -170,7 +171,7 @@ public class ExtractSuperClassAction extends SelectionDispatchAction {
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_SUPERCLASS, errorMessage);
 			}
 		} catch (JavaModelException exception) {
 			ExceptionHandler.handle(exception, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

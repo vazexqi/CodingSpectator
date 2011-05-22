@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Inline method &apos;edu.illinois.codingspectator.InlineMethodTestFile.m2()&apos; in &apos;edu.illinois.codingspectator.InlineMethodTestFile&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.InlineMethodTestFile.m2()&apos;&#x0A;- Remove method declaration&#x0A;- Replace all references to method with statements" delete="true" description="Inline method &apos;m2&apos;" flags="786438" id="org.eclipse.jdt.ui.inline.method" input="/src&lt;edu.illinois.codingspectator{InlineMethodTestFile.java" mode="1" selection="256 2" stamp="1305907490640" version="1.0"/>
+</session>

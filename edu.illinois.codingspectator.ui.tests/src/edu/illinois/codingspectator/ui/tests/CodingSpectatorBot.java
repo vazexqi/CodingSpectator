@@ -68,6 +68,7 @@ public class CodingSpectatorBot {
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
+		sleep();
 		dismissJavaPerspectiveIfPresent();
 	}
 
@@ -109,7 +110,7 @@ public class CodingSpectatorBot {
 		}
 	}
 
-	public void createANewJavaClass(String projectName, String testFileName) {
+	public void createANewJavaClass(String projectName, String className) {
 		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();
@@ -117,7 +118,7 @@ public class CodingSpectatorBot {
 		activateShellWithName("New Java Class");
 
 		bot.textWithLabel("Package:").setText(PACKAGE_NAME);
-		bot.textWithLabel("Name:").setText(testFileName);
+		bot.textWithLabel("Name:").setText(className);
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 	}

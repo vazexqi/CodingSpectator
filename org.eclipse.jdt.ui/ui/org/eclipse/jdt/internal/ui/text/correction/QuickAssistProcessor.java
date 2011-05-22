@@ -142,6 +142,7 @@ import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.fix.ControlStatementsCleanUp;
 import org.eclipse.jdt.internal.ui.fix.ConvertLoopCleanUp;
 import org.eclipse.jdt.internal.ui.fix.VariableDeclarationCleanUp;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.ASTRewriteCorrectionProposal;
 import org.eclipse.jdt.internal.ui.text.correction.proposals.AssignToVariableAssistProposal;
@@ -2016,7 +2017,7 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 		protected void aboutToPerformChange() {
 			JavaEditor javaEditor= (JavaEditor)JavaPlugin.getActivePage().getActiveEditor();
 			ITextSelection selection= (ITextSelection)javaEditor.getSelectionProvider().getSelection();
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(javaEditor, false), selection);
 			Logger.logRefactoringEvent(RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED, fRefactoringStatus, fRefactoring);
 		}
 

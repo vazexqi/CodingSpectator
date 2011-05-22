@@ -99,7 +99,7 @@ public abstract class RefactoringTest {
 		}
 	}
 
-	protected void doExecuteRefactoring() throws CoreException {
+	protected void doExecuteRefactoring() throws Exception {
 	}
 
 	protected void printMessage(String message) {
@@ -139,7 +139,7 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public final void shouldExecuteRefactoring() throws CoreException {
+	public final void shouldExecuteRefactoring() throws Exception {
 		doExecuteRefactoring();
 	}
 

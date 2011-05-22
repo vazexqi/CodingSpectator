@@ -46,7 +46,6 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -621,6 +620,10 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 		return getLeftmost(((QualifiedName)name).getQualifier());
 	}
 
+	private int fSelectionStart;
+
+	private int fSelectionLength;
+
 	private ICompilationUnit fSelectionCu;
 
 	private CompilationUnitRewrite fSelectionCuRewrite;
@@ -965,7 +968,7 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 	public Change createChange(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineConstantRefactoring_preview, 2);
-			final InlineConstantDescriptor descriptor= getRefactoringDescriptor();
+			final InlineConstantDescriptor descriptor= createRefactoringDescriptor();
 			return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.InlineConstantRefactoring_inline, fChanges);
 		} finally {
 			pm.done();
@@ -1078,10 +1081,12 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 	/////////////////
 
 	//CODINGSPECTATOR: Extracted getRefactoringDescriptor from createChange.
-	private InlineConstantDescriptor getRefactoringDescriptor() {
-		//CODINGSPECTATOR: Extracted the code to find the project name into 'WatchedJavaRefactoring.getJavaProjectName()'. 
-		String project= getJavaProjectName();
-
+	private InlineConstantDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		String project= null;
+		IJavaProject javaProject= fSelectionCu.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
 		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
 		try {
 			if (!Flags.isPrivate(fField.getFlags()))
@@ -1101,50 +1106,16 @@ public class InlineConstantRefactoring extends WatchedJavaRefactoring {
 			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_remove_declaration);
 		if (fReplaceAllReferences)
 			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_replace_references);
-
-		final Map arguments= new HashMap();
 		final InlineConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineConstantDescriptor(project, description, comment.asString(), arguments, flags);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		//Mohsen: I've commented the following piece of code because it's redundant. Besides, it computes a wrong value for the "flags" attribute.
-//		String project= getJavaProjectName();
-//		int flags= RefactoringDescriptor.STRUCTURAL_CHANGE | JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-//
-//		final String description= Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description_short,
-//				JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_DEFAULT));
-//		final String header= Messages.format(
-//				RefactoringCoreMessages.InlineConstantRefactoring_descriptor_description,
-//				new String[] { JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_FULLY_QUALIFIED),
-//						JavaElementLabels.getElementLabel(fField.getParent(), JavaElementLabels.ALL_FULLY_QUALIFIED) });
-//		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-//		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineConstantRefactoring_original_pattern, JavaElementLabels.getElementLabel(fField, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-//		if (fRemoveDeclaration)
-//			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_remove_declaration);
-//		if (fReplaceAllReferences)
-//			comment.addSetting(RefactoringCoreMessages.InlineConstantRefactoring_replace_references);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		InlineConstantDescriptor originalRefactoringDescriptor= getRefactoringDescriptor();
-		arguments.putAll(originalRefactoringDescriptor.getArguments());
-		final InlineConstantDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineConstantDescriptor(originalRefactoringDescriptor.getProject(),
-				originalRefactoringDescriptor.getDescription(), originalRefactoringDescriptor.getComment(), arguments, originalRefactoringDescriptor.getFlags());
-
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fSelectionCu));
 		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
 		arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemoveDeclaration).toString());
 		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplaceAllReferences).toString());
+		return descriptor;
 	}
 
-	protected ITypeRoot getJavaTypeRoot() {
-		return fSelectionCu;
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 	protected String getDescriptorID() {

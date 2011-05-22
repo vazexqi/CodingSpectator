@@ -48,4 +48,22 @@ public class CodeSnippetInformation {
 		}
 	}
 
+	public String toString() {
+		StringBuilder buffer= new StringBuilder();
+		buffer.append(RefactoringDescriptor.ATTRIBUTE_CODE_SNIPPET);
+		buffer.append("="); //$NON-NLS-1$
+		buffer.append(codeSnippet);
+		buffer.append(" "); //$NON-NLS-1$
+		buffer.append(RefactoringDescriptor.ATTRIBUTE_SELECTION_IN_CODE_SNIPPET);
+		buffer.append("="); //$NON-NLS-1$
+		buffer.append(relativeOffset);
+		buffer.append(" "); //$NON-NLS-1$
+		buffer.append(RefactoringDescriptor.ATTRIBUTE_SELECTION_TEXT);
+		buffer.append("="); //$NON-NLS-1$
+		buffer.append(selectedText);
+		return buffer.toString();
+	}
+
+
+
 }

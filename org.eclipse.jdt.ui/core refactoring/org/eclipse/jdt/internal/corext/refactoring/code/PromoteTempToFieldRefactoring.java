@@ -32,7 +32,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -100,7 +100,7 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * 
- * @author nchen - Extended WatchedRefactoring.
+ * @author nchen, Mohsen Vakilian - Extended WatchedRefactoring.
  * 
  */
 public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
@@ -112,6 +112,10 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 
 	private static final String ATTRIBUTE_INITIALIZE= "initialize"; //$NON-NLS-1$
+
+	private int fSelectionStart;
+
+	private int fSelectionLength;
 
 	private ICompilationUnit fCu;
 
@@ -723,10 +727,12 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 		return new MethodDeclaration[] {};
 	}
 
-
 	private ConvertLocalVariableDescriptor getRefactoringDescriptor() {
-		String project= getJavaProjectName();
-
+		final Map arguments= new HashMap();
+		String project= null;
+		IJavaProject javaProject= fCu.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
 		final IVariableBinding binding= fTempDeclarationNode.resolveBinding();
 		final String description= Messages.format(RefactoringCoreMessages.PromoteTempToFieldRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
 		final String header= Messages.format(
@@ -757,12 +763,15 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 			comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_declare_final);
 		else if (fDeclareStatic)
 			comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_declare_static);
-
-		final Map arguments= new HashMap();
 		final ConvertLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createConvertLocalVariableDescriptor(project, description, comment.asString(), arguments,
 				RefactoringDescriptor.STRUCTURAL_CHANGE);
-		populateRefactoringSpecificFields(project, arguments);
-
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fFieldName);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
+		arguments.put(ATTRIBUTE_STATIC, Boolean.valueOf(fDeclareStatic).toString());
+		arguments.put(ATTRIBUTE_FINAL, Boolean.valueOf(fDeclareFinal).toString());
+		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(fVisibility).toString());
+		arguments.put(ATTRIBUTE_INITIALIZE, new Integer(fInitializeIn).toString());
 		return descriptor;
 	}
 
@@ -1042,60 +1051,8 @@ public class PromoteTempToFieldRefactoring extends WatchedJavaRefactoring {
 	//CODINGSPECTATOR
 	/////////////////
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		String project= getJavaProjectName();
-
-		final IVariableBinding binding= fTempDeclarationNode.resolveBinding();
-		final String description= Messages.format(RefactoringCoreMessages.PromoteTempToFieldRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
-		final String header= Messages.format(
-				RefactoringCoreMessages.PromoteTempToFieldRefactoring_descriptor_description,
-				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED),
-						BindingLabelProvider.getBindingLabel(binding.getDeclaringMethod(), JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.PromoteTempToFieldRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.PromoteTempToFieldRefactoring_field_pattern, BasicElementLabels.getJavaElementName(fFieldName)));
-		switch (fInitializeIn) {
-			case INITIALIZE_IN_CONSTRUCTOR:
-				comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_initialize_constructor);
-				break;
-			case INITIALIZE_IN_FIELD:
-				comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_initialize_declaration);
-				break;
-			case INITIALIZE_IN_METHOD:
-				comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_initialize_method);
-				break;
-		}
-		String visibility= JdtFlags.getVisibilityString(fVisibility);
-		if ("".equals(visibility)) //$NON-NLS-1$
-			visibility= RefactoringCoreMessages.PromoteTempToFieldRefactoring_default_visibility;
-		comment.addSetting(Messages.format(RefactoringCoreMessages.PromoteTempToFieldRefactoring_visibility_pattern, visibility));
-		if (fDeclareFinal && fDeclareStatic)
-			comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_declare_final_static);
-		else if (fDeclareFinal)
-			comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_declare_final);
-		else if (fDeclareStatic)
-			comment.addSetting(RefactoringCoreMessages.PromoteTempToFieldRefactoring_declare_static);
-
-		final Map arguments= populateInstrumentationData(refactoringStatus);
-		final ConvertLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createConvertLocalVariableDescriptor(project, description, comment.asString(), arguments,
-				RefactoringDescriptor.STRUCTURAL_CHANGE);
-		populateRefactoringSpecificFields(project, arguments);
-
-		return descriptor;
-	}
-
-	protected void populateRefactoringSpecificFields(String project, Map arguments) {
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fFieldName);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, new Integer(fSelectionStart).toString() + " " + new Integer(fSelectionLength).toString()); //$NON-NLS-1$
-		arguments.put(ATTRIBUTE_STATIC, Boolean.valueOf(fDeclareStatic).toString());
-		arguments.put(ATTRIBUTE_FINAL, Boolean.valueOf(fDeclareFinal).toString());
-		arguments.put(ATTRIBUTE_VISIBILITY, new Integer(fVisibility).toString());
-		arguments.put(ATTRIBUTE_INITIALIZE, new Integer(fInitializeIn).toString());
-	}
-
-	protected ITypeRoot getJavaTypeRoot() {
-		return fCu;
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return getRefactoringDescriptor();
 	}
 
 	protected String getDescriptorID() {

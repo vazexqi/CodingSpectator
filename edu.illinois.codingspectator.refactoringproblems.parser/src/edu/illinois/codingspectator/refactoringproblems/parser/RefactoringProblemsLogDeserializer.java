@@ -69,13 +69,13 @@ public class RefactoringProblemsLogDeserializer extends DefaultHandler {
 		try {
 			parseXML(fileName);
 		} catch (ParserConfigurationException e) {
-			throw new RefactoringProblemsParserException();
+			throw new RefactoringProblemsParserException(e);
 		} catch (SAXException e) {
-			throw new RefactoringProblemsParserException();
+			throw new RefactoringProblemsParserException(e);
 		} catch (FileNotFoundException e) {
-			throw new RefactoringProblemsParserException();
+			throw new RefactoringProblemsParserException(e);
 		} catch (IOException e) {
-			throw new RefactoringProblemsParserException();
+			throw new RefactoringProblemsParserException(e);
 		}
 		return allProblemChanges;
 	}

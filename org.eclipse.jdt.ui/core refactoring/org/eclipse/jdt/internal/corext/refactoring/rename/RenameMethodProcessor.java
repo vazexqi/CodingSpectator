@@ -717,10 +717,49 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 			final List list= new ArrayList(changes.length);
 			list.addAll(Arrays.asList(changes));
 
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameMethodProcessor_change_name, (Change[])list.toArray(new Change[list.size()]));
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameMethodProcessor_change_name,
+					(Change[])list.toArray(new Change[list.size()]));
 		} finally {
 			monitor.done();
 		}
+	}
+
+	//CODINGSPECTATOR: Extracted createRefactoringDescriptor from createChange.
+	private RenameJavaElementDescriptor createRefactoringDescriptor() {
+		String project= null;
+		IJavaProject javaProject= fMethod.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE;
+		try {
+			if (!Flags.isPrivate(fMethod.getFlags()))
+				flags|= RefactoringDescriptor.MULTI_CHANGE;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final IType declaring= fMethod.getDeclaringType();
+		try {
+			if (declaring.isAnonymous() || declaring.isLocal())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String description= Messages.format(RefactoringCoreMessages.RenameMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
+		final String header= Messages.format(RefactoringCoreMessages.RenameMethodProcessor_descriptor_description,
+				new String[] { JavaElementLabels.getTextLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName()) });
+		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
+
+		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_METHOD);
+		descriptor.setProject(project);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment);
+		descriptor.setFlags(flags);
+		descriptor.setJavaElement(fMethod);
+		descriptor.setNewName(getNewElementName());
+		descriptor.setUpdateReferences(fUpdateReferences);
+		descriptor.setKeepOriginal(fDelegateUpdating);
+		descriptor.setDeprecateDelegate(fDelegateDeprecation);
+		return descriptor;
 	}
 
 	private TextChangeManager createChanges(IProgressMonitor pm, RefactoringStatus status) throws CoreException {
@@ -893,42 +932,8 @@ public abstract class RenameMethodProcessor extends JavaRenameProcessor implemen
 	//CODINGSPECTATOR
 	/////////////////
 
-	//CODINGSPECTATOR: Extracted createRefactoringDescriptor from createChange.
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
-		String project= null;
-		IJavaProject javaProject= fMethod.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE;
-		try {
-			if (!Flags.isPrivate(fMethod.getFlags()))
-				flags|= RefactoringDescriptor.MULTI_CHANGE;
-		} catch (JavaModelException exception) {
-			JavaPlugin.log(exception);
-		}
-		final IType declaring= fMethod.getDeclaringType();
-		try {
-			if (declaring.isAnonymous() || declaring.isLocal())
-				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		} catch (JavaModelException exception) {
-			JavaPlugin.log(exception);
-		}
-		final String description= Messages.format(RefactoringCoreMessages.RenameMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
-		final String header= Messages.format(RefactoringCoreMessages.RenameMethodProcessor_descriptor_description,
-				new String[] { JavaElementLabels.getTextLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName()) });
-		final String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
-
-		final RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_METHOD);
-		descriptor.setProject(project);
-		descriptor.setDescription(description);
-		descriptor.setComment(comment);
-		descriptor.setFlags(flags);
-		descriptor.setJavaElement(fMethod);
-		descriptor.setNewName(getNewElementName());
-		descriptor.setUpdateReferences(fUpdateReferences);
-		descriptor.setKeepOriginal(fDelegateUpdating);
-		descriptor.setDeprecateDelegate(fDelegateDeprecation);
-		return descriptor;
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 	public String getDescriptorID() {

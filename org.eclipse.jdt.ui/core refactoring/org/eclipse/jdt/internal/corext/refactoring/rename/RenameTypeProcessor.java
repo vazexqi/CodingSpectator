@@ -1028,6 +1028,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		return (ICompilationUnit[])cus.toArray(new ICompilationUnit[cus.size()]);
 	}
 
+	//CODINGSPECTATOR: Extracted createRefactoringDescriptor
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RenameTypeRefactoring_creating_change, 4);
@@ -1062,7 +1063,8 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		}
 	}
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
+	//CODINGSPECTATOR: Extracted from createChange
+	private RenameJavaElementDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fType.getJavaProject();
 		if (javaProject != null)
@@ -1652,8 +1654,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		processor.setUpdateReferences(getUpdateReferences());
 	}
 
-	//CODINGSPECTATOR: Changed the return type from RenameFieldProcessor to JavaRenameProcessor.
-	private JavaRenameProcessor createFieldRenameProcessor(final IField field, final String newName) {
+	private RenameFieldProcessor createFieldRenameProcessor(final IField field, final String newName) {
 		final RenameFieldProcessor processor= new RenameFieldProcessor(field, fChangeManager, CATEGORY_FIELD_RENAME);
 		processor.setNewElementName(newName);
 		processor.setRenameGetter(false);
@@ -1768,6 +1769,10 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 	/////////////////
 	//CODINGSPECTATOR
 	/////////////////
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
 
 	public String getDescriptorID() {
 		return IJavaRefactorings.RENAME_TYPE;

@@ -10,7 +10,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
  */
 public interface IWatched {
 
-	public abstract RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus);
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus);
 
 	public boolean isInvokedByQuickAssist();
 

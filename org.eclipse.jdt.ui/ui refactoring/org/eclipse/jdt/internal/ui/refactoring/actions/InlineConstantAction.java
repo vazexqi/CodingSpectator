@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -142,7 +143,7 @@ public class InlineConstantAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		//CODINGSPECTATOR
-		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 		run(selection.getOffset(), selection.getLength(), SelectionConverter.getInputAsCompilationUnit(fEditor));
 	}
@@ -156,7 +157,7 @@ public class InlineConstantAction extends SelectionDispatchAction {
 		CompilationUnit node= RefactoringASTParser.parseWithASTProvider(cu, true, null);
 		if (!RefactoringExecutionStarter.startInlineConstantRefactoring(cu, node, offset, length, getShell())) {
 			//CODINGSPECTATOR: I don't know under what circumstances the user hits this case of unavailability. But, I record the refactoring descriptor just to be safe.
-			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE_CONSTANT, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE_CONSTANT, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
 
 			MessageDialog.openInformation(getShell(), RefactoringMessages.InlineConstantAction_dialog_title, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
 		}

@@ -12,6 +12,6 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
  */
 public interface IWatchedJavaProcessor extends IWatchedProcessor {
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor();
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor();
 
 }

@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -153,8 +154,8 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		ISelection selection= fEditor.getSelectionProvider().getSelection();
 		//Initialize the global store in doRun as opposed to run(ITextSelection) because doRun 
 		//is also invoked in org.eclipse.jdt.internal.ui.text.correction.proposals.RenameRefactoringProposal.apply(IDocument)
-		RefactoringGlobalStore.getNewInstance().setSelectionInEditor((ITextSelection)selection);
-
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), (ITextSelection)selection);
+		
 		RenameLinkedMode activeLinkedMode= RenameLinkedMode.getActiveLinkedMode();
 		if (activeLinkedMode != null) {
 			if (activeLinkedMode.isCaretInLinkedPosition()) {
@@ -186,7 +187,7 @@ public class RenameJavaElementAction extends SelectionDispatchAction {
 		}
 
 		//CODINGSPECTATOR
-		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameJavaElementAction_not_available);
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.RENAME_UNKNOWN_JAVA_ELEMENT, RefactoringMessages.RenameJavaElementAction_not_available);
 
 		MessageDialog.openInformation(getShell(), RefactoringMessages.RenameJavaElementAction_name, RefactoringMessages.RenameJavaElementAction_not_available);
 	}
