@@ -13,9 +13,4 @@ public interface IWatchedProcessor extends IWatched {
 
 	public String getJavaProjectName();
 
-	/**
-	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#getElements()
-	 */
-	public Object[] getElements();
-
 }

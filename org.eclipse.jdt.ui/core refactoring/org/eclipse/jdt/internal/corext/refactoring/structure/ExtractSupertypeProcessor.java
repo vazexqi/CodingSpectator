@@ -93,7 +93,6 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.CreateCompilationUnitChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.MultiStateCompilationUnitChange;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.refactoring.util.ResourceUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.TextEditBasedChangeManager;
@@ -1192,10 +1191,6 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createRefactoringDescriptor();
-	}
-
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedProcessorDelegate(this);
 	}
 
 }

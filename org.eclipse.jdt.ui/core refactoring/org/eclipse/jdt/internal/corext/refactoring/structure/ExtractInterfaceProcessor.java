@@ -46,7 +46,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
-import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
@@ -106,7 +105,6 @@ import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.CreateCompilationUnitChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.ASTNodeDeleteUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsModel;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
@@ -1190,32 +1188,9 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 	/////////////////
 	//CODINGSPECTATOR
 	/////////////////
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedProcessorDelegate(this);
-	}
-
-	protected WatchedProcessorDelegate watchedProcessorDelegate;
-
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
-	}
-
-	public CodeSnippetInformation getCodeSnippetInformation() {
-		return getWatchedProcessorDelegate().getCodeSnippetInformation();
-	}
 
 	public String getDescriptorID() {
 		return IJavaRefactorings.EXTRACT_INTERFACE;
-	}
-
-	public String getJavaProjectName() {
-		return getWatchedProcessorDelegate().getJavaProjectName();
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
 	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {

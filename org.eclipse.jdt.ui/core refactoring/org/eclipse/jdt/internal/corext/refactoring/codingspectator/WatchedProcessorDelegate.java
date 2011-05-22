@@ -6,8 +6,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 /**
@@ -43,32 +41,12 @@ public class WatchedProcessorDelegate implements IWatchedJavaProcessor {
 		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
 	}
 
-	private IJavaElement getJavaElementIfPossible() {
-		if (getElements() == null) {
-			return null;
-		}
-		if (getElements().length == 0) {
-			return null;
-		}
-		if (getElements()[0] instanceof IJavaElement)
-			return ((IJavaElement)getElements()[0]);
-		return null;
-	}
-
 	public String getJavaProjectName() {
-		String project= null;
-		final IJavaProject javaProject= getJavaElementIfPossible().getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		return project;
+		return RefactoringGlobalStore.getInstance().getSelectedTypeRoot().getJavaProject().getElementName();
 	}
 
 	public String getDescriptorID() {
 		return watchedProcessor.getDescriptorID();
-	}
-
-	public Object[] getElements() {
-		return watchedProcessor.getElements();
 	}
 
 	public boolean isInvokedByQuickAssist() {

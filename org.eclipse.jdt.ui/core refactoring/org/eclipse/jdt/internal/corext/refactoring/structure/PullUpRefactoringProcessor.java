@@ -46,7 +46,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
-import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 
 import org.eclipse.jdt.core.Flags;
@@ -116,7 +115,6 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.rename.MethodChecks;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.SourceReferenceUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
@@ -2073,31 +2071,6 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 
 	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
 		return createRefactoringDescriptor();
-	}
-
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedProcessorDelegate(this);
-	}
-
-	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
-	protected WatchedProcessorDelegate watchedProcessorDelegate;
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
-	}
-
-	public CodeSnippetInformation getCodeSnippetInformation() {
-		return getWatchedProcessorDelegate().getCodeSnippetInformation();
-	}
-
-	public String getJavaProjectName() {
-		return getWatchedProcessorDelegate().getJavaProjectName();
-	}
-
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
 	}
 
 }

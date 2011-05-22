@@ -38,7 +38,6 @@ import org.eclipse.ltk.core.refactoring.GroupCategory;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 
 import org.eclipse.jdt.core.Flags;
@@ -92,7 +91,6 @@ import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.rename.MethodChecks;
 import org.eclipse.jdt.internal.corext.refactoring.util.ResourceUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.TextEditBasedChangeManager;
@@ -1077,29 +1075,8 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 	//CODINGSPECTATOR
 	/////////////////
 
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedProcessorDelegate(this);
-	}
-
-	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
-	protected WatchedProcessorDelegate watchedProcessorDelegate;
-
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
-	}
-
-	public CodeSnippetInformation getCodeSnippetInformation() {
-		return getWatchedProcessorDelegate().getCodeSnippetInformation();
-	}
-
 	public String getDescriptorID() {
 		return IJavaRefactorings.PUSH_DOWN;
-	}
-
-	public String getJavaProjectName() {
-		return getWatchedProcessorDelegate().getJavaProjectName();
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {

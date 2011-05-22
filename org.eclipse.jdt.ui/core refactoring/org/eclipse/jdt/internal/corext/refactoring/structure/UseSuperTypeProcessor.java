@@ -27,7 +27,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
-import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
@@ -58,7 +57,6 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsModel;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeRefactoringProcessor;
@@ -485,33 +483,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 	//CODINGSPECTATOR
 	/////////////////
 
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedProcessorDelegate(this);
-	}
-
-	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
-	protected WatchedProcessorDelegate watchedProcessorDelegate;
-
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
-	}
-
-	public CodeSnippetInformation getCodeSnippetInformation() {
-		return getWatchedProcessorDelegate().getCodeSnippetInformation();
-	}
-
 	public String getDescriptorID() {
 		return IJavaRefactorings.USE_SUPER_TYPE;
-	}
-
-	public String getJavaProjectName() {
-		return getWatchedProcessorDelegate().getJavaProjectName();
-	}
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
 	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {

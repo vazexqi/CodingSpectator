@@ -107,10 +107,6 @@ public abstract class JavaRenameProcessor extends WatchedJavaRenameProcessor imp
 			return JavaRenameProcessor.this.getOriginalRefactoringDescriptor();
 		}
 
-		public Object[] getElements() {
-			return JavaRenameProcessor.this.getElements();
-		}
-
 		public boolean isInvokedByQuickAssist() {
 			return JavaRenameProcessor.this.isInvokedByQuickAssist();
 		}

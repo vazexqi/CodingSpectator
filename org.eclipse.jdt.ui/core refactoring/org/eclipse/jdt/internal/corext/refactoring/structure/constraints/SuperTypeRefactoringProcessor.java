@@ -37,7 +37,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.GroupCategory;
 import org.eclipse.ltk.core.refactoring.GroupCategorySet;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -93,6 +92,7 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringScopeFactory;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringSearchEngine2;
 import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchableRefactoringProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.structure.ASTNodeSearchUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.CompilationUnitRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.structure.ImportRewriteUtil;
@@ -114,11 +114,11 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * Partial implementation of a refactoring processor solving supertype constraint models.
  * 
  * @author Mohsen Vakilian - Made constants corresponding to an attribute of the refactoring
- *         descriptor public.
+ *         descriptor public. Changed the parent class.
  * 
  * @since 3.1
  */
-public abstract class SuperTypeRefactoringProcessor extends RefactoringProcessor {
+public abstract class SuperTypeRefactoringProcessor extends WatchableRefactoringProcessor {
 
 	// CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI tests.
 	// TODO: remove
