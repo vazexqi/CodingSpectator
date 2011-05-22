@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Inline local variable &apos;edu.illinois.codingspectator.InlineLocalVariableTestFile.main().localVariable&apos; in &apos;edu.illinois.codingspectator.InlineLocalVariableTestFile.main()&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.InlineLocalVariableTestFile.main().localVariable&apos;" description="Inline local variable &apos;localVariable&apos;" id="org.eclipse.jdt.ui.inline.temp" input="/src&lt;edu.illinois.codingspectator{InlineLocalVariableTestFile.java" selection="264 32" stamp="1306083757291" version="1.0"/>
+</session>
