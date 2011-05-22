@@ -1064,7 +1064,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange
-	public RenameJavaElementDescriptor createRefactoringDescriptor() {
+	private RenameJavaElementDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fType.getJavaProject();
 		if (javaProject != null)
@@ -1654,8 +1654,7 @@ public class RenameTypeProcessor extends JavaRenameProcessor implements ITextUpd
 		processor.setUpdateReferences(getUpdateReferences());
 	}
 
-	//CODINGSPECTATOR: Changed the return type from RenameFieldProcessor to JavaRenameProcessor.
-	private JavaRenameProcessor createFieldRenameProcessor(final IField field, final String newName) {
+	private RenameFieldProcessor createFieldRenameProcessor(final IField field, final String newName) {
 		final RenameFieldProcessor processor= new RenameFieldProcessor(field, fChangeManager, CATEGORY_FIELD_RENAME);
 		processor.setNewElementName(newName);
 		processor.setRenameGetter(false);

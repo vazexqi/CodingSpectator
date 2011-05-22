@@ -265,7 +265,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange.
-	public RenameJavaElementDescriptor createRefactoringDescriptor() {
+	private RenameJavaElementDescriptor createRefactoringDescriptor() {
 		String project= null;
 		IJavaProject javaProject= fTypeParameter.getJavaProject();
 		if (javaProject != null)
