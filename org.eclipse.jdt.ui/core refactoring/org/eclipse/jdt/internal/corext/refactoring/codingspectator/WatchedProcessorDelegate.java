@@ -39,16 +39,6 @@ public class WatchedProcessorDelegate implements IWatchedJavaProcessor {
 		return basicArguments;
 	}
 
-	/**
-	 * @deprecated - Use getCodeSnippetInfomration instead.
-	 */
-	public String getSelection() {
-		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
-		if (javaElementIfPossible != null)
-			return javaElementIfPossible.getElementName();
-		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
 		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
 	}

@@ -19,13 +19,6 @@ public abstract class WatchedJavaMoveProcessor extends MoveProcessor implements 
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection() {
-		return getWatchedProcessorDelegate().getSelection();
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
 		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}

@@ -1202,13 +1202,6 @@ public final class ExtractInterfaceProcessor extends SuperTypeRefactoringProcess
 		return watchedProcessorDelegate;
 	}
 
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection() {
-		return getWatchedProcessorDelegate().getSelection();
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
 		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}

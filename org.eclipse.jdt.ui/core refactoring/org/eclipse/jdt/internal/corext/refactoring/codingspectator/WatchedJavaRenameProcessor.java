@@ -13,13 +13,6 @@ public abstract class WatchedJavaRenameProcessor extends RenameProcessor impleme
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection() {
-		return getWatchedProcessorDelegate().getSelection();
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
 		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}

@@ -7,11 +7,6 @@ package org.eclipse.ltk.core.refactoring.codingspectator;
  */
 public interface IWatchedProcessor extends IWatched {
 
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection();
-
 	public CodeSnippetInformation getCodeSnippetInformation();
 
 	public String getDescriptorID();

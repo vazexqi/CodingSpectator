@@ -498,13 +498,6 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor i
 		return watchedProcessorDelegate;
 	}
 
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection() {
-		return getWatchedProcessorDelegate().getSelection();
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
 		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}

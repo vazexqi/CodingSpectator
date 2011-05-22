@@ -2086,13 +2086,6 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
 
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection() {
-		return getWatchedProcessorDelegate().getSelection();
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
 		return getWatchedProcessorDelegate().getCodeSnippetInformation();
 	}
