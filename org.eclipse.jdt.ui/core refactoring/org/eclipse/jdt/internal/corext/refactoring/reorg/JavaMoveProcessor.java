@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
@@ -28,7 +27,6 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.ChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -40,11 +38,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
-import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
@@ -336,17 +332,7 @@ public final class JavaMoveProcessor extends WatchedJavaMoveProcessor implements
 	}
 
 	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedJavaMoveProcessorDelegate(this);
+		return new WatchedProcessorDelegate(this);
 	}
 
-	public class WatchedJavaMoveProcessorDelegate extends WatchedProcessorDelegate {
-
-		public WatchedJavaMoveProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
-			super(watchedProcessor);
-		}
-
-		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-			return RefactoringSignatureDescriptorFactory.createMoveDescriptor(project, description, comment, arguments, flags);
-		}
-	}
 }

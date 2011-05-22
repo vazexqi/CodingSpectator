@@ -67,7 +67,6 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 
 import org.eclipse.jdt.core.IField;
@@ -940,9 +939,6 @@ public class PullUpMemberPage extends UserInputWizardPage {
 	}
 
 	private void initializeRefactoring() {
-		//CODINGSPECTATOR
-		Logger.logDebug("PullUpMemberPage.initializeRefactoring()");
-
 		fProcessor.setMembersToMove(getMembersForAction(PULL_UP_ACTION));
 		fProcessor.setAbstractMethods(getMethodsForAction(DECLARE_ABSTRACT_ACTION));
 		final IType destination= getDestinationType();

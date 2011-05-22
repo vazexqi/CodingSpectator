@@ -105,7 +105,6 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/Wat
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRenameProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessorDelegate.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/IWatchedJavaProcessor.java
-core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedRenameProcessorDelegate.java
 
 ui/org/eclipse/jdt/internal/ui/startup/StartupListener.java
 schema/startup.exsd

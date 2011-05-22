@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
  * @author nchen
  * 
  */
-public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor {
+public class WatchedProcessorDelegate implements IWatchedJavaProcessor {
 
 	private IWatchedJavaProcessor watchedProcessor;
 
@@ -29,11 +29,6 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		JavaRefactoringDescriptor originalRefactoringDescriptor= getOriginalRefactoringDescriptor();
 		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, originalRefactoringDescriptor.getArguments());
 		return originalRefactoringDescriptor.cloneByAugmenting(augmentedArguments);
-//		return createRefactoringDescriptor(originalRefactoringDescriptor.getProject(), originalRefactoringDescriptor.getDescription(), originalRefactoringDescriptor.getComment(), augmentedArguments, originalRefactoringDescriptor.getFlags());
-	}
-
-	protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-		throw new UnsupportedOperationException();
 	}
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {

@@ -182,7 +182,7 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 	public Change createChange(IProgressMonitor monitor) throws CoreException {
 		monitor.beginTask(RefactoringCoreMessages.RenameTypeRefactoring_creating_change, 1);
 		try {
-			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.RenameSourceFolderRefactoring_rename, new Change[] { new RenameSourceFolderChange(
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameSourceFolderRefactoring_rename, new Change[] { new RenameSourceFolderChange(
 					fSourceFolder, getNewElementName()) });
 		} finally {
 			monitor.done();
@@ -190,7 +190,7 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 	}
 
 	//CODINGSPECTATOR: Extracted from createChange.
-	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+	private RenameJavaElementDescriptor createRefactoringDescriptor() {
 		final IResource resource= fSourceFolder.getResource();
 		final String project= resource.getProject().getName();
 		final String description= Messages.format(RefactoringCoreMessages.RenameSourceFolderChange_descriptor_description_short,
@@ -229,6 +229,10 @@ public final class RenameSourceFolderProcessor extends JavaRenameProcessor {
 	/////////////////
 	//CODINGSPECTATOR
 	/////////////////
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
 
 	public String getDescriptorID() {
 		return IJavaRefactorings.RENAME_SOURCE_FOLDER;

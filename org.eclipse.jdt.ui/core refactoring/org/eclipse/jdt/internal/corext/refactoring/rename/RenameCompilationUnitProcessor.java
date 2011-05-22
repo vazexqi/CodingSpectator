@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
 import org.eclipse.jdt.internal.corext.refactoring.changes.RenameCompilationUnitChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.CodeSnippetInformationFactory;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
@@ -497,13 +498,10 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 			if (r instanceof JavaRefactoringDescriptor) {
 				JavaRefactoringDescriptor d= (JavaRefactoringDescriptor)r;
 				final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
-				final RefactoringDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(d.getID(), d.getProject(), d.getDescription(), d.getComment(),
-						augmentedArguments, d.getFlags());
-				return descriptor;
+				return d.cloneByAugmenting(augmentedArguments);
 			} else {
 				String comment= r.getComment();
-				comment+= "SNIPPET: " + getCodeSnippet() + ","; //$NON-NLS-1$//$NON-NLS-2$
-				comment+= "SELECTION: " + getSelection() + ","; //$NON-NLS-1$//$NON-NLS-2$
+				comment+= "SNIPPET: " + CodeSnippetInformationFactory.extractCodeSnippetInformation().toString() + ","; //$NON-NLS-1$//$NON-NLS-2$
 				comment+= "STATUS: " + refactoringStatus.toString(); //$NON-NLS-1$
 				r.setComment(comment);
 				return r;

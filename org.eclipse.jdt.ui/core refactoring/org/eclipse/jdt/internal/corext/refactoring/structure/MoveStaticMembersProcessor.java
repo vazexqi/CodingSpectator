@@ -108,7 +108,6 @@ import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateFieldCreator;
@@ -1179,19 +1178,7 @@ public final class MoveStaticMembersProcessor extends WatchedJavaMoveProcessor i
 	}
 
 	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedMoveStaticMembersProcessorDelegate(this);
-	}
-
-	public class WatchedMoveStaticMembersProcessorDelegate extends WatchedProcessorDelegate {
-
-		public WatchedMoveStaticMembersProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
-			super(watchedProcessor);
-		}
-
-		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-			return RefactoringSignatureDescriptorFactory.createMoveStaticMembersDescriptor(project, description, comment, arguments, flags);
-		}
-
+		return new WatchedProcessorDelegate(this);
 	}
 
 }

@@ -474,7 +474,10 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 				monitor.worked(1);
 			if (result.hasFatalError())
 				return result;
+
+			//CODINGSPECTATOR
 			updateMembersToMove();
+
 			fChangeManager= createChangeManager(new SubProgressMonitor(monitor, 1), result);
 			if (result.hasFatalError())
 				return result;
@@ -685,17 +688,73 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * CODINGSPECTATOR: Extracted createRefactoringDescriptor from this method.
+	 * CODINGSPECTATOR: Extracted {@link #createRefactoringDescriptor()} from this method.
 	 */
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		creatingChange= true;
 		try {
-			return new DynamicValidationRefactoringChange(getOriginalRefactoringDescriptor(), RefactoringCoreMessages.PushDownRefactoring_change_name, fChangeManager.getAllChanges());
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.PushDownRefactoring_change_name, fChangeManager.getAllChanges());
 		} finally {
 			pm.done();
 			clearCaches();
 			creatingChange= false;
 		}
+	}
+
+	// CODINGSPECTATOR: Extracted from createChange.
+	private PushDownDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		String project= null;
+		final IType declaring= getDeclaringType();
+		final IJavaProject javaProject= declaring.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		try {
+			if (declaring.isLocal() || declaring.isAnonymous())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+
+		//CODINGSPECTATOR: Added this to force an update to fMembersToMove to reflect the changes in the UI page.
+		// The UI page is modified by selecting rows in the table. See the inner class of org.eclipse.jface.viewers.ICheckStateListener
+		// in org.eclipse.jdt.internal.ui.refactoring.PushDownWizard.PushDownInputPage.createMemberTable(Composite)
+		if (!creatingChange) // If we are not in the process of creating a change, we can force an update
+			updateMembersToMove();
+
+		final String description= fMembersToMove.length == 1 ? Messages.format(RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short_multi,
+					BasicElementLabels.getJavaElementName(fMembersToMove[0].getElementName())) : RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short;
+		final String header= fMembersToMove.length == 1 ? Messages.format(
+					RefactoringCoreMessages.PushDownRefactoring_descriptor_description_full,
+					new String[] { JavaElementLabels.getElementLabel(fMembersToMove[0], JavaElementLabels.ALL_FULLY_QUALIFIED),
+							JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED) }) : Messages.format(
+					RefactoringCoreMessages.PushDownRefactoring_descriptor_description, new String[] { JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		final String[] settings= new String[fMembersToMove.length];
+		for (int index= 0; index < settings.length; index++)
+			settings[index]= JavaElementLabels.getElementLabel(fMembersToMove[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
+		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.PushDownRefactoring_pushed_members_pattern, settings));
+		addSuperTypeSettings(comment, true);
+		final PushDownDescriptor descriptor= RefactoringSignatureDescriptorFactory.createPushDownDescriptor(project, description, comment.asString(), arguments, flags);
+		if (fCachedDeclaringType != null)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCachedDeclaringType));
+		for (int index= 0; index < fMembersToMove.length; index++) {
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (index + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembersToMove[index]));
+			for (int offset= 0; offset < fMemberInfos.length; offset++) {
+				if (fMemberInfos[offset].getMember().equals(fMembersToMove[index])) {
+					switch (fMemberInfos[offset].getAction()) {
+						case MemberActionInfo.PUSH_ABSTRACT_ACTION:
+							arguments.put(ATTRIBUTE_ABSTRACT + (index + 1), Boolean.valueOf(true).toString());
+							break;
+						case MemberActionInfo.PUSH_DOWN_ACTION:
+							arguments.put(ATTRIBUTE_PUSH + (index + 1), Boolean.valueOf(true).toString());
+							break;
+					}
+				}
+			}
+		}
+		return descriptor;
 	}
 
 	private TextEditBasedChangeManager createChangeManager(final IProgressMonitor monitor, final RefactoringStatus status) throws CoreException {
@@ -1018,20 +1077,8 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 	//CODINGSPECTATOR
 	/////////////////
 
-	private class WatchedPushDownRefactoringProcessorDelegate extends WatchedProcessorDelegate {
-
-		public WatchedPushDownRefactoringProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
-			super(watchedProcessor);
-		}
-
-		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-			return RefactoringSignatureDescriptorFactory.createPushDownDescriptor(project, description, comment, arguments, flags);
-		}
-
-	}
-
 	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedPushDownRefactoringProcessorDelegate(this);
+		return new WatchedProcessorDelegate(this);
 	}
 
 	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
@@ -1067,58 +1114,7 @@ public final class PushDownRefactoringProcessor extends HierarchyProcessor imple
 	}
 
 	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
-		final Map arguments= new HashMap();
-		String project= null;
-		final IType declaring= getDeclaringType();
-		final IJavaProject javaProject= declaring.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-		try {
-			if (declaring.isLocal() || declaring.isAnonymous())
-				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		} catch (JavaModelException exception) {
-			JavaPlugin.log(exception);
-		}
-
-		//CODINGSPECTATOR: Added this to force an update to fMembersToMove to reflect the changes in the UI page.
-		// The UI page is modified by selecting rows in the table. See the inner class of org.eclipse.jface.viewers.ICheckStateListener
-		// in org.eclipse.jdt.internal.ui.refactoring.PushDownWizard.PushDownInputPage.createMemberTable(Composite)
-		if (!creatingChange) // If we are not in the process of creating a change, we can force an update
-			updateMembersToMove();
-
-		final String description= fMembersToMove.length == 1 ? Messages.format(RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short_multi,
-					BasicElementLabels.getJavaElementName(fMembersToMove[0].getElementName())) : RefactoringCoreMessages.PushDownRefactoring_descriptor_description_short;
-		final String header= fMembersToMove.length == 1 ? Messages.format(
-					RefactoringCoreMessages.PushDownRefactoring_descriptor_description_full,
-					new String[] { JavaElementLabels.getElementLabel(fMembersToMove[0], JavaElementLabels.ALL_FULLY_QUALIFIED),
-							JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED) }) : Messages.format(
-					RefactoringCoreMessages.PushDownRefactoring_descriptor_description, new String[] { JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		final String[] settings= new String[fMembersToMove.length];
-		for (int index= 0; index < settings.length; index++)
-			settings[index]= JavaElementLabels.getElementLabel(fMembersToMove[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
-		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.PushDownRefactoring_pushed_members_pattern, settings));
-		addSuperTypeSettings(comment, true);
-		final PushDownDescriptor descriptor= RefactoringSignatureDescriptorFactory.createPushDownDescriptor(project, description, comment.asString(), arguments, flags);
-		if (fCachedDeclaringType != null)
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCachedDeclaringType));
-		for (int index= 0; index < fMembersToMove.length; index++) {
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (index + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembersToMove[index]));
-			for (int offset= 0; offset < fMemberInfos.length; offset++) {
-				if (fMemberInfos[offset].getMember().equals(fMembersToMove[index])) {
-					switch (fMemberInfos[offset].getAction()) {
-						case MemberActionInfo.PUSH_ABSTRACT_ACTION:
-							arguments.put(ATTRIBUTE_ABSTRACT + (index + 1), Boolean.valueOf(true).toString());
-							break;
-						case MemberActionInfo.PUSH_DOWN_ACTION:
-							arguments.put(ATTRIBUTE_PUSH + (index + 1), Boolean.valueOf(true).toString());
-							break;
-					}
-				}
-			}
-		}
-		return descriptor;
+		return createRefactoringDescriptor();
 	}
 
 	private void updateMembersToMove() {
