@@ -7,6 +7,8 @@ import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 
 /**
  * 
+ * This class is playing the same role as {@link WatchableRefactoringProcessor}.
+ * 
  * @author Mohsen Vakilian
  * @author nchen
  * 
@@ -15,8 +17,14 @@ public abstract class WatchedJavaMoveProcessor extends MoveProcessor implements 
 
 	protected WatchedProcessorDelegate watchedProcessorDelegate;
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedProcessorDelegate(this);
+	}
+
+	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
+		if (watchedProcessorDelegate == null)
+			watchedProcessorDelegate= instantiateDelegate();
+		return watchedProcessorDelegate;
 	}
 
 	public CodeSnippetInformation getCodeSnippetInformation() {
@@ -27,12 +35,8 @@ public abstract class WatchedJavaMoveProcessor extends MoveProcessor implements 
 		return getWatchedProcessorDelegate().getJavaProjectName();
 	}
 
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
-
-	protected abstract WatchedProcessorDelegate instantiateDelegate();
 
 }
