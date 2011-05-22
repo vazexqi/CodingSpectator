@@ -7,7 +7,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 
 /**
  * 
- * This class provides the infrustructure necessary for capturing information from a watched
+ * This class provides the infrastructure necessary for capturing information from a watched
  * refactoring processor. Note that subclasses of this class are not necessarily watched.
  * 
  * @author Mohsen Vakilian

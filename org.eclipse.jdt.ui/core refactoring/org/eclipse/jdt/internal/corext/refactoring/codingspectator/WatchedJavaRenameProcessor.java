@@ -5,12 +5,26 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 
+/**
+ * 
+ * This class is playing the same role as {@link WatchableRefactoringProcessor}.
+ * 
+ * @author Mohsen Vakilian
+ * @author nchen
+ * 
+ */
 public abstract class WatchedJavaRenameProcessor extends RenameProcessor implements IWatchedJavaProcessor {
 
 	protected WatchedProcessorDelegate watchedProcessorDelegate;
 
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
+	protected WatchedProcessorDelegate instantiateDelegate() {
+		return new WatchedProcessorDelegate(this);
+	}
+
+	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
+		if (watchedProcessorDelegate == null)
+			watchedProcessorDelegate= instantiateDelegate();
+		return watchedProcessorDelegate;
 	}
 
 	public CodeSnippetInformation getCodeSnippetInformation() {
@@ -21,12 +35,8 @@ public abstract class WatchedJavaRenameProcessor extends RenameProcessor impleme
 		return getWatchedProcessorDelegate().getJavaProjectName();
 	}
 
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
 	}
-
-	protected abstract WatchedProcessorDelegate instantiateDelegate();
 
 }

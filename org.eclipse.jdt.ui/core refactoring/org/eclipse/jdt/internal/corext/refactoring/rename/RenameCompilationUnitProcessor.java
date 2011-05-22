@@ -487,7 +487,7 @@ public final class RenameCompilationUnitProcessor extends JavaRenameProcessor im
 	//CODINGSPECTATOR
 	/////////////////
 
-	public class WatchedRenameCompilationUnitProcessorDelegate extends WatchedJavaRenameProcessorDelegate {
+	public class WatchedRenameCompilationUnitProcessorDelegate extends WatchedProcessorDelegate {
 
 		public WatchedRenameCompilationUnitProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
 			super(watchedProcessor);

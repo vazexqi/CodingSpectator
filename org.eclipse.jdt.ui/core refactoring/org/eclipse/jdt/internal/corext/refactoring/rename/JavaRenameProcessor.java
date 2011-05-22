@@ -25,11 +25,7 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.ltk.core.refactoring.participants.ValidateEditChecker;
 
-import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
-
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRenameProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
@@ -88,29 +84,5 @@ public abstract class JavaRenameProcessor extends WatchedJavaRenameProcessor imp
 	 * @see RefactoringSaveHelper
 	 */
 	public abstract int getSaveMode();
-
-	/////////////////
-	//CODINGSPECTATOR
-	/////////////////
-
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedJavaRenameProcessorDelegate(this);
-	}
-
-	public class WatchedJavaRenameProcessorDelegate extends WatchedProcessorDelegate {
-
-		public WatchedJavaRenameProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
-			super(watchedProcessor);
-		}
-
-		public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
-			return JavaRenameProcessor.this.getOriginalRefactoringDescriptor();
-		}
-
-		public boolean isInvokedByQuickAssist() {
-			return JavaRenameProcessor.this.isInvokedByQuickAssist();
-		}
-
-	}
 
 }
