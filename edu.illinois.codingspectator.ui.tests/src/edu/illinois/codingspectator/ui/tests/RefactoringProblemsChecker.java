@@ -22,37 +22,37 @@ import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProble
  */
 public class RefactoringProblemsChecker implements LogChecker {
 
-	private final IPath expectedLogPath;
+	private final EFSFile expectedLogFile;
 
-	private final IPath actualLogPath;
+	private final EFSFile actualLogFile;
 
-	private final EFSFile actuaLogFile;
-
-	public RefactoringProblemsChecker(IPath logPath) {
-		this.expectedLogPath= logPath;
-		this.actualLogPath= RefactoringLog.getRefactoringStorageLocation("refactorings").append(ProblemChanges.REFACTORING_PROBLEMS_LOG);
-		this.actuaLogFile= new EFSFile(actualLogPath);
+	public RefactoringProblemsChecker(IPath expectedLogPath) {
+		this.expectedLogFile= new EFSFile(expectedLogPath);
+		this.actualLogFile= new EFSFile(RefactoringLog.getRefactoringStorageLocation("refactorings").append(ProblemChanges.REFACTORING_PROBLEMS_LOG));
 	}
 
-	@Override
 	public void assertLogIsEmpty() {
-		assertFalse(actuaLogFile.exists());
+		assertFalse(actualLogFile.exists());
 	}
 
 	private List<ProblemChanges> getProblemChanges(IPath refactoringLogPath) throws RefactoringProblemsParserException {
 		return new RefactoringProblemsLogDeserializer(false).deserializeRefactoringProblemsLog(refactoringLogPath.toOSString());
 	}
 
-	@Override
 	public void assertMatch() throws RefactoringProblemsParserException {
-		List<ProblemChanges> expectedProblems= getProblemChanges(expectedLogPath);
-		List<ProblemChanges> actualProblems= getProblemChanges(actualLogPath);
+		List<ProblemChanges> expectedProblems= getProblemChanges(expectedLogFile.getPath());
+		List<ProblemChanges> actualProblems= getProblemChanges(actualLogFile.getPath());
 		assertEquals(expectedProblems, actualProblems);
 	}
 
-	@Override
 	public void clean() throws CoreException {
-		actuaLogFile.delete();
+		actualLogFile.delete();
+	}
+
+	public void generateExpectedLog() throws CoreException {
+		if (actualLogFile.exists() && !expectedLogFile.exists()) {
+			actualLogFile.copyTo(expectedLogFile);
+		}
 	}
 
 }

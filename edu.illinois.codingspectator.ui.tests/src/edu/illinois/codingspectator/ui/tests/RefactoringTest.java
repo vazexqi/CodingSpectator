@@ -11,6 +11,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -89,6 +90,15 @@ public abstract class RefactoringTest {
 		}
 	}
 
+	protected Collection<LogChecker> getAllLogCheckers() {
+		Collection<LogChecker> allLogCheckers= new ArrayList<LogChecker>();
+		for (RefactoringLog.LogType logType : RefactoringLog.getLogTypes()) {
+			allLogCheckers.add(new RefactoringLogChecker(logType, getRefactoringKind(), getTestName(), getProjectName()));
+		}
+		allLogCheckers.add(new RefactoringProblemsChecker(getExpectedRefactoringProblemsLogPath()));
+		return allLogCheckers;
+	}
+
 	private IPath getPathToExpectedResultsOfTest() {
 		return new Path(RefactoringLogUtils.EXPECTED_DESCRIPTORS).append(getRefactoringKind()).append(getTestName());
 	}
@@ -104,6 +114,14 @@ public abstract class RefactoringTest {
 
 	protected void printMessage(String message) {
 		System.err.println(getClass() + ": " + message);
+	}
+
+	protected void doGenerateExpectedFiles() throws CoreException {
+		if (RunningModes.shouldGenerateExpectedFiles()) {
+			for (LogChecker logChecker : getAllLogCheckers()) {
+				logChecker.generateExpectedLog();
+			}
+		}
 	}
 
 	protected void doLogsShouldBeCorrect() throws Exception {
@@ -145,6 +163,8 @@ public abstract class RefactoringTest {
 
 	@Test
 	public final void logsShouldBeCorrect() throws Exception {
+		bot.sleep();
+		doGenerateExpectedFiles();
 		bot.sleep();
 		doLogsShouldBeCorrect();
 	}

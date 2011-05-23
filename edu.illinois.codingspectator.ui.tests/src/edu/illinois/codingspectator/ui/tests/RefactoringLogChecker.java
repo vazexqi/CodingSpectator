@@ -39,4 +39,10 @@ public class RefactoringLogChecker implements LogChecker {
 		actualRefactoringLog.clean();
 	}
 
+	public void generateExpectedLog() throws CoreException {
+		if (actualRefactoringLog.exists() && !expectedRefactoringLog.exists()) {
+			actualRefactoringLog.copy(expectedRefactoringLog);
+		}
+	}
+
 }

@@ -5,8 +5,10 @@ package edu.illinois.codingspectator.ui.tests;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -59,6 +61,10 @@ public class RefactoringLog {
 		}
 	}
 
+	public static Set<LogType> getLogTypes() {
+		return Collections.unmodifiableSet(logTypeToString.keySet());
+	}
+
 	public static boolean isLogType(String logName) {
 		return logTypeToString.values().contains(logName);
 	}
@@ -108,6 +114,10 @@ public class RefactoringLog {
 			}
 		}
 		return refactoringDescriptors;
+	}
+
+	public void copy(RefactoringLog destination) throws CoreException {
+		historyFolder.copyTo(destination.historyFolder);
 	}
 
 }
