@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.Assert;
 
 import org.eclipse.ltk.core.refactoring.RefactoringContribution;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
-import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
 import org.eclipse.jdt.core.IType;
@@ -90,11 +89,6 @@ public final class UseSupertypeDescriptor extends JavaRefactoringDescriptor {
 			fSubType= (IType)JavaRefactoringDescriptorUtil.getJavaElement(arguments, ATTRIBUTE_INPUT, project);
 			fSupertype= (IType)JavaRefactoringDescriptorUtil.getJavaElement(arguments, JavaRefactoringDescriptorUtil.getAttributeName(ATTRIBUTE_ELEMENT, 1), project);
 		}
-	}
-
-	//CODINGSPECTATOR
-	private boolean isCapturedByCodingSpectator() {
-		return fArguments.containsKey(RefactoringDescriptor.CAPTURED_BY_CODINGSPECTATOR_ATTRIBUTE);
 	}
 
 	/**

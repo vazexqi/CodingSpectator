@@ -424,4 +424,8 @@ public class JavaRefactoringDescriptor extends RefactoringDescriptor {
 		return augmentedDescriptor;
 	}
 
+	protected boolean isCapturedByCodingSpectator() {
+		return fArguments.containsKey(RefactoringDescriptor.CAPTURED_BY_CODINGSPECTATOR_ATTRIBUTE);
+	}
+
 }
