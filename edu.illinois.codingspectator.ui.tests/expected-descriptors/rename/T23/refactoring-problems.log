@@ -1,0 +1,10 @@
+<problem-changes refactoring-timestamp="1306105867579">
+	<after-minus-before timestamp="1306105867588">
+		<problem id="536870973" message="The local variable aCollection is never read" arguments="[aCollection]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/RenameTypeTestFile.java" line="12" severity="0" endPosition="321" startPosition="311">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306105867529">
+		<problem id="536870973" message="The local variable aCollection is never read" arguments="[aCollection]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/RenameTypeTestFile.java" line="12" severity="0" endPosition="314" startPosition="304">
+		</problem>
+	</before-minus-after>
+</problem-changes>

@@ -1,0 +1,10 @@
+<problem-changes refactoring-timestamp="1306107976108">
+	<after-minus-before timestamp="1306107976114">
+		<problem id="536870973" message="The local variable renamedOriginalVariable is never read" arguments="[renamedOriginalVariable]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/RenameLocalVariableTestFile.java" line="9" severity="0" endPosition="284" startPosition="262">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306107976090">
+		<problem id="536870973" message="The local variable originalVariable is never read" arguments="[originalVariable]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/RenameLocalVariableTestFile.java" line="9" severity="0" endPosition="277" startPosition="262">
+		</problem>
+	</before-minus-after>
+</problem-changes>

@@ -1,0 +1,10 @@
+<problem-changes refactoring-timestamp="-1">
+	<after-minus-before timestamp="1306109812222">
+		<problem id="67109219" message="Duplicate method m3() in type C3" arguments="[m3, edu.illinois.codingspectator.C3, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveInstanceMethodTestFile.java" line="20" severity="1" endPosition="237" startPosition="234">
+		</problem>
+		<problem id="67109219" message="Duplicate method m3() in type C3" arguments="[m3, edu.illinois.codingspectator.C3, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveInstanceMethodTestFile.java" line="24" severity="1" endPosition="255" startPosition="252">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306109812092">
+	</before-minus-after>
+</problem-changes>

@@ -1,0 +1,18 @@
+<problem-changes refactoring-timestamp="1306105539206">
+	<after-minus-before timestamp="1306105539218">
+		<problem id="268435844" message="The import java.util.Queue is never used" arguments="[java.util.Queue]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveImportsTestFile.java" line="6" severity="0" endPosition="181" startPosition="167">
+		</problem>
+		<problem id="268435844" message="The import java.util.ArrayList is never used" arguments="[java.util.ArrayList]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/DestinationFile.java" line="3" severity="0" endPosition="64" startPosition="46">
+		</problem>
+		<problem id="268435844" message="The import java.util.Set is never used" arguments="[java.util.Set]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveImportsTestFile.java" line="7" severity="0" endPosition="203" startPosition="191">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306105539131">
+		<problem id="268435844" message="The import java.util.Queue is never used" arguments="[java.util.Queue]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveImportsTestFile.java" line="7" severity="0" endPosition="209" startPosition="195">
+		</problem>
+		<problem id="268435844" message="The import java.util.Set is never used" arguments="[java.util.Set]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveImportsTestFile.java" line="8" severity="0" endPosition="231" startPosition="219">
+		</problem>
+		<problem id="268435844" message="The import java.util.ArrayList is never used" arguments="[java.util.ArrayList]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveImportsTestFile.java" line="6" severity="0" endPosition="185" startPosition="167">
+		</problem>
+	</before-minus-after>
+</problem-changes>

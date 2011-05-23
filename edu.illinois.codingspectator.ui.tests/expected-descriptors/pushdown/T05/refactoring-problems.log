@@ -1,0 +1,20 @@
+<problem-changes refactoring-timestamp="1306106951197">
+	<after-minus-before timestamp="1306106951203">
+		<problem id="570425421" message="The field Child1.field2 is never read locally" arguments="[edu.illinois.codingspectator.Child1, field2]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="11" severity="0" endPosition="251" startPosition="246">
+		</problem>
+		<problem id="570425421" message="The field Parent.field2 is never read locally" arguments="[edu.illinois.codingspectator.Parent, field2]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="7" severity="0" endPosition="196" startPosition="191">
+		</problem>
+		<problem id="570425421" message="The field Child1.fieldToBePushedDown is never read locally" arguments="[edu.illinois.codingspectator.Child1, fieldToBePushedDown]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="12" severity="0" endPosition="285" startPosition="267">
+		</problem>
+		<problem id="570425421" message="The field Child2.fieldToBePushedDown is never read locally" arguments="[edu.illinois.codingspectator.Child2, fieldToBePushedDown]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="17" severity="0" endPosition="353" startPosition="335">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306106951169">
+		<problem id="570425421" message="The field Parent.fieldToBePushedDown is never read locally" arguments="[edu.illinois.codingspectator.Parent, fieldToBePushedDown]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="7" severity="0" endPosition="209" startPosition="191">
+		</problem>
+		<problem id="570425421" message="The field Parent.field2 is never read locally" arguments="[edu.illinois.codingspectator.Parent, field2]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="8" severity="0" endPosition="233" startPosition="228">
+		</problem>
+		<problem id="570425421" message="The field Child1.field2 is never read locally" arguments="[edu.illinois.codingspectator.Child1, field2]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownSingleFieldTestFile.java" line="12" severity="0" endPosition="288" startPosition="283">
+		</problem>
+	</before-minus-after>
+</problem-changes>

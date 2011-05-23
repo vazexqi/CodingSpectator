@@ -1,0 +1,20 @@
+<problem-changes refactoring-timestamp="1306105670938">
+	<after-minus-before timestamp="1306105670950">
+		<problem id="603979894" message="The method m1() from the type Child2 is never used locally" arguments="[edu.illinois.codingspectator.Child2, m1, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="18" severity="0" endPosition="344" startPosition="341">
+		</problem>
+		<problem id="603979894" message="The method m2() from the type Parent is never used locally" arguments="[edu.illinois.codingspectator.Parent, m2, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="7" severity="0" endPosition="195" startPosition="192">
+		</problem>
+		<problem id="603979894" message="The method m2() from the type Child1 is never used locally" arguments="[edu.illinois.codingspectator.Child1, m2, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="11" severity="0" endPosition="257" startPosition="254">
+		</problem>
+		<problem id="603979894" message="The method m1() from the type Child1 is never used locally" arguments="[edu.illinois.codingspectator.Child1, m1, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="13" severity="0" endPosition="284" startPosition="281">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306105670886">
+		<problem id="603979894" message="The method m2() from the type Parent is never used locally" arguments="[edu.illinois.codingspectator.Parent, m2, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="8" severity="0" endPosition="224" startPosition="221">
+		</problem>
+		<problem id="603979894" message="The method m1() from the type Parent is never used locally" arguments="[edu.illinois.codingspectator.Parent, m1, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="7" severity="0" endPosition="195" startPosition="192">
+		</problem>
+		<problem id="603979894" message="The method m2() from the type Child1 is never used locally" arguments="[edu.illinois.codingspectator.Child1, m2, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/PushDownMethodTestFile.java" line="12" severity="0" endPosition="286" startPosition="283">
+		</problem>
+	</before-minus-after>
+</problem-changes>

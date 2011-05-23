@@ -1,0 +1,10 @@
+<problem-changes refactoring-timestamp="1306106785840">
+	<after-minus-before timestamp="1306106785847">
+		<problem id="33554772" message="Duplicate field C3.field" arguments="[C3, field]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveStaticMemberTestFile.java" line="20" severity="1" endPosition="261" startPosition="257">
+		</problem>
+		<problem id="33554772" message="Duplicate field C3.field" arguments="[C3, field]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveStaticMemberTestFile.java" line="26" severity="1" endPosition="320" startPosition="316">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306106785812">
+	</before-minus-after>
+</problem-changes>
