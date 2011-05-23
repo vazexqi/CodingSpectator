@@ -102,6 +102,9 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/constrain
 # For capturing change method signature
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/ChangeSignatureProcessor.java
 
+# For capturing introduce parameter object
+ui/org/eclipse/jdt/internal/ui/actions/IntroduceParameterObjectAction.java
+
 Added Files
 ===========
 
