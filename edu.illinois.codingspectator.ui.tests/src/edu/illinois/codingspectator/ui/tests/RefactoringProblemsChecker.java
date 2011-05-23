@@ -20,7 +20,7 @@ import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProble
  * @author Balaji Ambresh Rajkumar
  * 
  */
-public class RefactoringProblemsChecker implements LogChecker {
+public class RefactoringProblemsChecker extends AbstractLogChecker {
 
 	private final EFSFile expectedLogFile;
 
@@ -31,6 +31,7 @@ public class RefactoringProblemsChecker implements LogChecker {
 		this.actualLogFile= new EFSFile(RefactoringLog.getRefactoringStorageLocation("refactorings").append(ProblemChanges.REFACTORING_PROBLEMS_LOG));
 	}
 
+	@Override
 	public void assertLogIsEmpty() {
 		assertFalse(actualLogFile.exists());
 	}
@@ -39,20 +40,28 @@ public class RefactoringProblemsChecker implements LogChecker {
 		return new RefactoringProblemsLogDeserializer(false).deserializeRefactoringProblemsLog(refactoringLogPath.toOSString());
 	}
 
+	@Override
 	public void assertMatch() throws RefactoringProblemsParserException {
 		List<ProblemChanges> expectedProblems= getProblemChanges(expectedLogFile.getPath());
 		List<ProblemChanges> actualProblems= getProblemChanges(actualLogFile.getPath());
 		assertEquals(expectedProblems, actualProblems);
 	}
 
+	@Override
 	public void clean() throws CoreException {
 		actualLogFile.delete();
 	}
 
-	public void generateExpectedLog() throws CoreException {
+	@Override
+	public void copyActualLogsAsExpectedLogs() throws CoreException {
 		if (actualLogFile.exists() && !expectedLogFile.exists()) {
 			actualLogFile.copyTo(expectedLogFile);
 		}
+	}
+
+	@Override
+	protected void deleteExpectedLogs() throws CoreException {
+		expectedLogFile.delete();
 	}
 
 }

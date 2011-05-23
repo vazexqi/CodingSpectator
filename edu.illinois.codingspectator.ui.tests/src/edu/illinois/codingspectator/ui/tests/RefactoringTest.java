@@ -109,17 +109,16 @@ public abstract class RefactoringTest {
 		}
 	}
 
-	protected void doExecuteRefactoring() throws Exception {
-	}
+	abstract protected void doExecuteRefactoring() throws Exception;
 
 	protected void printMessage(String message) {
 		System.err.println(getClass() + ": " + message);
 	}
 
-	protected void doGenerateExpectedFiles() throws CoreException {
-		if (RunningModes.shouldGenerateExpectedFiles()) {
+	protected void doGenerateExpectedFiles() throws Exception {
+		if (RunningModes.shouldGenerateExpectedFiles() || RunningModes.shouldOverwriteExpectedFiles()) {
 			for (LogChecker logChecker : getAllLogCheckers()) {
-				logChecker.generateExpectedLog();
+				logChecker.generateExpectedLog(RunningModes.shouldOverwriteExpectedFiles());
 			}
 		}
 	}

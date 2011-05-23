@@ -94,7 +94,7 @@ public class RefactoringLog {
 		return historyFolder.exists();
 	}
 
-	public void clean() throws CoreException {
+	public void delete() throws CoreException {
 		historyFolder.delete();
 	}
 

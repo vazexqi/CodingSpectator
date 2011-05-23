@@ -18,6 +18,6 @@ public interface LogChecker {
 
 	void clean() throws CoreException;
 
-	void generateExpectedLog() throws CoreException;
+	void generateExpectedLog(boolean overwrite) throws Exception;
 
 }
