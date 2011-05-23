@@ -4,7 +4,6 @@
 package edu.illinois.codingspectator.ui.tests.usesupertype;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.junit.Ignore;
 
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
@@ -13,7 +12,6 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author Mohsen Vakilian
  * @author nchen
  */
-@Ignore("See issue #202.")
 public class T01 extends RefactoringTest {
 
 	@Override
