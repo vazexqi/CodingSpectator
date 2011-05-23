@@ -40,7 +40,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
-import org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
 import org.eclipse.jdt.core.Flags;
@@ -133,6 +132,8 @@ import org.eclipse.jdt.internal.corext.refactoring.base.JavaStringStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.RefactoringStatusCodes;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchableRefactoringProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateMethodCreator;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.rename.MethodChecks;
@@ -155,8 +156,12 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-
-public class ChangeSignatureProcessor extends RefactoringProcessor implements IDelegateUpdating {
+/**
+ * 
+ * @author Mohsen Vakilian - Instrumented this class to capture the refactoring.
+ * 
+ */
+public class ChangeSignatureProcessor extends WatchableRefactoringProcessor implements IDelegateUpdating, IWatchedJavaProcessor {
 
 	private static final String ATTRIBUTE_RETURN= "return"; //$NON-NLS-1$
 
@@ -2850,4 +2855,17 @@ public class ChangeSignatureProcessor extends RefactoringProcessor implements ID
 		String[] affectedNatures= JavaProcessors.computeAffectedNatures(fMethod);
 		return JavaParticipantManager.loadChangeMethodSignatureParticipants(status, this, fMethod, getParticipantArguments(), null, affectedNatures, sharedParticipants);
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.CHANGE_METHOD_SIGNATURE;
+	}
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createDescriptor();
+	}
+
 }
