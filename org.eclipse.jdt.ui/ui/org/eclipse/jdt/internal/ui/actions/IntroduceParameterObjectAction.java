@@ -40,6 +40,7 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the compilation unit editor
 	 */
 	public IntroduceParameterObjectAction(JavaEditor editor) {
@@ -50,7 +51,7 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 
 	/**
 	 * Creates a new <code>IntroduceIndirectionAction</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public IntroduceParameterObjectAction(IWorkbenchSite site) {
@@ -101,7 +102,7 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 		try {
 			run(getSingleSelectedMethod(selection));
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title,	ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
+			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
 		}
 	}
 
@@ -112,7 +113,7 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 		try {
 			run(getSingleSelectedMethod(selection));
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title,	ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
+			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
 		}
 	}
 
@@ -125,9 +126,9 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 			if (!(elements[0] instanceof IMethod))
 				return;
 
-			run((IMethod) elements[0]);
+			run((IMethod)elements[0]);
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title,	ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
+			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
 		}
 	}
 
@@ -160,13 +161,13 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 			return null;
 
 		if (elements.length == 1 && elements[0] instanceof IMethod) {
-			return (IMethod) elements[0];
+			return (IMethod)elements[0];
 		} else {
 			IJavaElement elementAt= SelectionConverter.getInputAsCompilationUnit(fEditor).getElementAt(selection.getOffset());
 			if (!(elementAt instanceof IMethod))
 				return null;
 
-			return (IMethod) elementAt;
+			return (IMethod)elementAt;
 		}
 	}
 }
