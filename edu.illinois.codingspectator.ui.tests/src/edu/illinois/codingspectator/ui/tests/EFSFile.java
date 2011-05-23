@@ -49,4 +49,12 @@ public class EFSFile {
 		return new EFSFile(path.append(pathElement));
 	}
 
+	public void copyTo(EFSFile destination) throws CoreException {
+		getFileStore().copy(destination.getFileStore(), EFS.OVERWRITE, null);
+	}
+
+	public void mkdir() throws CoreException {
+		getFileStore().mkdir(EFS.NONE, null);
+	}
+
 }
