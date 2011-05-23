@@ -47,7 +47,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.codingspectator.RenameUnknow
 /**
  * Internal factory for Java refactoring signature descriptors.
  * 
- * @author Mohsen Vakilian, nchen - Added factory methods for InlineDescriptor.
+ * @author Mohsen Vakilian, nchen - Added factory methods for new kinds of descriptors.
  * 
  * @since 3.5
  */

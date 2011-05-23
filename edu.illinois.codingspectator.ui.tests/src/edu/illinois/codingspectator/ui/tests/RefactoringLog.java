@@ -13,10 +13,11 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 import org.eclipse.ltk.core.refactoring.history.RefactoringHistory;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
+import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
+import org.eclipse.ltk.internal.core.refactoring.history.RefactoringContributionManager;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryManager;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
@@ -102,15 +103,16 @@ public class RefactoringLog {
 		return REFACTORING_HISTORY_LOCATION.append(directory);
 	}
 
-	public Collection<JavaRefactoringDescriptor> getRefactoringDescriptors(String javaProjectName) {
+	public Collection<CapturedRefactoringDescriptor> getRefactoringDescriptors(String javaProjectName) {
+		RefactoringContributionManager.getInstance().setMustCreateDefaultRefactoringDescriptor(true);
 		RefactoringHistoryManager refactoringHistoryManager= new RefactoringHistoryManager(historyFolder.append(javaProjectName).getFileStore(), javaProjectName);
 		RefactoringHistory refactoringHistory= refactoringHistoryManager.readRefactoringHistory(0, Long.MAX_VALUE, new NullProgressMonitor());
 		RefactoringDescriptorProxy[] refactoringDescriptorProxies= refactoringHistory.getDescriptors();
-		Collection<JavaRefactoringDescriptor> refactoringDescriptors= new ArrayList<JavaRefactoringDescriptor>();
+		Collection<CapturedRefactoringDescriptor> refactoringDescriptors= new ArrayList<CapturedRefactoringDescriptor>();
 		for (RefactoringDescriptorProxy refactoringDescriptorProxy : refactoringDescriptorProxies) {
-			JavaRefactoringDescriptor javaRefactoringDescriptor= (JavaRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor());
-			if (javaRefactoringDescriptor != null) {
-				refactoringDescriptors.add(javaRefactoringDescriptor);
+			DefaultRefactoringDescriptor refactoringDescriptor= (DefaultRefactoringDescriptor)refactoringHistoryManager.requestDescriptor(refactoringDescriptorProxy, new NullProgressMonitor());
+			if (refactoringDescriptor != null) {
+				refactoringDescriptors.add(new CapturedRefactoringDescriptor(refactoringDescriptor));
 			}
 		}
 		return refactoringDescriptors;

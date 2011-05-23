@@ -30,6 +30,10 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 /**
  * Contribution manager for refactorings.
  * 
+ * @author Mohsen Vakilian - Added a flag to decide whether to create instances of
+ *         DefaultRefactoringDescriptor or return more specific descriptors created by refactoring
+ *         contributions.
+ * 
  * @since 3.2
  */
 public final class RefactoringContributionManager implements IRegistryChangeListener {
@@ -103,9 +107,13 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 		Assert.isNotNull(description);
 		Assert.isNotNull(arguments);
 		Assert.isLegal(flags >= RefactoringDescriptor.NONE);
-		final RefactoringContribution contribution= getRefactoringContribution(id);
-		if (contribution != null)
-			return contribution.createDescriptor(id, project, description, comment, arguments, flags);
+
+		//CODINGSPECTATOR: Surrounded the statements by an if statement.
+		if (!isMustCreateDefaultRefactoringDescriptor()) {
+			final RefactoringContribution contribution= getRefactoringContribution(id);
+			if (contribution != null)
+				return contribution.createDescriptor(id, project, description, comment, arguments, flags);
+		}
 		return new DefaultRefactoringDescriptor(id, project, description, comment, arguments, flags);
 	}
 
@@ -189,4 +197,19 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 		fContributionCache= null;
 		fIdCache= null;
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private boolean mustCreateDefaultRefactoringDescriptor= false;
+
+	public boolean isMustCreateDefaultRefactoringDescriptor() {
+		return mustCreateDefaultRefactoringDescriptor;
+	}
+
+	public void setMustCreateDefaultRefactoringDescriptor(boolean mustCreateDefaultRefactoringDescriptor) {
+		this.mustCreateDefaultRefactoringDescriptor= mustCreateDefaultRefactoringDescriptor;
+	}
+
 }

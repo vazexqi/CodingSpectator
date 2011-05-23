@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.corext.refactoring.structure.PullUpRefactoringPr
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeRefactoringProcessor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
+import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
 
 /**
  * 
@@ -30,9 +31,9 @@ import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 @SuppressWarnings("restriction")
 public class CapturedRefactoringDescriptor {
 
-	private JavaRefactoringDescriptor descriptor;
+	private DefaultRefactoringDescriptor descriptor;
 
-	public CapturedRefactoringDescriptor(JavaRefactoringDescriptor descriptor) {
+	public CapturedRefactoringDescriptor(DefaultRefactoringDescriptor descriptor) {
 		this.descriptor= descriptor;
 	}
 
@@ -74,6 +75,10 @@ public class CapturedRefactoringDescriptor {
 		return descriptor.getTimeStamp();
 	}
 
+	/*
+	 * FIXME: There are a lot of attributes. I think it's better to remove the following getter methods and the changes we've made to the visibility of the corresponding constants.
+	 */
+
 	public String getElement() {
 		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_ELEMENT);
 	}
@@ -82,9 +87,6 @@ public class CapturedRefactoringDescriptor {
 		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_INPUT);
 	}
 
-	/*
-	 * FIXME: Not all tests verify this attribute.
-	 */
 	public String getName() {
 		return getAttribute(JavaRefactoringDescriptor.ATTRIBUTE_NAME);
 	}
@@ -250,7 +252,7 @@ public class CapturedRefactoringDescriptor {
 	public int getTypes() {
 		return Integer.parseInt(getAttribute(ExtractSupertypeProcessor.ATTRIBUTE_TYPES));
 	}
-	
+
 	// Used in ExtractMethodRefactoring.
 	public String getParameter(int index) {
 		return getAttribute(ExtractMethodRefactoring.ATTRIBUTE_PARAMETER + index);
