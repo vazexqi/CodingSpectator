@@ -29,7 +29,11 @@ public class EFSFile {
 		this.path= Path.fromOSString(path);
 	}
 
-	private IFileStore getFileStore() {
+	public IPath getPath() {
+		return path;
+	}
+
+	public IFileStore getFileStore() {
 		return EFS.getLocalFileSystem().getStore(path);
 	}
 

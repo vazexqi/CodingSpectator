@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -34,7 +32,7 @@ public class RefactoringLog {
 		ECLIPSE, PERFORMED, CANCELLED, UNAVAILABLE
 	}
 
-	IFileStore fileStore;
+	EFSFile historyFolder;
 
 	private static final String ECLIPSE_REFACTORINGS= "eclipse";
 
@@ -74,7 +72,7 @@ public class RefactoringLog {
 	}
 
 	public RefactoringLog(IPath pathToHistoryFolder) {
-		fileStore= EFS.getLocalFileSystem().getStore(pathToHistoryFolder);
+		historyFolder= new EFSFile(pathToHistoryFolder);
 	}
 
 	public RefactoringLog(LogType logType) {
@@ -83,15 +81,15 @@ public class RefactoringLog {
 	}
 
 	public String getPathToRefactoringHistoryFolder() {
-		return fileStore.toURI().getPath();
+		return historyFolder.getPath().toOSString();
 	}
 
 	public boolean exists() {
-		return fileStore.fetchInfo().exists();
+		return historyFolder.exists();
 	}
 
 	public void clean() throws CoreException {
-		fileStore.delete(EFS.NONE, null);
+		historyFolder.delete();
 	}
 
 	public static IPath getRefactoringStorageLocation(String directory) {
@@ -99,7 +97,7 @@ public class RefactoringLog {
 	}
 
 	public Collection<JavaRefactoringDescriptor> getRefactoringDescriptors(String javaProjectName) {
-		RefactoringHistoryManager refactoringHistoryManager= new RefactoringHistoryManager(fileStore.getChild(javaProjectName), javaProjectName);
+		RefactoringHistoryManager refactoringHistoryManager= new RefactoringHistoryManager(historyFolder.append(javaProjectName).getFileStore(), javaProjectName);
 		RefactoringHistory refactoringHistory= refactoringHistoryManager.readRefactoringHistory(0, Long.MAX_VALUE, new NullProgressMonitor());
 		RefactoringDescriptorProxy[] refactoringDescriptorProxies= refactoringHistory.getDescriptors();
 		Collection<JavaRefactoringDescriptor> refactoringDescriptors= new ArrayList<JavaRefactoringDescriptor>();
