@@ -1,0 +1,12 @@
+<problem-changes refactoring-timestamp="1306237015815">
+	<after-minus-before timestamp="1306237015893">
+		<problem id="67109219" message="Duplicate method m1(M1Parameter) in type D" arguments="[m1, edu.illinois.codingspectator.D, edu.illinois.codingspectator.M1Parameter]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidIntroduceParameterObjectTestFile.java" line="24" severity="1" endPosition="471" startPosition="441">
+		</problem>
+		<problem id="67109219" message="Duplicate method m1(M1Parameter) in type D" arguments="[m1, edu.illinois.codingspectator.D, edu.illinois.codingspectator.M1Parameter]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidIntroduceParameterObjectTestFile.java" line="20" severity="1" endPosition="382" startPosition="352">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306237015576">
+		<problem id="16777218" message="M1Parameter cannot be resolved to a type" arguments="[M1Parameter]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidIntroduceParameterObjectTestFile.java" line="24" severity="1" endPosition="414" startPosition="404">
+		</problem>
+	</before-minus-after>
+</problem-changes>
