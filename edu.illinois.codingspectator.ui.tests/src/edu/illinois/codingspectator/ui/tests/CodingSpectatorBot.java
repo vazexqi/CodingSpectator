@@ -34,6 +34,8 @@ public class CodingSpectatorBot {
 
 	public static final String CONTINUE_LABEL= "Continue";
 
+	public static final String PREVIEW_LABEL= "Preview >";
+
 	static final String PLUGIN_NAME= "edu.illinois.codingspectator.ui.tests";
 
 	public static final String PACKAGE_NAME= "edu.illinois.codingspectator";
