@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.ui.tests.changemethodsignature;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -25,7 +26,7 @@ public class T01 extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator", getTestFileFullName(), "C", "m1(Object) : void");
+		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), "C", "m1(Object) : void");
 		bot.invokeRefactoringFromMenu(MENU_ITEM);
 		bot.clickButtons("Add", IDialogConstants.OK_LABEL);
 	}

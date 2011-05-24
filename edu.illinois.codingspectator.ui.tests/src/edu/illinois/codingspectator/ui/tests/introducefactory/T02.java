@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.ui.tests.introducefactory;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -25,7 +26,7 @@ public class T02 extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator", getTestFileFullName(), getTestFileName(), "IntroduceFactoryTestFile(Object)");
+		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getTestFileName(), "IntroduceFactoryTestFile(Object)");
 		bot.invokeRefactoringFromMenu(MENU_ITEM);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}

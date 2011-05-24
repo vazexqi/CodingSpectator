@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.ui.tests.move;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -20,7 +21,7 @@ public class T16 extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator", getTestFileFullName());
+		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName());
 		bot.invokeRefactoringFromMenu("Move...");
 		bot.clickButtons("Create Package...");
 		bot.fillTextField("Name:", "edu.illinois.codingspectator.subpackage");
