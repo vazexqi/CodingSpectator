@@ -9,13 +9,13 @@ class C {
     }
     
     void m2() {
-    	m1(new Object());
+        m1(new Object());
     }
 
 }
 
 class D extends C {
-	
+
     @Override
     void m1(Object o) {
         super.m1(o);
