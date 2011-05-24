@@ -28,7 +28,7 @@ public class RefactoringLogChecker extends AbstractLogChecker {
 
 	@Override
 	public void assertLogIsEmpty() {
-		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualRefactoringLog.exists());
+		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualLogExists());
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class RefactoringLogChecker extends AbstractLogChecker {
 
 	@Override
 	protected void copyActualLogsAsExpectedLogs() throws CoreException {
-		if (actualRefactoringLog.exists() && !expectedRefactoringLog.exists()) {
+		if (actualLogExists() && !expectedLogExists()) {
 			actualRefactoringLog.copy(expectedRefactoringLog);
 		}
 	}
@@ -53,6 +53,16 @@ public class RefactoringLogChecker extends AbstractLogChecker {
 	@Override
 	protected void deleteExpectedLogs() throws CoreException {
 		expectedRefactoringLog.delete();
+	}
+
+	@Override
+	protected boolean actualLogExists() {
+		return actualRefactoringLog.exists();
+	}
+
+	@Override
+	protected boolean expectedLogExists() {
+		return expectedRefactoringLog.exists();
 	}
 
 }

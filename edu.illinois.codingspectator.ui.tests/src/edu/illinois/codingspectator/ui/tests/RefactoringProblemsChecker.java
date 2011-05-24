@@ -33,7 +33,7 @@ public class RefactoringProblemsChecker extends AbstractLogChecker {
 
 	@Override
 	public void assertLogIsEmpty() {
-		assertFalse(actualLogFile.exists());
+		assertFalse(actualLogExists());
 	}
 
 	private List<ProblemChanges> getProblemChanges(IPath refactoringLogPath) throws RefactoringProblemsParserException {
@@ -54,7 +54,7 @@ public class RefactoringProblemsChecker extends AbstractLogChecker {
 
 	@Override
 	public void copyActualLogsAsExpectedLogs() throws CoreException {
-		if (actualLogFile.exists() && !expectedLogFile.exists()) {
+		if (actualLogExists() && !expectedLogExists()) {
 			actualLogFile.copyTo(expectedLogFile);
 		}
 	}
@@ -62,6 +62,16 @@ public class RefactoringProblemsChecker extends AbstractLogChecker {
 	@Override
 	protected void deleteExpectedLogs() throws CoreException {
 		expectedLogFile.delete();
+	}
+
+	@Override
+	protected boolean actualLogExists() {
+		return actualLogFile.exists();
+	}
+
+	@Override
+	protected boolean expectedLogExists() {
+		return expectedLogFile.exists();
 	}
 
 }
