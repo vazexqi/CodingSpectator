@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" code-snippet="/**&#x0A; * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.&#x0A; */&#x0A;package edu.illinois.codingspectator;&#x0A;&#x0A;class C {&#x0A;&#x0A;    void m1(Object o1, Object o2) {&#x0A;    }&#x0A;    &#x0A;    void m2() {&#x0A;        m1(new Object(), new Object());&#x0A;    }&#x0A;&#x0A;}&#x0A;&#x0A;class D extends C {&#x0A;&#x09;&#x0A;    @Override&#x0A;    void m1(Object o1, Object o2) {&#x0A;        super.m1(o1, o2);&#x0A;    }&#x0A;    &#x0A;}&#x0A;" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.introduce.parameter.object" selection-in-code-snippet="290 1" selection-text="D" stamp="1306235555351" status="Can not run the refactoring on the current selection"/>
+</session>
