@@ -5,7 +5,6 @@ package edu.illinois.codingspectator.ui.tests.rename;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
-import edu.illinois.codingspectator.ui.tests.RefactoringLog;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -14,8 +13,6 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author nchen
  */
 public class T07 extends RefactoringTest {
-
-	RefactoringLog refactoringLog= new RefactoringLog(RefactoringLog.LogType.CANCELLED);
 
 	@Override
 	protected String getTestFileName() {
