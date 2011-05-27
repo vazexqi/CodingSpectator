@@ -1,0 +1,47 @@
+status,deprecate,invoked-by-quickassist,navigation-history,invoked-through-structured-selection,captured-by-codingspectator,delegate,destination,selection-in-code-snippet,selection-text,version,code-snippet,references,input,name,policy,element1,members
+"<OK
+>",,false,"{[Textual Move,BEGIN_REFACTORING,1306524857276],[PreviewPage,Previe&w >,1306524860849],[PreviewPage,Cancel,1306524862574],}",false,true,,/src<code{D.java,38 0,,1.0,"package code;
+
+public class C {
+
+	int a = 1;
+	
+	public int m() {
+		return a;
+	}
+	
+}
+",,,,org.eclipse.jdt.ui.moveMembers,/src<code{C.java[C^a,1
+"<OK
+>",,false,"{[Textual Move,BEGIN_REFACTORING,1306524878385],[MoveInputPage,OK,1306524880077],}",false,true,,/src<code{D.java,38 0,,1.0,"package code;
+
+public class C {
+
+	int a = 1;
+	
+	public int n() {
+		return a;
+	}
+	
+}
+",,,,org.eclipse.jdt.ui.moveMembers,/src<code{C.java[C^a,1
+"<OK
+>",false,false,,false,true,false,,59 0,,1.0,"package code;
+
+public class C {
+
+	int a = 1;
+	
+	public int m() {
+		return a;
+	}
+	
+}
+",true,/src<code{C.java[C~m,n,,,
+"Operation unavailable on the current selection.
+Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",,,,,true,,,22 5,class,,"package code;
+
+public class C {
+
+}
+",,,,,,

@@ -119,6 +119,14 @@ public class RefactoringLog {
 		return refactoringDescriptors;
 	}
 
+	public Collection<CapturedRefactoringDescriptor> getRefactoringDescriptors() throws CoreException {
+		Collection<CapturedRefactoringDescriptor> refactoringDescriptors= new ArrayList<CapturedRefactoringDescriptor>();
+		for (String projectName : historyFolder.childNames()) {
+			refactoringDescriptors.addAll(getRefactoringDescriptors(projectName));
+		}
+		return refactoringDescriptors;
+	}
+
 	public void copy(RefactoringLog destination) throws CoreException {
 		historyFolder.copyTo(destination.historyFolder);
 	}

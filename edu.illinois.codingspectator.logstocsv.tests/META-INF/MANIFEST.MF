@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingspectator.logstocsv.tests
+Bundle-SymbolicName: edu.illinois.codingspectator.logstocsv.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: University of Illinois
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.junit,
+ edu.illinois.codingspectator.logstocsv,
+ org.eclipse.core.runtime,
+ edu.illinois.codingspectator.efs

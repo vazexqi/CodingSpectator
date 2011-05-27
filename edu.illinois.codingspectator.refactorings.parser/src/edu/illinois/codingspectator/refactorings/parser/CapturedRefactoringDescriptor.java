@@ -38,7 +38,7 @@ public class CapturedRefactoringDescriptor {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private Map getArguments() {
+	public Map getArguments() {
 		return descriptor.getArguments();
 	}
 

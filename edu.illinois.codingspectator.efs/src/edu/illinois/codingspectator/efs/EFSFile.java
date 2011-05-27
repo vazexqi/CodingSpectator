@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.efs;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +48,15 @@ public class EFSFile {
 
 	public List<String> childNames() throws CoreException {
 		return Arrays.asList(getFileStore().childNames(EFS.NONE, null));
+	}
+
+	public List<EFSFile> children() throws CoreException {
+		List<String> childNames= childNames();
+		List<EFSFile> childEFSFiles= new ArrayList<EFSFile>();
+		for (String childName : childNames) {
+			childEFSFiles.add(new EFSFile(getPath().append(childName)));
+		}
+		return childEFSFiles;
 	}
 
 	public EFSFile append(String pathElement) {
