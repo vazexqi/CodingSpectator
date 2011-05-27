@@ -22,6 +22,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.osgi.framework.Bundle;
 
+import edu.illinois.codingspectator.efs.EFSFile;
+
 /**
  * 
  * @author Mohsen Vakilian

@@ -15,6 +15,8 @@ import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory;
 import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory.ParseException;
 import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 
+import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
+
 /**
  * @author Mohsen Vakilian
  * @author Balaji Ambresh Rajkumar

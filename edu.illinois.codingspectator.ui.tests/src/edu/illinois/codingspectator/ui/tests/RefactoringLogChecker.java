@@ -7,6 +7,9 @@ import static org.junit.Assert.assertFalse;
 
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
+
 /**
  * 
  * @author Mohsen Vakilian

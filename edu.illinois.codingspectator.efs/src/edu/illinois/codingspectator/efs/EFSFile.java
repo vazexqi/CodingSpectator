@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests;
+package edu.illinois.codingspectator.efs;
 
 import java.util.Arrays;
 import java.util.List;

@@ -11,9 +11,11 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 
+import edu.illinois.codingspectator.efs.EFSFile;
 import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProblemsLogDeserializer;
 import edu.illinois.codingspectator.refactoringproblems.parser.RefactoringProblemsParserException;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
 
 /**
  * @author Mohsen Vakilian

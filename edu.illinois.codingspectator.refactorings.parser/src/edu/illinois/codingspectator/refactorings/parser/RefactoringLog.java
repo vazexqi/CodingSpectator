@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.ui.tests;
+package edu.illinois.codingspectator.refactorings.parser;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +21,7 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringContribution
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryManager;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
+import edu.illinois.codingspectator.efs.EFSFile;
 
 /**
  * 

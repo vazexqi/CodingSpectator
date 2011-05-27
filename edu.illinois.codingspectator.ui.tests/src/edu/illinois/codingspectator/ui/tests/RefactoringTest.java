@@ -17,7 +17,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
+import edu.illinois.codingspectator.efs.EFSFile;
 import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
 
 /**
  * The methods marked with @Test annotation are final because if you override them, the order in

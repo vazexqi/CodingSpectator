@@ -10,6 +10,9 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.Path;
 
+import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
+
 /**
  * 
  * @author Mohsen Vakilian
