@@ -22,10 +22,10 @@ public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnip
 
 	private IJavaElement selectedElement;
 
-	public StructuredSelectionCodeSnippetInformationExtractor(ITypeRoot typeRoot, IJavaElement aSelectedElement, String selection) {
+	public StructuredSelectionCodeSnippetInformationExtractor(ITypeRoot typeRoot, IJavaElement selectedElement, String selectedText) {
 		this.typeRoot= typeRoot;
-		this.selectedElement= aSelectedElement;
-		this.selection= selection;
+		this.selectedElement= selectedElement;
+		this.selection= selectedText;
 	}
 
 	public CodeSnippetInformation extractCodeSnippetInformation() {
@@ -41,10 +41,11 @@ public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnip
 	 * @see org.eclipse.jdt.internal.corext.refactoring.structure.ASTNodeSearchUtil#getDeclarationNodes(IJavaElement,
 	 *      CompilationUnit)
 	 * 
-	 * @param javaElement
-	 * @return
 	 */
 	private boolean isSelectedElementInsideACompilationUnit() {
+		if (selectedElement == null) {
+			return false;
+		}
 		switch (selectedElement.getElementType()) {
 			case IJavaElement.FIELD:
 			case IJavaElement.IMPORT_CONTAINER:
@@ -60,6 +61,9 @@ public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnip
 	}
 
 	protected ASTNode findTargetNode() throws CoreException {
+		if (selectedElement == null) {
+			return null;
+		}
 		ASTNode[] declarationNodes= null;
 		declarationNodes= ASTNodeSearchUtil.getDeclarationNodes(selectedElement, getCompilationUnitASTFromTypeRoot());
 		if (declarationNodes == null || declarationNodes.length == 0) {

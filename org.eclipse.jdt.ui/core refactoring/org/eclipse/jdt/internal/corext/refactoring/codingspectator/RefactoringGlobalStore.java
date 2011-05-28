@@ -61,7 +61,7 @@ public class RefactoringGlobalStore implements IClearable {
 	 * This method specifies an object invariant.
 	 */
 	private void assertOnlyOneKindOfSelectionExists() {
-		if (doesSelectionInEditorExist() && doesStructuredSelectionExist()) {
+		if (doesSelectionInEditorExist() && isInvokedThroughStructuredSelection()) {
 			JavaPlugin.log(new AssertionError("Capturing both structured and textual selections for a refactoring is unexpected.")); //$NON-NLS-1$
 		}
 	}
@@ -84,9 +84,12 @@ public class RefactoringGlobalStore implements IClearable {
 	}
 
 	public void setStructuredSelection(IStructuredSelection selection) {
-		selectedElement= (IJavaElement)selection.getFirstElement();
+		Object firstSelectedElement= selection.getFirstElement();
+		if (firstSelectedElement instanceof IJavaElement) {
+			selectedElement= (IJavaElement)firstSelectedElement;
+			selectedTypeRoot= (ITypeRoot)selectedElement.getAncestor(IJavaElement.COMPILATION_UNIT);
+		}
 		selectedElementsText= selection.toString();
-		selectedTypeRoot= (ITypeRoot)selectedElement.getAncestor(IJavaElement.COMPILATION_UNIT);
 		setInvokedThroughStructuredSelection();
 		assertOnlyOneKindOfSelectionExists();
 	}
@@ -97,10 +100,6 @@ public class RefactoringGlobalStore implements IClearable {
 
 	public boolean isInvokedThroughStructuredSelection() {
 		return invokedThroughStructuredSelection;
-	}
-
-	public boolean doesStructuredSelectionExist() {
-		return selectedElement != null && selectedElementsText != null;
 	}
 
 	public IJavaElement getSelectedJavaElement() {

@@ -17,7 +17,7 @@ public class CodeSnippetInformationFactory {
 		}
 		if (store.isInvokedThroughStructuredSelection()) {
 			try {
-				if (store.doesStructuredSelectionExist()) {
+				if (store.isInvokedThroughStructuredSelection()) {
 					return new StructuredSelectionCodeSnippetInformationExtractor(store.getSelectedTypeRoot(), store.getSelectedJavaElement(), store.getSelectedElementsText());
 				} else {
 					return new NullCodeSnippetInformationExtractor();
