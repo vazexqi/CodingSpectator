@@ -18,14 +18,6 @@ import java.io.IOException;
  */
 public class FileUtilities {
 
-	public static void append(File file, String content) throws IOException {
-		FileWriter fstream= new FileWriter(file, true);
-		BufferedWriter out= new BufferedWriter(fstream);
-		out.write(content);
-		out.newLine();
-		out.close();
-	}
-
 	public static void append(File target, File source) throws IOException {
 		FileWriter targetWriter= new FileWriter(target, true);
 		FileReader sourceReader= new FileReader(source);
@@ -46,13 +38,4 @@ public class FileUtilities {
 		in.close();
 	}
 
-	public static File createFile(String path) throws IOException {
-		File file= new File(path);
-		if (file.exists()) {
-			file.delete();
-		}
-		file.getParentFile().mkdirs();
-		file.createNewFile();
-		return file;
-	}
 }

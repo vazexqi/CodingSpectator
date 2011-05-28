@@ -3,9 +3,7 @@
  */
 package edu.illinois.codingspectator.mergehistories.tests;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import junit.framework.Assert;
@@ -14,6 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.illinois.codingspectator.file.utils.FileUtils;
 import edu.illinois.codingspectator.mergehistories.LogConsolidator;
 
 /**
@@ -22,7 +21,7 @@ import edu.illinois.codingspectator.mergehistories.LogConsolidator;
  * @author Mohsen Vakilian
  * 
  */
-public class TestDataAnalysis {
+public class TestHistoryMerger {
 
 	String test01Dir= LogConsolidator.join("resources", "01");
 
@@ -71,22 +70,7 @@ public class TestDataAnalysis {
 	}
 
 	private void compareFiles(String expectedFilePath, String actualFilePath) throws IOException {
-		Assert.assertEquals(getContents(expectedFilePath), getContents(actualFilePath));
+		Assert.assertEquals(FileUtils.getContents(expectedFilePath), FileUtils.getContents(actualFilePath));
 	}
-
-	private String getContents(String filePath) throws IOException {
-		BufferedReader fileReader= new BufferedReader(new FileReader(filePath));
-		StringBuilder sb= new StringBuilder();
-		String line;
-
-		while ((line= fileReader.readLine()) != null) {
-			sb.append(line);
-			sb.append("\n");
-		}
-
-		fileReader.close();
-		return sb.toString();
-	}
-
 
 }

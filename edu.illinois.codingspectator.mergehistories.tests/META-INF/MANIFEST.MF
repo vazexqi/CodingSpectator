@@ -4,7 +4,9 @@ Bundle-Name: edu.illinois.codingspectator.mergehistories.tests
 Bundle-SymbolicName: edu.illinois.codingspectator.mergehistories.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: University of Illinois
-Require-Bundle: edu.illinois.codingspectator.mergehistories
+Require-Bundle: edu.illinois.codingspectator.mergehistories,
+ edu.illinois.codingspectator.file.utils,
+ org.junit4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.mergehistories.tests

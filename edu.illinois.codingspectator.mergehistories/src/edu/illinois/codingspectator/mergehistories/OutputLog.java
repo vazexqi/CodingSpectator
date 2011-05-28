@@ -6,6 +6,8 @@ package edu.illinois.codingspectator.mergehistories;
 import java.io.File;
 import java.io.IOException;
 
+import edu.illinois.codingspectator.file.utils.FileUtils;
+
 /**
  * 
  * @author Roshanak Zilouchian
@@ -33,16 +35,16 @@ public class OutputLog {
 	}
 
 	public void createLog() throws IOException {
-		outputFile= FileUtilities.createFile(LogConsolidator.join(targetPath, includeDir + ".xml"));
+		outputFile= FileUtils.createFile(LogConsolidator.join(targetPath, includeDir + ".xml"));
 	}
 
 	public void addHeader() throws IOException {
-		FileUtilities.append(outputFile, XML_VERSION_HEADER);
-		FileUtilities.append(outputFile, SESSIONS_START_TAG);
+		FileUtils.append(outputFile, XML_VERSION_HEADER);
+		FileUtils.append(outputFile, SESSIONS_START_TAG);
 	}
 
 	public void addFooter() throws IOException {
-		FileUtilities.append(outputFile, SESSIONS_END_TAG);
+		FileUtils.append(outputFile, SESSIONS_END_TAG);
 	}
 
 	public void addFile(String path) throws IOException {
