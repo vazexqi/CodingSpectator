@@ -105,6 +105,11 @@ public abstract class RefactoringTest {
 		return new Path(RefactoringLogUtils.EXPECTED_DESCRIPTORS).append(getRefactoringKind()).append(getTestName());
 	}
 
+	protected void doAddJavaClass() throws Exception {
+		bot.createANewJavaClass(getProjectName(), getTestFileName());
+		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
+	}
+
 	protected void doLogsShouldBeEmpty() throws CoreException {
 		for (LogChecker logChecker : getLogCheckers()) {
 			logChecker.assertLogIsEmpty();
@@ -147,8 +152,7 @@ public abstract class RefactoringTest {
 	@Test
 	public final void setupProject() throws Exception {
 		bot.createANewJavaProject(getProjectName());
-		bot.createANewJavaClass(getProjectName(), getTestFileName());
-		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
+		doAddJavaClass();
 	}
 
 	@Test
