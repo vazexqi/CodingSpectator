@@ -35,4 +35,9 @@ public class Test01 {
 		//FIXME: Compare the actual and expected log files.
 		csvActualLogFolder.delete();
 	}
+
+	@Test
+	public void run() throws CoreException, IOException {
+		ConvertLogsToCSV.main(new String[] { null, new Path("/path/to/codingspectator/data").toOSString(), new Path("alllogs.csv").toOSString() });
+	}
 }
