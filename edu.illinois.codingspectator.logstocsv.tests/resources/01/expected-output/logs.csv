@@ -1,5 +1,5 @@
-captured-by-codingspectator,code-snippet,codingspectator version,comment,delegate,deprecate,description,destination,element1,flags,human-readable timestamp,id,input,invoked-by-quickassist,invoked-through-structured-selection,members,name,navigation-history,policy,project,refactoring kind,references,selection-in-code-snippet,selection-text,severity level,status,timestamp,username,version,workspace ID
-true,"package code;
+Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator version,comment,delegate,deprecate,description,destination,element1,flags,human-readable timestamp,id,input,invoked-by-quickassist,invoked-through-structured-selection,members,name,navigation-history,policy,project,refactoring kind,references,selection-in-code-snippet,selection-text,severity level,status,timestamp,username,version,workspace ID
+05/27/2011 14:34:22,true,"package code;
 
 public class C {
 
@@ -17,7 +17,7 @@ public class C {
 - Textual move only
 - Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:22 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,"{[Textual Move,BEGIN_REFACTORING,1306524857276],[PreviewPage,Previe&w >,1306524860849],[PreviewPage,Cancel,1306524862574],}",org.eclipse.jdt.ui.moveMembers,Prj,CANCELLED,,38 0,,0,"<OK
 >",1306524862665,username,1.0,00000000-0000-0000-0000-000000000000
-true,"package code;
+05/27/2011 14:34:40,true,"package code;
 
 public class C {
 
@@ -35,7 +35,7 @@ public class C {
 - Textual move only
 - Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:40 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,"{[Textual Move,BEGIN_REFACTORING,1306524878385],[MoveInputPage,OK,1306524880077],}",org.eclipse.jdt.ui.moveMembers,Prj,PERFORMED,,38 0,,0,"<OK
 >",1306524880268,username,1.0,00000000-0000-0000-0000-000000000000
-true,"package code;
+05/27/2011 14:34:30,true,"package code;
 
 public class C {
 
@@ -52,7 +52,7 @@ public class C {
 - Renamed element: 'code.C.n()'
 - Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,false,false,,n,,,Prj,PERFORMED,true,59 0,,0,"<OK
 >",1306524870410,username,1.0,00000000-0000-0000-0000-000000000000
-true,"package code;
+05/27/2011 14:32:41,true,"package code;
 
 public class C {
 

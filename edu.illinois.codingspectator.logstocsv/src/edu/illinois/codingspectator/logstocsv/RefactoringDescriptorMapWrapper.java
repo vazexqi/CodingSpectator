@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.logstocsv;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class RefactoringDescriptorMapWrapper {
 		this.refactoringKind= refactoringKind;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String, String> toMap() {
 		Map<String, String> map= new HashMap<String, String>();
 		map.put("comment", capturedRefactoringDescriptor.getComment());
@@ -43,7 +45,10 @@ public class RefactoringDescriptorMapWrapper {
 		map.put("id", capturedRefactoringDescriptor.getID());
 		map.put("project", capturedRefactoringDescriptor.getProject());
 		map.put("timestamp", String.valueOf(capturedRefactoringDescriptor.getTimestamp()));
-		map.put("human-readable timestamp", new Date(capturedRefactoringDescriptor.getTimestamp()).toString());
+		Date timestampDate= new Date(capturedRefactoringDescriptor.getTimestamp());
+		map.put("human-readable timestamp", timestampDate.toString());
+		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
 		map.putAll(capturedRefactoringDescriptor.getArguments());
 		map.put("username", username);
 		map.put("workspace ID", workspaceID);
