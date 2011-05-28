@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.dataanalysis.tests;
+package edu.illinois.codingspectator.mergehistories.tests;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.illinois.codingspectator.dataanalysis.LogConsolidator;
+import edu.illinois.codingspectator.mergehistories.LogConsolidator;
 
 /**
  * 

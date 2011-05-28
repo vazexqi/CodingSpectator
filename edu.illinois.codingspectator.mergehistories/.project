@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>edu.illinois.codingspectator.dataanalysis</name>
+	<name>edu.illinois.codingspectator.mergehistories</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -11,7 +11,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/edu.illinois.codingspectator.dataanalysis build.xml [Builder].launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/edu.illinois.codingspectator.mergehistories build.xml [Builder].launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
