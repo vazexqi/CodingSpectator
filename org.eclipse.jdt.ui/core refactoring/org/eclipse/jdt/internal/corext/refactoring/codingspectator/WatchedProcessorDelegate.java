@@ -38,7 +38,7 @@ public class WatchedProcessorDelegate implements IWatchedJavaProcessor {
 	}
 
 	public CodeSnippetInformation getCodeSnippetInformation() {
-		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
+		return RefactoringGlobalStore.getInstance().getCodeSnippetInformation();
 	}
 
 	public String getJavaProjectName() {

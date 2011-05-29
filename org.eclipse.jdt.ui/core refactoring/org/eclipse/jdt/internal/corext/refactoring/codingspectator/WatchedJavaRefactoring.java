@@ -55,7 +55,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	private CodeSnippetInformation getCodeSnippetInformation() {
-		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
+		return RefactoringGlobalStore.getInstance().getCodeSnippetInformation();
 	}
 
 	abstract protected String getDescriptorID();
