@@ -1,20 +1,14 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
 import org.eclipse.core.runtime.CoreException;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-import org.eclipse.jdt.internal.corext.refactoring.nls.NLSUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -39,25 +33,26 @@ public abstract class CodeSnippetInformationExtractor {
 
 	protected abstract ASTNode findTargetNode() throws CoreException;
 
-	public String getText(int start, int length) throws CoreException {
-		return getContents().substring(start, start + length);
-	}
-
-	private String getContents() throws CoreException {
-		IResource resource= typeRoot.getResource();
-		if (resource.getType() != IResource.FILE) {
-			throw new IllegalArgumentException("Expected the resource to be a file.");
-		}
-		IFile file= (IFile)resource;
-		String contents= NLSUtil.readString(file.getContents(), file.getCharset());
-		return contents;
-	}
+//	public String getText(int start, int length) throws CoreException {
+//		return getContents().substring(start, start + length);
+//	}
+//
+//	private String getContents() throws CoreException {
+//		IResource resource= typeRoot.getResource();
+//		if (resource.getType() != IResource.FILE) {
+//			throw new IllegalArgumentException("Expected the resource to be a file.");
+//		}
+//		IFile file= (IFile)resource;
+//		String contents= NLSUtil.readString(file.getContents(), file.getCharset());
+//		return contents;
+//	}
 
 	public String getCodeSnippet() {
 		try {
 			ASTNode node= getCodeSnippetNode();
 			if (node != null) {
-				return getText(node.getStartPosition(), node.getLength());
+				return typeRoot.getBuffer().getText(node.getStartPosition(), node.getLength());
+//				return getText(node.getStartPosition(), node.getLength());
 			}
 		} catch (CoreException e) {
 			JavaPlugin.log(e);
@@ -87,12 +82,13 @@ public abstract class CodeSnippetInformationExtractor {
 	}
 
 	protected CompilationUnit getCompilationUnitASTFromTypeRoot() throws CoreException {
-		if (typeRoot instanceof ICompilationUnit) {
-			return new RefactoringASTParser(AST.JLS3).parse(getContents(), (ICompilationUnit)typeRoot, false, false, null);
-		} else if (typeRoot instanceof IClassFile) {
-			return new RefactoringASTParser(AST.JLS3).parse(getContents(), (IClassFile)typeRoot, false, false, null);
-		}
-		throw new IllegalArgumentException("typeRoot was expected to be either ICompilationUnit or IClassFile");
+		return RefactoringASTParser.parseWithASTProvider(typeRoot, false, new NullProgressMonitor());
+//		if (typeRoot instanceof ICompilationUnit) {
+//			return new RefactoringASTParser(AST.JLS3).parse(getContents(), (ICompilationUnit)typeRoot, false, false, null);
+//		} else if (typeRoot instanceof IClassFile) {
+//			return new RefactoringASTParser(AST.JLS3).parse(getContents(), (IClassFile)typeRoot, false, false, null);
+//		}
+//		throw new IllegalArgumentException("typeRoot was expected to be either ICompilationUnit or IClassFile");
 	}
 
 }

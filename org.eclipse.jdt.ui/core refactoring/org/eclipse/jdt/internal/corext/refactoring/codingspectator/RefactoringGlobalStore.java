@@ -4,6 +4,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.codingspectator.IClearable;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
@@ -30,6 +31,8 @@ public class RefactoringGlobalStore implements IClearable {
 	private ITextSelection selectionInEditor;
 
 	private IJavaElement selectedElement;
+
+	private CodeSnippetInformation codeSnippetInformation;
 
 	private String selectedElementsText;
 
@@ -66,9 +69,8 @@ public class RefactoringGlobalStore implements IClearable {
 		}
 	}
 
-	public void setSelectionInEditor(ITextSelection selection) {
+	private void setSelectionInEditor(ITextSelection selection) {
 		selectionInEditor= selection;
-		assertOnlyOneKindOfSelectionExists();
 	}
 
 	public int getSelectionStart() {
@@ -91,6 +93,7 @@ public class RefactoringGlobalStore implements IClearable {
 		}
 		selectedElementsText= selection.toString();
 		setInvokedThroughStructuredSelection();
+		codeSnippetInformation= CodeSnippetInformationFactory.extractCodeSnippetInformation();
 		assertOnlyOneKindOfSelectionExists();
 	}
 
@@ -117,10 +120,16 @@ public class RefactoringGlobalStore implements IClearable {
 	public void setEditorSelectionInfo(ITypeRoot editorInputJavaElement, ITextSelection selection) {
 		setSelectedTypeRoot(editorInputJavaElement);
 		setSelectionInEditor(selection);
+		codeSnippetInformation= CodeSnippetInformationFactory.extractCodeSnippetInformation();
+		assertOnlyOneKindOfSelectionExists();
 	}
 
 	public String getSelectedElementsText() {
 		return selectedElementsText;
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return codeSnippetInformation;
 	}
 
 }

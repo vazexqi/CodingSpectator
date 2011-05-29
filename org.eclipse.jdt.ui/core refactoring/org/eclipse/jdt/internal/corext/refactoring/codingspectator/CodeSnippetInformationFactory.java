@@ -2,8 +2,6 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-
 /**
  * @author Mohsen Vakilian
  * @author nchen
@@ -16,14 +14,9 @@ public class CodeSnippetInformationFactory {
 			return new NullCodeSnippetInformationExtractor();
 		}
 		if (store.isInvokedThroughStructuredSelection()) {
-			try {
-				if (store.isInvokedThroughStructuredSelection()) {
-					return new StructuredSelectionCodeSnippetInformationExtractor(store.getSelectedTypeRoot(), store.getSelectedJavaElement(), store.getSelectedElementsText());
-				} else {
-					return new NullCodeSnippetInformationExtractor();
-				}
-			} catch (ClassCastException e) {
-				JavaPlugin.log(e);
+			if (store.isInvokedThroughStructuredSelection()) {
+				return new StructuredSelectionCodeSnippetInformationExtractor(store.getSelectedTypeRoot(), store.getSelectedJavaElement(), store.getSelectedElementsText());
+			} else {
 				return new NullCodeSnippetInformationExtractor();
 			}
 		} else {
@@ -40,7 +33,12 @@ public class CodeSnippetInformationFactory {
 	}
 
 	public static CodeSnippetInformation extractCodeSnippetInformation() {
-		return extractCodeSnippetInformation(RefactoringGlobalStore.getInstance());
+		RefactoringGlobalStore instance= RefactoringGlobalStore.getInstance();
+		CodeSnippetInformation codeSnippetInformation= instance.getCodeSnippetInformation();
+		if (codeSnippetInformation == null) {
+			codeSnippetInformation= extractCodeSnippetInformation(instance);
+		}
+		return codeSnippetInformation;
 	}
 
 }
