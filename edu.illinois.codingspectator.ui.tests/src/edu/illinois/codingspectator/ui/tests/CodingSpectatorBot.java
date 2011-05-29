@@ -139,11 +139,15 @@ public class CodingSpectatorBot {
 		return tree.select(projectName);
 	}
 
+	public SWTBotEclipseEditor getTextEditor(String editorTitle) {
+		return bot.editorByTitle(editorTitle).toTextEditor();
+	}
+
 	public void prepareJavaTextInEditor(String testInputLocation, String testFileFullName) throws Exception {
 		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
 		String contents= FileUtils.read(bundle.getEntry("test-files/" + testInputLocation + "/" + testFileFullName));
 
-		SWTBotEclipseEditor editor= bot.editorByTitle(testFileFullName).toTextEditor();
+		SWTBotEclipseEditor editor= getTextEditor(testFileFullName);
 		editor.setText(contents);
 		editor.save();
 	}

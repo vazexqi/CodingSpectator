@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Extract local variable &apos;x&apos; from expression &apos;&quot;TestRefactoringOnUnsavedFile&quot;&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Variable name: &apos;x&apos;&#x0A;- Destination method: &apos;edu.illinois.codingspectator.ExtractLocalVariableTestFile.main()&apos;&#x0A;- Variable expression: &apos;&quot;TestRefactoringOnUnsavedFile&quot;&apos;&#x0A;- Replace occurrences of expression with variable" description="Extract local variable &apos;x&apos;" final="false" id="org.eclipse.jdt.ui.extract.temp" input="/src&lt;edu.illinois.codingspectator{ExtractLocalVariableTestFile.java" name="x" replace="true" selection="277 6" stamp="1305896636125" version="1.0"/>
+</session>
