@@ -44,7 +44,7 @@ public abstract class WatchedJavaRefactoring extends Refactoring implements IWat
 	}
 
 	protected String getJavaProjectName() {
-		return RefactoringGlobalStore.getInstance().getSelectedTypeRoot().getJavaProject().getElementName();
+		return RefactoringGlobalStore.getInstance().getProjectName();
 	}
 
 	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {

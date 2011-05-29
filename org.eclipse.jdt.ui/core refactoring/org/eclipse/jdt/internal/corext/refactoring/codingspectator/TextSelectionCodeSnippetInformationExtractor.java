@@ -40,13 +40,8 @@ public class TextSelectionCodeSnippetInformationExtractor extends CodeSnippetInf
 	}
 
 	private String getSelectedText() {
-//		try {
-//			return getText(selectionStart, selectionLength);
-//		} catch (CoreException e) {
-//			JavaPlugin.log(e);
-//		}
 		try {
-			return typeRoot.getBuffer().getText(selectionStart, selectionLength);
+			return getText(selectionStart, selectionLength);
 		} catch (IndexOutOfBoundsException e) {
 			JavaPlugin.log(e);
 		} catch (JavaModelException e) {

@@ -42,7 +42,7 @@ public class WatchedProcessorDelegate implements IWatchedJavaProcessor {
 	}
 
 	public String getJavaProjectName() {
-		return RefactoringGlobalStore.getInstance().getSelectedTypeRoot().getJavaProject().getElementName();
+		return RefactoringGlobalStore.getInstance().getProjectName();
 	}
 
 	public String getDescriptorID() {
