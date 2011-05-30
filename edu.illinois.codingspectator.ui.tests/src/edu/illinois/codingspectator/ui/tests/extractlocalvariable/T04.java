@@ -22,9 +22,11 @@ public class T04 extends RefactoringTest {
 
 	private static final String TEST_FILE_NAME= "ExtractLocalVariableTestFile";
 
+	private static final String INIITIAL_STRING_LITERAL= "\"Test";
+
 	private static final String TEXT_TO_INSERT= "RefactoringOnUnsavedFile";
 
-	private static final int SELECTION_LENGTH= "\"Test\"".length() + TEXT_TO_INSERT.length();
+	private static final String SELECTION= INIITIAL_STRING_LITERAL + TEXT_TO_INSERT + "\"";
 
 	@Override
 	protected String getTestFileName() {
@@ -34,12 +36,24 @@ public class T04 extends RefactoringTest {
 	@Override
 	protected void doExecuteRefactoring() {
 		final SWTBotEclipseEditor textEditor= bot.getTextEditor(getTestFileFullName());
+		bot.getBot().waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				return textEditor.getText().contains(INIITIAL_STRING_LITERAL);
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Failed to set the contents of the editor.";
+			}
+		});
 		textEditor.insertText(8, 32, TEXT_TO_INSERT);
 		bot.getBot().waitUntil(new DefaultCondition() {
 
 			@Override
 			public boolean test() throws Exception {
-				return textEditor.getText().contains(TEXT_TO_INSERT);
+				return textEditor.getText().contains(SELECTION);
 			}
 
 			@Override
@@ -47,7 +61,7 @@ public class T04 extends RefactoringTest {
 				return "Failed to insert text into the editor.";
 			}
 		});
-		bot.selectElementToRefactor(getTestFileFullName(), 8, 27, SELECTION_LENGTH);
+		bot.selectElementToRefactor(getTestFileFullName(), 8, 27, SELECTION.length());
 		bot.invokeRefactoringFromMenu(MENU_ITEM);
 		bot.clickButtons(IDialogConstants.OK_LABEL);
 		textEditor.save();
