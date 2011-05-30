@@ -18,21 +18,21 @@ import org.eclipse.jdt.internal.corext.refactoring.structure.ASTNodeSearchUtil;
  */
 public class StructuredSelectionCodeSnippetInformationExtractor extends CodeSnippetInformationExtractor {
 
-	private String selection;
+	private String selectedText;
 
 	private IJavaElement selectedElement;
 
 	public StructuredSelectionCodeSnippetInformationExtractor(ITypeRoot typeRoot, IJavaElement selectedElement, String selectedText) {
 		this.typeRoot= typeRoot;
 		this.selectedElement= selectedElement;
-		this.selection= selectedText;
+		this.selectedText= selectedText;
 	}
 
 	public CodeSnippetInformation extractCodeSnippetInformation() {
 		if (isSelectedElementInsideACompilationUnit()) {
-			return new CodeSnippetInformation(getCodeSnippet(), selection);
+			return new CodeSnippetInformation(getCodeSnippet(), selectedText);
 		} else {
-			return new CodeSnippetInformation(selection);
+			return new CodeSnippetInformation(selectedText);
 		}
 	}
 
