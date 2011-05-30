@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Message;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.NullLiteral;
@@ -66,13 +67,13 @@ import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceParameterObjectDescriptor;
-import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceParameterObjectDescriptor.Parameter;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
 import org.eclipse.jdt.internal.corext.codemanipulation.ContextSensitiveImportRewriteContext;
@@ -90,10 +91,16 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian - Instrumented this class to capture the refactoring.
+ * 
+ */
 public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor {
 
 	private final class ParameterObjectCreator implements IDefaultValueAdvisor {
-		public Expression createDefaultExpression(List invocationArguments, ParameterInfo addedInfo, List parameterInfos, MethodDeclaration enclosingMethod, boolean isRecursive, CompilationUnitRewrite cuRewrite) {
+		public Expression createDefaultExpression(List invocationArguments, ParameterInfo addedInfo, List parameterInfos, MethodDeclaration enclosingMethod, boolean isRecursive,
+				CompilationUnitRewrite cuRewrite) {
 			final AST ast= cuRewrite.getAST();
 			final ASTRewrite rewrite= cuRewrite.getASTRewrite();
 			if (isRecursive && canReuseParameterObject(invocationArguments, addedInfo, parameterInfos, enclosingMethod)) {
@@ -106,13 +113,13 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			classCreation.setType(fParameterObjectFactory.createType(fCreateAsTopLevel, cuRewrite, startPosition));
 			List constructorArguments= classCreation.arguments();
 			for (Iterator iter= parameterInfos.iterator(); iter.hasNext();) {
-				ParameterInfo pi= (ParameterInfo) iter.next();
+				ParameterInfo pi= (ParameterInfo)iter.next();
 				if (isValidField(pi)) {
 					if (pi.isOldVarargs()) {
 						boolean isLastParameter= !iter.hasNext();
 						constructorArguments.addAll(computeVarargs(invocationArguments, pi, isLastParameter, cuRewrite, context));
 					} else {
-						Expression exp= (Expression) invocationArguments.get(pi.getOldIndex());
+						Expression exp= (Expression)invocationArguments.get(pi.getOldIndex());
 						importNodeTypes(exp, cuRewrite, context);
 						constructorArguments.add(moveNode(exp, rewrite));
 					}
@@ -129,11 +136,11 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			Assert.isNotNull(enclosingMethod);
 			List parameters= enclosingMethod.parameters();
 			for (Iterator iter= parameterInfos.iterator(); iter.hasNext();) {
-				ParameterInfo pi= (ParameterInfo) iter.next();
+				ParameterInfo pi= (ParameterInfo)iter.next();
 				if (isValidField(pi)) {
 					if (!pi.isInlined())
 						return false;
-					ASTNode node= (ASTNode) invocationArguments.get(pi.getOldIndex());
+					ASTNode node= (ASTNode)invocationArguments.get(pi.getOldIndex());
 					if (!isParameter(pi, node, parameters, addedInfo.getNewName())) {
 						return false;
 					}
@@ -146,10 +153,10 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			boolean isEmptyVarArg= varArgPI.getOldIndex() >= invocationArguments.size();
 			ASTRewrite rewrite= cuRewrite.getASTRewrite();
 			AST ast= cuRewrite.getAST();
-			ASTNode lastNode= isEmptyVarArg ? null : (ASTNode) invocationArguments.get(varArgPI.getOldIndex());
+			ASTNode lastNode= isEmptyVarArg ? null : (ASTNode)invocationArguments.get(varArgPI.getOldIndex());
 			List constructorArguments= new ArrayList();
 			if (lastNode instanceof ArrayCreation) {
-				ArrayCreation creation= (ArrayCreation) lastNode;
+				ArrayCreation creation= (ArrayCreation)lastNode;
 				ITypeBinding arrayType= creation.resolveTypeBinding();
 				if (arrayType != null && arrayType.isAssignmentCompatible(varArgPI.getNewTypeBinding())) {
 					constructorArguments.add(moveNode(creation, rewrite));
@@ -159,21 +166,21 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			if (isLastParameter) {
 				// copy all varargs
 				for (int i= varArgPI.getOldIndex(); i < invocationArguments.size(); i++) {
-					ASTNode node= (ASTNode) invocationArguments.get(i);
+					ASTNode node= (ASTNode)invocationArguments.get(i);
 					importNodeTypes(node, cuRewrite, context);
 					constructorArguments.add(moveNode(node, rewrite));
 				}
 			} else { // new signature would be String...args, int
 				if (lastNode instanceof NullLiteral) {
-					NullLiteral nullLiteral= (NullLiteral) lastNode;
+					NullLiteral nullLiteral= (NullLiteral)lastNode;
 					constructorArguments.add(moveNode(nullLiteral, rewrite));
 				} else {
 					ArrayCreation creation= ast.newArrayCreation();
-					creation.setType((ArrayType) importBinding(varArgPI.getNewTypeBinding(), cuRewrite, context));
+					creation.setType((ArrayType)importBinding(varArgPI.getNewTypeBinding(), cuRewrite, context));
 					ArrayInitializer initializer= ast.newArrayInitializer();
 					List expressions= initializer.expressions();
 					for (int i= varArgPI.getOldIndex(); i < invocationArguments.size(); i++) {
-						ASTNode node= (ASTNode) invocationArguments.get(i);
+						ASTNode node= (ASTNode)invocationArguments.get(i);
 						importNodeTypes(node, cuRewrite, context);
 						expressions.add(moveNode(node, rewrite));
 					}
@@ -205,13 +212,13 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 	private boolean isParameter(ParameterInfo pi, ASTNode node, List enclosingMethodParameters, String qualifier) {
 		if (node instanceof Name) {
-			Name name= (Name) node;
+			Name name= (Name)node;
 			IVariableBinding binding= ASTNodes.getVariableBinding(name);
 			if (binding != null && binding.isParameter()) {
 				return binding.getName().equals(getNameInScope(pi, enclosingMethodParameters));
 			} else {
 				if (node instanceof QualifiedName) {
-					QualifiedName qn= (QualifiedName) node;
+					QualifiedName qn= (QualifiedName)node;
 					return qn.getFullyQualifiedName().equals(JavaModelUtil.concatenateName(qualifier, getNameInScope(pi, enclosingMethodParameters)));
 				}
 			}
@@ -234,7 +241,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 				ListRewrite bodyStatements= rewriter.getListRewrite(body, Block.STATEMENTS_PROPERTY);
 				List managedParams= getParameterInfos();
 				for (Iterator iter= managedParams.iterator(); iter.hasNext();) {
-					final ParameterInfo pi= (ParameterInfo) iter.next();
+					final ParameterInfo pi= (ParameterInfo)iter.next();
 					if (isValidField(pi)) {
 						if (isReadOnly(pi, body, parameters, null)) {
 							body.accept(new ASTVisitor(false) {
@@ -262,7 +269,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			IBinding binding= node.resolveBinding();
 			Expression replacementNode= fParameterObjectFactory.createFieldReadAccess(pi, getParameterName(), ast, project, false, null);
 			if (binding instanceof IVariableBinding) {
-				IVariableBinding variable= (IVariableBinding) binding;
+				IVariableBinding variable= (IVariableBinding)binding;
 				if (variable.isParameter() && variable.getName().equals(getNameInScope(pi, enclosingParameters))) {
 					rewriter.replace(node, replacementNode, null);
 				}
@@ -315,7 +322,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 	private boolean fParameterClassCreated= false;
 
-	private List/*<Change>*/ fOtherChanges;
+	private List/*<Change>*/fOtherChanges;
 
 	public IntroduceParameterObjectProcessor(IntroduceParameterObjectDescriptor descriptor) throws JavaModelException {
 		super(descriptor.getMethod());
@@ -345,14 +352,14 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			parameters= IntroduceParameterObjectDescriptor.createParameters(getMethod());
 		Map paramIndex= new HashMap();
 		for (Iterator iter= pis.iterator(); iter.hasNext();) {
-			ParameterInfo pi= (ParameterInfo) iter.next();
+			ParameterInfo pi= (ParameterInfo)iter.next();
 			paramIndex.put(new Integer(pi.getOldIndex()), pi);
 		}
 		paramIndex.put(new Integer(ParameterInfo.INDEX_FOR_ADDED), fParameterObjectReference);
 		pis.clear();
 		for (int i= 0; i < parameters.length; i++) {
 			Parameter param= parameters[i];
-			ParameterInfo pi= (ParameterInfo) paramIndex.get(new Integer(param.getIndex()));
+			ParameterInfo pi= (ParameterInfo)paramIndex.get(new Integer(param.getIndex()));
 			pis.add(pi);
 			if (param != IntroduceParameterObjectDescriptor.PARAMETER_OBJECT) {
 				pi.setCreateField(param.isCreateField());
@@ -406,7 +413,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 		if (selectedNode == null) {
 			return mappingErrorFound(status, selectedNode);
 		}
-		fMethodDeclaration= (MethodDeclaration) ASTNodes.getParent(selectedNode, MethodDeclaration.class);
+		fMethodDeclaration= (MethodDeclaration)ASTNodes.getParent(selectedNode, MethodDeclaration.class);
 		if (fMethodDeclaration == null) {
 			return mappingErrorFound(status, selectedNode);
 		}
@@ -425,7 +432,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 		List parameterInfos= super.getParameterInfos();
 		for (Iterator iter= parameterInfos.iterator(); iter.hasNext();) {
-			ParameterInfo pi= (ParameterInfo) iter.next();
+			ParameterInfo pi= (ParameterInfo)iter.next();
 			if (!pi.isAdded()) {
 				if (pi.getOldName().equals(pi.getNewName())) // may have been
 																// set to
@@ -440,13 +447,13 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 		}
 		Map bindingMap= new HashMap();
 		for (Iterator iter= fMethodDeclaration.parameters().iterator(); iter.hasNext();) {
-			SingleVariableDeclaration sdv= (SingleVariableDeclaration) iter.next();
+			SingleVariableDeclaration sdv= (SingleVariableDeclaration)iter.next();
 			bindingMap.put(sdv.getName().getIdentifier(), sdv.resolveBinding());
 		}
 		for (Iterator iter= parameterInfos.iterator(); iter.hasNext();) {
-			ParameterInfo pi= (ParameterInfo) iter.next();
+			ParameterInfo pi= (ParameterInfo)iter.next();
 			if (pi != fParameterObjectReference)
-				pi.setOldBinding((IVariableBinding) bindingMap.get(pi.getOldName()));
+				pi.setOldBinding((IVariableBinding)bindingMap.get(pi.getOldName()));
 		}
 		fParameterObjectFactory.setVariables(parameterInfos);
 		return status;
@@ -457,13 +464,13 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			return false;
 		ASTNode node= ASTNodeSearchUtil.getAstNode(cu, problem.getSourceStart(), problem.getSourceEnd() - problem.getSourceStart() + 1);
 		if (node instanceof Type) {
-			Type type= (Type) node;
+			Type type= (Type)node;
 			if (problem.getID() == IProblem.UndefinedType && getClassName().equals(ASTNodes.getTypeName(type))) {
 				return false;
 			}
 		}
 		if (node instanceof Name) {
-			Name name= (Name) node;
+			Name name= (Name)node;
 			if (problem.getID() == IProblem.ImportNotFound && getPackage().indexOf(name.getFullyQualifiedName()) != -1)
 				return false;
 			if (problem.getID() == IProblem.MissingTypeInMethod) {
@@ -501,7 +508,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 		ArrayList changes= new ArrayList();
 		changes.addAll(Arrays.asList(super.getAllChanges()));
 		changes.addAll(fOtherChanges);
-		return (Change[]) changes.toArray(new Change[changes.size()]);
+		return (Change[])changes.toArray(new Change[changes.size()]);
 	}
 
 	protected void clearManagers() {
@@ -533,7 +540,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 		ArrayList parameters= new ArrayList();
 		List pis= getParameterInfos();
 		for (Iterator iter= pis.iterator(); iter.hasNext();) {
-			ParameterInfo pi= (ParameterInfo) iter.next();
+			ParameterInfo pi= (ParameterInfo)iter.next();
 			if (pi.isAdded()) {
 				parameters.add(IntroduceParameterObjectDescriptor.PARAMETER_OBJECT);
 			} else {
@@ -545,7 +552,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 				parameters.add(parameter);
 			}
 		}
-		ipod.setParameters((Parameter[]) parameters.toArray(new Parameter[parameters.size()]));
+		ipod.setParameters((Parameter[])parameters.toArray(new Parameter[parameters.size()]));
 		String project= getCompilationUnit().getJavaProject().getElementName();
 		try {
 			ipod.setComment(createComment(project).asString());
@@ -561,17 +568,20 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 	private JDTRefactoringDescriptorComment createComment(String project) throws JavaModelException {
 		String header= Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_description, getOldMethodSignature());
 		JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_object_class, BasicElementLabels.getJavaElementName(fParameterObjectFactory.getClassName())));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_object_class,
+				BasicElementLabels.getJavaElementName(fParameterObjectFactory.getClassName())));
 		if (fCreateAsTopLevel) {
-			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_package, BasicElementLabels.getJavaElementName(fParameterObjectFactory.getPackage())));
+			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_package,
+					BasicElementLabels.getJavaElementName(fParameterObjectFactory.getPackage())));
 		} else {
-			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_enclosing_type, BasicElementLabels.getJavaElementName(fParameterObjectFactory.getEnclosingType())));
+			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_enclosing_type,
+					BasicElementLabels.getJavaElementName(fParameterObjectFactory.getEnclosingType())));
 		}
 		List infos= getParameterInfos();
 		List kept= new ArrayList();
 		List fields= new ArrayList();
 		for (Iterator iter= infos.iterator(); iter.hasNext();) {
-			ParameterInfo pi= (ParameterInfo) iter.next();
+			ParameterInfo pi= (ParameterInfo)iter.next();
 			if (pi.isCreateField()) {
 				fields.add(pi.getNewName());
 			} else {
@@ -581,9 +591,11 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			}
 		}
 
-		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_fields, (String[]) fields.toArray(new String[0])));
+		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_fields,
+				(String[])fields.toArray(new String[0])));
 		if (!kept.isEmpty())
-			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_keep_parameter, (String[]) kept.toArray(new String[0])));
+			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_keep_parameter,
+					(String[])kept.toArray(new String[0])));
 		if (fParameterObjectFactory.isCreateGetter())
 			comment.addSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_create_getter);
 		if (fParameterObjectFactory.isCreateSetter())
@@ -613,10 +625,9 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 	/**
 	 * Checks if the given parameter info has been selected for field creation
-	 *
+	 * 
 	 * @param pi parameter info
-	 * @return true if the given parameter info has been selected for field
-	 *         creation
+	 * @return true if the given parameter info has been selected for field creation
 	 */
 	private boolean isValidField(ParameterInfo pi) {
 		return pi.isCreateField() & !pi.isAdded();
@@ -688,11 +699,11 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 	private void createParameterClass(MethodDeclaration methodDeclaration, CompilationUnitRewrite cuRewrite) throws CoreException {
 		if (fCreateAsTopLevel) {
-			IPackageFragmentRoot root= (IPackageFragmentRoot) cuRewrite.getCu().getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			IPackageFragmentRoot root= (IPackageFragmentRoot)cuRewrite.getCu().getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			fOtherChanges.addAll(fParameterObjectFactory.createTopLevelParameterObject(root));
 		} else {
 			ASTRewrite rewriter= cuRewrite.getASTRewrite();
-			TypeDeclaration enclosingType= (TypeDeclaration) methodDeclaration.getParent();
+			TypeDeclaration enclosingType= (TypeDeclaration)methodDeclaration.getParent();
 			ListRewrite bodyRewrite= rewriter.getListRewrite(enclosingType, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
 			String fqn= enclosingType.getName().getFullyQualifiedName();
 			TypeDeclaration classDeclaration= fParameterObjectFactory.createClassDeclaration(fqn, cuRewrite, null);
@@ -714,7 +725,7 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 		Assert.isNotNull(enclosingMethodParameters);
 		boolean emptyVararg= pi.getOldIndex() >= enclosingMethodParameters.size();
 		if (!emptyVararg) {
-			SingleVariableDeclaration svd= (SingleVariableDeclaration) enclosingMethodParameters.get(pi.getOldIndex());
+			SingleVariableDeclaration svd= (SingleVariableDeclaration)enclosingMethodParameters.get(pi.getOldIndex());
 			return svd.getName().getIdentifier();
 		}
 		return null;
@@ -730,6 +741,18 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 	protected int getDescriptorFlags() {
 		return super.getDescriptorFlags() | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.INTRODUCE_PARAMETER_OBJECT;
+	}
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createDescriptor();
 	}
 
 }

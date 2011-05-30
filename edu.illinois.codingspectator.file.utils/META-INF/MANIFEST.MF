@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingspectator.file.utils
+Bundle-SymbolicName: edu.illinois.codingspectator.file.utils
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: University of Illinois
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: edu.illinois.codingspectator.file.utils

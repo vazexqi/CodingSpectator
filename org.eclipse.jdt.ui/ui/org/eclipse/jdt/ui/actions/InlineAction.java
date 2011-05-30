@@ -34,6 +34,7 @@ import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.refactoring.actions.InlineConstantAction;
@@ -113,7 +114,7 @@ public class InlineAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		//CODINGSPECTATOR
-		RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 		if (!ActionUtil.isEditable(fEditor))
 			return;
@@ -139,7 +140,7 @@ public class InlineAction extends SelectionDispatchAction {
 		// CODINGSPECTATOR: At the this point all we know is that the user has tried to perform an inline refactoring.
 		// But, we don't know what kind of inline he/she has been trying to do.
 		// Therefore, we use the descriptor ID of the unknown inline refactoring to report the user's attempt to perform an inline refactoring.  
-		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
 
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}

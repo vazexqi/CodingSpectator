@@ -22,24 +22,34 @@ import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
+/**
+ * 
+ * @author Mohsen Vakilian - Instrumented this action class for capturing refactoring events.
+ * 
+ */
 public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the compilation unit editor
 	 */
 	public IntroduceParameterObjectAction(JavaEditor editor) {
@@ -50,7 +60,7 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 
 	/**
 	 * Creates a new <code>IntroduceIndirectionAction</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public IntroduceParameterObjectAction(IWorkbenchSite site) {
@@ -99,9 +109,12 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			run(getSingleSelectedMethod(selection));
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title,	ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
+			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
 		}
 	}
 
@@ -110,14 +123,20 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 			run(getSingleSelectedMethod(selection));
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title,	ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
+			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
 		}
 	}
 
 	public void run(JavaTextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 			IJavaElement[] elements= selection.resolveElementAtOffset();
 			if (elements.length != 1)
 				return;
@@ -125,14 +144,17 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 			if (!(elements[0] instanceof IMethod))
 				return;
 
-			run((IMethod) elements[0]);
+			run((IMethod)elements[0]);
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title,	ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
+			ExceptionHandler.handle(e, getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_unexpected_exception);
 		}
 	}
 
 	private void run(IMethod method) throws CoreException {
 		if (method == null) {
+			//CODINGSPECTATOR
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INTRODUCE_PARAMETER_OBJECT, ActionMessages.IntroduceParameterObjectAction_can_not_run_refactoring_message);
+
 			MessageDialog.openError(getShell(), ActionMessages.IntroduceParameterObjectAction_exceptiondialog_title, ActionMessages.IntroduceParameterObjectAction_can_not_run_refactoring_message);
 		} else if (fEditor == null || ActionUtil.isEditable(fEditor)) {
 			RefactoringExecutionStarter.startIntroduceParameterObject(method, getShell());
@@ -160,13 +182,13 @@ public class IntroduceParameterObjectAction extends SelectionDispatchAction {
 			return null;
 
 		if (elements.length == 1 && elements[0] instanceof IMethod) {
-			return (IMethod) elements[0];
+			return (IMethod)elements[0];
 		} else {
 			IJavaElement elementAt= SelectionConverter.getInputAsCompilationUnit(fEditor).getElementAt(selection.getOffset());
 			if (!(elementAt instanceof IMethod))
 				return null;
 
-			return (IMethod) elementAt;
+			return (IMethod)elementAt;
 		}
 	}
 }

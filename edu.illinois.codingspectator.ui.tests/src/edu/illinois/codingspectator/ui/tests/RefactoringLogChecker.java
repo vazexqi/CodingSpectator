@@ -7,11 +7,15 @@ import static org.junit.Assert.assertFalse;
 
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
+
 /**
+ * 
  * @author Mohsen Vakilian
  * 
  */
-public class RefactoringLogChecker implements LogChecker {
+public class RefactoringLogChecker extends AbstractLogChecker {
 
 	private String projectName;
 
@@ -25,18 +29,43 @@ public class RefactoringLogChecker implements LogChecker {
 		expectedRefactoringLog= RefactoringLogUtils.getExpectedRefactoringLog(refactoringKind + "/" + testName + "/" + RefactoringLog.toString(logType));
 	}
 
+	@Override
 	public void assertLogIsEmpty() {
-		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualRefactoringLog.exists());
+		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualLogExists());
 	}
 
+	@Override
 	public void assertMatch() {
 		CapturedRefactoringDescriptor actualRefactoringDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(actualRefactoringLog, projectName);
 		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(expectedRefactoringLog, projectName);
 		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, actualRefactoringDescriptor);
 	}
 
+	@Override
 	public void clean() throws CoreException {
-		actualRefactoringLog.clean();
+		actualRefactoringLog.delete();
+	}
+
+	@Override
+	protected void copyActualLogsAsExpectedLogs() throws CoreException {
+		if (actualLogExists() && !expectedLogExists()) {
+			actualRefactoringLog.copy(expectedRefactoringLog);
+		}
+	}
+
+	@Override
+	protected void deleteExpectedLogs() throws CoreException {
+		expectedRefactoringLog.delete();
+	}
+
+	@Override
+	protected boolean actualLogExists() {
+		return actualRefactoringLog.exists();
+	}
+
+	@Override
+	protected boolean expectedLogExists() {
+		return expectedRefactoringLog.exists();
 	}
 
 }

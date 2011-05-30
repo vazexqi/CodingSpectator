@@ -99,6 +99,12 @@ ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineMethodActio
 # For verifying captured extract interface refactorings.
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/constraints/SuperTypeRefactoringProcessor.java
 
+# For capturing change method signature
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/ChangeSignatureProcessor.java
+
+# For capturing introduce parameter object
+ui/org/eclipse/jdt/internal/ui/actions/IntroduceParameterObjectAction.java
+
 Added Files
 ===========
 
@@ -107,7 +113,6 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/Wat
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRenameProcessor.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessorDelegate.java
 core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/IWatchedJavaProcessor.java
-core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedRenameProcessorDelegate.java
 
 ui/org/eclipse/jdt/internal/ui/startup/StartupListener.java
 schema/startup.exsd

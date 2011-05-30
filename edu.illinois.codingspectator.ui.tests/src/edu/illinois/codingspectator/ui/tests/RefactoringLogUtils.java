@@ -9,9 +9,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
+
+import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
 
 /**
+ * 
  * @author Mohsen Vakilian
  * @author Balaji Ambresh Rajkumar
  * 
@@ -31,9 +34,9 @@ public class RefactoringLogUtils {
 
 	public static CapturedRefactoringDescriptor getTheSingleRefactoringDescriptor(RefactoringLog refactoringLog, String projectName) {
 		assertTrue(refactoringLog.exists());
-		Collection<JavaRefactoringDescriptor> descriptors= refactoringLog.getRefactoringDescriptors(projectName);
+		Collection<CapturedRefactoringDescriptor> descriptors= refactoringLog.getRefactoringDescriptors(projectName);
 		assertEquals(1, descriptors.size());
-		return new CapturedRefactoringDescriptor(descriptors.iterator().next());
+		return descriptors.iterator().next();
 	}
 
 }

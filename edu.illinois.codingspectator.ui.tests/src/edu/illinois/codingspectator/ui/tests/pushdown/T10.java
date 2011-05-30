@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.ui.tests.pushdown;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -23,7 +24,7 @@ public class T10 extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		bot.selectElementToRefactor(getTestFileFullName(), 6, 16, "fieldToBePushedDown".length());
 		bot.invokeRefactoringFromMenu(PUSH_DOWN_MENU_ITEM);
-		bot.clickButtons("Preview >", IDialogConstants.CANCEL_LABEL);
+		bot.clickButtons(CodingSpectatorBot.PREVIEW_LABEL, IDialogConstants.CANCEL_LABEL);
 	}
 
 }

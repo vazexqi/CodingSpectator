@@ -29,7 +29,11 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 
 /**
  * Contribution manager for refactorings.
- *
+ * 
+ * @author Mohsen Vakilian - Added a flag to decide whether to create instances of
+ *         DefaultRefactoringDescriptor or return more specific descriptors created by refactoring
+ *         contributions.
+ * 
  * @since 3.2
  */
 public final class RefactoringContributionManager implements IRegistryChangeListener {
@@ -48,7 +52,7 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 
 	/**
 	 * Returns the singleton instance of the refactoring contribution manager.
-	 *
+	 * 
 	 * @return the singleton instance
 	 */
 	public static RefactoringContributionManager getInstance() {
@@ -64,9 +68,9 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 	private Map fContributionCache= null;
 
 	/**
-	 * The refactoring contribution cache (element type:
-	 * &lt;RefactoringContribution, <code>String&gt;</code>)
-	 *
+	 * The refactoring contribution cache (element type: &lt;RefactoringContribution,
+	 * <code>String&gt;</code>)
+	 * 
 	 * @since 3.3
 	 */
 	private Map fIdCache= null;
@@ -87,30 +91,29 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 
 	/**
 	 * Creates a new refactoring descriptor for the specified input data.
-	 *
-	 * @param id
-	 *            the unique id of the refactoring
-	 * @param project
-	 *            the project name, or <code>null</code>
-	 * @param description
-	 *            a description
-	 * @param comment
-	 *            the comment, or <code>null</code>
-	 * @param arguments
-	 *            the argument map
-	 * @param flags
-	 *            the flags
+	 * 
+	 * @param id the unique id of the refactoring
+	 * @param project the project name, or <code>null</code>
+	 * @param description a description
+	 * @param comment the comment, or <code>null</code>
+	 * @param arguments the argument map
+	 * @param flags the flags
 	 * @return the refactoring descriptor
 	 * @throws IllegalArgumentException if the argument map contains invalid keys/values
 	 */
-	public RefactoringDescriptor createDescriptor(final String id, final String project, final String description, final String comment, final Map arguments, final int flags) throws IllegalArgumentException {
+	public RefactoringDescriptor createDescriptor(final String id, final String project, final String description, final String comment, final Map arguments, final int flags)
+			throws IllegalArgumentException {
 		Assert.isNotNull(id);
 		Assert.isNotNull(description);
 		Assert.isNotNull(arguments);
 		Assert.isLegal(flags >= RefactoringDescriptor.NONE);
-		final RefactoringContribution contribution= getRefactoringContribution(id);
-		if (contribution != null)
-			return contribution.createDescriptor(id, project, description, comment, arguments, flags);
+
+		//CODINGSPECTATOR: Surrounded the statements by an if statement.
+		if (!isMustCreateDefaultRefactoringDescriptor()) {
+			final RefactoringContribution contribution= getRefactoringContribution(id);
+			if (contribution != null)
+				return contribution.createDescriptor(id, project, description, comment, arguments, flags);
+		}
 		return new DefaultRefactoringDescriptor(id, project, description, comment, arguments, flags);
 	}
 
@@ -122,40 +125,36 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 	}
 
 	/**
-	 * Returns the refactoring contribution for the refactoring with the
-	 * specified id.
-	 *
-	 * @param id
-	 *            the unique id of the refactoring
-	 * @return the refactoring contribution, or <code>null</code> if no
-	 *         refactoring contribution has been registered with the specified
-	 *         id
+	 * Returns the refactoring contribution for the refactoring with the specified id.
+	 * 
+	 * @param id the unique id of the refactoring
+	 * @return the refactoring contribution, or <code>null</code> if no refactoring contribution has
+	 *         been registered with the specified id
 	 */
 	public RefactoringContribution getRefactoringContribution(final String id) {
 		Assert.isNotNull(id);
 		Assert.isTrue(!"".equals(id)); //$NON-NLS-1$
 		populateCache();
-		return (RefactoringContribution) fContributionCache.get(id);
+		return (RefactoringContribution)fContributionCache.get(id);
 	}
 
 	/**
 	 * Returns the refactoring id for the specified refactoring contribution.
-	 *
-	 * @param contribution
-	 *            the refactoring contribution
+	 * 
+	 * @param contribution the refactoring contribution
 	 * @return the corresonding refactoring id
-	 *
+	 * 
 	 * @since 3.3
 	 */
 	public String getRefactoringId(final RefactoringContribution contribution) {
 		Assert.isNotNull(contribution);
 		populateCache();
-		return (String) fIdCache.get(contribution);
+		return (String)fIdCache.get(contribution);
 	}
 
 	/**
 	 * Populates the refactoring contribution cache if necessary.
-	 *
+	 * 
 	 * @since 3.3
 	 */
 	private void populateCache() {
@@ -174,18 +173,19 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 							final Object implementation= element.createExecutableExtension(ATTRIBUTE_CLASS);
 							if (implementation instanceof RefactoringContribution) {
 								if (fContributionCache.get(attributeId) != null)
-									RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_duplicate_warning, new String[] { attributeId, point}));
+									RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_duplicate_warning, new String[] { attributeId, point }));
 								fContributionCache.put(attributeId, implementation);
 								fIdCache.put(implementation, attributeId);
 							} else
-								RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_creation_error, new String[] { point, attributeId}));
+								RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_creation_error, new String[] { point, attributeId }));
 						} catch (CoreException exception) {
 							RefactoringCorePlugin.log(exception);
 						}
 					} else
-						RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_missing_class_attribute, new String[] { point, attributeId, ATTRIBUTE_CLASS}));
+						RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_missing_class_attribute,
+								new String[] { point, attributeId, ATTRIBUTE_CLASS }));
 				} else
-					RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_missing_attribute, new String[] { point, ATTRIBUTE_ID}));
+					RefactoringCorePlugin.logErrorMessage(Messages.format(RefactoringCoreMessages.RefactoringCorePlugin_missing_attribute, new String[] { point, ATTRIBUTE_ID }));
 			}
 		}
 	}
@@ -197,4 +197,19 @@ public final class RefactoringContributionManager implements IRegistryChangeList
 		fContributionCache= null;
 		fIdCache= null;
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private boolean mustCreateDefaultRefactoringDescriptor= false;
+
+	public boolean isMustCreateDefaultRefactoringDescriptor() {
+		return mustCreateDefaultRefactoringDescriptor;
+	}
+
+	public void setMustCreateDefaultRefactoringDescriptor(boolean mustCreateDefaultRefactoringDescriptor) {
+		this.mustCreateDefaultRefactoringDescriptor= mustCreateDefaultRefactoringDescriptor;
+	}
+
 }

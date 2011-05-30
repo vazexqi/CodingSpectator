@@ -1,0 +1,12 @@
+<problem-changes refactoring-timestamp="1306108274397">
+	<after-minus-before timestamp="1306108274404">
+		<problem id="570425421" message="The field Child1.field1ToBePushedDown is never read locally" arguments="[edu.illinois.codingspectator.Child1, field1ToBePushedDown]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/ValidPushDownMultiFieldNotInSubclassesTestFile.java" line="11" severity="0" endPosition="241" startPosition="222">
+		</problem>
+		<problem id="570425421" message="The field Child2.field1ToBePushedDown is never read locally" arguments="[edu.illinois.codingspectator.Child2, field1ToBePushedDown]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/ValidPushDownMultiFieldNotInSubclassesTestFile.java" line="18" severity="0" endPosition="346" startPosition="327">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306108274357">
+		<problem id="570425421" message="The field Parent.field1ToBePushedDown is never read locally" arguments="[edu.illinois.codingspectator.Parent, field1ToBePushedDown]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/ValidPushDownMultiFieldNotInSubclassesTestFile.java" line="7" severity="0" endPosition="210" startPosition="191">
+		</problem>
+	</before-minus-after>
+</problem-changes>

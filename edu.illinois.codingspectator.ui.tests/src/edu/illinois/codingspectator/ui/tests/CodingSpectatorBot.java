@@ -22,6 +22,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.osgi.framework.Bundle;
 
+import edu.illinois.codingspectator.efs.EFSFile;
+
 /**
  * 
  * @author Mohsen Vakilian
@@ -33,6 +35,8 @@ import org.osgi.framework.Bundle;
 public class CodingSpectatorBot {
 
 	public static final String CONTINUE_LABEL= "Continue";
+
+	public static final String PREVIEW_LABEL= "Preview >";
 
 	static final String PLUGIN_NAME= "edu.illinois.codingspectator.ui.tests";
 
@@ -68,6 +72,7 @@ public class CodingSpectatorBot {
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
+		sleep();
 		dismissJavaPerspectiveIfPresent();
 	}
 
@@ -109,7 +114,7 @@ public class CodingSpectatorBot {
 		}
 	}
 
-	public void createANewJavaClass(String projectName, String testFileName) {
+	public void createANewJavaClass(String projectName, String className) {
 		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();
@@ -117,7 +122,7 @@ public class CodingSpectatorBot {
 		activateShellWithName("New Java Class");
 
 		bot.textWithLabel("Package:").setText(PACKAGE_NAME);
-		bot.textWithLabel("Name:").setText(testFileName);
+		bot.textWithLabel("Name:").setText(className);
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 	}
@@ -134,11 +139,15 @@ public class CodingSpectatorBot {
 		return tree.select(projectName);
 	}
 
+	public SWTBotEclipseEditor getTextEditor(String editorTitle) {
+		return bot.editorByTitle(editorTitle).toTextEditor();
+	}
+
 	public void prepareJavaTextInEditor(String testInputLocation, String testFileFullName) throws Exception {
 		Bundle bundle= Platform.getBundle(PLUGIN_NAME);
 		String contents= FileUtils.read(bundle.getEntry("test-files/" + testInputLocation + "/" + testFileFullName));
 
-		SWTBotEclipseEditor editor= bot.editorByTitle(testFileFullName).toTextEditor();
+		SWTBotEclipseEditor editor= getTextEditor(testFileFullName);
 		editor.setText(contents);
 		editor.save();
 	}

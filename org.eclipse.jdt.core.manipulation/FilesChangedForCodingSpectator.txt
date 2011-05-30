@@ -5,7 +5,6 @@ refactoring/org/eclipse/jdt/core/refactoring/descriptors/JavaRefactoringDescript
 refactoring/org/eclipse/jdt/core/refactoring/IJavaRefactorings.java
 refactoring/org/eclipse/jdt/internal/core/refactoring/descriptors/RefactoringSignatureDescriptorFactory.java
 refactoring/org/eclipse/jdt/core/refactoring/descriptors/MoveDescriptor.java
-refactoring/org/eclipse/jdt/core/refactoring/descriptors/UseSupertypeDescriptor.java
 
 Added Files
 ===========

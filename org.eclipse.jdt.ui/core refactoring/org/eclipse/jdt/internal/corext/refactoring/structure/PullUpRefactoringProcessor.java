@@ -46,7 +46,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusContext;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
-import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 
 import org.eclipse.jdt.core.Flags;
@@ -116,7 +115,6 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.rename.MethodChecks;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.SourceReferenceUtil;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
@@ -1077,6 +1075,55 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 		}
 	}
 
+	// Extracted the following method from {@link #createChange(IProgressMonitor)}
+	private PullUpDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		String project= null;
+		final IType declaring= getDeclaringType();
+		final IJavaProject javaProject= declaring.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		try {
+			if (declaring.isLocal() || declaring.isAnonymous())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String description= fMembersToMove.length == 1 ? Messages.format(
+				RefactoringCoreMessages.PullUpRefactoring_descriptor_description_short,
+				new String[] { JavaElementLabels.getElementLabel(fMembersToMove[0], JavaElementLabels.ALL_DEFAULT),
+						JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_DEFAULT) }) : Messages.format(
+				RefactoringCoreMessages.PullUpRefactoring_descriptor_description_short_multiple, BasicElementLabels.getJavaElementName(fDestinationType.getElementName()));
+		final String header= fMembersToMove.length == 1 ? Messages.format(
+				RefactoringCoreMessages.PullUpRefactoring_descriptor_description_full,
+				new String[] { JavaElementLabels.getElementLabel(fMembersToMove[0], JavaElementLabels.ALL_FULLY_QUALIFIED),
+						JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED) }) : Messages.format(
+				RefactoringCoreMessages.PullUpRefactoring_descriptor_description, new String[] { JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveStaticMembersProcessor_target_element_pattern,
+				JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		addSuperTypeSettings(comment, true);
+		final PullUpDescriptor descriptor= RefactoringSignatureDescriptorFactory.createPullUpDescriptor(project, description, comment.asString(), arguments, flags);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fDestinationType));
+		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
+		arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
+		arguments.put(ATTRIBUTE_STUBS, Boolean.valueOf(fCreateMethodStubs).toString());
+		arguments.put(ATTRIBUTE_PULL, new Integer(fMembersToMove.length).toString());
+		for (int offset= 0; offset < fMembersToMove.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembersToMove[offset]));
+		arguments.put(ATTRIBUTE_DELETE, new Integer(fDeletedMethods.length).toString());
+		for (int offset= 0; offset < fDeletedMethods.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fDeletedMethods[offset]));
+		arguments.put(ATTRIBUTE_ABSTRACT, new Integer(fAbstractMethods.length).toString());
+		for (int offset= 0; offset < fAbstractMethods.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + fDeletedMethods.length + 1),
+					JavaRefactoringDescriptorUtil.elementToHandle(project, fAbstractMethods[offset]));
+		return descriptor;
+	}
+
 	private TextEditBasedChangeManager createChangeManager(final IProgressMonitor monitor, final RefactoringStatus status) throws CoreException {
 		Assert.isNotNull(monitor);
 		Assert.isNotNull(status);
@@ -2018,103 +2065,12 @@ public class PullUpRefactoringProcessor extends HierarchyProcessor implements IW
 	// CODINGSPECTATOR
 	//////////////////
 
-	private class WatchedPullUpRefactoringProcessorDelegate extends WatchedProcessorDelegate {
-
-		public WatchedPullUpRefactoringProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
-			super(watchedProcessor);
-		}
-
-		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-			return RefactoringSignatureDescriptorFactory.createPullUpDescriptor(project, description, comment, arguments, flags);
-		}
-
-	}
-
 	public String getDescriptorID() {
 		return IJavaRefactorings.PULL_UP;
 	}
 
-	/**
-	 * Extracted the following method from {@link #createChange(IProgressMonitor)}
-	 */
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
-		final Map arguments= new HashMap();
-		String project= null;
-		final IType declaring= getDeclaringType();
-		final IJavaProject javaProject= declaring.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-		try {
-			if (declaring.isLocal() || declaring.isAnonymous())
-				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		} catch (JavaModelException exception) {
-			JavaPlugin.log(exception);
-		}
-		final String description= fMembersToMove.length == 1 ? Messages.format(
-				RefactoringCoreMessages.PullUpRefactoring_descriptor_description_short,
-				new String[] { JavaElementLabels.getElementLabel(fMembersToMove[0], JavaElementLabels.ALL_DEFAULT),
-						JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_DEFAULT) }) : Messages.format(
-				RefactoringCoreMessages.PullUpRefactoring_descriptor_description_short_multiple, BasicElementLabels.getJavaElementName(fDestinationType.getElementName()));
-		final String header= fMembersToMove.length == 1 ? Messages.format(
-				RefactoringCoreMessages.PullUpRefactoring_descriptor_description_full,
-				new String[] { JavaElementLabels.getElementLabel(fMembersToMove[0], JavaElementLabels.ALL_FULLY_QUALIFIED),
-						JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED),
-						JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED) }) : Messages.format(
-				RefactoringCoreMessages.PullUpRefactoring_descriptor_description, new String[] { JavaElementLabels.getElementLabel(declaring, JavaElementLabels.ALL_FULLY_QUALIFIED),
-						JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveStaticMembersProcessor_target_element_pattern,
-				JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		addSuperTypeSettings(comment, true);
-		final PullUpDescriptor descriptor= RefactoringSignatureDescriptorFactory.createPullUpDescriptor(project, description, comment.asString(), arguments, flags);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fDestinationType));
-		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
-		arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
-		arguments.put(ATTRIBUTE_STUBS, Boolean.valueOf(fCreateMethodStubs).toString());
-		arguments.put(ATTRIBUTE_PULL, new Integer(fMembersToMove.length).toString());
-		for (int offset= 0; offset < fMembersToMove.length; offset++)
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembersToMove[offset]));
-		arguments.put(ATTRIBUTE_DELETE, new Integer(fDeletedMethods.length).toString());
-		for (int offset= 0; offset < fDeletedMethods.length; offset++)
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fDeletedMethods[offset]));
-		arguments.put(ATTRIBUTE_ABSTRACT, new Integer(fAbstractMethods.length).toString());
-		for (int offset= 0; offset < fAbstractMethods.length; offset++)
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + fDeletedMethods.length + 1),
-					JavaRefactoringDescriptorUtil.elementToHandle(project, fAbstractMethods[offset]));
-		return descriptor;
-	}
-
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedPullUpRefactoringProcessorDelegate(this);
-	}
-
-	// TODO: The following could be potentially factored into a super class if similar processors can reuse it.
-	protected WatchedProcessorDelegate watchedProcessorDelegate;
-
-	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		return getWatchedProcessorDelegate().getSimpleRefactoringDescriptor(refactoringStatus);
-	}
-
-	/**
-	 * @deprecated: Use getCodeSnippetInformation() instead.
-	 */
-	public String getSelection() {
-		return getWatchedProcessorDelegate().getSelection();
-	}
-
-	public CodeSnippetInformation getCodeSnippetInformation() {
-		return getWatchedProcessorDelegate().getCodeSnippetInformation();
-	}
-
-	public String getJavaProjectName() {
-		return getWatchedProcessorDelegate().getJavaProjectName();
-	}
-
-	protected WatchedProcessorDelegate getWatchedProcessorDelegate() {
-		if (watchedProcessorDelegate == null)
-			watchedProcessorDelegate= instantiateDelegate();
-		return watchedProcessorDelegate;
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 }

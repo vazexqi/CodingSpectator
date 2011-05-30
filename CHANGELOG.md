@@ -1,3 +1,21 @@
+v1.0.0.201105242245
+===================
+- Improved the selection information captured in refactoring descriptors (issues [#163](https://github.com/vazexqi/CodingSpectator/issues/163), [#170](https://github.com/vazexqi/CodingSpectator/issues/170), [#207](https://github.com/vazexqi/CodingSpectator/issues/207), [#216](https://github.com/vazexqi/CodingSpectator/issues/216), [#195](https://github.com/vazexqi/CodingSpectator/issues/195)).
+- Captured compilation problems due to refactorings (issues [#194](https://github.com/vazexqi/CodingSpectator/issues/194), [#200](https://github.com/vazexqi/CodingSpectator/issues/200), [#210](https://github.com/vazexqi/CodingSpectator/issues/210)).
+- Fixed a bug that could potentially cause CodingSpectator miss UDC data (issue [#214](https://github.com/vazexqi/CodingSpectator/issues/214)).
+- Improved the installation instructions of the user guide (issues [#209](https://github.com/vazexqi/CodingSpectator/issues/209), [#217](https://github.com/vazexqi/CodingSpectator/issues/217)).
+- Made the generated timestamps more consistent (issue [#120](https://github.com/vazexqi/CodingSpectator/issues/120)).
+- Made CodingSpectator parse the contents of refactoring logs into generic refactoring descriptors (issue [#202](https://github.com/vazexqi/CodingSpectator/issues/202)).
+- Added more content and menu items to the home page of CodingSpectator (issue [#228](https://github.com/vazexqi/CodingSpectator/issues/228)).
+- Fixed a bug that caused duplicate button presses to be recorded in the `navigation-history` attribute (issue [#227](https://github.com/vazexqi/CodingSpectator/issues/227)).
+- Added the ability to automatically generate and overwrite expected logs of the UI tests (issue [#225](https://github.com/vazexqi/CodingSpectator/issues/225)).
+- Added tests for the rest of refactorings that subclass `WatchedJavaRefactoring` (issue [#222](https://github.com/vazexqi/CodingSpectator/issues/222)).
+- Stored the right `ITypeRoot` object in the global store and used it for computing code snippets (issue [#220](https://github.com/vazexqi/CodingSpectator/issues/220), [#223](https://github.com/vazexqi/CodingSpectator/issues/223), [#224](https://github.com/vazexqi/CodingSpectator/issues/224), [#154](https://github.com/vazexqi/CodingSpectator/issues/154), [#22](https://github.com/vazexqi/CodingSpectator/issues/22)).
+- Captured the change method signature refactoring (issue [#204](https://github.com/vazexqi/CodingSpectator/issues/204)).
+- Captured the introduce parameter object refactoring (issue [#32](https://github.com/vazexqi/CodingSpectator/issues/32)).
+- Implemented recording and replaying of atomic changes produced by refactorings (issues [#176](https://github.com/vazexqi/CodingSpectator/issues/176) and [#203](https://github.com/vazexqi/CodingSpectator/issues/203)).
+- Added tracking of affected compilation units that are in refactored packages (issue [#219](https://github.com/vazexqi/CodingSpectator/issues/209)).
+
 v1.0.0.201104162211
 ===================
 - Enabled the update notification mechanism of Eclipse for every new workspace ([issue #173](https://github.com/vazexqi/CodingSpectator/issues/173)).

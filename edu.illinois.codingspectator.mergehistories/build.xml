@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details. -->
+
+<project name="fetch-jars" default="install-jars" basedir=".">
+
+	<property name="jar-dest" value="lib" />
+	<property name="jar-base-url" value="http://jcommander.org" />
+	<property name="jar-filename" value="jcommander-1.7.jar" />
+	<property name="project" value="edu.illinois.codingspectator.mergehistories" />
+	<property name="SHA" value="df242839ea4fb5dc2a05d793a8e826ebf21084bb" />
+	<property name="required-jars" value="${jar-filename}" />
+
+	<condition property="jar-file.present">
+		<available file="${jar-dest}/jcommander-1.7.jar" />
+	</condition>
+
+	<target name="fetch" unless="jar-file.present">
+		<mkdir dir="${jar-dest}" />
+		<echo message="Fetching jar file ..." />
+		<get src="${jar-base-url}/${jar-filename}" dest="${jar-dest}/${jar-filename}" />
+	</target>
+
+	<target name="checksum" depends="fetch">
+		<echo message="Verifying checksums..." />
+		<checksum file="${jar-dest}/${jar-filename}" algorithm="SHA" property="${SHA}" verifyproperty="checksum.ok" />
+	</target>
+
+	<target name="check-integrity" depends="checksum">
+		<fail message="Checksums do not match. Aborting...">
+			<condition>
+				<isfalse value="${checksum.ok}" />
+			</condition>
+		</fail>
+	</target>
+
+	<target name="install-jars" description="Fetches and installs the necessary jar for this project" depends="check-integrity" unless="jar-files.present">
+		<antcall target="refresh" />
+		<antcall target="rebuild" />
+	</target>
+
+	<target name="refresh">
+		<eclipse.refreshLocal resource="${project}" depth="infinite" />
+	</target>
+
+	<target name="rebuild">
+		<!-- Refreshed the entire project directory to perform a build. This doesn't always seem to work and we might still need to invoke a build manually -->
+		<eclipse.incrementalBuild kind="full" />
+	</target>
+
+	<!-- There is no "clean" operation for this plug-in but if you really want to clear everything, we provide a "real-clean" target -->
+	<target name="real-clean" description="Removes all downloaded jar files">
+		<delete dir="${jar-dest}" includeemptydirs="true" />
+	</target>
+
+</project>

@@ -1,7 +1,5 @@
 package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
@@ -10,6 +8,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.IClearable;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
@@ -26,9 +25,13 @@ public class RefactoringGlobalStore implements IClearable {
 		resetInstance();
 	}
 
+	private ITypeRoot selectedTypeRoot;
+
 	private ITextSelection selectionInEditor;
 
-	IStructuredSelection structuredSelection;
+	private IJavaElement selectedElement;
+
+	private String selectedElementsText;
 
 	private boolean invokedThroughStructuredSelection;
 
@@ -39,16 +42,6 @@ public class RefactoringGlobalStore implements IClearable {
 	private static void resetInstance() {
 		instance= new RefactoringGlobalStore();
 		Logger.clearable= instance;
-	}
-
-	private RefactoringGlobalStore(ITextSelection selectionInEditor, IStructuredSelection structuredSelection, boolean invokedThroughStructuredSelection) {
-		this.selectionInEditor= selectionInEditor;
-		this.structuredSelection= structuredSelection;
-		this.invokedThroughStructuredSelection= invokedThroughStructuredSelection;
-	}
-
-	public RefactoringGlobalStore getShallowCopy() {
-		return new RefactoringGlobalStore(selectionInEditor, structuredSelection, invokedThroughStructuredSelection);
 	}
 
 	public static RefactoringGlobalStore getNewInstance() {
@@ -68,7 +61,7 @@ public class RefactoringGlobalStore implements IClearable {
 	 * This method specifies an object invariant.
 	 */
 	private void assertOnlyOneKindOfSelectionExists() {
-		if (doesSelectionInEditorExist() && doesStructuredSelectionExist()) {
+		if (doesSelectionInEditorExist() && isInvokedThroughStructuredSelection()) {
 			JavaPlugin.log(new AssertionError("Capturing both structured and textual selections for a refactoring is unexpected.")); //$NON-NLS-1$
 		}
 	}
@@ -91,7 +84,12 @@ public class RefactoringGlobalStore implements IClearable {
 	}
 
 	public void setStructuredSelection(IStructuredSelection selection) {
-		structuredSelection= selection;
+		Object firstSelectedElement= selection.getFirstElement();
+		if (firstSelectedElement instanceof IJavaElement) {
+			selectedElement= (IJavaElement)firstSelectedElement;
+			selectedTypeRoot= (ITypeRoot)selectedElement.getAncestor(IJavaElement.COMPILATION_UNIT);
+		}
+		selectedElementsText= selection.toString();
 		setInvokedThroughStructuredSelection();
 		assertOnlyOneKindOfSelectionExists();
 	}
@@ -104,16 +102,25 @@ public class RefactoringGlobalStore implements IClearable {
 		return invokedThroughStructuredSelection;
 	}
 
-	public boolean doesStructuredSelectionExist() {
-		return structuredSelection != null;
+	public IJavaElement getSelectedJavaElement() {
+		return selectedElement;
 	}
 
-	public List getStructuredSelectionList() {
-		return structuredSelection.toList();
+	private void setSelectedTypeRoot(ITypeRoot selectedTypeRootInEditor) {
+		this.selectedTypeRoot= selectedTypeRootInEditor;
 	}
 
-	public IJavaElement getFirstSelectedJavaElement() {
-		return (IJavaElement)getStructuredSelectionList().get(0);
+	public ITypeRoot getSelectedTypeRoot() {
+		return selectedTypeRoot;
+	}
+
+	public void setEditorSelectionInfo(ITypeRoot editorInputJavaElement, ITextSelection selection) {
+		setSelectedTypeRoot(editorInputJavaElement);
+		setSelectionInEditor(selection);
+	}
+
+	public String getSelectedElementsText() {
+		return selectedElementsText;
 	}
 
 }

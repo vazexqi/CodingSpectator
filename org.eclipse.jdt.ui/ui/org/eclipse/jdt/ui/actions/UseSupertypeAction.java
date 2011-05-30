@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -165,7 +166,7 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isUseSuperTypeAvailable(type)) {
@@ -174,7 +175,7 @@ public class UseSupertypeAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startUseSupertypeRefactoring(type, getShell());
 			} else {
 				//CODINGSPECTATOR: Record the invocation of the refactoring when it is not available.
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.USE_SUPER_TYPE, RefactoringMessages.UseSupertypeAction_to_activate);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.USE_SUPER_TYPE, RefactoringMessages.UseSupertypeAction_to_activate);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.UseSupertypeAction_to_activate);
 			}

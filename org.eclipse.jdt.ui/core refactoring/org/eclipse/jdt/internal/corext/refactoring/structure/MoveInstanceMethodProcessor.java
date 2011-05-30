@@ -133,9 +133,7 @@ import org.eclipse.jdt.internal.corext.refactoring.SearchResultGroup;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.base.ReferencesInBinaryContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaMoveProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedProcessorDelegate;
 import org.eclipse.jdt.internal.corext.refactoring.delegates.DelegateMethodCreator;
 import org.eclipse.jdt.internal.corext.refactoring.structure.MemberVisibilityAdjustor.IVisibilityAdjustment;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.IDelegateUpdating;
@@ -1665,10 +1663,52 @@ public final class MoveInstanceMethodProcessor extends WatchedJavaMoveProcessor 
 				return changes[0];
 			final List list= new ArrayList(changes.length);
 			list.addAll(Arrays.asList(changes));
-			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.MoveInstanceMethodRefactoring_name, (Change[])list.toArray(new Change[list.size()]));
+			return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.MoveInstanceMethodRefactoring_name,
+					(Change[])list.toArray(new Change[list.size()]));
 		} finally {
 			monitor.done();
 		}
+	}
+
+	// CODINGSPECTATOR: Extracted from createChange.
+	private MoveMethodDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		String project= null;
+		final IJavaProject javaProject= fMethod.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		final IType declaring= fMethod.getDeclaringType();
+		try {
+			if (declaring.isAnonymous() || declaring.isLocal())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String description= Messages
+				.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
+		final String header= Messages.format(
+				RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description,
+				new String[] { JavaElementLabels.getElementLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_moved_element_pattern, RefactoringCoreMessages.JavaRefactoringDescriptor_not_available));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_target_element_pattern,
+				BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_name_pattern, BasicElementLabels.getJavaElementName(getMethodName())));
+		if (needsTargetNode())
+			comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_parameter_name_pattern, BasicElementLabels.getJavaElementName(getTargetName())));
+		final MoveMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment.asString(), arguments, flags);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fMethod));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
+		arguments.put(ATTRIBUTE_TARGET_NAME, fTargetName);
+		arguments.put(ATTRIBUTE_DEPRECATE, Boolean.valueOf(fDelegateDeprecation).toString());
+		arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemove).toString());
+		arguments.put(ATTRIBUTE_INLINE, Boolean.valueOf(fInline).toString());
+		arguments.put(ATTRIBUTE_USE_GETTER, Boolean.valueOf(fUseGetters).toString());
+		arguments.put(ATTRIBUTE_USE_SETTER, Boolean.valueOf(fUseSetters).toString());
+		arguments.put(ATTRIBUTE_TARGET_INDEX, new Integer(getTargetIndex()).toString());
+		return descriptor;
 	}
 
 	/**
@@ -2919,63 +2959,12 @@ public final class MoveInstanceMethodProcessor extends WatchedJavaMoveProcessor 
 	//CODINGSPECTATOR
 	/////////////////
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
-		final Map arguments= new HashMap();
-		String project= null;
-		final IJavaProject javaProject= fMethod.getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		int flags= JavaRefactoringDescriptor.JAR_REFACTORING | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-		final IType declaring= fMethod.getDeclaringType();
-		try {
-			if (declaring.isAnonymous() || declaring.isLocal())
-				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-		} catch (JavaModelException exception) {
-			JavaPlugin.log(exception);
-		}
-		final String description= Messages
-				.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fMethod.getElementName()));
-		final String header= Messages.format(
-				RefactoringCoreMessages.MoveInstanceMethodProcessor_descriptor_description,
-				new String[] { JavaElementLabels.getElementLabel(fMethod, JavaElementLabels.ALL_FULLY_QUALIFIED),
-						BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_moved_element_pattern, RefactoringCoreMessages.JavaRefactoringDescriptor_not_available));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_target_element_pattern,
-				BindingLabelProvider.getBindingLabel(fTarget, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-		comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_method_name_pattern, BasicElementLabels.getJavaElementName(getMethodName())));
-		if (needsTargetNode())
-			comment.addSetting(Messages.format(RefactoringCoreMessages.MoveInstanceMethodProcessor_parameter_name_pattern, BasicElementLabels.getJavaElementName(getTargetName())));
-		final MoveMethodDescriptor descriptor= RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment.asString(), arguments, flags);
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fMethod));
-		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fMethodName);
-		arguments.put(ATTRIBUTE_TARGET_NAME, fTargetName);
-		arguments.put(ATTRIBUTE_DEPRECATE, Boolean.valueOf(fDelegateDeprecation).toString());
-		arguments.put(ATTRIBUTE_REMOVE, Boolean.valueOf(fRemove).toString());
-		arguments.put(ATTRIBUTE_INLINE, Boolean.valueOf(fInline).toString());
-		arguments.put(ATTRIBUTE_USE_GETTER, Boolean.valueOf(fUseGetters).toString());
-		arguments.put(ATTRIBUTE_USE_SETTER, Boolean.valueOf(fUseSetters).toString());
-		arguments.put(ATTRIBUTE_TARGET_INDEX, new Integer(getTargetIndex()).toString());
-		return descriptor;
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
 	}
 
 	public String getDescriptorID() {
 		return IJavaRefactorings.MOVE_METHOD;
-	}
-
-	protected WatchedProcessorDelegate instantiateDelegate() {
-		return new WatchedMoveInstanceMethodProcessorDelegate(this);
-	}
-
-	public class WatchedMoveInstanceMethodProcessorDelegate extends WatchedProcessorDelegate {
-
-		public WatchedMoveInstanceMethodProcessorDelegate(IWatchedJavaProcessor watchedProcessor) {
-			super(watchedProcessor);
-		}
-
-		protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags) {
-			return RefactoringSignatureDescriptorFactory.createMoveMethodDescriptor(project, description, comment, arguments, flags);
-		}
 	}
 
 }

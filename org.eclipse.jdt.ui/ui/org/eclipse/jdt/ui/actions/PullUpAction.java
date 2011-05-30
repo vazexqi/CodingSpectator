@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -142,7 +143,7 @@ public class PullUpAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 			if (!ActionUtil.isEditable(fEditor))
 				return;
@@ -152,7 +153,7 @@ public class PullUpAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startPullUpRefactoring(array, getShell());
 			} else {
 				//CODINGSPECTATOR: Log the unavailability of the refactoring before showing the error message.
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.PULL_UP, RefactoringMessages.PullUpAction_unavailable);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.PULL_UP, RefactoringMessages.PullUpAction_unavailable);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PullUpAction_unavailable);
 			}

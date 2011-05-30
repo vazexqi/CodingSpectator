@@ -571,7 +571,7 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 		showCurrentPage();
 	}
 
-	//CODINGSPECTATOR: Update the navigation history whenever the user presses a button the error dialog.
+	//CODINGSPECTATOR: Update the navigation history whenever the user presses a button on the error dialog.
 	private boolean showErrorDialog(ErrorWizardPage page) {
 		RefactoringStatusDialog dialog= new RefactoringStatusDialog(getShell(), page,
 				fWizard.internalShowBackButtonOnStatusDialog(InternalAPI.INSTANCE));
@@ -586,7 +586,6 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 				fCurrentPage= fCurrentPage.getPreviousPage();
 				break;
 			case IDialogConstants.CANCEL_ID:
-				fWizard.addNavigationHistoryItem(new NavigationHistoryItem(page.getName(), IDialogConstants.CANCEL_LABEL));
 				cancelPressed();
 		}
 		return false;

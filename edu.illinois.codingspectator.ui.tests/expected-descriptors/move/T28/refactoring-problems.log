@@ -1,0 +1,14 @@
+<problem-changes refactoring-timestamp="1306105140641">
+	<after-minus-before timestamp="1306105140651">
+		<problem id="570425421" message="The field MoveInstanceMembersTestFile.j is never read locally" arguments="[edu.illinois.codingspectator.MoveInstanceMembersTestFile, j]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveInstanceMembersTestFile.java" line="8" severity="0" endPosition="220" startPosition="220">
+		</problem>
+		<problem id="570425421" message="The field DestinationFile.i is never read locally" arguments="[edu.illinois.codingspectator.DestinationFile, i]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/DestinationFile.java" line="5" severity="0" endPosition="84" startPosition="84">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306105140493">
+		<problem id="570425421" message="The field MoveInstanceMembersTestFile.j is never read locally" arguments="[edu.illinois.codingspectator.MoveInstanceMembersTestFile, j]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveInstanceMembersTestFile.java" line="9" severity="0" endPosition="239" startPosition="239">
+		</problem>
+		<problem id="570425421" message="The field MoveInstanceMembersTestFile.i is never read locally" arguments="[edu.illinois.codingspectator.MoveInstanceMembersTestFile, i]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/MoveInstanceMembersTestFile.java" line="8" severity="0" endPosition="220" startPosition="220">
+		</problem>
+	</before-minus-after>
+</problem-changes>

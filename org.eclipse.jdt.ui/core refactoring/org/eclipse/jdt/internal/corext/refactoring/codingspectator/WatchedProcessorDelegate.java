@@ -6,9 +6,6 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 /**
@@ -18,7 +15,7 @@ import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
  * @author nchen
  * 
  */
-public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor {
+public class WatchedProcessorDelegate implements IWatchedJavaProcessor {
 
 	private IWatchedJavaProcessor watchedProcessor;
 
@@ -27,13 +24,10 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 	}
 
 	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
-		JavaRefactoringDescriptor d= createRefactoringDescriptor();
-		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, d.getArguments());
-
-		return createRefactoringDescriptor(d.getProject(), d.getDescription(), d.getComment(), augmentedArguments, d.getFlags());
+		JavaRefactoringDescriptor originalRefactoringDescriptor= getOriginalRefactoringDescriptor();
+		final Map augmentedArguments= populateInstrumentationData(refactoringStatus, originalRefactoringDescriptor.getArguments());
+		return originalRefactoringDescriptor.cloneByAugmenting(augmentedArguments);
 	}
-
-	abstract protected RefactoringDescriptor createRefactoringDescriptor(String project, String description, String comment, Map arguments, int flags);
 
 	protected Map populateInstrumentationData(RefactoringStatus refactoringStatus, Map basicArguments) {
 		getCodeSnippetInformation().insertIntoMap(basicArguments);
@@ -43,86 +37,24 @@ public abstract class WatchedProcessorDelegate implements IWatchedJavaProcessor 
 		return basicArguments;
 	}
 
-	private ITypeRoot getEnclosingCompilationUnit() {
-		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
-		if (javaElementIfPossible == null) {
-			return null;
-		}
-		return (ITypeRoot)javaElementIfPossible.getAncestor(IJavaElement.COMPILATION_UNIT);
-	}
-
-	/**
-	 * @deprecated - Use getCodeSnippetInfomration instead.
-	 */
-	public String getSelection() {
-		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
-		if (javaElementIfPossible != null)
-			return javaElementIfPossible.getElementName();
-		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
-	}
-
 	public CodeSnippetInformation getCodeSnippetInformation() {
-		return CodeSnippetInformationFactory.extractCodeSnippetInformation(getEnclosingCompilationUnit());
-	}
-
-	/**
-	 * @deprecated - To be replaced with functionality in CodeSnippetInformationExtractor
-	 */
-	protected String getCodeSnippet() {
-		IJavaElement javaElementIfPossible= getJavaElementIfPossible();
-		if (javaElementIfPossible != null)
-			return javaElementIfPossible.toString();
-		return "CODINGSPECTATOR: non-Java element selected"; //$NON-NLS-1$
-	}
-
-// The following method doesn't seem to be used by anyone.
-//	public String getCodeSnippet(ASTNode node) {
-//		if (node != null) {
-//			try {
-//				return getEnclosingCompilationUnit().getBuffer().getText(node.getStartPosition(), node.getLength());
-//			} catch (IndexOutOfBoundsException e) {
-//				JavaPlugin.log(e);
-//			} catch (JavaModelException e) {
-//				JavaPlugin.log(e);
-//			}
-//		}
-//
-//		return "DEFAULT";
-//	}
-
-	private IJavaElement getJavaElementIfPossible() {
-		if (getElements() == null) {
-			return null;
-		}
-		if (getElements().length == 0) {
-			return null;
-		}
-		if (getElements()[0] instanceof IJavaElement)
-			return ((IJavaElement)getElements()[0]);
-		return null;
+		return CodeSnippetInformationFactory.extractCodeSnippetInformation();
 	}
 
 	public String getJavaProjectName() {
-		String project= null;
-		final IJavaProject javaProject= getJavaElementIfPossible().getJavaProject();
-		if (javaProject != null)
-			project= javaProject.getElementName();
-		return project;
+		return RefactoringGlobalStore.getInstance().getSelectedTypeRoot().getJavaProject().getElementName();
 	}
 
 	public String getDescriptorID() {
 		return watchedProcessor.getDescriptorID();
 	}
 
-	public Object[] getElements() {
-		return watchedProcessor.getElements();
-	}
-
 	public boolean isInvokedByQuickAssist() {
 		return watchedProcessor.isInvokedByQuickAssist();
 	}
 
-	public JavaRefactoringDescriptor createRefactoringDescriptor() {
-		return watchedProcessor.createRefactoringDescriptor();
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return watchedProcessor.getOriginalRefactoringDescriptor();
 	}
+
 }

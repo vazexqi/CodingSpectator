@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" code-snippet="public class ConvertLocalVariableToFieldTestFile {&#x0A;&#x0A;    Object field;&#x0A;&#x09;&#x0A;    void m() {&#x0A;        Object localVariable= new Object();&#x0A;        System.out.println(localVariable);&#x0A;        System.out.println(field);&#x0A;    }&#x0A;&#x0A;}" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.promote.temp" selection-in-code-snippet="201 5" selection-text="field" stamp="1305934737107" status="Only local variables declared in methods can be converted to fields."/>
+</session>

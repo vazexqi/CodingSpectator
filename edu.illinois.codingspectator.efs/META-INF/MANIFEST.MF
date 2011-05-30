@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingspectator.efs
+Bundle-SymbolicName: edu.illinois.codingspectator.efs
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.illinois.codingspectator.efs.Activator
+Bundle-Vendor: University of Illinois
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.filesystem
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: edu.illinois.codingspectator.efs

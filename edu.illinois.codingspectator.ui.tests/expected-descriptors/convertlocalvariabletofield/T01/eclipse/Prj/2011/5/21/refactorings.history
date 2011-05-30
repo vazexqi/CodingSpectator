@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Convert local variable &apos;edu.illinois.codingspectator.ConvertLocalVariableToFieldTestFile.m().localVariable&apos; in &apos;edu.illinois.codingspectator.ConvertLocalVariableToFieldTestFile.m()&apos; to field&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.ConvertLocalVariableToFieldTestFile.m().localVariable&apos;&#x0A;- Field name: &apos;localVariable&apos;&#x0A;- Initialize field in method&#x0A;- Declared visibility: &apos;private&apos;" description="Convert local variable &apos;localVariable&apos; to field" final="false" flags="2" id="org.eclipse.jdt.ui.promote.temp" initialize="1" input="/src&lt;edu.illinois.codingspectator{ConvertLocalVariableToFieldTestFile.java" name="localVariable" selection="318 13" stamp="1305935204480" static="false" version="1.0" visibility="2"/>
+</session>

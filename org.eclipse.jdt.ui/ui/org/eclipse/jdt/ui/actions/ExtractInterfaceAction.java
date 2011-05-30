@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -148,7 +149,7 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			// CODINGSPECTATOR: Capture precise selection information
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 			IType type= RefactoringActions.getEnclosingOrPrimaryType(fEditor);
 			if (RefactoringAvailabilityTester.isExtractInterfaceAvailable(type)) {
@@ -158,7 +159,7 @@ public class ExtractInterfaceAction extends SelectionDispatchAction {
 			} else {
 				//CODINGSPECTATOR
 				String errorMessage= RefactoringMessages.ExtractInterfaceAction_To_activate;
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.EXTRACT_INTERFACE, errorMessage);
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 			}
 		} catch (JavaModelException e) {

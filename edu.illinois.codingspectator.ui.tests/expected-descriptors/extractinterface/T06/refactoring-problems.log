@@ -1,0 +1,10 @@
+<problem-changes refactoring-timestamp="1306107216941">
+	<after-minus-before timestamp="1306107216952">
+		<problem id="603979894" message="The method m2() from the type Child1 is never used locally" arguments="[edu.illinois.codingspectator.Child1, m2, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/ExtractInterfaceTestFile.java" line="12" severity="0" endPosition="305" startPosition="302">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306107216903">
+		<problem id="603979894" message="The method m2() from the type Child1 is never used locally" arguments="[edu.illinois.codingspectator.Child1, m2, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/ExtractInterfaceTestFile.java" line="12" severity="0" endPosition="286" startPosition="283">
+		</problem>
+	</before-minus-after>
+</problem-changes>

@@ -2,8 +2,6 @@ package org.eclipse.jdt.internal.corext.refactoring.codingspectator;
 
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
-import org.eclipse.jdt.core.ITypeRoot;
-
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 
 /**
@@ -13,14 +11,14 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  */
 public class CodeSnippetInformationFactory {
 
-	private static CodeSnippetInformationExtractor createCodeSnippetInformationExtractor(RefactoringGlobalStore store, ITypeRoot typeRoot) {
-		if (typeRoot == null) {
+	private static CodeSnippetInformationExtractor createCodeSnippetInformationExtractor(RefactoringGlobalStore store) {
+		if (store.getSelectedTypeRoot() == null) {
 			return new NullCodeSnippetInformationExtractor();
 		}
 		if (store.isInvokedThroughStructuredSelection()) {
 			try {
-				if (store.doesStructuredSelectionExist()) {
-					return new StructuredSelectionCodeSnippetInformationExtractor(typeRoot, store.getFirstSelectedJavaElement(), store.getStructuredSelectionList().toString());
+				if (store.isInvokedThroughStructuredSelection()) {
+					return new StructuredSelectionCodeSnippetInformationExtractor(store.getSelectedTypeRoot(), store.getSelectedJavaElement(), store.getSelectedElementsText());
 				} else {
 					return new NullCodeSnippetInformationExtractor();
 				}
@@ -30,19 +28,19 @@ public class CodeSnippetInformationFactory {
 			}
 		} else {
 			if (store.doesSelectionInEditorExist()) {
-				return new TextSelectionCodeSnippetInformationExtractor(typeRoot, store.getSelectionStart(), store.getSelectionLength());
+				return new TextSelectionCodeSnippetInformationExtractor(store.getSelectedTypeRoot(), store.getSelectionStart(), store.getSelectionLength());
 			} else {
 				return new NullCodeSnippetInformationExtractor();
 			}
 		}
 	}
 
-	private static CodeSnippetInformation extractCodeSnippetInformation(RefactoringGlobalStore store, ITypeRoot typeRoot) {
-		return createCodeSnippetInformationExtractor(store, typeRoot).extractCodeSnippetInformation();
+	private static CodeSnippetInformation extractCodeSnippetInformation(RefactoringGlobalStore store) {
+		return createCodeSnippetInformationExtractor(store).extractCodeSnippetInformation();
 	}
 
-	public static CodeSnippetInformation extractCodeSnippetInformation(ITypeRoot typeRoot) {
-		return extractCodeSnippetInformation(RefactoringGlobalStore.getInstance(), typeRoot);
+	public static CodeSnippetInformation extractCodeSnippetInformation() {
+		return extractCodeSnippetInformation(RefactoringGlobalStore.getInstance());
 	}
 
 }

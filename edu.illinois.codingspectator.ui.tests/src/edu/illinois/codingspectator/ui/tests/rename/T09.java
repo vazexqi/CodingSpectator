@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.ui.tests.rename;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 /**
@@ -21,9 +22,9 @@ public class T09 extends RefactoringTest {
 
 	@Override
 	protected void doExecuteRefactoring() {
-		bot.selectFromPackageExplorer(getProjectName(), "src", "edu.illinois.codingspectator");
+		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME);
 		bot.invokeRefactoringFromMenu("Rename...");
-		bot.fillTextField("New name:", "renamed.edu.illinois.codingspectator");
+		bot.fillTextField("New name:", "renamed." + CodingSpectatorBot.PACKAGE_NAME);
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 

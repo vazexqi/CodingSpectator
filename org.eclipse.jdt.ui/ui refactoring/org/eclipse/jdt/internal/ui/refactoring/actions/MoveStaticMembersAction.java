@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -112,7 +113,7 @@ public class MoveStaticMembersAction extends SelectionDispatchAction {
 	public void run(ITextSelection selection) {
 		try {
 			//CODINGSPECTATOR
-			RefactoringGlobalStore.getNewInstance().setSelectionInEditor(selection);
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
 
 			IMember member= getSelectedMemberFromEditor();
 			if (!ActionUtil.isEditable(fEditor, getShell(), member))
@@ -122,7 +123,7 @@ public class MoveStaticMembersAction extends SelectionDispatchAction {
 				RefactoringExecutionStarter.startMoveStaticMembersRefactoring(array, getShell());
 			} else {
 				//CODINGSPECTATOR
-				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(fEditor, IJavaRefactorings.MOVE_STATIC_MEMBERS, RefactoringMessages.MoveMembersAction_unavailable);
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.MOVE_STATIC_MEMBERS, RefactoringMessages.MoveMembersAction_unavailable);
 
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.MoveMembersAction_unavailable);
 			}

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Rename method &apos;code.C.m()&apos; to &apos;n&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;code.C.m()&apos;&#x0A;- Renamed element: &apos;code.C.n()&apos;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;m&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;code{C.java[C~m" name="n" references="true" stamp="1306524870684" version="1.0"/>&#x0A;&#x0A;</session>

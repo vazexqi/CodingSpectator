@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.supercsv
+Bundle-SymbolicName: org.supercsv
+Bundle-Version: 1.0.0
+Bundle-Vendor: Kasper B. Graversen
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: ant/lib/SuperCSV-with_src-1.52.jar
+Export-Package: org.supercsv.cellprocessor.ift,
+ org.supercsv.io,
+ org.supercsv.prefs,
+ org.supercsv.util

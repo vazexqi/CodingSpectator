@@ -1,0 +1,10 @@
+<problem-changes refactoring-timestamp="1306107317109">
+	<after-minus-before timestamp="1306107317116">
+		<problem id="67109219" message="Duplicate method m() in type Parent" arguments="[m, edu.illinois.codingspectator.Parent, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidPullUpMethodTestFile.java" line="11" severity="1" endPosition="204" startPosition="202">
+		</problem>
+		<problem id="67109219" message="Duplicate method m() in type Parent" arguments="[m, edu.illinois.codingspectator.Parent, ]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InvalidPullUpMethodTestFile.java" line="8" severity="1" endPosition="188" startPosition="186">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1306107317088">
+	</before-minus-after>
+</problem-changes>

@@ -11,12 +11,15 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
+import edu.illinois.codingspectator.efs.EFSFile;
 import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
 
 /**
  * The methods marked with @Test annotation are final because if you override them, the order in
@@ -89,8 +92,22 @@ public abstract class RefactoringTest {
 		}
 	}
 
+	protected Collection<LogChecker> getAllLogCheckers() {
+		Collection<LogChecker> allLogCheckers= new ArrayList<LogChecker>();
+		for (RefactoringLog.LogType logType : RefactoringLog.getLogTypes()) {
+			allLogCheckers.add(new RefactoringLogChecker(logType, getRefactoringKind(), getTestName(), getProjectName()));
+		}
+		allLogCheckers.add(new RefactoringProblemsChecker(getExpectedRefactoringProblemsLogPath()));
+		return allLogCheckers;
+	}
+
 	private IPath getPathToExpectedResultsOfTest() {
 		return new Path(RefactoringLogUtils.EXPECTED_DESCRIPTORS).append(getRefactoringKind()).append(getTestName());
+	}
+
+	protected void doAddJavaClass() throws Exception {
+		bot.createANewJavaClass(getProjectName(), getTestFileName());
+		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
 	protected void doLogsShouldBeEmpty() throws CoreException {
@@ -99,11 +116,18 @@ public abstract class RefactoringTest {
 		}
 	}
 
-	protected void doExecuteRefactoring() throws CoreException {
-	}
+	abstract protected void doExecuteRefactoring() throws Exception;
 
 	protected void printMessage(String message) {
 		System.err.println(getClass() + ": " + message);
+	}
+
+	protected void doGenerateExpectedFiles() throws Exception {
+		if (RunningModes.shouldGenerateExpectedFiles() || RunningModes.shouldOverwriteExpectedFiles()) {
+			for (LogChecker logChecker : getAllLogCheckers()) {
+				logChecker.generateExpectedLog(RunningModes.shouldOverwriteExpectedFiles());
+			}
+		}
 	}
 
 	protected void doLogsShouldBeCorrect() throws Exception {
@@ -128,8 +152,7 @@ public abstract class RefactoringTest {
 	@Test
 	public final void setupProject() throws Exception {
 		bot.createANewJavaProject(getProjectName());
-		bot.createANewJavaClass(getProjectName(), getTestFileName());
-		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
+		doAddJavaClass();
 	}
 
 	@Test
@@ -139,12 +162,14 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public final void shouldExecuteRefactoring() throws CoreException {
+	public final void shouldExecuteRefactoring() throws Exception {
 		doExecuteRefactoring();
 	}
 
 	@Test
 	public final void logsShouldBeCorrect() throws Exception {
+		bot.sleep();
+		doGenerateExpectedFiles();
 		bot.sleep();
 		doLogsShouldBeCorrect();
 	}

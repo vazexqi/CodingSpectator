@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" comment="Rename Java project &apos;Prj&apos; to &apos;RenamedJavaProject&apos;&#x0A;- Original element: &apos;Prj&apos;&#x0A;- Renamed element: &apos;Prj&apos;&#x0A;- Update references to refactored element" description="Rename Java project &apos;Prj&apos;" flags="7" id="org.eclipse.jdt.ui.rename.java.project" input="=Prj" invoked-by-quickassist="false" invoked-through-structured-selection="true" name="RenamedJavaProject" navigation-history="{[Rename Java Project,BEGIN_REFACTORING,1306110894566],[TextInputPage,OK,1306110894941],}" references="true" stamp="1306110897944" status="&lt;OK&#x0A;&gt;" version="1.0"/>
+</session>

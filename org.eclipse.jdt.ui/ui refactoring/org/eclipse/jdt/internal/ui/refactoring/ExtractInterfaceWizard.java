@@ -385,6 +385,8 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 
 		/*
 		 * @see org.eclipse.jface.wizard.IWizardPage#getNextPage()
+		 * 
+		 * CODINGSPECTATOR: Removed the try-catch block.
 		 */
 		public IWizardPage getNextPage() {
 			initializeRefactoring();
@@ -394,6 +396,8 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 
 		/*
 		 * @see org.eclipse.jdt.internal.ui.refactoring.RefactoringWizardPage#performFinish()
+		 * 
+		 * CODINGSPECTATOR: Removed the try-catch block.
 		 */
 		public boolean performFinish() {
 			initializeRefactoring();
@@ -401,6 +405,7 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 			return super.performFinish();
 		}
 
+		// CODINGSPECTATOR: Removed the throws clause.
 		private void initializeRefactoring() {
 			fProcessor.setTypeName(getText());
 			fProcessor.setReplace(fReplaceAllCheckbox.getSelection());
@@ -455,14 +460,14 @@ public class ExtractInterfaceWizard extends RefactoringWizard {
 		/////////////////
 		//CODINGSPECTATOR
 		/////////////////
-		
+
 		protected void textModified(String text) {
 			super.textModified(text);
 			// Calling {@link #initializeRefactoring} would throw a NPE because of the order of initialization on
 			// {@link #createControl}. fReplaceAllCheckbox is instantiated after {@link #createTextInputField}.
 			fProcessor.setTypeName(getText());
 		}
-		
-		
+
+
 	}
 }

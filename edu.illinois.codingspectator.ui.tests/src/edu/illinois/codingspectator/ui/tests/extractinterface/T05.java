@@ -1,7 +1,11 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
 package edu.illinois.codingspectator.ui.tests.extractinterface;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 
+import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
 
 public class T05 extends RefactoringTest {
@@ -23,7 +27,7 @@ public class T05 extends RefactoringTest {
 		bot.invokeRefactoringFromMenu(EXTRACT_INTERFACE_ITEM_NAME);
 
 		bot.fillTextField("Interface name:", NEW_INTERFACE_NAME);
-		bot.clickButtons("Preview >", IDialogConstants.OK_LABEL);
+		bot.clickButtons(CodingSpectatorBot.PREVIEW_LABEL, IDialogConstants.OK_LABEL);
 	}
 
 }

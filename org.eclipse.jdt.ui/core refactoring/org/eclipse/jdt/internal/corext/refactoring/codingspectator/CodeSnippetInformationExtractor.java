@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
  * 
  */
 public abstract class CodeSnippetInformationExtractor {
+
 	protected static final String DEFAULT_NULL_ASTNODE_CODE_SNIPPET= "EMPTY CODE SNIPPET"; //$NON-NLS-1$
 
 	protected static final String DEFAULT_SELECTED_TEXT= "CODINGSPECTATOR: Selection is not available"; //$NON-NLS-1$

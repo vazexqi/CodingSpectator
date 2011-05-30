@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" code-snippet="/**&#x0A; * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.&#x0A; */&#x0A;package edu.illinois.codingspectator;&#x0A;&#x0A;class C {&#x0A;&#x0A;    void m1(Object o) {&#x0A;    }&#x0A;    &#x0A;    void m2() {&#x0A;        m1(new Object());&#x0A;    }&#x0A;&#x0A;}&#x0A;&#x0A;class D extends C {&#x0A;&#x0A;    @Override&#x0A;    void m1(Object o) {&#x0A;        super.m1(o);&#x0A;    }&#x0A;}&#x0A;" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.change.method.signature" selection-in-code-snippet="166 1" selection-text="C" stamp="1306152748280" status="To activate this refactoring, please select the name of a method. Binary methods and annotation elements are not supported."/>
+</session>

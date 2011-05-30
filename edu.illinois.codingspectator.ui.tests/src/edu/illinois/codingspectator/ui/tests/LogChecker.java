@@ -12,10 +12,12 @@ import org.eclipse.core.runtime.CoreException;
  */
 public interface LogChecker {
 
-	public void assertLogIsEmpty();
+	void assertLogIsEmpty();
 
-	public void assertMatch() throws Exception;
+	void assertMatch() throws Exception;
 
-	public void clean() throws CoreException;
+	void clean() throws CoreException;
+
+	void generateExpectedLog(boolean overwrite) throws Exception;
 
 }
