@@ -1,3 +1,10 @@
+v1.0.0.201105300951
+===================
+- Computed the selection information immediately after the selection is made (issues [#232](https://github.com/vazexqi/CodingSpectator/issues/232), [#240](https://github.com/vazexqi/CodingSpectator/issues/240)).
+- Fixed a bug in capturing refactorings on non-Java elements (issues [#231](https://github.com/vazexqi/CodingSpectator/issues/231), [#239](https://github.com/vazexqi/CodingSpectator/issues/239)).
+- Converted some of CodingSpectator logs into a CSV file (issues [#230](https://github.com/vazexqi/CodingSpectator/issues/230), [#233](https://github.com/vazexqi/CodingSpectator/issues/233)).
+- Fixed the timestamps of about to perform refactorings in CodingTracker (issue [#237](https://github.com/vazexqi/CodingSpectator/issues/237)).
+
 v1.0.0.201105242245
 ===================
 - Improved the selection information captured in refactoring descriptors (issues [#163](https://github.com/vazexqi/CodingSpectator/issues/163), [#170](https://github.com/vazexqi/CodingSpectator/issues/170), [#207](https://github.com/vazexqi/CodingSpectator/issues/207), [#216](https://github.com/vazexqi/CodingSpectator/issues/216), [#195](https://github.com/vazexqi/CodingSpectator/issues/195)).
