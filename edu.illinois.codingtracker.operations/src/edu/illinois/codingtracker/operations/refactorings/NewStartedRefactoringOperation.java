@@ -61,7 +61,7 @@ public class NewStartedRefactoringOperation extends UserOperation {
 	}
 
 	public NewStartedRefactoringOperation(RefactoringMode mode, RefactoringDescriptor refactoringDescriptor) {
-		super(refactoringDescriptor.getTimeStamp());
+		super(getRefactoringTimeStamp(refactoringDescriptor));
 		this.refactoringMode= mode;
 		id= refactoringDescriptor.getID();
 		project= refactoringDescriptor.getProject();
@@ -79,6 +79,10 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		return "[new] Started refactoring";
 	}
 
+	private static long getRefactoringTimeStamp(RefactoringDescriptor refactoringDescriptor){
+		long refactoringDescriptorTimeStamp = refactoringDescriptor.getTimeStamp();
+		return refactoringDescriptorTimeStamp == -1? System.currentTimeMillis() : refactoringDescriptorTimeStamp;
+	}
 	private Map getRefactoringArguments(RefactoringDescriptor refactoringDescriptor) {
 		Map arguments= null;
 		RefactoringContribution refactoringContribution=
