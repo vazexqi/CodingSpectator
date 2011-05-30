@@ -82,7 +82,9 @@ public class RefactoringGlobalStore implements IClearable {
 	}
 
 	private void setProjectName(ITypeRoot typeRoot) {
-		projectName= typeRoot.getJavaProject().getElementName();
+		if (typeRoot != null && typeRoot.getJavaProject() != null) {
+			projectName= typeRoot.getJavaProject().getElementName();
+		}
 	}
 
 	public String getProjectName() {
