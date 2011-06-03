@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -75,11 +77,22 @@ public class ConvertLogsToCSV {
 		csvwriter.close();
 	}
 
+	private static List<EFSFile> childrenExceptSVNFolders(EFSFile parentFolder) throws CoreException {
+		List<String> fileNames= new ArrayList<String>(parentFolder.childNames());
+		List<EFSFile> filteredFiles= new ArrayList<EFSFile>();
+		String match= ".svn";
+		fileNames.removeAll(Arrays.asList(match));
+		for (String fileName : fileNames) {
+			filteredFiles.add(parentFolder.append(fileName));
+		}
+		return filteredFiles;
+	}
+
 	private static Collection<AbstractMapWrapper> extractMapWrappers(EFSFile root) throws CoreException {
 		Collection<AbstractMapWrapper> refactoringDescriptors= new ArrayList<AbstractMapWrapper>();
-		for (EFSFile usernameFolder : root.children()) {
-			for (EFSFile workspaceFolder : usernameFolder.children()) {
-				for (EFSFile versionFolder : workspaceFolder.children()) {
+		for (EFSFile usernameFolder : usersUnderStudy(root)) {
+			for (EFSFile workspaceFolder : childrenExceptSVNFolders(usernameFolder)) {
+				for (EFSFile versionFolder : childrenExceptSVNFolders(workspaceFolder)) {
 					String username= usernameFolder.getPath().lastSegment();
 					String workspaceID= workspaceFolder.getPath().lastSegment();
 					IPath codingSpectatorVersionPath= versionFolder.getPath();
@@ -99,6 +112,18 @@ public class ConvertLogsToCSV {
 		}
 		return refactoringDescriptors;
 	}
+
+	private static List<EFSFile> usersUnderStudy(EFSFile parentFolder) throws CoreException {
+		List<String> fileNames= parentFolder.childNames();
+		List<EFSFile> filteredFiles= new ArrayList<EFSFile>();
+		Pattern userUnderStudyPattern= Pattern.compile("cs-\\d\\d\\d");
+		for (String fileName : fileNames) {
+			if (userUnderStudyPattern.matcher(fileName).matches())
+				filteredFiles.add(parentFolder.append(fileName));
+		}
+		return filteredFiles;
+	}
+
 
 	private static Collection<AbstractMapWrapper> getUserOperations(IPath codingtrackerPath, String username, String workspaceID, String codingspectatorVersion) {
 		String operationsRecord= ResourceHelper.readFileContent(codingtrackerPath.toFile());
