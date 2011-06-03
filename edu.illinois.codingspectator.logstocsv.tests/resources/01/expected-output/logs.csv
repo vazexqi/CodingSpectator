@@ -64,3 +64,5 @@ public class C {
 }
 ",1.0.0.qualifier,,,,CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring,,,0,Fri May 27 14:32:41 CDT 2011,org.eclipse.jdt.ui.rename.unknown.java.element,,,,,,,,Prj,UNAVAILABLE,,22 5,class,6,"Operation unavailable on the current selection.
 Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",1306524761563,username,,00000000-0000-0000-0000-000000000000
+05/27/2011 14:33:58,,,1.0.0.qualifier,,,,Launched application,,,,Fri May 27 14:33:58 CDT 2011,,,,,,,,,,,,,,,,1306524838424,username,,00000000-0000-0000-0000-000000000000
+05/27/2011 14:33:59,,,1.0.0.qualifier,,,,Finished test session,,,,Fri May 27 14:33:59 CDT 2011,,,,,,,,,,,,,,,,1306524839055,username,,00000000-0000-0000-0000-000000000000

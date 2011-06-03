@@ -8,7 +8,9 @@ Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
  edu.illinois.codingspectator.efs,
  edu.illinois.codingspectator.refactorings.parser,
- org.supercsv
+ org.supercsv,
+ edu.illinois.codingtracker.operations,
+ edu.illinois.codingtracker.helpers
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.logstocsv
