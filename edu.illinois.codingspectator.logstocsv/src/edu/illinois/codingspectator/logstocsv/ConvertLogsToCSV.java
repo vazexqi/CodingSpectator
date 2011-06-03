@@ -42,7 +42,8 @@ public class ConvertLogsToCSV {
 
 	private static Collection<RefactoringDescriptorMapWrapper> getRefactoringDescriptors(IPath codingspectatorRefactoringsPath, LogType type, String username,
 			String workspaceID, String codingspectatorVersion) throws CoreException {
-		RefactoringLog refactoringLog= new RefactoringLog(codingspectatorRefactoringsPath.append(RefactoringLog.toString(type)));
+		String refactoringHistoryFolder= type == LogType.ECLIPSE ? "eclipse-refactorings" : RefactoringLog.toString(type);
+		RefactoringLog refactoringLog= new RefactoringLog(codingspectatorRefactoringsPath.append(refactoringHistoryFolder));
 		Collection<CapturedRefactoringDescriptor> refactoringDescriptors= refactoringLog.getRefactoringDescriptors();
 		return toRefactoringDescriptorMapWrappers(refactoringDescriptors, username, workspaceID, codingspectatorVersion, type.toString());
 	}
@@ -56,9 +57,11 @@ public class ConvertLogsToCSV {
 				for (EFSFile versionFolder : workspaceFolder.children()) {
 					String username= usernameFolder.getPath().lastSegment();
 					String workspaceID= workspaceFolder.getPath().lastSegment();
-					String codingspectatorVersion= versionFolder.getPath().lastSegment();
+					IPath codingSpectatorVersionPath= versionFolder.getPath();
+					String codingspectatorVersion= codingSpectatorVersionPath.lastSegment();
 
-					IPath codingspectatorRefactoringsPath= versionFolder.getPath().append("refactorings");
+					IPath codingspectatorRefactoringsPath= codingSpectatorVersionPath.append("refactorings");
+					refactoringDescriptors.addAll(getRefactoringDescriptors(codingSpectatorVersionPath, LogType.ECLIPSE, username, workspaceID, codingspectatorVersion));
 					refactoringDescriptors.addAll(getRefactoringDescriptors(codingspectatorRefactoringsPath, LogType.CANCELLED, username, workspaceID, codingspectatorVersion));
 					refactoringDescriptors.addAll(getRefactoringDescriptors(codingspectatorRefactoringsPath, LogType.PERFORMED, username, workspaceID, codingspectatorVersion));
 					refactoringDescriptors.addAll(getRefactoringDescriptors(codingspectatorRefactoringsPath, LogType.UNAVAILABLE, username, workspaceID, codingspectatorVersion));

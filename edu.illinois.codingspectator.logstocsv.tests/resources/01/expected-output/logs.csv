@@ -1,4 +1,9 @@
 Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator version,comment,delegate,deprecate,description,destination,element1,flags,human-readable timestamp,id,input,invoked-by-quickassist,invoked-through-structured-selection,members,name,navigation-history,policy,project,refactoring kind,references,selection-in-code-snippet,selection-text,severity level,status,timestamp,username,version,workspace ID
+05/27/2011 14:34:30,,,1.0.0.qualifier,"Rename method 'code.C.m()' to 'n'
+- Original project: 'Prj'
+- Original element: 'code.C.m()'
+- Renamed element: 'code.C.n()'
+- Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,,,,n,,,Prj,ECLIPSE,true,,,0,,1306524870684,username,1.0,00000000-0000-0000-0000-000000000000
 05/27/2011 14:34:22,true,"package code;
 
 public class C {
@@ -15,7 +20,7 @@ public class C {
 - Destination element: 'code.D.java'
 - Original element: 'code.C.a'
 - Textual move only
-- Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:22 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,"{[Textual Move,BEGIN_REFACTORING,1306524857276],[PreviewPage,Previe&w >,1306524860849],[PreviewPage,Cancel,1306524862574],}",org.eclipse.jdt.ui.moveMembers,Prj,CANCELLED,,38 0,,0,"<OK
+- Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:22 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,"{[Textual Move,BEGIN_REFACTORING,1306524857276],[PreviewPage,Previe&w >,1306524860849],[PreviewPage,Cancel,1306524862574],}",org.eclipse.jdt.ui.moveMembers,Prj,CANCELLED,,38 0,,1,"<OK
 >",1306524862665,username,1.0,00000000-0000-0000-0000-000000000000
 05/27/2011 14:34:40,true,"package code;
 
@@ -33,7 +38,7 @@ public class C {
 - Destination element: 'code.D.java'
 - Original element: 'code.C.a'
 - Textual move only
-- Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:40 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,"{[Textual Move,BEGIN_REFACTORING,1306524878385],[MoveInputPage,OK,1306524880077],}",org.eclipse.jdt.ui.moveMembers,Prj,PERFORMED,,38 0,,0,"<OK
+- Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:40 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,"{[Textual Move,BEGIN_REFACTORING,1306524878385],[MoveInputPage,OK,1306524880077],}",org.eclipse.jdt.ui.moveMembers,Prj,PERFORMED,,38 0,,1,"<OK
 >",1306524880268,username,1.0,00000000-0000-0000-0000-000000000000
 05/27/2011 14:34:30,true,"package code;
 
@@ -50,12 +55,12 @@ public class C {
 - Original project: 'Prj'
 - Original element: 'code.C.m()'
 - Renamed element: 'code.C.n()'
-- Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,false,false,,n,,,Prj,PERFORMED,true,59 0,,0,"<OK
+- Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,false,false,,n,,,Prj,PERFORMED,true,59 0,,1,"<OK
 >",1306524870410,username,1.0,00000000-0000-0000-0000-000000000000
 05/27/2011 14:32:41,true,"package code;
 
 public class C {
 
 }
-",1.0.0.qualifier,,,,CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring,,,0,Fri May 27 14:32:41 CDT 2011,org.eclipse.jdt.ui.rename.unknown.java.element,,,,,,,,Prj,UNAVAILABLE,,22 5,class,5,"Operation unavailable on the current selection.
+",1.0.0.qualifier,,,,CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring,,,0,Fri May 27 14:32:41 CDT 2011,org.eclipse.jdt.ui.rename.unknown.java.element,,,,,,,,Prj,UNAVAILABLE,,22 5,class,6,"Operation unavailable on the current selection.
 Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",1306524761563,username,,00000000-0000-0000-0000-000000000000

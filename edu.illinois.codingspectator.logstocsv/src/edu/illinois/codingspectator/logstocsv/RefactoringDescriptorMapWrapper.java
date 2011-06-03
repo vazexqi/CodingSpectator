@@ -59,17 +59,20 @@ public class RefactoringDescriptorMapWrapper {
 	}
 
 	private int getSeverityLevel(String status) {
-		if (status.contains("OK")) {
+		if (status == null) {
 			return 0;
-		} else if (status.contains("INFO")) {
-			return 1;
-		} else if (status.contains("WARNING")) {
-			return 2;
-		} else if (status.contains("FATALERROR")) {
-			return 4;
-		} else if (status.contains("ERROR")) {
-			return 3;
 		}
-		return 5;
+		if (status.contains("OK")) {
+			return 1;
+		} else if (status.contains("INFO")) {
+			return 2;
+		} else if (status.contains("WARNING")) {
+			return 3;
+		} else if (status.contains("FATALERROR")) {
+			return 5;
+		} else if (status.contains("ERROR")) {
+			return 4;
+		}
+		return 6;
 	}
 }
