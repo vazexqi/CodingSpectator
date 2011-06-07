@@ -127,18 +127,15 @@ http://jcommander.org/.
 
    <includes
          id="edu.illinois.codingspectator.jdt.patch"
-         version="0.0.0"
-         optional="true"/>
+         version="0.0.0"/>
 
    <includes
          id="edu.illinois.codingspectator.platform.patch"
-         version="0.0.0"
-         optional="true"/>
+         version="0.0.0"/>
 
    <includes
          id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
-         version="0.0.0"
-         optional="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="edu.illinois.codingspectator.branding"
