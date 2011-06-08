@@ -88,11 +88,27 @@ public class ConvertLogsToCSV {
 		return filteredFiles;
 	}
 
+	private static List<EFSFile> versionsUnderStudy(EFSFile parentFolder) throws CoreException {
+		List<String> fileNames= new ArrayList<String>(parentFolder.childNames());
+		List<EFSFile> filteredFiles= new ArrayList<EFSFile>();
+		String match= ".svn";
+		fileNames.removeAll(Arrays.asList(match));
+		for (String fileName : fileNames) {
+			//See issue #244.
+			boolean hasAValidVersionNumber= Pattern.compile("\\d\\.\\d\\.\\d\\.\\d*").matcher(fileName).matches();
+			boolean isNotTooOld= fileName.compareTo("1.0.0.201105300951") >= 0;
+			if (hasAValidVersionNumber && isNotTooOld) {
+				filteredFiles.add(parentFolder.append(fileName));
+			}
+		}
+		return filteredFiles;
+	}
+
 	private static Collection<AbstractMapWrapper> extractMapWrappers(EFSFile root) throws CoreException {
 		Collection<AbstractMapWrapper> refactoringDescriptors= new ArrayList<AbstractMapWrapper>();
 		for (EFSFile usernameFolder : usersUnderStudy(root)) {
 			for (EFSFile workspaceFolder : childrenExceptSVNFolders(usernameFolder)) {
-				for (EFSFile versionFolder : childrenExceptSVNFolders(workspaceFolder)) {
+				for (EFSFile versionFolder : versionsUnderStudy(workspaceFolder)) {
 					String username= usernameFolder.getPath().lastSegment();
 					String workspaceID= workspaceFolder.getPath().lastSegment();
 					IPath codingSpectatorVersionPath= versionFolder.getPath();
@@ -106,7 +122,6 @@ public class ConvertLogsToCSV {
 
 					IPath codingtrackerPath= codingSpectatorVersionPath.append("codingtracker").append("codechanges.txt");
 					refactoringDescriptors.addAll(getUserOperations(codingtrackerPath, username, workspaceID, codingspectatorVersion));
-
 				}
 			}
 		}
@@ -116,7 +131,9 @@ public class ConvertLogsToCSV {
 	private static List<EFSFile> usersUnderStudy(EFSFile parentFolder) throws CoreException {
 		List<String> fileNames= parentFolder.childNames();
 		List<EFSFile> filteredFiles= new ArrayList<EFSFile>();
-		Pattern userUnderStudyPattern= Pattern.compile("cs-\\d\\d\\d");
+//		String regex= "cs-\\d\\d\\d";
+		String regex= "cs-.*";
+		Pattern userUnderStudyPattern= Pattern.compile(regex);
 		for (String fileName : fileNames) {
 			if (userUnderStudyPattern.matcher(fileName).matches())
 				filteredFiles.add(parentFolder.append(fileName));
@@ -127,10 +144,15 @@ public class ConvertLogsToCSV {
 
 	private static Collection<AbstractMapWrapper> getUserOperations(IPath codingtrackerPath, String username, String workspaceID, String codingspectatorVersion) {
 		String operationsRecord= ResourceHelper.readFileContent(codingtrackerPath.toFile());
-		Collection<UserOperation> userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+		Collection<UserOperation> userOperations= null;
+		try {
+			userOperations= OperationDeserializer.getUserOperations(operationsRecord);
+		} catch (RuntimeException e) {
+			System.err.println(String.format("Failed to read CodingTracker log at \"%s\".", codingtrackerPath.toOSString()));
+			throw new RuntimeException(e);
+		}
 		return toUserOperationMapWrappers(username, workspaceID, codingspectatorVersion, userOperations);
 	}
-
 
 	private static Collection<AbstractMapWrapper> toUserOperationMapWrappers(String username, String workspaceID, String codingspectatorVersion, Collection<UserOperation> userOperations) {
 		Collection<AbstractMapWrapper> userOperationsWrapper= new ArrayList<AbstractMapWrapper>();
