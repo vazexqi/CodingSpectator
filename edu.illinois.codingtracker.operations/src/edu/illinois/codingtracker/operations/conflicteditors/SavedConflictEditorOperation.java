@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingtracker.operations.conflicteditors;
 
+import org.eclipse.compare.internal.CompareEditor;
+
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationLexer;
@@ -58,7 +60,12 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	public void replay() {
 		if (success) {
-			CompareEditorsUpkeeper.getEditor(editorID).doSave(null);
+			CompareEditor compareEditor= CompareEditorsUpkeeper.getEditor(editorID);
+			if (compareEditor == null) {
+				Debugger.debugWarning("Can not save non existing conflict editor:\n" + this);
+			} else {
+				compareEditor.doSave(null);
+			}
 			//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
 			try {
 				Thread.sleep(100);
