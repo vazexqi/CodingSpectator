@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.ui.actions;
 
+import org.eclipse.core.runtime.Platform;
+
 import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.PlatformUI;
-
-import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
@@ -104,7 +104,7 @@ public class ExtractMethodAction extends SelectionDispatchAction {
 
 	//CODINGSPECTATOR
 	private boolean isEnabled(boolean isGoingToBeEnabled) {
-		if (RunningModes.isInTestMode()) {
+		if (Platform.inDevelopmentMode()) {
 			return true;
 		} else {
 			return isGoingToBeEnabled;
