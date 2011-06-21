@@ -82,6 +82,11 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 		uploadButton.addSelectionListener(new SelectionAdapter() {
 
+			/**
+			 * CodingSpectator lets the user manually upload the data if Eclipse is in development
+			 * mode. But, it doesn't automatically upload the data at the start-up if Eclipse is run
+			 * in development mode. See #{@link Activator#earlyStartup}.
+			 */
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				final Submitter submitter= new Submitter();
