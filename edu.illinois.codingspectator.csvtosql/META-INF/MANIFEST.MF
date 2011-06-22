@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingspectator.csvtosql
+Bundle-SymbolicName: edu.illinois.codingspectator.csvtosql
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.illinois.codingspectator.csvtosql.Activator
+Bundle-Vendor: University of Illinois
+Require-Bundle: org.eclipse.core.runtime,
+ org.supercsv,
+ org.hsqldb
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
