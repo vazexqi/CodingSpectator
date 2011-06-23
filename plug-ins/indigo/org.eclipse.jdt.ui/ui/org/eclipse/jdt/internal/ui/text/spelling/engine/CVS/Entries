@@ -1,0 +1,17 @@
+/AbstractSpellDictionary.java/1.30/Tue Mar  1 11:50:51 2011//Tv20110531-1200
+/DefaultPhoneticDistanceAlgorithm.java/1.7/Tue May 29 18:41:37 2007//Tv20110531-1200
+/DefaultPhoneticHashProvider.java/1.5/Fri Jun 17 15:51:53 2005//Tv20110531-1200
+/DefaultSpellChecker.java/1.17/Tue Mar  1 11:50:51 2011//Tv20110531-1200
+/IPhoneticDistanceAlgorithm.java/1.5/Fri Jun 17 15:51:53 2005//Tv20110531-1200
+/IPhoneticHashProvider.java/1.5/Fri Jun 17 15:51:53 2005//Tv20110531-1200
+/ISpellCheckEngine.java/1.10/Wed Dec 31 21:13:23 2008//Tv20110531-1200
+/ISpellCheckIterator.java/1.11/Tue Mar  1 11:50:51 2011//Tv20110531-1200
+/ISpellChecker.java/1.14/Wed Apr 27 07:52:08 2011//Tv20110531-1200
+/ISpellDictionary.java/1.13/Wed Apr 27 07:52:08 2011//Tv20110531-1200
+/ISpellEvent.java/1.11/Wed Apr 27 07:52:08 2011//Tv20110531-1200
+/ISpellEventListener.java/1.5/Fri Jun 17 15:51:53 2005//Tv20110531-1200
+/LocaleSensitiveSpellDictionary.java/1.12/Wed Apr 27 07:52:08 2011//Tv20110531-1200
+/PersistentSpellDictionary.java/1.12/Wed Apr 27 07:52:08 2011//Tv20110531-1200
+/RankedWordProposal.java/1.6/Tue Mar  1 11:50:51 2011//Tv20110531-1200
+/SpellEvent.java/1.10/Wed Apr 27 07:52:08 2011//Tv20110531-1200
+/package.html/1.1/Mon Feb  9 03:20:10 2004//Tv20110531-1200

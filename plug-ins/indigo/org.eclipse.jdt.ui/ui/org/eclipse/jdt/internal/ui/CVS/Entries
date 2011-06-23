@@ -1,0 +1,67 @@
+/AbstractJavaElementLabelDecorator.java/1.3/Wed Apr 27 07:47:15 2011//Tv20110531-1200
+/BuildpathIndicatorLabelDecorator.java/1.4/Wed Apr 27 07:47:15 2011//Tv20110531-1200
+/CompatibilityTemplateStore.java/1.14/Wed Apr 27 07:47:15 2011/-ko/Tv20110531-1200
+/EditorInputAdapterFactory.java/1.17/Tue Mar  1 11:50:59 2011/-ko/Tv20110531-1200
+/IJavaHelpContextIds.java/1.152/Wed Oct 27 15:36:09 2010/-ko/Tv20110531-1200
+/IJavaStatusConstants.java/1.13/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/IJavaThemeConstants.java/1.6/Thu Sep 11 11:59:33 2008/-ko/Tv20110531-1200
+/IResourceLocator.java/1.11/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/IUIConstants.java/1.17/Thu Sep 11 11:59:33 2008/-ko/Tv20110531-1200
+/InitializeAfterLoadJob.java/1.10/Wed Apr 27 07:47:15 2011//Tv20110531-1200
+/InterfaceIndicatorLabelDecorator.java/1.16/Wed Apr 27 07:47:15 2011/-kk/Tv20110531-1200
+/JarEntryEditorInputFactory.java/1.6/Wed Apr 27 07:47:15 2011//Tv20110531-1200
+/JavaElementAdapterFactory.java/1.42/Tue Mar  1 11:50:59 2011/-ko/Tv20110531-1200
+/JavaElementContainmentAdapter.java/1.9/Wed Dec 31 21:13:17 2008//Tv20110531-1200
+/JavaElementProperties.java/1.14/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/JavaHierarchyPerspectiveFactory.java/1.35/Mon Mar 29 15:15:35 2010/-ko/Tv20110531-1200
+/JavaPerspectiveFactory.java/1.55/Mon Mar 29 15:15:35 2010/-ko/Tv20110531-1200
+/JavaPlugin.java/1.227/Tue Mar  1 11:50:59 2011/-ko/Tv20110531-1200
+/JavaPluginImages.java/1.150/Wed Apr 27 07:47:15 2011/-ko/Tv20110531-1200
+/JavaProjectAdapterFactory.java/1.6/Tue Mar  1 11:50:59 2011//Tv20110531-1200
+/JavaTaskListAdapter.java/1.14/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/JavaUIException.java/1.10/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/JavaUIMessages.java/1.57/Thu Oct  7 09:23:22 2010/-ko/Tv20110531-1200
+/JavaUIMessages.properties/1.291/Thu Oct  7 09:23:22 2010/-ko/Tv20110531-1200
+/JavaUIPreferenceInitializer.java/1.7/Wed Apr 27 07:47:15 2011//Tv20110531-1200
+/JavaUIStatus.java/1.11/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/JavaWorkbenchAdapter.java/1.19/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/LogicalPackageAdapterFactory.java/1.11/Tue Mar  1 11:50:59 2011/-ko/Tv20110531-1200
+/MarkerAdapterFactory.java/1.12/Tue Mar  1 11:50:59 2011/-ko/Tv20110531-1200
+/PersistableJavaElementFactory.java/1.10/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/ResourceAdapterFactory.java/1.12/Tue Mar  1 11:50:59 2011/-ko/Tv20110531-1200
+/ResourceLocator.java/1.11/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+/SharedImages.java/1.11/Wed Dec 31 21:13:17 2008/-ko/Tv20110531-1200
+D/actions////
+D/browsing////
+D/callhierarchy////
+D/codemanipulation////
+D/commands////
+D/compare////
+D/deprecation////
+D/dialogs////
+D/dnd////
+D/filters////
+D/fix////
+D/infoviews////
+D/jarexporter////
+D/jarimport////
+D/jarpackager////
+D/jarpackagerfat////
+D/javadocexport////
+D/javaeditor////
+D/launcher////
+D/model////
+D/navigator////
+D/packageview////
+D/preferences////
+D/propertiesfileeditor////
+D/reorg////
+D/search////
+D/snippeteditor////
+D/text////
+D/typehierarchy////
+D/util////
+D/viewsupport////
+D/widgets////
+D/wizards////
+D/workingsets////

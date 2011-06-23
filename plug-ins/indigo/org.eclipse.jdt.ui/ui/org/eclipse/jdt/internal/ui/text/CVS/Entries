@@ -1,0 +1,49 @@
+/AbstractInformationControl.java/1.76/Tue Mar  1 11:51:05 2011//Tv20110531-1200
+/AbstractJavaScanner.java/1.21/Wed Apr 27 07:50:37 2011/-ko/Tv20110531-1200
+/BufferedDocumentScanner.java/1.14/Thu Aug 31 08:52:22 2006/-ko/Tv20110531-1200
+/ChangeHoverInformationControl.java/1.10/Wed Apr 27 07:50:36 2011/-ko/Tv20110531-1200
+/CombinedWordRule.java/1.11/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+/CompositeReconcilingStrategy.java/1.5/Fri Jun 17 15:51:56 2005//Tv20110531-1200
+/ContentAssistPreference.java/1.27/Thu Sep 11 11:59:36 2008/-ko/Tv20110531-1200
+/DocumentCharacterIterator.java/1.11/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+/FastJavaPartitionScanner.java/1.13/Tue Apr 19 12:47:31 2005/-ko/Tv20110531-1200
+/HTMLAnnotationHover.java/1.7/Tue Mar  1 11:51:05 2011/-ko/Tv20110531-1200
+/ISourceVersionDependent.java/1.3/Tue Apr 19 12:47:31 2005//Tv20110531-1200
+/ITypingRunListener.java/1.5/Fri Jun 17 15:51:55 2005//Tv20110531-1200
+/JavaBreakIterator.java/1.13/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+/JavaChangeHover.java/1.24/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+/JavaCodeReader.java/1.15/Wed Apr 27 07:50:37 2011/-ko/Tv20110531-1200
+/JavaColorManager.java/1.14/Tue Mar  1 11:51:05 2011/-ko/Tv20110531-1200
+/JavaCommentScanner.java/1.27/Wed Apr 27 07:50:36 2011//Tv20110531-1200
+/JavaCompositeReconcilingStrategy.java/1.18/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+/JavaElementProvider.java/1.15/Fri Sep  3 14:52:01 2010/-ko/Tv20110531-1200
+/JavaHeuristicScanner.java/1.32/Tue Mar  1 11:51:05 2011/-ko/Tv20110531-1200
+/JavaIndenter.java/1.71/Wed Apr 13 12:44:04 2011/-ko/Tv20110531-1200
+/JavaOutlineInformationControl.java/1.81/Tue Mar  1 11:51:05 2011/-ko/Tv20110531-1200
+/JavaPairMatcher.java/1.26/Wed Apr 27 07:50:36 2011/-ko/Tv20110531-1200
+/JavaPartitionScanner.java/1.20/Wed Apr 27 07:50:37 2011/-ko/Tv20110531-1200
+/JavaPresentationReconciler.java/1.6/Tue Mar 28 16:53:32 2006//Tv20110531-1200
+/JavaReconciler.java/1.37/Wed Apr 27 07:50:36 2011/-ko/Tv20110531-1200
+/JavaWhitespaceDetector.java/1.8/Tue Apr 12 12:11:38 2011/-ko/Tv20110531-1200
+/JavaWordDetector.java/1.9/Tue Apr 19 12:47:31 2005/-ko/Tv20110531-1200
+/JavaWordFinder.java/1.16/Wed Apr 13 09:55:03 2011/-ko/Tv20110531-1200
+/JavaWordIterator.java/1.12/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+/LineComparator.java/1.7/Tue Apr 12 12:11:38 2011//Tv20110531-1200
+/PreferencesAdapter.java/1.10/Wed Dec 31 21:13:28 2008//Tv20110531-1200
+/SequenceCharacterIterator.java/1.10/Wed Apr 27 07:50:36 2011//Tv20110531-1200
+/SimpleJavaSourceViewerConfiguration.java/1.5/Wed Apr 27 07:50:36 2011/-ko/Tv20110531-1200
+/SingleTokenJavaScanner.java/1.11/Wed Apr 27 07:50:36 2011/-ko/Tv20110531-1200
+/SmartBackspaceManager.java/1.14/Tue Apr 12 12:11:38 2011//Tv20110531-1200
+/Symbols.java/1.13/Mon Feb 14 17:16:36 2011/-ko/Tv20110531-1200
+/TextMessages.java/1.6/Mon Nov 16 16:53:30 2009/-ko/Tv20110531-1200
+/TextMessages.properties/1.7/Mon Nov 16 16:53:30 2009/-ko/Tv20110531-1200
+/TypingRun.java/1.7/Tue Apr 12 12:11:38 2011//Tv20110531-1200
+/TypingRunDetector.java/1.12/Wed Apr 27 07:50:37 2011//Tv20110531-1200
+D/comment////
+D/correction////
+D/folding////
+D/java////
+D/javadoc////
+D/link////
+D/spelling////
+D/template////
