@@ -1,0 +1,3 @@
+[submodule "submodules/bundle-updater"]
+	path = submodules/bundle-updater
+	url = git@github.com:reprogrammer/BundleUpdater.git
