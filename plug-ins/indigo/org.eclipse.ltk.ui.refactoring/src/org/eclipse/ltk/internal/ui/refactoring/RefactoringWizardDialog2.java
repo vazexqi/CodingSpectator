@@ -46,37 +46,58 @@ import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.ProgressMonitorPart;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Monitored key UI events in the dialog e.g. preview, cancel, ok,
+ *         etc.
+ * 
+ */
 public class RefactoringWizardDialog2 extends TrayDialog implements IWizardContainer {
 
 	private RefactoringWizard fWizard;
+
 	private IWizardPage fCurrentPage;
+
 	private IWizardPage fVisiblePage;
 
 	private boolean fMakeNextButtonDefault;
 
 	private PageBook fPageContainer;
+
 	private PageBook fStatusContainer;
+
 	private MessageBox fMessageBox;
+
 	private ProgressMonitorPart fProgressMonitorPart;
+
 	private int fActiveRunningOperations;
 
 	private static final int PREVIEW_ID= IDialogConstants.CLIENT_ID + 1;
 
 	private int fPreviewWidth;
+
 	private int fPreviewHeight;
+
 	private IDialogSettings fSettings;
+
 	private boolean fHasAdditionalPages;
+
 	private Rectangle fInitialSize;
 
 	private static final String DIALOG_SETTINGS= "RefactoringWizard.preview"; //$NON-NLS-1$
+
 	private static final String WIDTH= "width"; //$NON-NLS-1$
+
 	private static final String HEIGHT= "height"; //$NON-NLS-1$
 
 	private static class MessageBox extends Composite {
 		private Label fImage;
+
 		private Label fText;
+
 		public MessageBox(Composite parent, int style) {
 			super(parent, style);
 			GridLayout layout= new GridLayout();
@@ -99,14 +120,15 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 			gd.verticalAlignment= SWT.TOP;
 			fText.setLayoutData(gd);
 		}
+
 		public void setMessage(IWizardPage page) {
 			String msg= page.getErrorMessage();
 			int type= IMessageProvider.ERROR;
 			if (msg == null || msg.length() == 0) {
 				msg= page.getMessage();
 				type= IMessageProvider.NONE;
-			if (msg != null && page instanceof IMessageProvider)
-				type = ((IMessageProvider)page).getMessageType();
+				if (msg != null && page instanceof IMessageProvider)
+					type= ((IMessageProvider)page).getMessageType();
 			}
 			Image image= null;
 			switch (type) {
@@ -127,6 +149,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 				image= RefactoringPluginImages.get(RefactoringPluginImages.IMG_OBJS_REFACTORING_INFO);
 			fImage.setImage(image);
 		}
+
 		private String escapeAmpersands(String message) {
 			StringBuffer result= new StringBuffer();
 			for (int i= 0; i < message.length(); i++) {
@@ -142,16 +165,20 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 
 	private static class PageBook extends Composite {
 		private StackLayout fLayout;
+
 		public PageBook(Composite parent, int style) {
 			super(parent, style);
 			fLayout= new StackLayout();
 			setLayout(fLayout);
-			fLayout.marginWidth= 5; fLayout.marginHeight= 5;
+			fLayout.marginWidth= 5;
+			fLayout.marginHeight= 5;
 		}
+
 		public void showPage(Control page) {
 			fLayout.topControl= page;
 			layout();
 		}
+
 		public Control getTopPage() {
 			return fLayout.topControl;
 		}
@@ -201,7 +228,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 	private void saveSize() {
 		if (fCurrentPage instanceof PreviewWizardPage) {
 			Control control= fPageContainer.getTopPage();
-			Point size = control.getSize();
+			Point size= control.getSize();
 			fSettings.put(WIDTH, size.x);
 			fSettings.put(HEIGHT, size.y);
 		}
@@ -236,16 +263,16 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		boolean previewPage= isPreviewPageActive();
 		boolean ok= fWizard.canFinish();
 		boolean canFlip= fCurrentPage.canFlipToNextPage();
-		
+
 		Button defaultButton= null;
-		
+
 		Button previewButton= getButton(PREVIEW_ID);
 		if (previewButton != null && !previewButton.isDisposed()) {
 			String previewLabel= previewPage ? IDialogConstants.BACK_LABEL : RefactoringUIMessages.RefactoringWizardDialog2_buttons_preview_label;
 			previewButton.setText(previewLabel);
 			setButtonLayoutData(previewButton);
 			getShell().layout(new Control[] { previewButton });
-			
+
 			boolean enable= true;
 			if (!previewPage)
 				enable= canFlip;
@@ -253,7 +280,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 			if (enable)
 				defaultButton= previewButton;
 		}
-		
+
 		Button nextButton= getButton(IDialogConstants.NEXT_ID);
 		if (nextButton != null && !nextButton.isDisposed()) {
 			nextButton.setEnabled(!previewPage);
@@ -262,18 +289,18 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 			if (nextButton.isEnabled())
 				defaultButton= nextButton;
 		}
-		
+
 		Button backButton= getButton(IDialogConstants.BACK_ID);
 		if (backButton != null && !backButton.isDisposed())
 			backButton.setEnabled(!isFirstPage());
-		
+
 		Button okButton= getButton(IDialogConstants.OK_ID);
 		if (okButton != null && !okButton.isDisposed()) {
 			okButton.setEnabled(ok);
 			if (ok)
 				defaultButton= okButton;
 		}
-		
+
 		if (defaultButton != null) {
 			defaultButton.getShell().setDefaultButton(defaultButton);
 		}
@@ -322,9 +349,9 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		if (fProgressMonitorPart == null) {
 			ModalContext.run(runnable, false, new NullProgressMonitor(), getShell().getDisplay());
 		} else {
-			Object state = null;
-			if(fActiveRunningOperations == 0)
-				state = aboutToStart(fork && cancelable);
+			Object state= null;
+			if (fActiveRunningOperations == 0)
+				state= aboutToStart(fork && cancelable);
 
 			fActiveRunningOperations++;
 			try {
@@ -332,24 +359,24 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 			} finally {
 				fActiveRunningOperations--;
 				//Stop if this is the last one
-				if(state!= null)
+				if (state != null)
 					stopped(state);
 			}
 		}
 	}
 
 	private Object aboutToStart(boolean cancelable) {
-		Map savedState = null;
+		Map savedState= null;
 		Shell shell= getShell();
 		if (shell != null) {
 			// Save focus control
-			Control focusControl = getShell().getDisplay().getFocusControl();
+			Control focusControl= getShell().getDisplay().getFocusControl();
 			if (focusControl != null && focusControl.getShell() != getShell())
-				focusControl = null;
+				focusControl= null;
 
 			Button cancelButton= getButton(IDialogConstants.CANCEL_ID);
 			// Set the busy cursor to all shells.
-			Display d = getShell().getDisplay();
+			Display d= getShell().getDisplay();
 			setDisplayCursor(d, d.getSystemCursor(SWT.CURSOR_WAIT));
 
 			// Set the arrow cursor to the cancel component.
@@ -406,12 +433,12 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 				fProgressMonitorPart.removeFromCancelComponent(cancelButton);
 
 			fStatusContainer.showPage(fMessageBox);
-			Map state = (Map)savedState;
+			Map state= (Map)savedState;
 			restoreUIState(state);
 
 			setDisplayCursor(shell.getDisplay(), null);
 			cancelButton.setCursor(null);
-			Control focusControl = (Control)state.get("focus"); //$NON-NLS-1$
+			Control focusControl= (Control)state.get("focus"); //$NON-NLS-1$
 			if (focusControl != null)
 				focusControl.setFocus();
 		}
@@ -423,13 +450,13 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		restoreEnableState(getButton(IDialogConstants.BACK_ID), state, "back"); //$NON-NLS-1$
 		restoreEnableState(getButton(IDialogConstants.NEXT_ID), state, "next"); //$NON-NLS-1$
 		restoreEnableState(getButton(IDialogConstants.CANCEL_ID), state, "cancel");//$NON-NLS-1$
-		ControlEnableState pageState = (ControlEnableState) state.get("page");//$NON-NLS-1$
+		ControlEnableState pageState= (ControlEnableState)state.get("page");//$NON-NLS-1$
 		pageState.restore();
 	}
 
 	private void restoreEnableState(Control w, Map h, String key) {
 		if (w != null) {
-			Boolean b = (Boolean) h.get(key);
+			Boolean b= (Boolean)h.get(key);
 			if (b != null)
 				w.setEnabled(b.booleanValue());
 		}
@@ -443,13 +470,19 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 	}
 
 	protected void cancelPressed() {
-		if (fActiveRunningOperations == 0)	{
+		//CODINGSPECTATOR: Record the time of pressing the cancel button on the current page.
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.CANCEL_LABEL));
+
+		if (fActiveRunningOperations == 0) {
 			if (fWizard.performCancel())
 				super.cancelPressed();
 		}
 	}
 
 	protected void okPressed() {
+		//CODINGSPECTATOR: This method gets invoked when the user presses OK. So, record the time of the occurrence of this event.
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.OK_LABEL));
+
 		IWizardPage current= fCurrentPage;
 		saveInitialSize();
 		if (fWizard.performFinish()) {
@@ -463,7 +496,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		if (fHasAdditionalPages) {
 			// Show error page as a normal page
 			showCurrentPage();
-		} else if (showErrorDialog((ErrorWizardPage) fCurrentPage)) {
+		} else if (showErrorDialog((ErrorWizardPage)fCurrentPage)) {
 			// Show error page as a dialog
 			if (fWizard.performFinish()) {
 				super.okPressed();
@@ -481,7 +514,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 	}
 
 	protected void handleShellCloseEvent() {
-		if (fActiveRunningOperations == 0)	{
+		if (fActiveRunningOperations == 0) {
 			if (fWizard.performCancel())
 				super.handleShellCloseEvent();
 		}
@@ -491,10 +524,15 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		return IPreviewWizardPage.PAGE_NAME.equals(fCurrentPage.getName());
 	}
 
-	private void nextOrPreviewPressed() {
+	//CODINGSPECTATOR: Added button as a parameter to the method so that it can tell which one was pressed "next" or "preview".
+	private void nextOrPreviewPressed(Button button) {
 		IWizardPage current= fCurrentPage;
 		saveInitialSize();
 		fCurrentPage= fCurrentPage.getNextPage();
+
+		//CODINGSPECTATOR: Record the event of pressing the button on the current page.
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), button.getText()));
+
 		if (current == fCurrentPage)
 			return;
 		if (!fHasAdditionalPages && IErrorWizardPage.PAGE_NAME.equals(fCurrentPage.getName())) {
@@ -528,16 +566,24 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		if (current == fCurrentPage)
 			return;
 
+		//CODINGSPECTATOR: Record the time of pressing the back button on the current page. 
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), IDialogConstants.BACK_LABEL));
+
 		showCurrentPage();
 	}
 
+	//CODINGSPECTATOR: Update the navigation history whenever the user presses a button on the error dialog.
 	private boolean showErrorDialog(ErrorWizardPage page) {
 		RefactoringStatusDialog dialog= new RefactoringStatusDialog(getShell(), page,
-			fWizard.internalShowBackButtonOnStatusDialog(InternalAPI.INSTANCE));
+				fWizard.internalShowBackButtonOnStatusDialog(InternalAPI.INSTANCE));
 		switch (dialog.open()) {
 			case IDialogConstants.OK_ID:
+
+				//See RefactoringStatusDialog#createButtonsForButtonBar() for the labels of the buttons
+				fWizard.addNavigationHistoryItem(new NavigationHistoryItem(page.getName(), RefactoringUIMessages.RefactoringStatusDialog_Continue));
 				return true;
 			case IDialogConstants.BACK_ID:
+				fWizard.addNavigationHistoryItem(new NavigationHistoryItem(page.getName(), IDialogConstants.BACK_LABEL));
 				fCurrentPage= fCurrentPage.getPreviousPage();
 				break;
 			case IDialogConstants.CANCEL_ID:
@@ -557,7 +603,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		Point size= control.getSize();
 		int dw= Math.max(0, fPreviewWidth - size.x);
 		int dh= Math.max(0, fPreviewHeight - size.y);
-		int dx = dw / 2;
+		int dx= dw / 2;
 		int dy= dh / 2;
 		Shell shell= getShell();
 		Rectangle rect= shell.getBounds();
@@ -599,8 +645,10 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 	protected Control createContents(Composite parent) {
 		Composite result= new Composite(parent, SWT.NONE);
 		GridLayout layout= new GridLayout();
-		layout.marginHeight= 0; layout.marginWidth= 0;
-		layout.verticalSpacing= 0; layout.horizontalSpacing= 0;
+		layout.marginHeight= 0;
+		layout.marginWidth= 0;
+		layout.verticalSpacing= 0;
+		layout.horizontalSpacing= 0;
 		result.setLayout(layout);
 		result.setLayoutData(new GridData(GridData.FILL_BOTH));
 
@@ -665,22 +713,23 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 			CANCEL_LABEL= IDialogConstants.NO_LABEL;
 		}
 		createButton(
-			parent,
-			IDialogConstants.OK_ID,
-			OK_LABEL,
-			true);
+				parent,
+				IDialogConstants.OK_ID,
+				OK_LABEL,
+				true);
 		createButton(
-			parent,
-			IDialogConstants.CANCEL_ID,
-			CANCEL_LABEL,
-			false);
+				parent,
+				IDialogConstants.CANCEL_ID,
+				CANCEL_LABEL,
+				false);
 		Button okButton= getButton(IDialogConstants.OK_ID);
 		okButton.setFocus();
 	}
 
-    private void createPreviewButton(Composite parent) {
-		if (! (fCurrentPage instanceof PreviewWizardPage) && fWizard.internalHasPreviewPage(InternalAPI.INSTANCE)) {
-			Button preview= createButton(parent, PREVIEW_ID, RefactoringUIMessages.RefactoringWizardDialog2_buttons_preview_label, false);
+	//CODINGSPECTATOR: Pass the preview button object to the event handler "nextOrPreviewPressed" so that CodingSpectator can tell that the user has pressed "preview" and not "next". 
+	private void createPreviewButton(Composite parent) {
+		if (!(fCurrentPage instanceof PreviewWizardPage) && fWizard.internalHasPreviewPage(InternalAPI.INSTANCE)) {
+			final Button preview= createButton(parent, PREVIEW_ID, RefactoringUIMessages.RefactoringWizardDialog2_buttons_preview_label, false);
 			if (fMakeNextButtonDefault) {
 				preview.getShell().setDefaultButton(preview);
 			}
@@ -690,7 +739,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 					if (isPreviewPageActive()) {
 						backPressed();
 					} else {
-						nextOrPreviewPressed();
+						nextOrPreviewPressed(preview);
 					}
 				}
 			});
@@ -701,7 +750,7 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		// Copied from Wizard Dialog.
 
 		// increment the number of columns in the button bar
-		GridLayout barLayout= (GridLayout) parent.getLayout();
+		GridLayout barLayout= (GridLayout)parent.getLayout();
 		barLayout.numColumns+= 2; // parent is assumed to have a GridLayout (see javadoc of Dialog#createButton(..))
 		Composite composite= new Composite(parent, SWT.NONE);
 		// create a layout with spacing and margins appropriate for the font
@@ -721,11 +770,13 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 				backPressed();
 			}
 		});
-		Button nextButton= createButton(composite, IDialogConstants.NEXT_ID, IDialogConstants.NEXT_LABEL, false);
+
+		//CODINGSPECTATOR: Pass the "next" button object to the event handler "nextOrPreviewPressed" so that CodingSpectator can tell that the user has pressed "next" and not "preview". 
+		final Button nextButton= createButton(composite, IDialogConstants.NEXT_ID, IDialogConstants.NEXT_LABEL, false);
 		nextButton.addSelectionListener(new SelectionAdapter() {
 
 			public void widgetSelected(SelectionEvent e) {
-				nextOrPreviewPressed();
+				nextOrPreviewPressed(nextButton);
 			}
 		});
 
@@ -734,8 +785,8 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 		Point minSize1= backButton.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		Point minSize2= nextButton.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		int minSize= Math.max(minSize1.x, minSize2.x);
-		((GridData) backButton.getLayoutData()).widthHint= minSize;
-		((GridData) nextButton.getLayoutData()).widthHint= minSize;
+		((GridData)backButton.getLayoutData()).widthHint= minSize;
+		((GridData)nextButton.getLayoutData()).widthHint= minSize;
 		data.widthHint= 2 * Math.max(widthHint, minSize) + barLayout.horizontalSpacing;
 		data.horizontalAlignment= SWT.FILL;
 		data.grabExcessHorizontalSpace= true;
@@ -744,14 +795,14 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 
 		return composite;
 	}
-	
+
 	/*
 	 * @see org.eclipse.jface.dialogs.Dialog#setButtonLayoutData(org.eclipse.swt.widgets.Button)
 	 * @since 3.5
 	 */
 	protected void setButtonLayoutData(Button button) {
 		super.setButtonLayoutData(button);
-		((GridData) button.getLayoutData()).grabExcessHorizontalSpace= true;
+		((GridData)button.getLayoutData()).grabExcessHorizontalSpace= true;
 	}
 
 	private void makeVisible(IWizardPage page) {

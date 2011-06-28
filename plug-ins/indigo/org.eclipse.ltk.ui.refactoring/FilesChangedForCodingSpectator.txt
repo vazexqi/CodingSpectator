@@ -1,0 +1,10 @@
+Changed Files
+=============
+
+src/org/eclipse/ltk/ui/refactoring/RefactoringWizard.java
+src/org/eclipse/ltk/internal/ui/refactoring/RefactoringWizardDialog2.java
+src/org/eclipse/ltk/ui/refactoring/RefactoringWizardOpenOperation.java
+src/org/eclipse/ltk/internal/ui/refactoring/RefactoringWizardDialog.java
+
+Added Files
+===========
