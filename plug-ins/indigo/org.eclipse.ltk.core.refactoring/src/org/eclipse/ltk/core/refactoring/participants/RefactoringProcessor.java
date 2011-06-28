@@ -20,36 +20,32 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
 /**
- * An abstract base class defining the protocol between a refactoring and
- * its associated processor. The API is very similar to the one of a
- * {@link org.eclipse.ltk.core.refactoring.Refactoring}. Implementors of
- * this class should therefore study the interface of the refactoring class
- * as well.
+ * An abstract base class defining the protocol between a refactoring and its associated processor.
+ * The API is very similar to the one of a {@link org.eclipse.ltk.core.refactoring.Refactoring}.
+ * Implementors of this class should therefore study the interface of the refactoring class as well.
  * <p>
  * A refactoring processor is responsible for:
  * <ul>
- *   <li>refactoring the actual element. For example if a rename Java method
- *       refactoring is executed its associated processor provides the
- *       precondition checking for renaming a method and creates the change
- *       object describing the workspace modifications. This change object
- *       contains elementary changes to rename the Java method and
- *       to update all call sides of this method as well.</li>
- *   <li>loading all participants that want to participate in the refactoring.
- *       For example a Java method rename processor is responsible to load
- *       all participants that want to participate in a Java method rename.</li>
+ * <li>refactoring the actual element. For example if a rename Java method refactoring is executed
+ * its associated processor provides the precondition checking for renaming a method and creates the
+ * change object describing the workspace modifications. This change object contains elementary
+ * changes to rename the Java method and to update all call sides of this method as well.</li>
+ * <li>loading all participants that want to participate in the refactoring. For example a Java
+ * method rename processor is responsible to load all participants that want to participate in a
+ * Java method rename.</li>
  * </ul>
  * </p>
  * <p>
- * A refactoring processor can not assume that all resources are saved before
- * any methods are called on it. Therefore a processor must be able to deal with
- * unsaved resources.
+ * A refactoring processor can not assume that all resources are saved before any methods are called
+ * on it. Therefore a processor must be able to deal with unsaved resources.
  * </p>
  * <p>
- * This class should be subclassed by clients wishing to provide special refactoring
- * processors.
+ * This class should be subclassed by clients wishing to provide special refactoring processors.
  * </p>
- *
+ * 
  * @since 3.0
+ * 
+ * @author Mohsen Vakilian - Added a method to check the quick assist origin of the refactoring.
  */
 public abstract class RefactoringProcessor extends PlatformObject {
 
@@ -57,23 +53,23 @@ public abstract class RefactoringProcessor extends PlatformObject {
 
 	/**
 	 * Set the owning refactoring.
-	 *
+	 * 
 	 * @param refactoring the refactoring
-	 *
+	 * 
 	 * @since 3.1
 	 */
-	/* package */ void setRefactoring(ProcessorBasedRefactoring refactoring) {
+	/* package */void setRefactoring(ProcessorBasedRefactoring refactoring) {
 		Assert.isTrue(fRefactoring == null, "The refactoring can only be set once"); //$NON-NLS-1$
 		Assert.isNotNull(refactoring);
 		fRefactoring= refactoring;
 	}
 
 	/**
-	 * Returns the associated refactoring. Returns <code>null</code> if the
-	 * processor isn't associated with a refactoring yet.
-	 *
+	 * Returns the associated refactoring. Returns <code>null</code> if the processor isn't
+	 * associated with a refactoring yet.
+	 * 
 	 * @return the associated refactoring
-	 *
+	 * 
 	 * @since 3.1
 	 */
 	public ProcessorBasedRefactoring getRefactoring() {
@@ -214,43 +210,50 @@ public abstract class RefactoringProcessor extends PlatformObject {
 	}
 
 	/**
-	 * Returns the array of participants. It is up to the implementor of a
-	 * concrete processor to define which participants are loaded. In general,
-	 * three different kinds of participants can be distinguished:
+	 * Returns the array of participants. It is up to the implementor of a concrete processor to
+	 * define which participants are loaded. In general, three different kinds of participants can
+	 * be distinguished:
 	 * <ul>
-	 *   <li>participants listening to the processed refactoring itself. For
-	 *       example if a Java field gets renamed all participants listening
-	 *       to Java field renames should be added via this hook.</li>
-	 *   <li>participants listening to changes of derived elements. For example
-	 *       if a Java field gets renamed corresponding setter and getters methods
-	 *       are renamed as well. The setter and getter methods are considered as
-	 *       derived elements and the corresponding participants should be added via
-	 *       this hook.</li>
-	 *   <li>participants listening to changes of a domain model different than
-	 *       the one that gets manipulated, but changed as a "side effect" of the
-	 *       refactoring. For example, renaming a package moves all its files to a
-	 *       different folder. If the package contains a HTML file then the rename
-	 *       package processor is supposed to load all move HTML file participants
-	 *       via this hook.</li>
+	 * <li>participants listening to the processed refactoring itself. For example if a Java field
+	 * gets renamed all participants listening to Java field renames should be added via this hook.</li>
+	 * <li>participants listening to changes of derived elements. For example if a Java field gets
+	 * renamed corresponding setter and getters methods are renamed as well. The setter and getter
+	 * methods are considered as derived elements and the corresponding participants should be added
+	 * via this hook.</li>
+	 * <li>participants listening to changes of a domain model different than the one that gets
+	 * manipulated, but changed as a "side effect" of the refactoring. For example, renaming a
+	 * package moves all its files to a different folder. If the package contains a HTML file then
+	 * the rename package processor is supposed to load all move HTML file participants via this
+	 * hook.</li>
 	 * </ul>
 	 * <p>
-	 * Implementors are responsible to initialize the created participants with
-	 * the right arguments. The method is called after
-	 * {@link #checkFinalConditions(IProgressMonitor, CheckConditionsContext)}has
-	 * been called on the processor itself.
+	 * Implementors are responsible to initialize the created participants with the right arguments.
+	 * The method is called after
+	 * {@link #checkFinalConditions(IProgressMonitor, CheckConditionsContext)}has been called on the
+	 * processor itself.
 	 * </p>
-	 * @param status a refactoring status to report status if problems occur while
-	 *  loading the participants
-	 * @param sharedParticipants a list of sharable participants. Implementors of
-	 *  this method can simply pass this instance to the corresponding participant
-	 *  loading methods defined in {@link ParticipantManager}.
-	 *
-	 * @return an array of participants or <code>null</code> or an empty array
-	 *  if no participants are loaded
-	 *
+	 * 
+	 * @param status a refactoring status to report status if problems occur while loading the
+	 *            participants
+	 * @param sharedParticipants a list of sharable participants. Implementors of this method can
+	 *            simply pass this instance to the corresponding participant loading methods defined
+	 *            in {@link ParticipantManager}.
+	 * 
+	 * @return an array of participants or <code>null</code> or an empty array if no participants
+	 *         are loaded
+	 * 
 	 * @throws CoreException if creating or loading of the participants failed
-	 *
+	 * 
 	 * @see ISharableParticipant
 	 */
 	public abstract RefactoringParticipant[] loadParticipants(RefactoringStatus status, SharableParticipants sharedParticipants) throws CoreException;
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public boolean isInvokedByQuickAssist() {
+		return fRefactoring.isInvokedByQuickAssist();
+	}
+
 }

@@ -28,6 +28,8 @@ import java.util.Set;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 import org.xml.sax.InputSource;
 
 import org.eclipse.core.commands.operations.IOperationHistoryListener;
@@ -83,7 +85,12 @@ import org.eclipse.ltk.internal.core.refactoring.UndoableOperation2ChangeAdapter
 
 /**
  * Default implementation of a refactoring history service.
- *
+ * 
+ * @author nchen - Added getFeatureVersion(), getRefactoringHistoryCanceledFolder(),
+ *         getRefactoringHistoryPerformedFolder(), constructHiddenFolder(baseName) to locate the
+ *         folder to store the log files.
+ * @author Mohsen Vakilian - Added the CODINGSPECTATOR change comments.
+ * 
  * @since 3.2
  */
 public final class RefactoringHistoryService implements IRefactoringHistoryService {
@@ -122,6 +129,15 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/** The refactoring history file */
 	public static final String NAME_HISTORY_FILE= "refactorings.history"; //$NON-NLS-1$
 
+	/** The refactoring history canceled folder */
+	public static final String NAME_HISTORY_CANCELED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsCanceledDirectory;
+
+	/** The refactoring history performed folder */
+	public static final String NAME_HISTORY_PERFORMED_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsPerformedDirectory;
+
+	/** The refactoring history disallowed folder */
+	public static final String NAME_HISTORY_UNAVAILABLE_FOLDER= RefactoringCoreMessages.RefactoringHistoryService_RefactoringsUnavailableDirectory;
+
 	/** The refactoring history folder */
 	public static final String NAME_HISTORY_FOLDER= ".refactorings"; //$NON-NLS-1$
 
@@ -135,27 +151,21 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	private static final NullRefactoringHistory NO_HISTORY= new NullRefactoringHistory();
 
 	/**
-	 * Filters the given array of refactoring proxies and returns the result in
-	 * the specified refactoring descriptor proxy set.
+	 * Filters the given array of refactoring proxies and returns the result in the specified
+	 * refactoring descriptor proxy set.
 	 * <p>
-	 * Clients wishing to benefit from the resolving of refactoring descriptors
-	 * to determine its flags can set resolve to <code>true</code> if they
-	 * would like to have resolved refactoring descriptor proxies as result.
+	 * Clients wishing to benefit from the resolving of refactoring descriptors to determine its
+	 * flags can set resolve to <code>true</code> if they would like to have resolved refactoring
+	 * descriptor proxies as result.
 	 * </p>
-	 *
-	 * @param proxies
-	 *            the refactoring descriptor proxies
-	 * @param set
-	 *            the result set
-	 * @param resolve
-	 *            <code>true</code> to return the filtered refactoring
-	 *            descriptors as resolved refactoring proxies,
-	 *            <code>false</code> otherwise
-	 * @param flags
-	 *            the refactoring descriptor flags which must be present in
-	 *            order to be returned in the refactoring history object
-	 * @param monitor
-	 *            the progress monitor to use
+	 * 
+	 * @param proxies the refactoring descriptor proxies
+	 * @param set the result set
+	 * @param resolve <code>true</code> to return the filtered refactoring descriptors as resolved
+	 *            refactoring proxies, <code>false</code> otherwise
+	 * @param flags the refactoring descriptor flags which must be present in order to be returned
+	 *            in the refactoring history object
+	 * @param monitor the progress monitor to use
 	 */
 	private static void filterRefactoringDescriptors(final RefactoringDescriptorProxy[] proxies, final Set set, final boolean resolve, final int flags, final IProgressMonitor monitor) {
 		Assert.isTrue(flags > RefactoringDescriptor.NONE);
@@ -180,7 +190,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/**
 	 * Returns the singleton instance of the refactoring history.
-	 *
+	 * 
 	 * @return the singleton instance
 	 */
 	public static RefactoringHistoryService getInstance() {
@@ -191,16 +201,16 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/**
 	 * Returns whether a project has a shared refactoring history.
-	 *
-	 * @param project
-	 *            the project to test
-	 * @return <code>true</code> if the project has a shared project history,
-	 *         <code>false</code> otherwise
+	 * 
+	 * @param project the project to test
+	 * @return <code>true</code> if the project has a shared project history, <code>false</code>
+	 *         otherwise
 	 */
 	public static boolean hasSharedRefactoringHistory(final IProject project) {
 		Assert.isNotNull(project);
-		final IScopeContext[] contexts= new IScopeContext[] { new ProjectScope(project)};
-		final String preference= Platform.getPreferencesService().getString(RefactoringCorePlugin.getPluginId(), RefactoringPreferenceConstants.PREFERENCE_SHARED_REFACTORING_HISTORY, Boolean.FALSE.toString(), contexts);
+		final IScopeContext[] contexts= new IScopeContext[] { new ProjectScope(project) };
+		final String preference= Platform.getPreferencesService().getString(RefactoringCorePlugin.getPluginId(), RefactoringPreferenceConstants.PREFERENCE_SHARED_REFACTORING_HISTORY,
+				Boolean.FALSE.toString(), contexts);
 		if (preference != null)
 			return Boolean.valueOf(preference).booleanValue();
 		return false;
@@ -209,35 +219,27 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/**
 	 * Determines whether a project has a shared refactoring history.
 	 * <p>
-	 * If a shared refactoring history is enabled, refactorings executed on that
-	 * particular project are stored in a hidden refactoring history folder of
-	 * the project folder. If no shared refactoring history is enabled, all
-	 * refactorings are tracked as well, but persisted internally in a
-	 * plugin-specific way without altering the project.
+	 * If a shared refactoring history is enabled, refactorings executed on that particular project
+	 * are stored in a hidden refactoring history folder of the project folder. If no shared
+	 * refactoring history is enabled, all refactorings are tracked as well, but persisted
+	 * internally in a plugin-specific way without altering the project.
 	 * </p>
 	 * <p>
-	 * Note: this method simply copies the content of the refactoring history
-	 * folder to the location corresponding to the shared history setting.
-	 * Clients wishing to programmatically change the refactoring history
-	 * location have to update the preference
-	 * {@link RefactoringPreferenceConstants#PREFERENCE_SHARED_REFACTORING_HISTORY}
-	 * located in the preference store of the
-	 * <code>org.eclipse.ltk.core.refactoring</code> plugin accordingly.
+	 * Note: this method simply copies the content of the refactoring history folder to the location
+	 * corresponding to the shared history setting. Clients wishing to programmatically change the
+	 * refactoring history location have to update the preference
+	 * {@link RefactoringPreferenceConstants#PREFERENCE_SHARED_REFACTORING_HISTORY} located in the
+	 * preference store of the <code>org.eclipse.ltk.core.refactoring</code> plugin accordingly.
 	 * </p>
-	 *
-	 * @param project
-	 *            the project to set the shared refactoring history property
-	 * @param enable
-	 *            <code>true</code> to enable a shared refactoring history,
-	 *            <code>false</code> otherwise
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs while changing the shared refactoring
-	 *             history property. Reasons include:
+	 * 
+	 * @param project the project to set the shared refactoring history property
+	 * @param enable <code>true</code> to enable a shared refactoring history, <code>false</code>
+	 *            otherwise
+	 * @param monitor the progress monitor to use, or <code>null</code>
+	 * @throws CoreException if an error occurs while changing the shared refactoring history
+	 *             property. Reasons include:
 	 *             <ul>
-	 *             <li>An I/O error occurs while changing the shared
-	 *             refactoring history property.</li>
+	 *             <li>An I/O error occurs while changing the shared refactoring history property.</li>
 	 *             </ul>
 	 */
 	public static void setSharedRefactoringHistory(final IProject project, final boolean enable, IProgressMonitor monitor) throws CoreException {
@@ -309,6 +311,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	/** Maximal number of refactoring managers */
 	private static final int MAX_MANAGERS= 2;
 
+
 	/**
 	 * The refactoring history manager cache (element type:
 	 * <code>&lt;IFileStore, RefactoringHistoryManager&gt;</code>)
@@ -346,16 +349,13 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Adds the specified refactoring descriptor to the corresponding
-	 * refactoring history.
+	 * Adds the specified refactoring descriptor to the corresponding refactoring history.
 	 * <p>
 	 * If a descriptor with the same timestamp already exists, nothing happens.
 	 * </p>
-	 *
-	 * @param proxy
-	 *            the refactoring descriptor proxy
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
+	 * 
+	 * @param proxy the refactoring descriptor proxy
+	 * @param monitor the progress monitor to use, or <code>null</code>
 	 */
 	public void addRefactoringDescriptor(final RefactoringDescriptorProxy proxy, IProgressMonitor monitor) {
 		Assert.isNotNull(proxy);
@@ -391,23 +391,19 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Deletes the specified refactoring descriptors from their associated
-	 * refactoring histories.
-	 *
-	 * @param proxies
-	 *            the refactoring descriptor proxies
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs while deleting the refactoring
-	 *             descriptors. Reasons include:
+	 * Deletes the specified refactoring descriptors from their associated refactoring histories.
+	 * 
+	 * @param proxies the refactoring descriptor proxies
+	 * @param monitor the progress monitor to use, or <code>null</code>
+	 * @throws CoreException if an error occurs while deleting the refactoring descriptors. Reasons
+	 *             include:
 	 *             <ul>
-	 *             <li>The refactoring history has an illegal format, contains
-	 *             illegal arguments or otherwise illegal information.</li>
-	 *             <li>An I/O error occurs while deleting the refactoring
-	 *             descriptors from the refactoring history.</li>
+	 *             <li>The refactoring history has an illegal format, contains illegal arguments or
+	 *             otherwise illegal information.</li>
+	 *             <li>An I/O error occurs while deleting the refactoring descriptors from the
+	 *             refactoring history.</li>
 	 *             </ul>
-	 *
+	 * 
 	 * @see IRefactoringCoreStatusCodes#REFACTORING_HISTORY_FORMAT_ERROR
 	 * @see IRefactoringCoreStatusCodes#REFACTORING_HISTORY_IO_ERROR
 	 */
@@ -422,7 +418,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 				String project= proxies[index].getProject();
 				if (project == null || "".equals(project)) //$NON-NLS-1$
 					project= RefactoringHistoryService.NAME_WORKSPACE_PROJECT;
-				Collection collection= (Collection) projects.get(project);
+				Collection collection= (Collection)projects.get(project);
 				if (collection == null) {
 					collection= new ArrayList();
 					projects.put(project, collection);
@@ -435,14 +431,15 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 				final Set entries= projects.entrySet();
 				subMonitor.beginTask(RefactoringCoreMessages.RefactoringHistoryService_deleting_refactorings, entries.size());
 				for (final Iterator iterator= entries.iterator(); iterator.hasNext();) {
-					final Map.Entry entry= (Map.Entry) iterator.next();
-					final Collection collection= (Collection) entry.getValue();
-					String project= (String) entry.getKey();
+					final Map.Entry entry= (Map.Entry)iterator.next();
+					final Collection collection= (Collection)entry.getValue();
+					String project= (String)entry.getKey();
 					if (project.equals(RefactoringHistoryService.NAME_WORKSPACE_PROJECT))
 						project= null;
 					final RefactoringHistoryManager manager= getManager(project);
 					if (manager != null)
-						manager.removeRefactoringDescriptors((RefactoringDescriptorProxy[]) collection.toArray(new RefactoringDescriptorProxy[collection.size()]), new SubProgressMonitor(subMonitor, 1), RefactoringCoreMessages.RefactoringHistoryService_deleting_refactorings);
+						manager.removeRefactoringDescriptors((RefactoringDescriptorProxy[])collection.toArray(new RefactoringDescriptorProxy[collection.size()]),
+								new SubProgressMonitor(subMonitor, 1), RefactoringCoreMessages.RefactoringHistoryService_deleting_refactorings);
 					else
 						subMonitor.worked(1);
 				}
@@ -455,25 +452,20 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Deletes the specified refactoring descriptors from their associated
-	 * refactoring histories.
-	 *
-	 * @param proxies
-	 *            the refactoring descriptor proxies
-	 * @param query
-	 *            the refactoring descriptor delete query to use
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs while deleting the refactoring
-	 *             descriptors. Reasons include:
+	 * Deletes the specified refactoring descriptors from their associated refactoring histories.
+	 * 
+	 * @param proxies the refactoring descriptor proxies
+	 * @param query the refactoring descriptor delete query to use
+	 * @param monitor the progress monitor to use, or <code>null</code>
+	 * @throws CoreException if an error occurs while deleting the refactoring descriptors. Reasons
+	 *             include:
 	 *             <ul>
-	 *             <li>The refactoring history has an illegal format, contains
-	 *             illegal arguments or otherwise illegal information.</li>
-	 *             <li>An I/O error occurs while deleting the refactoring
-	 *             descriptors from the refactoring history.</li>
+	 *             <li>The refactoring history has an illegal format, contains illegal arguments or
+	 *             otherwise illegal information.</li>
+	 *             <li>An I/O error occurs while deleting the refactoring descriptors from the
+	 *             refactoring history.</li>
 	 *             </ul>
-	 *
+	 * 
 	 * @see IRefactoringCoreStatusCodes#REFACTORING_HISTORY_FORMAT_ERROR
 	 * @see IRefactoringCoreStatusCodes#REFACTORING_HISTORY_IO_ERROR
 	 */
@@ -491,7 +483,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 				monitor.worked(1);
 			}
 			if (!set.isEmpty()) {
-				final RefactoringDescriptorProxy[] delete= (RefactoringDescriptorProxy[]) set.toArray(new RefactoringDescriptorProxy[set.size()]);
+				final RefactoringDescriptorProxy[] delete= (RefactoringDescriptorProxy[])set.toArray(new RefactoringDescriptorProxy[set.size()]);
 				deleteRefactoringDescriptors(delete, new SubProgressMonitor(monitor, 300));
 				for (int index= 0; index < delete.length; index++)
 					fireRefactoringHistoryEvent(delete[index], RefactoringHistoryEvent.DELETED);
@@ -502,25 +494,20 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Deletes the refactoring history of a project. Refactorings associated
-	 * with the workspace are not deleted.
+	 * Deletes the refactoring history of a project. Refactorings associated with the workspace are
+	 * not deleted.
 	 * <p>
-	 * If a refactoring history is deleted, all files stored in the hidden
-	 * refactoring history folder of the project folder are removed. If no
-	 * shared refactoring history is enabled, the refactoring history
-	 * information is removed from the internal workspace refactoring history.
+	 * If a refactoring history is deleted, all files stored in the hidden refactoring history
+	 * folder of the project folder are removed. If no shared refactoring history is enabled, the
+	 * refactoring history information is removed from the internal workspace refactoring history.
 	 * </p>
-	 *
-	 * @param project
-	 *            the project to delete its history
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs while deleting the refactoring history.
-	 *             Reasons include:
+	 * 
+	 * @param project the project to delete its history
+	 * @param monitor the progress monitor to use, or <code>null</code>
+	 * @throws CoreException if an error occurs while deleting the refactoring history. Reasons
+	 *             include:
 	 *             <ul>
-	 *             <li>An I/O error occurs while deleting the refactoring
-	 *             history.</li>
+	 *             <li>An I/O error occurs while deleting the refactoring history.</li>
 	 *             </ul>
 	 */
 	public void deleteRefactoringHistory(final IProject project, IProgressMonitor monitor) throws CoreException {
@@ -573,7 +560,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 		Assert.isNotNull(proxy);
 		final Object[] listeners= fExecutionListeners.getListeners();
 		for (int index= 0; index < listeners.length; index++) {
-			final IRefactoringExecutionListener listener= (IRefactoringExecutionListener) listeners[index];
+			final IRefactoringExecutionListener listener= (IRefactoringExecutionListener)listeners[index];
 			SafeRunner.run(new ISafeRunnable() {
 
 				public void handleException(final Throwable throwable) {
@@ -591,7 +578,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 		Assert.isNotNull(proxy);
 		final Object[] listeners= fHistoryListeners.getListeners();
 		for (int index= 0; index < listeners.length; index++) {
-			final IRefactoringHistoryListener listener= (IRefactoringHistoryListener) listeners[index];
+			final IRefactoringHistoryListener listener= (IRefactoringHistoryListener)listeners[index];
 			SafeRunner.run(new ISafeRunnable() {
 
 				public void handleException(final Throwable throwable) {
@@ -617,15 +604,15 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 				final String time= DateFormat.getDateTimeInstance().format(new Date(descriptor.getTimeStamp()));
 				final String message= "The refactoring executed at " + time + " contributed a refactoring descriptor with invalid format:"; //$NON-NLS-1$//$NON-NLS-2$
 				final IStatus comment= new Status(IStatus.ERROR, RefactoringCorePlugin.getPluginId(), descriptor.getComment());
-				RefactoringCorePlugin.log(new MultiStatus(RefactoringCorePlugin.getPluginId(), 0, new IStatus[] { comment}, message, null));
+				RefactoringCorePlugin.log(new MultiStatus(RefactoringCorePlugin.getPluginId(), 0, new IStatus[] { comment }, message, null));
 			}
 			RefactoringCorePlugin.log(exception);
 
 			if (operation instanceof TriggeredOperations) {
-				operation= ((TriggeredOperations) operation).getTriggeringOperation();
+				operation= ((TriggeredOperations)operation).getTriggeringOperation();
 			}
 			if (operation instanceof UndoableOperation2ChangeAdapter) {
-				((UndoableOperation2ChangeAdapter) operation).setChangeDescriptor(null);
+				((UndoableOperation2ChangeAdapter)operation).setChangeDescriptor(null);
 			}
 			return false;
 		}
@@ -660,7 +647,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 					if (flags > RefactoringDescriptor.NONE) {
 						final Set set= new HashSet();
 						filterRefactoringDescriptors(history.getDescriptors(), set, false, flags, new SubProgressMonitor(monitor, 100));
-						history= new RefactoringHistoryImplementation((RefactoringDescriptorProxy[]) set.toArray(new RefactoringDescriptorProxy[set.size()]));
+						history= new RefactoringHistoryImplementation((RefactoringDescriptorProxy[])set.toArray(new RefactoringDescriptorProxy[set.size()]));
 					}
 					return history;
 				}
@@ -735,19 +722,16 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	 * Reads refactoring descriptor proxies from the input stream.
 	 * <p>
 	 * Note that calling this method with a flag argument unequal to
-	 * <code>RefactoringDescriptor#NONE</code> may result in a performance
-	 * degradation, since the actual descriptors have to be eagerly resolved.
-	 * This in turn results in faster execution of any subsequent calls to
-	 * {@link RefactoringDescriptorProxy#requestDescriptor(IProgressMonitor)}
-	 * which try to request a descriptor from the returned refactoring history.
+	 * <code>RefactoringDescriptor#NONE</code> may result in a performance degradation, since the
+	 * actual descriptors have to be eagerly resolved. This in turn results in faster execution of
+	 * any subsequent calls to
+	 * {@link RefactoringDescriptorProxy#requestDescriptor(IProgressMonitor)} which try to request a
+	 * descriptor from the returned refactoring history.
 	 * </p>
-	 *
-	 * @param stream
-	 *            the input stream to read from
+	 * 
+	 * @param stream the input stream to read from
 	 * @return the refactoring descriptor proxies
-	 * @throws CoreException
-	 *             if an error occurs while reading the refactoring descriptor
-	 *             proxies
+	 * @throws CoreException if an error occurs while reading the refactoring descriptor proxies
 	 */
 	public RefactoringDescriptorProxy[] readRefactoringDescriptorProxies(final InputStream stream) throws CoreException {
 		Assert.isNotNull(stream);
@@ -779,7 +763,7 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 		}
 		final RefactoringDescriptorProxy[] proxies= new RefactoringDescriptorProxy[list.size()];
 		for (int index= 0; index < list.size(); index++)
-			proxies[index]= new RefactoringDescriptorProxyAdapter((RefactoringDescriptor) list.get(index));
+			proxies[index]= new RefactoringDescriptorProxyAdapter((RefactoringDescriptor)list.get(index));
 		return new RefactoringHistoryImplementation(proxies);
 	}
 
@@ -800,17 +784,14 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Returns the resolved refactoring descriptor associated with the specified
-	 * proxy.
+	 * Returns the resolved refactoring descriptor associated with the specified proxy.
 	 * <p>
 	 * The refactoring history must be in connected state.
 	 * </p>
-	 *
-	 * @param proxy
-	 *            the refactoring descriptor proxy
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
-	 *
+	 * 
+	 * @param proxy the refactoring descriptor proxy
+	 * @param monitor the progress monitor to use, or <code>null</code>
+	 * 
 	 * @return the resolved refactoring descriptor, or <code>null</code>
 	 */
 	public RefactoringDescriptor requestDescriptor(final RefactoringDescriptorProxy proxy, IProgressMonitor monitor) {
@@ -829,9 +810,8 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/**
 	 * Sets the override time stamp for the next refactoring performed.
-	 *
-	 * @param stamp
-	 *            the override time stamp, or <code>-1</code> to clear it
+	 * 
+	 * @param stamp the override time stamp, or <code>-1</code> to clear it
 	 */
 	public void setOverrideTimeStamp(final long stamp) {
 		Assert.isTrue(stamp == -1 || stamp >= 0);
@@ -878,13 +858,10 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	/**
 	 * Moves the project history from the old project to the new one.
-	 *
-	 * @param oldProject
-	 *            the old project, which does not exist anymore
-	 * @param newProject
-	 *            the new project, which already exists
-	 * @param monitor
-	 *            the progress monitor to use
+	 * 
+	 * @param oldProject the old project, which does not exist anymore
+	 * @param newProject the new project, which already exists
+	 * @param monitor the progress monitor to use
 	 */
 	private void moveHistory(final IProject oldProject, final IProject newProject, final IProgressMonitor monitor) {
 		try {
@@ -919,13 +896,13 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 						final IResource oldResource= deltas[0].getResource();
 						final IResource newResource= deltas[1].getResource();
 						if (oldResource.getType() == IResource.PROJECT && newResource.getType() == IResource.PROJECT)
-							moveHistory((IProject) oldResource, (IProject) newResource, new NullProgressMonitor());
+							moveHistory((IProject)oldResource, (IProject)newResource, new NullProgressMonitor());
 					} else {
 						if (deltas[0].getKind() == IResourceDelta.ADDED && deltas[1].getKind() == IResourceDelta.REMOVED) {
 							final IResource newResource= deltas[0].getResource();
 							final IResource oldResource= deltas[1].getResource();
 							if (oldResource.getType() == IResource.PROJECT && newResource.getType() == IResource.PROJECT)
-								moveHistory((IProject) oldResource, (IProject) newResource, new NullProgressMonitor());
+								moveHistory((IProject)oldResource, (IProject)newResource, new NullProgressMonitor());
 						}
 					}
 				}
@@ -935,12 +912,12 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 
 	private RefactoringDescriptor getRefactoringDescriptor(IUndoableOperation operation) {
 		if (operation instanceof TriggeredOperations) {
-			operation= ((TriggeredOperations) operation).getTriggeringOperation();
+			operation= ((TriggeredOperations)operation).getTriggeringOperation();
 		}
 		if (operation instanceof UndoableOperation2ChangeAdapter) {
-			ChangeDescriptor changeDescriptor= ((UndoableOperation2ChangeAdapter) operation).getChangeDescriptor();
+			ChangeDescriptor changeDescriptor= ((UndoableOperation2ChangeAdapter)operation).getChangeDescriptor();
 			if (changeDescriptor instanceof RefactoringChangeDescriptor) {
-				return ((RefactoringChangeDescriptor) changeDescriptor).getRefactoringDescriptor();
+				return ((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
 			}
 		}
 		return null;
@@ -990,12 +967,9 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Returns the refactoring history manager corresponding to the project
-	 * with the specified name.
-	 *
-	 * @param name
-	 *            the name of the project, or <code>null</code> for the
-	 *            workspace
+	 * Returns the refactoring history manager corresponding to the project with the specified name.
+	 * 
+	 * @param name the name of the project, or <code>null</code> for the workspace
 	 * @return the refactoring history manager, or <code>null</code>
 	 */
 	private RefactoringHistoryManager getManager(final String name) {
@@ -1020,19 +994,15 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 	}
 
 	/**
-	 * Returns the cached refactoring history manager for the specified
-	 * history location.
-	 *
-	 * @param store
-	 *            the file store describing the history location
-	 * @param name
-	 *            the non-empty project name, or <code>null</code> for the
-	 *            workspace
+	 * Returns the cached refactoring history manager for the specified history location.
+	 * 
+	 * @param store the file store describing the history location
+	 * @param name the non-empty project name, or <code>null</code> for the workspace
 	 * @return the refactoring history manager
 	 */
 	private RefactoringHistoryManager getManager(final IFileStore store, final String name) {
 		Assert.isNotNull(store);
-		RefactoringHistoryManager manager= (RefactoringHistoryManager) fManagerCache.get(store);
+		RefactoringHistoryManager manager= (RefactoringHistoryManager)fManagerCache.get(store);
 		if (manager == null) {
 			manager= new RefactoringHistoryManager(store, name);
 			fManagerCache.put(store, manager);
@@ -1040,4 +1010,31 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 		return manager;
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public static Version getFeatureVersion() {
+		Bundle bundle= Platform.getBundle(RefactoringCoreMessages.CodingSpectator_FeatureBundleName);
+		if (bundle != null)
+			return bundle.getVersion();
+		else
+			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
+	}
+
+	private static String constructHiddenFolder(String baseName) {
+		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
+	}
+
+	public static String getRefactoringHistoryCanceledFolder() {
+		return constructHiddenFolder(NAME_HISTORY_CANCELED_FOLDER);
+	}
+
+	public static String getRefactoringHistoryPerformedFolder() {
+		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
+	}
+
+	public static String getRefactoringHistoryUnavailableFolder() {
+		return constructHiddenFolder(NAME_HISTORY_UNAVAILABLE_FOLDER);
+	}
 }

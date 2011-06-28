@@ -84,7 +84,10 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringSessionTransformer;
 
 /**
  * Manager for persistable refactoring histories.
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class accessible to
+ *         edu.illinois.codingspectator.ui.tests.
+ * 
  * @since 3.2
  */
 public final class RefactoringHistoryManager {
@@ -104,40 +107,41 @@ public final class RefactoringHistoryManager {
 	 * All arguments contained in the map are checked according to the rules of
 	 * {@link RefactoringDescriptor}.
 	 * </p>
-	 *
-	 * @param arguments
-	 *            the argument map
-	 * @throws CoreException
-	 *             if the argument violates any of the constraints
+	 * 
+	 * @param arguments the argument map
+	 * @throws CoreException if the argument violates any of the constraints
 	 */
 	public static void checkArgumentMap(final Map arguments) throws CoreException {
 		Assert.isNotNull(arguments);
 		for (final Iterator iterator= arguments.entrySet().iterator(); iterator.hasNext();) {
-			final Map.Entry entry= (Map.Entry) iterator.next();
+			final Map.Entry entry= (Map.Entry)iterator.next();
 			if (entry.getKey() instanceof String) {
-				final String string= (String) entry.getKey();
+				final String string= (String)entry.getKey();
 				final char[] characters= string.toCharArray();
 				if (characters.length == 0) {
-					throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR, RefactoringCoreMessages.RefactoringHistoryManager_empty_argument, null));
+					throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR,
+							RefactoringCoreMessages.RefactoringHistoryManager_empty_argument, null));
 				}
 				for (int index= 0; index < characters.length; index++) {
 					if (Character.isWhitespace(characters[index]))
-						throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR, RefactoringCoreMessages.RefactoringHistoryManager_whitespace_argument_key, null));
+						throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR,
+								RefactoringCoreMessages.RefactoringHistoryManager_whitespace_argument_key, null));
 				}
 			} else {
-				throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR, Messages.format(RefactoringCoreMessages.RefactoringHistoryManager_non_string_argument, entry.getKey()), null));
+				throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR, Messages.format(
+						RefactoringCoreMessages.RefactoringHistoryManager_non_string_argument, entry.getKey()), null));
 			}
-			if (! (entry.getValue() instanceof String)) {
-				throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR, Messages.format(RefactoringCoreMessages.RefactoringHistoryManager_non_string_value, entry.getKey()), null));
+			if (!(entry.getValue() instanceof String)) {
+				throw new CoreException(new Status(IStatus.ERROR, RefactoringCore.ID_PLUGIN, IRefactoringCoreStatusCodes.REFACTORING_HISTORY_FORMAT_ERROR, Messages.format(
+						RefactoringCoreMessages.RefactoringHistoryManager_non_string_value, entry.getKey()), null));
 			}
 		}
 	}
 
 	/**
 	 * Creates a new core exception representing an I/O error.
-	 *
-	 * @param exception
-	 *            the throwable to wrap
+	 * 
+	 * @param exception the throwable to wrap
 	 * @return the core exception
 	 */
 	private static CoreException createCoreException(final Throwable exception) {
@@ -146,9 +150,8 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Escapes the specified string for the history index.
-	 *
-	 * @param string
-	 *            the string for the history index
+	 * 
+	 * @param string the string for the history index
 	 * @return the escaped string
 	 */
 	public static String escapeString(final String string) {
@@ -168,9 +171,8 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Returns the argument map of the specified descriptor.
-	 *
-	 * @param descriptor
-	 *            the refactoring descriptor
+	 * 
+	 * @param descriptor the refactoring descriptor
 	 * @return the argument map, or <code>null</code>
 	 */
 	public static Map getArgumentMap(final RefactoringDescriptor descriptor) {
@@ -179,32 +181,24 @@ public final class RefactoringHistoryManager {
 		if (contribution != null)
 			arguments= contribution.retrieveArgumentMap(descriptor);
 		else if (descriptor instanceof DefaultRefactoringDescriptor)
-			arguments= ((DefaultRefactoringDescriptor) descriptor).getArguments();
+			arguments= ((DefaultRefactoringDescriptor)descriptor).getArguments();
 		return arguments;
 	}
 
 	/**
 	 * Reads refactoring descriptor proxies.
-	 *
-	 * @param store
-	 *            the file store to read
-	 * @param project
-	 *            the name of the project, or <code>null</code> for the
-	 *            workspace
-	 * @param collection
-	 *            the collection of proxies to fill in
-	 * @param start
-	 *            the start time stamp, inclusive
-	 * @param end
-	 *            the end time stamp, inclusive
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param task
-	 *            the task label to use
-	 * @throws CoreException
-	 *             if an error occurs
+	 * 
+	 * @param store the file store to read
+	 * @param project the name of the project, or <code>null</code> for the workspace
+	 * @param collection the collection of proxies to fill in
+	 * @param start the start time stamp, inclusive
+	 * @param end the end time stamp, inclusive
+	 * @param monitor the progress monitor to use
+	 * @param task the task label to use
+	 * @throws CoreException if an error occurs
 	 */
-	private static void readRefactoringDescriptorProxies(final IFileStore store, final String project, final Collection collection, final long start, final long end, final IProgressMonitor monitor, final String task) throws CoreException {
+	private static void readRefactoringDescriptorProxies(final IFileStore store, final String project, final Collection collection, final long start, final long end, final IProgressMonitor monitor,
+			final String task) throws CoreException {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RefactoringHistoryService_retrieving_history, 22);
 			final IFileInfo info= store.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 2, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL));
@@ -252,19 +246,13 @@ public final class RefactoringHistoryManager {
 	 * <p>
 	 * The refactoring descriptor proxies are returned in no particular order.
 	 * </p>
-	 *
-	 * @param stream
-	 *            the input stream where to read from
-	 * @param project
-	 *            the name of the project, or <code>null</code> for the
-	 *            workspace
-	 * @param start
-	 *            the start time stamp, inclusive
-	 * @param end
-	 *            the end time stamp, inclusive
+	 * 
+	 * @param stream the input stream where to read from
+	 * @param project the name of the project, or <code>null</code> for the workspace
+	 * @param start the start time stamp, inclusive
+	 * @param end the end time stamp, inclusive
 	 * @return An array of refactoring descriptor proxies
-	 * @throws IOException
-	 *             if an input/output error occurs
+	 * @throws IOException if an input/output error occurs
 	 */
 	public static RefactoringDescriptorProxy[] readRefactoringDescriptorProxies(final InputStream stream, final String project, final long start, final long end) throws IOException {
 		final List list= new ArrayList();
@@ -284,7 +272,7 @@ public final class RefactoringHistoryManager {
 				}
 			}
 		}
-		return (RefactoringDescriptorProxy[]) list.toArray(new RefactoringDescriptorProxy[list.size()]);
+		return (RefactoringDescriptorProxy[])list.toArray(new RefactoringDescriptorProxy[list.size()]);
 	}
 
 	/**
@@ -292,30 +280,24 @@ public final class RefactoringHistoryManager {
 	 * <p>
 	 * The refactoring descriptors are returned in no particular order.
 	 * </p>
-	 *
-	 * @param stream
-	 *            the input stream where to read from
+	 * 
+	 * @param stream the input stream where to read from
 	 * @return An array of refactoring descriptor proxies
-	 * @throws CoreException
-	 *             if an error occurs while reading the descriptors
+	 * @throws CoreException if an error occurs while reading the descriptors
 	 */
 	public static DefaultRefactoringDescriptor[] readRefactoringDescriptors(final InputStream stream) throws CoreException {
 		final List list= new ArrayList(64);
 		readRefactoringDescriptors(stream, list, new NullProgressMonitor());
-		return (DefaultRefactoringDescriptor[]) list.toArray(new DefaultRefactoringDescriptor[list.size()]);
+		return (DefaultRefactoringDescriptor[])list.toArray(new DefaultRefactoringDescriptor[list.size()]);
 	}
 
 	/**
 	 * Reads default refactoring descriptors from the specified input stream.
-	 *
-	 * @param stream
-	 *            the input stream where to read from
-	 * @param collection
-	 *            the list of descriptors read from the history
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws CoreException
-	 *             if an error occurs while reading the descriptors
+	 * 
+	 * @param stream the input stream where to read from
+	 * @param collection the list of descriptors read from the history
+	 * @param monitor the progress monitor to use
+	 * @throws CoreException if an error occurs while reading the descriptors
 	 */
 	private static void readRefactoringDescriptors(final InputStream stream, final Collection collection, final IProgressMonitor monitor) throws CoreException {
 		try {
@@ -329,17 +311,12 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * Removes the refactoring history index tree spanned by the specified file
-	 * store.
-	 *
-	 * @param store
-	 *            the file store spanning the history index tree
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param task
-	 *            the task label to use
-	 * @throws CoreException
-	 *             if an error occurs while removing the index tree
+	 * Removes the refactoring history index tree spanned by the specified file store.
+	 * 
+	 * @param store the file store spanning the history index tree
+	 * @param monitor the progress monitor to use
+	 * @param task the task label to use
+	 * @throws CoreException if an error occurs while removing the index tree
 	 */
 	private static void removeIndexTree(final IFileStore store, final IProgressMonitor monitor, final String task) throws CoreException {
 		try {
@@ -377,18 +354,16 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * Sorts the refactoring descriptor proxies in ascending order of their time
-	 * stamps.
-	 *
-	 * @param descriptors
-	 *            the refactoring descriptors
+	 * Sorts the refactoring descriptor proxies in ascending order of their time stamps.
+	 * 
+	 * @param descriptors the refactoring descriptors
 	 */
 	public static void sortRefactoringDescriptorsAscending(final RefactoringDescriptor[] descriptors) {
 		Arrays.sort(descriptors, new Comparator() {
 
 			public final int compare(final Object first, final Object second) {
-				final RefactoringDescriptor predecessor= (RefactoringDescriptor) first;
-				final RefactoringDescriptor successor= (RefactoringDescriptor) second;
+				final RefactoringDescriptor predecessor= (RefactoringDescriptor)first;
+				final RefactoringDescriptor successor= (RefactoringDescriptor)second;
 				final long delta= predecessor.getTimeStamp() - successor.getTimeStamp();
 				if (delta > 0)
 					return 1;
@@ -400,18 +375,16 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * Sorts the refactoring descriptor proxies in ascending order of their time
-	 * stamps.
-	 *
-	 * @param proxies
-	 *            the refactoring descriptor proxies
+	 * Sorts the refactoring descriptor proxies in ascending order of their time stamps.
+	 * 
+	 * @param proxies the refactoring descriptor proxies
 	 */
 	public static void sortRefactoringDescriptorsAscending(final RefactoringDescriptorProxy[] proxies) {
 		Arrays.sort(proxies, new Comparator() {
 
 			public final int compare(final Object first, final Object second) {
-				final RefactoringDescriptorProxy predecessor= (RefactoringDescriptorProxy) first;
-				final RefactoringDescriptorProxy successor= (RefactoringDescriptorProxy) second;
+				final RefactoringDescriptorProxy predecessor= (RefactoringDescriptorProxy)first;
+				final RefactoringDescriptorProxy successor= (RefactoringDescriptorProxy)second;
 				final long delta= predecessor.getTimeStamp() - successor.getTimeStamp();
 				if (delta > 0)
 					return 1;
@@ -423,18 +396,16 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * Sorts the refactoring descriptor proxies in descending order of their
-	 * time stamps.
-	 *
-	 * @param proxies
-	 *            the refactoring descriptor proxies
+	 * Sorts the refactoring descriptor proxies in descending order of their time stamps.
+	 * 
+	 * @param proxies the refactoring descriptor proxies
 	 */
 	public static void sortRefactoringDescriptorsDescending(final RefactoringDescriptorProxy[] proxies) {
 		Arrays.sort(proxies, new Comparator() {
 
 			public final int compare(final Object first, final Object second) {
-				final RefactoringDescriptorProxy predecessor= (RefactoringDescriptorProxy) first;
-				final RefactoringDescriptorProxy successor= (RefactoringDescriptorProxy) second;
+				final RefactoringDescriptorProxy predecessor= (RefactoringDescriptorProxy)first;
+				final RefactoringDescriptorProxy successor= (RefactoringDescriptorProxy)second;
 				final long delta= successor.getTimeStamp() - predecessor.getTimeStamp();
 				if (delta > 0)
 					return 1;
@@ -446,11 +417,9 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * Returns a path representing the history part for the specified time
-	 * stamp.
-	 *
-	 * @param stamp
-	 *            the time stamp
+	 * Returns a path representing the history part for the specified time stamp.
+	 * 
+	 * @param stamp the time stamp
 	 * @return A path representing the folder of the history part
 	 */
 	public static IPath stampToPath(final long stamp) {
@@ -466,15 +435,12 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Transforms the specified refactoring descriptor into a DOM node.
-	 *
-	 * @param descriptor
-	 *            the descriptor to transform
-	 * @param projects
-	 *            <code>true</code> to include project information,
-	 *            <code>false</code> otherwise
+	 * 
+	 * @param descriptor the descriptor to transform
+	 * @param projects <code>true</code> to include project information, <code>false</code>
+	 *            otherwise
 	 * @return the DOM node representing the refactoring descriptor
-	 * @throws CoreException
-	 *             if an error occurs while transforming the descriptor
+	 * @throws CoreException if an error occurs while transforming the descriptor
 	 */
 	private static Document transformDescriptor(final RefactoringDescriptor descriptor, final boolean projects) throws CoreException {
 		final RefactoringSessionTransformer transformer= new RefactoringSessionTransformer(projects);
@@ -487,8 +453,8 @@ public final class RefactoringHistoryManager {
 				if (arguments != null) {
 					checkArgumentMap(arguments);
 					for (final Iterator iterator= arguments.entrySet().iterator(); iterator.hasNext();) {
-						final Map.Entry entry= (Entry) iterator.next();
-						transformer.createArgument((String) entry.getKey(), (String) entry.getValue());
+						final Map.Entry entry= (Entry)iterator.next();
+						transformer.createArgument((String)entry.getKey(), (String)entry.getValue());
 					}
 				}
 			} finally {
@@ -502,9 +468,8 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Un-escapes the specified string from the history index.
-	 *
-	 * @param string
-	 *            the string from the history index
+	 * 
+	 * @param string the string from the history index
 	 * @return the un-escaped string
 	 */
 	public static String unescapeString(final String string) {
@@ -529,24 +494,17 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Writes the specified index entry to the refactoring history.
-	 *
-	 * @param file
-	 *            the history index file
-	 * @param proxies
-	 *            the refactoring descriptors
-	 * @param flags
-	 *            the flags to use (either {@link EFS#NONE} or
-	 *            {@link EFS#APPEND})
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param task
-	 *            the task label
-	 * @throws CoreException
-	 *             if an error occurs while writing the index entry
-	 * @throws IOException
-	 *             if an input/output error occurs
+	 * 
+	 * @param file the history index file
+	 * @param proxies the refactoring descriptors
+	 * @param flags the flags to use (either {@link EFS#NONE} or {@link EFS#APPEND})
+	 * @param monitor the progress monitor to use
+	 * @param task the task label
+	 * @throws CoreException if an error occurs while writing the index entry
+	 * @throws IOException if an input/output error occurs
 	 */
-	private static void writeIndexEntry(final IFileStore file, final RefactoringDescriptorProxy[] proxies, final int flags, final IProgressMonitor monitor, final String task) throws CoreException, IOException {
+	private static void writeIndexEntry(final IFileStore file, final RefactoringDescriptorProxy[] proxies, final int flags, final IProgressMonitor monitor, final String task) throws CoreException,
+			IOException {
 		OutputStream output= null;
 		try {
 			monitor.beginTask(task, 2);
@@ -567,13 +525,10 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Writes refactoring descriptor proxies to the specified output stream.
-	 *
-	 * @param stream
-	 *            the output stream where to write to
-	 * @param proxies
-	 *            the refactoring descriptor proxies to write
-	 * @throws IOException
-	 *             if an input/output error occurs
+	 * 
+	 * @param stream the output stream where to write to
+	 * @param proxies the refactoring descriptor proxies to write
+	 * @throws IOException if an input/output error occurs
 	 */
 	public static void writeRefactoringDescriptorProxies(final OutputStream stream, final RefactoringDescriptorProxy[] proxies) throws IOException {
 		final StringBuffer buffer= new StringBuffer(proxies.length * 64);
@@ -588,8 +543,8 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * A simple XML writer.  Using this instead of the javax.xml.transform classes allows
-	 * compilation against JCL Foundation (bug 80053).
+	 * A simple XML writer. Using this instead of the javax.xml.transform classes allows compilation
+	 * against JCL Foundation (bug 80053).
 	 */
 	private static final class DOMWriter extends PrintWriter {
 
@@ -598,7 +553,7 @@ public final class RefactoringHistoryManager {
 
 		/**
 		 * Creates a new DOM writer on the given output writer.
-		 *
+		 * 
 		 * @param output the output writer
 		 */
 		public DOMWriter(Writer output) {
@@ -612,7 +567,7 @@ public final class RefactoringHistoryManager {
 
 		/**
 		 * Prints the given element.
-		 *
+		 * 
 		 * @param element the element to print
 		 */
 		public void printElement(Element element) {
@@ -650,7 +605,7 @@ public final class RefactoringHistoryManager {
 			sb.append(element.getTagName());
 			NamedNodeMap attributes= element.getAttributes();
 			for (int i= 0; i < attributes.getLength(); i++) {
-				Attr attribute= (Attr) attributes.item(i);
+				Attr attribute= (Attr)attributes.item(i);
 				sb.append(" "); //$NON-NLS-1$
 				sb.append(attribute.getName());
 				sb.append("=\""); //$NON-NLS-1$
@@ -667,7 +622,7 @@ public final class RefactoringHistoryManager {
 			sb.append(element.getNodeName());
 			sb.append(">"); //$NON-NLS-1$
 			print(sb.toString());
-	}
+		}
 
 		private static void appendEscapedChar(StringBuffer buffer, char c) {
 			String replacement= getReplacement(c);
@@ -718,17 +673,11 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Writes refactoring session descriptor to the specified output stream.
-	 *
-	 * @param stream
-	 *            the output stream where to write to
-	 * @param descriptor
-	 *            the refactoring session descriptors to write
-	 * @param stamps
-	 *            <code>true</code> to write time stamps as well,
-	 *            <code>false</code> otherwise
-	 * @throws CoreException
-	 *             if an error occurs while writing the refactoring session
-	 *             descriptor
+	 * 
+	 * @param stream the output stream where to write to
+	 * @param descriptor the refactoring session descriptors to write
+	 * @param stamps <code>true</code> to write time stamps as well, <code>false</code> otherwise
+	 * @throws CoreException if an error occurs while writing the refactoring session descriptor
 	 */
 	public static void writeRefactoringSession(final OutputStream stream, final RefactoringSessionDescriptor descriptor, final boolean stamps) throws CoreException {
 		final RefactoringSessionTransformer transformer= new RefactoringSessionTransformer(true);
@@ -745,8 +694,8 @@ public final class RefactoringHistoryManager {
 						if (arguments != null) {
 							checkArgumentMap(arguments);
 							for (final Iterator iterator= arguments.entrySet().iterator(); iterator.hasNext();) {
-								final Map.Entry entry= (Entry) iterator.next();
-								transformer.createArgument((String) entry.getKey(), (String) entry.getValue());
+								final Map.Entry entry= (Entry)iterator.next();
+								transformer.createArgument((String)entry.getKey(), (String)entry.getValue());
 							}
 						}
 					} finally {
@@ -759,7 +708,7 @@ public final class RefactoringHistoryManager {
 		}
 		final Document result= transformer.getResult();
 		writeNode(stream, result);
-			}
+	}
 
 	private static void writeNode(final OutputStream stream, Document document) {
 		OutputStreamWriter outputStreamWriter= new OutputStreamWriter(stream, Charset.forName("UTF-8")); //$NON-NLS-1$
@@ -784,21 +733,19 @@ public final class RefactoringHistoryManager {
 	private final IFileStore fHistoryStore;
 
 	/**
-	 * The non-empty name of the managed project, or <code>null</code> for the
-	 * workspace
+	 * The non-empty name of the managed project, or <code>null</code> for the workspace
 	 */
 	private final String fProjectName;
 
 	/**
 	 * Creates a new refactoring history manager.
-	 *
-	 * @param store
-	 *            the history file store
-	 * @param name
-	 *            the non-empty name of the managed project, or
-	 *            <code>null</code> for the workspace
+	 * 
+	 * CODINGSPECTATOR: Made the method public for use in edu.illinois.codingspectator.ui.tests.
+	 * 
+	 * @param store the history file store
+	 * @param name the non-empty name of the managed project, or <code>null</code> for the workspace
 	 */
-	RefactoringHistoryManager(final IFileStore store, final String name) {
+	public RefactoringHistoryManager(final IFileStore store, final String name) {
 		Assert.isNotNull(store);
 		Assert.isTrue(name == null || !"".equals(name)); //$NON-NLS-1$
 		fHistoryStore= store;
@@ -807,18 +754,13 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Adds the specified refactoring descriptor to the refactoring history.
-	 *
-	 * @param descriptor
-	 *            the refactoring descriptor to add
-	 * @param sort
-	 *            <code>true</code> if the refactoring descriptor should be
-	 *            inserted into the history according to its time stamp,
-	 *            <code>false</code> if the descriptor is assumed to be the
-	 *            most recent one, and its simply appended
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws CoreException
-	 *             if an error occurs while adding the descriptor to the history
+	 * 
+	 * @param descriptor the refactoring descriptor to add
+	 * @param sort <code>true</code> if the refactoring descriptor should be inserted into the
+	 *            history according to its time stamp, <code>false</code> if the descriptor is
+	 *            assumed to be the most recent one, and its simply appended
+	 * @param monitor the progress monitor to use
+	 * @throws CoreException if an error occurs while adding the descriptor to the history
 	 */
 	void addRefactoringDescriptor(final RefactoringDescriptor descriptor, final boolean sort, final IProgressMonitor monitor) throws CoreException {
 		try {
@@ -829,7 +771,8 @@ public final class RefactoringHistoryManager {
 				final IFileStore folder= fHistoryStore.getFileStore(path);
 				final IFileStore history= folder.getChild(RefactoringHistoryService.NAME_HISTORY_FILE);
 				final IFileStore index= folder.getChild(RefactoringHistoryService.NAME_INDEX_FILE);
-				final RefactoringDescriptorProxy[] proxies= new RefactoringDescriptorProxy[] { new DefaultRefactoringDescriptorProxy(descriptor.getDescription(), descriptor.getProject(), descriptor.getTimeStamp())};
+				final RefactoringDescriptorProxy[] proxies= new RefactoringDescriptorProxy[] { new DefaultRefactoringDescriptorProxy(descriptor.getDescription(), descriptor.getProject(),
+						descriptor.getTimeStamp()) };
 				if (history.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)).exists()) {
 					InputStream input= null;
 					try {
@@ -850,7 +793,7 @@ public final class RefactoringHistoryManager {
 							if (sort) {
 								final String string= Long.toString(stamp);
 								for (int offset= 0; offset < list.getLength(); offset++) {
-									final Element element= (Element) list.item(offset);
+									final Element element= (Element)list.item(offset);
 									final String attribute= element.getAttribute(IRefactoringSerializationConstants.ATTRIBUTE_STAMP);
 									if (attribute != null) {
 										if (string.compareTo(attribute) > 0) {
@@ -863,13 +806,17 @@ public final class RefactoringHistoryManager {
 							}
 							if (!found)
 								root.appendChild(document.importNode(list.item(0), true));
-							writeHistoryEntry(history, document, new SubProgressMonitor(monitor, 10, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+							writeHistoryEntry(history, document, new SubProgressMonitor(monitor, 10, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL),
+									RefactoringCoreMessages.RefactoringHistoryService_updating_history);
 							if (sort) {
 								final Set set= new HashSet(64);
-								readRefactoringDescriptorProxies(index, null, set, 0, Long.MAX_VALUE, new SubProgressMonitor(monitor, 2), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
-								writeIndexEntry(index, (RefactoringDescriptorProxy[]) set.toArray(new RefactoringDescriptorProxy[set.size()]), EFS.NONE, new SubProgressMonitor(monitor, 3, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+								readRefactoringDescriptorProxies(index, null, set, 0, Long.MAX_VALUE, new SubProgressMonitor(monitor, 2),
+										RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+								writeIndexEntry(index, (RefactoringDescriptorProxy[])set.toArray(new RefactoringDescriptorProxy[set.size()]), EFS.NONE, new SubProgressMonitor(monitor, 3,
+										SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
 							} else
-								writeIndexEntry(index, proxies, EFS.APPEND, new SubProgressMonitor(monitor, 5, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+								writeIndexEntry(index, proxies, EFS.APPEND, new SubProgressMonitor(monitor, 5, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL),
+										RefactoringCoreMessages.RefactoringHistoryService_updating_history);
 						}
 					} catch (ParserConfigurationException exception) {
 						throw createCoreException(exception);
@@ -889,8 +836,10 @@ public final class RefactoringHistoryManager {
 				} else {
 					try {
 						final Document result= transformDescriptor(descriptor, false);
-						writeHistoryEntry(history, result, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
-							writeIndexEntry(index, proxies, EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+						writeHistoryEntry(history, result, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL),
+								RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+						writeIndexEntry(index, proxies, EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL),
+								RefactoringCoreMessages.RefactoringHistoryService_updating_history);
 					} catch (IOException exception) {
 						throw createCoreException(exception);
 					}
@@ -903,18 +852,13 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Returns the cached refactoring history document.
-	 *
-	 * @param path
-	 *            the path of the document
-	 * @param input
-	 *            the input stream where to read the document
+	 * 
+	 * @param path the path of the document
+	 * @param input the input stream where to read the document
 	 * @return the cached refactoring history document
-	 * @throws SAXException
-	 *             if an error occurs while parsing the history entry
-	 * @throws IOException
-	 *             if an input/output error occurs
-	 * @throws ParserConfigurationException
-	 *             if an error occurs in the parser configuration
+	 * @throws SAXException if an error occurs while parsing the history entry
+	 * @throws IOException if an input/output error occurs
+	 * @throws ParserConfigurationException if an error occurs in the parser configuration
 	 */
 	private Document getCachedDocument(final IPath path, final InputStream input) throws SAXException, IOException, ParserConfigurationException {
 		if (path.equals(fCachedPath) && fCachedDocument != null)
@@ -929,16 +873,12 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Returns the cached refactoring session descriptor.
-	 *
-	 * @param store
-	 *            the file store of the descriptor
-	 * @param projectName
-	 *            project name, or <code>null</code> for the workspace
-	 * @param input
-	 *            the input stream where to read the descriptor
+	 * 
+	 * @param store the file store of the descriptor
+	 * @param projectName project name, or <code>null</code> for the workspace
+	 * @param input the input stream where to read the descriptor
 	 * @return the cached refactoring session descriptor
-	 * @throws CoreException
-	 *             if an error occurs while reading the session
+	 * @throws CoreException if an error occurs while reading the session
 	 */
 	private RefactoringSessionDescriptor getCachedSession(final IFileStore store, String projectName, final InputStream input) throws CoreException {
 		if (store.equals(fCachedStore) && fCachedDescriptor != null)
@@ -961,23 +901,24 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Reads the refactoring history from disk.
-	 *
-	 * @param start
-	 *            the start time stamp, inclusive
-	 * @param end
-	 *            the end time stamp, inclusive
-	 * @param monitor
-	 *            the progress monitor to use
+	 * 
+	 * CODINGSPECTATOR: Made the method public to use it in edu.illinois.codingspectator.ui.tests.
+	 * 
+	 * @param start the start time stamp, inclusive
+	 * @param end the end time stamp, inclusive
+	 * @param monitor the progress monitor to use
 	 * @return the refactoring history
 	 */
-	RefactoringHistory readRefactoringHistory(final long start, final long end, final IProgressMonitor monitor) {
+	public RefactoringHistory readRefactoringHistory(final long start, final long end, final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RefactoringHistoryService_retrieving_history, 200);
 			final Set set= new HashSet();
 			try {
 				if (fHistoryStore.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 20, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)).exists())
-					readRefactoringDescriptorProxies(fHistoryStore, fProjectName, set, start, end, new SubProgressMonitor(monitor, 80), RefactoringCoreMessages.RefactoringHistoryService_retrieving_history);
-				final IFileStore store= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(RefactoringHistoryService.NAME_HISTORY_FOLDER).getChild(RefactoringHistoryService.NAME_WORKSPACE_PROJECT);
+					readRefactoringDescriptorProxies(fHistoryStore, fProjectName, set, start, end, new SubProgressMonitor(monitor, 80),
+							RefactoringCoreMessages.RefactoringHistoryService_retrieving_history);
+				final IFileStore store= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(RefactoringHistoryService.NAME_HISTORY_FOLDER)
+						.getChild(RefactoringHistoryService.NAME_WORKSPACE_PROJECT);
 				if (store.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 20, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)).exists())
 					readRefactoringDescriptorProxies(store, null, set, start, end, new SubProgressMonitor(monitor, 80), RefactoringCoreMessages.RefactoringHistoryService_retrieving_history);
 			} catch (CoreException exception) {
@@ -994,20 +935,14 @@ public final class RefactoringHistoryManager {
 	/**
 	 * Removes refactoring descriptors from the managed history.
 	 * <p>
-	 * All refactoring descriptors must be from the history entry denoted by the
-	 * specified path.
+	 * All refactoring descriptors must be from the history entry denoted by the specified path.
 	 * </p>
-	 *
-	 * @param proxies
-	 *            the refactoring descriptors
-	 * @param path
-	 *            the path of the history entry
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param task
-	 *            the task label to use
-	 * @throws CoreException
-	 *             if an error occurs
+	 * 
+	 * @param proxies the refactoring descriptors
+	 * @param path the path of the history entry
+	 * @param monitor the progress monitor to use
+	 * @param task the task label to use
+	 * @throws CoreException if an error occurs
 	 */
 	private void removeRefactoringDescriptors(final RefactoringDescriptorProxy[] proxies, final IPath path, final IProgressMonitor monitor, final String task) throws CoreException {
 		try {
@@ -1066,11 +1001,12 @@ public final class RefactoringHistoryManager {
 							}
 						}
 						for (final Iterator iterator= removedNodes.iterator(); iterator.hasNext();) {
-							final Node node= (Node) iterator.next();
+							final Node node= (Node)iterator.next();
 							node.getParentNode().removeChild(node);
 						}
 						try {
-							writeIndexEntry(index, (RefactoringDescriptorProxy[]) resultingProxies.toArray(new RefactoringDescriptorProxy[resultingProxies.size()]), EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), task);
+							writeIndexEntry(index, (RefactoringDescriptorProxy[])resultingProxies.toArray(new RefactoringDescriptorProxy[resultingProxies.size()]), EFS.NONE, new SubProgressMonitor(
+									monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), task);
 							writeHistoryEntry(history, document, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), task);
 						} catch (IOException exception) {
 							throw createCoreException(exception);
@@ -1085,15 +1021,11 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Removes refactoring descriptors from the managed history.
-	 *
-	 * @param proxies
-	 *            the refactoring descriptors
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param task
-	 *            the task label to use
-	 * @throws CoreException
-	 *             if an error occurs
+	 * 
+	 * @param proxies the refactoring descriptors
+	 * @param monitor the progress monitor to use
+	 * @param task the task label to use
+	 * @throws CoreException if an error occurs
 	 */
 	void removeRefactoringDescriptors(final RefactoringDescriptorProxy[] proxies, final IProgressMonitor monitor, final String task) throws CoreException {
 		try {
@@ -1101,7 +1033,7 @@ public final class RefactoringHistoryManager {
 			monitor.beginTask(task, proxies.length + 300);
 			for (int index= 0; index < proxies.length; index++) {
 				final IPath path= stampToPath(proxies[index].getTimeStamp());
-				Collection collection= (Collection) paths.get(path);
+				Collection collection= (Collection)paths.get(path);
 				if (collection == null) {
 					collection= new ArrayList(64);
 					paths.put(path, collection);
@@ -1113,9 +1045,10 @@ public final class RefactoringHistoryManager {
 				final Set entries= paths.entrySet();
 				subMonitor.beginTask(task, entries.size());
 				for (final Iterator iterator= entries.iterator(); iterator.hasNext();) {
-					final Map.Entry entry= (Map.Entry) iterator.next();
-					final Collection collection= (Collection) entry.getValue();
-					removeRefactoringDescriptors((RefactoringDescriptorProxy[]) collection.toArray(new RefactoringDescriptorProxy[collection.size()]), (IPath) entry.getKey(), new SubProgressMonitor(subMonitor, 1), task);
+					final Map.Entry entry= (Map.Entry)iterator.next();
+					final Collection collection= (Collection)entry.getValue();
+					removeRefactoringDescriptors((RefactoringDescriptorProxy[])collection.toArray(new RefactoringDescriptorProxy[collection.size()]), (IPath)entry.getKey(), new SubProgressMonitor(
+							subMonitor, 1), task);
 				}
 			} finally {
 				subMonitor.done();
@@ -1126,16 +1059,15 @@ public final class RefactoringHistoryManager {
 	}
 
 	/**
-	 * Requests the resolved refactoring descriptor associated with the given
-	 * proxy.
-	 *
-	 * @param proxy
-	 *            the refactoring descriptor proxy
-	 * @param monitor
-	 *            the progress monitor to use
+	 * Requests the resolved refactoring descriptor associated with the given proxy.
+	 * 
+	 * CODINGSPECTATOR: Made the method public to be used in edu.illinois.codingspectator.ui.tests.
+	 * 
+	 * @param proxy the refactoring descriptor proxy
+	 * @param monitor the progress monitor to use
 	 * @return the associated refactoring descriptor, or <code>null</code>
 	 */
-	RefactoringDescriptor requestDescriptor(final RefactoringDescriptorProxy proxy, final IProgressMonitor monitor) {
+	public RefactoringDescriptor requestDescriptor(final RefactoringDescriptorProxy proxy, final IProgressMonitor monitor) {
 		try {
 			monitor.beginTask(RefactoringCoreMessages.RefactoringHistoryService_resolving_information, 2);
 			final long stamp= proxy.getTimeStamp();
@@ -1176,15 +1108,11 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Sets the comment of the specified refactoring.
-	 *
-	 * @param proxy
-	 *            the refactoring descriptor proxy
-	 * @param comment
-	 *            the comment
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws CoreException
-	 *             if an error occurs while setting the comment
+	 * 
+	 * @param proxy the refactoring descriptor proxy
+	 * @param comment the comment
+	 * @param monitor the progress monitor to use
+	 * @throws CoreException if an error occurs while setting the comment
 	 */
 	void setComment(final RefactoringDescriptorProxy proxy, final String comment, final IProgressMonitor monitor) throws CoreException {
 		try {
@@ -1208,13 +1136,14 @@ public final class RefactoringHistoryManager {
 						final String time= String.valueOf(stamp);
 						final NodeList list= document.getElementsByTagName(IRefactoringSerializationConstants.ELEMENT_REFACTORING);
 						for (int index= 0; index < list.getLength(); index++) {
-							final Element element= (Element) list.item(index);
+							final Element element= (Element)list.item(index);
 							if (time.equals(element.getAttribute(IRefactoringSerializationConstants.ATTRIBUTE_STAMP))) {
 								element.setAttribute(IRefactoringSerializationConstants.ATTRIBUTE_COMMENT, comment);
 								break;
 							}
 						}
-						writeHistoryEntry(history, document, new SubProgressMonitor(monitor, 40, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL), RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+						writeHistoryEntry(history, document, new SubProgressMonitor(monitor, 40, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL),
+								RefactoringCoreMessages.RefactoringHistoryService_updating_history);
 					} catch (ParserConfigurationException exception) {
 						throw createCoreException(exception);
 					} catch (IOException exception) {
@@ -1239,37 +1168,32 @@ public final class RefactoringHistoryManager {
 
 	/**
 	 * Writes the specified document node into the refactoring history.
-	 *
-	 * @param file
-	 *            the refactoring history file
-	 * @param document
-	 *            the document representing the history entry
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @param task
-	 *            the task label
-	 * @throws CoreException
-	 *             if an error occurs while adding the history entry
+	 * 
+	 * @param file the refactoring history file
+	 * @param document the document representing the history entry
+	 * @param monitor the progress monitor to use
+	 * @param task the task label
+	 * @throws CoreException if an error occurs while adding the history entry
 	 */
 	private void writeHistoryEntry(final IFileStore file, final Document document, final IProgressMonitor monitor, final String task) throws CoreException {
 		OutputStream output= null;
 		try {
 			monitor.beginTask(task, 2);
-				file.getParent().mkdir(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL));
-				output= new BufferedOutputStream(file.openOutputStream(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)));
+			file.getParent().mkdir(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL));
+			output= new BufferedOutputStream(file.openOutputStream(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)));
 			writeNode(output, document);
-				} finally {
-					fCachedDocument= null;
-					fCachedPath= null;
-					fCachedDescriptor= null;
-					fCachedStore= null;
-				if (output != null) {
-					try {
-						output.close();
-					} catch (IOException exception) {
-						// Do nothing
-					}
+		} finally {
+			fCachedDocument= null;
+			fCachedPath= null;
+			fCachedDescriptor= null;
+			fCachedStore= null;
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException exception) {
+					// Do nothing
 				}
+			}
 			monitor.done();
 		}
 	}
