@@ -47,28 +47,27 @@ import org.eclipse.jdt.core.refactoring.descriptors.UseSupertypeDescriptor;
 /**
  * Interface for refactoring ids offered by the JDT tooling.
  * <p>
- * This interface provides refactoring ids for refactorings offered by the JDT
- * tooling. Refactoring instances corresponding to such an id may be
- * instantiated by the refactoring framework using
- * {@link RefactoringCore#getRefactoringContribution(String)}. The resulting
- * refactoring instance may be executed on the workspace with a
- * {@link PerformRefactoringOperation}.
+ * This interface provides refactoring ids for refactorings offered by the JDT tooling. Refactoring
+ * instances corresponding to such an id may be instantiated by the refactoring framework using
+ * {@link RefactoringCore#getRefactoringContribution(String)}. The resulting refactoring instance
+ * may be executed on the workspace with a {@link PerformRefactoringOperation}.
  * <p>
- * Clients may obtain customizable refactoring descriptors for a certain
- * refactoring by calling
- * {@link RefactoringCore#getRefactoringContribution(String)} with the
- * appropriate refactoring id and then calling
- * {@link RefactoringContribution#createDescriptor()} to obtain a customizable
- * refactoring descriptor. The concrete subtype of refactoring descriptors is
- * dependent from the <code>id</code> argument.
+ * Clients may obtain customizable refactoring descriptors for a certain refactoring by calling
+ * {@link RefactoringCore#getRefactoringContribution(String)} with the appropriate refactoring id
+ * and then calling {@link RefactoringContribution#createDescriptor()} to obtain a customizable
+ * refactoring descriptor. The concrete subtype of refactoring descriptors is dependent from the
+ * <code>id</code> argument.
  * </p>
  * <p>
  * Note: this interface is not intended to be implemented by clients.
  * </p>
- *
+ * 
  * @since 1.1
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
+ * 
+ * @author Mohsen Vakiian, nchen - Added a descriptor for the generic inline refactoring.
+ * 
  */
 public interface IJavaRefactorings {
 
@@ -93,8 +92,8 @@ public interface IJavaRefactorings {
 	public static final String CONVERT_ANONYMOUS= "org.eclipse.jdt.ui.convert.anonymous"; //$NON-NLS-1$
 
 	/**
-	 * Refactoring id of the 'Convert Local Variable to Field' refactoring
-	 * (value: <code>org.eclipse.jdt.ui.promote.temp</code>).
+	 * Refactoring id of the 'Convert Local Variable to Field' refactoring (value:
+	 * <code>org.eclipse.jdt.ui.promote.temp</code>).
 	 * <p>
 	 * Clients may safely cast the obtained refactoring descriptor to
 	 * {@link ConvertLocalVariableDescriptor}.
@@ -103,8 +102,8 @@ public interface IJavaRefactorings {
 	public static final String CONVERT_LOCAL_VARIABLE= "org.eclipse.jdt.ui.promote.temp"; //$NON-NLS-1$
 
 	/**
-	 * Refactoring id of the 'Convert Member Type to Top Level' refactoring
-	 * (value: <code>org.eclipse.jdt.ui.move.inner</code>).
+	 * Refactoring id of the 'Convert Member Type to Top Level' refactoring (value:
+	 * <code>org.eclipse.jdt.ui.move.inner</code>).
 	 * <p>
 	 * Clients may safely cast the obtained refactoring descriptor to
 	 * {@link ConvertMemberTypeDescriptor}.
@@ -113,21 +112,17 @@ public interface IJavaRefactorings {
 	public static final String CONVERT_MEMBER_TYPE= "org.eclipse.jdt.ui.move.inner"; //$NON-NLS-1$
 
 	/**
-	 * Refactoring id of the 'Copy' refactoring (value:
-	 * <code>org.eclipse.jdt.ui.copy</code>).
+	 * Refactoring id of the 'Copy' refactoring (value: <code>org.eclipse.jdt.ui.copy</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link CopyDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link CopyDescriptor}.
 	 * </p>
 	 */
 	public static final String COPY= "org.eclipse.jdt.ui.copy"; //$NON-NLS-1$
 
 	/**
-	 * Refactoring id of the 'Delete' refactoring (value:
-	 * <code>org.eclipse.jdt.ui.delete</code>).
+	 * Refactoring id of the 'Delete' refactoring (value: <code>org.eclipse.jdt.ui.delete</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link DeleteDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link DeleteDescriptor}.
 	 * </p>
 	 */
 	public static final String DELETE= "org.eclipse.jdt.ui.delete"; //$NON-NLS-1$
@@ -146,10 +141,10 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the 'Extract Class' refactoring (value:
 	 * <code>"org.eclipse.jdt.ui.extract.class</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link ExtractClassDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link ExtractClassDescriptor}
+	 * .
 	 * </p>
-	 *
+	 * 
 	 * @since 1.2
 	 */
 	public static final String EXTRACT_CLASS= "org.eclipse.jdt.ui.extract.class"; //$NON-NLS-1$
@@ -178,8 +173,8 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the 'Extract Local Variable' refactoring (value:
 	 * <code>org.eclipse.jdt.ui.extract.temp</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link ExtractLocalDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link ExtractLocalDescriptor}
+	 * .
 	 * </p>
 	 */
 	public static final String EXTRACT_LOCAL_VARIABLE= "org.eclipse.jdt.ui.extract.temp"; //$NON-NLS-1$
@@ -248,8 +243,8 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the 'Inline Method' refactoring (value:
 	 * <code>org.eclipse.jdt.ui.inline.method</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link InlineMethodDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link InlineMethodDescriptor}
+	 * .
 	 * </p>
 	 */
 	public static final String INLINE_METHOD= "org.eclipse.jdt.ui.inline.method"; //$NON-NLS-1$
@@ -291,16 +286,15 @@ public interface IJavaRefactorings {
 	 * Clients may safely cast the obtained refactoring descriptor to
 	 * {@link IntroduceParameterObjectDescriptor}.
 	 * </p>
+	 * 
 	 * @since 1.2
 	 */
 	public static final String INTRODUCE_PARAMETER_OBJECT= "org.eclipse.jdt.ui.introduce.parameter.object"; //$NON-NLS-1$
 
 	/**
-	 * Refactoring id of the 'Move' refactoring (value:
-	 * <code>org.eclipse.jdt.ui.move</code>).
+	 * Refactoring id of the 'Move' refactoring (value: <code>org.eclipse.jdt.ui.move</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link MoveDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link MoveDescriptor}.
 	 * </p>
 	 */
 	public static final String MOVE= "org.eclipse.jdt.ui.move"; //$NON-NLS-1$
@@ -309,8 +303,7 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the 'Move Method' refactoring (value:
 	 * <code>org.eclipse.jdt.ui.move.method</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link MoveMethodDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link MoveMethodDescriptor}.
 	 * </p>
 	 */
 	public static final String MOVE_METHOD= "org.eclipse.jdt.ui.move.method"; //$NON-NLS-1$
@@ -326,11 +319,9 @@ public interface IJavaRefactorings {
 	public static final String MOVE_STATIC_MEMBERS= "org.eclipse.jdt.ui.move.static"; //$NON-NLS-1$
 
 	/**
-	 * Refactoring id of the 'Pull Up' refactoring (value:
-	 * <code>org.eclipse.jdt.ui.pull.up</code>).
+	 * Refactoring id of the 'Pull Up' refactoring (value: <code>org.eclipse.jdt.ui.pull.up</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link PullUpDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link PullUpDescriptor}.
 	 * </p>
 	 */
 	public static final String PULL_UP= "org.eclipse.jdt.ui.pull.up"; //$NON-NLS-1$
@@ -339,8 +330,7 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the 'Push Down' refactoring (value:
 	 * <code>org.eclipse.jdt.ui.push.down</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link PushDownDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link PushDownDescriptor}.
 	 * </p>
 	 */
 	public static final String PUSH_DOWN= "org.eclipse.jdt.ui.push.down"; //$NON-NLS-1$
@@ -422,7 +412,10 @@ public interface IJavaRefactorings {
 	 * Clients may safely cast the obtained refactoring descriptor to
 	 * {@link org.eclipse.jdt.core.refactoring.descriptors.RenameResourceDescriptor}.
 	 * </p>
-	 * @deprecated Since 1.2. Use {@link org.eclipse.ltk.core.refactoring.resource.RenameResourceDescriptor#ID} instead.
+	 * 
+	 * @deprecated Since 1.2. Use
+	 *             {@link org.eclipse.ltk.core.refactoring.resource.RenameResourceDescriptor#ID}
+	 *             instead.
 	 */
 	public static final String RENAME_RESOURCE= "org.eclipse.jdt.ui.rename.resource"; //$NON-NLS-1$
 
@@ -460,9 +453,33 @@ public interface IJavaRefactorings {
 	 * Refactoring id of the 'Use Supertype Where Possible' refactoring (value:
 	 * <code>org.eclipse.jdt.ui.use.supertype</code>).
 	 * <p>
-	 * Clients may safely cast the obtained refactoring descriptor to
-	 * {@link UseSupertypeDescriptor}.
+	 * Clients may safely cast the obtained refactoring descriptor to {@link UseSupertypeDescriptor}
+	 * .
 	 * </p>
 	 */
 	public static final String USE_SUPER_TYPE= "org.eclipse.jdt.ui.use.supertype"; //$NON-NLS-1$
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * Refactoring id of the unknown inline refactoring (value:
+	 * <code>org.eclipse.jdt.ui.inline</code>).
+	 * <p>
+	 * Clients may safely cast the obtained refactoring descriptor to InlineDescriptor.
+	 * </p>
+	 */
+	public static final String INLINE= "org.eclipse.jdt.ui.inline"; //$NON-NLS-1$
+
+	/**
+	 * Refactoring id of the rename unknown Java element refactoring (value:
+	 * <code>org.eclipse.jdt.ui.rename.unknown.java.element</code>).
+	 * <p>
+	 * Clients may safely cast the obtained refactoring descriptor to
+	 * RenameUnknownJavaElementDescriptor.
+	 * </p>
+	 */
+	public static final String RENAME_UNKNOWN_JAVA_ELEMENT= "org.eclipse.jdt.ui.rename.unknown.java.element"; //$NON-NLS-1$
+
 }
