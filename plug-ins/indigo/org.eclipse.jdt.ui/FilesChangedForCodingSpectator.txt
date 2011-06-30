@@ -1,0 +1,129 @@
+Changed Files
+=============
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractMethodRefactoring.java
+ui/org/eclipse/jdt/ui/actions/ExtractMethodAction.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractConstantRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/ExtractTempRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineConstantRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/InlineMethodRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/code/IntroduceFactoryRefactoring.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameLocalVariableProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameFieldProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/JavaRenameProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameTypeParameterProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameSourceFolderProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameTypeProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenamePackageProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameJavaProjectProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameEnumConstProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/rename/RenameCompilationUnitProcessor.java
+
+ui/org/eclipse/jdt/internal/ui/JavaPlugin.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/CompilationUnitReorgChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/PackageReorgChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenameCompilationUnitChange.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/changes/RenamePackageChange.java
+
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/RefactoringExecutionHelper.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveStaticMembersProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/MoveMembersWizard.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/MoveInstanceMethodProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/reorg/JavaMoveProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/MoveInstanceMethodAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/MoveStaticMembersAction.java
+
+# For capturing disallowed refactorings
+ui/org/eclipse/jdt/ui/actions/InlineAction.java
+ui/org/eclipse/jdt/ui/actions/MoveAction.java
+ui/org/eclipse/jdt/ui/actions/ModifyParameterAction.java
+ui/org/eclipse/jdt/ui/actions/RenameAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameJavaElementAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/RenameResourceAction.java
+
+# For capturing the refactorings invoked by quick assist
+ui/org/eclipse/jdt/internal/ui/text/correction/QuickAssistProcessor.java
+ui/org/eclipse/jdt/internal/ui/text/correction/proposals/ChangeCorrectionProposal.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/RefactoringExecutionStarter.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/RenameLinkedMode.java
+ui/org/eclipse/jdt/internal/ui/text/correction/proposals/RenameRefactoringProposal.java
+ui/org/eclipse/jdt/ui/refactoring/RenameSupport.java
+
+# For capturing pull up refactoring
+ui/org/eclipse/jdt/ui/actions/PullUpAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/PullUpMethodPage.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/PullUpMemberPage.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/PullUpRefactoringProcessor.java
+
+# For capturing the extract supertype refactoring
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractSupertypeMemberPage.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/ExtractSupertypeProcessor.java
+ui/org/eclipse/jdt/internal/ui/actions/ExtractSuperClassAction.java
+
+# For capturing the push down refactoring
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/PushDownRefactoringProcessor.java
+ui/org/eclipse/jdt/ui/actions/PushDownAction.java
+
+# For capturing the use super type refactoring
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperTypeProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/UseSupertypeWizard.java
+ui/org/eclipse/jdt/ui/actions/UseSupertypeAction.java
+
+# For capturing the extract interface refactoring
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/UseSuperTypeProcessor.javaExtractInterfaceProcessor.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/ExtractInterfaceWizard.java
+ui/org/eclipse/jdt/ui/actions/ExtractInterfaceAction.java
+
+# For capturing introduce factory refactoring
+ui/org/eclipse/jdt/ui/actions/IntroduceFactoryAction.java
+
+# For initializing the global store of refactorings
+ui/org/eclipse/jdt/ui/actions/ExtractConstantAction.java
+ui/org/eclipse/jdt/ui/actions/ExtractTempAction.java
+ui/org/eclipse/jdt/ui/actions/InlineTempAction.java
+ui/org/eclipse/jdt/ui/actions/ConvertLocalToFieldAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/reorg/ReorgMoveAction.java
+
+META-INF/MANIFEST.MF
+plugin.xml
+
+# For capturing unavailable inline refactorings
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineConstantAction.java
+ui refactoring/org/eclipse/jdt/internal/ui/refactoring/actions/InlineMethodAction.java
+
+# For verifying captured extract interface refactorings.
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/constraints/SuperTypeRefactoringProcessor.java
+
+# For capturing change method signature
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/ChangeSignatureProcessor.java
+
+# For capturing introduce parameter object
+ui/org/eclipse/jdt/internal/ui/actions/IntroduceParameterObjectAction.java
+
+Added Files
+===========
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRefactoring.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaMoveProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedJavaRenameProcessor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/WatchedProcessorDelegate.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/IWatchedJavaProcessor.java
+
+ui/org/eclipse/jdt/internal/ui/startup/StartupListener.java
+schema/startup.exsd
+
+ui/org/eclipse/jdt/ui/actions/codingspectator/UnavailableRefactoringLogger.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/InlineRefactoringContribution.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/scripting/codingspectator/RenameUnknownJavaElementRefactoringContribution.java
+
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/RefactoringGlobalStore.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/StructuredSelectionCodeSnippetInformationExtractor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/TextSelectionCodeSnippetInformationExtractor.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/codingspectator/NullCodeSnippetInformationExtractor.java

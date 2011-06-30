@@ -31,10 +31,17 @@ import org.eclipse.jdt.internal.corext.util.JavaElementResourceMapping;
 
 import org.eclipse.jdt.ui.JavaElementLabels;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 abstract class CompilationUnitReorgChange extends ResourceChange {
 
 	private String fCuHandle;
+
 	private String fOldPackageHandle;
+
 	private String fNewPackageHandle;
 
 	private INewNameQuery fNewNameQuery;
@@ -72,6 +79,11 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 
 	abstract Change doPerformReorg(IProgressMonitor pm) throws CoreException, OperationCanceledException;
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
+	}
+
 	@Override
 	public Object getModifiedElement() {
 		return getCu();
@@ -90,15 +102,15 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 	}
 
 	ICompilationUnit getCu() {
-		return (ICompilationUnit)JavaCore.create(fCuHandle);
+		return (ICompilationUnit) JavaCore.create(fCuHandle);
 	}
 
 	IPackageFragment getOldPackage() {
-		return (IPackageFragment)JavaCore.create(fOldPackageHandle);
+		return (IPackageFragment) JavaCore.create(fOldPackageHandle);
 	}
 
 	IPackageFragment getDestinationPackage() {
-		return (IPackageFragment)JavaCore.create(fNewPackageHandle);
+		return (IPackageFragment) JavaCore.create(fNewPackageHandle);
 	}
 
 	String getNewName() throws OperationCanceledException {
@@ -112,7 +124,7 @@ abstract class CompilationUnitReorgChange extends ResourceChange {
 	}
 
 	private void markAsExecuted(ICompilationUnit unit, ResourceMapping mapping) {
-		ReorgExecutionLog log= (ReorgExecutionLog)getAdapter(ReorgExecutionLog.class);
+		ReorgExecutionLog log= (ReorgExecutionLog) getAdapter(ReorgExecutionLog.class);
 		if (log != null) {
 			log.markAsProcessed(unit);
 			log.markAsProcessed(mapping);

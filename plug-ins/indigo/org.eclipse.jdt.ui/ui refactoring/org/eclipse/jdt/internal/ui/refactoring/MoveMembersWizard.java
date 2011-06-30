@@ -66,6 +66,12 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 import org.eclipse.jdt.internal.ui.util.SWTUtil;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author nchen, Mohsen Vakilian - Invoke initializeRefactoring every time the text field is
+ *         modified.
+ * 
+ */
 public class MoveMembersWizard extends RefactoringWizard {
 
 	private final MoveStaticMembersProcessor fProcessor;
@@ -80,20 +86,26 @@ public class MoveMembersWizard extends RefactoringWizard {
 	 * @see RefactoringWizard#addUserInputPages
 	 */
 	@Override
-	protected void addUserInputPages(){
+	protected void addUserInputPages() {
 		addPage(new MoveMembersInputPage(fProcessor));
 	}
 
 	private static class MoveMembersInputPage extends UserInputWizardPage {
 
 		public static final String PAGE_NAME= "MoveMembersInputPage"; //$NON-NLS-1$
+
 		private static final long LABEL_FLAGS= JavaElementLabels.ALL_DEFAULT;
 
 		private Combo fDestinationField;
+
 		private Button fLeaveDelegateCheckBox;
+
 		private Button fDeprecateDelegateCheckBox;
+
 		private static final int MRU_COUNT= 10;
+
 		private static List<String> fgMruDestinations= new ArrayList<String>(MRU_COUNT);
+
 		private final MoveStaticMembersProcessor fProcessor;
 
 		public MoveMembersInputPage(MoveStaticMembersProcessor processor) {
@@ -102,8 +114,8 @@ public class MoveMembersWizard extends RefactoringWizard {
 		}
 
 		@Override
-		public void setVisible(boolean visible){
-			if (visible){
+		public void setVisible(boolean visible) {
+			if (visible) {
 				IMember[] membersToMove= getMoveProcessor().getMembersToMove();
 				int membersToMoveCount= membersToMove.length;
 				String label= JavaElementLabels.getElementLabel(getMoveProcessor().getDeclaringType(), JavaElementLabels.ALL_FULLY_QUALIFIED);
@@ -186,15 +198,19 @@ public class MoveMembersWizard extends RefactoringWizard {
 			fDestinationField.setFocus();
 			fDestinationField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			fDestinationField.setItems(fgMruDestinations.toArray(new String[fgMruDestinations.size()]));
-			fDestinationField.addModifyListener(new ModifyListener(){
+			fDestinationField.addModifyListener(new ModifyListener() {
 				public void modifyText(ModifyEvent e) {
+					//CODINGSPECTATOR: We set the destination type in the move processor every time the text field changes. This ensures that we capture the entered destination even when the refactoring gets eventually canceled. 
+					initializeRefactoring();
+
 					handleDestinationChanged();
 				}
+
 				private void handleDestinationChanged() {
 					IType declaring= getMoveProcessor().getDeclaringType();
 					IJavaProject javaProject= declaring.getJavaProject();
 					IStatus status= JavaConventionsUtil.validateJavaTypeName(fDestinationField.getText(), javaProject);
-					if (status.getSeverity() == IStatus.ERROR){
+					if (status.getSeverity() == IStatus.ERROR) {
 						error(status.getMessage());
 					} else {
 						try {
@@ -202,19 +218,20 @@ public class MoveMembersWizard extends RefactoringWizard {
 							if (resolvedType == null)
 								resolvedType= javaProject.findType(declaring.getPackageFragment().getElementName(), fDestinationField.getText());
 							IStatus validationStatus= validateDestinationType(resolvedType, fDestinationField.getText());
-							if (validationStatus.isOK()){
+							if (validationStatus.isOK()) {
 								setErrorMessage(null);
 								setPageComplete(true);
 							} else {
 								error(validationStatus.getMessage());
 							}
-						} catch(JavaModelException ex) {
+						} catch (JavaModelException ex) {
 							JavaPlugin.log(ex); //no ui here
 							error(RefactoringMessages.MoveMembersInputPage_invalid_name);
 						}
 					}
 				}
-				private void error(String message){
+
+				private void error(String message) {
 					setErrorMessage(message);
 					setPageComplete(false);
 				}
@@ -234,7 +251,7 @@ public class MoveMembersWizard extends RefactoringWizard {
 			button.setText(RefactoringMessages.MoveMembersInputPage_browse);
 			button.setLayoutData(new GridData());
 			SWTUtil.setButtonDimensionHint(button);
-			button.addSelectionListener(new SelectionAdapter(){
+			button.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					openTypeSelectionDialog();
@@ -262,52 +279,53 @@ public class MoveMembersWizard extends RefactoringWizard {
 				fgMruDestinations.add(0, destination);
 
 				getMoveProcessor().setDestinationTypeFullyQualifiedName(destination);
-			} catch(JavaModelException e) {
+			} catch (JavaModelException e) {
 				ExceptionHandler.handle(e, getShell(), RefactoringMessages.MoveMembersInputPage_move_Member, RefactoringMessages.MoveMembersInputPage_exception);
 			}
 		}
 
-		private IJavaSearchScope createWorkspaceSourceScope(){
+		private IJavaSearchScope createWorkspaceSourceScope() {
 			IJavaElement[] project= new IJavaElement[] { getMoveProcessor().getDeclaringType().getJavaProject() };
 			return SearchEngine.createJavaSearchScope(project, IJavaSearchScope.REFERENCED_PROJECTS | IJavaSearchScope.SOURCES);
 		}
 
-		private void openTypeSelectionDialog(){
+		private void openTypeSelectionDialog() {
 			int elementKinds= IJavaSearchConstants.TYPE;
 			final IJavaSearchScope scope= createWorkspaceSourceScope();
 			FilteredTypesSelectionDialog dialog= new FilteredTypesSelectionDialog(getShell(), false,
-				getWizard().getContainer(), scope, elementKinds);
+					getWizard().getContainer(), scope, elementKinds);
 			dialog.setTitle(RefactoringMessages.MoveMembersInputPage_choose_Type);
 			dialog.setMessage(RefactoringMessages.MoveMembersInputPage_dialogMessage);
-			dialog.setValidator(new ISelectionStatusValidator(){
+			dialog.setValidator(new ISelectionStatusValidator() {
 				public IStatus validate(Object[] selection) {
 					Assert.isTrue(selection.length <= 1);
 					if (selection.length == 0)
 						return new Status(IStatus.ERROR, JavaPlugin.getPluginId(), IStatus.OK, RefactoringMessages.MoveMembersInputPage_Invalid_selection, null);
 					Object element= selection[0];
-					if (! (element instanceof IType))
+					if (!(element instanceof IType))
 						return new Status(IStatus.ERROR, JavaPlugin.getPluginId(), IStatus.OK, RefactoringMessages.MoveMembersInputPage_Invalid_selection, null);
-					IType type= (IType)element;
+					IType type= (IType) element;
 					return validateDestinationType(type, type.getElementName());
 				}
 			});
 			dialog.setInitialPattern(createInitialFilter());
 			if (dialog.open() == Window.CANCEL)
 				return;
-			IType firstResult= (IType)dialog.getFirstResult();
+			IType firstResult= (IType) dialog.getFirstResult();
 			fDestinationField.setText(firstResult.getFullyQualifiedName('.'));
 		}
 
 		private String createInitialFilter() {
-			if (! fDestinationField.getText().trim().equals("")) //$NON-NLS-1$
+			if (!fDestinationField.getText().trim().equals("")) //$NON-NLS-1$
 				return fDestinationField.getText();
 			else
 				return getMoveProcessor().getDeclaringType().getElementName();
 		}
 
-		private static IStatus validateDestinationType(IType type, String typeName){
-			if (type == null || ! type.exists())
-				return new Status(IStatus.ERROR, JavaPlugin.getPluginId(), IStatus.OK, Messages.format(RefactoringMessages.MoveMembersInputPage_not_found, BasicElementLabels.getJavaElementName(typeName)), null);
+		private static IStatus validateDestinationType(IType type, String typeName) {
+			if (type == null || !type.exists())
+				return new Status(IStatus.ERROR, JavaPlugin.getPluginId(), IStatus.OK, Messages.format(RefactoringMessages.MoveMembersInputPage_not_found,
+						BasicElementLabels.getJavaElementName(typeName)), null);
 			if (type.isBinary())
 				return new Status(IStatus.ERROR, JavaPlugin.getPluginId(), IStatus.OK, RefactoringMessages.MoveMembersInputPage_no_binary, null);
 			return Status.OK_STATUS;

@@ -26,18 +26,22 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -45,11 +49,15 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * Inlines a constant.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Captured the possible unavailability of the inline constant
+ *         refactoring. Also, initialized the global store of refactorings at the beginning of the
+ *         run methods.
+ * 
  */
 public class InlineConstantAction extends SelectionDispatchAction {
 
@@ -57,7 +65,7 @@ public class InlineConstantAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
-	 *
+	 * 
 	 * @param editor the java editor
 	 */
 	public InlineConstantAction(JavaEditor editor) {
@@ -95,6 +103,9 @@ public class InlineConstantAction extends SelectionDispatchAction {
 	@Override
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			Assert.isTrue(RefactoringAvailabilityTester.isInlineConstantAvailable(selection));
 
 			Object first= selection.getFirstElement();
@@ -109,16 +120,17 @@ public class InlineConstantAction extends SelectionDispatchAction {
 
 	//---- text selection -----------------------------------------------
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	@Override
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
-    }
+	}
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection
 	 */
 	@Override
@@ -135,6 +147,9 @@ public class InlineConstantAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 		run(selection.getOffset(), selection.getLength(), SelectionConverter.getInputAsCompilationUnit(fEditor));
 	}
 
@@ -146,6 +161,9 @@ public class InlineConstantAction extends SelectionDispatchAction {
 			return;
 		CompilationUnit node= RefactoringASTParser.parseWithASTProvider(cu, true, null);
 		if (!RefactoringExecutionStarter.startInlineConstantRefactoring(cu, node, offset, length, getShell())) {
+			//CODINGSPECTATOR: I don't know under what circumstances the user hits this case of unavailability. But, I record the refactoring descriptor just to be safe.
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE_CONSTANT, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
+
 			MessageDialog.openInformation(getShell(), RefactoringMessages.InlineConstantAction_dialog_title, RefactoringMessages.InlineConstantAction_no_constant_reference_or_declaration);
 		}
 	}

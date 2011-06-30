@@ -21,19 +21,25 @@ import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
-import org.eclipse.ltk.core.refactoring.participants.RenameProcessor;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.ltk.core.refactoring.participants.ValidateEditChecker;
 
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRenameProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.tagging.INameUpdating;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 
-public abstract class JavaRenameProcessor extends RenameProcessor implements INameUpdating {
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
+ * 
+ */
+public abstract class JavaRenameProcessor extends WatchedJavaRenameProcessor implements INameUpdating {
 
 	private String fNewElementName;
+
 	private RenameModifications fRenameModifications;
 
 	@Override
@@ -54,7 +60,7 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 		}
 		fRenameModifications= computeRenameModifications();
 		fRenameModifications.buildDelta(deltaFactory);
-		fRenameModifications.buildValidateEdits((ValidateEditChecker)context.getChecker(ValidateEditChecker.class));
+		fRenameModifications.buildValidateEdits((ValidateEditChecker) context.getChecker(ValidateEditChecker.class));
 		return result;
 	}
 
@@ -77,7 +83,7 @@ public abstract class JavaRenameProcessor extends RenameProcessor implements INa
 
 	/**
 	 * @return a save mode from {@link RefactoringSaveHelper}
-	 *
+	 * 
 	 * @see RefactoringSaveHelper
 	 */
 	public abstract int getSaveMode();

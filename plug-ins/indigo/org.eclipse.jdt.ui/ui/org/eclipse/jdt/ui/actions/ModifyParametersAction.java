@@ -21,34 +21,40 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * Action to start the modify parameters refactoring. The refactoring supports
- * swapping and renaming of arguments.
+ * Action to start the modify parameters refactoring. The refactoring supports swapping and renaming
+ * of arguments.
  * <p>
- * This action is applicable to selections containing a method with one or
- * more arguments.
- *
+ * This action is applicable to selections containing a method with one or more arguments.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen: Logged refactoring unavailability
  */
 public class ModifyParametersAction extends SelectionDispatchAction {
 
@@ -56,8 +62,9 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public ModifyParametersAction(JavaEditor editor) {
@@ -67,10 +74,10 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>ModifyParametersAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>ModifyParametersAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public ModifyParametersAction(IWorkbenchSite site) {
@@ -94,9 +101,9 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		}
 	}
 
-    /*
-     * @see SelectionDispatchAction#selectionChanged(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#selectionChanged(ITextSelection)
+	 */
 	@Override
 	public void selectionChanged(ITextSelection selection) {
 		setEnabled(true);
@@ -123,10 +130,13 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 	@Override
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			// we have to call this here - no selection changed event is sent after a refactoring but it may still invalidate enablement
 			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(selection)) {
 				IMethod method= getSingleSelectedMethod(selection);
-				if (! ActionUtil.isEditable(getShell(), method))
+				if (!ActionUtil.isEditable(getShell(), method))
 					return;
 				RefactoringExecutionStarter.startChangeSignatureRefactoring(method, this, getShell());
 			}
@@ -135,18 +145,24 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		}
 	}
 
-    /*
-     * @see SelectionDispatchAction#run(ITextSelection)
-     */
+	/*
+	 * @see SelectionDispatchAction#run(ITextSelection)
+	 */
 	@Override
 	public void run(ITextSelection selection) {
 		try {
-			if (! ActionUtil.isEditable(fEditor))
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
+			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IMethod method= getSingleSelectedMethod(selection);
-			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(method)){
+			if (RefactoringAvailabilityTester.isChangeSignatureAvailable(method)) {
 				RefactoringExecutionStarter.startChangeSignatureRefactoring(method, this, getShell());
 			} else {
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.CHANGE_METHOD_SIGNATURE, RefactoringMessages.ModifyParametersAction_unavailable);
+
 				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.ModifyParametersAction_unavailable);
 			}
 		} catch (JavaModelException e) {
@@ -154,15 +170,15 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		}
 	}
 
-	private static IMethod getSingleSelectedMethod(IStructuredSelection selection){
+	private static IMethod getSingleSelectedMethod(IStructuredSelection selection) {
 		if (selection.isEmpty() || selection.size() != 1)
 			return null;
 		if (selection.getFirstElement() instanceof IMethod)
-			return (IMethod)selection.getFirstElement();
+			return (IMethod) selection.getFirstElement();
 		return null;
 	}
 
-	private IMethod getSingleSelectedMethod(ITextSelection selection) throws JavaModelException{
+	private IMethod getSingleSelectedMethod(ITextSelection selection) throws JavaModelException {
 		//- when caret/selection on method name (call or declaration) -> that method
 		//- otherwise: caret position's enclosing method declaration
 		//  - when caret inside argument list of method declaration -> enclosing method declaration
@@ -171,10 +187,10 @@ public class ModifyParametersAction extends SelectionDispatchAction {
 		if (elements.length > 1)
 			return null;
 		if (elements.length == 1 && elements[0] instanceof IMethod)
-			return (IMethod)elements[0];
+			return (IMethod) elements[0];
 		IJavaElement elementAt= SelectionConverter.getInputAsCompilationUnit(fEditor).getElementAt(selection.getOffset());
 		if (elementAt instanceof IMethod)
-			return (IMethod)elementAt;
+			return (IMethod) elementAt;
 		return null;
 	}
 }

@@ -27,19 +27,22 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.ChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
+import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextEditBasedChange;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringParticipant;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaMoveProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.participants.JavaProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.participants.ResourceProcessors;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.IReorgPolicy.IMovePolicy;
@@ -48,7 +51,12 @@ import org.eclipse.jdt.internal.corext.util.Resources;
 
 import org.eclipse.jdt.ui.refactoring.IRefactoringProcessorIds;
 
-public final class JavaMoveProcessor extends MoveProcessor implements IQualifiedNameUpdating, IReorgDestinationValidator {
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Provided a method to create a refactoring descriptor.
+ * 
+ */
+public final class JavaMoveProcessor extends WatchedJavaMoveProcessor implements IQualifiedNameUpdating, IReorgDestinationValidator {
 
 	private ICreateTargetQueries fCreateTargetQueries;
 
@@ -84,9 +92,9 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 	}
 
 	/**
-	 * Checks if <b>Java</b> references to the selected element(s) can be updated if moved to
-	 * the selected destination. Even if <code>false</code>, participants could still update
-	 * non-Java references.
+	 * Checks if <b>Java</b> references to the selected element(s) can be updated if moved to the
+	 * selected destination. Even if <code>false</code>, participants could still update non-Java
+	 * references.
 	 * 
 	 * @return <code>true</code> iff <b>Java</b> references to the moved element can be updated
 	 * @since 3.5
@@ -155,7 +163,7 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 			};
 			CreateTargetExecutionLog log= null;
 			if (fCreateTargetQueries instanceof MonitoringCreateTargetQueries) {
-				final MonitoringCreateTargetQueries queries= (MonitoringCreateTargetQueries) fCreateTargetQueries;
+				final MonitoringCreateTargetQueries queries= (MonitoringCreateTargetQueries)fCreateTargetQueries;
 				final ICreateTargetQueries delegate= queries.getDelegate();
 				if (delegate instanceof LoggedCreateTargetQueries)
 					log= queries.getCreateTargetExecutionLog();
@@ -168,7 +176,7 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 			}
 			Change change= fMovePolicy.createChange(pm);
 			if (change instanceof CompositeChange) {
-				CompositeChange subComposite= (CompositeChange) change;
+				CompositeChange subComposite= (CompositeChange)change;
 				result.merge(subComposite);
 			} else {
 				result.add(change);
@@ -317,4 +325,20 @@ public final class JavaMoveProcessor extends MoveProcessor implements IQualified
 	public int getSaveMode() {
 		return fMovePolicy.getSaveMode();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		ChangeDescriptor changeDescriptor= fMovePolicy.getDescriptor();
+		if (changeDescriptor == null)
+			return null;
+		return (JavaRefactoringDescriptor)((RefactoringChangeDescriptor)changeDescriptor).getRefactoringDescriptor();
+	}
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.MOVE;
+	}
+
 }

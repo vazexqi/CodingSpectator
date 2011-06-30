@@ -29,10 +29,17 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.corext.refactoring.reorg.INewNameQuery;
 import org.eclipse.jdt.internal.corext.util.JavaElementResourceMapping;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 abstract class PackageReorgChange extends ResourceChange {
 
 	private String fPackageHandle;
+
 	private String fDestinationHandle;
+
 	private INewNameQuery fNameQuery;
 
 	PackageReorgChange(IPackageFragment pack, IPackageFragmentRoot dest, INewNameQuery nameQuery) {
@@ -64,6 +71,11 @@ abstract class PackageReorgChange extends ResourceChange {
 		}
 	}
 
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
+	}
+
 	@Override
 	public Object getModifiedElement() {
 		return getPackage();
@@ -82,11 +94,11 @@ abstract class PackageReorgChange extends ResourceChange {
 	}
 
 	IPackageFragmentRoot getDestination() {
-		return (IPackageFragmentRoot)JavaCore.create(fDestinationHandle);
+		return (IPackageFragmentRoot) JavaCore.create(fDestinationHandle);
 	}
 
 	IPackageFragment getPackage() {
-		return (IPackageFragment)JavaCore.create(fPackageHandle);
+		return (IPackageFragment) JavaCore.create(fPackageHandle);
 	}
 
 	String getNewName() throws OperationCanceledException {
@@ -96,7 +108,7 @@ abstract class PackageReorgChange extends ResourceChange {
 	}
 
 	private void markAsExecuted(IPackageFragment pack, ResourceMapping mapping) {
-		ReorgExecutionLog log= (ReorgExecutionLog)getAdapter(ReorgExecutionLog.class);
+		ReorgExecutionLog log= (ReorgExecutionLog) getAdapter(ReorgExecutionLog.class);
 		if (log != null) {
 			log.markAsProcessed(pack);
 			log.markAsProcessed(mapping);

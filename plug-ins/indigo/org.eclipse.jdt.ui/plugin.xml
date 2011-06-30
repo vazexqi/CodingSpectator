@@ -28,6 +28,7 @@
    <extension-point id="classpathAttributeConfiguration" name="%classpathAttributeConfiguration" schema="schema/classpathAttributeConfiguration.exsd"/>
    <extension-point id="javadocExportWizardPage" name="%javadocExportWizardPageExtensionPoint" schema="schema/javadocExportWizardPage.exsd"/>
    <extension-point id="cleanUps" name="%cleanUpExtensionPoint" schema="schema/cleanUps.exsd"/>
+   <extension-point id="startup" name="startup" schema="schema/startup.exsd"/>
 
 <extension
 	point="org.eclipse.ui.decorators">
@@ -5482,6 +5483,17 @@
       <contribution
             class="org.eclipse.jdt.internal.corext.refactoring.scripting.InlineConstantRefactoringContribution"
             id="org.eclipse.jdt.ui.inline.constant"/>
+
+      <!-- CODINGSPECTATOR: Added an extension point for the unknown inline refactoring. This extension point enables the deserialization of this custom refactoring descriptor. -->
+      <contribution
+            class="org.eclipse.jdt.internal.corext.refactoring.scripting.codingspectator.InlineRefactoringContribution"
+            id="org.eclipse.jdt.ui.inline"/>
+     
+      <!-- CODINGSPECTATOR: Added an extension point for the rename unknown Java element refactoring. This extension point enables the deserialization of this custom refactoring descriptor. -->
+      <contribution
+            class="org.eclipse.jdt.internal.corext.refactoring.scripting.codingspectator.RenameUnknownJavaElementRefactoringContribution"
+            id="org.eclipse.jdt.ui.rename.unknown.java.element"/>
+            
       <contribution
             class="org.eclipse.jdt.internal.corext.refactoring.scripting.ExtractMethodRefactoringContribution"
             id="org.eclipse.jdt.ui.extract.method"/>

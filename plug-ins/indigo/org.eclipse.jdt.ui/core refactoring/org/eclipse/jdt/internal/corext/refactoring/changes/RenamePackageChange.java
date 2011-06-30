@@ -44,6 +44,11 @@ import org.eclipse.jdt.ui.JavaElementLabels;
 
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 
 	private static IPath createPath(String packageName) {
@@ -65,6 +70,11 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 		fRenameSubpackages= renameSubpackages;
 
 		setValidationMethod(VALIDATE_NOT_DIRTY);
+	}
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
 	}
 
 	private void addStamps(Map<IResource, Long> stamps, ICompilationUnit[] units) {
@@ -147,7 +157,7 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 	@Override
 	public String getName() {
 		String msg= fRenameSubpackages ? RefactoringCoreMessages.RenamePackageChange_name_with_subpackages : RefactoringCoreMessages.RenamePackageChange_name;
-		String[] keys= { BasicElementLabels.getJavaElementName(getOldName()), BasicElementLabels.getJavaElementName(getNewName())};
+		String[] keys= { BasicElementLabels.getJavaElementName(getOldName()), BasicElementLabels.getJavaElementName(getNewName()) };
 		return Messages.format(msg, keys);
 	}
 
@@ -207,7 +217,7 @@ public final class RenamePackageChange extends AbstractJavaElementRenameChange {
 	}
 
 	private void renamePackage(IPackageFragment pack, IProgressMonitor pm, IPath newPath, String newName) throws JavaModelException, CoreException {
-		if (! pack.exists())
+		if (!pack.exists())
 			return; // happens if empty parent with single subpackage is renamed, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=199045
 		pack.rename(newName, false, pm);
 		if (fCompilationUnitStamps != null) {

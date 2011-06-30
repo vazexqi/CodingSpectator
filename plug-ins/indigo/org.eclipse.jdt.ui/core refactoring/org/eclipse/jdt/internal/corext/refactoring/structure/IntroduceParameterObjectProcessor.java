@@ -71,6 +71,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.ImportRewriteContext;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceParameterObjectDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.IntroduceParameterObjectDescriptor.Parameter;
 import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
@@ -92,10 +93,16 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.text.correction.ASTResolving;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * 
+ * @author Mohsen Vakilian - Instrumented this class to capture the refactoring.
+ * 
+ */
 public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor {
 
 	private final class ParameterObjectCreator implements IDefaultValueAdvisor {
-		public Expression createDefaultExpression(List<Expression> invocationArguments, ParameterInfo addedInfo, List<ParameterInfo> parameterInfos, MethodDeclaration enclosingMethod, boolean isRecursive, CompilationUnitRewrite cuRewrite) {
+		public Expression createDefaultExpression(List<Expression> invocationArguments, ParameterInfo addedInfo, List<ParameterInfo> parameterInfos, MethodDeclaration enclosingMethod,
+				boolean isRecursive, CompilationUnitRewrite cuRewrite) {
 			final AST ast= cuRewrite.getAST();
 			final ASTRewrite rewrite= cuRewrite.getASTRewrite();
 			if (isRecursive && canReuseParameterObject(invocationArguments, addedInfo, parameterInfos, enclosingMethod)) {
@@ -144,7 +151,8 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 			return true;
 		}
 
-		private List<Expression> computeVarargs(List<Expression> invocationArguments, ParameterInfo varArgPI, boolean isLastParameter, CompilationUnitRewrite cuRewrite, ContextSensitiveImportRewriteContext context) {
+		private List<Expression> computeVarargs(List<Expression> invocationArguments, ParameterInfo varArgPI, boolean isLastParameter, CompilationUnitRewrite cuRewrite,
+				ContextSensitiveImportRewriteContext context) {
 			boolean isEmptyVarArg= varArgPI.getOldIndex() >= invocationArguments.size();
 			ASTRewrite rewrite= cuRewrite.getASTRewrite();
 			AST ast= cuRewrite.getAST();
@@ -576,11 +584,14 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 	private JDTRefactoringDescriptorComment createComment(String project) throws JavaModelException {
 		String header= Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_description, getOldMethodSignature());
 		JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_object_class, BasicElementLabels.getJavaElementName(fParameterObjectFactory.getClassName())));
+		comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_object_class,
+				BasicElementLabels.getJavaElementName(fParameterObjectFactory.getClassName())));
 		if (fCreateAsTopLevel) {
-			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_package, BasicElementLabels.getJavaElementName(fParameterObjectFactory.getPackage())));
+			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_package,
+					BasicElementLabels.getJavaElementName(fParameterObjectFactory.getPackage())));
 		} else {
-			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_enclosing_type, BasicElementLabels.getJavaElementName(fParameterObjectFactory.getEnclosingType())));
+			comment.addSetting(Messages.format(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_enclosing_type,
+					BasicElementLabels.getJavaElementName(fParameterObjectFactory.getEnclosingType())));
 		}
 		List<ParameterInfo> infos= getParameterInfos();
 		List<String> kept= new ArrayList<String>();
@@ -598,7 +609,8 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_fields, fields.toArray(new String[0])));
 		if (!kept.isEmpty())
-			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_keep_parameter, kept.toArray(new String[0])));
+			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_keep_parameter,
+					kept.toArray(new String[0])));
 		if (fParameterObjectFactory.isCreateGetter())
 			comment.addSetting(RefactoringCoreMessages.IntroduceParameterObjectRefactoring_descriptor_create_getter);
 		if (fParameterObjectFactory.isCreateSetter())
@@ -629,10 +641,9 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 
 	/**
 	 * Checks if the given parameter info has been selected for field creation
-	 *
+	 * 
 	 * @param pi parameter info
-	 * @return true if the given parameter info has been selected for field
-	 *         creation
+	 * @return true if the given parameter info has been selected for field creation
 	 */
 	private boolean isValidField(ParameterInfo pi) {
 		return pi.isCreateField() & !pi.isAdded();
@@ -747,6 +758,18 @@ public class IntroduceParameterObjectProcessor extends ChangeSignatureProcessor 
 	@Override
 	protected int getDescriptorFlags() {
 		return super.getDescriptorFlags() | JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.INTRODUCE_PARAMETER_OBJECT;
+	}
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createDescriptor();
 	}
 
 }

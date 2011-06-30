@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
+import org.eclipse.jdt.core.refactoring.descriptors.JavaRefactoringDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 
 import org.eclipse.jdt.internal.core.refactoring.descriptors.RefactoringSignatureDescriptorFactory;
@@ -68,6 +69,9 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * Rename processor to rename type parameters.
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class comply to the API of watched processors.
+ * 
  */
 public class RenameTypeParameterProcessor extends JavaRenameProcessor implements IReferenceUpdating {
 
@@ -90,13 +94,10 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 
 		/**
 		 * Creates a new rename type parameter visitor.
-		 *
-		 * @param rewrite
-		 *            the compilation unit rewrite to use
-		 * @param range
-		 *            the source range of the type parameter
-		 * @param status
-		 *            the status to update
+		 * 
+		 * @param rewrite the compilation unit rewrite to use
+		 * @param range the source range of the type parameter
+		 * @param status the status to update
 		 */
 		public RenameTypeParameterVisitor(CompilationUnitRewrite rewrite, ISourceRange range, RefactoringStatus status) {
 			Assert.isNotNull(rewrite);
@@ -110,10 +111,9 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 
 		/**
 		 * Returns the resulting change.
-		 *
+		 * 
 		 * @return the resulting change
-		 * @throws CoreException
-		 *             if the change could not be created
+		 * @throws CoreException if the change could not be created
 		 */
 		public Change getResult() throws CoreException {
 			return fRewrite.createChange(true);
@@ -142,7 +142,8 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 		public boolean visit(AbstractTypeDeclaration node) {
 			String name= node.getName().getIdentifier();
 			if (name.equals(getNewElementName())) {
-				fStatus.addError(Messages.format(RefactoringCoreMessages.RenameTypeParameterRefactoring_type_parameter_inner_class_clash, new String[] { name}), JavaStatusContext.create(fTypeParameter.getDeclaringMember().getCompilationUnit(), SourceRangeFactory.create(node)));
+				fStatus.addError(Messages.format(RefactoringCoreMessages.RenameTypeParameterRefactoring_type_parameter_inner_class_clash, new String[] { name }),
+						JavaStatusContext.create(fTypeParameter.getDeclaringMember().getCompilationUnit(), SourceRangeFactory.create(node)));
 				return true;
 			}
 			return true;
@@ -165,9 +166,8 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 
 	/**
 	 * Creates a new rename type parameter processor.
-	 *
-	 * @param parameter
-	 *            the type parameter to rename, or <code>null</code> if invoked by scripting
+	 * 
+	 * @param parameter the type parameter to rename, or <code>null</code> if invoked by scripting
 	 */
 	public RenameTypeParameterProcessor(ITypeParameter parameter) {
 		fTypeParameter= parameter;
@@ -189,7 +189,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 
 	@Override
 	protected IFile[] getChangedFiles() throws CoreException {
-		return new IFile[] {ResourceUtil.getFile(fTypeParameter.getDeclaringMember().getCompilationUnit())};
+		return new IFile[] { ResourceUtil.getFile(fTypeParameter.getDeclaringMember().getCompilationUnit()) };
 	}
 
 	@Override
@@ -227,7 +227,8 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 	public RefactoringStatus checkInitialConditions(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		Assert.isNotNull(monitor);
 		if (!fTypeParameter.exists())
-			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.RenameTypeParameterRefactoring_deleted, BasicElementLabels.getFileName(fTypeParameter.getDeclaringMember().getCompilationUnit())));
+			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.RenameTypeParameterRefactoring_deleted,
+					BasicElementLabels.getFileName(fTypeParameter.getDeclaringMember().getCompilationUnit())));
 		return Checks.checkIfCuBroken(fTypeParameter.getDeclaringMember());
 	}
 
@@ -255,28 +256,14 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 		return result;
 	}
 
+	//CODINGSPECTATOR: Extracted createRefactoringDescriptor.
 	@Override
 	public Change createChange(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		Assert.isNotNull(monitor);
 		try {
 			Change change= fChange;
 			if (change != null) {
-				String project= null;
-				IJavaProject javaProject= fTypeParameter.getJavaProject();
-				if (javaProject != null)
-					project= javaProject.getElementName();
-				String description= Messages.format(RefactoringCoreMessages.RenameTypeParameterProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fTypeParameter.getElementName()));
-				String header= Messages.format(RefactoringCoreMessages.RenameTypeParameterProcessor_descriptor_description, new String[] { BasicElementLabels.getJavaElementName(fTypeParameter.getElementName()), JavaElementLabels.getElementLabel(fTypeParameter.getDeclaringMember(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName())});
-				String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
-				RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_TYPE_PARAMETER);
-				descriptor.setProject(project);
-				descriptor.setDescription(description);
-				descriptor.setComment(comment);
-				descriptor.setFlags(RefactoringDescriptor.NONE);
-				descriptor.setJavaElement(fTypeParameter);
-				descriptor.setNewName(getNewElementName());
-				descriptor.setUpdateReferences(fUpdateReferences);
-				change= new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.RenameTypeParameterProcessor_change_name, new Change[] { change});
+				change= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.RenameTypeParameterProcessor_change_name, new Change[] { change });
 			}
 			return change;
 		} finally {
@@ -285,14 +272,35 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 		}
 	}
 
+	//CODINGSPECTATOR: Extracted from createChange.
+	private RenameJavaElementDescriptor createRefactoringDescriptor() {
+		String project= null;
+		IJavaProject javaProject= fTypeParameter.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		String description= Messages.format(RefactoringCoreMessages.RenameTypeParameterProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fTypeParameter.getElementName()));
+		String header= Messages.format(
+				RefactoringCoreMessages.RenameTypeParameterProcessor_descriptor_description,
+				new String[] { BasicElementLabels.getJavaElementName(fTypeParameter.getElementName()),
+						JavaElementLabels.getElementLabel(fTypeParameter.getDeclaringMember(), JavaElementLabels.ALL_FULLY_QUALIFIED), BasicElementLabels.getJavaElementName(getNewElementName()) });
+		String comment= new JDTRefactoringDescriptorComment(project, this, header).asString();
+		RenameJavaElementDescriptor descriptor= RefactoringSignatureDescriptorFactory.createRenameJavaElementDescriptor(IJavaRefactorings.RENAME_TYPE_PARAMETER);
+		descriptor.setProject(project);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment);
+		descriptor.setFlags(RefactoringDescriptor.NONE);
+		descriptor.setJavaElement(fTypeParameter);
+		descriptor.setNewName(getNewElementName());
+		descriptor.setUpdateReferences(fUpdateReferences);
+		return descriptor;
+	}
+
 	/**
 	 * Creates the necessary changes for the renaming of the type parameter.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
+	 * 
+	 * @param monitor the progress monitor to display progress
 	 * @return the status of the operation
-	 * @throws CoreException
-	 *             if the change could not be generated
+	 * @throws CoreException if the change could not be generated
 	 */
 	private RefactoringStatus createRenameChanges(IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(monitor);
@@ -334,7 +342,7 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 
 	@Override
 	public Object[] getElements() {
-		return new Object[] { fTypeParameter};
+		return new Object[] { fTypeParameter };
 	}
 
 	@Override
@@ -408,5 +416,17 @@ public class RenameTypeParameterProcessor extends JavaRenameProcessor implements
 
 	public void setUpdateReferences(boolean update) {
 		fUpdateReferences= update;
+	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.RENAME_TYPE_PARAMETER;
 	}
 }

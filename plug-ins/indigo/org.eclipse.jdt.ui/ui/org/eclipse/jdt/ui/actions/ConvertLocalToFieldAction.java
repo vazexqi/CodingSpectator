@@ -19,12 +19,14 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.code.PromoteTempToFieldRefactoring;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.ui.refactoring.RefactoringSaveHelper;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.PromoteTempWizard;
@@ -36,10 +38,13 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringStarter;
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
  */
 public class ConvertLocalToFieldAction extends SelectionDispatchAction {
 
@@ -47,9 +52,9 @@ public class ConvertLocalToFieldAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
-	 *
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public ConvertLocalToFieldAction(JavaEditor editor) {
@@ -70,8 +75,9 @@ public class ConvertLocalToFieldAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This method is for internal use only. Clients should not call this method.
+	 * 
 	 * @param selection the Java text selection (internal type)
-	 *
+	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	@Override
@@ -88,6 +94,9 @@ public class ConvertLocalToFieldAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		ICompilationUnit cunit= SelectionConverter.getInputAsCompilationUnit(fEditor);
