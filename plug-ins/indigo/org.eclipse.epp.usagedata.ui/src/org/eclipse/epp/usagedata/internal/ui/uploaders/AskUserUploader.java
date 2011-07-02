@@ -19,22 +19,38 @@ import org.eclipse.epp.usagedata.internal.recording.uploading.AbstractUploader;
 import org.eclipse.epp.usagedata.internal.recording.uploading.BasicUploader;
 import org.eclipse.epp.usagedata.internal.recording.uploading.UploadListener;
 import org.eclipse.epp.usagedata.internal.recording.uploading.UploadResult;
+import org.eclipse.epp.usagedata.internal.recording.uploading.codingspectator.TransferToCodingSpectatorListener;
 import org.eclipse.epp.usagedata.internal.ui.wizards.AskUserUploaderWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Disabled the option to turn off UDC usage capture completely the
+ *         new option is to collect but not to upload. And, added the support to transfer UDC data
+ *         to CodingSpectator.
+ * 
+ */
 public class AskUserUploader extends AbstractUploader {
-	public static final int UPLOAD_NOW = 0;
-	public static final int UPLOAD_ALWAYS = 1;
-	public static final int DONT_UPLOAD = 2;
-	public static final int NEVER_UPLOAD = 3;
-	
+	public static final int UPLOAD_NOW= 0;
+
+	public static final int UPLOAD_ALWAYS= 1;
+
+	public static final int DONT_UPLOAD= 2;
+
+	public static final int NEVER_UPLOAD= 3;
+
+	//CODINGSPECTATOR
+	public static final int COLLECT_BUT_NEVER_UPLOAD= 3;
+
 	private BasicUploader basicUploader;
+
 	private WizardDialog dialog;
 
-	private int action = UPLOAD_NOW;
+	private int action= UPLOAD_NOW;
+
 	private boolean userAcceptedTermsOfUse;
 
 	public void startUpload() {
@@ -47,20 +63,22 @@ public class AskUserUploader extends AbstractUploader {
 	}
 
 	protected boolean needToOpenWizard() {
-		if (getSettings().shouldAskBeforeUploading()) return true;
-		if (!getSettings().hasUserAcceptedTermsOfUse()) return true;		
+		if (getSettings().shouldAskBeforeUploading())
+			return true;
+		if (!getSettings().hasUserAcceptedTermsOfUse())
+			return true;
 		return false;
 	}
 
 	private void openUploadWizard() {
-		action = getDefaultAction();
-		userAcceptedTermsOfUse = getSettings().hasUserAcceptedTermsOfUse();
-		
-		final AskUserUploaderWizard wizard = new AskUserUploaderWizard(this);
+		action= getDefaultAction();
+		userAcceptedTermsOfUse= getSettings().hasUserAcceptedTermsOfUse();
+
+		final AskUserUploaderWizard wizard= new AskUserUploaderWizard(this);
 		Display.getDefault().syncExec(new Runnable() {
 
 			public void run() {
-				dialog = new WizardDialog(getShell(), wizard);
+				dialog= new WizardDialog(getShell(), wizard);
 				dialog.setBlockOnOpen(false);
 				dialog.open();
 			}
@@ -79,7 +97,8 @@ public class AskUserUploader extends AbstractUploader {
 				return UPLOAD_ALWAYS;
 			}
 		} else {
-			return NEVER_UPLOAD;
+			//CODINGSPECTATOR
+			return COLLECT_BUT_NEVER_UPLOAD;
 		}
 	}
 
@@ -88,7 +107,8 @@ public class AskUserUploader extends AbstractUploader {
 	}
 
 	public synchronized boolean isUploadInProgress() {
-		if (isWizardOpen()) return true;
+		if (isWizardOpen())
+			return true;
 		if (basicUploader != null) {
 			return basicUploader.isUploadInProgress();
 		}
@@ -96,42 +116,47 @@ public class AskUserUploader extends AbstractUploader {
 	}
 
 	private boolean isWizardOpen() {
-		if (dialog == null) return false;
+		if (dialog == null)
+			return false;
 		return dialog.getShell().isVisible();
 	}
 
 	public synchronized void cancel() {
-		dialog = null;
+		dialog= null;
 		fireUploadComplete(new UploadResult(UploadResult.CANCELLED));
 	}
 
+	// CODINGSPECATOR: Do not allow turning off of usage capture
 	public synchronized void execute() {
-		dialog = null;
-		
+		dialog= null;
+
 		getSettings().setAskBeforeUploading(action != UPLOAD_ALWAYS);
-		getSettings().setEnabled(action != NEVER_UPLOAD);
+
+		//CODGINSPECTATOR
+		getSettings().setCollectButNeverUpload(shouldCollectButDontUpload());
+
 		getSettings().setUserAcceptedTermsOfUse(userAcceptedTermsOfUse);
-		
+
 		if (action == UPLOAD_ALWAYS || action == UPLOAD_NOW) {
 			startBasicUpload();
 		} else {
 			fireUploadComplete(new UploadResult(UploadResult.CANCELLED));
 		}
 	}
-	
+
 	private void startBasicUpload() {
-		basicUploader = new BasicUploader(getUploadParameters());
+		basicUploader= new BasicUploader(getUploadParameters());
 		basicUploader.addUploadListener(new UploadListener() {
 			public void uploadComplete(UploadResult result) {
 				fireUploadComplete(result);
-				basicUploader = null;
+				basicUploader= null;
 			}
 		});
 		basicUploader.startUpload();
 	}
 
 	public void setAction(int action) {
-		this.action = action;
+		this.action= action;
 	}
 
 	public int getAction() {
@@ -143,12 +168,14 @@ public class AskUserUploader extends AbstractUploader {
 	}
 
 	public void setUserAcceptedTermsOfUse(boolean value) {
-		userAcceptedTermsOfUse = value;
+		userAcceptedTermsOfUse= value;
 	}
 
 	public boolean hasUploadAction() {
-		if (action == UPLOAD_ALWAYS) return true;
-		if (action == UPLOAD_NOW) return true;
+		if (action == UPLOAD_ALWAYS)
+			return true;
+		if (action == UPLOAD_NOW)
+			return true;
 		return false;
 	}
 
@@ -159,4 +186,30 @@ public class AskUserUploader extends AbstractUploader {
 	public UsageDataEventFilter getFilter() {
 		return getUploadParameters().getFilter();
 	}
+
+	////////////////
+	//CODINGSPECATOR
+	////////////////
+
+	protected boolean shouldCollectButDontUpload() {
+		return COLLECT_BUT_NEVER_UPLOAD == 1;
+	}
+
+	public void startTransferToCodingSpectator() {
+		checkValues();
+		startBasicTransferToCodingSpectator();
+	}
+
+	private void startBasicTransferToCodingSpectator() {
+		basicUploader= new BasicUploader(getUploadParameters());
+		basicUploader.addTransferToCodingSpectatorListener(new TransferToCodingSpectatorListener() {
+
+			public void transferToCodingSpectatorComplete() {
+				fireTransferToCodingSpectatorComplete();
+				basicUploader= null;
+			}
+		});
+		basicUploader.startTransferToCodingSpectator();
+	}
+
 }
