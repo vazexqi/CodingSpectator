@@ -20,7 +20,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  * @author Mohsen Vakilian
  * 
  */
-public class WorkbenchPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+public class DisplayPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private Button showInStatusLineCheckbox;
 
@@ -36,7 +36,7 @@ public class WorkbenchPreferencePage extends PreferencePage implements IWorkbenc
 		}
 	};
 
-	public WorkbenchPreferencePage() {
+	public DisplayPreferencePage() {
 		setDescription(Messages.WorkbenchPreferencePage_preference_page_description);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 	}
