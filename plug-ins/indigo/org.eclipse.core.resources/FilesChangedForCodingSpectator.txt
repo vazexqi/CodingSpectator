@@ -1,0 +1,13 @@
+Changed Files
+=============
+
+src/org/eclipse/core/internal/localstore/RefreshLocalVisitor.java
+src/org/eclipse/core/internal/resources/File.java
+src/org/eclipse/core/internal/resources/Folder.java
+src/org/eclipse/core/internal/resources/Project.java
+src/org/eclipse/core/internal/resources/Resource.java
+
+Added Files
+===========
+
+src/org/eclipse/core/internal/resources/IResourceListener.java
