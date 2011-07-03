@@ -16,11 +16,12 @@
       </startup>
    </extension>
    <extension
-         point="edu.illinois.bundleupdater">
-      <plugin-to-update
-            plugin-id="edu.illinois.codingspectator.feature.group"
-            update-site="http://codingspectator.cs.illinois.edu/updates/">
-      </plugin-to-update>
+         point="edu.illinois.codingspectator.monitor.core.submitter">
+      <submitterListener
+            class="edu.illinois.codingspectator.monitor.ui.updates.Updater"
+            id="edu.illinois.codingspectator.monitor.ui.updates.updater"
+            name="edu.illinois.codingspectator.monitor.ui.updates.updater">
+      </submitterListener>
    </extension>
 
 </plugin>
