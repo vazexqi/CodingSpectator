@@ -5,14 +5,21 @@ package edu.illinois.codingspectator.branding;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.jface.action.StatusLineContributionItem;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.StatusLineContributionItem;
+import org.osgi.framework.Bundle;
 
 /**
  * @author Mohsen Vakilian
@@ -64,9 +71,19 @@ public class StatusLineBranding {
 	}
 
 	public void addCodingSpectatorToStatusLine() {
+		Image codingspectatorLogo= createImageDescriptor(Activator.getDefault().getBundle(), new Path("icons/codingspectator-logo.gif"), true).createImage(); //$NON-NLS-1$
 		StatusLineContributionItem contributionItem= new StatusLineContributionItem(null);
-		contributionItem.setText("CodingSpectator");
+		contributionItem.setImage(codingspectatorLogo);
+		contributionItem.setToolTipText(Messages.StatusLineBranding_status_bar_tool_tip);
 		getStatusLineManager().add(contributionItem);
+	}
+
+	private static ImageDescriptor createImageDescriptor(Bundle bundle, IPath path, boolean useMissingImageDescriptor) {
+		URL url= FileLocator.find(bundle, path, null);
+		if (url != null) {
+			return ImageDescriptor.createFromURL(url);
+		}
+		return null;
 	}
 
 }
