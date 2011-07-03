@@ -13,6 +13,8 @@ public class Messages extends NLS {
 
 	public static String AuthenticationPrompter_FailureMessage;
 
+	public static String MainPreferencePage_PreferencePageDescription;
+
 	public static String PrefsFacade_ForcedAutomaticUpdateHasBeenSetKey;
 
 	public static String PrefsFacade_LastUploadTimeKey;
@@ -29,21 +31,21 @@ public class Messages extends NLS {
 
 	public static String UserValidationDialog_Username;
 
-	public static String WorkbenchPreferencePage_FailedToUploadMessage;
+	public static String UploadingPreferencePage_LastUploadTextField;
 
-	public static String WorkbenchPreferencePage_LastUploadTextField;
+	public static String UploadingPreferencePage_Description;
 
-	public static String WorkbenchPreferencePage_PluginName;
+	public static String UploadingPreferencePage_UploadNowButtonText;
 
-	public static String WorkbenchPreferencePage_Title;
+	public static String UploadingPreferencePage_UUIDFieldPreferenceKey;
 
-	public static String WorkbenchPreferencePage_UploadingMessage;
+	public static String UploadingPreferencePage_UUIDTextField;
 
-	public static String WorkbenchPreferencePage_UploadNowButtonText;
+	public static String PluginName;
 
-	public static String WorkbenchPreferencePage_UUIDFieldPreferenceKey;
+	public static String Uploader_FailedToUploadMessage;
 
-	public static String WorkbenchPreferencePage_UUIDTextField;
+	public static String Uploader_UploadingMessage;
 
 	static {
 		// initialize resource bundle

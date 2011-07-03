@@ -24,7 +24,7 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmitterExc
 public class Uploader {
 
 	private static IStatus reportUploadFailure(SubmitterException exception) {
-		String errorMessage= Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_FailedToUploadMessage);
+		String errorMessage= Activator.populateMessageWithPluginName(Messages.Uploader_FailedToUploadMessage);
 		Status errorStatus= Activator.getDefault().createErrorStatus(errorMessage, exception);
 		Activator.getDefault().log(errorStatus);
 		return errorStatus;
@@ -48,7 +48,7 @@ public class Uploader {
 		if (PlatformUI.getWorkbench().isClosing())
 			return;
 
-		Job job= new Job(MessageFormat.format(Messages.WorkbenchPreferencePage_UploadingMessage, Messages.WorkbenchPreferencePage_PluginName)) {
+		Job job= new Job(MessageFormat.format(Messages.Uploader_UploadingMessage, Messages.PluginName)) {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {

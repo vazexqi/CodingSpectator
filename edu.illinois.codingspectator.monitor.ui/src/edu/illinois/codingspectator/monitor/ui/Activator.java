@@ -125,7 +125,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	}
 
 	public static String populateMessageWithPluginName(String formattedString) {
-		return MessageFormat.format(formattedString, Messages.WorkbenchPreferencePage_PluginName);
+		return MessageFormat.format(formattedString, Messages.PluginName);
 	}
 
 
