@@ -1,0 +1,37 @@
+/BufferedContent.java/1.15/Thu Dec  7 21:16:06 2006/-ko/TI20110525-0800
+/CompareConfiguration.java/1.46/Tue Jan 20 10:33:16 2009/-ko/TI20110525-0800
+/CompareEditorInput.java/1.119/Fri Apr 15 11:51:02 2011/-ko/TI20110525-0800
+/CompareNavigator.java/1.6/Tue May 22 20:19:52 2007//TI20110525-0800
+/CompareUI.java/1.36/Wed Apr 29 13:04:44 2009/-ko/TI20110525-0800
+/CompareViewerPane.java/1.26/Fri Feb 27 12:44:06 2009/-ko/TI20110525-0800
+/CompareViewerSwitchingPane.java/1.36/Tue Aug 10 10:23:04 2010/-ko/TI20110525-0800
+/EditionSelectionDialog.java/1.75/Mon Oct 25 14:25:17 2010/-ko/TI20110525-0800
+/HistoryItem.java/1.19/Tue Jun  3 13:35:48 2008/-ko/TI20110525-0800
+/ICompareContainer.java/1.9/Wed Mar 21 13:36:03 2007//TI20110525-0800
+/ICompareInputLabelProvider.java/1.1/Thu Oct 19 18:45:24 2006//TI20110525-0800
+/ICompareNavigator.java/1.8/Fri Mar 16 19:41:55 2007//TI20110525-0800
+/IContentChangeListener.java/1.8/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/IContentChangeNotifier.java/1.8/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/IEditableContent.java/1.11/Tue Jun 21 12:37:18 2005/-ko/TI20110525-0800
+/IEditableContentExtension.java/1.1/Wed Dec  6 15:16:54 2006//TI20110525-0800
+/IEncodedStreamContentAccessor.java/1.8/Tue Mar 28 14:50:59 2006//TI20110525-0800
+/IModificationDate.java/1.9/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/INavigatable.java/1.6/Mon Mar 16 11:35:32 2009//TI20110525-0800
+/IPropertyChangeNotifier.java/1.8/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/IResourceProvider.java/1.1/Mon Mar 28 21:56:02 2005//TI20110525-0800
+/ISharedDocumentAdapter.java/1.11/Thu Dec 18 16:58:14 2008//TI20110525-0800
+/IStreamContentAccessor.java/1.8/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/IStreamMerger.java/1.8/Tue Jun  3 13:35:48 2008//TI20110525-0800
+/ITypedElement.java/1.11/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/IViewerCreator.java/1.8/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/NavigationAction.java/1.13/Tue Jun  3 13:35:48 2008/-ko/TI20110525-0800
+/ResourceNode.java/1.29/Tue Jun  3 13:35:48 2008/-ko/TI20110525-0800
+/SharedDocumentAdapter.java/1.6/Tue May 22 20:19:52 2007//TI20110525-0800
+/Splitter.java/1.10/Tue Mar 28 14:50:59 2006/-ko/TI20110525-0800
+/ZipFileStructureCreator.java/1.22/Tue Jun  3 13:35:48 2008/-ko/TI20110525-0800
+D/contentmergeviewer////
+D/internal////
+/package.html/1.4/Tue Jun 22 21:14:36 2004/-ko/TI20110525-0800
+D/patch////
+D/rangedifferencer////
+D/structuremergeviewer////
