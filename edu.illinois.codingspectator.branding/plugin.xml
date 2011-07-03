@@ -7,5 +7,13 @@
             class="edu.illinois.codingspectator.branding.Startup">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="edu.illinois.codingspectator.branding.WorkbenchPreferencePage"
+            id="edu.illinois.codingspectator.branding.PreferencePage"
+            name="Display">
+      </page>
+   </extension>
 
 </plugin>

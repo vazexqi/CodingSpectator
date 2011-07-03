@@ -14,6 +14,7 @@ import org.eclipse.ui.IStartup;
  */
 public class Startup implements IStartup {
 
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IStartup#earlyStartup()
 	 */
@@ -23,7 +24,7 @@ public class Startup implements IStartup {
 
 			@Override
 			public void run() {
-				new StatusLineBranding().addCodingSpectatorToStatusLine();
+				Activator.getDefault().getStatusLineUpdater().updateStatusLine();
 			}
 		});
 	}

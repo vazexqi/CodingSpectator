@@ -7,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -26,7 +28,9 @@ import org.osgi.framework.Bundle;
  * @author nchen
  * 
  */
-public class StatusLineBranding {
+public class BundleStatusLineManager {
+
+	private final static String STATUS_LINE_CONTRIBUTION_ITEM_ID= "edu.illinois.codingspectator.branding.StatusLine";
 
 	private IStatusLineManager statusLineManager;
 
@@ -70,12 +74,23 @@ public class StatusLineBranding {
 		return statusLineManager;
 	}
 
-	public void addCodingSpectatorToStatusLine() {
+	private boolean logoExists() {
+		return getStatusLineManager().find(STATUS_LINE_CONTRIBUTION_ITEM_ID) != null;
+	}
+
+	private void addLogoToStatusLine() {
 		Image codingspectatorLogo= createImageDescriptor(Activator.getDefault().getBundle(), new Path("icons/codingspectator-logo.gif"), true).createImage(); //$NON-NLS-1$
-		StatusLineContributionItem contributionItem= new StatusLineContributionItem(null);
+		StatusLineContributionItem contributionItem= new StatusLineContributionItem(STATUS_LINE_CONTRIBUTION_ITEM_ID);
 		contributionItem.setImage(codingspectatorLogo);
 		contributionItem.setToolTipText(Messages.StatusLineBranding_status_bar_tool_tip);
 		getStatusLineManager().add(contributionItem);
+		getStatusLineManager().update(false);
+
+		try {
+			Assert.isTrue(logoExists());
+		} catch (AssertionFailedException e) {
+			Activator.getDefault().logErrorStatus("Failed to add the logo to the status line.", e);
+		}
 	}
 
 	private static ImageDescriptor createImageDescriptor(Bundle bundle, IPath path, boolean useMissingImageDescriptor) {
@@ -84,6 +99,24 @@ public class StatusLineBranding {
 			return ImageDescriptor.createFromURL(url);
 		}
 		return null;
+	}
+
+	public void removeLogoFromStatusLine() {
+		getStatusLineManager().remove(STATUS_LINE_CONTRIBUTION_ITEM_ID);
+		getStatusLineManager().markDirty();
+		getStatusLineManager().update(false);
+
+		try {
+			Assert.isTrue(!logoExists());
+		} catch (AssertionFailedException e) {
+			Activator.getDefault().logErrorStatus("Failed to remove the logo from the status line.", e);
+		}
+	}
+
+	public void addLogoToStatusLineIfNecessary() {
+		if (!logoExists()) {
+			addLogoToStatusLine();
+		}
 	}
 
 }
