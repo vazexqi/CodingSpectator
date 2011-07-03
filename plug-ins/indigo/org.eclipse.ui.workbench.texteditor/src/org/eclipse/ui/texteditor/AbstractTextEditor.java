@@ -249,6 +249,10 @@ import org.eclipse.ui.texteditor.rulers.RulerColumnRegistry;
  * this class by using {@link #COMMON_EDITOR_CONTEXT_MENU_ID} and
  * {@link #COMMON_RULER_CONTEXT_MENU_ID}.
  * </p>
+ * 
+ * @author Stas Negara - Changed handleEditorInputChanged() to prevent unnecessary dialog boxes
+ *         while replaying.
+ *         
  */
 public abstract class AbstractTextEditor extends EditorPart implements ITextEditor, IReusableEditor, ITextEditorExtension, ITextEditorExtension2, ITextEditorExtension3, ITextEditorExtension4, ITextEditorExtension5, INavigationLocationProvider, ISaveablesSource, IPersistableEditor {
 
@@ -4698,6 +4702,7 @@ public abstract class AbstractTextEditor extends EditorPart implements ITextEdit
 		return pm != null ? pm : new NullProgressMonitor();
 	}
 
+	//CODINGSPECTATOR: Changed to prevent unnecessary dialog boxes while replaying.
 	/**
 	 * Handles an external change of the editor's input element. Subclasses may
 	 * extend.
@@ -4754,7 +4759,8 @@ public abstract class AbstractTextEditor extends EditorPart implements ITextEdit
 			title= EditorMessages.Editor_error_activated_outofsync_title;
 			msg= NLSUtility.format(EditorMessages.Editor_error_activated_outofsync_message, inputName);
 
-			if (fHasBeenActivated && MessageDialog.openQuestion(shell, title, msg)) {
+			if (fHasBeenActivated && Platform.getBundle("edu.illinois.codingtracker.replaying") == null && 
+					MessageDialog.openQuestion(shell, title, msg)) {
 
 
 				try {
