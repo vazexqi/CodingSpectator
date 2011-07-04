@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 
 import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.NodeFinder;
 
@@ -41,10 +42,11 @@ public class TextSelectionCodeSnippetInformationExtractor extends CodeSnippetInf
 	private String getSelectedText() {
 		try {
 			return getText(selectionStart, selectionLength);
-		} catch (CoreException e) {
+		} catch (IndexOutOfBoundsException e) {
+			JavaPlugin.log(e);
+		} catch (JavaModelException e) {
 			JavaPlugin.log(e);
 		}
-
 		return DEFAULT_SELECTED_TEXT;
 	}
 

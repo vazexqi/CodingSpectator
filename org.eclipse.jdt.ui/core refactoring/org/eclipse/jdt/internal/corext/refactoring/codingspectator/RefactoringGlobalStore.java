@@ -4,6 +4,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.jface.text.ITextSelection;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.CodeSnippetInformation;
 import org.eclipse.ltk.core.refactoring.codingspectator.IClearable;
 import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 
@@ -25,13 +26,11 @@ public class RefactoringGlobalStore implements IClearable {
 		resetInstance();
 	}
 
-	private ITypeRoot selectedTypeRoot;
+	private CodeSnippetInformation codeSnippetInformation= new NullCodeSnippetInformationExtractor().extractCodeSnippetInformation();
 
-	private ITextSelection selectionInEditor;
+	private String projectName;
 
-	private IJavaElement selectedElement;
-
-	private String selectedElementsText;
+	private boolean invokedThroughTextualSelection;
 
 	private boolean invokedThroughStructuredSelection;
 
@@ -57,43 +56,6 @@ public class RefactoringGlobalStore implements IClearable {
 		resetInstance();
 	}
 
-	/**
-	 * This method specifies an object invariant.
-	 */
-	private void assertOnlyOneKindOfSelectionExists() {
-		if (doesSelectionInEditorExist() && isInvokedThroughStructuredSelection()) {
-			JavaPlugin.log(new AssertionError("Capturing both structured and textual selections for a refactoring is unexpected.")); //$NON-NLS-1$
-		}
-	}
-
-	public void setSelectionInEditor(ITextSelection selection) {
-		selectionInEditor= selection;
-		assertOnlyOneKindOfSelectionExists();
-	}
-
-	public int getSelectionStart() {
-		return selectionInEditor.getOffset();
-	}
-
-	public int getSelectionLength() {
-		return selectionInEditor.getLength();
-	}
-
-	public boolean doesSelectionInEditorExist() {
-		return selectionInEditor != null;
-	}
-
-	public void setStructuredSelection(IStructuredSelection selection) {
-		Object firstSelectedElement= selection.getFirstElement();
-		if (firstSelectedElement instanceof IJavaElement) {
-			selectedElement= (IJavaElement)firstSelectedElement;
-			selectedTypeRoot= (ITypeRoot)selectedElement.getAncestor(IJavaElement.COMPILATION_UNIT);
-		}
-		selectedElementsText= selection.toString();
-		setInvokedThroughStructuredSelection();
-		assertOnlyOneKindOfSelectionExists();
-	}
-
 	private void setInvokedThroughStructuredSelection() {
 		invokedThroughStructuredSelection= true;
 	}
@@ -102,25 +64,56 @@ public class RefactoringGlobalStore implements IClearable {
 		return invokedThroughStructuredSelection;
 	}
 
-	public IJavaElement getSelectedJavaElement() {
-		return selectedElement;
+	private void setInvokedThroughTextualSelection() {
+		invokedThroughTextualSelection= true;
 	}
 
-	private void setSelectedTypeRoot(ITypeRoot selectedTypeRootInEditor) {
-		this.selectedTypeRoot= selectedTypeRootInEditor;
+	private boolean isInvokedThroughTextualSelection() {
+		return invokedThroughTextualSelection;
 	}
 
-	public ITypeRoot getSelectedTypeRoot() {
-		return selectedTypeRoot;
+	/**
+	 * This method specifies an object invariant.
+	 */
+	private void assertOnlyOneKindOfSelectionExists() {
+		if (isInvokedThroughTextualSelection() && isInvokedThroughStructuredSelection()) {
+			JavaPlugin.log(new AssertionError("Capturing both structured and textual selections for a refactoring is unexpected.")); //$NON-NLS-1$
+		}
 	}
 
-	public void setEditorSelectionInfo(ITypeRoot editorInputJavaElement, ITextSelection selection) {
-		setSelectedTypeRoot(editorInputJavaElement);
-		setSelectionInEditor(selection);
+	private void setProjectName(ITypeRoot typeRoot) {
+		if (typeRoot != null && typeRoot.getJavaProject() != null) {
+			projectName= typeRoot.getJavaProject().getElementName();
+		}
 	}
 
-	public String getSelectedElementsText() {
-		return selectedElementsText;
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setStructuredSelection(IStructuredSelection selection) {
+		setInvokedThroughStructuredSelection();
+
+		Object firstSelectedElement= selection.getFirstElement();
+		String selectedElementsText= selection.toString();
+		if (firstSelectedElement instanceof IJavaElement) {
+			IJavaElement selectedElement= (IJavaElement)firstSelectedElement;
+			ITypeRoot selectedTypeRoot= (ITypeRoot)selectedElement.getAncestor(IJavaElement.COMPILATION_UNIT);
+			setProjectName(selectedTypeRoot);
+			codeSnippetInformation= new StructuredSelectionCodeSnippetInformationExtractor(selectedTypeRoot, selectedElement, selectedElementsText).extractCodeSnippetInformation();
+		}
+		assertOnlyOneKindOfSelectionExists();
+	}
+
+	public void setEditorSelectionInfo(ITypeRoot typeRoot, ITextSelection selection) {
+		setInvokedThroughTextualSelection();
+		setProjectName(typeRoot);
+		codeSnippetInformation= new TextSelectionCodeSnippetInformationExtractor(typeRoot, selection.getOffset(), selection.getLength()).extractCodeSnippetInformation();
+		assertOnlyOneKindOfSelectionExists();
+	}
+
+	public CodeSnippetInformation getCodeSnippetInformation() {
+		return codeSnippetInformation;
 	}
 
 }

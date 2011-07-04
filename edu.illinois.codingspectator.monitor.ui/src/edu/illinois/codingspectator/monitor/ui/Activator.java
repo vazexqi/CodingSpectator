@@ -7,17 +7,14 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.PreferenceConstants;
-import org.eclipse.equinox.p2.core.IAgentLocation;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.Preferences;
 
 import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
@@ -103,7 +100,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	}
 
 	private boolean shouldUpload() {
-		return !RunningModes.isInTestMode() && enoughTimeHasElapsedSinceLastUpload();
+		return !Platform.inDevelopmentMode() && !RunningModes.isInTestMode() && enoughTimeHasElapsedSinceLastUpload();
 	}
 
 	private boolean enoughTimeHasElapsedSinceLastUpload() {
