@@ -5,15 +5,10 @@ package edu.illinois.codingspectator.branding;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IViewSite;
@@ -21,7 +16,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.StatusLineContributionItem;
-import org.osgi.framework.Bundle;
 
 /**
  * @author Mohsen Vakilian
@@ -79,7 +73,7 @@ public class BundleStatusLineManager {
 	}
 
 	private void addLogoToStatusLine() {
-		Image codingspectatorLogo= createImageDescriptor(Activator.getDefault().getBundle(), new Path("icons/codingspectator-logo.gif"), true).createImage(); //$NON-NLS-1$
+		Image codingspectatorLogo= Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/codingspectator-logo.gif").createImage(); //$NON-NLS-1$
 		StatusLineContributionItem contributionItem= new StatusLineContributionItem(STATUS_LINE_CONTRIBUTION_ITEM_ID);
 		contributionItem.setImage(codingspectatorLogo);
 		contributionItem.setToolTipText(Messages.StatusLineBranding_status_bar_tool_tip);
@@ -91,14 +85,6 @@ public class BundleStatusLineManager {
 		} catch (AssertionFailedException e) {
 			Activator.getDefault().logErrorStatus("Failed to add the logo to the status line.", e);
 		}
-	}
-
-	private static ImageDescriptor createImageDescriptor(Bundle bundle, IPath path, boolean useMissingImageDescriptor) {
-		URL url= FileLocator.find(bundle, path, null);
-		if (url != null) {
-			return ImageDescriptor.createFromURL(url);
-		}
-		return null;
 	}
 
 	public void removeLogoFromStatusLine() {
