@@ -39,7 +39,8 @@ public class DocumentAdapter extends Document {
 		this.buffer = buffer;
 		//CODINGSPECTATOR
 		IResource underlyingResource = buffer.getUnderlyingResource();
-		if (documentListenersFactory != null && underlyingResource instanceof IFile && underlyingResource.exists()){
+		if (documentListenersFactory != null && buffer instanceof Buffer //listen only Buffer instances, others are listened through ITextFileBufferManager
+				&& underlyingResource instanceof IFile && underlyingResource.exists()){
 			addDocumentListener(documentListenersFactory.getDocumentListener((IFile) underlyingResource));			
 		}
 	}
