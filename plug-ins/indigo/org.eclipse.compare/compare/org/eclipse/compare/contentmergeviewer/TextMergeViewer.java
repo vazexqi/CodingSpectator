@@ -242,6 +242,9 @@ import com.ibm.icu.text.MessageFormat;
  * viewers implementation with an option to configure them basing on a
  * corresponding editor input.
  * 
+ * @author Stas Negara - Added getLeftViewer() (in order to be able to listen to its changes)
+ * 
+ * 
  * @see org.eclipse.compare.rangedifferencer.RangeDifferencer
  * @see org.eclipse.jface.text.TextViewer
  * @see ITokenComparator
@@ -1516,6 +1519,14 @@ public class TextMergeViewer extends ContentMergeViewer implements IAdaptable {
 		updateFont();
 	}
 	
+	//CODINGSPECTATOR: Added the method getLeftViewer.
+	public SourceViewer getLeftViewer() {
+		if (fLeft != null) {
+			return fLeft.getSourceViewer();
+		}
+		return null;
+	}
+
 	private ChainedPreferenceStore createChainedPreferenceStore() {
     	ArrayList stores= new ArrayList(2);
 		stores.add(getCompareConfiguration().getPreferenceStore());
