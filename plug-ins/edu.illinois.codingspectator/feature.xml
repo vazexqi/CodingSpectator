@@ -137,6 +137,10 @@ http://jcommander.org/.
          id="edu.illinois.codingspectator.epp.usagedata.feature.patch"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.epp.usagedata.feature"
+         version="0.0.0"/>
+         
    <plugin
          id="edu.illinois.codingspectator.branding"
          download-size="0"
