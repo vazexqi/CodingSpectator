@@ -1,0 +1,46 @@
+/AbstractJavaElementRenameChange.java/1.33/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+/Checks.java/1.103/Thu Apr 21 10:26:06 2011/-ko/Tv20110531-1200
+/CollectingSearchRequestor.java/1.12/Wed Apr 27 07:45:26 2011//Tv20110531-1200
+/CuCollectingSearchRequestor.java/1.10/Wed Apr 27 07:45:26 2011//Tv20110531-1200
+/ExceptionInfo.java/1.14/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+/IRefactoringSearchRequestor.java/1.6/Wed Dec 31 21:13:14 2008//Tv20110531-1200
+/JDTRefactoringDescriptorComment.java/1.5/Tue Mar  1 11:50:33 2011//Tv20110531-1200
+/JavaRefactoringArguments.java/1.11/Tue Mar  1 11:50:34 2011//Tv20110531-1200
+/JavaRefactoringDescriptorUtil.java/1.6/Wed Dec 31 21:13:14 2008//Tv20110531-1200
+/ParameterInfo.java/1.34/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+/RefactoringAvailabilityTester.java/1.64/Tue Mar  1 11:50:33 2011//Tv20110531-1200
+/RefactoringCoreMessages.java/1.130/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+/RefactoringExecutionStarter.java/1.66/Wed Apr 27 07:45:26 2011//Tv20110531-1200
+/RefactoringScopeFactory.java/1.17/Wed Apr 27 07:45:26 2011//Tv20110531-1200
+/RefactoringSearchEngine.java/1.41/Tue Mar  1 11:50:34 2011/-ko/Tv20110531-1200
+/RefactoringSearchEngine2.java/1.24/Tue Mar  1 11:50:34 2011//Tv20110531-1200
+/ReturnTypeInfo.java/1.9/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+/SearchResultGroup.java/1.18/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+/StubTypeContext.java/1.6/Wed Dec 31 21:13:14 2008/-ko/Tv20110531-1200
+/TypeContextChecker.java/1.38/Fri Mar 18 19:16:55 2011/-ko/Tv20110531-1200
+/TypedSource.java/1.20/Fri Mar 18 19:16:55 2011//Tv20110531-1200
+D/base////
+D/binary////
+D/breakers////
+D/changes////
+D/code////
+D/composite////
+D/delegates////
+D/deprecation////
+D/genericize////
+D/generics////
+D/nls////
+D/participants////
+/refactoring.properties/1.395/Wed Apr 27 07:45:26 2011/-ko/Tv20110531-1200
+D/rename////
+D/reorg////
+D/reorg2////
+D/scripting////
+D/sef////
+D/structure////
+D/surround////
+D/tagging////
+D/text////
+D/typeconstraints////
+D/typeconstraints2////
+D/util////

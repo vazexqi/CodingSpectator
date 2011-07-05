@@ -1,0 +1,6 @@
+Changed Files
+=============
+
+compare/org/eclipse/compare/internal/CompareEditor.java
+compare/org/eclipse/compare/CompareEditorInput.java
+compare/org/eclipse/compare/contentmergeviewer/TextMergeViewer.java

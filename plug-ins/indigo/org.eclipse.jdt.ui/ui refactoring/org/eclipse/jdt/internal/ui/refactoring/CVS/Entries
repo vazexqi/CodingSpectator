@@ -1,0 +1,67 @@
+/ChangeExceptionHandler.java/1.5/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/ChangeExceptionsControl.java/1.18/Tue Mar  1 11:50:43 2011/-ko/Tv20110531-1200
+/ChangeParametersControl.java/1.62/Tue Mar  1 11:50:43 2011/-ko/Tv20110531-1200
+/ChangeSignatureWizard.java/1.43/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/ChangeTypeContentProvider.java/1.10/Tue Mar  1 11:50:43 2011//Tv20110531-1200
+/ChangeTypeWizard.java/1.29/Tue Mar  1 19:45:56 2011//Tv20110531-1200
+/ComboSelectionDialog.java/1.13/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/CompilationUnitChangeNode.java/1.7/Tue Mar  1 11:50:44 2011//Tv20110531-1200
+/ConvertAnonymousToNestedWizard.java/1.24/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/CreateTextFileChangePreviewViewer.java/1.18/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/DelegateUIHelper.java/1.10/Wed Apr 27 07:39:04 2011/-ko/Tv20110531-1200
+/ExtractClassWizard.java/1.9/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/ExtractConstantWizard.java/1.23/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/ExtractInterfaceWizard.java/1.38/Tue Mar  1 11:50:44 2011/-ko/Tv20110531-1200
+/ExtractSupertypeMemberPage.java/1.22/Tue Mar  1 11:50:44 2011//Tv20110531-1200
+/ExtractSupertypeMethodPage.java/1.10/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/ExtractSupertypeWizard.java/1.10/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/ExtractTempWizard.java/1.29/Wed Apr 27 07:39:04 2011/-ko/Tv20110531-1200
+/IExceptionListChangeListener.java/1.6/Wed Dec 31 21:13:19 2008/-ko/Tv20110531-1200
+/IParameterListChangeListener.java/1.8/Wed Dec 31 21:13:19 2008/-ko/Tv20110531-1200
+/IScheduledRefactoring.java/1.3/Wed Dec 31 21:13:20 2008//Tv20110531-1200
+/IVisibilityChangeListener.java/1.6/Fri Jun 17 15:51:52 2005/-ko/Tv20110531-1200
+/InferTypeArgumentsWizard.java/1.19/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/InlineConstantWizard.java/1.23/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/InlineTempWizard.java/1.30/Wed Apr 27 07:39:03 2011/-kb/Tv20110531-1200
+/IntroduceFactoryInputPage.java/1.23/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/IntroduceFactoryWizard.java/1.13/Wed Apr 27 07:39:04 2011//Tv20110531-1200
+/IntroduceIndirectionInputPage.java/1.11/Wed Apr 27 07:39:04 2011//Tv20110531-1200
+/IntroduceIndirectionWizard.java/1.4/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/IntroduceParameterObjectWizard.java/1.21/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/IntroduceParameterWizard.java/1.27/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/JavaStatusContextViewer.java/1.21/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/MessageWizardPage.java/1.9/Wed Dec 31 21:13:19 2008//Tv20110531-1200
+/MoveInnerToTopWizard.java/1.29/Wed Apr 27 07:39:04 2011/-ko/Tv20110531-1200
+/MoveInstanceMethodWizard.java/1.36/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/MoveMembersWizard.java/1.60/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/ParameterEditDialog.java/1.26/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/PromoteTempWizard.java/1.23/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/PullPushCheckboxTableViewer.java/1.13/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/PullUpMemberPage.java/1.28/Tue Mar  1 11:50:44 2011//Tv20110531-1200
+/PullUpMethodPage.java/1.14/Tue Mar  1 11:50:44 2011//Tv20110531-1200
+/PullUpWizard.java/1.45/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/PushDownWizard.java/1.28/Tue Mar  1 11:50:44 2011//Tv20110531-1200
+/QualifiedNameComponent.java/1.15/Wed Apr 27 07:39:03 2011//Tv20110531-1200
+/RefactoringAdapterFactory.java/1.10/Tue Mar  1 11:50:43 2011//Tv20110531-1200
+/RefactoringExecutionHelper.java/1.46/Thu Apr 23 08:24:10 2009//Tv20110531-1200
+/RefactoringMessages.java/1.66/Tue Nov 17 08:00:58 2009/-ko/Tv20110531-1200
+/RefactoringSavePreferences.java/1.8/Wed Dec 31 21:13:19 2008//Tv20110531-1200
+/ReferencesInBinaryStatusContextViewer.java/1.5/Tue Mar  1 11:50:44 2011//Tv20110531-1200
+/TextInputWizardPage.java/1.38/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/UseSupertypeWizard.java/1.40/Wed Apr 27 07:39:03 2011/-ko/Tv20110531-1200
+/UserInterfaceManager.java/1.10/Tue Mar  1 11:50:43 2011//Tv20110531-1200
+/UserInterfaceStarter.java/1.18/Tue May 26 13:37:18 2009//Tv20110531-1200
+/VisibilityControlUtil.java/1.17/Wed Apr 27 07:39:04 2011/-ko/Tv20110531-1200
+D/actions////
+D/binary////
+D/changes////
+D/code////
+D/contentassist////
+D/merge////
+D/model////
+D/nls////
+D/participants////
+/refactoringui.properties/1.287/Fri Mar  5 17:36:51 2010/-ko/Tv20110531-1200
+D/reorg////
+D/sef////
+D/undo////

@@ -1,0 +1,14 @@
+/ASTRewriteAnalyzer.java/1.79/Wed Feb  9 13:39:37 2011//Tv_B61
+/ASTRewriteFlattener.java/1.23/Thu Jan  7 17:46:28 2010//Tv_B61
+/ASTRewriteFormatter.java/1.28/Wed Mar 17 16:09:16 2010//Tv_B61
+/ImportRewriteAnalyzer.java/1.26/Tue Apr 13 18:53:21 2010//Tv_B61
+/LineCommentEndOffsets.java/1.6/Sat Mar  7 01:08:10 2009//Tv_B61
+/LineInformation.java/1.6/Sat Mar  7 01:08:10 2009//Tv_B61
+/ListRewriteEvent.java/1.9/Fri Jun 27 16:04:10 2008//Tv_B61
+/NodeInfoStore.java/1.11/Sat Mar  7 01:08:10 2009//Tv_B61
+/NodeRewriteEvent.java/1.9/Sat Mar  7 01:08:10 2009//Tv_B61
+/RewriteEvent.java/1.8/Sat Mar  7 01:08:10 2009//Tv_B61
+/RewriteEventStore.java/1.16/Sat Mar  7 01:08:10 2009//Tv_B61
+/SourceModifier.java/1.13/Sat Mar  7 01:08:10 2009//Tv_B61
+/TokenScanner.java/1.12/Mon Apr 27 08:46:43 2009//Tv_B61
+/TrackedNodePosition.java/1.9/Sat Mar  7 01:08:10 2009//Tv_B61

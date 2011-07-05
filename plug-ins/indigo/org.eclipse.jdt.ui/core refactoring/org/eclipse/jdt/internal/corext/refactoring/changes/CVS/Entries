@@ -1,0 +1,29 @@
+/AbstractDeleteChange.java/1.24/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/ClasspathChange.java/1.7/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/CompilationUnitReorgChange.java/1.24/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/CopyCompilationUnitChange.java/1.25/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/CopyPackageChange.java/1.20/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/CopyPackageFragmentRootChange.java/1.18/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/CopyResourceChange.java/1.23/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/CreateCompilationUnitChange.java/1.14/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/CreatePackageChange.java/1.24/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/DeletePackageFragmentRootChange.java/1.24/Tue Mar  1 11:50:42 2011//Tv20110531-1200
+/DeleteSourceManipulationChange.java/1.32/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/DynamicValidationRefactoringChange.java/1.6/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/DynamicValidationStateChange.java/1.16/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/MoveCompilationUnitChange.java/1.25/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/MovePackageChange.java/1.20/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/MovePackageFragmentRootChange.java/1.18/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/MultiStateCompilationUnitChange.java/1.5/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/PackageFragmentRootReorgChange.java/1.32/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/PackageReorgChange.java/1.27/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/RenameCompilationUnitChange.java/1.51/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/RenameJavaProjectChange.java/1.54/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/RenamePackageChange.java/1.37/Tue Mar  1 11:50:42 2011/-ko/Tv20110531-1200
+/RenameSourceFolderChange.java/1.52/Wed Apr 27 07:53:45 2011/-ko/Tv20110531-1200
+/TextChangeCompatibility.java/1.13/Wed Dec 31 21:13:20 2008//Tv20110531-1200
+/UndoDeleteResourceChange.java/1.8/Wed Apr 27 07:53:45 2011//Tv20110531-1200
+/UndoablePackageDeleteChange.java/1.6/Tue Mar  1 11:50:42 2011//Tv20110531-1200
+/WorkspaceTracker.java/1.9/Wed Dec 31 21:13:20 2008//Tv20110531-1200
+D/enhanced////
+D/undo////

@@ -1,0 +1,25 @@
+/AddWordProposal.java/1.16/Tue Dec 15 13:03:38 2009//Tv20110531-1200
+/ChangeCaseProposal.java/1.9/Wed Apr 27 07:50:36 2011//Tv20110531-1200
+/CoreSpellingProblem.java/1.11/Wed Apr 27 07:50:36 2011//Tv20110531-1200
+/DefaultSpellingEngine.java/1.11/Wed Apr 27 07:50:36 2011//Tv20110531-1200
+/DisableSpellCheckingProposal.java/1.4/Tue Dec 15 13:03:38 2009/-ko/Tv20110531-1200
+/HtmlTagDictionary.java/1.13/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+/IJavaDocTagConstants.java/1.4/Thu Apr 17 12:50:49 2008/-ko/Tv20110531-1200
+/JavaDocTagDictionary.java/1.12/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+/JavaSpellingEngine.java/1.16/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+/JavaSpellingProblem.java/1.21/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+/JavaSpellingReconcileStrategy.java/1.21/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+/PropertiesFileSpellCheckIterator.java/1.5/Tue Mar  1 11:50:56 2011/-ko/Tv20110531-1200
+/PropertiesFileSpellingEngine.java/1.15/Wed Apr 27 07:50:36 2011//Tv20110531-1200
+/SpellCheckEngine.java/1.31/Tue Mar  1 11:50:56 2011//Tv20110531-1200
+/SpellCheckIterator.java/1.19/Tue Mar  1 11:50:56 2011//Tv20110531-1200
+/SpellingEngine.java/1.13/Wed Dec 31 21:13:29 2008//Tv20110531-1200
+/TaskTagDictionary.java/1.13/Tue Mar  1 11:50:56 2011//Tv20110531-1200
+/TextSpellingEngine.java/1.11/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+/WordCompletionProposalComputer.java/1.10/Tue Mar  1 11:50:56 2011/-kk/Tv20110531-1200
+/WordCorrectionProposal.java/1.12/Tue Dec 15 13:03:38 2009//Tv20110531-1200
+/WordIgnoreProposal.java/1.13/Tue Dec 15 13:03:37 2009//Tv20110531-1200
+/WordQuickFixProcessor.java/1.16/Wed Apr 27 07:50:35 2011//Tv20110531-1200
+D/engine////
+D/newapi////
+/package.html/1.1/Mon Feb  9 03:20:10 2004//Tv20110531-1200

@@ -1,0 +1,27 @@
+/BasicElementLabels.java/1.3/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/BufferValidationState.java/1.21/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/Changes.java/1.10/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/ContentStamps.java/1.15/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/IRefactoringSerializationConstants.java/1.4/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/Lock.java/1.1/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/Messages.java/1.5/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/MultiStateUndoChange.java/1.8/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/NonDeletingPositionUpdater.java/1.1/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/NotCancelableProgressMonitor.java/1.4/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/ParticipantDescriptor.java/1.14/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringCoreMessages.java/1.40/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringCoreMessages.properties/1.55/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringCorePlugin.java/1.22/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringPreferenceConstants.java/1.4/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringSessionReader.java/1.13/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringSessionTransformer.java/1.12/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/RefactoringUndoContext.java/1.8/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/Resources.java/1.13/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/TextChanges.java/1.11/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/UndoDocumentChange.java/1.10/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/UndoManager2.java/1.15/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+/UndoableOperation2ChangeAdapter.java/1.19/Thu Jun 23 20:39:00 2011//Tv20110505-0800
+D/history////
+D/model////
+D/participants////
+D/resource////
