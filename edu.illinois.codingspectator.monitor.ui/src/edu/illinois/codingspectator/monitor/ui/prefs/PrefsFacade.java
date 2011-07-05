@@ -51,7 +51,7 @@ public class PrefsFacade {
 	}
 
 	private boolean isUUIDSet() {
-		return !(getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey)).isEmpty();
+		return !(getPreferenceStringValue(Messages.UploadingPreferencePage_UUIDFieldPreferenceKey)).isEmpty();
 	}
 
 	private void setUUIDLazily() {
@@ -70,12 +70,12 @@ public class PrefsFacade {
 	}
 
 	private synchronized void setUUID(String uiud) {
-		setPreferenceValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, uiud);
+		setPreferenceValue(Messages.UploadingPreferencePage_UUIDFieldPreferenceKey, uiud);
 	}
 
 	public synchronized String getAndSetUUIDLazily() {
 		setUUIDLazily();
-		return getPreferenceStringValue(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey);
+		return getPreferenceStringValue(Messages.UploadingPreferencePage_UUIDFieldPreferenceKey);
 	}
 
 	public synchronized boolean getForcedAutoUpdatePref() {

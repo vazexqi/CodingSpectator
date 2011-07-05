@@ -4,9 +4,15 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="edu.illinois.codingspectator.monitor.ui.WorkbenchPreferencePage"
-            id="edu.illinois.refactorbehavior.monitor.preferencepage"
-            name="%page.name">
+            class="edu.illinois.codingspectator.monitor.ui.MainPreferencePage"
+            id="edu.illinois.codingspectator.monitor.ui.MainPreferencePage"
+            name="%main.preference.page.name">
+      </page>
+      <page
+            category="edu.illinois.codingspectator.monitor.ui.MainPreferencePage"
+            class="edu.illinois.codingspectator.monitor.ui.UploadingPreferencePage"
+            id="edu.illinois.refactorbehavior.monitor.UploadingPreferencePage"
+            name="%uploading.preference.page.name">
       </page>
    </extension>
    <extension

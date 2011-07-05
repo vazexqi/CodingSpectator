@@ -90,7 +90,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		if (authenticationInfo != null) {
 			return authenticationInfo;
 		} else {
-			return getUsernamePassword(Messages.WorkbenchPreferencePage_PluginName);
+			return getUsernamePassword(Messages.PluginName);
 		}
 	}
 

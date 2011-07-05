@@ -3,16 +3,12 @@
  */
 package edu.illinois.codingspectator.monitor.ui;
 
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -34,13 +30,11 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
  * @author Stas Negara
  * 
  */
-public class WorkbenchPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class UploadingPreferencePage extends BundlePreferencePage implements IWorkbenchPreferencePage {
 
 	private StringFieldEditor lastUploadTextField;
 
-	private StringFieldEditor uiudTextField;
-
-	public WorkbenchPreferencePage() {
+	public UploadingPreferencePage() {
 		super(GRID);
 		noDefaultAndApplyButton();
 	}
@@ -49,24 +43,14 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 	public void init(IWorkbench workbench) {
 		IPreferenceStore preferenceStore= PrefsFacade.getInstance().getPreferenceStore();
 		setPreferenceStore(preferenceStore);
-		setDescription(Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_Title));
+		setDescription(Activator.populateMessageWithPluginName(Messages.UploadingPreferencePage_Description));
 		preferenceStore.addPropertyChangeListener(new LastUploadChangeListener(Messages.PrefsFacade_LastUploadTimeKey));
-		preferenceStore.addPropertyChangeListener(new UIUDChangeListener(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey));
 	}
 
 	@Override
 	protected void createFieldEditors() {
-		uiudTextField= addDisabledTextField(Messages.WorkbenchPreferencePage_UUIDFieldPreferenceKey, Messages.WorkbenchPreferencePage_UUIDTextField);
-		lastUploadTextField= addDisabledTextField(Messages.PrefsFacade_LastUploadTimeKey, Messages.WorkbenchPreferencePage_LastUploadTextField);
+		lastUploadTextField= addDisabledTextField(Messages.PrefsFacade_LastUploadTimeKey, Messages.UploadingPreferencePage_LastUploadTextField);
 		createUploadNowButton();
-	}
-
-	private StringFieldEditor addDisabledTextField(String textFieldValue, String textFieldLabel) {
-		StringFieldEditor textfield= new StringFieldEditor(textFieldValue, textFieldLabel,
-				getFieldEditorParent());
-		textfield.setEnabled(false, getFieldEditorParent());
-		addField(textfield);
-		return textfield;
 	}
 
 	@Override
@@ -78,7 +62,7 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 	private void createUploadNowButton() {
 		Button uploadButton= new Button(getFieldEditorParent(), SWT.PUSH);
-		uploadButton.setText(Activator.populateMessageWithPluginName(Messages.WorkbenchPreferencePage_UploadNowButtonText));
+		uploadButton.setText(Activator.populateMessageWithPluginName(Messages.UploadingPreferencePage_UploadNowButtonText));
 
 		uploadButton.addSelectionListener(new SelectionAdapter() {
 
@@ -100,40 +84,6 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 
 	}
 
-	/**
-	 * This class implements a listener that updates a given field editor whenever its preference
-	 * key changes.
-	 * 
-	 */
-	public abstract class PreferenceChangeListener implements IPropertyChangeListener {
-
-		final String preferenceKey;
-
-		public PreferenceChangeListener(String preferenceKey) {
-			super();
-			this.preferenceKey= preferenceKey;
-		}
-
-		protected abstract StringFieldEditor getFieldEditor();
-
-		@Override
-		public void propertyChange(final PropertyChangeEvent event) {
-			if (event.getProperty().equals(preferenceKey)) {
-				Display.getDefault().syncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						getFieldEditor().setStringValue((String)event.getNewValue());
-
-					}
-				});
-
-				;
-			}
-		}
-
-	}
-
 	public class LastUploadChangeListener extends PreferenceChangeListener {
 
 		public LastUploadChangeListener(String preferenceKey) {
@@ -143,19 +93,6 @@ public class WorkbenchPreferencePage extends FieldEditorPreferencePage implement
 		@Override
 		protected StringFieldEditor getFieldEditor() {
 			return lastUploadTextField;
-		}
-
-	}
-
-	public class UIUDChangeListener extends PreferenceChangeListener {
-
-		public UIUDChangeListener(String preferenceKey) {
-			super(preferenceKey);
-		}
-
-		@Override
-		protected StringFieldEditor getFieldEditor() {
-			return uiudTextField;
 		}
 
 	}

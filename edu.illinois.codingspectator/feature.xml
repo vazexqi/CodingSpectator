@@ -3,8 +3,9 @@
       id="edu.illinois.codingspectator"
       label="CodingSpectator"
       version="1.0.0.qualifier"
-      provider-name="University of Illinois">
-
+      provider-name="University of Illinois"
+      plugin="edu.illinois.codingspectator.branding">
+      
    <description>
     This feature installs CodingSpectator on Eclipse.
    </description>
@@ -15,7 +16,7 @@ Copyright (c) 2008-2011 University of Illinois at Urbana-Champaign.
 All rights reserved.]]>
    </copyright>
 
-   <license>
+   <license url="license.html">
 <![CDATA[CodingSpectator Release License
 ===============================
  
@@ -139,4 +140,11 @@ http://jcommander.org/.
          version="0.0.0"
          optional="true"/>
 
+   <plugin
+         id="edu.illinois.codingspectator.branding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
 </feature>

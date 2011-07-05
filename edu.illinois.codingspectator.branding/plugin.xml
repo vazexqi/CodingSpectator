@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="edu.illinois.codingspectator.branding.Startup">
+      </startup>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="edu.illinois.codingspectator.monitor.ui.MainPreferencePage"
+            class="edu.illinois.codingspectator.branding.DisplayPreferencePage"
+            id="edu.illinois.codingspectator.branding.DisplayPreferencePage"
+            name="%display.preference.page.name">
+      </page>
+   </extension>
+
+</plugin>
