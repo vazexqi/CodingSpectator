@@ -41,6 +41,9 @@ public class Test01 {
 
 	@Test
 	public void run() throws CoreException, IOException {
-		ConvertLogsToCSV.main(new String[] { null, new Path("/path/to/codingspectator/data").toOSString(), new Path("alllogs.csv").toOSString() });
+		String codingspectatorDataPath= System.getenv("CS_DATA");
+		String csvPath= System.getenv("CS_CSV");
+		ConvertLogsToCSV.main(new String[] { null, codingspectatorDataPath, csvPath });
 	}
+
 }
