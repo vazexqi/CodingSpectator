@@ -21,5 +21,13 @@
             class="edu.illinois.codingspectator.monitor.ui.Activator">
       </startup>
    </extension>
+   <extension
+         point="edu.illinois.codingspectator.monitor.core.submitter">
+      <submitterListener
+            class="edu.illinois.codingspectator.monitor.ui.updates.Updater"
+            id="edu.illinois.codingspectator.monitor.ui.updates.updater"
+            name="edu.illinois.codingspectator.monitor.ui.updates.updater">
+      </submitterListener>
+   </extension>
 
 </plugin>
