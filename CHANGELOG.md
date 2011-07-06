@@ -1,3 +1,18 @@
+v1.0.0.201107061725 (Helios) and v1.0.0.201107061737 (Indigo)
+=============================================================
+- Automated exporting some of the data (parts of refactoring descriptors and relevant CodingTracker events) into a CSV file (issues [#234](https://github.com/vazexqi/CodingSpectator/issues/234), [#235](https://github.com/vazexqi/CodingSpectator/issues/235), [#243](https://github.com/vazexqi/CodingSpectator/issues/243))
+- Automated importing the CSV data file into a relational database (issue [#254](https://github.com/vazexqi/CodingSpectator/issues/254)).
+- Updated the FAQ section of the homepage (issues [#246](https://github.com/vazexqi/CodingSpectator/issues/246), [#250](https://github.com/vazexqi/CodingSpectator/issues/250)).
+- Added an acknowledgement section to the homepage (issue [#249](https://github.com/vazexqi/CodingSpectator/issues/249)).
+- Informed users about the presence of CodingSpectator by a small icon in the status line (issue [#251](https://github.com/vazexqi/CodingSpectator/issues/251)).
+- Reminded users about new versions of CodingSpectator after every data submission (issue [#245](https://github.com/vazexqi/CodingSpectator/issues/245)).
+- Made CodingSpectator collect UDC data from Eclipse SDK (issue [#214](https://github.com/vazexqi/CodingSpectator/issues/214)).
+- Supported Eclipse Indigo (issue [#206](https://github.com/vazexqi/CodingSpectator/issues/206)).
+- Disabled data submission from target platforms (issue [#252](https://github.com/vazexqi/CodingSpectator/issues/252)).
+- Updated the user guide by the new branding features of CodingSpectator and the support for Indigo (issue [#259](https://github.com/vazexqi/CodingSpectator/issues/259)).
+- Fixed NPE due to saving of inexisting conflict editor as well as ensured that no duplicated code changes are recorded (issue [#247](https://github.com/vazexqi/CodingSpectator/issues/247)).
+- Ensured to some degree of confidence that recording of compilation problems does not affect user experience (issue [#211](https://github.com/vazexqi/CodingSpectator/issues/211)).
+
 v1.0.0.201105300951
 ===================
 - Computed the selection information immediately after the selection is made (issues [#232](https://github.com/vazexqi/CodingSpectator/issues/232), [#240](https://github.com/vazexqi/CodingSpectator/issues/240)).
