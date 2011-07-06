@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %Bundle-Name
+Bundle-Name: edu.illinois.codingspectator.monitor.core
 Bundle-SymbolicName: edu.illinois.codingspectator.monitor.core;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.monitor.core.Activator
-Bundle-Vendor: %Bundle-Vendor
+Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
- org.tmatesoft.svn_1.3.4.eclipse,
+ org.tmatesoft.svn.eclipse,
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.security
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

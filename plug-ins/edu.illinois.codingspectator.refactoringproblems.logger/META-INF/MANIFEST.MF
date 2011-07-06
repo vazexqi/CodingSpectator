@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %Bundle-Name
+Bundle-Name: edu.illinois.codingspectator.refactoringproblems.logger
 Bundle-SymbolicName: edu.illinois.codingspectator.refactoringproblems.logger;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.refactoringproblems.logger.Activator
@@ -14,5 +14,5 @@ Require-Bundle: org.eclipse.ui,
  edu.illinois.codingspectator.saferecorder
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: %Bundle-Vendor
+Bundle-Vendor: University of Illinois
 Export-Package: edu.illinois.codingspectator.refactoringproblems.logger

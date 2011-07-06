@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="edu.illinois.codingspectator"
-      label="%featureName"
+      label="CodingSpectator"
       version="1.0.0.qualifier"
-      provider-name="%providerName"
+      provider-name="University of Illinois"
       plugin="edu.illinois.codingspectator.branding">
-      
+
    <description>
-    %description
+      %description
    </description>
 
    <copyright>
-    %copyright
+      %copyright
    </copyright>
 
    <license url="license.html">
-    %license
+      %license
    </license>
-
-   <url>
-      <update label="CodingSpectator Update Site" url="http://codingspectator.cs.illinois.edu/updates"/>
-   </url>
 
    <includes
          id="edu.illinois.codingspectator.feature"
@@ -45,12 +41,12 @@
    <includes
          id="org.eclipse.epp.usagedata.feature"
          version="0.0.0"/>
-         
+
    <plugin
          id="edu.illinois.codingspectator.branding"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
 </feature>
