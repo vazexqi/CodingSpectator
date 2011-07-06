@@ -12,6 +12,8 @@
 %
 \usepackage{ifthen}
 %
+\usepackage{float}
+%
 \ifthenelse{\boolean{hevea}}{%
 \newcommand{\todo}[1]{\textbf{#1}}%
 }{\usepackage{todonotes}}
@@ -45,20 +47,21 @@ Team\\\href{mailto:codingspectator@cs.illinois.edu}{codingspectator@cs.illinois.
 \tableofcontents
 %
 \section{Prerequisites}
-%
-You should be using Eclipse 3.6 Helios. You may check which version you have
-installed by looking at the logo that appears during startup; it should say
-Eclipse Helios.
+
+You should be using Eclipse 3.7 Indigo or Eclipse 3.6 Helios. You may check
+which version you have installed by looking at the logo that appears during
+startup; it should say Eclipse Indigo or Eclipse Helios.
 
 \warnnote{Please note that the plug-in cannot be installed on an older version
-of Eclipse e.g. Eclipse 3.5 Galileo. It only works with Eclipse 3.6 Helios. If
-you are using Helios or newer versions of Eclipse and are having problems please
-contact us.}
-%
+of Eclipse e.g. Eclipse 3.5 Galileo. It only works with Eclipse 3.7 Indigo or
+Eclipse 3.6 Helios. If you are using Eclipse Indigo or Helios and are having
+problems please contact us.} 
+
 \section{Installing \codspec}
 
 After installing Eclipse, you need to install our plug-in by following the steps
-below:
+below. The screenshots below are taken from Eclipse Indigo but should look
+similar for Eclipse Helios:
 
 \begin{enumerate}
 %
@@ -66,11 +69,13 @@ below:
 %
 \item Click the \uiref{Add} button on the top right corner of the dialog.
 %
-\item Add a new update site. Set the \uiref{Name} to \codspec\ and the
-\uiref{Location} to \url{http://codingspectator.cs.illinois.edu/updates} as
+\item Add a new update site. Set the \uiref{Name} field to \codspec\ and the
+\uiref{Location} field to
+\url{http://codingspectator.cs.illinois.edu/updates/indigo} (for Indigo) or
+\url{http://codingspectator.cs.illinois.edu/updates/helios} (for Helios) as
 shown in Figure~\ref{FigAddSite}. Then, click \uiref{OK}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -83,37 +88,38 @@ shown in Figure~\ref{FigAddSite}. Then, click \uiref{OK}.
 \item After adding the update site of \codspec, select the \codspec\ features as
 shown in Figure~\ref{FigSelectFeatures}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
 \fig{figs/select_features}
 %
 \caption{\label{FigSelectFeatures}Select all the features of \codspec\ to
-install}
+install.}
 %
 \end{figure}
 
 \item Click \uiref{Next} to proceed.
 
-\item You will now be presented with the \uiref{Install Details} dialog window
-listing the items that will be installed. Ensure that the \codspec\ plug-in and
-all its components are selected. Click \uiref{Next}.
+\item You will now be presented with the \uiref{Install} dialog window listing
+the items that will be installed. You may examine this list if you wish. Click
+\uiref{Next} to proceed.
 
 \item You will now be presented with the \uiref{Review Licenses} dialog window
 detailing the licenses of the plug-ins that will be installed. Take a moment to
 review them, and if you agree, proceed by clicking \uiref{Finish}.
 
 \item Eclipse should open the dialog in Figure~\ref{FigCertificate} asking you
-to confirm that you accept our certificate. Please accept our certificate to
-install \codspec.
+to confirm that you accept our certificate. In the \emph{Do you trust these
+certificates}, please select the checkbox. Click \uiref{OK} to continue.
 
-\warnnote{You should both select the check box and press the \uiref{OK} button
-to accept our certificate. If you press the \uiref{OK} button without selecting
-the check box on the dialog, Eclipse terminates the installation of \codspec\
-silently.}
+% Should we box this up to make it more promiment?
+\warnnote{You \textbf{need} to select check box before clicking the \uiref{OK}
+button to accept our certificate. If you click the \uiref{OK} button without
+selecting the check box on the dialog, Eclipse terminates the installation of
+\codspec\ silently.}
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -132,7 +138,7 @@ dismiss the dialog. Then, uninstall \codspec\ (See
 Section~\ref{SecUninstallation}), and try to install it again. If the problem
 persists, please contact us.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -147,9 +153,21 @@ implies that Eclipse has failed to install \codspec.}
 updates. Click \uiref{Restart Now}. Please do \textbf{not} use the other options
 on that dialog.
 
-\item You have successfully installed our plug-in. And, you should see a new
-page called \uiref{\codspec} on the preferences page of Eclipse (See
-Figure~\ref{FigPreferences}).
+\item After restarting, you can check the \uiref{About Eclipse} dialog to see if
+\codspec has been installed. Click on \uiref{Eclipse > About Eclipse...} on OS
+X or \uiref{Help > About Eclipse...} on Linux and Windows to display the dialog.
+You should see our \codspec logo in that dialog as shown in Figure~\ref{About}.
+
+\begin{figure}[H]
+%
+\centering
+%
+\fig{figs/about}
+%
+\caption{\label{About}Upon successful installation, \codspec\ displays its icon in the About dialog.}
+%
+\end{figure}
+
 %
 \end{enumerate}
 %
@@ -171,19 +189,34 @@ activities that are being performed.
 
 If you have sensitive data that you do not wish the plug-in to collect, you
 would need to install two instances of Eclipse: one with our plug-in and one
-\textbf{without} our plug-in.
+\textbf{without} our plug-in. To help you easily identify a workspace with
+\codspec\ installed, we have also placed an icon in the status line of Eclipse
+as shown Figure~\ref{Status}. If you wish, you may disable the icon by following
+the instructions in Section~\ref{sec:disabling_icon}.
 
 Please feel free to talk to us if you have any questions and concerns about your
 privacy. We can work our a suitable compromise.}
+
+\begin{figure}[H]
+%
+\centering
+%
+\fig{figs/status}
+%
+\caption{\label{Status}An icon appears on the status line reminding users that
+CodingSpectator is installed.}
+%
+\end{figure}
 %
 \section{Automatic upload of data}
 
 \textbf{Once a day (at most)}, during the initial startup of Eclipse, you might
 be presented with the dialog box shown in Figure~\ref{FigLogin} asking you to
 upload your data. Please provide your \codspec\ user name and password when
-prompted.
+prompted. You should have received your username and password when you signed up
+for our study.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -197,7 +230,7 @@ in order to upload your data to \codspec\ servers.}
 If you provide the wrong user name/password, our plug-in will prompt you again
 with the dialog in Figure~\ref{FigPrompt}:
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -209,7 +242,7 @@ that you have entered are wrong.}
 \end{figure}
 
 If you forget your user name or password, please contact us to send them to you.
-Also, you can change your password by visiting
+You may also change your password by visiting
 \url{http://codingspectator.cs.illinois.edu/Accounts/}.
 
 If you wish, you may also click on the \uiref{Save password (could trigger
@@ -224,7 +257,7 @@ Additionally, if you decide to save your password, on subsequent uploads of
 \codspec, you will no longer see the dialog above but one of the dialogs in
 Figure~\ref{FigSecureStoragePrompt} depending on your operating system.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -251,26 +284,22 @@ of Eclipse.
 
 To invoke the manual uploading of your data, you can go to \uiref{Window >
 Preferences} (on Linux and Windows) or \uiref{Eclipse > Preferences...} (on Mac
-OS X). Click on the \uiref{\codspec} section shown in
-Figure~\ref{FigPreferences}.
+OS X). Click on the \uiref{\codspec > Display} section shown in
+Figure~\ref{FigUploadPreferences}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
 \fig{figs/preferences}
 %
-\caption{\label{FigPreferences}\codspec\ adds an item to the preferences page of
-Eclipse.}
+\caption{\label{FigUploadPreferences}\codspec\ provides a preference for manually updating your data.}
 %
 \end{figure}
 
-In that preference pane, you will see:
+In that particular preference pane, you will see:
 
 \begin{enumerate}
-%
-\item a special ID that we use to identify the workspace that you are working
-on,
 %
 \item the date and time of your last upload and
 %
@@ -278,95 +307,32 @@ on,
 %
 \end{enumerate}
 
-\section{Eclipse plug-in development}
+\section{Toggle \codspec\ Status Line Icon} % (fold)
+\label{sec:disabling_icon}
 
-If you develop Eclipse plug-ins and test your plug-ins by running new instances
-of Eclipse, there is an additional step that you need to perform before
-\textbf{running/debugging/testing} your plug-in: you need to modify your launch
-configuration so that it does \textbf{not} launch our \codspec\ plug-in. This
-prevents it from popping-up the dialog window each time you run/debug/test your
-plug-in and prevents it from spuriously logging your data.
+To hide or show the \codspec\ status line icon, you can go to \uiref{Window >
+Preferences} (on Linux and Windows) or \uiref{Eclipse > Preferences...} (on Mac
+OS X). Click on the \uiref{\codspec > Uploading} section shown in
+Figure~\ref{FigStatusPreferences}. Then check or uncheck the \uiref{Show
+\codspec\ in the status line} checkbox.
 
-\begin{enumerate}
-%
-\item Create a new \uiref{Target Platform} configuration. Go to \uiref{Window >
-Preference} (on Linux and Windows) or \uiref{Eclipse > Preferecences...} (on Mac
-OS X). Type in \uiref{target} in the search dialog to shorten the list to bring
-up the \uiref{Target Platform} preferences.
-%
-\item Click on \uiref{Target Platform} on the list on the left to go to the
-target platform page shown in Figure~\ref{FigTargetPlatformStep1}.
+\warnnote{Toggling the display of the icon does \textbf{not} disable \codspec\.
+\codspec\ is still actively running and collecting data in the background. There
+is currently no way to turn off \codspec\ except by uninstalling it (see
+Section~\ref{SecUninstallation}).}
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
-\fig{figs/target_step1}
+\fig{figs/status_preference}
 %
-\caption{\label{FigTargetPlatformStep1}The target platform page is on the
-Eclipse preferences page.}
-%
-\end{figure}
-%
-\item Click \uiref{Add} on the right hand side of the window.
-%
-\item In the dialog that appears, select the second option \uiref{Default:
-Default target for running platform} shown in
-Figure~\ref{FigTargetPlatformStep2}.
-
-\begin{figure}[h]
-%
-\centering
-%
-\fig{figs/target_step2}
-%
-\caption{\label{FigTargetPlatformStep2}Select the second option to create a new
-target definition.}
+\caption{\label{FigStatusPreferences}\codspec\ provides a preference for manually updating your data.}
 %
 \end{figure}
 
-\item Click \uiref{Next}.
-%
-\item The dialog in Figure~\ref{FigTargetPlatformStep3} should appear. Put
-\uiref{\codspec} for the new name in text field at the top of the dialog.
-%
-\item Click on the \uiref{Content} tab. Type in \uiref{edu.illinois} to narrow
-down the list of plug-ins. Then, \textbf{Deselect} the following (and only the
-following): 
 
-edu.illinois.codingspectator.monitor.ui
-
-\begin{figure}[h]
-%
-\centering
-%
-\fig{figs/target_step3}
-%
-\caption{\label{FigTargetPlatformStep3}Edit the target definition by deselecting
-the plug-in edu.illinois.codingspectator.monitor.ui.}
-%
-\end{figure}
-%
-\item Click \uiref{Finish}.
-%
-\item As shown in Figure~\ref{FigTargetPlatformStep4}, your new target
-definition appears on the preferences page. \textbf{Check} the \uiref{\codspec\
-Target Platform} that you have just created.
-
-\begin{figure}[h]
-%
-\centering
-%
-\fig{figs/target_step4}
-%
-\caption{\label{FigTargetPlatformStep4}Activate the target definition that you
-created for \codspec.}
-%
-\end{figure}
-%
-\item Click \uiref{OK}.
-%
-\end{enumerate}
+% section disabling_codspec status_line_icon (end)
 %
 \section{Updating \codspec}
 
@@ -375,7 +341,7 @@ become necessary, we will contact you via e-mail to upgrade the plug-in. This is
 a simple process that you can perform by going to \uiref{Help > Check for
 Updates} (See Figure~\ref{FigUpdate}) in the Eclipse application.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -391,16 +357,16 @@ Updates} (See Figure~\ref{FigUpdate}) in the Eclipse application.
 %
 \item You can uninstall our plug-in through the \uiref{About Eclipse...} dialog.
 You can invoke the dialog shown in Figure~\ref{FigUninstallStep1} by going to
-\uiref{Eclipse > About Eclipse...} on OS X or through \uiref{Help > About
+\uiref{Eclipse > About Eclipse...} on Mac OS X or through \uiref{Help > About
 Eclipse...} on Linux and Windows.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
 \fig{figs/uninstall_step1}
 %
-\caption{\label{FigUninstallStep1}The ``About Eclipse'' dialog}
+\caption{\label{FigUninstallStep1}The ``About Eclipse'' dialog.}
 %
 \end{figure}
 %
@@ -410,13 +376,13 @@ Figure~\ref{FigUninstallStep2} should appear. The list of plug-ins installed
 might be different from the image below depending on what other plug-ins you
 have installed.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
 \fig{figs/uninstall_step2}
 %
-\caption{\label{FigUninstallStep2}List of the software installed on Eclipse}
+\caption{\label{FigUninstallStep2}List of the software installed on Eclipse.}
 %
 \end{figure}
 %
@@ -427,7 +393,7 @@ have installed.
 uninstallation. After a while, it will show the dialog shown in
 Figure~\ref{FigUninstallStep3}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
@@ -444,7 +410,7 @@ Figure~\ref{FigUninstallStep3}.
 Figure~\ref{FigUninstallStep4} will pop-up asking if you would like to restart
 Eclipse for the changes to take effect. Click \uiref{Restart Now}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 %
 \centering
 %
