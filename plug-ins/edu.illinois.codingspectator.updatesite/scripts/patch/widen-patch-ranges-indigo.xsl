@@ -6,13 +6,13 @@ http://www.eclipse.org/newsportal/article.php?id=6375&group=eclipse.technology.e
 	<xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 	
 	<xsl:template match="@range[../@name='org.eclipse.platform.feature.group']">
-		<xsl:attribute name="range">[3.7.0,4.0.0)</xsl:attribute>
+		<xsl:attribute name="range">[3.7.0,3.8.0)</xsl:attribute>
 	</xsl:template>
 	<xsl:template match="@range[../@name='org.eclipse.epp.usagedata.feature.feature.group']">
 		<xsl:attribute name="range">[1.4.0,2.0.0)</xsl:attribute>
 	</xsl:template>
 	<xsl:template match="@range[../@name='org.eclipse.jdt.feature.group']">
-		<xsl:attribute name="range">[3.7.0,4.0.0)</xsl:attribute>
+		<xsl:attribute name="range">[3.7.0,3.8.0)</xsl:attribute>
 	</xsl:template>
 	
 	<!-- Whenever you match any node or any attribute -->
