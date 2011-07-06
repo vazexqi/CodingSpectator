@@ -73,7 +73,7 @@ public class BundleStatusLineManager {
 	}
 
 	private void addLogoToStatusLine() {
-		Image codingspectatorLogo= Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/codingspectator-logo.gif").createImage(); //$NON-NLS-1$
+		Image codingspectatorLogo= Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/uofi-logo-12x16.gif").createImage(); //$NON-NLS-1$
 		StatusLineContributionItem contributionItem= new StatusLineContributionItem(STATUS_LINE_CONTRIBUTION_ITEM_ID);
 		contributionItem.setImage(codingspectatorLogo);
 		contributionItem.setToolTipText(Messages.StatusLineBranding_status_bar_tool_tip);
