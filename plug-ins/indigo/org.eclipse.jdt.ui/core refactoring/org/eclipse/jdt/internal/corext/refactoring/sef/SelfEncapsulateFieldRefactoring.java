@@ -34,7 +34,6 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
@@ -99,6 +98,7 @@ import org.eclipse.jdt.internal.corext.refactoring.RefactoringScopeFactory;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringSearchEngine;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.refactoring.util.ResourceUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.TextChangeManager;
@@ -117,8 +117,11 @@ import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
 /**
  * Encapsulates a field into getter and setter calls.
+ * 
+ * @author Mohsen Vakilian - Instrumented the refactoring.
+ * 
  */
-public class SelfEncapsulateFieldRefactoring extends Refactoring {
+public class SelfEncapsulateFieldRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_VISIBILITY= "visibility"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_GETTER= "getter"; //$NON-NLS-1$
@@ -236,24 +239,46 @@ public class SelfEncapsulateFieldRefactoring extends Refactoring {
 			fVisibility= (fField.getFlags() & (Flags.AccPublic | Flags.AccProtected | Flags.AccPrivate));
 		RefactoringStatus result=  new RefactoringStatus();
 		result.merge(Checks.checkAvailability(fField));
-		if (result.hasFatalError())
+		
+		if (result.hasFatalError()) {
+			//CODINGSPECTATOR
+			logUnavailableRefactoring(result);
+
 			return result;
+		}
+		
 		fRoot= new RefactoringASTParser(ASTProvider.SHARED_AST_LEVEL).parse(fField.getCompilationUnit(), true, pm);
 		ISourceRange sourceRange= fField.getNameRange();
 		ASTNode node= NodeFinder.perform(fRoot, sourceRange.getOffset(), sourceRange.getLength());
 		if (node == null) {
-			return mappingErrorFound(result, node);
+			//CODINGSPECTATOR: Log the error status before returning.
+			RefactoringStatus mappingErrorFound= mappingErrorFound(result, node);
+			logUnavailableRefactoring(mappingErrorFound);
+			return mappingErrorFound;
 		}
 		fFieldDeclaration= (VariableDeclarationFragment)ASTNodes.getParent(node, VariableDeclarationFragment.class);
 		if (fFieldDeclaration == null) {
-			return mappingErrorFound(result, node);
+			//CODINGSPECTATOR: Log the error status before returning.
+			RefactoringStatus mappingErrorFound= mappingErrorFound(result, node);
+			logUnavailableRefactoring(mappingErrorFound);
+			return mappingErrorFound;
 		}
 		if (fFieldDeclaration.resolveBinding() == null) {
 			if (!processCompilerError(result, node))
 				result.addFatalError(RefactoringCoreMessages.SelfEncapsulateField_type_not_resolveable);
+			
+			//CODINGSPECTATOR: Log the error status before returning.
+			logUnavailableRefactoring(result);
+
 			return result;
 		}
 		computeUsedNames();
+
+		//CODINGSPECTATOR: Log the error status before returning.
+		if (result.hasFatalError()) {
+			logUnavailableRefactoring(result);
+		}
+
 		return result;
 	}
 
@@ -423,8 +448,28 @@ public class SelfEncapsulateFieldRefactoring extends Refactoring {
 		}
 	}
 
+	/**
+	 * CODINGSPECTATOR: Extracted {@link #createRefactoringDescriptor}
+	 */
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException {
+		final EncapsulateFieldDescriptor descriptor= createRefactoringDescriptor();
+		final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(descriptor, getName());
+		TextChange[] changes= fChangeManager.getAllChanges();
+		pm.beginTask(NO_NAME, changes.length);
+		pm.setTaskName(RefactoringCoreMessages.SelfEncapsulateField_create_changes);
+		for (int i= 0; i < changes.length; i++) {
+			result.add(changes[i]);
+			pm.worked(1);
+		}
+		pm.done();
+		return result;
+	}
+
+	/**
+	 * CODINGSPECTATOR: Extracted from {@link #createChange}.
+	 */
+	private EncapsulateFieldDescriptor createRefactoringDescriptor() {
 		final Map<String, String> arguments= new HashMap<String, String>();
 		String project= null;
 		IJavaProject javaProject= fField.getJavaProject();
@@ -462,16 +507,7 @@ public class SelfEncapsulateFieldRefactoring extends Refactoring {
 		arguments.put(ATTRIBUTE_GETTER, fGetterName);
 		arguments.put(ATTRIBUTE_COMMENTS, Boolean.valueOf(fGenerateJavadoc).toString());
 		arguments.put(ATTRIBUTE_DECLARING, Boolean.valueOf(fEncapsulateDeclaringClass).toString());
-		final DynamicValidationRefactoringChange result= new DynamicValidationRefactoringChange(descriptor, getName());
-		TextChange[] changes= fChangeManager.getAllChanges();
-		pm.beginTask(NO_NAME, changes.length);
-		pm.setTaskName(RefactoringCoreMessages.SelfEncapsulateField_create_changes);
-		for (int i= 0; i < changes.length; i++) {
-			result.add(changes[i]);
-			pm.worked(1);
-		}
-		pm.done();
-		return result;
+		return descriptor;
 	}
 
 	@Override
@@ -851,5 +887,18 @@ public class SelfEncapsulateFieldRefactoring extends Refactoring {
 		fConsiderVisibility= considerVisibility;
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	@Override
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
+
+	@Override
+	protected String getDescriptorID() {
+		return IJavaRefactorings.ENCAPSULATE_FIELD;
+	}
 
 }

@@ -22,16 +22,21 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionMessages;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -50,6 +55,9 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
  * @since 2.0
  *
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian - Instrumented the refactoring.
+ * 
  */
 public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 
@@ -115,17 +123,28 @@ public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 	@Override
 	public void run(ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IJavaElement[] elements= SelectionConverter.codeResolve(fEditor);
 			if (elements.length != 1 || !(elements[0] instanceof IField)) {
 				MessageDialog.openInformation(getShell(), ActionMessages.SelfEncapsulateFieldAction_dialog_title, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.ENCAPSULATE_FIELD, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
 				return;
 			}
 			IField field= (IField)elements[0];
 
 			if (!RefactoringAvailabilityTester.isSelfEncapsulateAvailable(field)) {
 				MessageDialog.openInformation(getShell(), ActionMessages.SelfEncapsulateFieldAction_dialog_title, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.ENCAPSULATE_FIELD, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
 				return;
 			}
 			run(field);
@@ -159,6 +178,9 @@ public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 	@Override
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			IField firstElement= (IField)selection.getFirstElement();
 			if (!ActionUtil.isEditable(getShell(), firstElement))
 				return;
