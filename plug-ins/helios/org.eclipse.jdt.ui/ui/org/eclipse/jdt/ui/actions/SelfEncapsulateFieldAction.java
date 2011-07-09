@@ -22,16 +22,21 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionMessages;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -40,26 +45,28 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 /**
  * Action to run the self encapsulate field refactoring.
  * <p>
- * Action is applicable to selections containing elements of type
- * <code>IField</code>.
- *
+ * Action is applicable to selections containing elements of type <code>IField</code>.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian - Instrumented the refactoring.
+ * 
  */
 public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
 
 	/**
-	 * Creates a new <code>SelfEncapsulateFieldAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>SelfEncapsulateFieldAction</code>. The action requires that the selection
+	 * provided by the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public SelfEncapsulateFieldAction(IWorkbenchSite site) {
@@ -70,9 +77,9 @@ public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
-	 *
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public SelfEncapsulateFieldAction(JavaEditor editor) {
@@ -112,15 +119,26 @@ public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 	 */
 	public void run(ITextSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 			IJavaElement[] elements= SelectionConverter.codeResolve(fEditor);
 			if (elements.length != 1 || !(elements[0] instanceof IField)) {
 				MessageDialog.openInformation(getShell(), ActionMessages.SelfEncapsulateFieldAction_dialog_title, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.ENCAPSULATE_FIELD, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
 				return;
 			}
 			IField field= (IField)elements[0];
 
 			if (!RefactoringAvailabilityTester.isSelfEncapsulateAvailable(field)) {
 				MessageDialog.openInformation(getShell(), ActionMessages.SelfEncapsulateFieldAction_dialog_title, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
+				//CODINGSPECTATOR
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.ENCAPSULATE_FIELD, ActionMessages.SelfEncapsulateFieldAction_dialog_unavailable);
+
 				return;
 			}
 			run(field);
@@ -152,8 +170,11 @@ public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 	 */
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			if (RefactoringAvailabilityTester.isSelfEncapsulateAvailable(selection))
-				run((IField) selection.getFirstElement());
+				run((IField)selection.getFirstElement());
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
 		}
@@ -166,7 +187,7 @@ public class SelfEncapsulateFieldAction extends SelectionDispatchAction {
 	 * breaking API change.
 	 */
 	public void run(IField field) {
-		if (! ActionUtil.isEditable(fEditor, getShell(), field))
+		if (!ActionUtil.isEditable(fEditor, getShell(), field))
 			return;
 		RefactoringExecutionStarter.startSelfEncapsulateRefactoring(field, getShell());
 	}

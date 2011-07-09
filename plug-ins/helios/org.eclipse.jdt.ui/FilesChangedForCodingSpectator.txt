@@ -105,6 +105,10 @@ core refactoring/org/eclipse/jdt/internal/corext/refactoring/structure/ChangeSig
 # For capturing introduce parameter object
 ui/org/eclipse/jdt/internal/ui/actions/IntroduceParameterObjectAction.java
 
+# For capturing encapsulate field
+ui/org/eclipse/jdt/ui/actions/SelfEncapsulateFieldAction.java
+core refactoring/org/eclipse/jdt/internal/corext/refactoring/sef/SelfEncapsulateFieldRefactoring.java
+
 Added Files
 ===========
 
