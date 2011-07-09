@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring captured-by-codingspectator="true" code-snippet="/**&#x0A; * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.&#x0A; */&#x0A;package edu.illinois.codingspectator;&#x0A;&#x0A;public class EncapsulateUnresolvedFieldTestFile {&#x0A;&#x0A;    X field;&#x0A;&#x09;&#x0A;    void m() {&#x0A;        System.out.println(field);&#x0A;    }&#x0A;&#x0A;}&#x0A;" description="CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring" id="org.eclipse.jdt.ui.self.encapsulate" selection-in-code-snippet="217 1" selection-text="f" stamp="1310241167085" status="Cannot analyze field &apos;field&apos; due to the following compiler error: X cannot be resolved to a type"/>
+</session>
