@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Encapsulate field &apos;edu.illinois.codingspectator.EncapsulateFieldTestFile.field&apos; in &apos;edu.illinois.codingspectator.EncapsulateFieldTestFile&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Original element: &apos;edu.illinois.codingspectator.EncapsulateFieldTestFile.field&apos;&#x0A;- Getter method name: &apos;getField&apos;&#x0A;- Setter method name: &apos;setField&apos;&#x0A;- Field visibility: &apos;(default)&apos;&#x0A;- Use getter and setter methods in declaring type" comments="false" declaring="true" description="Encapsulate field &apos;field&apos;" flags="589830" getter="getField" id="org.eclipse.jdt.ui.self.encapsulate" input="/src&lt;edu.illinois.codingspectator{EncapsulateFieldTestFile.java[EncapsulateFieldTestFile^field" insertion="0" setter="setField" stamp="1310236734653" version="1.0" visibility="0"/>
+</session>
