@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -169,7 +170,10 @@ public class KnownFilesRecorder {
 		String propertiesString= knownFiles.getProperty(getKeyForResource(file));
 		if (propertiesString != null) {
 			if (shouldMatchEncoding) {
-				return getSpecificProperty(propertiesString, FileProperties.ENCODING).equals(charsetName);
+				//Compare Charsets rather than string representations to account for aliases.
+				Charset fileCharset= ResourceHelper.getCharsetForNameOrDefault(charsetName);
+				Charset storedCharset= ResourceHelper.getCharsetForNameOrDefault(getSpecificProperty(propertiesString, FileProperties.ENCODING));
+				return fileCharset.equals(storedCharset);
 			} else {
 				return true;
 			}

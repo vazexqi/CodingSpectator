@@ -49,7 +49,7 @@ public class ResourceHelper {
 		return getCharsetForNameOrDefault(charsetName);
 	}
 
-	private static Charset getCharsetForNameOrDefault(String charsetName) {
+	public static Charset getCharsetForNameOrDefault(String charsetName) {
 		Charset charset= null;
 		try {
 			charset= Charset.forName(charsetName);
