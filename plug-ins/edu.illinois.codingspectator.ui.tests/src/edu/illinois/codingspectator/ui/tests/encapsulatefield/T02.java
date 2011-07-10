@@ -4,6 +4,9 @@
 package edu.illinois.codingspectator.ui.tests.encapsulatefield;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
+import org.junit.Ignore;
 
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -16,6 +19,7 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author Mohsen Vakilian
  * 
  */
+@Ignore("See issue #275.")
 public class T02 extends RefactoringTest {
 
 	private static final String MENU_ITEM= "Encapsulate Field...";
@@ -31,7 +35,22 @@ public class T02 extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getTestFileName(), SELECTION);
 		bot.invokeRefactoringFromMenu(MENU_ITEM);
-		bot.getBot().radio("keep field reference").click();
+		final SWTBotRadio radio= bot.getBot().radio("keep field reference");
+		radio.setFocus();
+		radio.click();
+		bot.sleep();
+		bot.getBot().waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				return radio.isSelected();
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return radio.getText() + " did not get selected.";
+			}
+		});
 		bot.clickButtons(IDialogConstants.CANCEL_LABEL);
 	}
 
