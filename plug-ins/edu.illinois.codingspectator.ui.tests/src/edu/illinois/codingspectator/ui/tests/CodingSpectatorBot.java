@@ -3,23 +3,29 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.*;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
+import org.eclipse.swtbot.swt.finder.results.VoidResult;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.hamcrest.Matcher;
 import org.osgi.framework.Bundle;
 
 import edu.illinois.codingspectator.efs.EFSFile;
@@ -133,7 +139,7 @@ public class CodingSpectatorBot {
 
 		Composite packageExplorerComposite= (Composite)packageExplorerView.getWidget();
 
-		Tree swtTree= (Tree)bot.widget(WidgetMatcherFactory.widgetOfType(Tree.class), packageExplorerComposite);
+		Tree swtTree= (Tree)bot.widget(widgetOfType(Tree.class), packageExplorerComposite);
 		SWTBotTree tree= new SWTBotTree(swtTree);
 
 		return tree.select(projectName);
@@ -213,4 +219,25 @@ public class CodingSpectatorBot {
 			treeItem.select(pathElements[pathElements.length - 1]);
 		}
 	}
+
+	/**
+	 * 
+	 * This method provides a workaround for Eclipse bug 344484.
+	 * 
+	 * @param radioText
+	 */
+	public void deselectRadio(final String radioText) {
+		UIThreadRunnable.syncExec(new VoidResult() {
+
+			public void run() {
+				@SuppressWarnings("unchecked")
+				Matcher<Widget> matcher= allOf(widgetOfType(Button.class), withStyle(SWT.RADIO, "SWT.RADIO"), withMnemonic(radioText));
+
+				Button b= (Button)bot.widget(matcher);
+				b.setSelection(false);
+			}
+
+		});
+	}
+
 }
