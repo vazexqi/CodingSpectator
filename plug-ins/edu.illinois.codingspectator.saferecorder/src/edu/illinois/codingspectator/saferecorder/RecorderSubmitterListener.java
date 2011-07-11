@@ -26,6 +26,10 @@ public class RecorderSubmitterListener implements SubmitterListener {
 	}
 
 	@Override
+	public void preLock() {
+	}
+
+	@Override
 	public void preSubmit() {
 		for (SafeRecorder safeRecorderInstance : safeRecorderInstances) {
 			safeRecorderInstance.commitStarted();

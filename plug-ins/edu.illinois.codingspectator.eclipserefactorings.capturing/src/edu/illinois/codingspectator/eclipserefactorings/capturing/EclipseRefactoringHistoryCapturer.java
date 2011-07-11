@@ -18,7 +18,8 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 /**
  * 
  * This class copies the refactorings logged by Eclipse into the watched directory of
- * CodingSpectator when Eclipse starts up.
+ * CodingSpectator when CodingSpectator is about to submit its data and before it locks the watched
+ * folder.
  * 
  * @author Mohsen Vakilian
  * @author nchen
@@ -31,7 +32,7 @@ public class EclipseRefactoringHistoryCapturer implements SubmitterListener {
 		return EFS.getLocalFileSystem().getStore(path);
 	}
 
-	public void transferEclipseRefactoringHistory() {
+	private void transferEclipseRefactoringHistory() {
 		try {
 			IFileStore eclipseRefactoringHistoryFileStore= RefactoringHistorySerializer.getEclipseRefactoringHistoryFileStore();
 			if (eclipseRefactoringHistoryFileStore.fetchInfo().exists()) {
@@ -44,12 +45,16 @@ public class EclipseRefactoringHistoryCapturer implements SubmitterListener {
 	}
 
 	@Override
+	public void preLock() {
+		transferEclipseRefactoringHistory();
+	}
+
+	@Override
 	public void preSubmit() {
 	}
 
 	@Override
 	public void postSubmit(boolean succeeded) {
-		transferEclipseRefactoringHistory();
 	}
 
 }

@@ -15,6 +15,8 @@ package edu.illinois.codingspectator.monitor.core.submission;
  */
 public interface SubmitterListener {
 
+	public void preLock();
+
 	public void preSubmit();
 
 	public void postSubmit(boolean succeeded);

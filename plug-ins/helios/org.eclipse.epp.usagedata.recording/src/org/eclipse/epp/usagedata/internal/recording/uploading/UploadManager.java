@@ -227,13 +227,17 @@ public class UploadManager implements SubmitterListener {
 		return UPLOAD_STARTED_OK;
 	}
 
+	public void preLock() {
+	}
+
 	public void preSubmit() {
 		watchedDirectoryLock.lock();
 	}
 
 	public void postSubmit(boolean succeeded) {
-		if (watchedDirectoryLock.isLocked())
+		if (watchedDirectoryLock.isLocked()) {
 			watchedDirectoryLock.unlock();
+		}
 	}
 
 }

@@ -93,11 +93,12 @@ public class Submitter {
 		boolean submissionSucceeded= false;
 
 		try {
+			notifyPreLock();
 			svnManager.doAdd();
 			notifyPreSubmit();
 			svnManager.doCommit();
 			submissionSucceeded= true;
-		} catch (SVNException e) {
+		} catch (Throwable e) {
 			throw new SubmissionException(e);
 		} finally {
 			notifyPostSubmit(submissionSucceeded);
@@ -118,6 +119,13 @@ public class Submitter {
 			Activator.getDefault().createErrorStatus(String.format("Failed to lookup extensions for %s.", extensionPointId), e);
 		}
 		return submitterListeners;
+	}
+
+	private void notifyPreLock() {
+		Collection<SubmitterListener> submitterListeners= lookupExtensions();
+		for (SubmitterListener submitterListener : submitterListeners) {
+			submitterListener.preLock();
+		}
 	}
 
 	private void notifyPreSubmit() {
@@ -180,7 +188,7 @@ public class Submitter {
 			super();
 		}
 
-		public SubmitterException(Exception e) {
+		public SubmitterException(Throwable e) {
 			super(e);
 		}
 	}
@@ -193,7 +201,7 @@ public class Submitter {
 			super();
 		}
 
-		public FailedAuthenticationException(Exception e) {
+		public FailedAuthenticationException(Throwable e) {
 			super(e);
 		}
 	}
@@ -205,7 +213,7 @@ public class Submitter {
 			super();
 		}
 
-		public CanceledDialogException(Exception e) {
+		public CanceledDialogException(Throwable e) {
 			super(e);
 		}
 	}
@@ -215,7 +223,7 @@ public class Submitter {
 
 		private SVNErrorCode errorCode;
 
-		public InitializationException(Exception e) {
+		public InitializationException(Throwable e) {
 			super(e);
 		}
 
@@ -236,7 +244,7 @@ public class Submitter {
 	@SuppressWarnings("serial")
 	public static class SubmissionException extends SubmitterException {
 
-		public SubmissionException(Exception e) {
+		public SubmissionException(Throwable e) {
 			super(e);
 		}
 

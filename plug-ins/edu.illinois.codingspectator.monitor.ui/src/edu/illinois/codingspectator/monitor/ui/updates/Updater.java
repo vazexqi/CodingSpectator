@@ -19,16 +19,14 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
  */
 public class Updater implements SubmitterListener {
 
-	/* (non-Javadoc)
-	 * @see edu.illinois.codingspectator.monitor.core.submission.SubmitterListener#preSubmit()
-	 */
+	@Override
+	public void preLock() {
+	}
+
 	@Override
 	public void preSubmit() {
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.illinois.codingspectator.monitor.core.submission.SubmitterListener#postSubmit(boolean)
-	 */
 	@Override
 	public void postSubmit(boolean succeeded) {
 		if (isEclipseVersionIsSupported()) {
