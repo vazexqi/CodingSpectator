@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
@@ -235,8 +236,10 @@ public class UploadManager implements SubmitterListener {
 	}
 
 	public void postSubmit(boolean succeeded) {
-		if (watchedDirectoryLock.isLocked()) {
+		try {
 			watchedDirectoryLock.unlock();
+		} catch (IllegalMonitorStateException e) {
+			UsageDataRecordingActivator.getDefault().log(IStatus.ERROR, e, "Failed to unlock the watched folder.");
 		}
 	}
 
