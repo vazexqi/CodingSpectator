@@ -3,11 +3,11 @@
  */
 package edu.illinois.codingspectator.ui.tests.encapsulatefield;
 
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.shellIsActive;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
-import org.junit.Ignore;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 
 import edu.illinois.codingspectator.ui.tests.CodingSpectatorBot;
 import edu.illinois.codingspectator.ui.tests.RefactoringTest;
@@ -20,7 +20,6 @@ import edu.illinois.codingspectator.ui.tests.RefactoringTest;
  * @author Mohsen Vakilian
  * 
  */
-@Ignore("See issue #275.")
 public class T05 extends RefactoringTest {
 
 	private static final String MENU_ITEM= "Encapsulate Field...";
@@ -36,35 +35,13 @@ public class T05 extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName(), getTestFileName(), SELECTION);
 		bot.invokeRefactoringFromMenu(MENU_ITEM);
-//		bot.getBot().radio("keep field reference").click();
-// I tried a combination of sleep, wait, setFocus and activateShell to communicate the change in the radio button. But, it didn't work.
-		bot.activateShellWithName("Encapsulate Field");
-		final SWTBotRadio radio= bot.getBot().radio("keep field reference");
-		radio.setFocus();
-		radio.click();
-		Display.getDefault().syncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				while (Display.getDefault().readAndDispatch())
-					;
-			}
-		});
-		bot.sleep();
-		bot.getBot().waitUntil(new DefaultCondition() {
-
-			@Override
-			public boolean test() throws Exception {
-				return radio.isSelected();
-			}
-
-			@Override
-			public String getFailureMessage() {
-				return radio.getText() + " did not get selected.";
-			}
-		});
-		bot.getBot().button(IDialogConstants.OK_LABEL).setFocus();
+		final String dialogName= "Encapsulate Field";
+		bot.getBot().waitUntilWidgetAppears(shellIsActive(dialogName));
+		SWTBotShell shell= bot.getBot().shell(dialogName);
+		bot.deselectRadio("use setter and getter");
+		bot.getBot().radio("keep field reference").click();
 		bot.clickButtons(IDialogConstants.OK_LABEL);
+		bot.getBot().waitUntil(Conditions.shellCloses(shell));
 	}
 
 }
