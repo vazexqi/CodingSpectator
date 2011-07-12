@@ -9,7 +9,6 @@ src/org/eclipse/epp/usagedata/internal/recording/uploading/Uploader.java
 src/org/eclipse/epp/usagedata/internal/recording/uploading/UploadManager.java
 
 src/org/eclipse/epp/usagedata/internal/recording/settings/UsageDataRecordingSettings.java
-src/org/eclipse/epp/usagedata/internal/recording/Startup.java
 
 Added Files
 ===========

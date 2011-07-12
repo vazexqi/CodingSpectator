@@ -229,6 +229,10 @@ public class UploadManager implements SubmitterListener {
 	}
 
 	public void preLock() {
+		int uploadResult= startTransferToCodingSpectator();
+		if (uploadResult != UPLOAD_STARTED_OK) {
+			UsageDataRecordingActivator.getDefault().log(IStatus.ERROR, "Failed to transfer the UDC data into the watched folder.");
+		}
 	}
 
 	public void preSubmit() {
