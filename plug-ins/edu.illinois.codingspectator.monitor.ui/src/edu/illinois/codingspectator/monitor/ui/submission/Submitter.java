@@ -43,6 +43,8 @@ public class Submitter {
 
 	private AuthenticationProvider authenticationProvider;
 
+	private Collection<SubmitterListener> submitterListeners= new ArrayList<SubmitterListener>();
+
 	public Submitter() {
 
 	}
@@ -93,6 +95,7 @@ public class Submitter {
 		boolean submissionSucceeded= false;
 
 		try {
+			submitterListeners= lookupExtensions();
 			notifyPreLock();
 			svnManager.doAdd();
 			notifyPreSubmit();
@@ -122,21 +125,18 @@ public class Submitter {
 	}
 
 	private void notifyPreLock() {
-		Collection<SubmitterListener> submitterListeners= lookupExtensions();
 		for (SubmitterListener submitterListener : submitterListeners) {
 			submitterListener.preLock();
 		}
 	}
 
 	private void notifyPreSubmit() {
-		Collection<SubmitterListener> submitterListeners= lookupExtensions();
 		for (SubmitterListener submitterListener : submitterListeners) {
 			submitterListener.preSubmit();
 		}
 	}
 
 	private void notifyPostSubmit(boolean succeeded) {
-		Collection<SubmitterListener> submitterListeners= lookupExtensions();
 		for (SubmitterListener submitterListener : submitterListeners) {
 			submitterListener.postSubmit(succeeded);
 		}
