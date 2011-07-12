@@ -9,7 +9,9 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
 import org.tmatesoft.svn.core.SVNAuthenticationException;
@@ -125,20 +127,50 @@ public class Submitter {
 	}
 
 	private void notifyPreLock() {
-		for (SubmitterListener submitterListener : submitterListeners) {
-			submitterListener.preLock();
+		for (final SubmitterListener submitterListener : submitterListeners) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					submitterListener.preLock();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
 		}
 	}
 
 	private void notifyPreSubmit() {
-		for (SubmitterListener submitterListener : submitterListeners) {
-			submitterListener.preSubmit();
+		for (final SubmitterListener submitterListener : submitterListeners) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					submitterListener.preSubmit();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
 		}
 	}
 
-	private void notifyPostSubmit(boolean succeeded) {
-		for (SubmitterListener submitterListener : submitterListeners) {
-			submitterListener.postSubmit(succeeded);
+	private void notifyPostSubmit(final boolean succeeded) {
+		for (final SubmitterListener submitterListener : submitterListeners) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					submitterListener.postSubmit(succeeded);
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
 		}
 	}
 
