@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.epp.usagedata.internal.recording.UsageDataRecordingActivator;
@@ -26,68 +27,72 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 
 /**
  * 
- * @author Mohsen Vakilian, nchen - Added check to see if we are only collecting and not uploading.
- *         And, added the support for transferring UDC data to CodingSpectator.
+ * @author Mohsen Vakilian, nchen - Added check to see if we are only collecting
+ *         and not uploading. And, added the support for transferring UDC data
+ *         to CodingSpectator.
  * 
  */
 public class UploadManager implements SubmitterListener {
 
-	public static final int UPLOAD_STARTED_OK= 0;
+	public static final int UPLOAD_STARTED_OK = 0;
 
-	public static final int NO_FILES_TO_UPLOAD= 1;
+	public static final int NO_FILES_TO_UPLOAD = 1;
 
-	public static final int UPLOAD_IN_PROGRESS= 2;
+	public static final int UPLOAD_IN_PROGRESS = 2;
 
-	public static final int WORKBENCH_IS_CLOSING= 3;
+	public static final int WORKBENCH_IS_CLOSING = 3;
 
-	public static final int NO_UPLOADER= 4;
+	public static final int NO_UPLOADER = 4;
 
-	public static final int UPLOAD_DISABLED= 5;
+	public static final int UPLOAD_DISABLED = 5;
 
-	//CODINGSPECTATOR
-	public static final int PREPARATION_OK= 6;
+	// CODINGSPECTATOR
+	public static final int PREPARATION_OK = 6;
 
-	private Object lock= new Object();
+	private Object lock = new Object();
 
 	private Uploader uploader;
 
-	private ListenerList uploadListeners= new ListenerList();
+	private ListenerList uploadListeners = new ListenerList();
 
-	//CODINGSPECTATOR
+	// CODINGSPECTATOR
 	private UploadParameters uploadParameters;
 
 	/**
-	 * This method starts the upload. The first thing it does is find the files containing data that
-	 * needs to be uploaded. If no data is found, then the method simply returns and the universe is
-	 * left to unfold as it will. If data is found, we continue.
+	 * This method starts the upload. The first thing it does is find the files
+	 * containing data that needs to be uploaded. If no data is found, then the
+	 * method simply returns and the universe is left to unfold as it will. If
+	 * data is found, we continue.
 	 * <p>
-	 * The settings are checked to see what the user wants us to do with the data. If the user has
-	 * authorized that the data be uploaded, an upload job is spawned. If the settings indicate that
-	 * the user must be asked what to do, then an editor is opened which invites the user to decide
-	 * what to do with the information.
+	 * The settings are checked to see what the user wants us to do with the
+	 * data. If the user has authorized that the data be uploaded, an upload job
+	 * is spawned. If the settings indicate that the user must be asked what to
+	 * do, then an editor is opened which invites the user to decide what to do
+	 * with the information.
 	 * </p>
 	 * <p>
-	 * This method returns a status code. The value is {@link #UPLOAD_IN_PROGRESS} if an upload is
-	 * already in progress when the request is made, {@link #NO_FILES_TO_UPLOAD} if no files are
-	 * available for upload, {@link #WORKBENCH_IS_CLOSING} if the workbench is closing at the time
-	 * the request is made, {@link #NO_UPLOADER} if an uploader cannot be found, or
-	 * {@value #UPLOAD_STARTED_OK} if a new upload is started.
+	 * This method returns a status code. The value is
+	 * {@link #UPLOAD_IN_PROGRESS} if an upload is already in progress when the
+	 * request is made, {@link #NO_FILES_TO_UPLOAD} if no files are available
+	 * for upload, {@link #WORKBENCH_IS_CLOSING} if the workbench is closing at
+	 * the time the request is made, {@link #NO_UPLOADER} if an uploader cannot
+	 * be found, or {@value #UPLOAD_STARTED_OK} if a new upload is started.
 	 * </p>
 	 * 
 	 * @return a status code.
 	 */
 	public int startUpload() {
-		int preparationValue= prepareUploadData();
+		int preparationValue = prepareUploadData();
 		if (preparationValue != PREPARATION_OK)
 			return preparationValue;
 
 		/*
-		 * Add a listener to the new uploader so that it will notify
-		 * us when it is complete. Then, we'll notify our own listeners.
+		 * Add a listener to the new uploader so that it will notify us when it
+		 * is complete. Then, we'll notify our own listeners.
 		 */
 		uploader.addUploadListener(new UploadListener() {
 			public void uploadComplete(UploadResult result) {
-				uploader= null;
+				uploader = null;
 				fireUploadComplete(result);
 			}
 		});
@@ -99,7 +104,8 @@ public class UploadManager implements SubmitterListener {
 
 	// CODINGSPECTATOR: Extracted from startUpload.
 	public int prepareUploadData() {
-		if (!getSettings().isEnabled() || getSettings().isCollectButNeverUpload()) // CODINGSPECTATOR
+		if (!getSettings().isEnabled()
+				|| getSettings().isCollectButNeverUpload()) // CODINGSPECTATOR
 			return UPLOAD_DISABLED;
 		if (PlatformUI.getWorkbench().isClosing())
 			return WORKBENCH_IS_CLOSING;
@@ -109,31 +115,31 @@ public class UploadManager implements SubmitterListener {
 			if (uploader != null)
 				return UPLOAD_IN_PROGRESS;
 
-			usageDataUploadFiles= findUsageDataUploadFiles();
+			usageDataUploadFiles = findUsageDataUploadFiles();
 			if (usageDataUploadFiles.length == 0)
 				return NO_FILES_TO_UPLOAD;
 
-			uploader= getUploader();
+			uploader = getUploader();
 			if (uploader == null)
 				return NO_UPLOADER;
 		}
 
 		getSettings().setLastUploadTime();
 
-		uploadParameters= new UploadParameters();
+		uploadParameters = new UploadParameters();
 		uploadParameters.setSettings(getSettings());
 		uploadParameters.setFiles(usageDataUploadFiles);
-		//request.setFilter(getSettings().getFilter());
+		// request.setFilter(getSettings().getFilter());
 
 		uploader.setUploadParameters(uploadParameters);
 
 		/*
-		 * Add a listener to the new uploader so that it will notify
-		 * us when it is complete. Then, we'll notify our own listeners.
+		 * Add a listener to the new uploader so that it will notify us when it
+		 * is complete. Then, we'll notify our own listeners.
 		 */
 		uploader.addUploadListener(new UploadListener() {
 			public void uploadComplete(UploadResult result) {
-				uploader= null;
+				uploader = null;
 			}
 		});
 
@@ -149,35 +155,41 @@ public class UploadManager implements SubmitterListener {
 	}
 
 	/**
-	 * This method returns the {@link Uploader} to use to upload data to the server. At present,
-	 * this is implemented using the extension point registry. This separation is done so that a UI
-	 * component can participate in the upload process without muddying the lines between model and
-	 * view; a UI plug-in, might, for example, open an editor or dialogue box asking the user if it
-	 * is okay to do the upload.
+	 * This method returns the {@link Uploader} to use to upload data to the
+	 * server. At present, this is implemented using the extension point
+	 * registry. This separation is done so that a UI component can participate
+	 * in the upload process without muddying the lines between model and view;
+	 * a UI plug-in, might, for example, open an editor or dialogue box asking
+	 * the user if it is okay to do the upload.
 	 * <p>
-	 * An extension point is not quite the right fit here as there is currently only provision for
-	 * there being a single choice. It's a good choice, because we want this to be lazy loaded. At
-	 * some point, it may make sense to have multiple uploaders available and let the user (via
-	 * preferences) select the one that they want to use (perhaps using a combo box or something.
-	 * For now, that's probably just too complicated, and so the extension point is used with an
-	 * understanding that there should only be one extension to it (in the event that there is more
-	 * than one extension, the first one that we find is used).
+	 * An extension point is not quite the right fit here as there is currently
+	 * only provision for there being a single choice. It's a good choice,
+	 * because we want this to be lazy loaded. At some point, it may make sense
+	 * to have multiple uploaders available and let the user (via preferences)
+	 * select the one that they want to use (perhaps using a combo box or
+	 * something. For now, that's probably just too complicated, and so the
+	 * extension point is used with an understanding that there should only be
+	 * one extension to it (in the event that there is more than one extension,
+	 * the first one that we find is used).
 	 * </p>
 	 * 
 	 * @return
 	 */
 	private Uploader getUploader() {
-		IConfigurationElement[] elements= Platform.getExtensionRegistry()
-				.getConfigurationElementsFor(UsageDataRecordingActivator.PLUGIN_ID + ".uploader"); //$NON-NLS-1$
+		IConfigurationElement[] elements = Platform.getExtensionRegistry()
+				.getConfigurationElementsFor(
+						UsageDataRecordingActivator.PLUGIN_ID + ".uploader"); //$NON-NLS-1$
 		for (IConfigurationElement element : elements) {
 			if ("uploader".equals(element.getName())) { //$NON-NLS-1$
 				try {
-					Object uploader= element.createExecutableExtension("class"); //$NON-NLS-1$
+					Object uploader = element
+							.createExecutableExtension("class"); //$NON-NLS-1$
 					if (uploader instanceof Uploader) {
-						return (Uploader)uploader;
+						return (Uploader) uploader;
 					}
 				} catch (CoreException e) {
-					UsageDataRecordingActivator.getDefault().getLog().log(e.getStatus());
+					UsageDataRecordingActivator.getDefault().getLog()
+							.log(e.getStatus());
 				}
 			}
 		}
@@ -194,33 +206,34 @@ public class UploadManager implements SubmitterListener {
 
 	protected void fireUploadComplete(UploadResult result) {
 		for (Object listener : uploadListeners.getListeners()) {
-			((UploadListener)listener).uploadComplete(result);
+			((UploadListener) listener).uploadComplete(result);
 		}
 	}
 
-	/////////////////
-	//CODINGSPECTATOR
-	/////////////////
+	// ///////////////
+	// CODINGSPECTATOR
+	// ///////////////
 
 	/**
-	 * This class uses the monitor.core.submitter extension point to make sure that transferring UDC
-	 * data to the watched directory doesn't interfere with uploading the watched directory of
-	 * CodingSpectator.
+	 * This class uses the monitor.core.submitter extension point to make sure
+	 * that transferring UDC data to the watched directory doesn't interfere
+	 * with uploading the watched directory of CodingSpectator.
 	 * 
-	 * The submitter and the UDC data transferrer should acquire the watched directory's lock in
-	 * order to write into or upload the contents of the watched directory.
+	 * The submitter and the UDC data transferrer should acquire the watched
+	 * directory's lock in order to write into or upload the contents of the
+	 * watched directory.
 	 */
-	public final static ReentrantLock watchedDirectoryLock= new ReentrantLock();
+	public final static ReentrantLock watchedDirectoryLock = new ReentrantLock();
 
 	public int startTransferToCodingSpectator() {
-		int preparationValue= prepareUploadData();
+		int preparationValue = prepareUploadData();
 		if (preparationValue != PREPARATION_OK)
 			return preparationValue;
 
 		uploader.addTransferToCodingSpectatorListener(new TransferToCodingSpectatorListener() {
 
 			public void transferToCodingSpectatorComplete() {
-				uploader= null;
+				uploader = null;
 
 			}
 		});
@@ -230,12 +243,26 @@ public class UploadManager implements SubmitterListener {
 		return UPLOAD_STARTED_OK;
 	}
 
+	public void preLock() {
+		int uploadResult = startTransferToCodingSpectator();
+		if (uploadResult != UPLOAD_STARTED_OK) {
+			UsageDataRecordingActivator.getDefault().log(IStatus.ERROR,
+					"Failed to transfer the UDC data into the watched folder.");
+		}
+	}
+
 	public void preSubmit() {
 		watchedDirectoryLock.lock();
 	}
 
 	public void postSubmit(boolean succeeded) {
-		if (watchedDirectoryLock.isLocked())
-			watchedDirectoryLock.unlock();
+		if (watchedDirectoryLock.isLocked()) {
+			try {
+				watchedDirectoryLock.unlock();
+			} catch (IllegalMonitorStateException e) {
+				UsageDataRecordingActivator.getDefault().log(IStatus.ERROR, e,
+						"Failed to unlock the watched folder.");
+			}
+		}
 	}
 }
