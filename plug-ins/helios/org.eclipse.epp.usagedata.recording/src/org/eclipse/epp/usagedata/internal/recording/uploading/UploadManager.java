@@ -45,6 +45,7 @@ public class UploadManager implements SubmitterListener {
 
 	public static final int UPLOAD_DISABLED= 5;
 
+	//CODINGSPECTATOR
 	public static final int PREPARATION_OK= 6;
 
 	private Object lock= new Object();
@@ -53,6 +54,7 @@ public class UploadManager implements SubmitterListener {
 
 	private ListenerList uploadListeners= new ListenerList();
 
+	//CODINGSPECTATOR
 	private UploadParameters uploadParameters;
 
 	/**
@@ -96,6 +98,7 @@ public class UploadManager implements SubmitterListener {
 		return UPLOAD_STARTED_OK;
 	}
 
+	//CODINGSPECTATOR: Extracted from startUpload.
 	public int prepareUploadData() {
 		if (!getSettings().isEnabled() || getSettings().isCollectButNeverUpload()) // CODINGSPECTATOR
 			return UPLOAD_DISABLED;
