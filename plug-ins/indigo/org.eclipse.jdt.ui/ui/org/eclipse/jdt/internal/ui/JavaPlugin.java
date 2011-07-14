@@ -427,11 +427,13 @@ public class JavaPlugin extends AbstractUIPlugin {
 		super.start(context);
 
 		//CODINGSPECTATOR: Notify codingtracker.recording when jdt.ui is about to start
+		final BundleContext finalContext= context;
 		context.addBundleListener(new BundleListener() {
 
 			public void bundleChanged(BundleEvent event) {
 				if (event.getBundle() == getBundle() && event.getType() == BundleEvent.STARTED && getBundle().getState() == Bundle.ACTIVE) {
 					notifyStartupListeners();
+					finalContext.removeBundleListener(this);
 				}
 			}
 		});
