@@ -30,7 +30,6 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 			@Override
 			public void run() {
 				boolean isSelectionListenerRegistered= false;
-				long currentTimeMillis= System.currentTimeMillis();
 				while (!isSelectionListenerRegistered) {
 					activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					if (activeWorkbenchWindow != null) {
@@ -38,8 +37,6 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 						isSelectionListenerRegistered= true;
 					}
 				}
-				long currentTimeMillis2= System.currentTimeMillis();
-				System.err.println("Duration: " + (currentTimeMillis2 - currentTimeMillis));
 			}
 		});
 	}

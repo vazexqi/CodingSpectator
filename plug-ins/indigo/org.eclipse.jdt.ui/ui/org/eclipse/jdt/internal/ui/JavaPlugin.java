@@ -119,9 +119,9 @@ import org.eclipse.jdt.internal.ui.wizards.buildpaths.ClasspathAttributeConfigur
  * workbench, keeps track of elements shared by all editors and viewers of the plug-in such as
  * document providers and find-replace-dialogs.
  * 
- * @author Stas Negara - Changed start(BundleContext) such that it calls notifyStartupListeners().
- *         Added notifyStartupListeners() to notify all interested listeners that jdt.ui is about to
- *         start.
+ * @author Stas Negara, Mohsen Vakilian, nchen - Changed start(BundleContext) such that it calls
+ *         notifyStartupListeners(). Added notifyStartupListeners() to notify all interested
+ *         listeners that jdt.ui is about to start.
  */
 public class JavaPlugin extends AbstractUIPlugin {
 
@@ -420,10 +420,8 @@ public class JavaPlugin extends AbstractUIPlugin {
 		context.addBundleListener(new BundleListener() {
 
 			public void bundleChanged(BundleEvent event) {
-				if (event.getType() == BundleEvent.STARTED) {
-					if (getBundle().getState() == Bundle.ACTIVE) {
-						notifyStartupListeners();
-					}
+				if (event.getBundle() == getBundle() && event.getType() == BundleEvent.STARTED && getBundle().getState() == Bundle.ACTIVE) {
+					notifyStartupListeners();
 				}
 			}
 		});
