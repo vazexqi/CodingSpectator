@@ -26,9 +26,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
@@ -401,8 +403,16 @@ public class JavaPlugin extends AbstractUIPlugin {
 		IConfigurationElement[] configurationElements= Platform.getExtensionRegistry().getConfigurationElementsFor(extensionPointId);
 		try {
 			for (int i= 0; i < configurationElements.length; i++) {
-				Object executableExtension= configurationElements[i].createExecutableExtension("class"); //$NON-NLS-1$
-				((StartupListener) executableExtension).jdtuiIsAboutToStart();
+				final Object executableExtension= configurationElements[i].createExecutableExtension("class"); //$NON-NLS-1$
+				SafeRunner.run(new ISafeRunnable() {
+
+					public void run() throws Exception {
+						((StartupListener) executableExtension).jdtuiIsAboutToStart();
+					}
+
+					public void handleException(Throwable exception) {
+					}
+				});
 			}
 		} catch (CoreException e) {
 			throw new RuntimeException("Failed to create executable extensions for " + extensionPointId, e); //$NON-NLS-1$
