@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -22,9 +25,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 
 import org.eclipse.core.resources.IFile;
@@ -114,9 +119,9 @@ import org.eclipse.jdt.internal.ui.wizards.buildpaths.ClasspathAttributeConfigur
  * workbench, keeps track of elements shared by all editors and viewers of the plug-in such as
  * document providers and find-replace-dialogs.
  * 
- * @author Stas Negara - Changed start(BundleContext) such that it calls notifyStartupListeners().
- *         Added notifyStartupListeners() to notify all interested listeners that jdt.ui is about to
- *         start.
+ * @author Stas Negara, Mohsen Vakilian, nchen - Changed start(BundleContext) such that it calls
+ *         notifyStartupListeners(). Added notifyStartupListeners() to notify all interested
+ *         listeners that jdt.ui is about to start.
  */
 public class JavaPlugin extends AbstractUIPlugin {
 
@@ -395,8 +400,16 @@ public class JavaPlugin extends AbstractUIPlugin {
 		IConfigurationElement[] configurationElements= Platform.getExtensionRegistry().getConfigurationElementsFor(extensionPointId);
 		try {
 			for (int i= 0; i < configurationElements.length; i++) {
-				Object executableExtension= configurationElements[i].createExecutableExtension("class"); //$NON-NLS-1$
-				((StartupListener)executableExtension).jdtuiIsAboutToStart();
+				final Object executableExtension= configurationElements[i].createExecutableExtension("class"); //$NON-NLS-1$
+				SafeRunner.run(new ISafeRunnable() {
+
+					public void run() throws Exception {
+						((StartupListener)executableExtension).jdtuiIsAboutToStart();
+					}
+
+					public void handleException(Throwable exception) {
+					}
+				});
 			}
 		} catch (CoreException e) {
 			throw new RuntimeException("Failed to create executable extensions for " + extensionPointId, e); //$NON-NLS-1$
@@ -410,7 +423,14 @@ public class JavaPlugin extends AbstractUIPlugin {
 		super.start(context);
 
 		//CODINGSPECTATOR: Notify codingtracker.recording when jdt.ui is about to start
-		notifyStartupListeners();
+		context.addBundleListener(new BundleListener() {
+
+			public void bundleChanged(BundleEvent event) {
+				if (event.getBundle() == getBundle() && event.getType() == BundleEvent.STARTED && getBundle().getState() == Bundle.ACTIVE) {
+					notifyStartupListeners();
+				}
+			}
+		});
 
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			public IBuffer createBuffer(ICompilationUnit workingCopy) {
