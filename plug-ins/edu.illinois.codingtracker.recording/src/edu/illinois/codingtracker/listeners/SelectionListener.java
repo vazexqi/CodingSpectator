@@ -14,7 +14,6 @@ import org.eclipse.ui.PlatformUI;
 
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingtracker.helpers.Messages;
 import edu.illinois.codingtracker.listeners.document.ConflictEditorDocumentListener;
 
 /**
@@ -26,18 +25,23 @@ import edu.illinois.codingtracker.listeners.document.ConflictEditorDocumentListe
 public class SelectionListener extends BasicListener implements ISelectionListener {
 
 	public static void register() {
-		Display.getDefault().syncExec(new Runnable() {
+		Display.getDefault().asyncExec(new Runnable() {
 
 			@Override
 			public void run() {
-				activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				if (activeWorkbenchWindow == null) {
-					Exception e= new RuntimeException();
-					Debugger.logExceptionToErrorLog(e, Messages.CodeChangeTracker_FailedToGetActiveWorkbenchWindow);
+				boolean isSelectionListenerRegistered= false;
+				long currentTimeMillis= System.currentTimeMillis();
+				while (!isSelectionListenerRegistered) {
+					activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					if (activeWorkbenchWindow != null) {
+						activeWorkbenchWindow.getSelectionService().addSelectionListener(new SelectionListener());
+						isSelectionListenerRegistered= true;
+					}
 				}
+				long currentTimeMillis2= System.currentTimeMillis();
+				System.err.println("Duration: " + (currentTimeMillis2 - currentTimeMillis));
 			}
 		});
-		activeWorkbenchWindow.getSelectionService().addSelectionListener(new SelectionListener());
 	}
 
 

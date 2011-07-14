@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.swt.widgets.Display;
@@ -414,7 +417,16 @@ public class JavaPlugin extends AbstractUIPlugin {
 		super.start(context);
 
 		//CODINGSPECTATOR: Notify codingtracker.recording when jdt.ui is about to start
-		notifyStartupListeners();
+		context.addBundleListener(new BundleListener() {
+
+			public void bundleChanged(BundleEvent event) {
+				if (event.getType() == BundleEvent.STARTED) {
+					if (getBundle().getState() == Bundle.ACTIVE) {
+						notifyStartupListeners();
+					}
+				}
+			}
+		});
 
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			@Override
