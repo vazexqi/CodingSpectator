@@ -11,9 +11,11 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.recording.Activator;
 
 /**
  * 
@@ -32,10 +34,13 @@ public class PartListener extends BasicListener implements IPartListener {
 				//TODO: Is it too heavy-weight? Did not notice any additional lag even on a slow machine.  
 				boolean isPartListenerRegistered= false;
 				while (!isPartListenerRegistered) {
-					IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
-					if (activePage != null) {
-						activePage.addPartListener(new PartListener());
-						isPartListenerRegistered= true;
+					IWorkbenchWindow activeWorkbenchWindow= BasicListener.getActiveWorkbenchWindow();
+					if (activeWorkbenchWindow != null) {
+						IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+						if (activePage != null) {
+							activePage.addPartListener(new PartListener());
+							isPartListenerRegistered= true;
+						}
 					}
 				}
 			}
@@ -75,6 +80,10 @@ public class PartListener extends BasicListener implements IPartListener {
 
 	private void closeRegularEditor(IWorkbenchPart part, IFile closedFile) {
 		//Check that this is the last editor of this file that is closed
+		IWorkbenchWindow activeWorkbenchWindow= BasicListener.getActiveWorkbenchWindow();
+		if (activeWorkbenchWindow == null) {
+			Activator.getDefault().log(Activator.createErrorStatus("Workbench has not been created yet.", new RuntimeException()));
+		}
 		IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
 		if (activePage != null) {
 			IEditorReference[] editorReferences= activePage.getEditorReferences();

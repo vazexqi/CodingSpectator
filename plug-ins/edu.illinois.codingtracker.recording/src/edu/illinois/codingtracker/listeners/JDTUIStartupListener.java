@@ -30,7 +30,7 @@ public class JDTUIStartupListener implements StartupListener {
 			OperationHistoryListener.register();
 			RefactoringExecutionListener.register();
 			SelectionListener.register();
-			PartListener.register(); //should be registered after SelectionListener
+			PartListener.register();
 			JUnitListener.register();
 			LaunchListener.register();
 			FileBufferListener.register();

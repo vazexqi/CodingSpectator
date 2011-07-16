@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.IWorkbenchWindow;
 
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.helpers.EditorHelper;
@@ -19,6 +19,7 @@ import edu.illinois.codingtracker.listeners.document.ConflictEditorDocumentListe
 /**
  * 
  * @author Stas Negara
+ * @author Mohsen Vakilian, nchen - Registered the listener asynchronously.
  * 
  */
 @SuppressWarnings("restriction")
@@ -31,7 +32,7 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 			public void run() {
 				boolean isSelectionListenerRegistered= false;
 				while (!isSelectionListenerRegistered) {
-					activeWorkbenchWindow= PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					IWorkbenchWindow activeWorkbenchWindow= BasicListener.getActiveWorkbenchWindow();
 					if (activeWorkbenchWindow != null) {
 						activeWorkbenchWindow.getSelectionService().addSelectionListener(new SelectionListener());
 						isSelectionListenerRegistered= true;

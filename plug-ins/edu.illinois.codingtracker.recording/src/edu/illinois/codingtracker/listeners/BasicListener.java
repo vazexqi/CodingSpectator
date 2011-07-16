@@ -8,14 +8,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.compare.internal.CompareEditor;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
+import edu.illinois.codingtracker.recording.Activator;
 import edu.illinois.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingtracker.recording.OperationRecorder;
 
 /**
  * 
  * @author Stas Negara
+ * @author Mohsen Vakilian - Added the method {@link #getActiveWorkbenchWindow}.
  * 
  */
 @SuppressWarnings("restriction")
@@ -24,8 +28,6 @@ public abstract class BasicListener {
 	protected static final KnownFilesRecorder knownFilesRecorder= KnownFilesRecorder.getInstance();
 
 	protected static final OperationRecorder operationRecorder= OperationRecorder.getInstance();
-
-	protected static volatile IWorkbenchWindow activeWorkbenchWindow= null;
 
 	protected static final Set<CompareEditor> openConflictEditors= Collections.synchronizedSet(new HashSet<CompareEditor>());
 
@@ -38,5 +40,20 @@ public abstract class BasicListener {
 	protected static volatile boolean isRedoing= false;
 
 	protected static volatile boolean isBufferContentAboutToBeReplaced= false;
+
+	protected static IWorkbenchWindow getActiveWorkbenchWindow() {
+		IWorkbench workbench= null;
+		try {
+			workbench= PlatformUI.getWorkbench();
+		} catch (IllegalStateException e) {
+			Activator.getDefault().log(Activator.createErrorStatus("Workbench has not been created yet.", e));
+			return null;
+		}
+		IWorkbenchWindow activeWorkbenchWindow= null;
+		if (workbench != null) {
+			activeWorkbenchWindow= workbench.getActiveWorkbenchWindow();
+		}
+		return activeWorkbenchWindow;
+	}
 
 }
