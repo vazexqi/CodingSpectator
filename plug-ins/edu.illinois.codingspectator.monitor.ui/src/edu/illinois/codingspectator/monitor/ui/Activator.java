@@ -30,7 +30,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	private static final int UPLOAD_PERIOD_MILLISECONDS= 1000 * 60 * 60 * 24 * 1;
 
 	// The plug-in ID
-	public static final String PLUGIN_ID= "edu.illinois.codingspectator.monitor.core.ui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID= "edu.illinois.codingspectator.monitor.ui"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -48,8 +48,6 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin= this;
-
-		enableAutomaticCheckForUpdatesPreference();
 	}
 
 	private void enableAutomaticCheckForUpdatesPreference() {
@@ -90,6 +88,7 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 
 	@Override
 	public void earlyStartup() {
+		enableAutomaticCheckForUpdatesPreference();
 		if (shouldUpload()) {
 			final Submitter submitter= new Submitter();
 
@@ -127,6 +126,5 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 	public static String populateMessageWithPluginName(String formattedString) {
 		return MessageFormat.format(formattedString, Messages.PluginName);
 	}
-
 
 }

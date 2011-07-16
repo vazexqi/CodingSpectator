@@ -36,9 +36,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin= this;
-		statusLineUpdater= new BundleStatusLineUpdater();
-		statusLineUpdater.start();
-		getPreferenceStore().setDefault(PreferenceKeys.SHOW_IN_STATUS_LINE_KEY, true);
 	}
 
 	/*
@@ -58,6 +55,12 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+
+	public void initializeStatusLineUpdater() {
+		statusLineUpdater= new BundleStatusLineUpdater();
+		statusLineUpdater.start();
+		getPreferenceStore().setDefault(PreferenceKeys.SHOW_IN_STATUS_LINE_KEY, true);
 	}
 
 	public BundleStatusLineUpdater getStatusLineUpdater() {

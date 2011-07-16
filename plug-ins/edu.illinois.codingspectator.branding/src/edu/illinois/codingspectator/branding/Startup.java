@@ -20,6 +20,7 @@ public class Startup implements IStartup {
 	 */
 	@Override
 	public void earlyStartup() {
+		Activator.getDefault().initializeStatusLineUpdater();
 		Display.getDefault().asyncExec(new Runnable() {
 
 			@Override
