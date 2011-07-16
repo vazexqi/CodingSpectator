@@ -15,16 +15,25 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import edu.illinois.codingtracker.helpers.EditorHelper;
-import edu.illinois.codingtracker.recording.Activator;
 
 /**
  * 
  * @author Stas Negara
- * @author Mohsen Vakilian - Extracted this class from CodeChangeTracker
+ * @author Mohsen Vakilian - Extracted this class from CodeChangeTracker and added the method
+ *         {@link #getActivePage()}.
  * 
  */
 @SuppressWarnings("restriction")
 public class PartListener extends BasicListener implements IPartListener {
+
+	private static IWorkbenchPage getActivePage() {
+		IWorkbenchWindow activeWorkbenchWindow= BasicListener.getActiveWorkbenchWindow();
+		if (activeWorkbenchWindow == null) {
+			return null;
+		}
+		IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+		return activePage;
+	}
 
 	public static void register() {
 		Display.getDefault().asyncExec(new Runnable() {
@@ -34,13 +43,10 @@ public class PartListener extends BasicListener implements IPartListener {
 				//TODO: Is it too heavy-weight? Did not notice any additional lag even on a slow machine.  
 				boolean isPartListenerRegistered= false;
 				while (!isPartListenerRegistered) {
-					IWorkbenchWindow activeWorkbenchWindow= BasicListener.getActiveWorkbenchWindow();
-					if (activeWorkbenchWindow != null) {
-						IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
-						if (activePage != null) {
-							activePage.addPartListener(new PartListener());
-							isPartListenerRegistered= true;
-						}
+					IWorkbenchPage activePage= getActivePage();
+					if (activePage != null) {
+						activePage.addPartListener(new PartListener());
+						isPartListenerRegistered= true;
 					}
 				}
 			}
@@ -80,11 +86,7 @@ public class PartListener extends BasicListener implements IPartListener {
 
 	private void closeRegularEditor(IWorkbenchPart part, IFile closedFile) {
 		//Check that this is the last editor of this file that is closed
-		IWorkbenchWindow activeWorkbenchWindow= BasicListener.getActiveWorkbenchWindow();
-		if (activeWorkbenchWindow == null) {
-			Activator.getDefault().log(Activator.createErrorStatus("Workbench has not been created yet.", new RuntimeException()));
-		}
-		IWorkbenchPage activePage= activeWorkbenchWindow.getActivePage();
+		IWorkbenchPage activePage= getActivePage();
 		if (activePage != null) {
 			IEditorReference[] editorReferences= activePage.getEditorReferences();
 			for (IEditorReference editorReference : editorReferences) {
