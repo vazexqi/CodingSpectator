@@ -78,6 +78,11 @@ public class UploadManager implements SubmitterListener {
 	 * @return a status code.
 	 */
 	public int startUpload() {
+		//CODINGSPECTATOR: Do not upload data if the user has chosen not to upload the data to Eclipse foundation.
+		if (getSettings().isCollectButNeverUpload()) {
+			return UPLOAD_DISABLED;
+		}
+
 		int preparationValue= prepareUploadData();
 		if (preparationValue != PREPARATION_OK)
 			return preparationValue;
@@ -100,7 +105,7 @@ public class UploadManager implements SubmitterListener {
 
 	//CODINGSPECTATOR: Extracted from startUpload.
 	public int prepareUploadData() {
-		if (!getSettings().isEnabled() || getSettings().isCollectButNeverUpload()) // CODINGSPECTATOR
+		if (!getSettings().isEnabled())
 			return UPLOAD_DISABLED;
 		if (PlatformUI.getWorkbench().isClosing())
 			return WORKBENCH_IS_CLOSING;
@@ -233,8 +238,8 @@ public class UploadManager implements SubmitterListener {
 
 	public void preLock() {
 		int uploadResult= startTransferToCodingSpectator();
-		if (uploadResult != UPLOAD_STARTED_OK) {
-			UsageDataRecordingActivator.getDefault().log(IStatus.ERROR, "Failed to transfer the UDC data into the watched folder.");
+		if (uploadResult == UPLOAD_DISABLED || uploadResult == WORKBENCH_IS_CLOSING || uploadResult == UPLOAD_IN_PROGRESS || uploadResult == NO_UPLOADER) {
+			UsageDataRecordingActivator.getDefault().log(IStatus.ERROR, String.format("Failed to transfer the UDC data into the watched folder (upload result = %d).", uploadResult));
 		}
 	}
 
