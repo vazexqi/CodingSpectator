@@ -526,13 +526,13 @@ public class RefactoringWizardDialog2 extends TrayDialog implements IWizardConta
 
 	//CODINGSPECTATOR: Added button as a parameter to the method so that it can tell which one was pressed "next" or "preview".
 	private void nextOrPreviewPressed(Button button) {
-		IWizardPage current= fCurrentPage;
-		saveInitialSize();
-		fCurrentPage= fCurrentPage.getNextPage();
-
 		//CODINGSPECTATOR: Record the event of pressing the button on the current page.
 		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), button.getText()));
 
+		IWizardPage current= fCurrentPage;
+		saveInitialSize();
+
+		fCurrentPage= fCurrentPage.getNextPage();
 		if (current == fCurrentPage)
 			return;
 		if (!fHasAdditionalPages && IErrorWizardPage.PAGE_NAME.equals(fCurrentPage.getName())) {
