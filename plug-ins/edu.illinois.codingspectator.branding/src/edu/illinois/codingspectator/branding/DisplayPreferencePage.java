@@ -27,6 +27,7 @@ public class DisplayPreferencePage extends PreferencePage implements IWorkbenchP
 	private IPropertyChangeListener propertyChangeListener= new IPropertyChangeListener() {
 		public void propertyChange(final PropertyChangeEvent event) {
 			if (PreferenceKeys.SHOW_IN_STATUS_LINE_KEY.equals(event.getProperty())) {
+				// Updates the status of the check box using a syncExec so that the check box is updated before the preference page closes.
 				getControl().getDisplay().syncExec(new Runnable() {
 					public void run() {
 						showInStatusLineCheckbox.setSelection((Boolean)event.getNewValue());
@@ -68,6 +69,7 @@ public class DisplayPreferencePage extends PreferencePage implements IWorkbenchP
 
 		showInStatusLineCheckbox= new Button(composite, SWT.CHECK | SWT.LEFT);
 		showInStatusLineCheckbox.setText(Messages.WorkbenchPreferencePage_show_bundle_in_status_line);
+		showInStatusLineCheckbox.setToolTipText(Messages.WorkbenchPreferencePage_show_bundle_in_status_line_tool_tip);
 
 		Label filler= new Label(parent, SWT.NONE);
 		filler.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true));

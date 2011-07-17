@@ -36,7 +36,6 @@ public abstract class BundlePreferencePage extends FieldEditorPreferencePage {
 		final String preferenceKey;
 
 		public PreferenceChangeListener(String preferenceKey) {
-			super();
 			this.preferenceKey= preferenceKey;
 		}
 
@@ -45,6 +44,7 @@ public abstract class BundlePreferencePage extends FieldEditorPreferencePage {
 		@Override
 		public void propertyChange(final PropertyChangeEvent event) {
 			if (event.getProperty().equals(preferenceKey)) {
+				// Updates the field editor using syncExec to ensure that the preference page is open.
 				Display.getDefault().syncExec(new Runnable() {
 
 					@Override

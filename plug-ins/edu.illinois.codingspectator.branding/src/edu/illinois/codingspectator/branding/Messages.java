@@ -18,6 +18,9 @@ public class Messages extends NLS {
 	public static String WorkbenchPreferencePage_preference_page_description;
 
 	public static String WorkbenchPreferencePage_show_bundle_in_status_line;
+
+	public static String WorkbenchPreferencePage_show_bundle_in_status_line_tool_tip;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
