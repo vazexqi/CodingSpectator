@@ -20,20 +20,13 @@ public class Activator implements BundleActivator {
 	// The plug-in ID
 	public static final String PLUGIN_ID= "edu.illinois.codingtracker.recording";
 
-	private static BundleContext context;
-
 	private static Activator plugin;
-
-	static BundleContext getContext() {
-		return context;
-	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context= bundleContext;
 		plugin= this;
 	}
 
@@ -43,7 +36,6 @@ public class Activator implements BundleActivator {
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin= null;
-		Activator.context= null;
 	}
 
 	public static Activator getDefault() {
@@ -51,7 +43,7 @@ public class Activator implements BundleActivator {
 	}
 
 	private ILog getLog() {
-		return Platform.getLog(context.getBundle());
+		return Platform.getLog(Platform.getBundle(PLUGIN_ID));
 	}
 
 	public static Status createInfoStatus(String message) {
