@@ -1,3 +1,14 @@
+v1.0.0.201107172332 (Helios) and v1.0.0.201107172337 (Indigo)
+=============================================================
+- Logged the encapsulate field refactoring (issues [#270](https://github.com/vazexqi/CodingSpectator/issues/270), [#275](https://github.com/vazexqi/CodingSpectator/issues/275), [#277](https://github.com/vazexqi/CodingSpectator/issues/277)).
+- Avoided `Display.syncExec` in activator and removed other unnecessary invocations of `Display.syncExec` (issues [#276](https://github.com/vazexqi/CodingSpectator/issues/276), [#281](https://github.com/vazexqi/CodingSpectator/issues/281)).
+- Made the submitter tolerate the failure of its extensions (issue [#282](https://github.com/vazexqi/CodingSpectator/issues/282)).
+- Made the submitter create a single instance for each of its extensions (issue [#283](https://github.com/vazexqi/CodingSpectator/issues/283)).
+- Made the bundle updater handle NPE's better (issue [#284](https://github.com/vazexqi/CodingSpectator/issues/284)).
+- Copied the UDC data into the watched folder even if the user has disabled the upload to Eclipse foundation (issue [#285](https://github.com/vazexqi/CodingSpectator/issues/285)).
+- Made the ongoing submission capture the existing Eclipse refactoring logs and UDC data (issues [#218](https://github.com/vazexqi/CodingSpectator/issues/218), [#280](https://github.com/vazexqi/CodingSpectator/issues/280)).
+- CodingTracker compares Charsets rather than their textual representations when it checks that a file is known (issue [#267](https://github.com/vazexqi/CodingSpectator/issues/267)).
+
 v1.0.0.201107061725 (Helios) and v1.0.0.201107061737 (Indigo)
 =============================================================
 - Automated exporting some of the data (parts of refactoring descriptors and relevant CodingTracker events) into a CSV file (issues [#234](https://github.com/vazexqi/CodingSpectator/issues/234), [#235](https://github.com/vazexqi/CodingSpectator/issues/235), [#243](https://github.com/vazexqi/CodingSpectator/issues/243))
