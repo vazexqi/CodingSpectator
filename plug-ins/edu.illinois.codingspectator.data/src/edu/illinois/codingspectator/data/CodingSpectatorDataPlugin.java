@@ -69,4 +69,9 @@ public class CodingSpectatorDataPlugin extends Plugin {
 		return getStorageLocation().append(getCodingSpectatorVersion().toString());
 	}
 
+	//FIXME: This is a temporary hack, should be replaced with the actual path.
+	public static IPath getVersionedWatchedLocation() {
+		return getStorageLocation().append("watched").append(getCodingSpectatorVersion().toString());
+	}
+
 }

@@ -77,6 +77,17 @@ public class ResourceHelper {
 		return readFileContent(file, UNIVERSAL_CHARSET);
 	}
 
+	/**
+	 * Should be used only for files that are read using UNIVERSAL_CHARSET.
+	 * 
+	 * @param file
+	 * @param content
+	 * @return
+	 */
+	public static boolean isReadCompletely(File file, String content) {
+		return file.length() == content.getBytes(UNIVERSAL_CHARSET).length;
+	}
+
 	private static String readFileContent(File file, Charset charset) {
 		String fileContent= ""; //Should return an empty string rather than null if something goes wrong
 		InputStream inputStream= null;

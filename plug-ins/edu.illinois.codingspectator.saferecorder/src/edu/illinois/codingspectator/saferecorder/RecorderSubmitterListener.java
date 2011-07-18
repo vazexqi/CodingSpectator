@@ -27,20 +27,19 @@ public class RecorderSubmitterListener implements SubmitterListener {
 
 	@Override
 	public void preLock() {
+		for (SafeRecorder safeRecorderInstance : safeRecorderInstances) {
+			safeRecorderInstance.aboutToCommit();
+		}
 	}
 
+	//TODO: If no code reacts to this notification, get rid of it, and rename preLock to preSubmit.
 	@Override
 	public void preSubmit() {
-		for (SafeRecorder safeRecorderInstance : safeRecorderInstances) {
-			safeRecorderInstance.commitStarted();
-		}
 	}
 
+	//TODO: Remove if not needed any more?
 	@Override
 	public void postSubmit(boolean succeeded) {
-		for (SafeRecorder safeRecorderInstance : safeRecorderInstances) {
-			safeRecorderInstance.commitCompleted();
-		}
 	}
 
 }
