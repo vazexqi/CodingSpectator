@@ -23,7 +23,7 @@ public class Main {
 
 	public static void main(String[] args) throws Throwable {
 		MapPersister mapPersister= new MapPersister(server, account, password);
-		String path= "/home/mohsen/svn/RefactorBehavior/Experiment/Summer2011/InternalAndExternal/logs.csv";
+		String path= System.getenv("CS_CSV");
 		mapPersister.loadCsvToMySql(path);
 		mapPersister.answer1();
 		System.out.println("******");

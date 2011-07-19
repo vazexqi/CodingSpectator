@@ -121,7 +121,12 @@ public class ConvertLogsToCSV {
 					refactoringDescriptors.addAll(getRefactoringDescriptors(codingspectatorRefactoringsPath, LogType.UNAVAILABLE, username, workspaceID, codingspectatorVersion));
 
 					IPath codingtrackerPath= codingSpectatorVersionPath.append("codingtracker").append("codechanges.txt");
-					refactoringDescriptors.addAll(getUserOperations(codingtrackerPath, username, workspaceID, codingspectatorVersion));
+
+					if (new EFSFile(codingtrackerPath).exists()) {
+						refactoringDescriptors.addAll(getUserOperations(codingtrackerPath, username, workspaceID, codingspectatorVersion));
+					} else {
+						System.err.println(String.format("Failed to read CodingTracker codechanges.txt at \"%s\".", codingtrackerPath.toOSString()));
+					}
 				}
 			}
 		}
