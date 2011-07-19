@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.hsqldb
 Bundle-SymbolicName: org.hsqldb
-Bundle-Version: 2.2.4.qualifier
-Bundle-ClassPath: hsqldb.jar
+Bundle-Version: 2.2.5.qualifier
+Bundle-ClassPath: ant/lib/hsqldb.jar
 Bundle-Vendor: University of Illinois
 Export-Package: org.hsqldb,
  org.hsqldb.auth,
