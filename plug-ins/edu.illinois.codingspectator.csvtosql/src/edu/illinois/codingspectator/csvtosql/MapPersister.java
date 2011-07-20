@@ -106,29 +106,58 @@ public class MapPersister {
 		createAndPopulateRefactoringDataTable(cancelledRefactoringsTable, "CANCELLED");
 		createAndPopulateRefactoringDataTable(unavailableRefactoringsTable, "UNAVAILABLE");
 
-//		String quickCheck= String.format("SELECT * FROM %s JOIN (%s, %s, %s) ON (%s.%s=%s.%s AND %s.%s=%s.%s AND %s.%s=%s.%s)", IDQuoted(eclipseRefactoringsTable),
-//				IDQuoted(performedRefactoringsTable),
-//				IDQuoted(cancelledRefactoringsTable), IDQuoted(unavailableRefactoringsTable), IDQuoted(eclipseRefactoringsTable), IDQuoted("id"), IDQuoted(performedRefactoringsTable), IDQuoted("id"),
-//				IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
-//				IDQuoted(cancelledRefactoringsTable), IDQuoted("id"), IDQuoted(eclipseRefactoringsTable), IDQuoted("id"), IDQuoted(unavailableRefactoringsTable), IDQuoted("id"));
-		String quickCheck= String.format("SELECT * FROM %s JOIN %s ON %s.%s=%s.%s", IDQuoted(eclipseRefactoringsTable),
-				IDQuoted(performedRefactoringsTable), IDQuoted(eclipseRefactoringsTable), IDQuoted("id"), IDQuoted(performedRefactoringsTable), IDQuoted("id"));
-		System.err.println("Query to execute for JOIN: " + quickCheck);
+		String quickCheck= String.format("SELECT %s.%s, %s.%s, %s.%s, %s.%s, %s.%s FROM %s JOIN (%s, %s, %s) ON (%s.%s=%s.%s AND %s.%s=%s.%s AND %s.%s=%s.%s)",
+				IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+				IDQuoted(eclipseRefactoringsTable), IDQuoted("count"),
+				IDQuoted(performedRefactoringsTable), IDQuoted("count"),
+				IDQuoted(cancelledRefactoringsTable), IDQuoted("count"),
+				IDQuoted(unavailableRefactoringsTable), IDQuoted("count"),
+				IDQuoted(eclipseRefactoringsTable),
+				IDQuoted(performedRefactoringsTable), IDQuoted(cancelledRefactoringsTable), IDQuoted(unavailableRefactoringsTable),
+				IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+				IDQuoted(performedRefactoringsTable), IDQuoted("id"),
+				IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+				IDQuoted(cancelledRefactoringsTable), IDQuoted("id"),
+				IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+				IDQuoted(unavailableRefactoringsTable), IDQuoted("id"));
 
 		String id;
-		String id2;
 		int countEclipse;
 		int countPerformed;
+		int countUnavailable;
+		int countCancelled;
+
 		ResultSet executeQuery= executeQuery(quickCheck);
 		System.out.println();
 		while (executeQuery.next()) {
 			id= executeQuery.getString(1);
 			countEclipse= executeQuery.getInt(2);
-			id2= executeQuery.getString(3);
-			countPerformed= executeQuery.getInt(4);
+			countPerformed= executeQuery.getInt(3);
+			countCancelled= executeQuery.getInt(4);
+			countUnavailable= executeQuery.getInt(5);
 
-			System.out.println(id + " , " + countEclipse + " , " + id2 + " , " + countPerformed);
+			System.out.println(id + ", " + countEclipse + ", " + countPerformed + ", " + countCancelled + ", " + countUnavailable);
 		}
+		System.out.println("Quickchecks");
+		printIndividualRefactoringTableValues(eclipseRefactoringsTable);
+		printIndividualRefactoringTableValues(performedRefactoringsTable);
+		printIndividualRefactoringTableValues(cancelledRefactoringsTable);
+		printIndividualRefactoringTableValues(unavailableRefactoringsTable);
+	}
+
+	// For testing purposes
+	private void printIndividualRefactoringTableValues(String tableName) throws SQLException {
+		String quickCheck= String.format("SELECT * FROM %s", IDQuoted(tableName));
+		ResultSet executeQuery= executeQuery(quickCheck);
+		System.out.println("Contents of table " + tableName);
+		System.out.println("==============================");
+		while (executeQuery.next()) {
+			String id= executeQuery.getString(1);
+			int count= executeQuery.getInt(2);
+
+			System.out.println(id + ", " + count);
+		}
+		System.out.println();
 	}
 
 	private void createAndPopulateRefactoringDataTable(String refactoringCountTable, String refactoringKind) throws SQLException {
