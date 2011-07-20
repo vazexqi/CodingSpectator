@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.data;
+package edu.illinois.codingspectator.saferecorder;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
@@ -10,47 +10,46 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 
 /**
- * The activator class controls the plug-in life cycle
  * 
+ * @author Stas Negara
  * @author Mohsen Vakilian
- * @author nchen
+ * 
  */
-public class CodingSpectatorDataPlugin extends Plugin {
+public class SafeRecorderPlugin extends Plugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID= "edu.illinois.codingspectator.data"; //$NON-NLS-1$
+	public static final String PLUGIN_ID= "edu.illinois.codingspectator.saferecorder"; //$NON-NLS-1$
 
 	// The shared instance
-	private static CodingSpectatorDataPlugin plugin;
+	private static SafeRecorderPlugin plugin;
 
-	/**
-	 * The constructor
-	 */
-	public CodingSpectatorDataPlugin() {
+
+	public SafeRecorderPlugin() {
+
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
+	public void start(BundleContext bundleContext) throws Exception {
+		super.start(bundleContext);
 		plugin= this;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext bundleContext) throws Exception {
 		plugin= null;
-		super.stop(context);
+		super.stop(bundleContext);
 	}
 
 	/**
 	 * @return the shared instance
 	 */
-	public static CodingSpectatorDataPlugin getDefault() {
+	public static SafeRecorderPlugin getDefault() {
 		return plugin;
 	}
 

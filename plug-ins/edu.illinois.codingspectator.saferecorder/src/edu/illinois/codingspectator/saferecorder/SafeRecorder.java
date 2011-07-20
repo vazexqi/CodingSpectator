@@ -31,9 +31,9 @@ public class SafeRecorder {
 	public final String mainRecordFilePath;
 
 	public SafeRecorder(String relativePathToMainRecordFile) {
-		mainRecordFilePath= CodingSpectatorDataPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString();
+		mainRecordFilePath= SafeRecorderPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString();
 		mainRecordFile= new File(mainRecordFilePath);
-		mainWatchedRecordFile= new File(CodingSpectatorDataPlugin.getVersionedWatchedLocation().append(relativePathToMainRecordFile).toOSString());
+		mainWatchedRecordFile= new File(CodingSpectatorDataPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString());
 		currentRecordFile= mainRecordFile;
 		RecorderSubmitterListener.addSafeRecorderInstance(this);
 	}

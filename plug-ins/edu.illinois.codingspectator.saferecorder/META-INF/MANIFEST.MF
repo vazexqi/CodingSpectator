@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: edu.illinois.codingspectator.saferecorder
 Bundle-SymbolicName: edu.illinois.codingspectator.saferecorder;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: edu.illinois.codingspectator.saferecorder.Activator
+Bundle-Activator: edu.illinois.codingspectator.saferecorder.SafeRecorderPlugin
 Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
  edu.illinois.codingtracker.helpers,
