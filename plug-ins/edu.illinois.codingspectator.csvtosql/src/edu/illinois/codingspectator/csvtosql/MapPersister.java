@@ -27,16 +27,16 @@ import org.supercsv.prefs.CsvPreference;
  * 
  */
 public class MapPersister {
-	private static final int VARCHAR_SIZE= 100;
+	private static final int VARCHAR_SIZE= 100000;
 
 	Connection connection;
 
 	private Statement statement;
 
 //mysql
-//	private static final char QUOTE= '\`';
+	private static final char STRING_QUOTE= '\'';
 
-	private static final char QUOTE= '\"';
+	private static final char ID_QUOTE= '\"';
 
 	String dbName= "CodingSpectator";
 
@@ -82,27 +82,64 @@ public class MapPersister {
 		connection.close(); // if there are no other open connection
 	}
 
-	private String quoted(String name) {
-		return QUOTE + name + QUOTE;
+	private String IDQuoted(String name) {
+		return ID_QUOTE + name + ID_QUOTE;
+	}
+
+	private String stringQuoted(String name) {
+		return STRING_QUOTE + name + STRING_QUOTE;
 	}
 
 	// Order refactorings by their invocations.
 	public void answer1() throws SQLException {
-		int count;
-		String id;
 
 		//mysql
-//		statement.execute("USE " + dbName);
-		String query= String.format("SELECT COUNT(%s), %s from %s WHERE LENGTH(%s) != 0 AND %s != %s GROUP BY %s ORDER BY COUNT(%s) DESC;", quoted("id"), quoted("id"), quoted(tableName),
-				quoted("id"), quoted("refactoring kind"), "'ECLIPSE'", quoted("id"), quoted("id"));
-		ResultSet executeQuery= executeQuery(query);
+		//statement.execute("USE " + dbName);
+
+		String eclipseRefactoringsTable= "EclipseRefactorings";
+		String performedRefactoringsTable= "PerformedRefactorings";
+		String cancelledRefactoringsTable= "CancelledRefactorings";
+		String unavailableRefactoringsTable= "UnavailableRefactorings";
+
+		createAndPopulateRefactoringDataTable(eclipseRefactoringsTable, "ECLIPSE");
+		createAndPopulateRefactoringDataTable(performedRefactoringsTable, "PERFORMED");
+		createAndPopulateRefactoringDataTable(cancelledRefactoringsTable, "CANCELLED");
+		createAndPopulateRefactoringDataTable(unavailableRefactoringsTable, "UNAVAILABLE");
+
+//		String quickCheck= String.format("SELECT * FROM %s JOIN (%s, %s, %s) ON (%s.%s=%s.%s AND %s.%s=%s.%s AND %s.%s=%s.%s)", IDQuoted(eclipseRefactoringsTable),
+//				IDQuoted(performedRefactoringsTable),
+//				IDQuoted(cancelledRefactoringsTable), IDQuoted(unavailableRefactoringsTable), IDQuoted(eclipseRefactoringsTable), IDQuoted("id"), IDQuoted(performedRefactoringsTable), IDQuoted("id"),
+//				IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+//				IDQuoted(cancelledRefactoringsTable), IDQuoted("id"), IDQuoted(eclipseRefactoringsTable), IDQuoted("id"), IDQuoted(unavailableRefactoringsTable), IDQuoted("id"));
+		String quickCheck= String.format("SELECT * FROM %s JOIN %s ON %s.%s=%s.%s", IDQuoted(eclipseRefactoringsTable),
+				IDQuoted(performedRefactoringsTable), IDQuoted(eclipseRefactoringsTable), IDQuoted("id"), IDQuoted(performedRefactoringsTable), IDQuoted("id"));
+		System.err.println("Query to execute for JOIN: " + quickCheck);
+
+		String id;
+		String id2;
+		int countEclipse;
+		int countPerformed;
+		ResultSet executeQuery= executeQuery(quickCheck);
+		System.out.println();
 		while (executeQuery.next()) {
+			id= executeQuery.getString(1);
+			countEclipse= executeQuery.getInt(2);
+			id2= executeQuery.getString(3);
+			countPerformed= executeQuery.getInt(4);
 
-			id= executeQuery.getString(2);
-
-			count= executeQuery.getInt(1);
-			System.out.println(id + " | " + count);
+			System.out.println(id + " , " + countEclipse + " , " + id2 + " , " + countPerformed);
 		}
+	}
+
+	private void createAndPopulateRefactoringDataTable(String refactoringCountTable, String refactoringKind) throws SQLException {
+		Statement createTable= connection.createStatement();
+		String createTableString= String.format("CREATE TABLE %s (%s varchar(%d), %s int)", IDQuoted(refactoringCountTable), IDQuoted("id"), VARCHAR_SIZE, IDQuoted("count"));
+		createTable.execute(createTableString);
+		String insertIntoTableQuery= String.format("INSERT INTO %s (%s, %s)", IDQuoted(refactoringCountTable), IDQuoted("id"), IDQuoted("count"));
+		String countEclipseRefactoringsQuery= String.format("SELECT %s, COUNT(%s) from %s WHERE LENGTH(%s) != 0 AND %s != %s GROUP BY %s ORDER BY COUNT(%s) DESC;", IDQuoted("id"), IDQuoted("id"),
+				IDQuoted(tableName), IDQuoted("id"), IDQuoted("refactoring kind"), stringQuoted(refactoringKind), IDQuoted("id"), IDQuoted("id"));
+		Statement insertIntoTable= connection.createStatement();
+		insertIntoTable.execute(insertIntoTableQuery + " " + countEclipseRefactoringsQuery);
 	}
 
 	// Order refactorings by their performed or cancelled.
@@ -112,10 +149,13 @@ public class MapPersister {
 
 		//mysql
 //		statement.execute("USE " + dbName);
+
+
+
 		String query= String
 				.format("SELECT COUNT(%s), %s from %s  WHERE LENGTH(%s) != 0 GROUP BY %s ORDER BY COUNT(%s) DESC;",
-						quoted("refactoring kind"), quoted("refactoring kind"), quoted(tableName), quoted("refactoring kind"), quoted("refactoring kind"), quoted("refactoring kind"),
-						quoted("refactoring kind"), quoted("refactoring kind"));
+						IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted(tableName), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"),
+						IDQuoted("refactoring kind"), IDQuoted("refactoring kind"));
 		ResultSet executeQuery= executeQuery(query);
 		while (executeQuery.next()) {
 
@@ -132,7 +172,7 @@ public class MapPersister {
 
 		//mysql
 //		statement.execute("USE " + dbName);
-		String query= String.format("SELECT count(%s) FROM %s WHERE %s = 'true';", quoted("id"), quoted(tableName), quoted("invoked-by-quickassist"));
+		String query= String.format("SELECT count(%s) FROM %s WHERE %s = 'true';", IDQuoted("id"), IDQuoted(tableName), IDQuoted("invoked-by-quickassist"));
 		ResultSet executeQuery= executeQuery(query);
 		while (executeQuery.next()) {
 			id= executeQuery.getString(1);
@@ -159,7 +199,7 @@ public class MapPersister {
 
 		connection.setAutoCommit(false);
 
-		StringBuilder insertString= new StringBuilder("INSERT INTO " + QUOTE + tableName + QUOTE + " values (");
+		StringBuilder insertString= new StringBuilder("INSERT INTO " + ID_QUOTE + tableName + ID_QUOTE + " values (");
 		for (int i= 1; i <= filteredColumnHeaders.size(); i++) {
 			insertString.append("?");
 			if (i < filteredColumnHeaders.size()) {
@@ -218,7 +258,7 @@ public class MapPersister {
 		statement.execute("DROP TABLE " + tableName + " IF EXISTS");
 
 		StringBuilder command= new StringBuilder("CREATE TABLE ");
-		command.append(QUOTE).append(tableName).append(QUOTE).append('(');
+		command.append(ID_QUOTE).append(tableName).append(ID_QUOTE).append('(');
 		for (String field : fields) {
 			command.append(defineColumnNameAndType(field)).append(',');
 		}
@@ -231,7 +271,7 @@ public class MapPersister {
 	protected String defineColumnNameAndType(String field) {
 		StringBuilder fieldDefinition= new StringBuilder();
 
-		fieldDefinition.append(QUOTE).append(field).append(QUOTE).append(' ');
+		fieldDefinition.append(ID_QUOTE).append(field).append(ID_QUOTE).append(' ');
 		if (field.contains("TIMESTAMP")) {
 			fieldDefinition.append("varchar(20)");
 		} else {
