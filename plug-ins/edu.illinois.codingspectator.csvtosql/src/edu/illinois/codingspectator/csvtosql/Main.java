@@ -26,10 +26,9 @@ public class Main {
 		String path= System.getenv("CS_CSV");
 		mapPersister.loadCsvToMySql(path);
 		mapPersister.answer1();
-		System.out.println("******");
-		mapPersister.answer2();
-		System.out.println("******");
-		mapPersister.answer3();
+//		mapPersister.answer2();
+//		mapPersister.answer3();
 		mapPersister.shutdown();
 	}
+
 }
