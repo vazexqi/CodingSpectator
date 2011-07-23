@@ -6,7 +6,7 @@
 require 'optparse'
 
 $svn_repo_name = "CodingSpectatorData"
-$svn_repo = "https://subversion.cs.illinois.edu/svn/#{$svn_repo_name}"
+$svn_repo = "https://subversion.cs.illinois.edu/basic/#{$svn_repo_name}"
 
 def parse_options
   $options = {}
