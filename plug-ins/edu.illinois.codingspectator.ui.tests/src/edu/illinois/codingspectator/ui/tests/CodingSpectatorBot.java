@@ -27,6 +27,7 @@ import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.results.VoidResult;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.waits.ICondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -72,6 +73,10 @@ public class CodingSpectatorBot {
 		return bot;
 	}
 
+	public void waitUntil(ICondition condition) {
+		bot.waitUntil(condition);
+	}
+
 	public void createANewJavaProject(String projectName) {
 		bot.menu("File").menu("New").menu("Project...").click();
 
@@ -84,7 +89,7 @@ public class CodingSpectatorBot {
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
-		bot.waitUntil(new DefaultCondition() {
+		waitUntil(new DefaultCondition() {
 
 			@Override
 			public boolean test() throws Exception {
@@ -119,7 +124,7 @@ public class CodingSpectatorBot {
 		}
 		bot.button(IDialogConstants.OK_LABEL).click();
 		deleteProjectSpecificEclipseRefactoringLog(projectName);
-		bot.waitUntil(Conditions.shellCloses(shell));
+		waitUntil(Conditions.shellCloses(shell));
 	}
 
 	public SWTBotTree getCurrentTree() {

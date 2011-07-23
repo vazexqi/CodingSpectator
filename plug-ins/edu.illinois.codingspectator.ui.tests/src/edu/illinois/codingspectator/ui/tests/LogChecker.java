@@ -12,6 +12,8 @@ import org.eclipse.core.runtime.CoreException;
  */
 public interface LogChecker {
 
+	boolean actualLogExists();
+
 	void assertActualLogIsEmpty();
 
 	void assertMatch() throws Exception;

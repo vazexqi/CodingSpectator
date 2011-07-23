@@ -67,7 +67,7 @@ public class RefactoringProblemsChecker extends AbstractLogChecker {
 	}
 
 	@Override
-	protected boolean actualLogExists() {
+	public boolean actualLogExists() {
 		return actualLogFile.exists();
 	}
 

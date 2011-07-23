@@ -42,8 +42,6 @@ public abstract class AbstractLogChecker implements LogChecker {
 
 	abstract protected void deleteExpectedLogs() throws CoreException;
 
-	abstract protected boolean actualLogExists();
-
 	abstract protected boolean expectedLogExists();
 
 }
