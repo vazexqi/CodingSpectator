@@ -112,7 +112,7 @@ public abstract class RefactoringTest {
 
 	protected void doLogsShouldBeEmpty() throws CoreException {
 		for (LogChecker logChecker : getLogCheckers()) {
-			logChecker.assertLogIsEmpty();
+			logChecker.assertActualLogIsEmpty();
 		}
 	}
 

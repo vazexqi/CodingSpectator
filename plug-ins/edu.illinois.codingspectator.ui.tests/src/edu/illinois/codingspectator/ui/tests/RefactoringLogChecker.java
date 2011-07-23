@@ -30,7 +30,7 @@ public class RefactoringLogChecker extends AbstractLogChecker {
 	}
 
 	@Override
-	public void assertLogIsEmpty() {
+	public void assertActualLogIsEmpty() {
 		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualLogExists());
 	}
 
