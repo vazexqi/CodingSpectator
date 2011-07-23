@@ -3,7 +3,9 @@
 \usepackage{hevea}
 %
 % Orange section headings
+%
 %HEVEA\input{fancysection.hva}
+%
 %HEVEA\colorsections{40}
 %
 \usepackage{fullpage}
@@ -15,13 +17,19 @@
 \usepackage{float}
 %
 \ifthenelse{\boolean{hevea}}{%
+%
 \newcommand{\todo}[1]{\textbf{#1}}%
+%
 }{\usepackage{todonotes}}
 %
 \ifthenelse{\boolean{hevea}}{%
-\newcommand{\fig}[1]{\imgsrc{#1.png}}
+%
+\newcommand{\fig}[1]{\imgsrc{#1.png}}%
+%
 }{%
+%
 \newcommand\fig[1]{\includegraphics[scale=0.49]{#1}}%
+%
 }
 %
 \newcommand\codspec{CodingSpectator}
@@ -33,12 +41,18 @@
 \newcommand\uiref[1]{\texttt{#1}}
 %
 % The following disables hevea advertisement from the footer of the HTML.
+%
 %HEVEA \footerfalse
 %
 \title{\codspec's User Guide}
 %
-\author{\codspec\
-Team\\\href{mailto:codingspectator@cs.illinois.edu}{codingspectator@cs.illinois.edu}}
+\author{%
+%
+\href{http://codingspectator.cs.illinois.edu/People/}{\codspec\ Team}\\%
+%
+\href{mailto:codingspectator@cs.illinois.edu}{codingspectator@cs.illinois.edu}%
+%
+}
 %
 \begin{document}
 %
@@ -111,7 +125,7 @@ review them, and if you agree, proceed by clicking \uiref{Finish}.
 
 \item Eclipse should open the dialog in Figure~\ref{FigCertificate} asking you
 to confirm that you accept our certificate. In the \emph{Do you trust these
-certificates}, please select the checkbox. Click \uiref{OK} to continue.
+certificates}, please select the check box. Click \uiref{OK} to continue.
 
 % Should we box this up to make it more promiment?
 \warnnote{You \textbf{need} to select check box before clicking the \uiref{OK}
@@ -164,7 +178,8 @@ You should see our \codspec logo in that dialog as shown in Figure~\ref{About}.
 %
 \fig{figs/about}
 %
-\caption{\label{About}Upon successful installation, \codspec\ displays its icon in the About dialog.}
+\caption{\label{About}Upon successful installation, \codspec\ displays its icon
+in the About dialog.}
 %
 \end{figure}
 
@@ -192,7 +207,7 @@ would need to install two instances of Eclipse: one with our plug-in and one
 \textbf{without} our plug-in. To help you easily identify a workspace with
 \codspec\ installed, we have also placed an icon in the status line of Eclipse
 as shown Figure~\ref{Status}. If you wish, you may disable the icon by following
-the instructions in Section~\ref{sec:disabling_icon}.
+the instructions in Section~\ref{SecDisablingIcon}.
 
 Please feel free to talk to us if you have any questions and concerns about your
 privacy. We can work our a suitable compromise.}
@@ -204,11 +219,11 @@ privacy. We can work our a suitable compromise.}
 \fig{figs/status}
 %
 \caption{\label{Status}An icon appears on the status line reminding users that
-CodingSpectator is installed.}
+\codspec\ is installed.}
 %
 \end{figure}
 %
-\section{Automatic upload of data}
+\section{Uploading the data automatically}
 %
 \textbf{Once a day (at most)}, during the initial startup of Eclipse, you might
 be presented with the dialog box shown in Figure~\ref{FigLogin} asking you to
@@ -245,7 +260,7 @@ If you forget your user name or password, please contact us to send them to you.
 You may also change your password by visiting
 \url{http://codingspectator.cs.illinois.edu/Accounts/}.
 %
-\section{Saving your \codspec\ password}
+\section{Saving \codspec\ password}
 %
 If you wish Eclipse to remember your \codspec\ password, click on the
 \uiref{Save password (could trigger secure storage)} check box on the
@@ -344,7 +359,7 @@ system.}
 %
 \end{enumerate}
 %
-\section{Manual upload of data}
+\section{Uploading the data manually}
 %
 You may also trigger the data upload manually. We provide this facility because,
 occasionally, it might not be convenient to upload the data during the startup
@@ -376,18 +391,19 @@ In that particular preference pane, you will see:
 %
 \end{enumerate}
 
-\section{Toggle \codspec\ Status Line Icon} % (fold)
-\label{sec:disabling_icon}
+\section{Showing or hiding \codspec\ status line icon}
+%
+\label{SecDisablingIcon}
 
 To hide or show the \codspec\ status line icon, you can go to \uiref{Window >
 Preferences} (on Linux and Windows) or \uiref{Eclipse > Preferences...} (on Mac
 OS X). Click on the \uiref{\codspec > Display} section shown in
 Figure~\ref{FigStatusPreferences}. Then check or uncheck the \uiref{Show
-\codspec\ in the status line} checkbox.
+\codspec\ in the status line} check box.
 
 \warnnote{Toggling the display of the icon does \textbf{not} disable \codspec\
 --- it is still actively running and collecting data in the background. There is
-currently no way to turn off \codspec\ except by uninstalling it (see
+currently no way to turn off \codspec\ except by uninstalling it (See
 Section~\ref{SecUninstallation}).}
 
 \begin{figure}[H]
@@ -396,13 +412,11 @@ Section~\ref{SecUninstallation}).}
 %
 \fig{figs/status_preference}
 %
-\caption{\label{FigStatusPreferences}\codspec\ provides a preference for manually updating your data.}
+\caption{\label{FigStatusPreferences}\codspec\ provides a preference for
+manually updating your data.}
 %
 \end{figure}
 
-
-% section disabling_codspec status_line_icon (end)
-%
 \section{Updating \codspec}
 
 During this research study, we might require you to update \codspec. Should this
