@@ -145,7 +145,7 @@ public class CodingSpectatorBot {
 		}
 	}
 
-	public void createANewJavaClass(String projectName, String className) {
+	public void createANewJavaClass(String projectName, final String className) {
 		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();
@@ -156,6 +156,19 @@ public class CodingSpectatorBot {
 		bot.textWithLabel("Name:").setText(className);
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
+
+		waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				return getTextEditor(className + ".java") != null;
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Failed to find the open editor of class " + className;
+			}
+		});
 	}
 
 	public SWTBotTree selectJavaProject(String projectName) {

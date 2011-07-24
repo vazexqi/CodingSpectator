@@ -27,7 +27,6 @@ public class T28 extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		final String destinationForImports= "DestinationFile";
 		bot.createANewJavaClass(getProjectName(), destinationForImports);
-		bot.sleep();
 		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName());
 		bot.getBot().menu("Navigate").menu("Open").click();
 		final String selection= "    private int i;\n" +
