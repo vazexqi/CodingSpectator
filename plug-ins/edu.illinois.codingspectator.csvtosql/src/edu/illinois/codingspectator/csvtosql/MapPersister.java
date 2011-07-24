@@ -11,26 +11,33 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-import org.supercsv.io.CsvListReader;
+import org.eclipse.core.runtime.AssertionFailedException;
+import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 /**
  * 
  * @author Balaji Ambresh Rajkumar
  * @author Mohsen Vakilian
+ * @author nchen
  * 
  */
 public class MapPersister {
+	private static final int VARCHAR_SIZE= 100000;
+
 	Connection connection;
 
 	private Statement statement;
 
 //mysql
-//	private static final char QUOTE= '\`';
+	private static final char STRING_QUOTE= '\'';
 
-	private static final char QUOTE= '\"';
+	private static final char ID_QUOTE= '\"';
 
 	String dbName= "CodingSpectator";
 
@@ -76,57 +83,124 @@ public class MapPersister {
 		connection.close(); // if there are no other open connection
 	}
 
-	private String quoted(String name) {
-		return QUOTE + name + QUOTE;
+	private String IDQuoted(String name) {
+		return ID_QUOTE + name + ID_QUOTE;
+	}
+
+	private String stringQuoted(String name) {
+		return STRING_QUOTE + name + STRING_QUOTE;
 	}
 
 	// Order refactorings by their invocations.
 	public void answer1() throws SQLException {
-		int count;
-		String id;
-
 		//mysql
-//		statement.execute("USE " + dbName);
-		String query= String.format("SELECT COUNT(%s), %s from %s WHERE LENGTH(%s) != 0 AND %s != %s GROUP BY %s ORDER BY COUNT(%s) DESC;", quoted("id"), quoted("id"), quoted(tableName),
-				quoted("id"), quoted("refactoring kind"), "'ECLIPSE'", quoted("id"), quoted("id"));
-		ResultSet executeQuery= executeQuery(query);
+		//statement.execute("USE " + dbName);
+
+		String eclipseRefactoringsTable= "EclipseRefactorings";
+		String performedRefactoringsTable= "PerformedRefactorings";
+		String cancelledRefactoringsTable= "CancelledRefactorings";
+		String unavailableRefactoringsTable= "UnavailableRefactorings";
+
+		createAndPopulateRefactoringDataTable(eclipseRefactoringsTable, "ECLIPSE");
+		createAndPopulateRefactoringDataTable(performedRefactoringsTable, "PERFORMED");
+		createAndPopulateRefactoringDataTable(cancelledRefactoringsTable, "CANCELLED");
+		createAndPopulateRefactoringDataTable(unavailableRefactoringsTable, "UNAVAILABLE");
+/*
+		String joinQuery= String
+				.format("SELECT %s.%s, %s.%s, %s.%s, %s.%s, %s.%s, %s.%s, %s.%s, %s.%s FROM %s FULL OUTER JOIN (%s, %s, %s) ON (%s.%s=%s.%s AND %s.%s=%s.%s AND %s.%s=%s.%s)",
+						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+						IDQuoted(performedRefactoringsTable), IDQuoted("id"),
+						IDQuoted(cancelledRefactoringsTable), IDQuoted("id"),
+						IDQuoted(unavailableRefactoringsTable), IDQuoted("id"),
+						IDQuoted(eclipseRefactoringsTable), IDQuoted("count"),
+						IDQuoted(performedRefactoringsTable), IDQuoted("count"),
+						IDQuoted(cancelledRefactoringsTable), IDQuoted("count"),
+						IDQuoted(unavailableRefactoringsTable), IDQuoted("count"),
+						IDQuoted(eclipseRefactoringsTable),
+						IDQuoted(performedRefactoringsTable), IDQuoted(cancelledRefactoringsTable), IDQuoted(unavailableRefactoringsTable),
+						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+						IDQuoted(performedRefactoringsTable), IDQuoted("id"),
+						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+						IDQuoted(cancelledRefactoringsTable), IDQuoted("id"),
+						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
+						IDQuoted(unavailableRefactoringsTable), IDQuoted("id"));
+
+		System.out.println(joinQuery);
+		System.out.println("eclipse id, performed id, cancelled id, unavailable id, eclipse count, performed count, cancelled count, unavailable count");
+		ResultSet executeQuery= executeQuery(joinQuery);
+		System.out.println();
 		while (executeQuery.next()) {
-
-			id= executeQuery.getString(2);
-
-			count= executeQuery.getInt(1);
-			System.out.println(id + " | " + count);
+			String eclipseID= executeQuery.getString(1);
+			String performedID= executeQuery.getString(2);
+			String unavailableID= executeQuery.getString(3);
+			String cancelledID= executeQuery.getString(4);
+			int countEclipse= executeQuery.getInt(5);
+			int countPerformed= executeQuery.getInt(6);
+			int countUnavailable= executeQuery.getInt(7);
+			int countCancelled= executeQuery.getInt(8);
+			System.out.println(eclipseID + ", " + performedID + ", " + unavailableID + ", " + cancelledID + ", " + countEclipse + ", " + countPerformed + ", " + countCancelled + ", "
+					+ countUnavailable);
 		}
+		*/
+		System.out.println("Eclipse Refactorings");
+		printIndividualRefactoringTableValues(eclipseRefactoringsTable);
+		System.out.println("Performed Refactorings");
+		printIndividualRefactoringTableValues(performedRefactoringsTable);
+		System.out.println("Cancelled Refactorings");
+		printIndividualRefactoringTableValues(cancelledRefactoringsTable);
+		System.out.println("Unavailable Refactorings");
+		printIndividualRefactoringTableValues(unavailableRefactoringsTable);
 	}
 
-	// Order refactorings by their performed or cancelled.
+	private void printIndividualRefactoringTableValues(String tableName) throws SQLException {
+		String quickCheck= String.format("SELECT * FROM %s", IDQuoted(tableName));
+		ResultSet executeQuery= executeQuery(quickCheck);
+		System.out.println("id,count");
+		while (executeQuery.next()) {
+			String id= executeQuery.getString(1);
+			int count= executeQuery.getInt(2);
+			System.out.println(id + ", " + count);
+		}
+		System.out.println();
+	}
+
+	private void createAndPopulateRefactoringDataTable(String refactoringCountTable, String refactoringKind) throws SQLException {
+		Statement createTable= connection.createStatement();
+		String createTableString= String.format("CREATE TABLE %s (%s varchar(%d), %s int)", IDQuoted(refactoringCountTable), IDQuoted("id"), VARCHAR_SIZE, IDQuoted("count"));
+		createTable.execute(createTableString);
+		String insertIntoTableQuery= String.format("INSERT INTO %s (%s, %s)", IDQuoted(refactoringCountTable), IDQuoted("id"), IDQuoted("count"));
+		String countEclipseRefactoringsQuery= String.format("SELECT %s, COUNT(%s) from %s WHERE LENGTH(%s) != 0 AND %s = %s GROUP BY %s ORDER BY COUNT(%s) DESC;", IDQuoted("id"), IDQuoted("id"),
+				IDQuoted(tableName), IDQuoted("id"), IDQuoted("refactoring kind"), stringQuoted(refactoringKind), IDQuoted("id"), IDQuoted("id"));
+		Statement insertIntoTable= connection.createStatement();
+		String query= insertIntoTableQuery + " " + countEclipseRefactoringsQuery;
+		System.out.println(query);
+		insertIntoTable.execute(query);
+		connection.commit();
+	}
+
 	public void answer2() throws SQLException {
 		int count;
 		String id;
 
 		//mysql
 //		statement.execute("USE " + dbName);
-		String query= String
-				.format("SELECT COUNT(%s), %s from %s  WHERE LENGTH(%s) != 0 GROUP BY %s ORDER BY COUNT(%s) DESC;",
-						quoted("refactoring kind"), quoted("refactoring kind"), quoted(tableName), quoted("refactoring kind"), quoted("refactoring kind"), quoted("refactoring kind"),
-						quoted("refactoring kind"), quoted("refactoring kind"));
+		String query= String.format("SELECT %s, COUNT(%s) from %s  WHERE LENGTH(%s) != 0 GROUP BY %s ORDER BY COUNT(%s) DESC;", IDQuoted("refactoring kind"), IDQuoted("refactoring kind"),
+				IDQuoted(tableName), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"));
 		ResultSet executeQuery= executeQuery(query);
+		System.out.println("refactoring kind, count");
 		while (executeQuery.next()) {
-
-			id= executeQuery.getString(2);
-
-			count= executeQuery.getInt(1);
-			System.out.println(id + " | " + count);
+			id= executeQuery.getString(1);
+			count= executeQuery.getInt(2);
+			System.out.println(id + "," + count);
 		}
 	}
 
-	// Order refactorings by their performed or cancelled.
 	public void answer3() throws SQLException {
 		String id;
 
 		//mysql
 //		statement.execute("USE " + dbName);
-		String query= String.format("SELECT count(%s) FROM %s WHERE %s = 'true';", quoted("id"), quoted(tableName), quoted("invoked-by-quickassist"));
+		String query= String.format("SELECT count(%s) FROM %s WHERE %s = 'true';", IDQuoted("id"), IDQuoted(tableName), IDQuoted("invoked-by-quickassist"));
 		ResultSet executeQuery= executeQuery(query);
 		while (executeQuery.next()) {
 			id= executeQuery.getString(1);
@@ -134,66 +208,107 @@ public class MapPersister {
 		}
 	}
 
-	public void loadCsvToMySql(String filePath) throws IOException,
-			SQLException {
-
+	public void loadCsvToMySql(String filePath) throws IOException, SQLException {
 		createDB(dbName);
-		CsvListReader reader= new CsvListReader(new FileReader(filePath), CsvPreference.EXCEL_PREFERENCE);
-		List<String> columnHeaders= reader.read();
-		createTable(tableName, columnHeaders);
+		CsvMapReader reader= new CsvMapReader(new FileReader(filePath), CsvPreference.EXCEL_PREFERENCE);
+		String[] csvHeader= reader.getCSVHeader(true);
+
+		List<String> toRemove= Arrays.asList("code-snippet", "selection-text", "comment");
+
+		List<String> columnHeaders= Arrays.asList(csvHeader);
+		List<String> filteredColumnHeaders= filterUnnecessaryColumns(columnHeaders, toRemove);
+		List<String> nulledColumnHeaders= nullUnnecessaryColumnds(columnHeaders, toRemove);
+
+		if (!(nulledColumnHeaders.size() == columnHeaders.size()))
+			throw new AssertionFailedException("Nulled column does not have same number of elements as original header");
+
+		createTable(tableName, filteredColumnHeaders);
 
 		connection.setAutoCommit(false);
-		String insertString= "INSERT INTO " + QUOTE + tableName + QUOTE + " values (";
-		String temp= "";
-		for (int i= 0; i < columnHeaders.size() - 1; i++) {
-			temp+= "?,";
+
+		StringBuilder insertString= new StringBuilder("INSERT INTO " + ID_QUOTE + tableName + ID_QUOTE + " values (");
+		for (int i= 1; i <= filteredColumnHeaders.size(); i++) {
+			insertString.append("?");
+			if (i < filteredColumnHeaders.size()) {
+				insertString.append(",");
+			}
 		}
-		insertString+= temp;
-		insertString+= "?);";
-		PreparedStatement preparedStatement= connection.prepareStatement(insertString);
-		List<String> values;
-		int j= 0;
-		while ((values= reader.read()) != null) {
-			for (int i= 0; i < values.size(); i++) {
-				preparedStatement.setString(i + 1, values.get(i));
+		insertString.append(")");
+		PreparedStatement preparedStatement= connection.prepareStatement(insertString.toString());
+
+
+		Map<String, String> row;
+		int progress= 0;
+		while ((row= reader.read(nulledColumnHeaders.toArray(new String[] {}))) != null) {
+			int index= 1;
+			for (String key : filteredColumnHeaders) {
+				String value= row.get(key);
+				if (value.length() > VARCHAR_SIZE) {
+					value= value.substring(0, VARCHAR_SIZE);
+					System.err.println("\n>>>Truncated value at: " + key + " is: " + value + " and exceeds HSQLDB data capacity!");
+				}
+
+				preparedStatement.setString(index, value);
+				index++;
 			}
 			preparedStatement.execute();
-			if (j++ % 10 == 0) {
-				System.out.println('.');
-			}
 
+			++progress;
+			if (progress % 100 == 0) {
+				System.out.print('>');
+				if (progress % 8000 == 0) {
+					progress= 0;
+					System.out.println();
+				}
+			}
 		}
+
+		System.out.println();
 		connection.commit();
 		reader.close();
 	}
 
-	protected void createTable(String tableName, List<String> fields)
-			throws SQLException {
+	private List<String> nullUnnecessaryColumnds(List<String> columnHeaders, List<String> toRemove) {
+		ArrayList<String> copy= new ArrayList<String>();
+		for (String string : columnHeaders) {
+			if (toRemove.contains(string))
+				copy.add(null);
+			else
+				copy.add(string);
+		}
+		return copy;
+	}
 
+	private ArrayList<String> filterUnnecessaryColumns(List<String> columnHeaders, List<String> toRemove) {
+		ArrayList<String> copy= new ArrayList<String>(columnHeaders);
+		copy.removeAll(toRemove);
+		return copy;
+	}
+
+	protected void createTable(String tableName, List<String> fields) throws SQLException {
 		statement.execute("DROP TABLE " + tableName + " IF EXISTS");
 
 		StringBuilder command= new StringBuilder("CREATE TABLE ");
-		command.append(QUOTE).append(tableName).append(QUOTE).append('(');
+		command.append(ID_QUOTE).append(tableName).append(ID_QUOTE).append('(');
 		for (String field : fields) {
-			command.append(define(field)).append(',');
+			command.append(defineColumnNameAndType(field)).append(',');
 		}
 		int length= command.length();
 		command.replace(length - 1, length, ")");
-		System.out.println("command is: " + command);
+//		System.out.println("command is: " + command);
 		statement.executeUpdate(command.toString());
 	}
 
-	protected String define(String field) {
+	protected String defineColumnNameAndType(String field) {
 		StringBuilder fieldDefinition= new StringBuilder();
 
-		fieldDefinition.append(QUOTE).append(field).append(QUOTE).append(' ');
+		fieldDefinition.append(ID_QUOTE).append(field).append(ID_QUOTE).append(' ');
 		if (field.contains("TIMESTAMP")) {
-			fieldDefinition.append("varchar (20)");
+			fieldDefinition.append("varchar(20)");
 		} else {
-			fieldDefinition.append("LONGVARCHAR");
-
+			fieldDefinition.append("varchar(" + VARCHAR_SIZE + ")");
 			//mysql
-//			fieldDefinition.append("text");
+			//fieldDefinition.append("text");
 		}
 		return fieldDefinition.toString();
 	}
