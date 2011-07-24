@@ -183,6 +183,10 @@ public class CodingSpectatorBot {
 		editor.save();
 	}
 
+	/**
+	 * Prefer {@link #waitUntil(ICondition)} over {@link #sleep()} in your tests because it's faster
+	 * and makes the tests more reliable.
+	 */
 	public void sleep() {
 		bot.sleep(SLEEPTIME);
 	}

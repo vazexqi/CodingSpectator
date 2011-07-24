@@ -111,7 +111,26 @@ public abstract class RefactoringTest {
 		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
-	protected void waitUntilLogsAreEmpty() throws CoreException {
+	protected void waitUntilActualLogsExist() throws CoreException {
+		bot.waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				boolean allActualLogsAreEmpty= true;
+				for (LogChecker logChecker : getLogCheckers()) {
+					allActualLogsAreEmpty&= logChecker.actualLogExists();
+				}
+				return allActualLogsAreEmpty;
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Some of the actual logs are missing.";
+			}
+		});
+	}
+
+	protected void waitUntilActualLogsAreEmpty() throws CoreException {
 		bot.waitUntil(new DefaultCondition() {
 
 			@Override
@@ -131,7 +150,7 @@ public abstract class RefactoringTest {
 	}
 
 	protected void doLogsShouldBeEmpty() throws CoreException {
-		waitUntilLogsAreEmpty();
+		waitUntilActualLogsAreEmpty();
 		for (LogChecker logChecker : getLogCheckers()) {
 			logChecker.assertActualLogIsEmpty();
 		}
@@ -188,16 +207,14 @@ public abstract class RefactoringTest {
 
 	@Test
 	public final void logsShouldBeCorrect() throws Exception {
-		bot.sleep();
 		doGenerateExpectedFiles();
-		bot.sleep();
+		waitUntilActualLogsExist();
 		doLogsShouldBeCorrect();
 	}
 
 	@Test
 	public final void shouldCleanUpWorkspace() throws CoreException {
 		bot.deleteProject(getProjectName());
-		bot.sleep();
 		doCleanLogs();
 		doLogsShouldBeEmpty();
 		bot.sleep();
