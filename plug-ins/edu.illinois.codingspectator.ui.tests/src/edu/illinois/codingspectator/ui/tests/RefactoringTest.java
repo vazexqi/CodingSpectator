@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
@@ -213,11 +214,10 @@ public abstract class RefactoringTest {
 	}
 
 	@Test
-	public final void shouldCleanUpWorkspace() throws CoreException {
+	public final void shouldCleanUpWorkspace() throws CoreException, OperationCanceledException, InterruptedException {
 		bot.deleteProject(getProjectName());
 		doCleanLogs();
 		doLogsShouldBeEmpty();
-		bot.sleep();
 	}
 
 }
