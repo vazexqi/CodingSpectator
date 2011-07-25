@@ -1,7 +1,7 @@
-<problem-changes refactoring-timestamp="1311600960764">
-	<after-minus-before timestamp="1311600960788">
+<problem-changes refactoring-timestamp="1311604802841">
+	<after-minus-before timestamp="1311604802883">
 	</after-minus-before>
-	<before-minus-after timestamp="1311600960680">
+	<before-minus-after timestamp="1311604802724">
 		<problem id="16777747" message="Type safety: The method add(Object) belongs to the raw type List. References to generic type List&lt;E&gt; should be parameterized" arguments="[add, java.lang.Object, java.util.List, java.util.List&lt;E&gt;]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InferTypeArgumentsTestFile.java" line="14" severity="0" endPosition="386" startPosition="366">
 		</problem>
 		<problem id="16777788" message="List is a raw type. References to generic type List&lt;E&gt; should be parameterized" arguments="[java.util.List, java.util.List&lt;E&gt;]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InferTypeArgumentsTestFile.java" line="11" severity="0" endPosition="262" startPosition="259">
@@ -12,5 +12,11 @@
 		</problem>
 		<problem id="16777788" message="ArrayList is a raw type. References to generic type ArrayList&lt;E&gt; should be parameterized" arguments="[java.util.ArrayList, java.util.ArrayList&lt;E&gt;]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/edu/illinois/codingspectator/InferTypeArgumentsTestFile.java" line="12" severity="0" endPosition="301" startPosition="293">
 		</problem>
+	</before-minus-after>
+</problem-changes>
+<problem-changes refactoring-timestamp="1311604804711">
+	<after-minus-before timestamp="1311604804715">
+	</after-minus-before>
+	<before-minus-after timestamp="1311604804711">
 	</before-minus-after>
 </problem-changes>
