@@ -21,7 +21,7 @@ def parse_options
   
   
     $options[:password] = nil
-    opts.on("-c", "--password password", "password for accessing the #{$svn_repo_name} subversion repository") do |password|
+    opts.on("-p", "--password password", "password for accessing the #{$svn_repo_name} subversion repository") do |password|
       $options[:password] = password
     end
 
