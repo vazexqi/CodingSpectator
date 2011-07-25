@@ -15,7 +15,7 @@ def parse_options
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
   
     $options[:username] = nil
-    opts.on("-c", "--username username", "username for accessing the #{$svn_repo_name} subversion repository") do |username|
+    opts.on("-u", "--username username", "username for accessing the #{$svn_repo_name} subversion repository") do |username|
       $options[:username] = username
     end
   
