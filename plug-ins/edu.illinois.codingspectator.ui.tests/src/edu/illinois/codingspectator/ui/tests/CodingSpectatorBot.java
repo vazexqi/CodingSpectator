@@ -93,7 +93,7 @@ public class CodingSpectatorBot {
 
 			@Override
 			public boolean test() throws Exception {
-				return Conditions.shellCloses(shell).test() || bot.shell("Open Associated Perspective?").isVisible();
+				return !shell.isOpen() || bot.shell("Open Associated Perspective?").isOpen();
 			}
 
 			@Override
@@ -102,6 +102,7 @@ public class CodingSpectatorBot {
 			}
 		});
 		dismissJavaPerspectiveIfPresent();
+		waitUntil(Conditions.shellCloses(shell));
 	}
 
 	private EFSFile getEclipseRefactoringsEFSFile() {
@@ -139,6 +140,7 @@ public class CodingSpectatorBot {
 
 	private void dismissJavaPerspectiveIfPresent() {
 		try {
+			bot.checkBox("Remember my decision").click();
 			bot.button(IDialogConstants.YES_LABEL).click();
 		} catch (WidgetNotFoundException exception) {
 			// The second and subsequent time this is invoked the Java perspective change dialog will not be shown.

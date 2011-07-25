@@ -564,8 +564,8 @@ public class InferTypeArgumentsRefactoring extends WatchedJavaRefactoring {
 
 	/**
 	 * CODINGSPECTATOR: Extracted from {@link #createChange(IProgressMonitor)}
-	 *  
-	 * @return
+	 * 
+	 * @return refactoring descriptor
 	 */
 	private InferTypeArgumentsDescriptor createRefactoringDescriptor() {
 		final Map arguments= new HashMap();

@@ -24,11 +24,13 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -36,14 +38,17 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * Infers type arguments for raw references to generic types.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 3.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian - Captured the refactoring.
+ * 
  */
 public class InferTypeArgumentsAction extends SelectionDispatchAction {
 
@@ -116,6 +121,9 @@ public class InferTypeArgumentsAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		IJavaElement[] elements= getSelectedElements(selection);
 		try {
 			if (! ActionUtil.areProcessable(getShell(), elements))
@@ -136,6 +144,9 @@ public class InferTypeArgumentsAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 		IJavaElement element= SelectionConverter.getInput(fEditor);
