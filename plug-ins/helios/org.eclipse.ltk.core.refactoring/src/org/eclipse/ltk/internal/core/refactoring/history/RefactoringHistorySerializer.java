@@ -12,8 +12,6 @@ package org.eclipse.ltk.internal.core.refactoring.history;
 
 import java.net.URI;
 
-import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 
@@ -57,7 +55,7 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 
 		Assert.isNotNull(event);
 		switch (event.getEventType()) {
-			//CODINGSPECTATOR: Added the following two cases for handling the events that CodingSpectator is interested in.
+			//CODINGSPECTATOR: Added the following three cases for handling the events that CodingSpectator is interested in.
 			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED:
 				return getCodingSpectatorFileStore(RefactoringHistoryService.getRefactoringHistoryCanceledFolder());
 
@@ -122,14 +120,19 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 		return EFS.getLocalFileSystem().getStore(getEclipseRefactoringHistoryFolder());
 	}
 
-	// CODINGSPECTATOR: Extracted this method from getFileStore().
+	//CODINGSPECTATOR: Extracted this method from getFileStore().
 	public static IPath getEclipseRefactoringHistoryFolder() {
 		return RefactoringCorePlugin.getDefault().getStateLocation().append(RefactoringHistoryService.NAME_HISTORY_FOLDER);
 	}
 
+	//CODINGSPECTATOR: The path to where CodingSpectator stores the refactoring histories it captures.
+	public static IPath getCodingSpectatorRefactoringHistoryFolder() {
+		return RefactoringCorePlugin.getDefault().getStateLocation().append("codingspectator"); //$NON-NLS-1$
+	}
+
 	//CODINGSPECTATOR: Serialize these events to the CodingSpectator data folder
 	private IFileStore getCodingSpectatorFileStore(String historyFolder) {
-		return EFS.getLocalFileSystem().getStore(CodingSpectatorDataPlugin.getStorageLocation()).getChild(historyFolder);
+		return EFS.getLocalFileSystem().getStore(getCodingSpectatorRefactoringHistoryFolder().append(historyFolder));
 	}
 
 	/**

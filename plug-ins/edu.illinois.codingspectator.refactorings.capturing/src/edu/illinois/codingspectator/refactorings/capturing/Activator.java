@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingspectator.eclipserefactorings.capturing;
+package edu.illinois.codingspectator.refactorings.capturing;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
@@ -15,7 +15,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends Plugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID= "edu.illinois.codingspectator.eclipserefactorings.capturing"; //$NON-NLS-1$
+	public static final String PLUGIN_ID= "edu.illinois.codingspectator.refactorings.capturing"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
