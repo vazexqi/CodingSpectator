@@ -1,0 +1,9 @@
+# This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+
+urlid db_file
+url jdbc:hsqldb:file:db_file;shutdown=true
+username SA
+password
+# When connecting directly to a file database like this, you should use the
+# shutdown connection property like this to shut down the DB properly when you
+# exit the JVM.
