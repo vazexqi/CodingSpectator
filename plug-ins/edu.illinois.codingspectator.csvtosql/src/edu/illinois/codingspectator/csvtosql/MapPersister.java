@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -220,7 +219,7 @@ public class MapPersister {
 		List<String> nulledColumnHeaders= nullUnnecessaryColumnds(columnHeaders, toRemove);
 
 		if (!(nulledColumnHeaders.size() == columnHeaders.size()))
-			throw new AssertionFailedException("Nulled column does not have same number of elements as original header");
+			throw new RuntimeException("Nulled column does not have same number of elements as original header");
 
 		createTable(tableName, filteredColumnHeaders);
 
