@@ -9,7 +9,7 @@ package edu.illinois.codingspectator.csvtosql;
  * @author Mohsen Vakilian
  * 
  */
-public class Main {
+public class CSVToSQL {
 	//mysql
 //	static String account= "root";
 //	static String password= "root";
