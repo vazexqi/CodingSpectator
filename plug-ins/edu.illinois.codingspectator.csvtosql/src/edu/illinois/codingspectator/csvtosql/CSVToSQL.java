@@ -10,10 +10,6 @@ package edu.illinois.codingspectator.csvtosql;
  * 
  */
 public class CSVToSQL {
-	//mysql
-//	static String account= "root";
-//	static String password= "root";
-//	static String server= "localhost";
 
 	static String account= "SA";
 
@@ -24,11 +20,9 @@ public class CSVToSQL {
 	public static void main(String[] args) throws Throwable {
 		MapPersister mapPersister= new MapPersister(server, account, password);
 		String path= System.getenv("CS_CSV");
-		mapPersister.loadCsvToMySql(path);
-		mapPersister.answer1();
-//		mapPersister.answer2();
-//		mapPersister.answer3();
+		mapPersister.loadCSVToSQL(path);
 		mapPersister.shutdown();
 	}
 
 }
+
