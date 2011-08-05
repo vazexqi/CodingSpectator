@@ -50,18 +50,12 @@ public class MapPersister {
 		// of the db.
 		// It can contain directory names relative to the
 		// current working directory
-		connection= DriverManager.getConnection("jdbc:hsqldb:file:" + server, account, password);
+		connection= DriverManager.getConnection("jdbc:hsqldb:file:" + server + ";shutdown=true", account, password);
 		statement= connection.createStatement();
 	}
 
 	public void shutdown() throws SQLException {
-		Statement st= connection.createStatement();
-
-		// db writes out to files and performs clean shuts down
-		// otherwise there will be an unclean shutdown
-		// when program ends
-		st.execute("SHUTDOWN");
-		connection.close(); // if there are no other open connection
+		connection.close();
 	}
 
 	private String IDQuoted(String name) {
@@ -85,7 +79,7 @@ public class MapPersister {
 
 		connection.setAutoCommit(false);
 
-		StringBuilder insertString= new StringBuilder("INSERT INTO " + ID_QUOTE + tableName + ID_QUOTE + " values (");
+		StringBuilder insertString= new StringBuilder("INSERT INTO " + IDQuoted(tableName) + " values (");
 		for (int i= 1; i <= filteredColumnHeaders.size(); i++) {
 			insertString.append("?");
 			if (i < filteredColumnHeaders.size()) {
@@ -102,12 +96,16 @@ public class MapPersister {
 			int index= 1;
 			for (String key : filteredColumnHeaders) {
 				String value= row.get(key);
-				if (value.length() > VARCHAR_SIZE) {
-					value= value.substring(0, VARCHAR_SIZE);
-					System.err.println("\n>>>Truncated value at: " + key + " is: " + value + " and exceeds HSQLDB data capacity!");
+				if (key.toUpperCase().equals("TIMESTAMP")) {
+					preparedStatement.setLong(index, Long.valueOf(value));
+				} else {
+					if (value.length() > VARCHAR_SIZE) {
+						value= value.substring(0, VARCHAR_SIZE);
+						System.err.println("\n>>>Truncated value at: " + key + " is: " + value + " and exceeds HSQLDB data capacity!");
+					}
+					preparedStatement.setString(index, value);
 				}
 
-				preparedStatement.setString(index, value);
 				index++;
 			}
 			preparedStatement.execute();
@@ -149,7 +147,7 @@ public class MapPersister {
 		statement.execute("DROP TABLE " + tableName + " IF EXISTS");
 
 		StringBuilder command= new StringBuilder("CREATE TABLE ");
-		command.append(ID_QUOTE).append(tableName).append(ID_QUOTE).append('(');
+		command.append(IDQuoted(tableName)).append('(');
 		for (String field : fields) {
 			command.append(defineColumnNameAndType(field)).append(',');
 		}
@@ -162,11 +160,11 @@ public class MapPersister {
 	protected String defineColumnNameAndType(String field) {
 		StringBuilder fieldDefinition= new StringBuilder();
 
-		fieldDefinition.append(ID_QUOTE).append(field).append(ID_QUOTE).append(' ');
-		if (field.contains("TIMESTAMP")) {
-			fieldDefinition.append("varchar(20)");
+		fieldDefinition.append(IDQuoted(field)).append(' ');
+		if (field.toUpperCase().equals("TIMESTAMP")) {
+			fieldDefinition.append("BIGINT");
 		} else {
-			fieldDefinition.append("varchar(" + VARCHAR_SIZE + ")");
+			fieldDefinition.append("VARCHAR(" + VARCHAR_SIZE + ")");
 		}
 		return fieldDefinition.toString();
 	}
