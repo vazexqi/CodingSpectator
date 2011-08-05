@@ -125,7 +125,7 @@ public class ConvertLogsToCSV {
 					if (new EFSFile(codingtrackerPath).exists()) {
 						refactoringDescriptors.addAll(getUserOperations(codingtrackerPath, username, workspaceID, codingspectatorVersion));
 					} else {
-						System.err.println(String.format("Failed to read CodingTracker codechanges.txt at \"%s\".", codingtrackerPath.toOSString()));
+						System.err.println(String.format("CodingTracker's log at \"%s\" is missing.", codingtrackerPath.toOSString()));
 					}
 				}
 			}
@@ -153,7 +153,7 @@ public class ConvertLogsToCSV {
 		try {
 			userOperations= OperationDeserializer.getUserOperations(operationsRecord);
 		} catch (RuntimeException e) {
-			System.err.println(String.format("Failed to read CodingTracker log at \"%s\".", codingtrackerPath.toOSString()));
+			System.err.println(String.format("Failed to parse CodingTracker's log at \"%s\".", codingtrackerPath.toOSString()));
 			throw new RuntimeException(e);
 		}
 		return toUserOperationMapWrappers(username, workspaceID, codingspectatorVersion, userOperations);

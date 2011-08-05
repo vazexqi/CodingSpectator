@@ -5,7 +5,12 @@ package edu.illinois.codingspectator.logstocsv;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
+
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory;
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory.ParseException;
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 
 import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
 
@@ -44,9 +49,16 @@ public class RefactoringDescriptorMapWrapper extends AbstractMapWrapper {
 		map.putAll(capturedRefactoringDescriptor.getArguments());
 		map.put("refactoring kind", refactoringKind);
 		map.put("severity level", String.valueOf(getSeverityLevel(capturedRefactoringDescriptor.getAttribute("status"))));
+		map.put("navigation duration", getNavigationDurationString(capturedRefactoringDescriptor.getAttribute("navigation-history")));
 		return map;
 	}
 
+	/**
+	 * FIXME: This method may not return the right severity level for multi-level status.
+	 * 
+	 * @param status
+	 * @return
+	 */
 	private int getSeverityLevel(String status) {
 		if (status == null) {
 			return 0;
@@ -64,4 +76,37 @@ public class RefactoringDescriptorMapWrapper extends AbstractMapWrapper {
 		}
 		return 6;
 	}
+
+	private String getNavigationDurationString(String navigationHistoryString) {
+		if (navigationHistoryString == null) {
+			return "";
+		} else {
+			long navigationDuration;
+			try {
+				navigationDuration= getNavigationDuration(navigationHistoryString);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+			return String.valueOf(navigationDuration);
+		}
+	}
+
+	private long getNavigationDuration(String navigationHistoryString) throws NavigationHistory.ParseException {
+		NavigationHistory navigationHistory= NavigationHistory.parse(navigationHistoryString);
+		int numberOfNavigationHistoryItems= navigationHistory.getNavigationHistoryItems().size();
+		if (numberOfNavigationHistoryItems < 2) {
+			throw new NavigationHistory.ParseException("Expected at least two items in the navigation history (" + navigationHistoryString + ") of a " + refactoringKind + " refactoring.");
+		}
+		@SuppressWarnings("rawtypes")
+		Iterator iterator= navigationHistory.getNavigationHistoryItems().iterator();
+		NavigationHistoryItem currentNavigationHistoryItem= (NavigationHistoryItem)iterator.next();
+		long firstTimestamp= currentNavigationHistoryItem.getTimestamp();
+		while (iterator.hasNext()) {
+			currentNavigationHistoryItem= (NavigationHistoryItem)iterator.next();
+		}
+		long lastTimestamp= currentNavigationHistoryItem.getTimestamp();
+		return lastTimestamp - firstTimestamp;
+	}
+
 }
