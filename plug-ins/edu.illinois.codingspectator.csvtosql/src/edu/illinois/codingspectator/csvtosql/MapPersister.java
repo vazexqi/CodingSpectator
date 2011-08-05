@@ -118,6 +118,7 @@ public class MapPersister {
 				if (progress % 8000 == 0) {
 					progress= 0;
 					System.out.println();
+					connection.commit();
 				}
 			}
 		}
