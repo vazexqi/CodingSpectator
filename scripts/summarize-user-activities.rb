@@ -1,4 +1,4 @@
-#!/usr/bin/ruby1.9.1
+#!/usr/bin/env ruby
 #This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 #author: Mohsen Vakilian
 #This script lists the last data submission and CodingSpectator account creation dates of the participants in the CSV format.
@@ -48,6 +48,10 @@ def parse_options
 
 end
 
+def svn_authentication_arguments
+  "--username #{$options[:username]} --password #{$options[:password]}"
+end
+
 class SVNLog
 
   attr_reader :date
@@ -61,7 +65,7 @@ end
 
 class Participant
 
-  attr_reader :last_data_submission_date, :account_creation_date
+  attr_reader :last_data_submission_date, :account_creation_date, :version
 
   def initialize(username)
     @username = username
@@ -71,8 +75,15 @@ class Participant
     not (@username =~ /cs-\d\d\d/).nil?
   end
 
-  def find_account_activities
-    svn_log = `svn log #{$svn_repo}/#{@username} --username #{$options[:username]} --password #{$options[:password]} | grep "|"`
+  def summarize_activities
+    find_latest_submission_information
+    find_latest_codingspectator_version
+
+    $stderr.print "."
+  end
+
+  def find_latest_submission_information
+    svn_log = `svn log #{$svn_repo}/#{@username} #{svn_authentication_arguments} | grep "|"`
     svn_logs = svn_log.split("\n")
     svn_logs = svn_logs.map {|svn_log_string| SVNLog.new(svn_log_string)}
     
@@ -86,13 +97,24 @@ class Participant
     else
       @last_data_submission_date = ""
     end
+  end
 
-    $stderr.print "."
+  def svn_ls(path_relative_to_username_folder)
+    svn_ls = `svn ls #{$svn_repo}/#{@username}/#{path_relative_to_username_folder} #{svn_authentication_arguments}`
+    svn_ls_results = svn_ls.split("\n").map {|svn_ls_result| svn_ls_result[0, svn_ls_result.length - 1]}
+  end
+
+  def find_latest_codingspectator_version
+    workspace_ids = svn_ls("")
+    versions = workspace_ids.inject([""]) {|versions, workspace_id| versions += svn_ls(workspace_id)}
+    @version = versions.max
   end
 
   def to_s
-    @username + "," + @account_creation_date + "," + @last_data_submission_date
+    @username + "," + @account_creation_date + "," + @last_data_submission_date + "," + @version
   end
+
+  private :find_latest_submission_information, :svn_ls, :find_latest_codingspectator_version
 
 end
 
@@ -104,7 +126,7 @@ class Participants
 
   def add(participant)
     if participant.a_summer_2011_participant?
-      participant.find_account_activities
+      participant.summarize_activities
       @participants = @participants + [participant] 
     end
   end
@@ -120,7 +142,7 @@ class Participants
   end
 
   def to_s
-    csv_header = "username,account creation date (YYYY-MM-DD),last data submission date (YYYY-MM-DD)\n"
+    csv_header = "username,account creation date (YYYY-MM-DD),last data submission date (YYYY-MM-DD),latest CodingSpectator version\n"
     all_participants_string = @participants.inject("") {|participants_string, participant| participants_string += participant.to_s + "\n"}
     csv_header + all_participants_string
   end
