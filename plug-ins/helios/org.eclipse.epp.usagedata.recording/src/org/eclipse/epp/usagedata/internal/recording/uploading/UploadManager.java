@@ -29,6 +29,7 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
  * 
  * @author Mohsen Vakilian, nchen - Added check to see if we are only collecting and not uploading.
  *         And, added the support for transferring UDC data to CodingSpectator.
+ * @author Stas Negara - Merged former preLock and preSubmit methods into preSubmit.
  * 
  */
 public class UploadManager implements SubmitterListener {
@@ -231,14 +232,11 @@ public class UploadManager implements SubmitterListener {
 		return UPLOAD_STARTED_OK;
 	}
 
-	public void preLock() {
+	public void preSubmit() {
 		int uploadResult= startTransferToCodingSpectator();
 		if (uploadResult != UPLOAD_STARTED_OK) {
 			UsageDataRecordingActivator.getDefault().log(IStatus.ERROR, "Failed to transfer the UDC data into the watched folder.");
 		}
-	}
-
-	public void preSubmit() {
 		watchedDirectoryLock.lock();
 	}
 

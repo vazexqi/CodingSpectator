@@ -41,9 +41,9 @@ public class SafeRecorder {
 	/**
 	 * Start writing into a temporary record file, and copy storage files to watched files.
 	 */
-	void aboutToCommit() {
+	void aboutToSubmit() {
 		synchronized (this) {
-			Debugger.debug("IS ABOUT TO COMMIT");
+			Debugger.debug("IS ABOUT TO SUBMIT");
 			String tempRecordFilePath= mainRecordFilePath + "." + System.currentTimeMillis() + TMP_EXTENSION;
 			currentRecordFile= new File(tempRecordFilePath);
 		}

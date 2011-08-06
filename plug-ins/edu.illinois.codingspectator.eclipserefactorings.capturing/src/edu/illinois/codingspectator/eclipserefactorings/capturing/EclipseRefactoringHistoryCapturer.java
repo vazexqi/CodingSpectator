@@ -45,12 +45,8 @@ public class EclipseRefactoringHistoryCapturer implements SubmitterListener {
 	}
 
 	@Override
-	public void preLock() {
-		transferEclipseRefactoringHistory();
-	}
-
-	@Override
 	public void preSubmit() {
+		transferEclipseRefactoringHistory();
 	}
 
 	@Override

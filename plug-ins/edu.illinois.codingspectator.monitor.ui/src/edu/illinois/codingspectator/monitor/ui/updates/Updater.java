@@ -20,10 +20,6 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 public class Updater implements SubmitterListener {
 
 	@Override
-	public void preLock() {
-	}
-
-	@Override
 	public void preSubmit() {
 	}
 

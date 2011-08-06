@@ -98,9 +98,8 @@ public class Submitter {
 
 		try {
 			submitterListeners= lookupExtensions();
-			notifyPreLock();
-			svnManager.doAdd();
 			notifyPreSubmit();
+			svnManager.doAdd();
 			svnManager.doCommit();
 			submissionSucceeded= true;
 		} catch (Throwable e) {
@@ -124,22 +123,6 @@ public class Submitter {
 			Activator.getDefault().createErrorStatus(String.format("Failed to lookup extensions for %s.", extensionPointId), e);
 		}
 		return submitterListeners;
-	}
-
-	private void notifyPreLock() {
-		for (final SubmitterListener submitterListener : submitterListeners) {
-			SafeRunner.run(new ISafeRunnable() {
-
-				@Override
-				public void run() throws Exception {
-					submitterListener.preLock();
-				}
-
-				@Override
-				public void handleException(Throwable exception) {
-				}
-			});
-		}
 	}
 
 	private void notifyPreSubmit() {
