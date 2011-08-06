@@ -15,17 +15,17 @@ def parse_options
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
   
     $options[:username] = nil
-    opts.on("-u", "--username username", "username for accessing the #{$svn_repo_name} subversion repository") do |username|
+    opts.on("-u", "--username username", "username for accessing the #{$svn_repo_name} subversion repository using the basic authentication mechanism (required)") do |username|
       $options[:username] = username
     end
   
   
     $options[:password] = nil
-    opts.on("-p", "--password password", "password for accessing the #{$svn_repo_name} subversion repository") do |password|
+    opts.on("-p", "--password password", "password for accessing the #{$svn_repo_name} subversion repository using the basic authentication mechanism (required)") do |password|
       $options[:password] = password
     end
 
-    opts.on('-h', '--help', 'Display this screen') do
+    opts.on('-h', '--help', 'Display this help screen') do
       puts opts
       exit
     end
@@ -34,8 +34,17 @@ def parse_options
   
   optparse.parse!
   
-  raise OptionParser::MissingArgument if $options[:username].nil?
-  raise OptionParser::MissingArgument if $options[:password].nil?
+  if $options[:username].nil? then
+    puts "username is required."
+    puts optparse.help
+    exit
+  end
+
+  if $options[:password].nil? then
+    puts "username is required."
+    puts optparse.help
+    exit
+  end
 
 end
 
