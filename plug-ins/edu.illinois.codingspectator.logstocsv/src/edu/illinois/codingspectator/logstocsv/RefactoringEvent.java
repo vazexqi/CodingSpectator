@@ -13,6 +13,7 @@ import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistory.ParseE
 import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 
 import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescriptor;
+import edu.illinois.codingspectator.refactorings.parser.RefactoringLog.LogType;
 
 /**
  * 
@@ -20,13 +21,13 @@ import edu.illinois.codingspectator.refactorings.parser.CapturedRefactoringDescr
  * @author nchen
  * 
  */
-public class RefactoringDescriptorMapWrapper extends AbstractMapWrapper {
+public class RefactoringEvent extends Event {
 
 	private CapturedRefactoringDescriptor capturedRefactoringDescriptor;
 
-	private String refactoringKind;
+	private LogType refactoringKind;
 
-	public RefactoringDescriptorMapWrapper(CapturedRefactoringDescriptor capturedRefactoringDescriptor, String username, String workspaceID, String codingspectatorVersion, String refactoringKind) {
+	public RefactoringEvent(CapturedRefactoringDescriptor capturedRefactoringDescriptor, String username, String workspaceID, String codingspectatorVersion, LogType refactoringKind) {
 		super(username, workspaceID, codingspectatorVersion);
 		this.capturedRefactoringDescriptor= capturedRefactoringDescriptor;
 		this.refactoringKind= refactoringKind;
@@ -41,20 +42,28 @@ public class RefactoringDescriptorMapWrapper extends AbstractMapWrapper {
 		map.put("flags", String.valueOf(capturedRefactoringDescriptor.getFlags()));
 		map.put("id", capturedRefactoringDescriptor.getID());
 		map.put("project", capturedRefactoringDescriptor.getProject());
-		map.put("timestamp", String.valueOf(capturedRefactoringDescriptor.getTimestamp()));
-		Date timestampDate= new Date(capturedRefactoringDescriptor.getTimestamp());
+		map.put("timestamp", String.valueOf(getTimestamp()));
+		Date timestampDate= new Date(getTimestamp());
 		map.put("human-readable timestamp", timestampDate.toString());
 		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
 		map.putAll(capturedRefactoringDescriptor.getArguments());
-		map.put("refactoring kind", refactoringKind);
+		map.put("refactoring kind", getRefactoringKind().toString());
 		map.put("severity level", String.valueOf(getSeverityLevel(capturedRefactoringDescriptor.getAttribute("status"))));
 		map.put("navigation duration", getNavigationDurationString(capturedRefactoringDescriptor.getAttribute("navigation-history")));
 		return map;
 	}
 
+	@Override
+	public long getTimestamp() {
+		return capturedRefactoringDescriptor.getTimestamp();
+	}
+
+	public LogType getRefactoringKind() {
+		return refactoringKind;
+	}
+
 	/**
-	 * FIXME: This method may not return the right severity level for multi-level status.
 	 * 
 	 * @param status
 	 * @return
@@ -63,16 +72,16 @@ public class RefactoringDescriptorMapWrapper extends AbstractMapWrapper {
 		if (status == null) {
 			return 0;
 		}
-		if (status.contains("OK")) {
+		if (status.startsWith("<OK")) {
 			return 1;
-		} else if (status.contains("INFO")) {
+		} else if (status.startsWith("<INFO")) {
 			return 2;
-		} else if (status.contains("WARNING")) {
+		} else if (status.startsWith("<WARNING")) {
 			return 3;
-		} else if (status.contains("FATALERROR")) {
-			return 5;
-		} else if (status.contains("ERROR")) {
+		} else if (status.startsWith("<ERROR")) {
 			return 4;
+		} else if (status.startsWith("<FATALERROR")) {
+			return 5;
 		}
 		return 6;
 	}
@@ -96,7 +105,7 @@ public class RefactoringDescriptorMapWrapper extends AbstractMapWrapper {
 		NavigationHistory navigationHistory= NavigationHistory.parse(navigationHistoryString);
 		int numberOfNavigationHistoryItems= navigationHistory.getNavigationHistoryItems().size();
 		if (numberOfNavigationHistoryItems < 2) {
-			throw new NavigationHistory.ParseException("Expected at least two items in the navigation history (" + navigationHistoryString + ") of a " + refactoringKind + " refactoring.");
+			throw new NavigationHistory.ParseException("Expected at least two items in the navigation history (" + navigationHistoryString + ") of a " + getRefactoringKind() + " refactoring.");
 		}
 		@SuppressWarnings("rawtypes")
 		Iterator iterator= navigationHistory.getNavigationHistoryItems().iterator();

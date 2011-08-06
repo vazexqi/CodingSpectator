@@ -13,7 +13,7 @@ import java.util.Map;
  * @author nchen
  * 
  */
-public abstract class AbstractMapWrapper {
+public abstract class Event implements Mappable {
 
 	protected String username;
 
@@ -21,7 +21,7 @@ public abstract class AbstractMapWrapper {
 
 	protected String codingspectatorVersion;
 
-	protected AbstractMapWrapper(String username, String workspaceID, String codingSpectatorVersion) {
+	protected Event(String username, String workspaceID, String codingSpectatorVersion) {
 		this.username= username;
 		this.workspaceID= workspaceID;
 		this.codingspectatorVersion= codingSpectatorVersion;
@@ -34,5 +34,7 @@ public abstract class AbstractMapWrapper {
 		map.put("codingspectator version", codingspectatorVersion);
 		return map;
 	}
+
+	public abstract long getTimestamp();
 
 }
