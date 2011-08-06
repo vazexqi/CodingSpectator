@@ -22,18 +22,18 @@ public class SafeRecorder {
 
 	private static final String TMP_EXTENSION= ".tmp";
 
+	private final String relativePathToMainRecordFile;
+
 	private File currentRecordFile= null;
 
 	private final File mainRecordFile;
 
-	private final File mainWatchedRecordFile;
-
 	public final String mainRecordFilePath;
 
 	public SafeRecorder(String relativePathToMainRecordFile) {
+		this.relativePathToMainRecordFile= relativePathToMainRecordFile;
 		mainRecordFilePath= SafeRecorderPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString();
 		mainRecordFile= new File(mainRecordFilePath);
-		mainWatchedRecordFile= new File(CodingSpectatorDataPlugin.getVersionedStorageLocation().append(relativePathToMainRecordFile).toOSString());
 		currentRecordFile= mainRecordFile;
 		RecorderSubmitterListener.addSafeRecorderInstance(this);
 	}
@@ -53,8 +53,28 @@ public class SafeRecorder {
 	}
 
 	private void moveRecordFiles() {
-		moveFileContent(mainRecordFile, mainWatchedRecordFile, true);
-		final File mainRecordFolder= mainRecordFile.getParentFile();
+		File storageFolder= new File(SafeRecorderPlugin.getStorageLocation().toOSString());
+		File watchedFolder= new File(CodingSpectatorDataPlugin.getStorageLocation().toOSString());
+		if (storageFolder.exists()) {
+			File[] storageFolderChildren= storageFolder.listFiles();
+			if (storageFolderChildren != null) {
+				for (File storageFolderChild : storageFolderChildren) {
+					if (storageFolderChild.exists() && storageFolderChild.isDirectory()) {
+						//Assumes that subfolders of the storage folder are version folders.
+						moveVersionedFiles(storageFolderChild, new File(watchedFolder, storageFolderChild.getName()));
+					}
+				}
+			}
+		}
+		moveCompleted();
+	}
+
+	private void moveVersionedFiles(File storageVersionedFolder, File watchedVersionedFolder) {
+		File mainVersionedFile= new File(storageVersionedFolder, relativePathToMainRecordFile);
+		File mainWatchedRecordFile= new File(watchedVersionedFolder, relativePathToMainRecordFile);
+		moveFileContent(mainVersionedFile, mainWatchedRecordFile, true);
+		//mainRecordFolder is usually a subfolder of storageVersionedFolder
+		final File mainRecordFolder= mainVersionedFile.getParentFile();
 		if (mainRecordFolder != null && mainRecordFolder.exists()) {
 			String[] tempFilesToCopy= mainRecordFolder.list(new FilenameFilter() {
 				@Override
@@ -70,7 +90,6 @@ public class SafeRecorder {
 				}
 			}
 		}
-		moveCompleted();
 	}
 
 	private boolean shouldMoveTemporaryFileToWatchedFolder(String fileName) {
