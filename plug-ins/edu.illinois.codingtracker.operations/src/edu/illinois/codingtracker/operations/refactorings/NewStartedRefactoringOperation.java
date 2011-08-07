@@ -69,6 +69,22 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		initializeArguments(getRefactoringArguments(refactoringDescriptor));
 	}
 
+	public RefactoringMode getRefactoringMode() {
+		return refactoringMode;
+	}
+
+	public String getID() {
+		return id;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public int getFlags() {
+		return flags;
+	}
+
 	@Override
 	protected char getOperationSymbol() {
 		return OperationSymbols.NEW_REFACTORING_STARTED_SYMBOL;
