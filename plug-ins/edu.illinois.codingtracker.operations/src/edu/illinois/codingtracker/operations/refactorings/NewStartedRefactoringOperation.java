@@ -69,6 +69,16 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		initializeArguments(getRefactoringArguments(refactoringDescriptor));
 	}
 
+	@Override
+	protected char getOperationSymbol() {
+		return OperationSymbols.NEW_REFACTORING_STARTED_SYMBOL;
+	}
+
+	@Override
+	public String getDescription() {
+		return "[new] Started refactoring";
+	}
+
 	public RefactoringMode getRefactoringMode() {
 		return refactoringMode;
 	}
@@ -83,16 +93,6 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	public int getFlags() {
 		return flags;
-	}
-
-	@Override
-	protected char getOperationSymbol() {
-		return OperationSymbols.NEW_REFACTORING_STARTED_SYMBOL;
-	}
-
-	@Override
-	public String getDescription() {
-		return "[new] Started refactoring";
 	}
 
 	private static long getRefactoringTimeStamp(RefactoringDescriptor refactoringDescriptor) {

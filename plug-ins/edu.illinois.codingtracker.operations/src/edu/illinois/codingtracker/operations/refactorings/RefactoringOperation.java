@@ -25,6 +25,8 @@ import edu.illinois.codingtracker.operations.UserOperation;
 /**
  * Concrete implementations of this operation are no longer recorded.
  * 
+ * {@see NewStartedRefactoringOperation, FinishedRefactoringOperation}.
+ * 
  * @author Stas Negara
  * 
  */

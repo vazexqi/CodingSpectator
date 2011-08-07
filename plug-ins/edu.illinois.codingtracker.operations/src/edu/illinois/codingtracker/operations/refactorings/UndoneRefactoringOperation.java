@@ -11,6 +11,8 @@ import edu.illinois.codingtracker.operations.OperationSymbols;
 /**
  * This operation is no longer recorded.
  * 
+ * {@see NewStartedRefactoringOperation, FinishedRefactoringOperation}.
+ * 
  * @author Stas Negara
  * 
  */
