@@ -23,7 +23,7 @@ public class ConvertLogsToCSV {
 		String codingspectatorDataCSVFileName= args[2];
 
 		Collection<Event> events= new CodingSpectatorDataExtractor(rootCodingSpectatorDataFolder).extractData();
-		new CodingSpectatorCSVWriter(codingspectatorDataCSVFileName).writeEventToCSV(events);
+		new CodingSpectatorCSVWriter(codingspectatorDataCSVFileName).writeToCSV(events);
 
 		if (args.length >= 4) {
 			String checksAfterRefactoringsCSVFileName= args[3];

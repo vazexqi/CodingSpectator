@@ -32,7 +32,7 @@ public class CheckAndRefactoringPatternFinder {
 
 	public void reportChecksAfterRefactorings() throws IOException {
 		Collection<CheckAndRefactoring> checksAfterRefactorings= findChecksAfterRefactorings();
-		new CodingSpectatorCSVWriter(csvFileName).writeEventToCSV(checksAfterRefactorings);
+		new CodingSpectatorCSVWriter(csvFileName).writeToCSV(checksAfterRefactorings);
 	}
 
 	private Collection<CheckAndRefactoring> findChecksAfterRefactorings() {
@@ -49,13 +49,11 @@ public class CheckAndRefactoringPatternFinder {
 				currentRefactoringEvent= event;
 				foundCheckAfterRefactoring= false;
 			} else if (isCheck(event)) {
-				if (!foundCheckAfterRefactoring) {
-					if (isCheckAfterRefactoring(currentRefactoringEvent, currentCheckEvent)) {
-						foundCheckAfterRefactoring= true;
-						checksAfterRefactorings.add(new CheckAndRefactoring(currentRefactoringEvent, currentCheckEvent));
-					}
-				}
 				currentCheckEvent= event;
+				if (!foundCheckAfterRefactoring && isCheckAfterRefactoring(currentRefactoringEvent, currentCheckEvent)) {
+					foundCheckAfterRefactoring= true;
+					checksAfterRefactorings.add(new CheckAndRefactoring(currentRefactoringEvent, currentCheckEvent));
+				}
 			}
 		}
 		return checksAfterRefactorings;

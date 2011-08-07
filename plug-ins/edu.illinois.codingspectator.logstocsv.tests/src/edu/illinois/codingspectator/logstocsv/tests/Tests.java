@@ -34,7 +34,7 @@ public class Tests {
 
 	private IPath csvExpectedLog;
 
-	private IPath checksAfterRefactoringsActualLog;
+	private EFSFile checksAfterRefactoringsActualLog;
 
 	private IPath checksAfterRefactoringsExpectedLog;
 
@@ -47,25 +47,35 @@ public class Tests {
 		pathToInputFolder= pathToTestFolder.append("input");
 		csvActualLogFolder= new EFSFile(pathToTestFolder.append("actual-output"));
 		csvActualLogFolder.mkdir();
-		csvActualLog= new EFSFile(csvActualLogFolder.getPath().append(csvLogsFileName));
-		checksAfterRefactoringsActualLog= csvActualLogFolder.getPath().append(checksAfterRefactoringsLogFileName);
+		csvActualLog= csvActualLogFolder.append(csvLogsFileName);
+		checksAfterRefactoringsActualLog= csvActualLogFolder.append(checksAfterRefactoringsLogFileName);
+	}
+
+	private void generateReports() throws CoreException, IOException {
+		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.getPath().toOSString() });
+	}
+
+	private void checkReports() throws IOException {
+		assertTrue(csvActualLog.exists());
+		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
+		assertTrue(checksAfterRefactoringsActualLog.exists());
+		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog.toOSString()), FileUtils.getContents(checksAfterRefactoringsActualLog.getPath().toOSString()));
+	}
+
+	private void testReports(String testNumber) throws CoreException, IOException {
+		computePaths(testNumber);
+		generateReports();
+		checkReports();
 	}
 
 	@Test
 	public void test01() throws CoreException, IOException {
-		computePaths("01");
-		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString() });
-		assertTrue(csvActualLog.exists());
-		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
+		testReports("01");
 	}
 
 	@Test
 	public void test02() throws CoreException, IOException {
-		computePaths("02");
-		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.toOSString() });
-		assertTrue(csvActualLog.exists());
-		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
-		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog.toOSString()), FileUtils.getContents(checksAfterRefactoringsActualLog.toOSString()));
+		testReports("02");
 	}
 
 	@After

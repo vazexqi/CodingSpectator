@@ -27,16 +27,20 @@ public class CodingSpectatorCSVWriter {
 		this.csvfileName= csvFileName;
 	}
 
-	public void writeEventToCSV(Collection<? extends Mappable> mappables) throws IOException {
+	public void writeToCSV(Collection<? extends Mappable> mappables) throws IOException {
 		CsvMapWriter csvwriter= new CsvMapWriter(new FileWriter(csvfileName), CsvPreference.EXCEL_PREFERENCE);
 
 		Set<String> attributeKeys= new HashSet<String>();
 		for (Mappable mappable : mappables) {
 			attributeKeys.addAll(mappable.toMap().keySet());
 		}
-		String[] columnNames= attributeKeys.toArray(new String[] {});
-		Arrays.sort(columnNames);
-		csvwriter.writeHeader(columnNames);
+
+		String[] columnNames= new String[] {};
+		if (!attributeKeys.isEmpty()) {
+			columnNames= attributeKeys.toArray(columnNames);
+			Arrays.sort(columnNames);
+			csvwriter.writeHeader(columnNames);
+		}
 
 		CellProcessor cellProcessor= new CellProcessor() {
 
