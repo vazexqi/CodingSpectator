@@ -69,18 +69,15 @@ public class PartListener extends BasicListener implements IPartListener {
 		} else if (part instanceof AbstractDecoratedTextEditor) {
 			closedFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)part);
 		}
-		if (closedFile != null) {
-			if (EditorHelper.isConflictEditor(part)) {
-				closeConflictEditor((CompareEditor)part);
-			} else {
-				closeRegularEditor(part, closedFile);
-			}
+		if (EditorHelper.isConflictEditor(part)) {
+			closeConflictEditor((CompareEditor)part);
+		} else if (closedFile != null) {
+			closeRegularEditor(part, closedFile);
 		}
 	}
 
 	private void closeConflictEditor(CompareEditor compareEditor) {
 		openConflictEditors.remove(compareEditor);
-		dirtyConflictEditors.remove(compareEditor);
 		operationRecorder.recordClosedConflictEditor(EditorHelper.getConflictEditorID(compareEditor));
 	}
 

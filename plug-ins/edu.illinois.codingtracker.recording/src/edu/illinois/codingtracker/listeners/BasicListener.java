@@ -31,8 +31,6 @@ public abstract class BasicListener {
 
 	protected static final Set<CompareEditor> openConflictEditors= Collections.synchronizedSet(new HashSet<CompareEditor>());
 
-	protected static final Set<CompareEditor> dirtyConflictEditors= Collections.synchronizedSet(new HashSet<CompareEditor>());
-
 	protected static volatile boolean isRefactoring= false;
 
 	protected static volatile boolean isUndoing= false;

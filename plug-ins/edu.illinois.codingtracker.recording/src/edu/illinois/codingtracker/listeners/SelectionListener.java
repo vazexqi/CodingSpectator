@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.listeners;
 
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
@@ -49,22 +50,32 @@ public class SelectionListener extends BasicListener implements ISelectionListen
 		if (EditorHelper.isConflictEditor(part)) {
 			CompareEditor compareEditor= (CompareEditor)part;
 			IFile editedFile= EditorHelper.getEditedJavaFile(compareEditor);
-			if (editedFile != null) {
-				handleConflictEditorSelection(compareEditor, editedFile, EditorHelper.getEditingSourceViewer(compareEditor));
-			}
+			handleConflictEditorSelection(compareEditor, editedFile, EditorHelper.getEditingSourceViewer(compareEditor));
 		}
 	}
 
 
-	private void handleConflictEditorSelection(CompareEditor compareEditor, IFile newFile, ISourceViewer sourceViewer) {
+	/**
+	 * Note that editedFile might be null.
+	 * 
+	 * @param compareEditor
+	 * @param editedFile
+	 * @param sourceViewer
+	 */
+	private void handleConflictEditorSelection(CompareEditor compareEditor, IFile editedFile, ISourceViewer sourceViewer) {
 		if (!openConflictEditors.contains(compareEditor)) {
 			openConflictEditors.add(compareEditor);
-			dirtyConflictEditors.add(compareEditor); //conflict editors are always dirty from the start
-			operationRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), newFile, EditorHelper.getConflictEditorInitialContent(compareEditor));
-			if (sourceViewer != null && sourceViewer.getDocument() != null) {
-				sourceViewer.getDocument().addDocumentListener(new ConflictEditorDocumentListener(compareEditor));
+			IDocument editedDocument= sourceViewer != null ? sourceViewer.getDocument() : null;
+			String initialContent= "";
+			if (editedFile != null) {
+				initialContent= EditorHelper.getConflictEditorInitialContent(compareEditor);
+			} else if (editedDocument != null) {
+				initialContent= editedDocument.get();
+			}
+			operationRecorder.recordOpenedConflictEditor(EditorHelper.getConflictEditorID(compareEditor), editedFile, initialContent);
+			if (editedDocument != null) {
+				editedDocument.addDocumentListener(new ConflictEditorDocumentListener(compareEditor));
 			}
 		}
 	}
-
 }

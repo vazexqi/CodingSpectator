@@ -5,7 +5,6 @@ package edu.illinois.codingtracker.operations.conflicteditors;
 
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.internal.CompareEditor;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
 
@@ -32,9 +31,9 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 		super();
 	}
 
-	public OpenedConflictEditorOperation(String editorID, IFile editedFile, String initialContent) {
+	public OpenedConflictEditorOperation(String editorID, String editedFilePath, String initialContent) {
 		super(editorID);
-		this.editedFilePath= ResourceHelper.getPortableResourcePath(editedFile);
+		this.editedFilePath= editedFilePath;
 		this.initialContent= initialContent;
 	}
 

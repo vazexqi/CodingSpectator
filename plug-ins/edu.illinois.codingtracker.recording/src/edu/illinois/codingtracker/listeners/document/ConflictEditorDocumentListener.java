@@ -28,7 +28,6 @@ public class ConflictEditorDocumentListener extends DocumentListener {
 
 	@Override
 	protected void handleDocumentChange(DocumentEvent event) {
-		dirtyConflictEditors.add(conflictEditor);
 		operationRecorder.recordConflictEditorChangedText(event, replacedText, conflictEditorID, isUndoing, isRedoing);
 	}
 

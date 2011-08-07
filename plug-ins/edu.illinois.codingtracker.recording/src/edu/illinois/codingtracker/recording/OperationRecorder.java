@@ -152,9 +152,20 @@ public class OperationRecorder {
 		TextRecorder.record(new EditedFileOperation(editedFile));
 	}
 
+	/**
+	 * Note that editedFile might be null.
+	 * 
+	 * @param editorID
+	 * @param editedFile
+	 * @param initialContent
+	 */
 	public void recordOpenedConflictEditor(String editorID, IFile editedFile, String initialContent) {
-		ensureFileIsKnown(editedFile, true);
-		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFile, initialContent));
+		String editedFilePath= "";
+		if (editedFile != null) {
+			ensureFileIsKnown(editedFile, true);
+			editedFilePath= ResourceHelper.getPortableResourcePath(editedFile);
+		}
+		TextRecorder.record(new OpenedConflictEditorOperation(editorID, editedFilePath, initialContent));
 	}
 
 	public void recordCreatedResource(IResource createdResource, int updateFlags, boolean success) {
