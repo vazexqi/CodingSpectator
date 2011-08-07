@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 
-import edu.illinois.codingspectator.refactorings.parser.RefactoringLog.LogType;
 import edu.illinois.codingtracker.operations.junit.TestSessionStartedOperation;
 import edu.illinois.codingtracker.operations.starts.LaunchedApplicationOperation;
 
@@ -88,9 +87,8 @@ public class CheckAndRefactoringPatternFinder {
 	private boolean isRefactoring(Event event) {
 		if (event == null) {
 			return false;
-		} else if (event instanceof RefactoringEvent) {
-			RefactoringEvent refactoringEvent= (RefactoringEvent)event;
-			return refactoringEvent.getRefactoringKind() == LogType.PERFORMED;
+		} else if (event instanceof UserOperationEvent) {
+			return ((UserOperationEvent)event).isStartedPerformedRefactoringOperation();
 		} else {
 			return false;
 		}

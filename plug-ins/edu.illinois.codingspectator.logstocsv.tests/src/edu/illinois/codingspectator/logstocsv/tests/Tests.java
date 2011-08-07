@@ -64,6 +64,7 @@ public class Tests {
 		computePaths("02");
 		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.toOSString() });
 		assertTrue(csvActualLog.exists());
+		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
 		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog.toOSString()), FileUtils.getContents(checksAfterRefactoringsActualLog.toOSString()));
 	}
 

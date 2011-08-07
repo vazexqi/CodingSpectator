@@ -48,7 +48,26 @@ public class RefactoringEvent extends Event {
 		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
 		map.putAll(capturedRefactoringDescriptor.getArguments());
-		map.put("refactoring kind", getRefactoringKind().toString());
+		switch (getRefactoringKind()) {
+			case ECLIPSE:
+				map.put("refactoring kind", "PERFORMED");
+				map.put("recorder", "ECLIPSE");
+				break;
+			case PERFORMED:
+				map.put("refactoring kind", "PERFORMED");
+				map.put("recorder", "CODINGSPECTATOR");
+				break;
+			case CANCELLED:
+				map.put("refactoring kind", "CANCELLED");
+				map.put("recorder", "CODINGSPECTATOR");
+				break;
+			case UNAVAILABLE:
+				map.put("refactoring kind", "UNAVAILABLE");
+				map.put("recorder", "CODINGSPECTATOR");
+				break;
+			default:
+				break;
+		}
 		map.put("severity level", String.valueOf(getSeverityLevel(capturedRefactoringDescriptor.getAttribute("status"))));
 		map.put("navigation duration", getNavigationDurationString(capturedRefactoringDescriptor.getAttribute("navigation-history")));
 		return map;
