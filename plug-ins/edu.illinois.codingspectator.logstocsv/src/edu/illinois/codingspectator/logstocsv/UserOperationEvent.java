@@ -16,9 +16,12 @@ import edu.illinois.codingtracker.operations.files.snapshoted.CVSInitiallyCommit
 import edu.illinois.codingtracker.operations.files.snapshoted.SVNCommittedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SVNInitiallyCommittedFileOperation;
 import edu.illinois.codingtracker.operations.junit.TestSessionStartedOperation;
+import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation.RefactoringMode;
+import edu.illinois.codingtracker.operations.refactorings.PerformedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.RedoneRefactoringOperation;
+import edu.illinois.codingtracker.operations.refactorings.RefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.UndoneRefactoringOperation;
 import edu.illinois.codingtracker.operations.starts.LaunchedApplicationOperation;
 
@@ -30,9 +33,9 @@ import edu.illinois.codingtracker.operations.starts.LaunchedApplicationOperation
 public class UserOperationEvent extends Event {
 
 	@SuppressWarnings("unchecked")
-	private static List<Class<? extends UserOperation>> shouldBeIncludedInCSV= Arrays.asList(TestSessionStartedOperation.class, LaunchedApplicationOperation.class, RedoneRefactoringOperation.class,
-			UndoneRefactoringOperation.class, CVSCommittedFileOperation.class, CVSInitiallyCommittedFileOperation.class, SVNCommittedFileOperation.class, SVNInitiallyCommittedFileOperation.class,
-			UpdatedFileOperation.class);
+	private static List<Class<? extends UserOperation>> shouldBeIncludedInCSV= Arrays.asList(TestSessionStartedOperation.class, LaunchedApplicationOperation.class,
+			PerformedRefactoringOperation.class, RedoneRefactoringOperation.class, UndoneRefactoringOperation.class, NewStartedRefactoringOperation.class, FinishedRefactoringOperation.class,
+			CVSCommittedFileOperation.class, CVSInitiallyCommittedFileOperation.class, SVNCommittedFileOperation.class, SVNInitiallyCommittedFileOperation.class, UpdatedFileOperation.class);
 
 	private UserOperation userOperation;
 
@@ -51,35 +54,48 @@ public class UserOperationEvent extends Event {
 		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
 		map.put("recorder", "CODINGTRACKER");
-		if (isStartedRefactoringOperation()) {
-			addRefactoringInformation(map);
+		if (isNewStartedRefactoringOperation()) {
+			addNewStartedRefactoringInformation(map);
+		} else if (userOperation instanceof FinishedRefactoringOperation) {
+			map.put("success", String.valueOf(((FinishedRefactoringOperation)userOperation).getSuccess()));
+		} else if (isRefactoringOperation()) {
+			addRefactoringOperationInformation(map);
 		}
 		return map;
 	}
 
-	public boolean isStartedPerformedRefactoringOperation() {
-		if (isStartedRefactoringOperation()) {
-			NewStartedRefactoringOperation startedRefactoring= (NewStartedRefactoringOperation)userOperation;
-			return startedRefactoring.getRefactoringMode() == RefactoringMode.PERFORM;
-		} else {
-			return false;
-		}
+	private boolean isRefactoringOperation() {
+		return userOperation instanceof RefactoringOperation;
 	}
 
-	private boolean isStartedRefactoringOperation() {
+	private boolean isNewStartedRefactoringOperation() {
 		return userOperation instanceof NewStartedRefactoringOperation;
 	}
 
-	private void addRefactoringInformation(Map<String, String> map) {
+	public boolean isStartedPerformedRefactoringOperation() {
+		return isNewStartedRefactoringOperation() && ((NewStartedRefactoringOperation)userOperation).getRefactoringMode() == RefactoringMode.PERFORM;
+	}
+
+	private void addNewStartedRefactoringInformation(Map<String, String> map) {
 		NewStartedRefactoringOperation startedRefactoringOperation= (NewStartedRefactoringOperation)userOperation;
-		map.put("refactoring kind", toString(startedRefactoringOperation.getRefactoringMode()));
+		map.put("refactoring kind", getNewStartedRefactoringKind());
 		map.put("flags", String.valueOf(startedRefactoringOperation.getFlags()));
 		map.put("id", startedRefactoringOperation.getID());
 		map.put("project", startedRefactoringOperation.getProject());
 	}
 
-	private String toString(RefactoringMode refactoringMode) {
-		switch (refactoringMode) {
+	private void addRefactoringOperationInformation(Map<String, String> map) {
+		RefactoringOperation refactoringOperation= (RefactoringOperation)userOperation;
+		map.put("refactoring kind", getRefactoringOperationKind());
+		map.put("flags", String.valueOf(refactoringOperation.getFlags()));
+		map.put("id", refactoringOperation.getID());
+		map.put("project", refactoringOperation.getProject());
+	}
+
+	private String getNewStartedRefactoringKind() {
+		NewStartedRefactoringOperation startedRefactoringOperation= (NewStartedRefactoringOperation)userOperation;
+
+		switch (startedRefactoringOperation.getRefactoringMode()) {
 			case PERFORM:
 				return "PERFORMED";
 			case UNDO:
@@ -88,6 +104,18 @@ public class UserOperationEvent extends Event {
 				return "REDONE";
 			default:
 				throw new IllegalArgumentException();
+		}
+	}
+
+	private String getRefactoringOperationKind() {
+		if (userOperation instanceof PerformedRefactoringOperation) {
+			return "PERFORMED";
+		} else if (userOperation instanceof UndoneRefactoringOperation) {
+			return "UNDONE";
+		} else if (userOperation instanceof RedoneRefactoringOperation) {
+			return "REDONE";
+		} else {
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -101,7 +129,7 @@ public class UserOperationEvent extends Event {
 	}
 
 	public boolean shouldBeIncludedInCSV() {
-		return shouldBeIncludedInCSV.contains(userOperation.getClass()) || isStartedPerformedRefactoringOperation();
+		return shouldBeIncludedInCSV.contains(userOperation.getClass());
 	}
 
 }

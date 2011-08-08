@@ -1,24 +1,22 @@
-<problem-changes refactoring-timestamp="1312746741372">
-	<after-minus-before timestamp="1312746741397">
+<problem-changes refactoring-timestamp="1306524870684">
+	<after-minus-before timestamp="1306524870721">
 	</after-minus-before>
-	<before-minus-after timestamp="1312746741310">
+	<before-minus-after timestamp="1306524870540">
 	</before-minus-after>
 </problem-changes>
-<problem-changes refactoring-timestamp="1312746741372">
-	<after-minus-before timestamp="1312747424554">
+<problem-changes refactoring-timestamp="1306524880184">
+	<after-minus-before timestamp="1306524880217">
+		<problem id="33554515" message="a cannot be resolved to a variable" arguments="[a]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/code/C.java" line="6" severity="1" endPosition="60" startPosition="60">
+		</problem>
 	</after-minus-before>
-	<before-minus-after timestamp="1312747424475">
+	<before-minus-after timestamp="1306524880134">
 	</before-minus-after>
 </problem-changes>
-<problem-changes refactoring-timestamp="1312746741372">
-	<after-minus-before timestamp="1312747433197">
+<problem-changes refactoring-timestamp="1306524880184">
+	<after-minus-before timestamp="1306524886295">
 	</after-minus-before>
-	<before-minus-after timestamp="1312747433124">
-	</before-minus-after>
-</problem-changes>
-<problem-changes refactoring-timestamp="1312747441768">
-	<after-minus-before timestamp="1312747441805">
-	</after-minus-before>
-	<before-minus-after timestamp="1312747441741">
+	<before-minus-after timestamp="1306524886190">
+		<problem id="33554515" message="a cannot be resolved to a variable" arguments="[a]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/code/C.java" line="6" severity="1" endPosition="60" startPosition="60">
+		</problem>
 	</before-minus-after>
 </problem-changes>

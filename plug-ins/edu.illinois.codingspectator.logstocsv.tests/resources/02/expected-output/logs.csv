@@ -1,9 +1,9 @@
-Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator version,codingtracker description,comment,comments,default2,delegate,deprecate,description,destination,exceptions,flags,human-readable timestamp,id,input,invoked-by-quickassist,invoked-through-structured-selection,name,navigation duration,navigation-history,parameter1,parameter2,project,recorder,refactoring kind,replace,selection,selection-in-code-snippet,selection-text,severity level,status,timestamp,username,version,visibility,workspace ID
+Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator version,codingtracker description,comment,comments,default2,delegate,deprecate,description,destination,exceptions,flags,human-readable timestamp,id,input,invoked-by-quickassist,invoked-through-structured-selection,name,navigation duration,navigation-history,parameter1,parameter2,project,recorder,refactoring kind,replace,selection,selection-in-code-snippet,selection-text,severity level,status,success,timestamp,username,version,visibility,workspace ID
 08/06/2011 02:47:28,,,1.0.0.qualifier,,"Extract method 'private int intSquare(int a)' from 'Calc.square()' to 'Calc'
 - Original project: 'Prj'
 - Method name: 'intSquare'
 - Destination type: 'Calc'
-- Declared visibility: 'private'",false,,,,Extract method 'intSquare',0,false,786434,Sat Aug 06 02:47:28 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{Calc.java,,,intSquare,,,int a a,,Prj,ECLIPSE,PERFORMED,false,58 5,,,0,,1312616848984,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+- Declared visibility: 'private'",false,,,,Extract method 'intSquare',0,false,786434,Sat Aug 06 02:47:28 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{Calc.java,,,intSquare,,,int a a,,Prj,ECLIPSE,PERFORMED,false,58 5,,,0,,,1312616848984,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
 08/06/2011 02:47:29,true,"public class Calc {
 
 	public int square(int a) {
@@ -18,7 +18,7 @@ Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator versi
 - Method name: 'intSquare'
 - Destination type: 'Calc'
 - Declared visibility: 'private'",false,,,,Extract method 'intSquare',0,false,786434,Sat Aug 06 02:47:29 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{Calc.java,false,false,intSquare,7694,"{[Extract Method,BEGIN_REFACTORING,1312616841094],[ExtractMethodInputPage,OK,1312616848788],}",int a a,,Prj,CODINGSPECTATOR,PERFORMED,false,58 5,58 5,a * a,1,"<OK
->",1312616849135,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+>",,1312616849135,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
 08/06/2011 02:46:37,true,"public class Calc {
 
 	public int square(int a) {
@@ -33,13 +33,21 @@ Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator versi
 - Original element: 'Calc.square(...)'
 - Added parameters:
      int b",,1,false,true,Change method 'square',,,589830,Sat Aug 06 02:46:37 CDT 2011,org.eclipse.jdt.ui.change.method.signature,/src<{Calc.java[Calc~square~I,false,false,square,19644,"{[Change Method Signature,BEGIN_REFACTORING,1312616776298],[ChangeSignatureInputPage,OK,1312616795942],}",int a 0 int a false,{added} {added} -1 int b false,Prj,CODINGSPECTATOR,PERFORMED,,,37 0,,1,"<OK
->",1312616797527,cs-000,1.0,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:45:51,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:45:51 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616751313,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:45:51,,,1.0.0.qualifier,Started test session,,,,,,,,,,Sat Aug 06 02:45:51 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616751777,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:46:37,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,589830,Sat Aug 06 02:46:37 CDT 2011,org.eclipse.jdt.ui.change.method.signature,,,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,1312616797220,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:46:40,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:46:40 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616800028,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:46:40,,,1.0.0.qualifier,Started test session,,,,,,,,,,Sat Aug 06 02:46:40 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616800432,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:46:47,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:46:47 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616807159,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:46:58,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:46:58 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616818402,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:46:58,,,1.0.0.qualifier,Started test session,,,,,,,,,,Sat Aug 06 02:46:58 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,1312616818701,cs-000,,,00000000-0000-0000-0000-000000000000
-08/06/2011 02:47:28,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,786434,Sat Aug 06 02:47:28 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,1312616848937,cs-000,,,00000000-0000-0000-0000-000000000000
+>",,1312616797527,cs-000,1.0,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:45:51,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:45:51 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616751313,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:45:51,,,1.0.0.qualifier,Started test session,,,,,,,,,,Sat Aug 06 02:45:51 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616751777,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:37,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,589830,Sat Aug 06 02:46:37 CDT 2011,org.eclipse.jdt.ui.change.method.signature,,,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312616797220,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:37,,,1.0.0.qualifier,Finished refactoring,,,,,,,,,,Sat Aug 06 02:46:37 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312616797395,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:40,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:46:40 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616800028,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:40,,,1.0.0.qualifier,Started test session,,,,,,,,,,Sat Aug 06 02:46:40 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616800432,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:47,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:46:47 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616807159,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:37,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,589830,Sat Aug 06 02:46:37 CDT 2011,org.eclipse.jdt.ui.change.method.signature,,,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312616797396,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:51,,,1.0.0.qualifier,Finished refactoring,,,,,,,,,,Sat Aug 06 02:46:51 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312616811661,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:58,,,1.0.0.qualifier,Launched application,,,,,,,,,,Sat Aug 06 02:46:58 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616818402,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:58,,,1.0.0.qualifier,Started test session,,,,,,,,,,Sat Aug 06 02:46:58 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312616818701,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:37,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,589830,Sat Aug 06 02:46:37 CDT 2011,org.eclipse.jdt.ui.change.method.signature,,,,,,,,,Prj,CODINGTRACKER,REDONE,,,,,,,,1312616797396,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:47:08,,,1.0.0.qualifier,Finished refactoring,,,,,,,,,,Sat Aug 06 02:47:08 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312616828355,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:46:37,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,589830,Sat Aug 06 02:46:37 CDT 2011,org.eclipse.jdt.ui.change.method.signature,,,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312616797396,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:47:14,,,1.0.0.qualifier,Finished refactoring,,,,,,,,,,Sat Aug 06 02:47:14 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312616834629,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:47:28,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,,,786434,Sat Aug 06 02:47:28 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312616848937,cs-000,,,00000000-0000-0000-0000-000000000000
+08/06/2011 02:47:28,,,1.0.0.qualifier,Finished refactoring,,,,,,,,,,Sat Aug 06 02:47:28 CDT 2011,,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312616848984,cs-000,,,00000000-0000-0000-0000-000000000000

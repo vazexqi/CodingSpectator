@@ -78,6 +78,16 @@ public class Tests {
 		testReports("02");
 	}
 
+	@Test
+	public void test03() throws CoreException, IOException {
+		testReports("03");
+	}
+
+	@Test
+	public void test04() throws CoreException, IOException {
+		testReports("04");
+	}
+
 	@After
 	public void cleanUp() throws CoreException {
 		csvActualLogFolder.delete();
