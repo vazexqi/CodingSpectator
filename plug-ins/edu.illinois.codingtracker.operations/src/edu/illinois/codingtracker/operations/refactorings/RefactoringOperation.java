@@ -56,6 +56,18 @@ public abstract class RefactoringOperation extends UserOperation {
 		initializeArguments(getRefactoringArguments(refactoringDescriptor));
 	}
 
+	public String getID() {
+		return id;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public int getFlags() {
+		return flags;
+	}
+
 	private Map getRefactoringArguments(RefactoringDescriptor refactoringDescriptor) {
 		Map arguments= null;
 		RefactoringContribution refactoringContribution=
