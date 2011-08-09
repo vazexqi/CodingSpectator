@@ -48,6 +48,10 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryServi
  * @since 3.2
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @authors nchen, Mohsen Vakilian - Added a parameter to store the folder where this
+ *          RefactoringDescriptorProxy comes from (used during the process of obtaining a
+ *          RefactoringDescriptor)
  */
 public abstract class RefactoringDescriptorProxy extends PlatformObject implements Comparable {
 
@@ -98,6 +102,17 @@ public abstract class RefactoringDescriptorProxy extends PlatformObject implemen
 	 * @return the time stamp, or <code>-1</code> if no time information is available
 	 */
 	public abstract long getTimeStamp();
+
+	//CODINGSPECTATOR
+	private String refactoringDescriptorFolder;
+
+	public String getRefactoringDescriptorFolder() {
+		return refactoringDescriptorFolder;
+	}
+
+	public void setRefactoringDescriptorFolder(String refactoringProjectFolder) {
+		this.refactoringDescriptorFolder= refactoringProjectFolder;
+	}
 
 	/**
 	 * {@inheritDoc}
