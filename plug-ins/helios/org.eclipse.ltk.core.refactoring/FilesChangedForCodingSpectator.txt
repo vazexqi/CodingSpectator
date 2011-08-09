@@ -21,6 +21,8 @@ src/org/eclipse/ltk/internal/core/refactoring/history/RefactoringHistoryManager.
 
 src/org/eclipse/ltk/internal/core/refactoring/history/DefaultRefactoringDescriptor.java
 
+src/org/eclipse/ltk/core/refactoring/RefactoringDescriptorProxy.java
+
 Added Files
 ===========
 

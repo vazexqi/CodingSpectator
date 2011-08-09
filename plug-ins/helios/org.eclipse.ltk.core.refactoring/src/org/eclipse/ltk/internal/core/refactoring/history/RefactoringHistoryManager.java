@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -86,7 +88,8 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringSessionTransformer;
  * Manager for persistable refactoring histories.
  * 
  * @author Mohsen Vakilian, nchen - Made the class accessible to
- *         edu.illinois.codingspectator.ui.tests.
+ *         edu.illinois.codingspectator.ui.tests. Added a way to store information about file paths
+ *         into proxy as a way for handling locale problems (issue #298)
  * 
  * @since 3.2
  */
@@ -185,6 +188,25 @@ public final class RefactoringHistoryManager {
 		return arguments;
 	}
 
+	//////////////////
+	// CODINGSPECTATOR
+	//////////////////
+
+	// Allows conditionally storing the location of the RefactoringDescriptor based on information from RefactoringDescriptorProxy
+	static boolean shouldPopulateProxiesWithRefactoringDescriptorFolder= false;
+
+	public static boolean isShouldPopulateProxiesWithRefactoringDescriptorFolder() {
+		return shouldPopulateProxiesWithRefactoringDescriptorFolder;
+	}
+
+	public static void setPopulateProxiesWithRefactoringDescriptorFolder() {
+		shouldPopulateProxiesWithRefactoringDescriptorFolder= true;
+	}
+
+	public static void unsetPopulateProxiesWithRefactoringDescriptorFolder() {
+		shouldPopulateProxiesWithRefactoringDescriptorFolder= false;
+	}
+
 	/**
 	 * Reads refactoring descriptor proxies.
 	 * 
@@ -207,8 +229,14 @@ public final class RefactoringHistoryManager {
 				try {
 					stream= store.openInputStream(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL));
 					final RefactoringDescriptorProxy[] proxies= readRefactoringDescriptorProxies(stream, project, start, end);
-					for (int index= 0; index < proxies.length; index++)
+					for (int index= 0; index < proxies.length; index++) {
+
+						// CODINGSPECTATOR: Only include file path if we specifically requested it
+						if (isShouldPopulateProxiesWithRefactoringDescriptorFolder())
+							proxies[index].setRefactoringDescriptorFolder(fileStoreToPath(store));
+
 						collection.add(proxies[index]);
+					}
 					monitor.worked(1);
 				} catch (IOException exception) {
 					throw createCoreException(exception);
@@ -239,6 +267,16 @@ public final class RefactoringHistoryManager {
 		} finally {
 			monitor.done();
 		}
+	}
+
+	private static String fileStoreToPath(IFileStore store) {
+		String path= store.toURI().toString(); // Convert to URI first to ensure that all slashes are forward slashes
+		Pattern matchDateRegex= Pattern.compile("((\\d+)/(\\d+)/(\\d+))/" + RefactoringHistoryService.NAME_INDEX_FILE + "\\z"); //$NON-NLS-1$//$NON-NLS-2$
+		Matcher matcher= matchDateRegex.matcher(path);
+		if (matcher.find())
+			return matcher.group(1); // Return only yyyy\day\week
+		else
+			return ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -1091,7 +1129,9 @@ public final class RefactoringHistoryManager {
 			if (stamp >= 0) {
 				InputStream input= null;
 				try {
-					final IFileStore folder= fHistoryStore.getFileStore(stampToPath(stamp));
+					// CODINGSPECTATOR: Only extract file path if we specifically requested it
+					IPath stampToPath= shouldPopulateProxiesWithRefactoringDescriptorFolder ? new Path(proxy.getRefactoringDescriptorFolder()) : stampToPath(stamp);
+					final IFileStore folder= fHistoryStore.getFileStore(stampToPath);
 					final IFileStore file= folder.getChild(RefactoringHistoryService.NAME_HISTORY_FILE);
 					if (file.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)).exists()) {
 						input= new BufferedInputStream(file.openInputStream(EFS.NONE, new SubProgressMonitor(monitor, 1, SubProgressMonitor.SUPPRESS_SUBTASK_LABEL)));
