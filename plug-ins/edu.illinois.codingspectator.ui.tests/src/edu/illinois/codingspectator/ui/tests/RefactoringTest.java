@@ -10,9 +10,11 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -110,9 +112,48 @@ public abstract class RefactoringTest {
 		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
+	protected void waitUntilActualLogsExist() throws CoreException {
+		bot.waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				boolean allActualLogsAreEmpty= true;
+				for (LogChecker logChecker : getLogCheckers()) {
+					allActualLogsAreEmpty&= logChecker.actualLogExists();
+				}
+				return allActualLogsAreEmpty;
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Some of the actual logs are missing.";
+			}
+		});
+	}
+
+	protected void waitUntilActualLogsAreEmpty() throws CoreException {
+		bot.waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				boolean allActualLogsAreEmpty= true;
+				for (LogChecker logChecker : getLogCheckers()) {
+					allActualLogsAreEmpty&= !logChecker.actualLogExists();
+				}
+				return allActualLogsAreEmpty;
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Some of the actual logs still exist.";
+			}
+		});
+	}
+
 	protected void doLogsShouldBeEmpty() throws CoreException {
+		waitUntilActualLogsAreEmpty();
 		for (LogChecker logChecker : getLogCheckers()) {
-			logChecker.assertLogIsEmpty();
+			logChecker.assertActualLogIsEmpty();
 		}
 	}
 
@@ -157,7 +198,6 @@ public abstract class RefactoringTest {
 
 	@Test
 	public final void logsShouldBeEmpty() throws CoreException {
-		bot.sleep();
 		doLogsShouldBeEmpty();
 	}
 
@@ -168,20 +208,16 @@ public abstract class RefactoringTest {
 
 	@Test
 	public final void logsShouldBeCorrect() throws Exception {
-		bot.sleep();
 		doGenerateExpectedFiles();
-		bot.sleep();
+		waitUntilActualLogsExist();
 		doLogsShouldBeCorrect();
 	}
 
 	@Test
-	public final void shouldCleanUpWorkspace() throws CoreException {
+	public final void shouldCleanUpWorkspace() throws CoreException, OperationCanceledException, InterruptedException {
 		bot.deleteProject(getProjectName());
-		bot.sleep();
 		doCleanLogs();
-		bot.sleep();
 		doLogsShouldBeEmpty();
-		bot.sleep();
 	}
 
 }

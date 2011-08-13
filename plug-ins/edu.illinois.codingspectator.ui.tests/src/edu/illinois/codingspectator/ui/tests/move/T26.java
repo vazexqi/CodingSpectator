@@ -27,7 +27,6 @@ public class T26 extends RefactoringTest {
 	protected void doExecuteRefactoring() {
 		final String destinationForImports= "DestinationFile";
 		bot.createANewJavaClass(getProjectName(), destinationForImports);
-		bot.sleep();
 		bot.selectFromPackageExplorer(getProjectName(), "src", CodingSpectatorBot.PACKAGE_NAME, getTestFileFullName());
 		bot.getBot().menu("Navigate").menu("Open").click();
 		final String selection= "import java.util.ArrayList;\n" +

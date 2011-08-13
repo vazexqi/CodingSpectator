@@ -3,10 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: edu.illinois.codingspectator.errorlog
 Bundle-SymbolicName: edu.illinois.codingspectator.errorlog;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: edu.illinois.codingspectator.errorlog.Activator
 Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  edu.illinois.codingspectator.saferecorder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ActivationPolicy: lazy

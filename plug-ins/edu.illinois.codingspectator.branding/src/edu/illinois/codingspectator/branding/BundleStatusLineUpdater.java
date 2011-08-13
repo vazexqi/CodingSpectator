@@ -18,7 +18,7 @@ public class BundleStatusLineUpdater {
 	private final IPropertyChangeListener propertyChangeListener= new IPropertyChangeListener() {
 		public void propertyChange(final PropertyChangeEvent event) {
 			if (PreferenceKeys.SHOW_IN_STATUS_LINE_KEY.equals(event.getProperty())) {
-				Display.getDefault().syncExec(new Runnable() {
+				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						updateStatusLine((Boolean)event.getNewValue());
 					};

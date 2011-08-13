@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: edu.illinois.codingspectator.monitor.tests
+Bundle-Name: edu.illinois.codingspectator.monitor.ui
 Bundle-SymbolicName: edu.illinois.codingspectator.monitor.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: edu.illinois.codingspectator.monitor.ui.Activator

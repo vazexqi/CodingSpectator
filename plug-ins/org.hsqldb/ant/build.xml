@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="fetch-lib-jars" default="install-jars" basedir=".">
+	<property file="build.properties" />
+	<property name="zip-destination-dir" value="downloads" />
+	<property name="lib-destination-dir" value="lib" />
+
+	<condition property="jar-files.present">
+		<and>
+			<available file="${lib-destination-dir}/${required.jar}" />
+		</and>
+	</condition>
+
+	<condition property="zip-file.present">
+		<available file="${zip-destination-dir}/${zip.filename}" />
+	</condition>
+
+	<target name="fetch" unless="zip-file.present">
+		<echo message="Fetching zip files from ${zip.url}...." />
+		<mkdir dir="${zip-destination-dir}" />
+		<get src="${zip.url}" dest="${zip-destination-dir}/${zip.filename}" />
+	</target>
+
+	<target name="checksum" depends="fetch">
+		<echo message="Verifying checksums..." />
+		<checksum file="${zip-destination-dir}/${zip.filename}" algorithm="SHA" property="${zip.sha}" verifyproperty="checksum.ok" />
+	</target>
+
+	<target name="unzipcheck" depends="checksum">
+		<fail message="Checksums do not match. Aborting...">
+			<condition>
+				<isfalse value="${checksum.ok}" />
+			</condition>
+		</fail>
+	</target>
+
+	<target name="unzip" depends="unzipcheck" unless="jar-files.present">
+		<echo message="Unzipping..." />
+		<unzip src="${zip-destination-dir}/${zip.filename}" dest="${zip-destination-dir}" />
+	</target>
+
+	<target name="install-jars" description="Fetches and installs the necessary jar for this project" depends="unzip" unless="jar-files.present">
+		<move todir="${lib-destination-dir}" flatten="yes">
+			<fileset dir="${zip-destination-dir}" casesensitive="yes">
+			  <include name="**/${required.jar}"/>
+			</fileset>
+		</move>
+		<antcall target="refresh" />
+		<antcall target="rebuild" />
+	</target>
+
+	<target name="refresh">
+		<eclipse.refreshLocal resource="${project}" depth="infinite" />
+	</target>
+
+	<target name="rebuild">
+		<!-- Refreshed the entire project directory to perform a build. This doesn't always seem to work and we might still need to invoke a build manually -->
+		<eclipse.incrementalBuild kind="full" />
+	</target>
+
+	<!-- By default we don't delete the zip files. However, the zip and jar files are ignored in git -->
+	<target name="remove-files">
+		<delete dir="${zip-destination-dir}" />
+	</target>
+
+	<!-- There is no "clean" operation for this plug-in but if you really want to clear everything, we provide a "real-clean" target -->
+	<target name="real-clean" description="Removes all downloaded jar files" depends="remove-files">
+		<delete>
+			<fileset dir="." includes="*.jar" />
+		</delete>
+	</target>
+
+</project>

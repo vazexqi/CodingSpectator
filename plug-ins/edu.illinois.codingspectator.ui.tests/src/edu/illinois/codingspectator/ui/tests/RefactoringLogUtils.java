@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -27,16 +26,14 @@ public class RefactoringLogUtils {
 		return new RefactoringLog(new Path(EXPECTED_DESCRIPTORS).append(expectedRefactoringDescriptorRelativePath));
 	}
 
-	public static CapturedRefactoringDescriptor getTheSingleExpectedRefactoringDescriptor(String expectedRefactoringDescriptorRelativePath, String projectName) {
+	public static Collection<CapturedRefactoringDescriptor> getExpectedRefactoringDescriptors(String expectedRefactoringDescriptorRelativePath, String projectName) {
 		RefactoringLog refactoringLog= getExpectedRefactoringLog(expectedRefactoringDescriptorRelativePath);
-		return getTheSingleRefactoringDescriptor(refactoringLog, projectName);
+		return getRefactoringDescriptors(refactoringLog, projectName);
 	}
 
-	public static CapturedRefactoringDescriptor getTheSingleRefactoringDescriptor(RefactoringLog refactoringLog, String projectName) {
+	public static Collection<CapturedRefactoringDescriptor> getRefactoringDescriptors(RefactoringLog refactoringLog, String projectName) {
 		assertTrue(refactoringLog.exists());
-		Collection<CapturedRefactoringDescriptor> descriptors= refactoringLog.getRefactoringDescriptors(projectName);
-		assertEquals(1, descriptors.size());
-		return descriptors.iterator().next();
+		return refactoringLog.getRefactoringDescriptors(projectName);
 	}
 
 }

@@ -17,8 +17,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,7 +33,6 @@ import org.eclipse.core.resources.IFile;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.ChangeDescriptor;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -72,6 +71,7 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationStateChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.generics.InferTypeArgumentsUpdate.CuUpdate;
 import org.eclipse.jdt.internal.corext.refactoring.structure.CompilationUnitRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.typeconstraints.types.TType;
@@ -93,7 +93,12 @@ import org.eclipse.jdt.internal.ui.IJavaStatusConstants;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
-public class InferTypeArgumentsRefactoring extends Refactoring {
+/**
+ * 
+ * @author Mohsen Vakilian - Captured the refactoring.
+ * 
+ */
+public class InferTypeArgumentsRefactoring extends WatchedJavaRefactoring {
 
 	private static final String ATTRIBUTE_CLONE= "clone"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_LEAVE= "leave"; //$NON-NLS-1$
@@ -538,6 +543,8 @@ public class InferTypeArgumentsRefactoring extends Refactoring {
 
 	/*
 	 * @see org.eclipse.ltk.core.refactoring.Refactoring#createChange(org.eclipse.core.runtime.IProgressMonitor)
+	 * 
+	 * CODINGSPECTATOR: Extracted createRefactoringDescriptor().
 	 */
 	public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		pm.beginTask("", 1); //$NON-NLS-1$
@@ -545,25 +552,7 @@ public class InferTypeArgumentsRefactoring extends Refactoring {
 			DynamicValidationStateChange result= new DynamicValidationStateChange(RefactoringCoreMessages.InferTypeArgumentsRefactoring_name, fChangeManager.getAllChanges()) {
 
 				public final ChangeDescriptor getDescriptor() {
-					final Map arguments= new HashMap();
-					final IJavaProject project= getSingleProject();
-					final String description= RefactoringCoreMessages.InferTypeArgumentsRefactoring_descriptor_description;
-					final String header= project != null ? Messages.format(RefactoringCoreMessages.InferTypeArgumentsRefactoring_descriptor_description_project, BasicElementLabels.getJavaElementName(project.getElementName())) : RefactoringCoreMessages.InferTypeArgumentsRefactoring_descriptor_description;
-					final String name= project != null ? project.getElementName() : null;
-					final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(name, this, header);
-					final String[] settings= new String[fElements.length];
-					for (int index= 0; index < settings.length; index++)
-						settings[index]= JavaElementLabels.getTextLabel(fElements[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
-					comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.InferTypeArgumentsRefactoring_original_elements, settings));
-					if (fAssumeCloneReturnsSameType)
-						comment.addSetting(RefactoringCoreMessages.InferTypeArgumentsRefactoring_assume_clone);
-					if (fLeaveUnconstrainedRaw)
-						comment.addSetting(RefactoringCoreMessages.InferTypeArgumentsRefactoring_leave_unconstrained);
-					final InferTypeArgumentsDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInferTypeArgumentsDescriptor(name, description, comment.asString(), arguments, RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE);
-					for (int index= 0; index < fElements.length; index++)
-						arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (index + 1), JavaRefactoringDescriptorUtil.elementToHandle(name, fElements[index]));
-					arguments.put(ATTRIBUTE_CLONE, Boolean.valueOf(fAssumeCloneReturnsSameType).toString());
-					arguments.put(ATTRIBUTE_LEAVE, Boolean.valueOf(fLeaveUnconstrainedRaw).toString());
+					final InferTypeArgumentsDescriptor descriptor= createRefactoringDescriptor();
 					return new RefactoringChangeDescriptor(descriptor);
 				}
 			};
@@ -571,6 +560,34 @@ public class InferTypeArgumentsRefactoring extends Refactoring {
 		} finally {
 			pm.done();
 		}
+	}
+
+	/**
+	 * CODINGSPECTATOR: Extracted from {@link #createChange(IProgressMonitor)}
+	 * 
+	 * @return refactoring descriptor
+	 */
+	private InferTypeArgumentsDescriptor createRefactoringDescriptor() {
+		final Map arguments= new HashMap();
+		final IJavaProject project= getSingleProject();
+		final String description= RefactoringCoreMessages.InferTypeArgumentsRefactoring_descriptor_description;
+		final String header= project != null ? Messages.format(RefactoringCoreMessages.InferTypeArgumentsRefactoring_descriptor_description_project, BasicElementLabels.getJavaElementName(project.getElementName())) : RefactoringCoreMessages.InferTypeArgumentsRefactoring_descriptor_description;
+		final String name= project != null ? project.getElementName() : null;
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(name, this, header);
+		final String[] settings= new String[fElements.length];
+		for (int index= 0; index < settings.length; index++)
+			settings[index]= JavaElementLabels.getTextLabel(fElements[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
+		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.InferTypeArgumentsRefactoring_original_elements, settings));
+		if (fAssumeCloneReturnsSameType)
+			comment.addSetting(RefactoringCoreMessages.InferTypeArgumentsRefactoring_assume_clone);
+		if (fLeaveUnconstrainedRaw)
+			comment.addSetting(RefactoringCoreMessages.InferTypeArgumentsRefactoring_leave_unconstrained);
+		final InferTypeArgumentsDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInferTypeArgumentsDescriptor(name, description, comment.asString(), arguments, RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE);
+		for (int index= 0; index < fElements.length; index++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (index + 1), JavaRefactoringDescriptorUtil.elementToHandle(name, fElements[index]));
+		arguments.put(ATTRIBUTE_CLONE, Boolean.valueOf(fAssumeCloneReturnsSameType).toString());
+		arguments.put(ATTRIBUTE_LEAVE, Boolean.valueOf(fLeaveUnconstrainedRaw).toString());
+		return descriptor;
 	}
 
 	private IJavaProject getSingleProject() {
@@ -619,4 +636,17 @@ public class InferTypeArgumentsRefactoring extends Refactoring {
 			return status;
 		return new RefactoringStatus();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.INFER_TYPE_ARGUMENTS;
+	}
+
 }

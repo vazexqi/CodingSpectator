@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingspectator.refactorings.capturing
+Bundle-SymbolicName: edu.illinois.codingspectator.refactorings.capturing;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.illinois.codingspectator.refactorings.capturing.Activator
+Bundle-Vendor: University of Illinois
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.filesystem,
+ org.eclipse.ltk.core.refactoring,
+ edu.illinois.codingspectator.data,
+ edu.illinois.codingspectator.monitor.core,
+ edu.illinois.codingspectator.efs
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy

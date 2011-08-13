@@ -34,7 +34,7 @@ public class RefactoringProblemsChecker extends AbstractLogChecker {
 	}
 
 	@Override
-	public void assertLogIsEmpty() {
+	public void assertActualLogIsEmpty() {
 		assertFalse(actualLogExists());
 	}
 
@@ -67,7 +67,7 @@ public class RefactoringProblemsChecker extends AbstractLogChecker {
 	}
 
 	@Override
-	protected boolean actualLogExists() {
+	public boolean actualLogExists() {
 		return actualLogFile.exists();
 	}
 

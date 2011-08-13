@@ -1022,19 +1022,19 @@ public final class RefactoringHistoryService implements IRefactoringHistoryServi
 			return new Version(RefactoringCoreMessages.RefactoringHistoryService_GenericVersionNumber);
 	}
 
-	private static String constructHiddenFolder(String baseName) {
+	private static String constructHistoryPath(String baseName) {
 		return getFeatureVersion() + "/" + baseName; //$NON-NLS-1$
 	}
 
 	public static String getRefactoringHistoryCanceledFolder() {
-		return constructHiddenFolder(NAME_HISTORY_CANCELED_FOLDER);
+		return constructHistoryPath(NAME_HISTORY_CANCELED_FOLDER);
 	}
 
 	public static String getRefactoringHistoryPerformedFolder() {
-		return constructHiddenFolder(NAME_HISTORY_PERFORMED_FOLDER);
+		return constructHistoryPath(NAME_HISTORY_PERFORMED_FOLDER);
 	}
 
 	public static String getRefactoringHistoryUnavailableFolder() {
-		return constructHiddenFolder(NAME_HISTORY_UNAVAILABLE_FOLDER);
+		return constructHistoryPath(NAME_HISTORY_UNAVAILABLE_FOLDER);
 	}
 }

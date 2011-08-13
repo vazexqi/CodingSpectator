@@ -3,7 +3,11 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.CoreException;
 
@@ -30,15 +34,22 @@ public class RefactoringLogChecker extends AbstractLogChecker {
 	}
 
 	@Override
-	public void assertLogIsEmpty() {
+	public void assertActualLogIsEmpty() {
 		assertFalse(String.format("Did not expect %s to exist.", actualRefactoringLog.getPathToRefactoringHistoryFolder()), actualLogExists());
 	}
 
 	@Override
 	public void assertMatch() {
-		CapturedRefactoringDescriptor actualRefactoringDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(actualRefactoringLog, projectName);
-		CapturedRefactoringDescriptor expectedRefactoringDescriptor= RefactoringLogUtils.getTheSingleRefactoringDescriptor(expectedRefactoringLog, projectName);
-		DescriptorComparator.assertMatches(expectedRefactoringDescriptor, actualRefactoringDescriptor);
+		Collection<CapturedRefactoringDescriptor> actualRefactoringDescriptors= RefactoringLogUtils.getRefactoringDescriptors(actualRefactoringLog, projectName);
+		Collection<CapturedRefactoringDescriptor> expectedRefactoringDescriptors= RefactoringLogUtils.getRefactoringDescriptors(expectedRefactoringLog, projectName);
+		assertEquals(expectedRefactoringDescriptors.size(), actualRefactoringDescriptors.size());
+
+		Iterator<CapturedRefactoringDescriptor> actualIterator= actualRefactoringDescriptors.iterator();
+		Iterator<CapturedRefactoringDescriptor> expectedIterator= expectedRefactoringDescriptors.iterator();
+
+		while (expectedIterator.hasNext() && actualIterator.hasNext()) {
+			DescriptorComparator.assertMatches(expectedIterator.next(), actualIterator.next());
+		}
 	}
 
 	@Override
@@ -59,7 +70,7 @@ public class RefactoringLogChecker extends AbstractLogChecker {
 	}
 
 	@Override
-	protected boolean actualLogExists() {
+	public boolean actualLogExists() {
 		return actualRefactoringLog.exists();
 	}
 

@@ -3,7 +3,10 @@
  */
 package edu.illinois.codingspectator.ui.tests;
 
-import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.*;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.allOf;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withMnemonic;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withStyle;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
@@ -16,13 +19,17 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.results.VoidResult;
 import org.eclipse.swtbot.swt.finder.utils.FileUtils;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
+import org.eclipse.swtbot.swt.finder.waits.ICondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.hamcrest.Matcher;
@@ -50,7 +57,7 @@ public class CodingSpectatorBot {
 
 	protected static final String REFACTOR_MENU_NAME= "Refactor";
 
-	protected static final int SLEEPTIME= 3000;
+	protected static final int SLEEPTIME= 500;
 
 	SWTWorkbenchBot bot= new SWTWorkbenchBot();
 
@@ -66,10 +73,14 @@ public class CodingSpectatorBot {
 		return bot;
 	}
 
+	public void waitUntil(ICondition condition) {
+		bot.waitUntil(condition);
+	}
+
 	public void createANewJavaProject(String projectName) {
 		bot.menu("File").menu("New").menu("Project...").click();
 
-		activateShellWithName("New Project");
+		final SWTBotShell shell= activateShellWithName("New Project");
 
 		getCurrentTree().expandNode("Java").select("Java Project");
 		bot.button(IDialogConstants.NEXT_LABEL).click();
@@ -78,8 +89,20 @@ public class CodingSpectatorBot {
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
 
-		sleep();
+		waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				return !shell.isOpen() || bot.shell("Open Associated Perspective?").isOpen();
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Failed to close the new project wizard.";
+			}
+		});
 		dismissJavaPerspectiveIfPresent();
+		waitUntil(Conditions.shellCloses(shell));
 	}
 
 	private EFSFile getEclipseRefactoringsEFSFile() {
@@ -96,31 +119,35 @@ public class CodingSpectatorBot {
 
 	public void deleteProject(String projectName) throws CoreException {
 		selectJavaProject(projectName).contextMenu("Delete").click();
-		activateShellWithName("Delete Resources");
+		SWTBotShell shell= activateShellWithName("Delete Resources");
 		if (!bot.checkBox().isChecked()) {
 			bot.checkBox().click();
 		}
 		bot.button(IDialogConstants.OK_LABEL).click();
 		deleteProjectSpecificEclipseRefactoringLog(projectName);
+		waitUntil(Conditions.shellCloses(shell));
 	}
 
 	public SWTBotTree getCurrentTree() {
 		return bot.tree();
 	}
 
-	public void activateShellWithName(String text) {
-		bot.shell(text).activate();
+	public SWTBotShell activateShellWithName(String text) {
+		SWTBotShell shell= bot.shell(text);
+		shell.activate();
+		return shell;
 	}
 
 	private void dismissJavaPerspectiveIfPresent() {
 		try {
+			bot.checkBox("Remember my decision").click();
 			bot.button(IDialogConstants.YES_LABEL).click();
 		} catch (WidgetNotFoundException exception) {
 			// The second and subsequent time this is invoked the Java perspective change dialog will not be shown.
 		}
 	}
 
-	public void createANewJavaClass(String projectName, String className) {
+	public void createANewJavaClass(String projectName, final String className) {
 		selectJavaProject(projectName);
 
 		bot.menu("File").menu("New").menu("Class").click();
@@ -131,6 +158,19 @@ public class CodingSpectatorBot {
 		bot.textWithLabel("Name:").setText(className);
 
 		bot.button(IDialogConstants.FINISH_LABEL).click();
+
+		waitUntil(new DefaultCondition() {
+
+			@Override
+			public boolean test() throws Exception {
+				return getTextEditor(className + ".java") != null;
+			}
+
+			@Override
+			public String getFailureMessage() {
+				return "Failed to find the open editor of class " + className;
+			}
+		});
 	}
 
 	public SWTBotTree selectJavaProject(String projectName) {
@@ -158,6 +198,10 @@ public class CodingSpectatorBot {
 		editor.save();
 	}
 
+	/**
+	 * Prefer {@link #waitUntil(ICondition)} over {@link #sleep()} in your tests because it's faster
+	 * and makes the tests more reliable.
+	 */
 	public void sleep() {
 		bot.sleep(SLEEPTIME);
 	}

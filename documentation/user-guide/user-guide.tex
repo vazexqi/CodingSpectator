@@ -3,7 +3,9 @@
 \usepackage{hevea}
 %
 % Orange section headings
+%
 %HEVEA\input{fancysection.hva}
+%
 %HEVEA\colorsections{40}
 %
 \usepackage{fullpage}
@@ -15,13 +17,19 @@
 \usepackage{float}
 %
 \ifthenelse{\boolean{hevea}}{%
+%
 \newcommand{\todo}[1]{\textbf{#1}}%
+%
 }{\usepackage{todonotes}}
 %
 \ifthenelse{\boolean{hevea}}{%
-\newcommand{\fig}[1]{\imgsrc{#1.png}}
+%
+\newcommand{\fig}[1]{\imgsrc{#1.png}}%
+%
 }{%
+%
 \newcommand\fig[1]{\includegraphics[scale=0.49]{#1}}%
+%
 }
 %
 \newcommand\codspec{CodingSpectator}
@@ -33,12 +41,18 @@
 \newcommand\uiref[1]{\texttt{#1}}
 %
 % The following disables hevea advertisement from the footer of the HTML.
+%
 %HEVEA \footerfalse
 %
 \title{\codspec's User Guide}
 %
-\author{\codspec\
-Team\\\href{mailto:codingspectator@cs.illinois.edu}{codingspectator@cs.illinois.edu}}
+\author{%
+%
+\href{http://codingspectator.cs.illinois.edu/People/}{\codspec\ Team}\\%
+%
+\href{mailto:codingspectator@cs.illinois.edu}{codingspectator@cs.illinois.edu}%
+%
+}
 %
 \begin{document}
 %
@@ -111,7 +125,7 @@ review them, and if you agree, proceed by clicking \uiref{Finish}.
 
 \item Eclipse should open the dialog in Figure~\ref{FigCertificate} asking you
 to confirm that you accept our certificate. In the \emph{Do you trust these
-certificates}, please select the checkbox. Click \uiref{OK} to continue.
+certificates}, please select the check box. Click \uiref{OK} to continue.
 
 % Should we box this up to make it more promiment?
 \warnnote{You \textbf{need} to select check box before clicking the \uiref{OK}
@@ -164,7 +178,8 @@ You should see our \codspec logo in that dialog as shown in Figure~\ref{About}.
 %
 \fig{figs/about}
 %
-\caption{\label{About}Upon successful installation, \codspec\ displays its icon in the About dialog.}
+\caption{\label{About}Upon successful installation, \codspec\ displays its icon
+in the About dialog.}
 %
 \end{figure}
 
@@ -192,7 +207,7 @@ would need to install two instances of Eclipse: one with our plug-in and one
 \textbf{without} our plug-in. To help you easily identify a workspace with
 \codspec\ installed, we have also placed an icon in the status line of Eclipse
 as shown Figure~\ref{Status}. If you wish, you may disable the icon by following
-the instructions in Section~\ref{sec:disabling_icon}.
+the instructions in Section~\ref{SecDisablingIcon}.
 
 Please feel free to talk to us if you have any questions and concerns about your
 privacy. We can work our a suitable compromise.}
@@ -204,12 +219,12 @@ privacy. We can work our a suitable compromise.}
 \fig{figs/status}
 %
 \caption{\label{Status}An icon appears on the status line reminding users that
-CodingSpectator is installed.}
+\codspec\ is installed.}
 %
 \end{figure}
 %
-\section{Automatic upload of data}
-
+\section{Uploading the data automatically}
+%
 \textbf{Once a day (at most)}, during the initial startup of Eclipse, you might
 be presented with the dialog box shown in Figure~\ref{FigLogin} asking you to
 upload your data. Please provide your \codspec\ user name and password when
@@ -244,17 +259,20 @@ that you have entered are wrong.}
 If you forget your user name or password, please contact us to send them to you.
 You may also change your password by visiting
 \url{http://codingspectator.cs.illinois.edu/Accounts/}.
-
-If you wish, you may also click on the \uiref{Save password (could trigger
-secure storage)} check box. This will ask Eclipse to store your username and
-password using its underlying
+%
+\section{Saving \codspec\ password}
+%
+If you wish Eclipse to remember your \codspec\ password, click on the
+\uiref{Save password (could trigger secure storage)} check box on the
+authentication dialog in Figure~\ref{FigPrompt}. This will make Eclipse store
+your username and password using its underlying
 \href{http://help.eclipse.org/helios/index.jsp?topic=/org.eclipse.platform.doc.isv/guide/secure_storage_dev.htm}{Secure
 Storage mechanism}. If you decide to save your password, it will proceed to ask
-you to create a master password. Please follow the instructions on screen as
+you to create a master password. Please follow the instructions on the screen as
 they depend on the operating system.
 
-Additionally, if you decide to save your password, on subsequent uploads of
-\codspec, you will no longer see the dialog above but one of the dialogs in
+After you save your password, on subsequent uploads of \codspec, you will no
+longer see the dialog in Figure~\ref{FigLogin} but one of the dialogs in
 Figure~\ref{FigSecureStoragePrompt} depending on your operating system.
 
 \begin{figure}[H]
@@ -273,11 +291,76 @@ attempts to log into \codspec.}
 %
 \end{figure}
 
-Please enter the \textbf{master password} that you have created (\textbf{not}
-your \codspec\ password) when prompted by the Secure Storage dialog box.
+If you save your \codspec\ password on Linux, Eclipse will still prompt you for
+your master password before every data upload. Please enter the \textbf{master
+password} that you have created (\textbf{not} your \codspec\ password) when
+prompted by the Secure Storage dialog box. On Mac OS X and Windows, Eclipse uses
+the system-wide keyring and does not ask you for a master password. However, if
+you are using \textbf{Eclipse Helios on Windows 64 bits}, then you would need to
+perform the following steps to prevent Eclipse from prompting for your master
+password.
 
-\section{Manual upload of data}
-
+\begin{enumerate}
+%
+\item If your Eclipse is running, shut it down. 
+%
+\item  Download
+\href{https://bugs.eclipse.org/bugs/attachment.cgi?id=189330}{the deployable
+form of Windows 64 bits secure storage fragment} for Eclipse Helios.
+%
+\item Copy the downloaded JAR file into the \uiref{dropins} folder of your
+Eclipse Helios installation. To check that Eclipse has picked up the JAR file,
+go to \uiref{Window > Preferences}, type \uiref{Secure Storage} in the search
+box, and select \uiref{General > Security > Secure Storage} from the search
+results. Eclipse must now list a new master password provider called
+\uiref{Windows Integration (64 bits)} as shown in
+Figure~\ref{FigMasterPasswordProviders}.
+%
+\begin{figure}[H]
+%
+\centering
+%
+\fig{figs/PreferencesAfterCopyingJarToDropinsFolder}
+%
+\caption{\label{FigMasterPasswordProviders}If you save your \codspec\ password
+and Eclipse has a master password provider that integrates with your operating
+system, Eclipse won't prompt you for a master password before your data
+uploads.}
+%
+\end{figure}
+%
+\item Start Eclipse.
+%
+\item If you have already stored \codspec\ password before installing the master
+password provider that integrates with Windows (and thus, were prompted for the
+master password every time you uploaded \codspec\ data), you will need to delete
+the corresponding entry in order to use the installed master password provider
+for Windows. Go to \uiref{Window > Preferences}, type \uiref{Secure Storage} in
+the search box, and select \uiref{General > Security > Secure Storage} from the
+search results. Open the \uiref{Contents} tab and expand the \uiref{[Default
+Secure Storage]} item. If you have already saved your \codspec\ password, you
+should see an item for \codspec\ as shown in
+Figure~\ref{FigDefaultSecureStorageOption}. Click on the \codspec\ item, then
+click the \uiref{Delete} button. Next, click the \uiref{Yes} button in the
+confirmation dialog box.
+%
+\begin{figure}[H]
+%
+\centering
+%
+\fig{figs/DefaultSecureStorageOption}
+%
+\caption{\label{FigDefaultSecureStorageOption}If Eclipse has already saved your
+\codspec\ password you should delete the secure storage of \codspec\ in order to
+use the new master password provider that integrates with your operating
+system.}
+%
+\end{figure}
+%
+\end{enumerate}
+%
+\section{Uploading the data manually}
+%
 You may also trigger the data upload manually. We provide this facility because,
 occasionally, it might not be convenient to upload the data during the startup
 of Eclipse.
@@ -308,18 +391,19 @@ In that particular preference pane, you will see:
 %
 \end{enumerate}
 
-\section{Toggle \codspec\ Status Line Icon} % (fold)
-\label{sec:disabling_icon}
+\section{Showing or hiding \codspec\ status line icon}
+%
+\label{SecDisablingIcon}
 
 To hide or show the \codspec\ status line icon, you can go to \uiref{Window >
 Preferences} (on Linux and Windows) or \uiref{Eclipse > Preferences...} (on Mac
 OS X). Click on the \uiref{\codspec > Display} section shown in
 Figure~\ref{FigStatusPreferences}. Then check or uncheck the \uiref{Show
-\codspec\ in the status line} checkbox.
+\codspec\ in the status line} check box.
 
 \warnnote{Toggling the display of the icon does \textbf{not} disable \codspec\
 --- it is still actively running and collecting data in the background. There is
-currently no way to turn off \codspec\ except by uninstalling it (see
+currently no way to turn off \codspec\ except by uninstalling it (See
 Section~\ref{SecUninstallation}).}
 
 \begin{figure}[H]
@@ -328,13 +412,11 @@ Section~\ref{SecUninstallation}).}
 %
 \fig{figs/status_preference}
 %
-\caption{\label{FigStatusPreferences}\codspec\ provides a preference for manually updating your data.}
+\caption{\label{FigStatusPreferences}\codspec\ provides a preference for
+manually updating your data.}
 %
 \end{figure}
 
-
-% section disabling_codspec status_line_icon (end)
-%
 \section{Updating \codspec}
 
 During this research study, we might require you to update \codspec. Should this

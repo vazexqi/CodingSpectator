@@ -44,6 +44,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 
 		// Only a final reference can be assigned to inside an anonymous class. This is why they put a single object inside an array.
 		final AuthenticationInfo[] result= new AuthenticationInfo[1];
+
+		// Opens the dialog using syncExec because the result of the dialog is accessed synchronously later.
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
