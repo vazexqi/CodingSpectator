@@ -1,0 +1,36 @@
+<problem-changes refactoring-timestamp="1312616797396">
+	<after-minus-before timestamp="1312616797468">
+	</after-minus-before>
+	<before-minus-after timestamp="1312616797234">
+	</before-minus-after>
+</problem-changes>
+<problem-changes refactoring-timestamp="1312616797396">
+	<after-minus-before timestamp="1312616811688">
+		<problem id="67108979" message="The method square(int, int) in the type Calc is not applicable for the arguments (int)" arguments="[Calc, square, int, int, int]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/TestCalc.java" line="9" severity="1" endPosition="153" startPosition="148">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1312616811480">
+	</before-minus-after>
+</problem-changes>
+<problem-changes refactoring-timestamp="1312616797396">
+	<after-minus-before timestamp="1312616828375">
+		<problem id="67108979" message="The method square(int) in the type Calc is not applicable for the arguments (int, int)" arguments="[Calc, square, int, int, int]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/TestCalc.java" line="9" severity="1" endPosition="153" startPosition="148">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1312616828224">
+	</before-minus-after>
+</problem-changes>
+<problem-changes refactoring-timestamp="1312616797396">
+	<after-minus-before timestamp="1312616834640">
+		<problem id="67108979" message="The method square(int, int) in the type Calc is not applicable for the arguments (int)" arguments="[Calc, square, int, int, int]" problemMarker="org.eclipse.jdt.core.problem" fileName="/Prj/src/TestCalc.java" line="9" severity="1" endPosition="153" startPosition="148">
+		</problem>
+	</after-minus-before>
+	<before-minus-after timestamp="1312616834553">
+	</before-minus-after>
+</problem-changes>
+<problem-changes refactoring-timestamp="1312616848984">
+	<after-minus-before timestamp="1312616849002">
+	</after-minus-before>
+	<before-minus-after timestamp="1312616848949">
+	</before-minus-after>
+</problem-changes>

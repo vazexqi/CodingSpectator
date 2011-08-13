@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Extract method &apos;private int intSquare(int a)&apos; from &apos;Calc.square()&apos; to &apos;Calc&apos;&#x0A;- Original project: &apos;Prj&apos;&#x0A;- Method name: &apos;intSquare&apos;&#x0A;- Destination type: &apos;Calc&apos;&#x0A;- Declared visibility: &apos;private&apos;" comments="false" description="Extract method &apos;intSquare&apos;" destination="0" exceptions="false" flags="786434" id="org.eclipse.jdt.ui.extract.method" input="/src&lt;{Calc.java" name="intSquare" parameter1="int a a" replace="false" selection="58 5" stamp="1312616848984" version="1.0" visibility="2"/>
+</session>

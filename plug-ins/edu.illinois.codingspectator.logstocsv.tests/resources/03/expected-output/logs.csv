@@ -1,0 +1,74 @@
+Tableau timestamp,captured-by-codingspectator,code-snippet,codingspectator version,codingtracker description,comment,comments,delete,description,destination,exceptions,flags,human-readable timestamp,id,input,invoked-by-quickassist,invoked-through-structured-selection,mode,name,navigation duration,navigation-history,project,recorder,refactoring kind,replace,selection,selection-in-code-snippet,selection-text,severity level,status,success,timestamp,username,version,visibility,workspace ID
+08/07/2011 15:04:01,,,1.0.0.qualifier,,"Inline method 'Square.area()' in 'Square'
+- Original project: 'Prj'
+- Original element: 'Square.area()'
+- Remove method declaration
+- Replace all references to method with statements",,true,Inline method 'area',,,786438,Sun Aug 07 15:04:01 CDT 2011,org.eclipse.jdt.ui.inline.method,/src<{Square.java,,,1,,,,Prj,ECLIPSE,PERFORMED,,110 0,,,0,,,1312747441768,cs-000,1.0,,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:21,,,1.0.0.qualifier,,"Extract method 'private int square()' from 'Square.area()' to 'Square'
+- Original project: 'Prj'
+- Method name: 'square'
+- Destination type: 'Square'
+- Declared visibility: 'private'",false,,Extract method 'square',0,false,786434,Sun Aug 07 14:52:21 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{Square.java,,,,square,,,Prj,ECLIPSE,PERFORMED,false,127 11,,,0,,,1312746741372,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+08/07/2011 15:04:01,true,"public class Square {
+
+	int side;
+
+	public Square(int side) {
+		super();
+		this.side = side;
+	}
+
+	public int area() {
+		return square();
+	}
+
+	private int square() {
+		return side * side;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(new Square(5).area());
+	}
+
+}",1.0.0.qualifier,,"Inline method 'Square.area()' in 'Square'
+- Original project: 'Prj'
+- Original element: 'Square.area()'
+- Remove method declaration
+- Replace all references to method with statements",,true,Inline method 'area',,,786438,Sun Aug 07 15:04:01 CDT 2011,org.eclipse.jdt.ui.inline.method,/src<{Square.java,false,false,1,,1230,"{[Inline Method,BEGIN_REFACTORING,1312747440158],[InlineMethodInputPage,OK,1312747441388],}",Prj,CODINGSPECTATOR,PERFORMED,,110 0,110 0,,1,"<OK
+>",,1312747441901,cs-000,1.0,,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:21,true,"public class Square {
+
+	int side;
+
+	public Square(int side) {
+		super();
+		this.side = side;
+	}
+
+	public int area() {
+		return side * side;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(new Square(5).area());
+	}
+
+}",1.0.0.qualifier,,"Extract method 'private int square()' from 'Square.area()' to 'Square'
+- Original project: 'Prj'
+- Method name: 'square'
+- Destination type: 'Square'
+- Declared visibility: 'private'",false,,Extract method 'square',0,false,786434,Sun Aug 07 14:52:21 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{Square.java,false,false,,square,3271,"{[Extract Method,BEGIN_REFACTORING,1312746737774],[ExtractMethodInputPage,OK,1312746741045],}",Prj,CODINGSPECTATOR,PERFORMED,false,127 11,127 11,side * side,1,"<OK
+>",,1312746741606,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:11,,,1.0.0.qualifier,Launched application,,,,,,,,Sun Aug 07 14:52:11 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312746731403,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:21,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,786434,Sun Aug 07 14:52:21 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312746741302,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:21,,,1.0.0.qualifier,Finished refactoring,,,,,,,,Sun Aug 07 14:52:21 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312746741371,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:03:37,,,1.0.0.qualifier,Launched application,,,,,,,,Sun Aug 07 15:03:37 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312747417639,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:21,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,786434,Sun Aug 07 14:52:21 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312746741372,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:03:44,,,1.0.0.qualifier,Finished refactoring,,,,,,,,Sun Aug 07 15:03:44 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312747424545,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:03:47,,,1.0.0.qualifier,Launched application,,,,,,,,Sun Aug 07 15:03:47 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312747427231,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 14:52:21,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,786434,Sun Aug 07 14:52:21 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,,Prj,CODINGTRACKER,REDONE,,,,,,,,1312746741372,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:03:53,,,1.0.0.qualifier,Finished refactoring,,,,,,,,Sun Aug 07 15:03:53 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312747433181,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:03:55,,,1.0.0.qualifier,Launched application,,,,,,,,Sun Aug 07 15:03:55 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312747435025,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:04:01,,,1.0.0.qualifier,[new] Started refactoring,,,,,,,786438,Sun Aug 07 15:04:01 CDT 2011,org.eclipse.jdt.ui.inline.method,,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312747441731,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:04:01,,,1.0.0.qualifier,Finished refactoring,,,,,,,,Sun Aug 07 15:04:01 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312747441768,cs-000,,,00000000-0000-0000-0000-000000000000
+08/07/2011 15:04:05,,,1.0.0.qualifier,Launched application,,,,,,,,Sun Aug 07 15:04:05 CDT 2011,,,,,,,,,,CODINGTRACKER,,,,,,,,,1312747445677,cs-000,,,00000000-0000-0000-0000-000000000000

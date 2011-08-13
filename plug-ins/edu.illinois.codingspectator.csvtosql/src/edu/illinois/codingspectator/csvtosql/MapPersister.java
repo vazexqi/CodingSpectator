@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -34,22 +33,11 @@ public class MapPersister {
 
 	private Statement statement;
 
-//mysql
-	private static final char STRING_QUOTE= '\'';
-
 	private static final char ID_QUOTE= '\"';
 
 	String dbName= "CodingSpectator";
 
-	String tableName= "AllData";
-
-//	public MapPersister(String server, String account, String password)
-//			throws ClassNotFoundException, SQLException {
-//		Class.forName("com.mysql.jdbc.Driver");
-//		connection= DriverManager.getConnection("jdbc:mysql://" + server,
-//				account, password);
-//		statement= connection.createStatement();
-//	}
+	String tableName= "ALL_DATA";
 
 	public MapPersister(String server, String account, String password)
 			throws ClassNotFoundException, SQLException {
@@ -62,154 +50,19 @@ public class MapPersister {
 		// of the db.
 		// It can contain directory names relative to the
 		// current working directory
-		connection= DriverManager.getConnection("jdbc:hsqldb:file:" + server, account, password);
+		connection= DriverManager.getConnection("jdbc:hsqldb:file:" + server + ";shutdown=true", account, password);
 		statement= connection.createStatement();
 	}
 
-	protected void createDB(String dbName) throws SQLException {
-//mysql
-//		statement.executeUpdate("DROP DATABASE IF EXISTS " + dbName);
-//		statement.executeUpdate("CREATE DATABASE " + dbName);
-//		statement.execute("USE " + dbName);
-	}
-
 	public void shutdown() throws SQLException {
-		Statement st= connection.createStatement();
-
-		// db writes out to files and performs clean shuts down
-		// otherwise there will be an unclean shutdown
-		// when program ends
-		st.execute("SHUTDOWN");
-		connection.close(); // if there are no other open connection
+		connection.close();
 	}
 
 	private String IDQuoted(String name) {
 		return ID_QUOTE + name + ID_QUOTE;
 	}
 
-	private String stringQuoted(String name) {
-		return STRING_QUOTE + name + STRING_QUOTE;
-	}
-
-	// Order refactorings by their invocations.
-	public void answer1() throws SQLException {
-		//mysql
-		//statement.execute("USE " + dbName);
-
-		String eclipseRefactoringsTable= "EclipseRefactorings";
-		String performedRefactoringsTable= "PerformedRefactorings";
-		String cancelledRefactoringsTable= "CancelledRefactorings";
-		String unavailableRefactoringsTable= "UnavailableRefactorings";
-
-		createAndPopulateRefactoringDataTable(eclipseRefactoringsTable, "ECLIPSE");
-		createAndPopulateRefactoringDataTable(performedRefactoringsTable, "PERFORMED");
-		createAndPopulateRefactoringDataTable(cancelledRefactoringsTable, "CANCELLED");
-		createAndPopulateRefactoringDataTable(unavailableRefactoringsTable, "UNAVAILABLE");
-/*
-		String joinQuery= String
-				.format("SELECT %s.%s, %s.%s, %s.%s, %s.%s, %s.%s, %s.%s, %s.%s, %s.%s FROM %s FULL OUTER JOIN (%s, %s, %s) ON (%s.%s=%s.%s AND %s.%s=%s.%s AND %s.%s=%s.%s)",
-						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
-						IDQuoted(performedRefactoringsTable), IDQuoted("id"),
-						IDQuoted(cancelledRefactoringsTable), IDQuoted("id"),
-						IDQuoted(unavailableRefactoringsTable), IDQuoted("id"),
-						IDQuoted(eclipseRefactoringsTable), IDQuoted("count"),
-						IDQuoted(performedRefactoringsTable), IDQuoted("count"),
-						IDQuoted(cancelledRefactoringsTable), IDQuoted("count"),
-						IDQuoted(unavailableRefactoringsTable), IDQuoted("count"),
-						IDQuoted(eclipseRefactoringsTable),
-						IDQuoted(performedRefactoringsTable), IDQuoted(cancelledRefactoringsTable), IDQuoted(unavailableRefactoringsTable),
-						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
-						IDQuoted(performedRefactoringsTable), IDQuoted("id"),
-						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
-						IDQuoted(cancelledRefactoringsTable), IDQuoted("id"),
-						IDQuoted(eclipseRefactoringsTable), IDQuoted("id"),
-						IDQuoted(unavailableRefactoringsTable), IDQuoted("id"));
-
-		System.out.println(joinQuery);
-		System.out.println("eclipse id, performed id, cancelled id, unavailable id, eclipse count, performed count, cancelled count, unavailable count");
-		ResultSet executeQuery= executeQuery(joinQuery);
-		System.out.println();
-		while (executeQuery.next()) {
-			String eclipseID= executeQuery.getString(1);
-			String performedID= executeQuery.getString(2);
-			String unavailableID= executeQuery.getString(3);
-			String cancelledID= executeQuery.getString(4);
-			int countEclipse= executeQuery.getInt(5);
-			int countPerformed= executeQuery.getInt(6);
-			int countUnavailable= executeQuery.getInt(7);
-			int countCancelled= executeQuery.getInt(8);
-			System.out.println(eclipseID + ", " + performedID + ", " + unavailableID + ", " + cancelledID + ", " + countEclipse + ", " + countPerformed + ", " + countCancelled + ", "
-					+ countUnavailable);
-		}
-		*/
-		System.out.println("Eclipse Refactorings");
-		printIndividualRefactoringTableValues(eclipseRefactoringsTable);
-		System.out.println("Performed Refactorings");
-		printIndividualRefactoringTableValues(performedRefactoringsTable);
-		System.out.println("Cancelled Refactorings");
-		printIndividualRefactoringTableValues(cancelledRefactoringsTable);
-		System.out.println("Unavailable Refactorings");
-		printIndividualRefactoringTableValues(unavailableRefactoringsTable);
-	}
-
-	private void printIndividualRefactoringTableValues(String tableName) throws SQLException {
-		String quickCheck= String.format("SELECT * FROM %s", IDQuoted(tableName));
-		ResultSet executeQuery= executeQuery(quickCheck);
-		System.out.println("id,count");
-		while (executeQuery.next()) {
-			String id= executeQuery.getString(1);
-			int count= executeQuery.getInt(2);
-			System.out.println(id + ", " + count);
-		}
-		System.out.println();
-	}
-
-	private void createAndPopulateRefactoringDataTable(String refactoringCountTable, String refactoringKind) throws SQLException {
-		Statement createTable= connection.createStatement();
-		String createTableString= String.format("CREATE TABLE %s (%s varchar(%d), %s int)", IDQuoted(refactoringCountTable), IDQuoted("id"), VARCHAR_SIZE, IDQuoted("count"));
-		createTable.execute(createTableString);
-		String insertIntoTableQuery= String.format("INSERT INTO %s (%s, %s)", IDQuoted(refactoringCountTable), IDQuoted("id"), IDQuoted("count"));
-		String countEclipseRefactoringsQuery= String.format("SELECT %s, COUNT(%s) from %s WHERE LENGTH(%s) != 0 AND %s = %s GROUP BY %s ORDER BY COUNT(%s) DESC;", IDQuoted("id"), IDQuoted("id"),
-				IDQuoted(tableName), IDQuoted("id"), IDQuoted("refactoring kind"), stringQuoted(refactoringKind), IDQuoted("id"), IDQuoted("id"));
-		Statement insertIntoTable= connection.createStatement();
-		String query= insertIntoTableQuery + " " + countEclipseRefactoringsQuery;
-		System.out.println(query);
-		insertIntoTable.execute(query);
-		connection.commit();
-	}
-
-	public void answer2() throws SQLException {
-		int count;
-		String id;
-
-		//mysql
-//		statement.execute("USE " + dbName);
-		String query= String.format("SELECT %s, COUNT(%s) from %s  WHERE LENGTH(%s) != 0 GROUP BY %s ORDER BY COUNT(%s) DESC;", IDQuoted("refactoring kind"), IDQuoted("refactoring kind"),
-				IDQuoted(tableName), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"), IDQuoted("refactoring kind"));
-		ResultSet executeQuery= executeQuery(query);
-		System.out.println("refactoring kind, count");
-		while (executeQuery.next()) {
-			id= executeQuery.getString(1);
-			count= executeQuery.getInt(2);
-			System.out.println(id + "," + count);
-		}
-	}
-
-	public void answer3() throws SQLException {
-		String id;
-
-		//mysql
-//		statement.execute("USE " + dbName);
-		String query= String.format("SELECT count(%s) FROM %s WHERE %s = 'true';", IDQuoted("id"), IDQuoted(tableName), IDQuoted("invoked-by-quickassist"));
-		ResultSet executeQuery= executeQuery(query);
-		while (executeQuery.next()) {
-			id= executeQuery.getString(1);
-			System.out.println(id);
-		}
-	}
-
-	public void loadCsvToMySql(String filePath) throws IOException, SQLException {
-		createDB(dbName);
+	public void loadCSVToSQL(String filePath) throws IOException, SQLException {
 		CsvMapReader reader= new CsvMapReader(new FileReader(filePath), CsvPreference.EXCEL_PREFERENCE);
 		String[] csvHeader= reader.getCSVHeader(true);
 
@@ -217,16 +70,16 @@ public class MapPersister {
 
 		List<String> columnHeaders= Arrays.asList(csvHeader);
 		List<String> filteredColumnHeaders= filterUnnecessaryColumns(columnHeaders, toRemove);
-		List<String> nulledColumnHeaders= nullUnnecessaryColumnds(columnHeaders, toRemove);
+		List<String> nulledColumnHeaders= nullUnnecessaryColumns(columnHeaders, toRemove);
 
 		if (!(nulledColumnHeaders.size() == columnHeaders.size()))
-			throw new AssertionFailedException("Nulled column does not have same number of elements as original header");
+			throw new RuntimeException("Nulled column does not have same number of elements as original header");
 
 		createTable(tableName, filteredColumnHeaders);
 
 		connection.setAutoCommit(false);
 
-		StringBuilder insertString= new StringBuilder("INSERT INTO " + ID_QUOTE + tableName + ID_QUOTE + " values (");
+		StringBuilder insertString= new StringBuilder("INSERT INTO " + IDQuoted(tableName) + " values (");
 		for (int i= 1; i <= filteredColumnHeaders.size(); i++) {
 			insertString.append("?");
 			if (i < filteredColumnHeaders.size()) {
@@ -243,12 +96,16 @@ public class MapPersister {
 			int index= 1;
 			for (String key : filteredColumnHeaders) {
 				String value= row.get(key);
-				if (value.length() > VARCHAR_SIZE) {
-					value= value.substring(0, VARCHAR_SIZE);
-					System.err.println("\n>>>Truncated value at: " + key + " is: " + value + " and exceeds HSQLDB data capacity!");
+				if (key.toUpperCase().equals("TIMESTAMP")) {
+					preparedStatement.setLong(index, Long.valueOf(value));
+				} else {
+					if (value.length() > VARCHAR_SIZE) {
+						value= value.substring(0, VARCHAR_SIZE);
+						System.err.println("\n>>>Truncated value at: " + key + " is: " + value + " and exceeds HSQLDB data capacity!");
+					}
+					preparedStatement.setString(index, value);
 				}
 
-				preparedStatement.setString(index, value);
 				index++;
 			}
 			preparedStatement.execute();
@@ -259,6 +116,7 @@ public class MapPersister {
 				if (progress % 8000 == 0) {
 					progress= 0;
 					System.out.println();
+					connection.commit();
 				}
 			}
 		}
@@ -268,7 +126,7 @@ public class MapPersister {
 		reader.close();
 	}
 
-	private List<String> nullUnnecessaryColumnds(List<String> columnHeaders, List<String> toRemove) {
+	private List<String> nullUnnecessaryColumns(List<String> columnHeaders, List<String> toRemove) {
 		ArrayList<String> copy= new ArrayList<String>();
 		for (String string : columnHeaders) {
 			if (toRemove.contains(string))
@@ -289,7 +147,7 @@ public class MapPersister {
 		statement.execute("DROP TABLE " + tableName + " IF EXISTS");
 
 		StringBuilder command= new StringBuilder("CREATE TABLE ");
-		command.append(ID_QUOTE).append(tableName).append(ID_QUOTE).append('(');
+		command.append(IDQuoted(tableName)).append('(');
 		for (String field : fields) {
 			command.append(defineColumnNameAndType(field)).append(',');
 		}
@@ -302,13 +160,11 @@ public class MapPersister {
 	protected String defineColumnNameAndType(String field) {
 		StringBuilder fieldDefinition= new StringBuilder();
 
-		fieldDefinition.append(ID_QUOTE).append(field).append(ID_QUOTE).append(' ');
-		if (field.contains("TIMESTAMP")) {
-			fieldDefinition.append("varchar(20)");
+		fieldDefinition.append(IDQuoted(field)).append(' ');
+		if (field.toUpperCase().equals("TIMESTAMP")) {
+			fieldDefinition.append("BIGINT");
 		} else {
-			fieldDefinition.append("varchar(" + VARCHAR_SIZE + ")");
-			//mysql
-			//fieldDefinition.append("text");
+			fieldDefinition.append("VARCHAR(" + VARCHAR_SIZE + ")");
 		}
 		return fieldDefinition.toString();
 	}

@@ -79,6 +79,22 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		return "[new] Started refactoring";
 	}
 
+	public RefactoringMode getRefactoringMode() {
+		return refactoringMode;
+	}
+
+	public String getID() {
+		return id;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public int getFlags() {
+		return flags;
+	}
+
 	private static long getRefactoringTimeStamp(RefactoringDescriptor refactoringDescriptor) {
 		long refactoringDescriptorTimeStamp= refactoringDescriptor.getTimeStamp();
 		return refactoringDescriptorTimeStamp == -1 ? System.currentTimeMillis() : refactoringDescriptorTimeStamp;

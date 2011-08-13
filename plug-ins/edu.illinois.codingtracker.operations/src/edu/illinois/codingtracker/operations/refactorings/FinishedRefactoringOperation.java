@@ -36,6 +36,10 @@ public class FinishedRefactoringOperation extends UserOperation {
 		return "Finished refactoring";
 	}
 
+	public boolean getSuccess() {
+		return success;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(success);

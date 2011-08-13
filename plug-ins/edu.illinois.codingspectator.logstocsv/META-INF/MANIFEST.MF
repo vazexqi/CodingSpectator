@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: edu.illinois.codingspectator.logstocsv
 Bundle-SymbolicName: edu.illinois.codingspectator.logstocsv
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: edu.illinois.codingspectator.logstocsv.Activator
 Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
  edu.illinois.codingspectator.efs,

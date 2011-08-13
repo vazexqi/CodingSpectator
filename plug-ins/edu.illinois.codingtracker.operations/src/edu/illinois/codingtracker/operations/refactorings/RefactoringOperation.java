@@ -25,6 +25,8 @@ import edu.illinois.codingtracker.operations.UserOperation;
 /**
  * Concrete implementations of this operation are no longer recorded.
  * 
+ * {@see NewStartedRefactoringOperation, FinishedRefactoringOperation}.
+ * 
  * @author Stas Negara
  * 
  */
@@ -52,6 +54,18 @@ public abstract class RefactoringOperation extends UserOperation {
 		project= refactoringDescriptor.getProject();
 		flags= refactoringDescriptor.getFlags();
 		initializeArguments(getRefactoringArguments(refactoringDescriptor));
+	}
+
+	public String getID() {
+		return id;
+	}
+
+	public String getProject() {
+		return project;
+	}
+
+	public int getFlags() {
+		return flags;
 	}
 
 	private Map getRefactoringArguments(RefactoringDescriptor refactoringDescriptor) {
