@@ -35,12 +35,8 @@ public class CodingSpectatorRefactoringHistoryCapturer implements SubmitterListe
 	}
 
 	@Override
-	public void preLock() {
-		transferCodingSpectatorRefactoringHistory();
-	}
-
-	@Override
 	public void preSubmit() {
+		transferCodingSpectatorRefactoringHistory();
 	}
 
 	@Override
