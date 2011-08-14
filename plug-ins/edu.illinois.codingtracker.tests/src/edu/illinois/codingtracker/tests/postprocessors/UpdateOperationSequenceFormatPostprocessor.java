@@ -37,6 +37,16 @@ public class UpdateOperationSequenceFormatPostprocessor extends CodingTrackerPos
 	}
 
 	@Override
+	protected boolean shouldPostprocessVersionFolder(String folderName) {
+		return folderName.startsWith(VERSION_FOLDER_COMMON_PREFIX) && folderName.compareTo(FIRST_VERSION_WITH_NEW_FORMAT) < 0;
+	}
+
+	@Override
+	protected String getRecordFileName() {
+		return "codechanges_manual.txt";
+	}
+
+	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
 		updateRefactoringOperations(userOperations);
 		for (UserOperation userOperation : userOperations) {

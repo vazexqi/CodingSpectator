@@ -24,6 +24,16 @@ public class RefactoringTimestampsPostprocessor extends CodingTrackerPostprocess
 	}
 
 	@Override
+	protected boolean shouldPostprocessVersionFolder(String folderName) {
+		return folderName.equals(FIRST_VERSION_WITH_NEW_FORMAT);
+	}
+
+	@Override
+	protected String getRecordFileName() {
+		return "codechanges.txt";
+	}
+
+	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);

@@ -25,26 +25,61 @@ import edu.illinois.codingtracker.tests.CodingTrackerTest;
  */
 public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
-	private final String updatedFilePath= "C:/Users/Stas/Desktop/old format update test/codechanges_manual.txt";
+	protected final static String VERSION_FOLDER_COMMON_PREFIX= "1.0.0.201";
+
+	protected final static String FIRST_VERSION_WITH_NEW_FORMAT= "1.0.0.201105242245";
+
+	private final boolean shouldOverwriteOutputFiles= true;
+
+	private final String rootFolder= "C:/Users/Stas/Desktop/Old CodingTracker format data";
 
 	//@Ignore
 	@Test
 	public void execute() {
 		checkPostprocessingPreconditions();
 		UserOperation.isPostprocessing= true;
-		String originalSequence= ResourceHelper.readFileContent(new File(updatedFilePath));
-		postprocess(OperationDeserializer.getUserOperations(originalSequence));
-		String updatedSequence= ResourceHelper.readFileContent(mainRecordFile);
-		try {
-			File outputFile= new File(updatedFilePath + ".updated");
-			if (outputFile.exists()) {
-				throw new RuntimeException("Output file already exists: " + outputFile.getName());
+		visitLocation(new File(rootFolder));
+	}
+
+	private void visitLocation(File file) {
+		if (file.isDirectory()) {
+			for (File childFile : file.listFiles()) {
+				visitLocation(childFile);
 			}
-			ResourceHelper.writeFileContent(outputFile, updatedSequence, false);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		} else if (shouldPostprocessFile(file)) {
+			System.out.println("Postprocessing file: " + file.getAbsolutePath());
+			String originalSequence= ResourceHelper.readFileContent(file);
+			postprocess(OperationDeserializer.getUserOperations(originalSequence));
+			String updatedSequence= ResourceHelper.readFileContent(mainRecordFile);
+			try {
+				File outputFile= new File(file.getAbsolutePath() + ".postprocessed");
+				if (outputFile.exists() && !shouldOverwriteOutputFiles) {
+					throw new RuntimeException("Output file already exists: " + outputFile.getName());
+				}
+				ResourceHelper.writeFileContent(outputFile, updatedSequence, false);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			System.out.println("DONE");
+			before(); //After a file is postprocessed, reset the main record file.
 		}
 	}
+
+	private boolean shouldPostprocessFile(File file) {
+		String versionFolderName= file.getParentFile().getParentFile().getName();
+		if (shouldPostprocessVersionFolder(versionFolderName) && isRecordFile(file)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isRecordFile(File file) {
+		return file.getName().equals(getRecordFileName());
+	}
+
+	protected abstract boolean shouldPostprocessVersionFolder(String folderName);
+
+	protected abstract String getRecordFileName();
 
 	protected abstract void checkPostprocessingPreconditions();
 
