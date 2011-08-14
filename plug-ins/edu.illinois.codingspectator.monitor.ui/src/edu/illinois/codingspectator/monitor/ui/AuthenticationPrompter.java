@@ -87,7 +87,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	}
 
 
-	private AuthenticationInfo askOrLookupCredentials() throws IOException {
+	private AuthenticationInfo lookupCredentialsOrAsk() throws IOException {
 		AuthenticationInfo authenticationInfo= secureStorageFacade.getStoredAuthenticationInfo();
 		if (authenticationInfo != null) {
 			return authenticationInfo;
@@ -104,7 +104,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
 		try {
-			return askOrLookupCredentials();
+			return lookupCredentialsOrAsk();
 		} catch (Exception ex) {
 			Status errorStatus= Activator.getDefault().createErrorStatus(Messages.AuthenticationPrompter_FailureMessage, ex);
 			Activator.getDefault().log(errorStatus);
