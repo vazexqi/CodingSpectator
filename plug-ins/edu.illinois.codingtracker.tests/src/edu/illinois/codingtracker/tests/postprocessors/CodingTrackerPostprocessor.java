@@ -27,8 +27,6 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	protected final static String VERSION_FOLDER_COMMON_PREFIX= "1.0.0.201";
 
-	protected final static String FIRST_VERSION_WITH_NEW_FORMAT= "1.0.0.201105242245";
-
 	private final boolean shouldOverwriteOutputFiles= true;
 
 	private final String rootFolder= "C:/Users/Stas/Desktop/Old CodingTracker format data";

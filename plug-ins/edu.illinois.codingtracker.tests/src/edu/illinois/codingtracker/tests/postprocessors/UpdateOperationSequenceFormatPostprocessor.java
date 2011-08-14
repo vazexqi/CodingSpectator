@@ -29,6 +29,9 @@ import edu.illinois.codingtracker.recording.TextRecorder;
  */
 public class UpdateOperationSequenceFormatPostprocessor extends CodingTrackerPostprocessor {
 
+	private final static String FIRST_VERSION_WITH_NEW_FORMAT= "1.0.0.201105172309";
+
+
 	@Override
 	protected void checkPostprocessingPreconditions() {
 		if (!UserOperation.isOldFormat) {
