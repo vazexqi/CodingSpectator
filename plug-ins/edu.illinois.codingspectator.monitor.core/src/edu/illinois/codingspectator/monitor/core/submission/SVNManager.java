@@ -41,4 +41,8 @@ public class SVNManager {
 		localSVNManager.doAdd();
 	}
 
+	public void doResolve() throws SVNException {
+		localSVNManager.doResolve();
+	}
+
 }

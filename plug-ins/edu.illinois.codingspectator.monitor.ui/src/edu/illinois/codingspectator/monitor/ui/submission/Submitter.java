@@ -69,6 +69,7 @@ public class Submitter {
 			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(), authenticationInfo.getPassword());
 			svnManager.doImport();
 			svnManager.doCheckout();
+			svnManager.doResolve();
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (SVNAuthenticationException e) {
 			throw new FailedAuthenticationException(e);

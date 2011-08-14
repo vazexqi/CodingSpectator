@@ -7,6 +7,7 @@ import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNConflictChoice;
 import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
@@ -73,4 +74,9 @@ public class LocalSVNManager extends AbstractSVNManager {
 	public void doAdd() throws SVNException {
 		cm.getWCClient().doAdd(svnWorkingCopyDirectory, true, false, false, SVNDepth.INFINITY, false, false);
 	}
+
+	public void doResolve() throws SVNException {
+		cm.getWCClient().doResolve(svnWorkingCopyDirectory, SVNDepth.INFINITY, SVNConflictChoice.THEIRS_FULL);
+	}
+
 }

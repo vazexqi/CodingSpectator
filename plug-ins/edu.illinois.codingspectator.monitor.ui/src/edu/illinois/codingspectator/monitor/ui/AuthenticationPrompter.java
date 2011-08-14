@@ -101,9 +101,6 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		secureStorageFacade.saveAuthenticationInfo(authenticationInfo);
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider#findUsernamePassword()
-	 */
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
 		try {
