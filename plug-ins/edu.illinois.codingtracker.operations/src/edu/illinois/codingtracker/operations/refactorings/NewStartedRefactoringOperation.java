@@ -75,8 +75,7 @@ public class NewStartedRefactoringOperation extends UserOperation {
 	}
 
 	/**
-	 * This constructor should be used only for the conversion from an older refactoring format to
-	 * this newer format.
+	 * This constructor should be used only for conversions performed by postprocessors.
 	 * 
 	 * @param refactoringMode
 	 * @param id
@@ -85,10 +84,10 @@ public class NewStartedRefactoringOperation extends UserOperation {
 	 * @param arguments
 	 * @param timestamp
 	 */
-	public NewStartedRefactoringOperation(RefactoringMode refactoringMode, String id, String project, int flags,
+	public NewStartedRefactoringOperation(boolean shouldAlwaysReplay, RefactoringMode refactoringMode, String id, String project, int flags,
 											Map<String, String> arguments, long timestamp) {
 		super(timestamp);
-		shouldAlwaysReplay= true;
+		this.shouldAlwaysReplay= shouldAlwaysReplay;
 		this.refactoringMode= refactoringMode;
 		this.id= id;
 		this.project= project;
@@ -106,6 +105,10 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		return "[new] Started refactoring";
 	}
 
+	public boolean getShouldAlwaysReplay() {
+		return shouldAlwaysReplay;
+	}
+
 	public RefactoringMode getRefactoringMode() {
 		return refactoringMode;
 	}
@@ -120,6 +123,16 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	public int getFlags() {
 		return flags;
+	}
+
+	/**
+	 * Note that returning a reference to a private collection breaks incapsulation. But considering
+	 * that this method is used only by postprocessors, it should be OK.
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getArguments() {
+		return arguments;
 	}
 
 	private static long getRefactoringTimeStamp(RefactoringDescriptor refactoringDescriptor) {
