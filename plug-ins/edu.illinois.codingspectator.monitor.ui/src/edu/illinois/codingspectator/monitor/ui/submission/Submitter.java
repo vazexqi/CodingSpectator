@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
@@ -67,14 +66,7 @@ public class Submitter {
 			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
 					.getInstance().getAndSetUUIDLazily());
 			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(), authenticationInfo.getPassword());
-			svnManager.doImport();
-			svnManager.doCheckout();
-			svnManager.doResolve();
 			prompter.saveAuthenticationInfo(authenticationInfo);
-		} catch (SVNAuthenticationException e) {
-			throw new FailedAuthenticationException(e);
-		} catch (SVNException e) {
-			throw new InitializationException(e);
 		} catch (StorageException e) {
 			throw new InitializationException(e);
 		} catch (IOException e) {
@@ -100,6 +92,9 @@ public class Submitter {
 		try {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
+			svnManager.doImport();
+			svnManager.doCheckout();
+			svnManager.doResolve();
 			svnManager.doAdd();
 			svnManager.doCommit();
 			submissionSucceeded= true;
