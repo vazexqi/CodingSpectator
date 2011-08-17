@@ -37,7 +37,8 @@ public class RefactoringEvent extends Event {
 	@SuppressWarnings("unchecked")
 	public Map<String, String> toMap() {
 		Map<String, String> map= super.toMap();
-		map.put("comment", capturedRefactoringDescriptor.getComment());
+		String comment= capturedRefactoringDescriptor.getComment();
+		map.put("comment", truncateString(comment));
 		map.put("description", capturedRefactoringDescriptor.getDescription());
 		map.put("flags", String.valueOf(capturedRefactoringDescriptor.getFlags()));
 		map.put("id", capturedRefactoringDescriptor.getID());
@@ -71,6 +72,13 @@ public class RefactoringEvent extends Event {
 		map.put("severity level", String.valueOf(getSeverityLevel(capturedRefactoringDescriptor.getAttribute("status"))));
 		map.put("navigation duration", getNavigationDurationString(capturedRefactoringDescriptor.getAttribute("navigation-history")));
 		return map;
+	}
+
+	private String truncateString(String comment) {
+		if (comment.length() == 0)
+			return "";
+		int maxLength= comment.length() > ATTRIBUTE_LENGTH_LIMIT ? ATTRIBUTE_LENGTH_LIMIT : comment.length() - 1;
+		return comment.substring(0, maxLength);
 	}
 
 	@Override

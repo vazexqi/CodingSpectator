@@ -66,7 +66,7 @@ public class MapPersister {
 		CsvMapReader reader= new CsvMapReader(new FileReader(filePath), CsvPreference.EXCEL_PREFERENCE);
 		String[] csvHeader= reader.getCSVHeader(true);
 
-		List<String> toRemove= Arrays.asList("code-snippet", "selection-text", "comment");
+		List<String> toRemove= Arrays.asList("code-snippet", "selection-text");
 
 		List<String> columnHeaders= Arrays.asList(csvHeader);
 		List<String> filteredColumnHeaders= filterUnnecessaryColumns(columnHeaders, toRemove);
