@@ -21,6 +21,8 @@ public abstract class UserOperation {
 
 	public static final boolean isOldFormat= System.getenv("OLD_CODINGTRACKER_FORMAT") != null;
 
+	public static boolean isPostprocessing= false;
+
 	//Made public to be able to assign when the replayer is loaded/reset
 	public static boolean isRefactoring= false;
 
@@ -50,6 +52,9 @@ public abstract class UserOperation {
 		}
 		initializeFrom(operationLexer);
 		timestamp= operationLexer.readLong();
+		if (timestamp < 0 && !isPostprocessing) {
+			throw new RuntimeException("Operation has a negative timestamp:\n" + this);
+		}
 	}
 
 	@Override

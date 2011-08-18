@@ -26,6 +26,18 @@ public class FinishedRefactoringOperation extends UserOperation {
 		this.success= success;
 	}
 
+	/**
+	 * This constructor should be used only for the conversion from an older refactoring format to
+	 * this newer format.
+	 * 
+	 * @param success
+	 * @param timestamp
+	 */
+	public FinishedRefactoringOperation(boolean success, long timestamp) {
+		super(timestamp);
+		this.success= success;
+	}
+
 	@Override
 	protected char getOperationSymbol() {
 		return OperationSymbols.REFACTORING_FINISHED_SYMBOL;
