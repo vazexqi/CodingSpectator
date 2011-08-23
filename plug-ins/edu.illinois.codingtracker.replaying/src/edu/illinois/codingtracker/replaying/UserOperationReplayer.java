@@ -144,6 +144,7 @@ public class UserOperationReplayer {
 					}
 					breakpoints= new HashSet<UserOperation>();
 					prepareForReplay();
+					System.out.println("Loaded " + userOperations.size() + " operations.");
 				}
 			}
 
@@ -168,7 +169,7 @@ public class UserOperationReplayer {
 		UserOperation.isRefactoring= false;
 		currentEditor= null;
 		userOperationsIterator= userOperations.iterator();
-		advanceCurrentUserOperation();
+		advanceCurrentUserOperation(null);
 		operationSequenceView.setTableViewerInput(userOperations);
 		updateReplayActionsStateForCurrentUserOperation();
 	}
@@ -184,7 +185,7 @@ public class UserOperationReplayer {
 			@Override
 			public void run() {
 				try {
-					replayAndAdvanceCurrentUserOperation();
+					replayAndAdvanceCurrentUserOperation(null);
 				} catch (RuntimeException e) {
 					showReplayExceptionMessage();
 					throw e;
@@ -227,7 +228,7 @@ public class UserOperationReplayer {
 		userOperationExecutionThread.start();
 	}
 
-	private void replayAndAdvanceCurrentUserOperation() {
+	private void replayAndAdvanceCurrentUserOperation(ReplayPace replayPace) {
 		try {
 			if (!UserOperation.isInTestMode && currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
@@ -242,15 +243,21 @@ public class UserOperationReplayer {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		advanceCurrentUserOperation();
+		advanceCurrentUserOperation(replayPace);
 	}
 
-	private void advanceCurrentUserOperation() {
+	private void advanceCurrentUserOperation(ReplayPace replayPace) {
 		if (userOperationsIterator.hasNext()) {
 			currentUserOperation= userOperationsIterator.next();
 		} else {
 			currentUserOperation= null;
 		}
+		if (replayPace != ReplayPace.FAST) { //Do not display additional info during a fast replay.
+			updateSequenceView();
+		}
+	}
+
+	private void updateSequenceView() {
 		operationSequenceView.removeSelection();
 		operationSequenceView.displayInOperationTextPane(currentUserOperation);
 		operationSequenceView.refreshTableViewer();
@@ -335,7 +342,7 @@ public class UserOperationReplayer {
 				@Override
 				public void run() {
 					try {
-						replayAndAdvanceCurrentUserOperation();
+						replayAndAdvanceCurrentUserOperation(replayPace);
 					} catch (RuntimeException e) {
 						showReplayExceptionMessage();
 						updateToolBarActions(); //Before re-throwing the exception, restore the tool bar.
@@ -367,8 +374,15 @@ public class UserOperationReplayer {
 			resetAction.setEnabled(true);
 			findAction.setEnabled(true);
 			updateReplayActionsStateForCurrentUserOperation();
+			if (replayPace == ReplayPace.FAST) { //Update the view after the fast replay is over.
+				operationSequenceView.getDisplay().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						updateSequenceView();
+					}
+				});
+			}
 		}
-
 	}
 
 }
