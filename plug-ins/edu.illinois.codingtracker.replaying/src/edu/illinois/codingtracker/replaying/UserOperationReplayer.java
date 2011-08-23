@@ -5,10 +5,13 @@ package edu.illinois.codingtracker.replaying;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -27,6 +30,12 @@ import edu.illinois.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.files.EditedFileOperation;
+import edu.illinois.codingtracker.operations.files.EditedUnsychronizedFileOperation;
+import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
+import edu.illinois.codingtracker.operations.resources.CreatedResourceOperation;
+import edu.illinois.codingtracker.operations.resources.ReorganizedResourceOperation;
+import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 
 /**
  * 
@@ -76,46 +85,50 @@ public class UserOperationReplayer {
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.CUSTOM), "Custom", "Replay the remaining user operations at a custom pace", true));
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.SIMULATE), "Simulate", "Simulate the remaining user operations at the user pace", true));
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.FAST), "Fast", "Fast replay of the remaining user operations", true));
+		toolBarManager.add(createReplayAction(newJumpToAction(), "Jump", "Jump as close as possible to a given timestamp", false));
 		toolBarManager.add(new Separator());
 		toolBarManager.add(createFindOperationAction());
 		toolBarManager.add(new Separator());
+	}
+
+	private UserOperation findUserOperationClosestToTimestamp(long searchedTimestamp) {
+		UserOperation foundUserOperation= null;
+		long minimumDeltaTime= Long.MAX_VALUE;
+		for (UserOperation userOperation : userOperations) {
+			long currentDeltaTime= Math.abs(userOperation.getTime() - searchedTimestamp);
+			if (currentDeltaTime < minimumDeltaTime) {
+				minimumDeltaTime= currentDeltaTime;
+				foundUserOperation= userOperation;
+				if (minimumDeltaTime == 0) {
+					//Found the exact match, no need to proceed.
+					break;
+				}
+			}
+		}
+		return foundUserOperation;
 	}
 
 	private IAction createFindOperationAction() {
 		findAction= new Action() {
 			@Override
 			public void run() {
-				FindOperationDialog dialog= new FindOperationDialog(operationSequenceView.getShell());
+				TimestampDialog dialog= new TimestampDialog(operationSequenceView.getShell(), "Find operation");
 				if (dialog.open() == Window.OK) {
-					UserOperation foundUserOperation= null;
-					long minimumDeltaTime= Long.MAX_VALUE;
-					for (UserOperation userOperation : userOperations) {
-						long currentDeltaTime= Math.abs(userOperation.getTime() - dialog.getTimestamp());
-						if (currentDeltaTime < minimumDeltaTime) {
-							minimumDeltaTime= currentDeltaTime;
-							foundUserOperation= userOperation;
-							if (minimumDeltaTime == 0) {
-								//Found the exact match, no need to proceed.
-								break;
-							}
-						}
-					}
-					showSearchResults(dialog.getTimestamp(), foundUserOperation, minimumDeltaTime);
-				}
-			}
-
-			private void showSearchResults(long searchedTimestamp, UserOperation foundUserOperation, long minimumDeltaTime) {
-				if (foundUserOperation == null) {
-					showMessage("There are no operations near timestamp " + searchedTimestamp);
-				} else {
-					if (minimumDeltaTime == 0) {
-						showMessage("Found the exact match!");
+					long searchedTimestamp= dialog.getTimestamp();
+					UserOperation foundUserOperation= findUserOperationClosestToTimestamp(searchedTimestamp);
+					if (foundUserOperation == null) {
+						showMessage("There are no operations near timestamp " + searchedTimestamp);
 					} else {
-						showMessage("Found the closest operation, delta = " + minimumDeltaTime + " ms.");
-					}
-					operationSequenceView.setSelection(new StructuredSelection(foundUserOperation));
-					if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
-						showMessage("Operation with timestamp " + foundUserOperation.getTime() + " is filtered out");
+						long deltaTime= Math.abs(searchedTimestamp - foundUserOperation.getTime());
+						if (deltaTime == 0) {
+							showMessage("Found the exact match!");
+						} else {
+							showMessage("Found the closest operation, delta = " + deltaTime + " ms.");
+						}
+						operationSequenceView.setSelection(new StructuredSelection(foundUserOperation));
+						if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
+							showMessage("Operation with timestamp " + foundUserOperation.getTime() + " is filtered out");
+						}
 					}
 				}
 			}
@@ -166,12 +179,16 @@ public class UserOperationReplayer {
 	}
 
 	private void prepareForReplay() {
-		UserOperation.isRefactoring= false;
-		currentEditor= null;
-		userOperationsIterator= userOperations.iterator();
+		initializeReplay();
 		advanceCurrentUserOperation(null);
 		operationSequenceView.setTableViewerInput(userOperations);
 		updateReplayActionsStateForCurrentUserOperation();
+	}
+
+	private void initializeReplay() {
+		UserOperation.isRefactoring= false;
+		currentEditor= null;
+		userOperationsIterator= userOperations.iterator();
 	}
 
 	private IAction createReplayAction(IAction action, String actionText, String actionToolTipText, boolean isToggable) {
@@ -206,6 +223,119 @@ public class UserOperationReplayer {
 				} else {
 					replayUserOperationSequence(this, replayPace);
 				}
+			}
+		};
+	}
+
+	private IAction newJumpToAction() {
+		return new Action() {
+			private final Map<String, UserOperation> snapshotsBeforeJumpToTimestamp= new HashMap<String, UserOperation>();
+
+			private final Set<String> snapshotsAfterJumpToTimestamp= new HashSet<String>();
+
+			private final Set<String> ensureSnapshots= new HashSet<String>();
+
+			private ResourceOperation lastEditBeforeJumpToTimestamp= null;
+
+			private long jumpToTimestamp= -1;
+
+			@Override
+			public void run() {
+				TimestampDialog dialog= new TimestampDialog(operationSequenceView.getShell(), "Jump to timestamp");
+				if (dialog.open() == Window.OK) {
+					initializeAction(dialog.getTimestamp());
+					for (UserOperation userOperation : userOperations) {
+						if (userOperation instanceof ResourceOperation) {
+							handleResourceOperation((ResourceOperation)userOperation);
+						}
+					}
+					jumpTo(getStartOperation());
+				}
+			}
+
+			private void initializeAction(long jumpToTimestamp) {
+				this.jumpToTimestamp= jumpToTimestamp;
+				snapshotsBeforeJumpToTimestamp.clear();
+				snapshotsAfterJumpToTimestamp.clear();
+				ensureSnapshots.clear();
+				lastEditBeforeJumpToTimestamp= null;
+			}
+
+			private void handleResourceOperation(ResourceOperation resourceOperation) {
+				if (resourceOperation instanceof ReorganizedResourceOperation) {
+					ReorganizedResourceOperation reorganizedResourceOperation= (ReorganizedResourceOperation)resourceOperation;
+					UserOperation snapshotOperation= snapshotsBeforeJumpToTimestamp.get(reorganizedResourceOperation.getResourcePath());
+					if (snapshotOperation != null) {
+						snapshotsBeforeJumpToTimestamp.put(reorganizedResourceOperation.getDestinationPath(), snapshotOperation);
+					}
+					if (snapshotsAfterJumpToTimestamp.contains(reorganizedResourceOperation.getResourcePath())) {
+						snapshotsAfterJumpToTimestamp.add(reorganizedResourceOperation.getDestinationPath());
+					}
+					return;
+				}
+				if (isBeforeJumpToTimestamp(resourceOperation)) {
+					if (doesCreateNewFileContent(resourceOperation)) {
+						snapshotsBeforeJumpToTimestamp.put(resourceOperation.getResourcePath(), resourceOperation);
+					}
+					if (doesEditFile(resourceOperation)) {
+						lastEditBeforeJumpToTimestamp= resourceOperation;
+					}
+				} else {
+					if (doesCreateNewFileContent(resourceOperation)) {
+						snapshotsAfterJumpToTimestamp.add(resourceOperation.getResourcePath());
+					}
+					if (doesEditFile(resourceOperation)) {
+						if (!snapshotsAfterJumpToTimestamp.contains(resourceOperation.getResourcePath())) {
+							ensureSnapshots.add(resourceOperation.getResourcePath());
+						}
+					}
+				}
+			}
+
+			private boolean isBeforeJumpToTimestamp(ResourceOperation resourceOperation) {
+				return resourceOperation.getTime() <= jumpToTimestamp;
+			}
+
+			private boolean doesCreateNewFileContent(ResourceOperation resourceOperation) {
+				return resourceOperation instanceof SnapshotedFileOperation || resourceOperation instanceof CreatedResourceOperation;
+			}
+
+			private boolean doesEditFile(ResourceOperation resourceOperation) {
+				return resourceOperation instanceof EditedFileOperation || resourceOperation instanceof EditedUnsychronizedFileOperation;
+			}
+
+			private UserOperation getStartOperation() {
+				UserOperation startOperation= null;
+				//Ensure that the last edited file before the "jump to" timestamp is snapshoted to account for jumps inside such edits.
+				if (lastEditBeforeJumpToTimestamp != null) {
+					ensureSnapshots.add(lastEditBeforeJumpToTimestamp.getResourcePath());
+				}
+				if (ensureSnapshots.size() == 0) {
+					startOperation= findUserOperationClosestToTimestamp(jumpToTimestamp);
+				} else {
+					for (String fileToEnsureSnapshot : ensureSnapshots) {
+						UserOperation snapshotOperation= snapshotsBeforeJumpToTimestamp.get(fileToEnsureSnapshot);
+						if (snapshotOperation == null) {
+							showMessage("A file edited after jump to timestamp was not snapshoted before it: " + fileToEnsureSnapshot);
+							break;
+						}
+						if (startOperation == null || startOperation.getTime() > snapshotOperation.getTime()) {
+							startOperation= snapshotOperation;
+						}
+					}
+				}
+				return startOperation;
+			}
+
+			private void jumpTo(UserOperation userOperation) {
+				initializeReplay();
+				currentUserOperation= userOperation;
+				while (userOperationsIterator.hasNext()) {
+					if (currentUserOperation == userOperationsIterator.next()) {
+						break;
+					}
+				}
+				updateSequenceView();
 			}
 		};
 	}

@@ -42,6 +42,10 @@ public abstract class ResourceOperation extends UserOperation {
 		resourcePath= ResourceHelper.getPortableResourcePath(resource);
 	}
 
+	public String getResourcePath() {
+		return resourcePath;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(resourcePath);

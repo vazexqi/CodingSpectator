@@ -29,6 +29,10 @@ public abstract class ReorganizedResourceOperation extends UpdatedResourceOperat
 		destinationPath= destination.toPortableString();
 	}
 
+	public String getDestinationPath() {
+		return destinationPath;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
