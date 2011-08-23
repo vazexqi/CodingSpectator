@@ -88,17 +88,34 @@ public class UserOperationReplayer {
 				FindOperationDialog dialog= new FindOperationDialog(operationSequenceView.getShell());
 				if (dialog.open() == Window.OK) {
 					UserOperation foundUserOperation= null;
+					long minimumDeltaTime= Long.MAX_VALUE;
 					for (UserOperation userOperation : userOperations) {
-						if (userOperation.getTime() == dialog.getTimestamp()) {
+						long currentDeltaTime= Math.abs(userOperation.getTime() - dialog.getTimestamp());
+						if (currentDeltaTime < minimumDeltaTime) {
+							minimumDeltaTime= currentDeltaTime;
 							foundUserOperation= userOperation;
-							operationSequenceView.setSelection(new StructuredSelection(foundUserOperation));
-							break;
+							if (minimumDeltaTime == 0) {
+								//Found the exact match, no need to proceed.
+								break;
+							}
 						}
 					}
-					if (foundUserOperation == null) {
-						showMessage("There is no operation with timestamp " + dialog.getTimestamp());
-					} else if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
-						showMessage("Operation with timestamp " + dialog.getTimestamp() + " is filtered out");
+					showSearchResults(dialog.getTimestamp(), foundUserOperation, minimumDeltaTime);
+				}
+			}
+
+			private void showSearchResults(long searchedTimestamp, UserOperation foundUserOperation, long minimumDeltaTime) {
+				if (foundUserOperation == null) {
+					showMessage("There are no operations near timestamp " + searchedTimestamp);
+				} else {
+					if (minimumDeltaTime == 0) {
+						showMessage("Found the exact match!");
+					} else {
+						showMessage("Found the closest operation, delta = " + minimumDeltaTime + " ms.");
+					}
+					operationSequenceView.setSelection(new StructuredSelection(foundUserOperation));
+					if (!operationSequenceView.getOperationSequenceFilter().isShown(foundUserOperation)) {
+						showMessage("Operation with timestamp " + foundUserOperation.getTime() + " is filtered out");
 					}
 				}
 			}
