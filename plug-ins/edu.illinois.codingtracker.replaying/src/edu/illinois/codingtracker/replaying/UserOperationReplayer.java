@@ -462,6 +462,8 @@ public class UserOperationReplayer {
 
 		private final int customDelayTime;
 
+		private boolean stoppedDueToException= false;
+
 		private UserOperationExecutionThread(IAction executionAction, ReplayPace replayPace, int customDelayTime) {
 			this.executionAction= executionAction;
 			this.replayPace= replayPace;
@@ -471,32 +473,39 @@ public class UserOperationReplayer {
 		@Override
 		public void run() {
 			final long startReplayTime= System.currentTimeMillis();
-			do {
-				long executedOperationTime= currentUserOperation.getTime();
-				long startTime= System.currentTimeMillis();
-				executeUserOperationInUIThread();
-				if (shouldStopExecution()) {
-					break;
-				} else {
-					if (replayPace == ReplayPace.SIMULATE) {
-						long nextOperationTime= currentUserOperation.getTime();
-						long delayTime= nextOperationTime - executedOperationTime;
-						simulateDelay(delayTime, startTime);
-					} else if (replayPace == ReplayPace.CUSTOM) {
-						simulateDelay(customDelayTime, startTime);
-					}
-					if (forcedExecutionStop) {
+			try {
+				do {
+					long executedOperationTime= currentUserOperation.getTime();
+					long startTime= System.currentTimeMillis();
+					executeUserOperationInUIThread();
+					if (shouldStopExecution()) {
 						break;
+					} else {
+						if (replayPace == ReplayPace.SIMULATE) {
+							long nextOperationTime= currentUserOperation.getTime();
+							long delayTime= nextOperationTime - executedOperationTime;
+							simulateDelay(delayTime, startTime);
+						} else if (replayPace == ReplayPace.CUSTOM) {
+							simulateDelay(customDelayTime, startTime);
+						}
+						if (forcedExecutionStop) {
+							break;
+						}
 					}
-				}
-			} while (true);
-			operationSequenceView.getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					showMessage("Replay is over or reached a breakpoint. Replay time: " + (System.currentTimeMillis() - startReplayTime) + " ms");
-				}
-			});
-			updateToolBarActions();
+				} while (true);
+			} finally {
+				operationSequenceView.getDisplay().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						long replayTime= System.currentTimeMillis() - startReplayTime;
+						if (stoppedDueToException) {
+							showReplayExceptionMessage();
+						}
+						showMessage("Replay time: " + replayTime + " ms");
+					}
+				});
+				updateToolBarActions();
+			}
 		}
 
 		private void executeUserOperationInUIThread() {
@@ -506,8 +515,7 @@ public class UserOperationReplayer {
 					try {
 						replayAndAdvanceCurrentUserOperation(replayPace);
 					} catch (RuntimeException e) {
-						showReplayExceptionMessage();
-						updateToolBarActions(); //Before re-throwing the exception, restore the tool bar.
+						stoppedDueToException= true;
 						throw e;
 					}
 				}
