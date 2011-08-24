@@ -470,6 +470,7 @@ public class UserOperationReplayer {
 
 		@Override
 		public void run() {
+			final long startReplayTime= System.currentTimeMillis();
 			do {
 				long executedOperationTime= currentUserOperation.getTime();
 				long startTime= System.currentTimeMillis();
@@ -489,6 +490,12 @@ public class UserOperationReplayer {
 					}
 				}
 			} while (true);
+			operationSequenceView.getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					showMessage("Replay is over or reached a breakpoint. Replay time: " + (System.currentTimeMillis() - startReplayTime) + " ms");
+				}
+			});
 			updateToolBarActions();
 		}
 
