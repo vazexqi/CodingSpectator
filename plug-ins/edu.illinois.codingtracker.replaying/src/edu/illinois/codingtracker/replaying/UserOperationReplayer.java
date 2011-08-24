@@ -32,10 +32,12 @@ import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingtracker.operations.files.EditedUnsychronizedFileOperation;
+import edu.illinois.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
 import edu.illinois.codingtracker.operations.resources.CreatedResourceOperation;
 import edu.illinois.codingtracker.operations.resources.ReorganizedResourceOperation;
 import edu.illinois.codingtracker.operations.resources.ResourceOperation;
+import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 
 /**
  * 
@@ -239,22 +241,39 @@ public class UserOperationReplayer {
 
 			private long jumpToTimestamp= -1;
 
+			private boolean shouldConsiderLastEditBeforeJumpTo= false;
+
+			private boolean metFirstEditAfterJumpTo= false;
+
 			@Override
 			public void run() {
 				TimestampDialog dialog= new TimestampDialog(operationSequenceView.getShell(), "Jump to timestamp");
 				if (dialog.open() == Window.OK) {
-					initializeAction(dialog.getTimestamp());
-					for (UserOperation userOperation : userOperations) {
-						if (userOperation instanceof ResourceOperation) {
-							handleResourceOperation((ResourceOperation)userOperation);
+					jumpToTimestamp= dialog.getTimestamp();
+					while (true) {
+						initializeAction();
+						for (UserOperation userOperation : userOperations) {
+							if (userOperation instanceof ResourceOperation) {
+								handleResourceOperation((ResourceOperation)userOperation);
+							}
+							if (doesChangeFileContent(userOperation) && isAfterJumpToTimestamp(userOperation) && !metFirstEditAfterJumpTo) {
+								shouldConsiderLastEditBeforeJumpTo= true;
+							}
+						}
+						UserOperation startOperation= getStartOperation();
+						if (ensureSnapshots.size() == 0) {
+							jumpTo(startOperation);
+							break;
+						} else {
+							jumpToTimestamp= startOperation.getTime();
 						}
 					}
-					jumpTo(getStartOperation());
 				}
 			}
 
-			private void initializeAction(long jumpToTimestamp) {
-				this.jumpToTimestamp= jumpToTimestamp;
+			private void initializeAction() {
+				shouldConsiderLastEditBeforeJumpTo= false;
+				metFirstEditAfterJumpTo= false;
 				snapshotsBeforeJumpToTimestamp.clear();
 				snapshotsAfterJumpToTimestamp.clear();
 				ensureSnapshots.clear();
@@ -273,27 +292,29 @@ public class UserOperationReplayer {
 					}
 					return;
 				}
-				if (isBeforeJumpToTimestamp(resourceOperation)) {
+				if (isAfterJumpToTimestamp(resourceOperation)) {
+					if (doesCreateNewFileContent(resourceOperation)) {
+						snapshotsAfterJumpToTimestamp.add(resourceOperation.getResourcePath());
+					}
+					if (doesEditFile(resourceOperation)) {
+						metFirstEditAfterJumpTo= true;
+						if (!snapshotsAfterJumpToTimestamp.contains(resourceOperation.getResourcePath())) {
+							ensureSnapshots.add(resourceOperation.getResourcePath());
+						}
+					}
+				} else {
 					if (doesCreateNewFileContent(resourceOperation)) {
 						snapshotsBeforeJumpToTimestamp.put(resourceOperation.getResourcePath(), resourceOperation);
 					}
 					if (doesEditFile(resourceOperation)) {
 						lastEditBeforeJumpToTimestamp= resourceOperation;
 					}
-				} else {
-					if (doesCreateNewFileContent(resourceOperation)) {
-						snapshotsAfterJumpToTimestamp.add(resourceOperation.getResourcePath());
-					}
-					if (doesEditFile(resourceOperation)) {
-						if (!snapshotsAfterJumpToTimestamp.contains(resourceOperation.getResourcePath())) {
-							ensureSnapshots.add(resourceOperation.getResourcePath());
-						}
-					}
 				}
 			}
 
-			private boolean isBeforeJumpToTimestamp(ResourceOperation resourceOperation) {
-				return resourceOperation.getTime() <= jumpToTimestamp;
+			private boolean isAfterJumpToTimestamp(UserOperation userOperation) {
+				//Note that equals is also after since this will be replayed after jump as well.
+				return userOperation.getTime() >= jumpToTimestamp;
 			}
 
 			private boolean doesCreateNewFileContent(ResourceOperation resourceOperation) {
@@ -304,10 +325,14 @@ public class UserOperationReplayer {
 				return resourceOperation instanceof EditedFileOperation || resourceOperation instanceof EditedUnsychronizedFileOperation;
 			}
 
+			private boolean doesChangeFileContent(UserOperation userOperation) {
+				return userOperation instanceof TextChangeOperation || userOperation instanceof SavedFileOperation;
+			}
+
 			private UserOperation getStartOperation() {
 				UserOperation startOperation= null;
 				//Ensure that the last edited file before the "jump to" timestamp is snapshoted to account for jumps inside such edits.
-				if (lastEditBeforeJumpToTimestamp != null) {
+				if (lastEditBeforeJumpToTimestamp != null && shouldConsiderLastEditBeforeJumpTo) {
 					ensureSnapshots.add(lastEditBeforeJumpToTimestamp.getResourcePath());
 				}
 				if (ensureSnapshots.size() == 0) {
