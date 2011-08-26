@@ -84,14 +84,8 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 			}
 		} else {//If file editor does not exist, create a file with the replaced text and open an editor for it
 			createCompilationUnit(replacedText);
-			ITextEditor createdEditor= EditorHelper.createEditor(resourcePath);
-			//A refresh operation is usually preceded by an external change operation, which could close the current editor.
-			//The editor is essentially recreated by the following refresh operation, so it should become the current editor.
-			if (currentEditor != null) {
-				EditorHelper.activateEditor(currentEditor);
-			} else {
-				currentEditor= createdEditor;
-			}
+			EditorHelper.createEditor(resourcePath);
+			EditorHelper.activateEditor(currentEditor);
 		}
 		refresh();
 	}

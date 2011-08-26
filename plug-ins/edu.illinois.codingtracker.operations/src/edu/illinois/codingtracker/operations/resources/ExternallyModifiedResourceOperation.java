@@ -62,22 +62,21 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 	@Override
 	public void replay() throws CoreException {
 		IResource resource= findResource();
-		//If not in test mode, delete the resource regardless of whether it was deleted or just modified since this operation 
-		//could be followed by a commit operation, whose replay would fail due to the wrong file content.
-		if (resource != null && (isDeleted || !isInTestMode)) {
-			//If deleted resource is opened in the active editor, close it first in order to avoid confusing the replayer 
-			//that tracks the current active editor.
-			IEditorPart activeEditor= EditorHelper.getActiveEditor();
-			if (activeEditor instanceof AbstractDecoratedTextEditor) {
-				IFile editedFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)activeEditor);
-				if (resource.equals(editedFile)) {
-					if (activeEditor == currentEditor) {
-						currentEditor= null;
+		if (resource != null) {
+			if (isDeleted) {
+				//If deleted resource is opened in the active editor, close it first in order to avoid confusing the replayer 
+				//that tracks the current active editor.
+				IEditorPart activeEditor= EditorHelper.getActiveEditor();
+				if (activeEditor instanceof AbstractDecoratedTextEditor) {
+					IFile editedFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)activeEditor);
+					if (resource.equals(editedFile)) {
+						activeEditor.getSite().getPage().closeEditor(activeEditor, false);
 					}
-					activeEditor.getSite().getPage().closeEditor(activeEditor, false);
 				}
+				resource.delete(true, null);
+			} else {
+				externallyModifiedResources.add(resourcePath);
 			}
-			resource.delete(true, null);
 		}
 	}
 

@@ -50,6 +50,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	@Override
 	public void replay() throws CoreException {
 		createCompilationUnit(fileContent);
+		externallyModifiedResources.remove(resourcePath);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	protected void checkSnapshotMatchesTheExistingFile() {
 		IResource workspaceResource= ResourceHelper.findWorkspaceMember(resourcePath);
-		if (workspaceResource != null) {
+		if (workspaceResource != null && !externallyModifiedResources.contains(resourcePath)) {
 			if (!fileContent.equals(ResourceHelper.readFileContent((IFile)workspaceResource))) {
 				throw new RuntimeException("The snapshot file does not match the existing file: " + resourcePath);
 			}

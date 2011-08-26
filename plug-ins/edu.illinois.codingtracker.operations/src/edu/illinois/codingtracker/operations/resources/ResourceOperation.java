@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.operations.resources;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -29,6 +32,9 @@ public abstract class ResourceOperation extends UserOperation {
 	private static final String FILE_PATH_SEPARATOR= String.valueOf(IPath.SEPARATOR);
 
 	private static final String PACKAGE_NAME_SEPARATOR= ".";
+
+	//The following field is not serialized/deserialized. It is used for replay only.
+	protected static final Set<String> externallyModifiedResources= new HashSet<String>();
 
 	protected String resourcePath;
 
