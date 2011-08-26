@@ -14,7 +14,9 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
+import org.eclipse.ui.texteditor.ITextEditor;
 
+import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
@@ -72,6 +74,18 @@ public abstract class ResourceOperation extends UserOperation {
 		String[] filePathFragments= resourcePath.split(FILE_PATH_SEPARATOR);
 		String fileName= filePathFragments[filePathFragments.length - 1];
 		packageFragment.createCompilationUnit(fileName, content, true, null);
+		//Save the created compilation unit in case it is opened in an editor (e.g. an editor showing an externally changed file).
+		//TODO: This code mostly duplicates code from edu.illinois.codingtracker.operations.files.SavedFileOperation.replayBreakableResourceOperation().
+		ITextEditor editor= EditorHelper.getExistingEditor(resourcePath);
+		if (editor != null) {
+			editor.doSave(null);
+			//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//do nothing
+			}
+		}
 	}
 
 	protected IParent findOrCreateParent(String path) throws CoreException {
