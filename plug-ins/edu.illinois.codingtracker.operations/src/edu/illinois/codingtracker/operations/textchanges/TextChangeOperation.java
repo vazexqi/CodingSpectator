@@ -75,7 +75,7 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
-		if (isInTestMode && isRefactoring) {
+		if (isReplayedRefactoring) {
 			isRecordedWhileRefactoring= true;
 		} else {
 			updateCurrentState();

@@ -8,7 +8,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.resources.BreakableResourceOperation;
 
@@ -42,16 +41,8 @@ public class SavedFileOperation extends BreakableResourceOperation {
 
 	@Override
 	public void replayBreakableResourceOperation() throws CoreException {
-		ITextEditor editor= EditorHelper.getExistingEditor(resourcePath);
-		if (editor != null) {
-			editor.doSave(null);
-			//FIXME: Instead of sleeping, should listen to IProgressMonitor.done()
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				//do nothing
-			}
-		} else {
+		ITextEditor editor= saveResourceInEditor();
+		if (editor == null) {
 			Debugger.debugWarning("Ignored save of the non existent editor:\n" + this);
 		}
 	}

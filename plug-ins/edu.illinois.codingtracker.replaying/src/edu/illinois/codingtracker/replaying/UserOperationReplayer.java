@@ -188,7 +188,7 @@ public class UserOperationReplayer {
 	}
 
 	private void initializeReplay() {
-		UserOperation.isRefactoring= false;
+		UserOperation.isReplayedRefactoring= false;
 		currentEditor= null;
 		userOperationsIterator= userOperations.iterator();
 	}

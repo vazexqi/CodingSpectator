@@ -193,8 +193,8 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		isRefactoring= true;
 		if (shouldAlwaysReplay || isInTestMode) { //replay only older refactorings or if in the test mode
+			isReplayedRefactoring= true;
 			switch (refactoringMode) {
 				case PERFORM:
 					RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor();

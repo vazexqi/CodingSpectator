@@ -24,7 +24,7 @@ public abstract class UserOperation {
 	public static boolean isPostprocessing= false;
 
 	//Made public to be able to assign when the replayer is loaded/reset
-	public static boolean isRefactoring= false;
+	public static boolean isReplayedRefactoring= false;
 
 	protected static IEditorPart currentEditor= null;
 

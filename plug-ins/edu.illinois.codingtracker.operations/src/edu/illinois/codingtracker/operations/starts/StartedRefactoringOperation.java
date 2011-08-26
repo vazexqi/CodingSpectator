@@ -42,7 +42,7 @@ public class StartedRefactoringOperation extends UserOperation {
 
 	@Override
 	public void replay() {
-		isRefactoring= true;
+		isReplayedRefactoring= true;
 	}
 
 }

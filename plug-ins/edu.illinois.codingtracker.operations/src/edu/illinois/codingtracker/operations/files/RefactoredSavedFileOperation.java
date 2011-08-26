@@ -4,6 +4,7 @@
 package edu.illinois.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingtracker.operations.OperationSymbols;
 
@@ -34,8 +35,8 @@ public class RefactoredSavedFileOperation extends FileOperation {
 	}
 
 	@Override
-	public void replay() {
-		//do nothing
+	public void replay() throws CoreException {
+		saveResourceInEditor();
 	}
 
 }

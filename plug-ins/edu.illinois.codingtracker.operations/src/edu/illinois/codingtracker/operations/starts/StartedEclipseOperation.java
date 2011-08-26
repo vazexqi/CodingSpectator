@@ -47,7 +47,7 @@ public class StartedEclipseOperation extends UserOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		isRefactoring= false;
+		isReplayedRefactoring= false;
 		//Close all editors (in case the previous Eclipse session ended abnormally, and thus close editor operations were not recorded).
 		EditorHelper.closeAllEditors();
 		//disable auto build

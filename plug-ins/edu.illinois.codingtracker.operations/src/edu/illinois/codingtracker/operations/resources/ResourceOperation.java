@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingtracker.helpers.EditorHelper;
@@ -75,7 +76,10 @@ public abstract class ResourceOperation extends UserOperation {
 		String fileName= filePathFragments[filePathFragments.length - 1];
 		packageFragment.createCompilationUnit(fileName, content, true, null);
 		//Save the created compilation unit in case it is opened in an editor (e.g. an editor showing an externally changed file).
-		//TODO: This code mostly duplicates code from edu.illinois.codingtracker.operations.files.SavedFileOperation.replayBreakableResourceOperation().
+		saveResourceInEditor();
+	}
+
+	protected ITextEditor saveResourceInEditor() throws PartInitException {
 		ITextEditor editor= EditorHelper.getExistingEditor(resourcePath);
 		if (editor != null) {
 			editor.doSave(null);
@@ -86,6 +90,7 @@ public abstract class ResourceOperation extends UserOperation {
 				//do nothing
 			}
 		}
+		return editor;
 	}
 
 	protected IParent findOrCreateParent(String path) throws CoreException {
