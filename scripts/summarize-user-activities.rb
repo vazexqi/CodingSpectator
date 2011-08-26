@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 #This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 #author: Mohsen Vakilian
-#This script lists the last data submission and CodingSpectator account creation dates of the participants in the CSV format.
+#This scripts compiles the following information about each participant in the CSV format.
+#1. the data of the creation of the participant's account
+#2. the date of the last data submission of the participant
+#3. the latest version of CodingSpectator that has submitted data from the participant's workspace
 
 require 'optparse'
 
@@ -54,11 +57,12 @@ end
 
 class SVNLog
 
-  attr_reader :date
+  attr_reader :date, :username
 
   def initialize(svn_log_string)
     svn_log_elements = svn_log_string.split('|')
     @date = svn_log_elements[2][1.."YYYY-MM-DD".length]
+    @username = svn_log_elements[1].strip
   end
 
 end
@@ -86,17 +90,17 @@ class Participant
     svn_log = `svn log #{$svn_repo}/#{@username} #{svn_authentication_arguments} | grep "|"`
     svn_logs = svn_log.split("\n")
     svn_logs = svn_logs.map {|svn_log_string| SVNLog.new(svn_log_string)}
-    
-    last_commit_date = svn_logs.first.date
-    first_commit_date = svn_logs.last.date
-    
-    @account_creation_date = first_commit_date
 
-    if last_commit_date != first_commit_date 
-      @last_data_submission_date = last_commit_date
+    participant_last_commit = svn_logs.find {|svn_log| Participant.new(svn_log.username).a_summer_2011_participant?}
+
+    if participant_last_commit.nil?
+      participant_last_commit_date = ""
     else
-      @last_data_submission_date = ""
+      participant_last_commit_date = participant_last_commit.date
     end
+
+    @account_creation_date = svn_logs.last.date
+    @last_data_submission_date = participant_last_commit_date
   end
 
   def svn_ls(path_relative_to_username_folder)
