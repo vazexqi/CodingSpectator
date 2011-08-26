@@ -69,7 +69,7 @@ end
 
 class Participant
 
-  attr_reader :last_data_submission_date, :account_creation_date, :version
+  attr_reader :last_data_submission_date, :account_creation_date, :version, :codingtracker_data_size
 
   def initialize(username)
     @username = username
@@ -82,6 +82,7 @@ class Participant
   def summarize_activities
     find_latest_submission_information
     find_latest_codingspectator_version
+    compute_codingtracker_data_size
 
     $stderr.print "."
   end
@@ -114,11 +115,18 @@ class Participant
     @version = versions.max
   end
 
-  def to_s
-    @username + "," + @account_creation_date + "," + @last_data_submission_date + "," + @version
+  def compute_codingtracker_data_size
+    workspace_ids = svn_ls("")
+    workspace_id_versions = workspace_ids.map {|workspace_id| svn_ls(workspace_id).map {|version| workspace_id + "/" + version}}.flatten
+    codingtracker_log_sizes = workspace_id_versions.map {|workspace_id_version| svn_ls(workspace_id_version + "/codingtracker/codechanges.txt -v").map {|svn_ls_result| svn_ls_result.split(" ")[2].to_i}}.flatten
+    @codingtracker_data_size = codingtracker_log_sizes.inject(0) {|codingtracker_total_log_size, codingtracker_log_size| codingtracker_total_log_size + codingtracker_log_size}
   end
 
-  private :find_latest_submission_information, :svn_ls, :find_latest_codingspectator_version
+  def to_s
+    @username + "," + @account_creation_date + "," + @last_data_submission_date + "," + @version + "," + @codingtracker_data_size.to_s
+  end
+
+  private :find_latest_submission_information, :svn_ls, :find_latest_codingspectator_version, :compute_codingtracker_data_size
 
 end
 
@@ -146,7 +154,7 @@ class Participants
   end
 
   def to_s
-    csv_header = "username,account creation date (YYYY-MM-DD),last data submission date (YYYY-MM-DD),latest CodingSpectator version\n"
+    csv_header = "username,account creation date (YYYY-MM-DD),last data submission date (YYYY-MM-DD),latest CodingSpectator version,CodingTracker data size (Bytes)\n"
     all_participants_string = @participants.inject("") {|participants_string, participant| participants_string += participant.to_s + "\n"}
     csv_header + all_participants_string
   end
