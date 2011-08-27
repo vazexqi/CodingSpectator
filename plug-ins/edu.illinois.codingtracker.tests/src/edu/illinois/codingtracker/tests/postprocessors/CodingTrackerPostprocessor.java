@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
@@ -31,7 +32,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private final String rootFolder= "C:/Users/Stas/Desktop/Old CodingTracker format data";
 
-	//@Ignore
+	@Ignore
 	@Test
 	public void execute() {
 		checkPostprocessingPreconditions();
