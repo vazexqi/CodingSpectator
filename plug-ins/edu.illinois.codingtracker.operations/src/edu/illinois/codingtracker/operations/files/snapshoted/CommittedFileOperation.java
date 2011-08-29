@@ -4,8 +4,10 @@
 package edu.illinois.codingtracker.operations.files.snapshoted;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 
@@ -52,8 +54,16 @@ public abstract class CommittedFileOperation extends SnapshotedFileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		checkSnapshotMatchesTheExistingFile();
-		super.replay();
+		IResource workspaceResource= ResourceHelper.findWorkspaceMember(resourcePath);
+		if (workspaceResource != null && !externallyModifiedResources.contains(resourcePath)) {
+			//Match against the existing file.
+			if (!fileContent.equals(ResourceHelper.readFileContent((IFile)workspaceResource))) {
+				throw new RuntimeException("The snapshot file does not match the existing file: " + resourcePath);
+			}
+		} else {
+			//If there is no existing file or it was externally modified, create the snapshoted compilation unit.
+			super.replay();
+		}
 	}
 
 	@Override
