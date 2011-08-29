@@ -47,7 +47,9 @@ public class DeletedResourceOperation extends UpdatedResourceOperation {
 					fileEditor.getSite().getPage().closeEditor(fileEditor, false);
 				}
 			}
-			resource.delete(updateFlags, null);
+			//Do not use updateFlags, since sometimes this will result in keeping the project's files on the disk, which
+			//could break the following move operations.
+			resource.delete(IResource.FORCE, null);
 		}
 	}
 
