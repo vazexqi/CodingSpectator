@@ -38,7 +38,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 			IDocument document= event.getDocument();
 			replacedText= document.get(event.getOffset(), event.getLength());
 			oldDocumentText= document.get();
-			astListener.generateAST("***BEFORE CHANGE***", oldDocumentText, event.getOffset(), event.getLength());
+			astListener.beforeDocumentChange(event);
 		} catch (BadLocationException e) {
 			handleException(e, event, Messages.Recorder_BadDocumentLocation);
 		}
@@ -50,7 +50,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 			handleException(new RuntimeException(), event, Messages.Recorder_UnsynchronizedDocumentNotifications);
 		}
 		handleDocumentChange(event);
-		astListener.generateAST("***AFTER CHANGE***", event.getDocument().get(), event.getOffset(), event.getText().length());
+		astListener.afterDocumentChange(event);
 	}
 
 	private void handleException(Exception ex, DocumentEvent event, String message) {
