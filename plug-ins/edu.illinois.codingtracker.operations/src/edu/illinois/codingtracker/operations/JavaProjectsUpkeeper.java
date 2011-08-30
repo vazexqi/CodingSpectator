@@ -34,7 +34,7 @@ public class JavaProjectsUpkeeper {
 		if (project.exists()) {
 			return JavaCore.create(project);
 		} else {
-			return JavaProjectHelper.createJavaProject(projectName, "bin");
+			return JavaProjectHelper.createJavaProject(projectName, "_some_weird_name_");
 		}
 	}
 
