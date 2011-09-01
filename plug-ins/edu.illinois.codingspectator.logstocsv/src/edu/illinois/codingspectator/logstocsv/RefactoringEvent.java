@@ -46,8 +46,6 @@ public class RefactoringEvent extends Event {
 		map.put("timestamp", String.valueOf(getTimestamp()));
 		Date timestampDate= new Date(getTimestamp());
 		map.put("human-readable timestamp", timestampDate.toString());
-		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
 		map.putAll(capturedRefactoringDescriptor.getArguments());
 		switch (getRefactoringKind()) {
 			case ECLIPSE:
@@ -77,7 +75,7 @@ public class RefactoringEvent extends Event {
 	private String truncateString(String comment) {
 		if (comment.length() == 0)
 			return "";
-		int maxLength= comment.length() > ATTRIBUTE_LENGTH_LIMIT ? ATTRIBUTE_LENGTH_LIMIT : comment.length() - 1;
+		int maxLength= comment.length() > ATTRIBUTE_LENGTH_LIMIT ? ATTRIBUTE_LENGTH_LIMIT : comment.length();
 		return comment.substring(0, maxLength);
 	}
 

@@ -50,9 +50,7 @@ public class UserOperationEvent extends Event {
 		map.put("codingtracker description", String.valueOf(getDescription()));
 		map.put("timestamp", String.valueOf(getTimestamp()));
 		Date timestampDate= userOperation.getDate();
-		map.put("human-readable timestamp", timestampDate.toString());
-		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
+		map.put("human-readable timestamp", timestampDate.toString());;
 		map.put("recorder", "CODINGTRACKER");
 		if (isNewStartedRefactoringOperation()) {
 			addNewStartedRefactoringInformation(map);
