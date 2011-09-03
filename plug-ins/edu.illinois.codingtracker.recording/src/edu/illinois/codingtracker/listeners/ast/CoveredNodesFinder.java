@@ -14,20 +14,27 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
  * @author Stas Negara
  * 
  */
-class CustomNodeFinder extends ASTVisitor {
+class CoveredNodesFinder extends ASTVisitor {
 	private final int start;
 
 	private final int end;
+
+	private ASTNode rootNode;
 
 	private ASTNode coveringNode;
 
 	private final List<ASTNode> coveredNodes= new LinkedList<ASTNode>();
 
-	public CustomNodeFinder(ASTNode rootNode, int offset, int length) {
+	public CoveredNodesFinder(ASTNode rootNode, int offset, int length) {
 		super(true);
 		start= offset;
 		end= offset + length;
+		this.rootNode= rootNode;
 		rootNode.accept(this);
+	}
+
+	public ASTNode getRootNode() {
+		return rootNode;
 	}
 
 	public ASTNode getCoveringNode() {

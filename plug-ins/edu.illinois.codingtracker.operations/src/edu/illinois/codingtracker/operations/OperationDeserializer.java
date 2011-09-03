@@ -6,6 +6,7 @@ package edu.illinois.codingtracker.operations;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
@@ -197,6 +198,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.REFERENCING_PROJECTS_CHANGED_SYMBOL:
 				userOperation= new ReferencingProjectsChangedOperation();
+				break;
+			case OperationSymbols.AST_OPERATION_SYMBOL:
+				userOperation= new ASTOperation();
 				break;
 			default:
 				throw new RuntimeException("Unsupported operation symbol: " + operationSymbol);

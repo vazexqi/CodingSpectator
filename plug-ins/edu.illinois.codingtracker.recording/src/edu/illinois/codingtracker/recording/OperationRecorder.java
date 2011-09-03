@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
@@ -23,6 +24,8 @@ import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.FileRevision;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
 import edu.illinois.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
@@ -88,6 +91,10 @@ public class OperationRecorder {
 
 	private OperationRecorder() {
 		TextRecorder.record(new StartedEclipseOperation());
+	}
+
+	public void recordASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID, String fullMethodName, long timestamp) {
+		TextRecorder.record(new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, fullMethodName, timestamp));
 	}
 
 	public void recordRefreshedFile(IFile refreshedFile, String replacedText) {

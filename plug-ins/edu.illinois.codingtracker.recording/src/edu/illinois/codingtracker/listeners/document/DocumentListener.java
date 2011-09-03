@@ -22,7 +22,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 
 	private static final String ERROR_TEXT= ",,,,,";
 
-	private static final ASTListener astListener= new ASTListener();
+	private static final ASTListener astListener= ASTListener.getInstance();
 
 	protected String replacedText= "";
 
