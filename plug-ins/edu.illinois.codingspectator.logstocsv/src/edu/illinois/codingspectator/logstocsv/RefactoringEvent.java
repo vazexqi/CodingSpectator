@@ -68,6 +68,9 @@ public class RefactoringEvent extends Event {
 		}
 		map.put("severity level", String.valueOf(getSeverityLevel(capturedRefactoringDescriptor.getAttribute("status"))));
 		map.put("navigation duration", getNavigationDurationString(capturedRefactoringDescriptor.getAttribute("navigation-history")));
+		if (capturedRefactoringDescriptor.getCodeSnippet() != null && capturedRefactoringDescriptor.getSelectionInCodeSnippet() != null) {
+			map.put("code-snippet-with-selection-markers", getCodesnippetWithSelectionMarkers());
+		}
 		return map;
 	}
 
@@ -140,6 +143,19 @@ public class RefactoringEvent extends Event {
 		}
 		long lastTimestamp= currentNavigationHistoryItem.getTimestamp();
 		return lastTimestamp - firstTimestamp;
+	}
+
+	private String getCodesnippetWithSelectionMarkers() {
+		String codeSnippet= capturedRefactoringDescriptor.getCodeSnippet();
+		String selectionInCodeSnippet= capturedRefactoringDescriptor.getSelectionInCodeSnippet();
+		int selectionBeginningOffset= Integer.valueOf(selectionInCodeSnippet.split(" ")[0]);
+		int selectionLength= Integer.valueOf(selectionInCodeSnippet.split(" ")[1]);
+		String selectionStartMarker= "/* CODINGSPECTATOR: SELECTION BEGINGS */";
+		String selectionEndMarker= "/* CODINGSPECTATOR: SELECTION ENDS */";
+		String codeSnippetWithSelectionMarkers= codeSnippet.substring(0, selectionBeginningOffset) + selectionStartMarker
+				+ codeSnippet.subSequence(selectionBeginningOffset, selectionBeginningOffset + selectionLength) + selectionEndMarker
+				+ codeSnippet.substring(selectionBeginningOffset + selectionLength);
+		return codeSnippetWithSelectionMarkers;
 	}
 
 }
