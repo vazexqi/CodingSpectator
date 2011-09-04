@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingspectator.logstocsv;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
