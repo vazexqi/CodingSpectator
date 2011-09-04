@@ -60,7 +60,7 @@ public class TimestampDialog extends Dialog {
 	@Override
 	protected void okPressed() {
 		try {
-			timestamp= Long.valueOf(text.getText());
+			timestamp= Long.valueOf(text.getText().trim());
 		} catch (NumberFormatException ex) {
 			timestamp= 0;
 		}

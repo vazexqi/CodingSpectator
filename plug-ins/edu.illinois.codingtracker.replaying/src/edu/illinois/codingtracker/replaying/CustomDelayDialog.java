@@ -59,7 +59,7 @@ public class CustomDelayDialog extends Dialog {
 	@Override
 	protected void okPressed() {
 		try {
-			delay= Integer.valueOf(text.getText());
+			delay= Integer.valueOf(text.getText().trim());
 		} catch (NumberFormatException ex) {
 			delay= DEFAULT_DELAY;
 		}
