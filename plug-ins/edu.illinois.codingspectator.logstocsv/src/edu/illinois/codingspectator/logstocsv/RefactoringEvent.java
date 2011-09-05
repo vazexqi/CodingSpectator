@@ -150,7 +150,7 @@ public class RefactoringEvent extends Event {
 		String selectionInCodeSnippet= capturedRefactoringDescriptor.getSelectionInCodeSnippet();
 		int selectionBeginningOffset= Integer.valueOf(selectionInCodeSnippet.split(" ")[0]);
 		int selectionLength= Integer.valueOf(selectionInCodeSnippet.split(" ")[1]);
-		String selectionStartMarker= "/* CODINGSPECTATOR: SELECTION BEGINGS */";
+		String selectionStartMarker= "/* CODINGSPECTATOR: SELECTION BEGINS */";
 		String selectionEndMarker= "/* CODINGSPECTATOR: SELECTION ENDS */";
 		String codeSnippetWithSelectionMarkers= codeSnippet.substring(0, selectionBeginningOffset) + selectionStartMarker
 				+ codeSnippet.subSequence(selectionBeginningOffset, selectionBeginningOffset + selectionLength) + selectionEndMarker
