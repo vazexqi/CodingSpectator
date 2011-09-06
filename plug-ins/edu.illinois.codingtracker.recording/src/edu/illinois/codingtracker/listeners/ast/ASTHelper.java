@@ -4,15 +4,22 @@
 package edu.illinois.codingtracker.listeners.ast;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 /**
  * 
@@ -27,6 +34,8 @@ public class ASTHelper {
 	private static long nextFreePersistentID= 1;
 
 	private static final String ROOT_NODE_LOCATION_ID= "root";
+
+	private static final String QUALIFICATION_DELIMITER= ".";
 
 	private static final String LOCATIONS_DELIMITER= "|";
 
@@ -54,6 +63,14 @@ public class ASTHelper {
 		return positionalNodeID;
 	}
 
+	/**
+	 * Returns null if the node with the given positional ID does not exist under the given root
+	 * node.
+	 * 
+	 * @param rootNode
+	 * @param positionalNodeID
+	 * @return
+	 */
 	public static ASTNode getASTNodeFromPositonalID(ASTNode rootNode, String positionalNodeID) {
 		StringTokenizer locationsTokenizer= new StringTokenizer(positionalNodeID, LOCATIONS_DELIMITER);
 		NodeLocation rootNodeLocation= new NodeLocation(locationsTokenizer.nextToken());
@@ -67,10 +84,16 @@ public class ASTHelper {
 		while (locationsTokenizer.hasMoreTokens()) {
 			NodeLocation currentNodeLocation= new NodeLocation(locationsTokenizer.nextToken());
 			if (!currentNode.getClass().getSimpleName().equals(currentNodeLocation.getParentNodeName())) {
-				throw new RuntimeException("Current node's class does not match the current location's parent node class: " + currentNodeLocation.getParentNodeName());
+				return null;
 			}
 			Object structuralProperty= currentNode.getStructuralProperty(getLocationDescriptor(currentNode, currentNodeLocation.getLocationID()));
+			if (structuralProperty == null) {
+				return null;
+			}
 			if (currentNodeLocation.getChildIndex() != -1) {
+				if (!(structuralProperty instanceof List) || ((List)structuralProperty).size() <= currentNodeLocation.getChildIndex()) {
+					return null;
+				}
 				List children= (List)structuralProperty;
 				currentNode= (ASTNode)children.get(currentNodeLocation.getChildIndex());
 			} else {
@@ -90,6 +113,72 @@ public class ASTHelper {
 			}
 		}
 		throw new RuntimeException("Could not find the location descriptor for id: " + locationID);
+	}
+
+	public static Set<SimplePropertyDescriptor> getSimplePropertyDescriptors(ASTNode node) {
+		Set<SimplePropertyDescriptor> simplePropertyDescriptors= new HashSet<SimplePropertyDescriptor>();
+		for (Object structuralPropertyDescriptor : node.structuralPropertiesForType()) {
+			if (structuralPropertyDescriptor instanceof SimplePropertyDescriptor) {
+				simplePropertyDescriptors.add((SimplePropertyDescriptor)structuralPropertyDescriptor);
+			}
+		}
+		return simplePropertyDescriptors;
+	}
+
+	public static MethodDeclaration getContainingMethod(ASTNode node) {
+		ASTNode parentNode= getParent(node, MethodDeclaration.class);
+		if (parentNode != null) {
+			return (MethodDeclaration)parentNode;
+		}
+		return null;
+	}
+
+	public static TypeDeclaration getContainingType(ASTNode node) {
+		ASTNode parentNode= getParent(node, TypeDeclaration.class);
+		if (parentNode != null) {
+			return (TypeDeclaration)parentNode;
+		}
+		return null;
+	}
+
+	public static CompilationUnit getContainingCompilationUnit(ASTNode node) {
+		ASTNode parentNode= getParent(node, CompilationUnit.class);
+		if (parentNode != null) {
+			return (CompilationUnit)parentNode;
+		}
+		return null;
+	}
+
+	private static ASTNode getParent(ASTNode node, Class parentClass) {
+		while (node != null) {
+			if (node.getClass().equals(parentClass)) {
+				return node;
+			}
+			node= node.getParent();
+		}
+		return null;
+	}
+
+	public static String getQualifiedMethodName(MethodDeclaration methodDeclaration) {
+		//TODO: Consider adding method signature after it is recorded for test execution.
+		String methodName= methodDeclaration.getName().toString();
+		TypeDeclaration typeDeclaration= getContainingType(methodDeclaration);
+		if (typeDeclaration != null) {
+			methodName= prependQualifier(typeDeclaration.getName().toString(), methodName);
+			CompilationUnit compilationUnit= getContainingCompilationUnit(typeDeclaration);
+			if (compilationUnit != null) {
+				Object structuralProperty= compilationUnit.getStructuralProperty(CompilationUnit.PACKAGE_PROPERTY);
+				if (structuralProperty != null) {
+					PackageDeclaration packageDeclaration= (PackageDeclaration)structuralProperty;
+					methodName= prependQualifier(packageDeclaration.getName().toString(), methodName);
+				}
+			}
+		}
+		return methodName;
+	}
+
+	private static String prependQualifier(String qualifier, String baseName) {
+		return qualifier + QUALIFICATION_DELIMITER + baseName;
 	}
 
 	public static void printSubtree(ASTNode node) {

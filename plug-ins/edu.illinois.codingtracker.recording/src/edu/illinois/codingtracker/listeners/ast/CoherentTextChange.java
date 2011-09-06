@@ -87,8 +87,8 @@ public class CoherentTextChange {
 	}
 
 	public boolean shouldGlueNewTextChange(int newOffset, int newRemovedTextLength) {
-		System.out.println("Offset=" + offset + ", removedTextLengt=" + removedTextLength + ", addedTextLength=" + addedTextLength + ", newOffset=" + newOffset + ", newRemovedTextLength="
-				+ newRemovedTextLength);
+		//System.out.println("Offset=" + offset + ", removedTextLengt=" + removedTextLength + ", addedTextLength=" + addedTextLength + ", newOffset=" + newOffset + ", newRemovedTextLength="
+		//		+ newRemovedTextLength);
 		if (newRemovedTextLength == 0) {
 			isDeletingOnly= false;
 		}

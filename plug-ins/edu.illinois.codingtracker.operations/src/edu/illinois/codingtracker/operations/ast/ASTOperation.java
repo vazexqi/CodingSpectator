@@ -38,7 +38,7 @@ public class ASTOperation extends UserOperation {
 
 	private long methodID;
 
-	private String fullMethodName; //Is present only for operations on AST nodes that are methods.
+	private String fullMethodName;
 
 	public ASTOperation() {
 		super();

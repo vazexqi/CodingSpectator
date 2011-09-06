@@ -4,11 +4,16 @@
 package edu.illinois.codingtracker.listeners.ast;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 
@@ -59,96 +64,153 @@ public class ASTListener extends BasicListener {
 
 	public void flushCurrentTextChange() {
 		if (currentTextChange != null && currentTextChange.isActualChange()) {
-			CoveredNodesFinder oldAffectedNodesFinder= getAffectedNodesFinder("BEFORE:\n", currentTextChange.getOldDocumentText(), currentTextChange.getOffset(),
-					currentTextChange.getRemovedTextLength());
-			CoveredNodesFinder newAffectedNodesFinder= getAffectedNodesFinder("AFTER:\n", currentTextChange.getNewDocumentText(), currentTextChange.getOffset(),
-					currentTextChange.getAddedTextLength());
+			int changeOffset= currentTextChange.getOffset();
+			int addedTextLength= currentTextChange.getAddedTextLength();
+			int removedTextLength= currentTextChange.getRemovedTextLength();
+			int deltaTextLength= addedTextLength - removedTextLength;
+			System.out.println("deltaTextLength=" + deltaTextLength);
+			CoveredNodesFinder oldAffectedNodesFinder= getAffectedNodesFinder("BEFORE:\n", currentTextChange.getOldDocumentText(), changeOffset, removedTextLength);
+			CoveredNodesFinder newAffectedNodesFinder= getAffectedNodesFinder("AFTER:\n", currentTextChange.getNewDocumentText(), changeOffset, addedTextLength);
+			ASTNode oldRootNode= oldAffectedNodesFinder.getRootNode();
 			ASTNode oldCoveringNode= oldAffectedNodesFinder.getCoveringNode();
-			List<ASTNode> oldCoveredNodes= oldAffectedNodesFinder.getCoveredNodes();
+			ASTNode newRootNode= newAffectedNodesFinder.getRootNode();
 			ASTNode newCoveringNode= newAffectedNodesFinder.getCoveringNode();
-			List<ASTNode> newCoveredNodes= newAffectedNodesFinder.getCoveredNodes();
 			String oldCoveringNodeID= ASTHelper.getPositionalNodeID(oldCoveringNode);
 			System.out.println("oldCoveringNodeID: " + oldCoveringNodeID);
 			String newCoveringNodeID= ASTHelper.getPositionalNodeID(newCoveringNode);
 			System.out.println("newCoveringNodeID: " + newCoveringNodeID);
-			String commonCoveringNodeID;
+			String initialCommonCoveringNodeID;
 			if (oldCoveringNodeID.startsWith(newCoveringNodeID)) {
-				commonCoveringNodeID= newCoveringNodeID;
+				initialCommonCoveringNodeID= newCoveringNodeID;
 			} else if (newCoveringNodeID.startsWith(oldCoveringNodeID)) {
-				commonCoveringNodeID= oldCoveringNodeID;
+				initialCommonCoveringNodeID= oldCoveringNodeID;
 			} else {
 				throw new RuntimeException("Can not find a common covering node!");
 			}
+			ASTNode oldCommonCoveringNode= ASTHelper.getASTNodeFromPositonalID(oldRootNode, initialCommonCoveringNodeID);
+			ASTNode newCommonCoveringNode= ASTHelper.getASTNodeFromPositonalID(newRootNode, initialCommonCoveringNodeID);
+			while (oldCommonCoveringNode.getStartPosition() != newCommonCoveringNode.getStartPosition() ||
+					oldCommonCoveringNode.getLength() - removedTextLength + addedTextLength != newCommonCoveringNode.getLength() ||
+					oldCommonCoveringNode.getNodeType() != newCommonCoveringNode.getNodeType()) {
+				oldCommonCoveringNode= oldCommonCoveringNode.getParent();
+				newCommonCoveringNode= newCommonCoveringNode.getParent();
+			}
+
+			String commonCoveringNodeID= ASTHelper.getPositionalNodeID(oldCommonCoveringNode);
 			System.out.println("commonCoveringNodeID: " + commonCoveringNodeID);
-			//TODO: For a method AST operation store the fully qualified name of the method. Also, note that methodID is nodeID.
-			//TODO: For on-the-fly recording use the current time. While replaying - take the time of the last code change operation.
-			long currentTime= System.currentTimeMillis();
-			if (isNodeChange(oldCoveringNode, oldCoveredNodes, newCoveringNode, newCoveredNodes)) {
-				operationRecorder.recordASTOperation(OperationKind.CHANGE, oldCoveringNode, newCoveringNode.toString(), -1, -1, "", currentTime);
-			} else {
-				for (ASTNode deletedNode : oldCoveredNodes) {
-					operationRecorder.recordASTOperation(OperationKind.DELETE, deletedNode, "", ASTHelper.getPersistentNodeID(deletedNode), -1, "", currentTime);
-					ASTHelper.removePersistentNodeID(deletedNode);
-				}
+			//ASTHelper.printSubtree(oldCommonCoveringNode);
+			//ASTHelper.printSubtree(newCommonCoveringNode);
 
-				//Update the persistent IDs after delete, but before add. Also, do it as an atomic operation.
-				ASTNode oldCommonParentNode= ASTHelper.getASTNodeFromPositonalID(oldAffectedNodesFinder.getRootNode(), commonCoveringNodeID);
-				PersistentNodesFinder oldPersistentNodesFinder= new PersistentNodesFinder(oldCommonParentNode, oldCoveredNodes);
-				List<ASTNode> oldPersistentNodes= oldPersistentNodesFinder.getPersistentNodes();
-				ASTNode newCommonParentNode= ASTHelper.getASTNodeFromPositonalID(newAffectedNodesFinder.getRootNode(), commonCoveringNodeID);
-				PersistentNodesFinder newPersistentNodesFinder= new PersistentNodesFinder(newCommonParentNode, newCoveredNodes);
-				List<ASTNode> newPersistentNodes= newPersistentNodesFinder.getPersistentNodes();
-				if (oldPersistentNodes.size() != newPersistentNodes.size()) {
-					System.out.println("oldPeristentNodesCount: " + oldPersistentNodes.size());
-					System.out.println("newPeristentNodesCount: " + newPersistentNodes.size());
-					System.out.println("oldCommonParentNode: " + oldCommonParentNode);
-					System.out.println("newCommonParentNode: " + newCommonParentNode);
-					ASTHelper.printSubtree(oldCommonParentNode);
-					ASTHelper.printSubtree(newCommonParentNode);
-					oldCommonParentNode= oldCommonParentNode.getParent();
-					newCommonParentNode= newCommonParentNode.getParent();
-					oldPersistentNodesFinder= new PersistentNodesFinder(oldCommonParentNode, oldCoveredNodes);
-					oldPersistentNodes= oldPersistentNodesFinder.getPersistentNodes();
-					newPersistentNodesFinder= new PersistentNodesFinder(newCommonParentNode, newCoveredNodes);
-					newPersistentNodes= newPersistentNodesFinder.getPersistentNodes();
-					System.out.println("oldPeristentNodesCount: " + oldPersistentNodes.size());
-					System.out.println("newPeristentNodesCount: " + newPersistentNodes.size());
-					System.out.println("oldCommonParentNode: " + oldCommonParentNode);
-					System.out.println("newCommonParentNode: " + newCommonParentNode);
-					ASTHelper.printSubtree(oldCommonParentNode);
-					ASTHelper.printSubtree(newCommonParentNode);
-					//throw new RuntimeException("Different number of old and new persistent nodes!");
-				}
-				Map<String, String> updatePositionalNodeIDsMap= new HashMap<String, String>();
-				for (int i= 0; i < oldPersistentNodes.size(); i++) {
-					ASTNode oldPersistentNode= oldPersistentNodes.get(i);
-					ASTNode newPersistentNode= newPersistentNodes.get(i);
-					if (!oldPersistentNode.getClass().getSimpleName().equals(newPersistentNode.getClass().getSimpleName())) {
-						//throw new RuntimeException("Matched new and old persistent nodes have different class names!");
+			Map<ASTNode, ASTNode> matchedNodes= new HashMap<ASTNode, ASTNode>();
+			Set<ASTNode> deletedNodes= new HashSet<ASTNode>();
+			Set<ASTNode> addedNodes= new HashSet<ASTNode>();
+
+			matchedNodes.put(oldCommonCoveringNode, newCommonCoveringNode);
+			ChildrenNodesFinder oldChildrenNodesFinder= new ChildrenNodesFinder(oldCommonCoveringNode);
+			ChildrenNodesFinder newChildrenNodesFinder= new ChildrenNodesFinder(newCommonCoveringNode);
+			List<ASTNode> oldChildren= oldChildrenNodesFinder.getChildrenNodes();
+			List<ASTNode> newChildren= newChildrenNodesFinder.getChildrenNodes();
+
+			//First, match nodes that are completely before or completely after the changed range.
+			for (ASTNode oldChild : oldChildren) {
+				if (oldChild.getStartPosition() + oldChild.getLength() <= changeOffset) {
+					for (ASTNode newChild : newChildren) {
+						if (oldChild.getStartPosition() == newChild.getStartPosition() && oldChild.getLength() == newChild.getLength() &&
+								oldChild.getNodeType() == newChild.getNodeType()) {
+							matchedNodes.put(oldChild, newChild);
+							break;
+						}
 					}
-					updatePositionalNodeIDsMap.put(ASTHelper.getPositionalNodeID(oldPersistentNode), ASTHelper.getPositionalNodeID(newPersistentNode));
 				}
-				ASTHelper.updatePersistentNodeIDs(updatePositionalNodeIDsMap);
+				if (oldChild.getStartPosition() >= changeOffset + removedTextLength) {
+					for (ASTNode newChild : newChildren) {
+						if (oldChild.getStartPosition() + deltaTextLength == newChild.getStartPosition() && oldChild.getLength() == newChild.getLength() &&
+								oldChild.getNodeType() == newChild.getNodeType()) {
+							matchedNodes.put(oldChild, newChild);
+						}
+					}
+				}
+			}
 
-				for (ASTNode addedNode : newCoveredNodes) {
-					operationRecorder.recordASTOperation(OperationKind.ADD, addedNode, "", ASTHelper.getPersistentNodeID(addedNode), -1, "", currentTime);
+			//Next, match yet unmatched nodes with the same structural positions and types.
+			for (ASTNode oldChild : oldChildren) {
+				if (!matchedNodes.containsKey(oldChild)) {
+					String oldChildPositionalID= ASTHelper.getPositionalNodeID(oldChild);
+					ASTNode tentativeNewChildMatchingNode= ASTHelper.getASTNodeFromPositonalID(newRootNode, oldChildPositionalID);
+					if (tentativeNewChildMatchingNode != null && !matchedNodes.containsValue(tentativeNewChildMatchingNode) &&
+							oldChild.getNodeType() == tentativeNewChildMatchingNode.getNodeType()) {
+						matchedNodes.put(oldChild, tentativeNewChildMatchingNode);
+					}
 				}
+			}
+
+			//Finally, collect the remaining unmatched nodes as deleted and added nodes.
+			for (ASTNode oldChild : oldChildren) {
+				if (!matchedNodes.containsKey(oldChild)) {
+					deletedNodes.add(oldChild);
+				}
+			}
+			for (ASTNode newChild : newChildren) {
+				if (!matchedNodes.containsValue(newChild)) {
+					addedNodes.add(newChild);
+				}
+			}
+
+			//TODO: Mapping of persistent IDs to location-based IDs should consider location file in order to avoid identifying elements from
+			//different files with the same ID.
+			//TODO: Add cyclomatic complexity of the containing method, if any, to each recorded ASTOperation.
+			//TODO: For on-the-fly recording use the current time. While replaying - take the time of the last code change operation.
+			//TODO: Refactor!
+
+			long currentTime= System.currentTimeMillis();
+			Map<String, String> updatePositionalNodeIDsMap= new HashMap<String, String>();
+			for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
+				//System.out.println("Matched nodes:\n");
+				ASTNode oldNode= mapEntry.getKey();
+				ASTNode newNode= mapEntry.getValue();
+				//ASTHelper.printASTNode(oldNode);
+				//ASTHelper.printASTNode(newNode);
+				updatePositionalNodeIDsMap.put(ASTHelper.getPositionalNodeID(oldNode), ASTHelper.getPositionalNodeID(newNode));
+				for (SimplePropertyDescriptor simplePropertyDescriptor : ASTHelper.getSimplePropertyDescriptors(oldNode)) {
+					Object oldProperty= oldNode.getStructuralProperty(simplePropertyDescriptor);
+					Object newProperty= newNode.getStructuralProperty(simplePropertyDescriptor);
+					if (oldProperty == null && newProperty != null || oldProperty != null && !oldProperty.equals(newProperty)) {
+						//Matched node is changed.
+						recordASTOperation(OperationKind.CHANGE, oldNode, newNode.toString(), currentTime);
+						break;
+					}
+				}
+			}
+
+			//System.out.println("Deleted nodes:\n");
+			for (ASTNode deletedNode : deletedNodes) {
+				//ASTHelper.printASTNode(deletedNode);
+				recordASTOperation(OperationKind.DELETE, deletedNode, "", currentTime);
+				ASTHelper.removePersistentNodeID(deletedNode);
+			}
+
+			//Update the persistent IDs after delete, but before add. Also, do it as an atomic operation.
+			ASTHelper.updatePersistentNodeIDs(updatePositionalNodeIDsMap);
+
+			//System.out.println("Added node:\n");
+			for (ASTNode addedNode : addedNodes) {
+				//ASTHelper.printASTNode(addedNode);
+				recordASTOperation(OperationKind.ADD, addedNode, "", currentTime);
 			}
 		}
 		currentTextChange= null;
 	}
 
-	private boolean isNodeChange(ASTNode oldCoveringNode, List<ASTNode> oldCoveredNodes, ASTNode newCoveringNode, List<ASTNode> newCoveredNodes) {
-		if (!ASTHelper.getPositionalNodeID(oldCoveringNode).equals(ASTHelper.getPositionalNodeID(newCoveringNode)) || oldCoveringNode.getNodeType() != newCoveringNode.getNodeType()) {
-			return false;
+	private void recordASTOperation(OperationKind operationKind, ASTNode affectedNode, String newText, long timestamp) {
+		String containingMethodName= "";
+		long containingMethodPersistentID= -1;
+		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(affectedNode);
+		if (containingMethod != null) {
+			containingMethodName= ASTHelper.getQualifiedMethodName(containingMethod);
+			containingMethodPersistentID= ASTHelper.getPersistentNodeID(containingMethod);
 		}
-		if (oldCoveredNodes.isEmpty() && newCoveredNodes.isEmpty()) {
-			return true;
-		}
-		if (oldCoveredNodes.size() == 1 && newCoveredNodes.size() == 1 && oldCoveredNodes.get(0) == oldCoveringNode && newCoveredNodes.get(0) == newCoveringNode) {
-			return true;
-		}
-		return false;
+		operationRecorder.recordASTOperation(operationKind, affectedNode, newText, ASTHelper.getPersistentNodeID(affectedNode), containingMethodPersistentID,
+				containingMethodName, timestamp);
 	}
 
 	public void afterDocumentChange(DocumentEvent event) {
@@ -159,7 +221,7 @@ public class ASTListener extends BasicListener {
 	}
 
 	private CoveredNodesFinder getAffectedNodesFinder(String message, String source, int offset, int length) {
-		System.out.println(message + "[" + offset + ", " + (offset + length) + "): " + source.substring(offset, offset + length));
+		//System.out.println(message + "[" + offset + ", " + (offset + length) + "): " + source.substring(offset, offset + length));
 		ASTParser parser= createParser();
 		parser.setSource(source.toCharArray());
 		ASTNode rootNode= parser.createAST(null);
@@ -172,10 +234,11 @@ public class ASTListener extends BasicListener {
 	//TODO: Should the parser be created once and then just reused?
 	private ASTParser createParser() {
 		ASTParser parser= ASTParser.newParser(3);
-		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
-		parser.setBindingsRecovery(true);
 		parser.setIgnoreMethodBodies(false);
+		//Avoid resolving bindings to speed up the parsing.
+		parser.setResolveBindings(false);
+		parser.setBindingsRecovery(false);
 		return parser;
 	}
 
