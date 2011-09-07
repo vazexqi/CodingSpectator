@@ -68,6 +68,17 @@ public abstract class RefactoringOperation extends UserOperation {
 		return flags;
 	}
 
+	/**
+	 * Note that returning a reference to a private collection breaks incapsulation. But considering
+	 * that this is a deprecated class, and this method is used only for its update to the replacing
+	 * class, it should be OK.
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getArguments() {
+		return arguments;
+	}
+
 	private Map getRefactoringArguments(RefactoringDescriptor refactoringDescriptor) {
 		Map arguments= null;
 		RefactoringContribution refactoringContribution=

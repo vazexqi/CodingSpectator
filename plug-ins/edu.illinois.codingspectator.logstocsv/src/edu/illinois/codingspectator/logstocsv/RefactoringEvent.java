@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingspectator.logstocsv;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,7 +36,8 @@ public class RefactoringEvent extends Event {
 	@SuppressWarnings("unchecked")
 	public Map<String, String> toMap() {
 		Map<String, String> map= super.toMap();
-		map.put("comment", capturedRefactoringDescriptor.getComment());
+		String comment= capturedRefactoringDescriptor.getComment();
+		map.put("comment", truncateString(comment));
 		map.put("description", capturedRefactoringDescriptor.getDescription());
 		map.put("flags", String.valueOf(capturedRefactoringDescriptor.getFlags()));
 		map.put("id", capturedRefactoringDescriptor.getID());
@@ -45,8 +45,6 @@ public class RefactoringEvent extends Event {
 		map.put("timestamp", String.valueOf(getTimestamp()));
 		Date timestampDate= new Date(getTimestamp());
 		map.put("human-readable timestamp", timestampDate.toString());
-		SimpleDateFormat tableauDateFormat= new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-		map.put("Tableau timestamp", tableauDateFormat.format(timestampDate));
 		map.putAll(capturedRefactoringDescriptor.getArguments());
 		switch (getRefactoringKind()) {
 			case ECLIPSE:
@@ -70,7 +68,17 @@ public class RefactoringEvent extends Event {
 		}
 		map.put("severity level", String.valueOf(getSeverityLevel(capturedRefactoringDescriptor.getAttribute("status"))));
 		map.put("navigation duration", getNavigationDurationString(capturedRefactoringDescriptor.getAttribute("navigation-history")));
+		if (capturedRefactoringDescriptor.getCodeSnippet() != null && capturedRefactoringDescriptor.getSelectionInCodeSnippet() != null) {
+			map.put("code-snippet-with-selection-markers", getCodesnippetWithSelectionMarkers());
+		}
 		return map;
+	}
+
+	private String truncateString(String comment) {
+		if (comment.length() == 0)
+			return "";
+		int maxLength= comment.length() > ATTRIBUTE_LENGTH_LIMIT ? ATTRIBUTE_LENGTH_LIMIT : comment.length();
+		return comment.substring(0, maxLength);
 	}
 
 	@Override
@@ -135,6 +143,19 @@ public class RefactoringEvent extends Event {
 		}
 		long lastTimestamp= currentNavigationHistoryItem.getTimestamp();
 		return lastTimestamp - firstTimestamp;
+	}
+
+	private String getCodesnippetWithSelectionMarkers() {
+		String codeSnippet= capturedRefactoringDescriptor.getCodeSnippet();
+		String selectionInCodeSnippet= capturedRefactoringDescriptor.getSelectionInCodeSnippet();
+		int selectionBeginningOffset= Integer.valueOf(selectionInCodeSnippet.split(" ")[0]);
+		int selectionLength= Integer.valueOf(selectionInCodeSnippet.split(" ")[1]);
+		String selectionStartMarker= "/* CODINGSPECTATOR: SELECTION BEGINS */";
+		String selectionEndMarker= "/* CODINGSPECTATOR: SELECTION ENDS */";
+		String codeSnippetWithSelectionMarkers= codeSnippet.substring(0, selectionBeginningOffset) + selectionStartMarker
+				+ codeSnippet.subSequence(selectionBeginningOffset, selectionBeginningOffset + selectionLength) + selectionEndMarker
+				+ codeSnippet.substring(selectionBeginningOffset + selectionLength);
+		return codeSnippetWithSelectionMarkers;
 	}
 
 }
