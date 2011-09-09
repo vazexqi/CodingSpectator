@@ -64,7 +64,7 @@ public class UpdatedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() {
-		//do nothing
+		externallyModifiedResources.add(resourcePath);
 	}
 
 	@Override

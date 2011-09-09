@@ -354,13 +354,14 @@ public class UserOperationReplayer {
 
 			private void jumpTo(UserOperation userOperation) {
 				initializeReplay();
+				UserOperation oldUserOperation= currentUserOperation;
 				currentUserOperation= userOperation;
 				while (userOperationsIterator.hasNext()) {
 					if (currentUserOperation == userOperationsIterator.next()) {
 						break;
 					}
 				}
-				updateSequenceView();
+				updateSequenceView(oldUserOperation);
 			}
 		};
 	}
@@ -402,20 +403,24 @@ public class UserOperationReplayer {
 	}
 
 	private void advanceCurrentUserOperation(ReplayPace replayPace) {
+		UserOperation oldUserOperation= currentUserOperation;
 		if (userOperationsIterator.hasNext()) {
 			currentUserOperation= userOperationsIterator.next();
 		} else {
 			currentUserOperation= null;
 		}
 		if (replayPace != ReplayPace.FAST) { //Do not display additional info during a fast replay.
-			updateSequenceView();
+			updateSequenceView(oldUserOperation);
 		}
 	}
 
-	private void updateSequenceView() {
+	private void updateSequenceView(UserOperation oldUserOperation) {
 		operationSequenceView.removeSelection();
+		if (oldUserOperation != null) {
+			operationSequenceView.updateTableViewerElement(oldUserOperation);
+		}
 		operationSequenceView.displayInOperationTextPane(currentUserOperation);
-		operationSequenceView.refreshTableViewer();
+		operationSequenceView.updateTableViewerElement(currentUserOperation);
 	}
 
 	private void updateReplayActionsStateForCurrentUserOperation() {
@@ -464,10 +469,13 @@ public class UserOperationReplayer {
 
 		private boolean stoppedDueToException= false;
 
+		private final UserOperation firstUserOperation;
+
 		private UserOperationExecutionThread(IAction executionAction, ReplayPace replayPace, int customDelayTime) {
 			this.executionAction= executionAction;
 			this.replayPace= replayPace;
 			this.customDelayTime= customDelayTime;
+			firstUserOperation= currentUserOperation;
 		}
 
 		@Override
@@ -548,7 +556,7 @@ public class UserOperationReplayer {
 				operationSequenceView.getDisplay().syncExec(new Runnable() {
 					@Override
 					public void run() {
-						updateSequenceView();
+						updateSequenceView(firstUserOperation);
 					}
 				});
 			}

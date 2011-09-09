@@ -185,7 +185,7 @@ public class OperationSequenceView extends ViewPart {
 				userOperationReplayer.toggleBreakpoint(userOperation);
 				removeSelection();
 				isDoubleClickRefresh= true;
-				refreshTableViewer();
+				updateTableViewerElement(userOperation);
 				isDoubleClickRefresh= false;
 			}
 		});
@@ -205,6 +205,10 @@ public class OperationSequenceView extends ViewPart {
 
 	void setTableViewerInput(Object object) {
 		tableViewer.setInput(object);
+	}
+
+	void updateTableViewerElement(UserOperation userOperation) {
+		tableViewer.update(userOperation, null);
 	}
 
 	void refreshTableViewer() {

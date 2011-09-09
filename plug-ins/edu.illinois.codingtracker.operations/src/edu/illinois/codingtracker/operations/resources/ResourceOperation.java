@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -71,7 +72,7 @@ public abstract class ResourceOperation extends UserOperation {
 	}
 
 	protected void createCompilationUnit(String content) throws CoreException {
-		IPackageFragment packageFragment= (IPackageFragment)findOrCreateParent(resourcePath);// for compilation units parent is always package fragment		
+		IPackageFragment packageFragment= findOrCreateCompilationUnitParent(resourcePath);
 		String[] filePathFragments= resourcePath.split(FILE_PATH_SEPARATOR);
 		String fileName= filePathFragments[filePathFragments.length - 1];
 		packageFragment.createCompilationUnit(fileName, content, true, null);
@@ -91,6 +92,15 @@ public abstract class ResourceOperation extends UserOperation {
 			}
 		}
 		return editor;
+	}
+
+	protected IPackageFragment findOrCreateCompilationUnitParent(String path) throws CoreException {
+		IParent parent= findOrCreateParent(path); //Can be either null, IJavaProject, or IPackageFragment.
+		if (parent instanceof IJavaProject) {
+			return createPackageFragment((IJavaProject)parent, "", "");
+		} else {
+			return (IPackageFragment)parent;
+		}
 	}
 
 	protected IParent findOrCreateParent(String path) throws CoreException {
@@ -116,8 +126,21 @@ public abstract class ResourceOperation extends UserOperation {
 				sourceFolderName= sourceFolderName + FILE_PATH_SEPARATOR + filePathFragments[i];
 			}
 		}
-		IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
-		IPackageFragment packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
+		return createPackageFragment(javaProject, sourceFolderName, packageName);
+	}
+
+	private IPackageFragment createPackageFragment(IJavaProject javaProject, String sourceFolderName, String packageName) throws CoreException {
+		IPackageFragment packageFragment= null;
+		try {
+			IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
+			packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
+		} catch (Exception e) {
+			//If the package fragment could not be created normally, clear the project's class path and try again. This helps,
+			//when compilation units are created directly in a project (i.e. no source folder, no package name).
+			javaProject.setRawClasspath(new IClasspathEntry[0], null);
+			IPackageFragmentRoot fragmentRoot= JavaProjectHelper.addSourceContainer(javaProject, sourceFolderName);
+			packageFragment= fragmentRoot.createPackageFragment(packageName, true, null);
+		}
 		return packageFragment;
 	}
 
@@ -126,7 +149,7 @@ public abstract class ResourceOperation extends UserOperation {
 			return false;
 		}
 		for (int i= 3; i < filePathFragments.length - 1; i++) {
-			if (!Character.isJavaIdentifierStart(filePathFragments[i].charAt(0))) {
+			if (!Character.isJavaIdentifierStart(filePathFragments[i].charAt(0)) || filePathFragments[i].contains("-")) {
 				return false;
 			}
 		}
