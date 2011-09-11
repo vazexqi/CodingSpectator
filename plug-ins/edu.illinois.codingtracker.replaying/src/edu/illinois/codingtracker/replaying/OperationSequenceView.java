@@ -208,7 +208,9 @@ public class OperationSequenceView extends ViewPart {
 	}
 
 	void updateTableViewerElement(UserOperation userOperation) {
-		tableViewer.update(userOperation, null);
+		if (userOperation != null) {
+			tableViewer.update(userOperation, null);
+		}
 	}
 
 	void refreshTableViewer() {

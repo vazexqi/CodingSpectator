@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.listeners.ast;
+package edu.illinois.codingtracker.recording.ast;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -29,7 +30,9 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 @SuppressWarnings("rawtypes")
 public class ASTHelper {
 
-	private static final Map<String, Long> persistentNodeIDs= new HashMap<String, Long>();
+	private static final Map<String, Map<String, Long>> persistentNodeIDs= new HashMap<String, Map<String, Long>>();
+
+	private static final Map<Long, ASTNode> identifiedNodes= new HashMap<Long, ASTNode>();
 
 	private static long nextFreePersistentID= 1;
 
@@ -61,6 +64,22 @@ public class ASTHelper {
 		NodeLocation rootNodeLocation= new NodeLocation(node, ROOT_NODE_LOCATION_ID);
 		positionalNodeID= rootNodeLocation.getLocationString() + LOCATIONS_DELIMITER + positionalNodeID;
 		return positionalNodeID;
+	}
+
+	public static String getCommonPositonalNodeID(ASTNode node1, ASTNode node2) {
+		String commonCoveringNodeID= "";
+		StringTokenizer nodeLocations1= new StringTokenizer(ASTHelper.getPositionalNodeID(node1), LOCATIONS_DELIMITER);
+		StringTokenizer nodeLocations2= new StringTokenizer(ASTHelper.getPositionalNodeID(node2), LOCATIONS_DELIMITER);
+		while (nodeLocations1.hasMoreTokens() && nodeLocations2.hasMoreTokens()) {
+			String location1= nodeLocations1.nextToken();
+			String location2= nodeLocations2.nextToken();
+			if (location1.equals(location2)) {
+				commonCoveringNodeID+= location1 + LOCATIONS_DELIMITER;
+			} else {
+				break;
+			}
+		}
+		return commonCoveringNodeID;
 	}
 
 	/**
@@ -103,7 +122,7 @@ public class ASTHelper {
 		return currentNode;
 	}
 
-	private static StructuralPropertyDescriptor getLocationDescriptor(ASTNode node, String locationID) {
+	public static StructuralPropertyDescriptor getLocationDescriptor(ASTNode node, String locationID) {
 		//Since the constructors of StructuralPropertyDescriptor and its subclasses are not accessible, iterate over all
 		//of them for this node type and find the match.
 		for (Object structuralPropertyDescriptor : node.structuralPropertiesForType()) {
@@ -212,37 +231,79 @@ public class ASTHelper {
 		System.out.println("ASTNode \"" + node.getClass().getSimpleName() + "\" [" + start + ", " + end + "): " + node);
 	}
 
-	public static long getPersistentNodeID(ASTNode node) {
-		return getPersistentNodeID(getPositionalNodeID(node));
+	public static long getPersistentNodeID(String fileID, ASTNode node) {
+		return getPersistentNodeID(getFilePersistentNodeIDs(fileID), node);
 	}
 
-	public static long getPersistentNodeID(String positionalNodeID) {
-		Long persistentNodeID= persistentNodeIDs.get(positionalNodeID);
+	private static long getPersistentNodeID(Map<String, Long> filePersistentNodeIDs, ASTNode node) {
+		String positionalNodeID= getPositionalNodeID(node);
+		Long persistentNodeID= filePersistentNodeIDs.get(positionalNodeID);
 		if (persistentNodeID == null) {
 			persistentNodeID= nextFreePersistentID;
-			persistentNodeIDs.put(positionalNodeID, nextFreePersistentID);
+			filePersistentNodeIDs.put(positionalNodeID, nextFreePersistentID);
+			identifiedNodes.put(persistentNodeID, node);
 			nextFreePersistentID++;
 		}
 		return persistentNodeID;
 	}
 
-	public static void removePersistentNodeID(ASTNode node) {
-		removePersistentNodeID(getPositionalNodeID(node));
+	public static void removePersistentNodeID(String fileID, ASTNode node) {
+		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(fileID);
+		identifiedNodes.remove(getPersistentNodeID(filePersistentNodeIDs, node));
+		filePersistentNodeIDs.remove(getPositionalNodeID(node));
 	}
 
-	public static void removePersistentNodeID(String positionalNodeID) {
-		persistentNodeIDs.remove(positionalNodeID);
+	private static Map<String, Long> getFilePersistentNodeIDs(String fileID) {
+		Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(fileID);
+		if (filePersistentNodeIDs == null) {
+			filePersistentNodeIDs= new HashMap<String, Long>();
+			persistentNodeIDs.put(fileID, filePersistentNodeIDs);
+		}
+		return filePersistentNodeIDs;
 	}
 
-	public static void updatePersistentNodeIDs(Map<String, String> updatePositionalNodeIDsMap) {
+	public static void updatePersistentNodeIDs(String fileID, Map<ASTNode, ASTNode> updatePositionalNodeIDsMap) {
+		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(fileID);
 		//Collect new mappings in a separate map and update the main map only in the end to avoid paths collisions.
 		Map<String, Long> newPersistentNodeIDs= new HashMap<String, Long>();
-		for (Entry<String, String> mapEntry : updatePositionalNodeIDsMap.entrySet()) {
-			long persistentNodeID= getPersistentNodeID(mapEntry.getKey());
-			removePersistentNodeID(mapEntry.getKey());
-			newPersistentNodeIDs.put(mapEntry.getValue(), persistentNodeID);
+		for (Entry<ASTNode, ASTNode> mapEntry : updatePositionalNodeIDsMap.entrySet()) {
+			long persistentNodeID= getPersistentNodeID(filePersistentNodeIDs, mapEntry.getKey());
+			//Do NOT call removePersistentNodeID since we do not want to modify identifiedNodes.
+			filePersistentNodeIDs.remove(getPositionalNodeID(mapEntry.getKey()));
+			newPersistentNodeIDs.put(getPositionalNodeID(mapEntry.getValue()), persistentNodeID);
 		}
-		persistentNodeIDs.putAll(newPersistentNodeIDs);
+		filePersistentNodeIDs.putAll(newPersistentNodeIDs);
+	}
+
+	public static void updateFilePersistentNodeIDsMapping(String oldPrefix, String newPrefix) {
+		for (String fileID : getFileIDsPrefixedBy(oldPrefix)) {
+			String newFileID= fileID.replaceFirst(oldPrefix, newPrefix);
+			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.remove(fileID);
+			persistentNodeIDs.put(newFileID, filePersistentNodeIDs);
+		}
+	}
+
+	public static Map<String, Set<ASTNode>> getASTNodesFromAllDeletedFiles(String deletedResourceID) {
+		Map<String, Set<ASTNode>> collectedASTNodes= new HashMap<String, Set<ASTNode>>();
+		for (String fileID : getFileIDsPrefixedBy(deletedResourceID)) {
+			Set<ASTNode> collectedFileASTNodes= new HashSet<ASTNode>();
+			collectedASTNodes.put(fileID, collectedFileASTNodes);
+			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(fileID);
+			for (long astNodeID : filePersistentNodeIDs.values()) {
+				collectedFileASTNodes.add(identifiedNodes.get(astNodeID));
+			}
+		}
+		return collectedASTNodes;
+	}
+
+	private static Set<String> getFileIDsPrefixedBy(String prefix) {
+		Set<String> fileIDs= new HashSet<String>();
+		for (String fileID : persistentNodeIDs.keySet()) {
+			if (fileID.equals(prefix) || fileID.startsWith(prefix + IPath.SEPARATOR)) {
+				fileIDs.add(fileID);
+			}
+		}
+		return fileIDs;
 	}
 
 	private static class NodeLocation {

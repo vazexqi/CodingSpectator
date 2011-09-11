@@ -5,7 +5,6 @@ package edu.illinois.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 
-import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 
 /**
@@ -20,8 +19,11 @@ public abstract class FileOperation extends ResourceOperation {
 	}
 
 	public FileOperation(IFile file) {
-		super();
-		resourcePath= ResourceHelper.getPortableResourcePath(file);
+		super(file);
+	}
+
+	public FileOperation(IFile file, long timestamp) {
+		super(file, timestamp);
 	}
 
 }

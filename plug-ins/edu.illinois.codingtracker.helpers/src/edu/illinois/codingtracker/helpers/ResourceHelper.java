@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.LocationKind;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -210,6 +211,21 @@ public class ResourceHelper {
 			files.add(fileRevision.getFile());
 		}
 		return files;
+	}
+
+	public static Set<IFile> getContainedJavaFiles(IResource resource) throws CoreException {
+		Set<IFile> containedJavaFiles= new HashSet<IFile>();
+		if (resource instanceof IFile) {
+			IFile file= (IFile)resource;
+			if (isJavaFile(file)) {
+				containedJavaFiles.add(file);
+			}
+		} else if (resource instanceof IContainer) {
+			for (IResource containedResource : ((IContainer)resource).members()) {
+				containedJavaFiles.addAll(getContainedJavaFiles(containedResource));
+			}
+		}
+		return containedJavaFiles;
 	}
 
 	public static File getFileForResource(IResource resource) {

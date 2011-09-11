@@ -4,7 +4,6 @@
 package edu.illinois.codingtracker.operations.files.snapshoted;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
@@ -35,6 +34,10 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 		fileContent= ResourceHelper.readFileContent(snapshotedFile, charsetName);
 	}
 
+	public String getFileContent() {
+		return fileContent;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
@@ -50,7 +53,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	@Override
 	public void replay() throws CoreException {
 		createCompilationUnit(fileContent);
-		externallyModifiedResources.remove(resourcePath);
+		removeExternallyModifiedResource(resourcePath);
 	}
 
 	@Override

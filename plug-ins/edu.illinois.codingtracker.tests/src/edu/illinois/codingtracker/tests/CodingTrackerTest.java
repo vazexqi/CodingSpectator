@@ -8,6 +8,7 @@ import java.io.File;
 import org.junit.BeforeClass;
 
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
+import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingtracker.recording.TextRecorder;
 
@@ -20,6 +21,8 @@ public abstract class CodingTrackerTest {
 
 	protected static File mainRecordFile= new File(TextRecorder.getMainRecordFilePath());
 
+	protected static File astMainRecordFile= new File(ASTInferenceTextRecorder.getMainRecordFilePath());
+
 	private static File knownFilesFolder= new File(KnownFilesRecorder.getKnownFilesPath());
 
 	@BeforeClass
@@ -28,6 +31,7 @@ public abstract class CodingTrackerTest {
 		//and finally reset the known files. 
 		JavaProjectsUpkeeper.clearWorkspace();
 		mainRecordFile.delete();
+		astMainRecordFile.delete();
 		resetKnownFiles();
 	}
 

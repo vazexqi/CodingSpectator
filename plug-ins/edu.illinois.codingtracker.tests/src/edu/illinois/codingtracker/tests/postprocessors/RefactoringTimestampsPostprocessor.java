@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors;
 
+import java.io.File;
 import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -50,6 +51,11 @@ public class RefactoringTimestampsPostprocessor extends CodingTrackerPostprocess
 				TextRecorder.record(userOperation);
 			}
 		}
+	}
+
+	@Override
+	protected File getResultRecordFile() {
+		return mainRecordFile;
 	}
 
 }

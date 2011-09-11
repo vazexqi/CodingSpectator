@@ -38,7 +38,7 @@ public abstract class ResourceOperation extends UserOperation {
 	private static final String PACKAGE_NAME_SEPARATOR= ".";
 
 	//The following field is not serialized/deserialized. It is used for replay only.
-	protected static final Set<String> externallyModifiedResources= new HashSet<String>();
+	private static final Set<String> externallyModifiedResources= new HashSet<String>();
 
 	protected String resourcePath;
 
@@ -48,7 +48,11 @@ public abstract class ResourceOperation extends UserOperation {
 	}
 
 	public ResourceOperation(IResource resource) {
-		super();
+		this(resource, System.currentTimeMillis());
+	}
+
+	public ResourceOperation(IResource resource, long timestamp) {
+		super(timestamp);
 		resourcePath= ResourceHelper.getPortableResourcePath(resource);
 	}
 
@@ -71,7 +75,7 @@ public abstract class ResourceOperation extends UserOperation {
 		findOrCreateParent(resourcePath + FILE_PATH_SEPARATOR + "fake");
 	}
 
-	protected void createCompilationUnit(String content) throws CoreException {
+	public void createCompilationUnit(String content) throws CoreException {
 		IPackageFragment packageFragment= findOrCreateCompilationUnitParent(resourcePath);
 		String[] filePathFragments= resourcePath.split(FILE_PATH_SEPARATOR);
 		String fileName= filePathFragments[filePathFragments.length - 1];
@@ -166,6 +170,18 @@ public abstract class ResourceOperation extends UserOperation {
 
 	private boolean isIgnored(IResource resource) {
 		return resource instanceof IFile && !ResourceHelper.isJavaFile((IFile)resource);
+	}
+
+	public static boolean isExternallyModifiedResource(String resourcePath) {
+		return externallyModifiedResources.contains(resourcePath);
+	}
+
+	public static void addExternallyModifiedResource(String resourcePath) {
+		externallyModifiedResources.add(resourcePath);
+	}
+
+	public static void removeExternallyModifiedResource(String resourcePath) {
+		externallyModifiedResources.remove(resourcePath);
 	}
 
 	@Override

@@ -23,6 +23,11 @@ public class FileDocumentListener extends DocumentListener {
 	}
 
 	@Override
+	protected String getCurrentFileID() {
+		return ResourceHelper.getPortableResourcePath(documentFile);
+	}
+
+	@Override
 	protected void handleDocumentChange(DocumentEvent event) {
 		if (isFileRefreshed(event)) {
 			operationRecorder.recordRefreshedFile(documentFile, replacedText);

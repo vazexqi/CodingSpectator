@@ -23,6 +23,10 @@ public class PerformedTextChangeOperation extends TextChangeOperation {
 		super(documentEvent, replacedText);
 	}
 
+	public PerformedTextChangeOperation(DocumentEvent documentEvent, String replacedText, long timestamp) {
+		super(documentEvent, replacedText, timestamp);
+	}
+
 	@Override
 	protected char getOperationSymbol() {
 		return OperationSymbols.TEXT_CHANGE_PERFORMED_SYMBOL;

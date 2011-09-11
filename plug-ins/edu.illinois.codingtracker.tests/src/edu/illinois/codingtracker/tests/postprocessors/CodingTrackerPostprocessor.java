@@ -30,7 +30,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private final boolean shouldOverwriteOutputFiles= true;
 
-	private final String rootFolder= "C:/Users/Stas/Desktop/Old CodingTracker format data";
+	private final String rootFolder= "C:/Users/Stas/Desktop/AST Test";
 
 	@Ignore
 	@Test
@@ -49,7 +49,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			System.out.println("Postprocessing file: " + file.getAbsolutePath());
 			String originalSequence= ResourceHelper.readFileContent(file);
 			postprocess(OperationDeserializer.getUserOperations(originalSequence));
-			String updatedSequence= ResourceHelper.readFileContent(mainRecordFile);
+			String updatedSequence= ResourceHelper.readFileContent(getResultRecordFile());
 			try {
 				File outputFile= new File(file.getAbsolutePath() + ".postprocessed");
 				if (outputFile.exists() && !shouldOverwriteOutputFiles) {
@@ -83,5 +83,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	protected abstract void checkPostprocessingPreconditions();
 
 	protected abstract void postprocess(List<UserOperation> userOperations);
+
+	protected abstract File getResultRecordFile();
 
 }

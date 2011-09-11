@@ -46,11 +46,31 @@ public abstract class TextChangeOperation extends UserOperation {
 	}
 
 	public TextChangeOperation(DocumentEvent documentEvent, String replacedText) {
-		super();
+		this(documentEvent, replacedText, System.currentTimeMillis());
+	}
+
+	public TextChangeOperation(DocumentEvent documentEvent, String replacedText, long timestamp) {
+		super(timestamp);
 		this.replacedText= replacedText;
 		newText= documentEvent.getText();
 		offset= documentEvent.getOffset();
 		length= documentEvent.getLength();
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public String getReplacedText() {
+		return replacedText;
+	}
+
+	public String getNewText() {
+		return newText;
 	}
 
 	protected IDocumentUndoManager getCurrentDocumentUndoManager() {

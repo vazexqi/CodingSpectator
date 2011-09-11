@@ -4,6 +4,7 @@ Bundle-Name: edu.illinois.codingtracker.tests
 Bundle-SymbolicName: edu.illinois.codingtracker.tests
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.junit4;bundle-version="4.8.1",
- edu.illinois.codingtracker.recording
+ edu.illinois.codingtracker.recording,
+ org.eclipse.jdt.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: University of Illinois

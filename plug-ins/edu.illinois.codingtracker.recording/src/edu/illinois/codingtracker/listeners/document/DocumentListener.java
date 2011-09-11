@@ -11,7 +11,6 @@ import org.eclipse.jface.text.IDocumentListener;
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.helpers.Messages;
 import edu.illinois.codingtracker.listeners.BasicListener;
-import edu.illinois.codingtracker.listeners.ast.ASTListener;
 
 /**
  * 
@@ -21,8 +20,6 @@ import edu.illinois.codingtracker.listeners.ast.ASTListener;
 public abstract class DocumentListener extends BasicListener implements IDocumentListener {
 
 	private static final String ERROR_TEXT= ",,,,,";
-
-	private static final ASTListener astListener= ASTListener.getInstance();
 
 	protected String replacedText= "";
 
@@ -38,7 +35,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 			IDocument document= event.getDocument();
 			replacedText= document.get(event.getOffset(), event.getLength());
 			oldDocumentText= document.get();
-			astListener.beforeDocumentChange(event);
+			astRecorder.beforeDocumentChange(event, getCurrentFileID());
 		} catch (BadLocationException e) {
 			handleException(e, event, Messages.Recorder_BadDocumentLocation);
 		}
@@ -50,7 +47,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 			handleException(new RuntimeException(), event, Messages.Recorder_UnsynchronizedDocumentNotifications);
 		}
 		handleDocumentChange(event);
-		astListener.afterDocumentChange(event);
+		astRecorder.afterDocumentChange(event);
 	}
 
 	private void handleException(Exception ex, DocumentEvent event, String message) {
@@ -60,5 +57,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 	}
 
 	protected abstract void handleDocumentChange(DocumentEvent event);
+
+	protected abstract String getCurrentFileID();
 
 }

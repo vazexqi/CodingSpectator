@@ -29,6 +29,10 @@ public class SavedFileOperation extends BreakableResourceOperation {
 		super(savedFile, success);
 	}
 
+	public SavedFileOperation(IFile savedFile, boolean success, long timestamp) {
+		super(savedFile, success, timestamp);
+	}
+
 	@Override
 	protected char getOperationSymbol() {
 		return OperationSymbols.FILE_SAVED_SYMBOL;

@@ -28,6 +28,11 @@ public abstract class BreakableResourceOperation extends ResourceOperation {
 		this.success= success;
 	}
 
+	public BreakableResourceOperation(IResource resource, boolean success, long timestamp) {
+		super(resource, timestamp);
+		this.success= success;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);

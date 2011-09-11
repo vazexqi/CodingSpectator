@@ -4,12 +4,7 @@
 package edu.illinois.codingtracker.recording;
 
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
-import edu.illinois.codingtracker.listeners.ast.ASTListener;
 import edu.illinois.codingtracker.operations.UserOperation;
-import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.operations.files.EditedFileOperation;
-import edu.illinois.codingtracker.operations.files.EditedUnsychronizedFileOperation;
-import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 
 /**
  * 
@@ -19,21 +14,23 @@ import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
  */
 public class TextRecorder {
 
-	private final static ASTListener astListener= ASTListener.getInstance();
+	//private final static ASTOperationRecorder astRecorder= ASTOperationRecorder.getInstance();
 
-	private final static SafeRecorder recorderInstance= new SafeRecorder("codingtracker/codechanges.txt");
+	private final static SafeRecorder safeRecorder= new SafeRecorder("codingtracker/codechanges.txt");
+
 
 	public static void record(UserOperation userOperation) {
-		//Before any user operation, excluding several exceptions, flush the accumulated AST changes.
-		if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof TextChangeOperation) &&
-				!(userOperation instanceof EditedFileOperation) && !(userOperation instanceof EditedUnsychronizedFileOperation)) {
-			astListener.flushCurrentTextChange();
-		}
-		recorderInstance.record(userOperation.generateSerializationText());
+//		//Before any user operation, excluding several exceptions, flush the accumulated AST changes.
+//		if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof TextChangeOperation) &&
+//				!(userOperation instanceof EditedFileOperation) && !(userOperation instanceof EditedUnsychronizedFileOperation) &&
+//				!(userOperation instanceof NewFileOperation)) {
+//			astRecorder.flushCurrentTextChange();
+//		}
+		safeRecorder.record(userOperation.generateSerializationText());
 	}
 
 	public static String getMainRecordFilePath() {
-		return recorderInstance.mainRecordFilePath;
+		return safeRecorder.mainRecordFilePath;
 	}
 
 }

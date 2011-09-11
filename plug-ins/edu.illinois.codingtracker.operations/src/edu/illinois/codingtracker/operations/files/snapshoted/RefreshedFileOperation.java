@@ -52,6 +52,10 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 		return "Refreshed file";
 	}
 
+	public String getReplacedText() {
+		return replacedText;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);

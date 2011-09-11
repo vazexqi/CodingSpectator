@@ -15,6 +15,7 @@ import org.eclipse.ui.PlatformUI;
 import edu.illinois.codingtracker.recording.Activator;
 import edu.illinois.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingtracker.recording.OperationRecorder;
+import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 
 /**
  * 
@@ -28,6 +29,8 @@ public abstract class BasicListener {
 	protected static final KnownFilesRecorder knownFilesRecorder= KnownFilesRecorder.getInstance();
 
 	protected static final OperationRecorder operationRecorder= OperationRecorder.getInstance();
+
+	protected static final ASTOperationRecorder astRecorder= ASTOperationRecorder.getInstance();
 
 	protected static final Set<CompareEditor> openConflictEditors= Collections.synchronizedSet(new HashSet<CompareEditor>());
 

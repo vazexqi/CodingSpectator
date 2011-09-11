@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors;
 
+import java.io.File;
 import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -101,6 +102,11 @@ public class UpdateOperationSequenceFormatPostprocessor extends CodingTrackerPos
 			return RefactoringMode.REDO;
 		}
 		throw new RuntimeException("Can not establish refactoring mode for refactoring operation: " + refactoringOperation);
+	}
+
+	@Override
+	protected File getResultRecordFile() {
+		return mainRecordFile;
 	}
 
 }

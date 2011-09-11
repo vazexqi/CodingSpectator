@@ -24,6 +24,10 @@ public class EditedFileOperation extends FileOperation {
 		super(editedFile);
 	}
 
+	public EditedFileOperation(IFile editedFile, long timestamp) {
+		super(editedFile, timestamp);
+	}
+
 	@Override
 	protected char getOperationSymbol() {
 		return OperationSymbols.FILE_EDITED_SYMBOL;

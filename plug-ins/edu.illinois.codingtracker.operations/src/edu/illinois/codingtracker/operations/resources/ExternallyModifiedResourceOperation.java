@@ -75,7 +75,7 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 				}
 				resource.delete(true, null);
 			} else {
-				externallyModifiedResources.add(resourcePath);
+				addExternallyModifiedResource(resourcePath);
 			}
 		}
 	}
