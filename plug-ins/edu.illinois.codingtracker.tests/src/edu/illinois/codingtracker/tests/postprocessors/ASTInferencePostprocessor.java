@@ -4,12 +4,16 @@
 package edu.illinois.codingtracker.tests.postprocessors;
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
@@ -24,8 +28,13 @@ import edu.illinois.codingtracker.operations.files.snapshoted.CommittedFileOpera
 import edu.illinois.codingtracker.operations.files.snapshoted.NewFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
+import edu.illinois.codingtracker.operations.options.OptionsChangedOperation;
+import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
+import edu.illinois.codingtracker.operations.references.ReferencingProjectsChangedOperation;
 import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
+import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
+import edu.illinois.codingtracker.operations.textchanges.UndoneTextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 
 
@@ -37,6 +46,11 @@ import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
  */
 @SuppressWarnings("restriction")
 public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
+
+	private List<TextChangeOperation> bufferedTextChanges= new LinkedList<TextChangeOperation>();
+
+	private List<UserOperation> refactoringPredecessors= new LinkedList<UserOperation>();
+
 
 	@Override
 	protected void checkPostprocessingPreconditions() {
@@ -57,20 +71,105 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 	protected void postprocess(List<UserOperation> userOperations) {
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
-			if (userOperation instanceof NewFileOperation) {
-				handleNewFileOperation((NewFileOperation)userOperation);
-			} else if (userOperation instanceof CommittedFileOperation) {
-				handleCommittedFileOperation((CommittedFileOperation)userOperation);
-			} else if (userOperation instanceof RefreshedFileOperation) {
-				handleRefreshedFileOperation((RefreshedFileOperation)userOperation);
-			} else {
-				//TODO: Also, consider that some code change operations replace the whole file content with a new content.
-				//Some of these operations are accompanying refresh file operations, some are performed manually, but in
-				//both scenarios it could be beneficial to represent the edit on a finer grained scale using 
-				//SnapshotDifferenceCalculator the same way as for the snapshot-based operations.
+			if (userOperation instanceof TextChangeOperation) {
+				handleTextChangeOperation((TextChangeOperation)userOperation);
+			} else if (userOperation instanceof OptionsChangedOperation || userOperation instanceof ReferencingProjectsChangedOperation) {
+				refactoringPredecessors.add(userOperation);
+			} else if (userOperation instanceof NewStartedRefactoringOperation) {
+				if (((NewStartedRefactoringOperation)userOperation).isRename() && doBufferedTextChangesFormCycle()) {
+					//Do not replay buffered changes since they are assisting a rename refactoring.
+					applyAccumulatedOperations(false);
+				} else {
+					applyAccumulatedOperations(true);
+				}
 				replayAndRecord(userOperation);
+			} else {
+				applyAccumulatedOperations(true);
+				if (userOperation instanceof NewFileOperation) {
+					handleNewFileOperation((NewFileOperation)userOperation);
+				} else if (userOperation instanceof CommittedFileOperation) {
+					handleCommittedFileOperation((CommittedFileOperation)userOperation);
+				} else if (userOperation instanceof RefreshedFileOperation) {
+					handleRefreshedFileOperation((RefreshedFileOperation)userOperation);
+				} else {
+					//TODO: Also, consider that some code change operations replace the whole file content with a new content.
+					//Some of these operations are accompanying refresh file operations, some are performed manually, but in
+					//both scenarios it could be beneficial to represent the edit on a finer grained scale using 
+					//SnapshotDifferenceCalculator the same way as for the snapshot-based operations.
+					replayAndRecord(userOperation);
+				}
 			}
 		}
+		applyAccumulatedOperations(true); //Just in case
+	}
+
+	private void handleTextChangeOperation(TextChangeOperation textChangeOperation) {
+		if (bufferedTextChanges.isEmpty()) {
+			bufferedTextChanges.add(textChangeOperation);
+		} else if (bufferedTextChanges.size() == 1) {
+			TextChangeOperation lastTextChangeOperation= bufferedTextChanges.get(0);
+			if (arePossiblyCorrelated(lastTextChangeOperation, textChangeOperation)) {
+				bufferedTextChanges.add(textChangeOperation);
+			} else {
+				replayAndRecord(lastTextChangeOperation);
+				bufferedTextChanges.set(0, textChangeOperation);
+			}
+		} else {
+			bufferedTextChanges.add(textChangeOperation);
+		}
+	}
+
+	private void applyAccumulatedOperations(boolean shouldReplayBufferedTextChanges) {
+		for (TextChangeOperation textChangeOperation : bufferedTextChanges) {
+			if (shouldReplayBufferedTextChanges) {
+				replayAndRecord(textChangeOperation);
+			} else {
+				record(textChangeOperation);
+			}
+		}
+		for (UserOperation refactoringPredecessor : refactoringPredecessors) {
+			replayAndRecord(refactoringPredecessor);
+		}
+		bufferedTextChanges.clear();
+		refactoringPredecessors.clear();
+	}
+
+	private boolean arePossiblyCorrelated(TextChangeOperation operation1, TextChangeOperation operation2) {
+		final long maxTimeDelta= 150; // 150 ms.
+		return Math.abs(operation1.getTime() - operation1.getTime()) < maxTimeDelta && operation1.getNewText().equals(operation2.getNewText())
+				&& operation1.getReplacedText().equals(operation2.getReplacedText()) && !canBeCoherent(operation1, operation2);
+	}
+
+	private boolean canBeCoherent(TextChangeOperation operation1, TextChangeOperation operation2) {
+		return operation1.getOffset() + operation1.getNewText().length() == operation2.getOffset() ||
+				operation1.getOffset() - operation1.getReplacedText().length() == operation2.getOffset();
+	}
+
+	private boolean doBufferedTextChangesFormCycle() {
+		if (bufferedTextChanges.isEmpty()) {
+			return true;
+		}
+		TextChangeOperation firstChange= bufferedTextChanges.get(0);
+		TextChangeOperation lastChange= bufferedTextChanges.get(bufferedTextChanges.size() - 1);
+		if (!isSecondTextChangeUndoingFirst(firstChange, lastChange)) {
+			return false;
+		}
+		String initialContent= firstChange.getEditedText();
+		IDocument editedDocument= new Document(initialContent);
+		for (TextChangeOperation changeOperation : bufferedTextChanges) {
+			try {
+				editedDocument.replace(changeOperation.getOffset(), changeOperation.getLength(), changeOperation.getNewText());
+			} catch (BadLocationException e) {
+				return false;
+			}
+		}
+		return initialContent.equals(editedDocument.get());
+	}
+
+	private boolean isSecondTextChangeUndoingFirst(TextChangeOperation firstChange, TextChangeOperation secondChange) {
+		return firstChange instanceof PerformedTextChangeOperation && secondChange instanceof UndoneTextChangeOperation &&
+				firstChange.getOffset() == secondChange.getOffset() && firstChange.getNewText().equals(secondChange.getReplacedText()) &&
+				firstChange.getReplacedText().equals(secondChange.getNewText());
 	}
 
 	private void handleNewFileOperation(NewFileOperation newFileOperation) {

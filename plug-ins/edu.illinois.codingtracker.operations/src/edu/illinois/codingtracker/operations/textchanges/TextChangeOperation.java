@@ -134,6 +134,11 @@ public abstract class TextChangeOperation extends UserOperation {
 		currentDocument= currentViewer.getDocument();
 	}
 
+	public String getEditedText() {
+		updateCurrentState();
+		return currentDocument.get();
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();

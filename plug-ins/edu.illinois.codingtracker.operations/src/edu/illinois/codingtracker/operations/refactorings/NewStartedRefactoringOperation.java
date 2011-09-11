@@ -135,6 +135,10 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		return arguments;
 	}
 
+	public boolean isRename() {
+		return id.startsWith("org.eclipse.jdt.ui.rename.");
+	}
+
 	private static long getRefactoringTimeStamp(RefactoringDescriptor refactoringDescriptor) {
 		long refactoringDescriptorTimeStamp= refactoringDescriptor.getTimeStamp();
 		return refactoringDescriptorTimeStamp == -1 ? System.currentTimeMillis() : refactoringDescriptorTimeStamp;
