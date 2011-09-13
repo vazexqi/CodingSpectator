@@ -47,7 +47,6 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 			handleException(new RuntimeException(), event, Messages.Recorder_UnsynchronizedDocumentNotifications);
 		}
 		handleDocumentChange(event);
-		astRecorder.afterDocumentChange(event);
 	}
 
 	private void handleException(Exception ex, DocumentEvent event, String message) {

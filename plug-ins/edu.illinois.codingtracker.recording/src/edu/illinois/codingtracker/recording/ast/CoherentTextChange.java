@@ -3,6 +3,14 @@
  */
 package edu.illinois.codingtracker.recording.ast;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
+
+import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
+import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
+
 /**
  * 
  * @author Stas Negara
@@ -10,47 +18,57 @@ package edu.illinois.codingtracker.recording.ast;
  */
 public class CoherentTextChange {
 
-	private final String oldDocumentText;
+	private final IDocument editedDocument;
 
-	private String newDocumentText;
+	private final String initialDocumentText;
 
-	private final int offset;
+	private int baseOffset;
 
 	private int removedTextLength;
+
+	private int addedTextLength;
 
 	private int initialRemovedTextLength;
 
 	private int intermediateRemovedTextLength;
 
-	private int addedTextLength;
+	private TextChangeOperation initialTextChangeOperation;
 
-	private boolean isFirstGluing= true;
+	private boolean firstGluing= true;
 
 	private boolean isDeletingOnly= false;
 
 	private boolean isBackspaceDeleting= false;
 
-	public CoherentTextChange(String oldDocumentText, int offset, int removedTextLength, int addedTextLength) {
-		this.oldDocumentText= oldDocumentText;
-		this.offset= offset;
-		initialRemovedTextLength= removedTextLength;
+
+	public CoherentTextChange(DocumentEvent documentEvent, long textChangeTimestamp) {
+		initialDocumentText= documentEvent.getDocument().get();
+		editedDocument= new Document(initialDocumentText);
+		initialTextChangeOperation= createTextChangeOperation(documentEvent, textChangeTimestamp);
+		baseOffset= documentEvent.getOffset();
+		initialRemovedTextLength= documentEvent.getLength();
+		String addedText= documentEvent.getText();
+		addedTextLength= addedText.length();
 		intermediateRemovedTextLength= 0;
-		this.addedTextLength= addedTextLength;
-		if (removedTextLength > 0 && addedTextLength == 0) {
+		if (initialRemovedTextLength > 0 && addedTextLength == 0) {
 			isDeletingOnly= true;
 		}
+		applyTextChange(documentEvent);
 	}
 
-	public String getOldDocumentText() {
-		return oldDocumentText;
+	public String getInitialDocumentText() {
+		return initialDocumentText;
 	}
 
-	public String getNewDocumentText() {
-		return newDocumentText;
+	public String getFinalDocumentText() {
+		return editedDocument.get();
 	}
 
 	public int getOffset() {
-		return offset;
+		if (isBackspaceDeleting) {
+			return baseOffset - removedTextLength;
+		}
+		return baseOffset;
 	}
 
 	public int getRemovedTextLength() {
@@ -69,33 +87,50 @@ public class CoherentTextChange {
 		return getRemovedTextLength() != 0 || getAddedTextLength() != 0;
 	}
 
-	public void updateNewDocumentText(String newDocumentText) {
-		this.newDocumentText= newDocumentText;
+	public boolean isFirstGluing() {
+		return firstGluing;
 	}
 
-	public void glueNewTextChange(int newOffset, int newRemovedTextLength, int newAddedTextLength) {
-		if (!shouldGlueNewTextChange(newOffset, newRemovedTextLength)) {
-			throw new RuntimeException("Should not call glueNewTextChange for an incoherent change offset: " + newOffset);
+	/**
+	 * Should be called before this and the given CoherentTextChange are glued the first time.
+	 * 
+	 * @param textChange
+	 * @return
+	 */
+	public boolean isPossiblyCorrelatedWith(CoherentTextChange textChange) {
+		if (!firstGluing || !textChange.firstGluing) {
+			throw new RuntimeException("It is not valid to call the method \"isPossiblyCorrelatedWith\" if at least one argument represents an already glued text change!");
 		}
+		return initialTextChangeOperation.isPossiblyCorrelatedWith(textChange.initialTextChangeOperation);
+	}
+
+	public void glueNewTextChange(DocumentEvent documentEvent, long textChangeTimestamp) {
+		if (!shouldGlueNewTextChange(documentEvent)) {
+			throw new RuntimeException("Should not call glueNewTextChange for an incoherent change offset: " + documentEvent.getOffset());
+		}
+		int newRemovedTextLength= documentEvent.getLength();
 		if (isDeletingOnly) {
 			removedTextLength+= newRemovedTextLength;
 		} else {
 			intermediateRemovedTextLength+= newRemovedTextLength;
 		}
-		addedTextLength+= newAddedTextLength;
-		isFirstGluing= false;
+		addedTextLength+= documentEvent.getText().length();
+		firstGluing= false;
+		applyTextChange(documentEvent);
 	}
 
-	public boolean shouldGlueNewTextChange(int newOffset, int newRemovedTextLength) {
+	public boolean shouldGlueNewTextChange(DocumentEvent documentEvent) {
+		int newOffset= documentEvent.getOffset();
+		int newRemovedTextLength= documentEvent.getLength();
 		if (newRemovedTextLength == 0) {
 			isDeletingOnly= false;
 		}
-		if (isDeletingOnly && isFirstGluing) {
-			isBackspaceDeleting= offset != newOffset;
+		if (isDeletingOnly && firstGluing) {
+			isBackspaceDeleting= baseOffset != newOffset;
 		}
 		if (isDeletingOnly && !isBackspaceDeleting) {
 			//System.out.println("To glue: " + (offset == newOffset));
-			return offset == newOffset;
+			return baseOffset == newOffset;
 		} else {
 			//TODO: Consider also cases when a developer adds several nodes, then reconsiders and deletes all of them.
 			//Currently, we discard these additions and deletions. We need to introduce either a threshold on the number
@@ -107,7 +142,33 @@ public class CoherentTextChange {
 				return false;
 			}
 			//System.out.println("To glue: " + (offset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength));
-			return offset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength;
+			return baseOffset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength;
 		}
 	}
+
+	public void applyTextChange(DocumentEvent documentEvent) {
+		int changeOffset= documentEvent.getOffset();
+		int removedTextLength= documentEvent.getLength();
+		String addedText= documentEvent.getText();
+		try {
+			editedDocument.replace(changeOffset, removedTextLength, addedText);
+		} catch (BadLocationException e) {
+			throw new RuntimeException("Could not apply text change to the edited document of a CoherentTextChange!", e);
+		}
+		//Note that for own updates (e.g. constructor or gluing) getOffset() == changeOffset, so nothing will get updated.
+		if (getOffset() > changeOffset) {
+			baseOffset+= addedText.length() - removedTextLength;
+		}
+	}
+
+	private TextChangeOperation createTextChangeOperation(DocumentEvent documentEvent, long timestamp) {
+		String replacedText;
+		try {
+			replacedText= editedDocument.get(documentEvent.getOffset(), documentEvent.getLength());
+		} catch (BadLocationException e) {
+			throw new RuntimeException("Could not get the replaced text: " + documentEvent, e);
+		}
+		return new PerformedTextChangeOperation(documentEvent, replacedText, timestamp);
+	}
+
 }

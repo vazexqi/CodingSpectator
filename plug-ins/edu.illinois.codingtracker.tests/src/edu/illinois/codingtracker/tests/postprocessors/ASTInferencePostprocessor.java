@@ -34,7 +34,6 @@ import edu.illinois.codingtracker.operations.references.ReferencingProjectsChang
 import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
-import edu.illinois.codingtracker.operations.textchanges.UndoneTextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 
 
@@ -108,7 +107,7 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 			bufferedTextChanges.add(textChangeOperation);
 		} else if (bufferedTextChanges.size() == 1) {
 			TextChangeOperation lastTextChangeOperation= bufferedTextChanges.get(0);
-			if (arePossiblyCorrelated(lastTextChangeOperation, textChangeOperation)) {
+			if (lastTextChangeOperation.isPossiblyCorrelatedWith(textChangeOperation)) {
 				bufferedTextChanges.add(textChangeOperation);
 			} else {
 				replayAndRecord(lastTextChangeOperation);
@@ -134,24 +133,13 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 		refactoringPredecessors.clear();
 	}
 
-	private boolean arePossiblyCorrelated(TextChangeOperation operation1, TextChangeOperation operation2) {
-		final long maxTimeDelta= 150; // 150 ms.
-		return Math.abs(operation1.getTime() - operation1.getTime()) < maxTimeDelta && operation1.getNewText().equals(operation2.getNewText())
-				&& operation1.getReplacedText().equals(operation2.getReplacedText()) && !canBeCoherent(operation1, operation2);
-	}
-
-	private boolean canBeCoherent(TextChangeOperation operation1, TextChangeOperation operation2) {
-		return operation1.getOffset() + operation1.getNewText().length() == operation2.getOffset() ||
-				operation1.getOffset() - operation1.getReplacedText().length() == operation2.getOffset();
-	}
-
 	private boolean doBufferedTextChangesFormCycle() {
 		if (bufferedTextChanges.isEmpty()) {
 			return true;
 		}
 		TextChangeOperation firstChange= bufferedTextChanges.get(0);
 		TextChangeOperation lastChange= bufferedTextChanges.get(bufferedTextChanges.size() - 1);
-		if (!isSecondTextChangeUndoingFirst(firstChange, lastChange)) {
+		if (!firstChange.isUndoneBy(lastChange)) {
 			return false;
 		}
 		String initialContent= firstChange.getEditedText();
@@ -164,12 +152,6 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 			}
 		}
 		return initialContent.equals(editedDocument.get());
-	}
-
-	private boolean isSecondTextChangeUndoingFirst(TextChangeOperation firstChange, TextChangeOperation secondChange) {
-		return firstChange instanceof PerformedTextChangeOperation && secondChange instanceof UndoneTextChangeOperation &&
-				firstChange.getOffset() == secondChange.getOffset() && firstChange.getNewText().equals(secondChange.getReplacedText()) &&
-				firstChange.getReplacedText().equals(secondChange.getNewText());
 	}
 
 	private void handleNewFileOperation(NewFileOperation newFileOperation) {
@@ -284,13 +266,25 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	private void replayAndRecord(UserOperation userOperation) {
+		//First replay and then record TextChangeOperations and vice versa for all other operations in order to preserve
+		//the right ordering (i.e. ASTOperation follow operation(s) that caused it) and the right timestamp (i.e. ASTOperation
+		//has the timestamp of the last operation that caused it).
+		if (userOperation instanceof TextChangeOperation) {
+			replay(userOperation);
+			record(userOperation);
+		} else {
+			record(userOperation);
+			replay(userOperation);
+		}
+	}
+
+	private void replay(UserOperation userOperation) {
 		System.out.println("Replaying operation: " + userOperation.generateSerializationText());
 		try {
 			userOperation.replay();
 		} catch (Exception e) {
 			throw new RuntimeException("Could not replay user operation: " + userOperation, e);
 		}
-		record(userOperation);
 	}
 
 	private void record(UserOperation userOperation) {

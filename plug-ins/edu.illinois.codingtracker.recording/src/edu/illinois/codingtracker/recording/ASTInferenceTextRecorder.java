@@ -29,15 +29,23 @@ public class ASTInferenceTextRecorder {
 	public static void record(UserOperation userOperation) {
 		//Before any user operation, except text change operations, flush the accumulated AST changes.
 		if (!(userOperation instanceof TextChangeOperation)) {
-			astRecorder.flushCurrentTextChange();
+			astRecorder.flushCurrentTextChanges();
 		}
 		lastTimestamp= userOperation.getTime();
 		safeRecorder.record(userOperation.generateSerializationText());
 	}
 
 	public static void recordASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID, int methodCyclomaticComplexity, String fullMethodName) {
-		ASTOperation astOperation= new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, methodCyclomaticComplexity, fullMethodName, lastTimestamp);
+		ASTOperation astOperation= new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, methodCyclomaticComplexity, fullMethodName, getASTOperationTimestamp());
 		safeRecorder.record(astOperation.generateSerializationText());
+	}
+
+	private static long getASTOperationTimestamp() {
+		if (ASTOperationRecorder.isInReplayMode) {
+			return lastTimestamp;
+		} else {
+			return System.currentTimeMillis();
+		}
 	}
 
 	public static String getMainRecordFilePath() {

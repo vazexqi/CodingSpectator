@@ -5,6 +5,8 @@ package edu.illinois.codingtracker.recording.ast;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -23,6 +25,7 @@ import org.eclipse.jface.text.IDocument;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
+import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 
 /**
@@ -35,13 +38,19 @@ public class ASTOperationRecorder {
 
 	public static final boolean isInASTInferenceMode= System.getenv("AST_INFERENCE_MODE") != null;
 
+	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
+
 	private static volatile ASTOperationRecorder astRecorderInstance= null;
 
-	private CoherentTextChange currentTextChange;
+	private List<CoherentTextChange> currentTextChanges= new LinkedList<CoherentTextChange>();
 
 	private IDocument currentDocument;
 
 	private String currentFileID;
+
+	private int currentIndexToGlueWith= 0;
+
+	private int correlatedBatchSize= -1;
 
 	private final CyclomaticComplexityCalculator cyclomaticComplexityCalculator= new CyclomaticComplexityCalculator();
 
@@ -64,38 +73,80 @@ public class ASTOperationRecorder {
 	public void beforeDocumentChange(DocumentEvent event, String fileID) {
 		//If the edited document has changed, flush the accumulated changes.
 		if (currentDocument != null && currentDocument != event.getDocument()) {
-			flushCurrentTextChange();
+			flushCurrentTextChanges();
 		}
 		currentDocument= event.getDocument();
-		if (currentTextChange == null) {
-			currentTextChange= new CoherentTextChange(event.getDocument().get(), event.getOffset(), event.getLength(), event.getText().length());
+		long timestamp= getTextChangeTimestamp();
+		if (currentTextChanges.isEmpty()) {
+			currentTextChanges.add(new CoherentTextChange(event, timestamp));
+			correlatedBatchSize= -1;
 		} else {
-			if (currentTextChange.shouldGlueNewTextChange(event.getOffset(), event.getLength())) {
-				currentTextChange.glueNewTextChange(event.getOffset(), event.getLength(), event.getText().length());
-			} else {
-				flushCurrentTextChange();
-				currentTextChange= new CoherentTextChange(event.getDocument().get(), event.getOffset(), event.getLength(), event.getText().length());
-			}
+			addToCurrentTextChanges(event, timestamp);
 		}
 		currentFileID= fileID;
 	}
 
-	public void afterDocumentChange(DocumentEvent event) {
-		if (currentTextChange == null) {
-			throw new RuntimeException("The current coherent text change should not be null after a document was changed: " + event);
+	private void addToCurrentTextChanges(DocumentEvent event, long timestamp) {
+		if (correlatedBatchSize == -1) { //Batch size is not established yet.
+			CoherentTextChange lastTextChange= currentTextChanges.get(currentTextChanges.size() - 1);
+			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
+			if (lastTextChange.isFirstGluing() && lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
+				currentTextChanges.add(newTextChange);
+				applyTextChangeToBatch(event, currentTextChanges.size() - 1);
+			} else {
+				correlatedBatchSize= currentTextChanges.size();
+				currentIndexToGlueWith= 0;
+				tryGluingInBatch(event, timestamp);
+			}
+		} else { //Batch size is already established.
+			tryGluingInBatch(event, timestamp);
 		}
-		currentTextChange.updateNewDocumentText(event.getDocument().get());
 	}
 
-	public void flushCurrentTextChange() {
-		if (currentTextChange != null && currentTextChange.isActualChange()) {
+	private void tryGluingInBatch(DocumentEvent event, long timestamp) {
+		CoherentTextChange textChangeToGlueWith= currentTextChanges.get(currentIndexToGlueWith);
+		if (textChangeToGlueWith.shouldGlueNewTextChange(event)) {
+			textChangeToGlueWith.glueNewTextChange(event, timestamp);
+			applyTextChangeToBatch(event, currentIndexToGlueWith);
+			currentIndexToGlueWith++;
+			if (currentIndexToGlueWith == correlatedBatchSize) {
+				currentIndexToGlueWith= 0;
+			}
+		} else {
+			flushCurrentTextChanges();
+			currentTextChanges.add(new CoherentTextChange(event, timestamp));
+		}
+	}
+
+	/**
+	 * 
+	 * @param event
+	 * @param excludeIndex - index of a batched coherent text change, whose document was already
+	 *            updated (either in constructor or while gluing), so it should not be considered
+	 *            again.
+	 */
+	private void applyTextChangeToBatch(DocumentEvent event, int excludeIndex) {
+		for (int i= 0; i < currentTextChanges.size(); i++) {
+			if (i != excludeIndex) {
+				currentTextChanges.get(i).applyTextChange(event);
+			}
+		}
+	}
+
+	public void flushCurrentTextChanges() {
+		if (!currentTextChanges.isEmpty() && currentTextChanges.get(0).isActualChange()) {
+			if (correlatedBatchSize != -1 && currentIndexToGlueWith != 0) {
+				throw new RuntimeException("Stopped gluing in the middle of a correlated batch!");
+			}
 			cyclomaticComplexityCalculator.resetCache();
-			int changeOffset= currentTextChange.getOffset();
-			int addedTextLength= currentTextChange.getAddedTextLength();
-			int removedTextLength= currentTextChange.getRemovedTextLength();
+			boolean isMultiBatch= currentTextChanges.size() > 1;
+			CoherentTextChange firstTextChange= currentTextChanges.get(0);
+			int changeOffset= isMultiBatch ? 0 : firstTextChange.getOffset();
+			int addedTextLength= isMultiBatch ? firstTextChange.getFinalDocumentText().length() : firstTextChange.getAddedTextLength();
+			int removedTextLength= isMultiBatch ? firstTextChange.getInitialDocumentText().length() : firstTextChange.getRemovedTextLength();
 			int deltaTextLength= addedTextLength - removedTextLength;
-			CoveredNodesFinder oldAffectedNodesFinder= getAffectedNodesFinder("BEFORE:\n", currentTextChange.getOldDocumentText(), changeOffset, removedTextLength);
-			CoveredNodesFinder newAffectedNodesFinder= getAffectedNodesFinder("AFTER:\n", currentTextChange.getNewDocumentText(), changeOffset, addedTextLength);
+			CoveredNodesFinder oldAffectedNodesFinder= getAffectedNodesFinder("BEFORE:\n", firstTextChange.getInitialDocumentText(), changeOffset, removedTextLength);
+			CoveredNodesFinder newAffectedNodesFinder= getAffectedNodesFinder("AFTER:\n", firstTextChange.getFinalDocumentText(), changeOffset, addedTextLength);
 			ASTNode oldRootNode= oldAffectedNodesFinder.getRootNode();
 			ASTNode oldCoveringNode= oldAffectedNodesFinder.getCoveringNode();
 			ASTNode newRootNode= newAffectedNodesFinder.getRootNode();
@@ -166,6 +217,8 @@ public class ASTOperationRecorder {
 				}
 			}
 
+			Map<ASTNode, ASTNode> changedMatchedNodes= new HashMap<ASTNode, ASTNode>(); //Needed for correctness checking only.
+
 			Map<ASTNode, ASTNode> updatePositionalNodeIDsMap= new HashMap<ASTNode, ASTNode>();
 			for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
 				ASTNode oldNode= mapEntry.getKey();
@@ -177,10 +230,13 @@ public class ASTOperationRecorder {
 					if (oldProperty == null && newProperty != null || oldProperty != null && !oldProperty.equals(newProperty)) {
 						//Matched node is changed.
 						recordASTOperation(currentFileID, OperationKind.CHANGE, oldNode, newNode.toString());
+						changedMatchedNodes.put(oldNode, newNode);
 						break;
 					}
 				}
 			}
+
+			checkMultiBatchCorrectness(isMultiBatch, changedMatchedNodes, deletedNodes, addedNodes);
 
 			recordDeleteASTOperation(currentFileID, deletedNodes);
 
@@ -189,7 +245,55 @@ public class ASTOperationRecorder {
 
 			recordAddASTOperation(currentFileID, addedNodes);
 		}
-		currentTextChange= null;
+		currentTextChanges.clear();
+	}
+
+	/**
+	 * More sanity checks to ensure that multi batches are created only for boxed renames (can
+	 * happen before rename and after extract method refactorings).
+	 * 
+	 * @param isMultiBatch
+	 * @param matchedNodes
+	 * @param deletedNodes
+	 * @param addedNodes
+	 */
+	private void checkMultiBatchCorrectness(boolean isMultiBatch, Map<ASTNode, ASTNode> changedMatchedNodes, Set<ASTNode> deletedNodes, Set<ASTNode> addedNodes) {
+		if (!isMultiBatch) {
+			return;
+		}
+		if (changedMatchedNodes.size() != currentTextChanges.size() || !deletedNodes.isEmpty() || !addedNodes.isEmpty()) {
+			throw new RuntimeException("Multi batched node collections have wrong sizes!");
+		}
+		String oldText= null;
+		String newText= null;
+		Set<ASTNode> oldNodes= new HashSet<ASTNode>();
+		Set<ASTNode> newNodes= new HashSet<ASTNode>();
+		for (Entry<ASTNode, ASTNode> mapEntry : changedMatchedNodes.entrySet()) {
+			ASTNode oldNode= mapEntry.getKey();
+			ASTNode newNode= mapEntry.getValue();
+			if (oldNodes.contains(oldNode) || newNodes.contains(newNode)) {
+				throw new RuntimeException("Multi batched update changed same nodes more than ones!");
+			}
+			oldNodes.add(oldNode);
+			newNodes.add(newNode);
+			if (oldText == null) {
+				oldText= oldNode.toString();
+			}
+			if (newText == null) {
+				newText= newNode.toString();
+			}
+			if (!oldText.equals(oldNode.toString()) || !newText.equals(newNode.toString())) {
+				throw new RuntimeException("Multi batch update contains different old or new texts!");
+			}
+		}
+	}
+
+	private long getTextChangeTimestamp() {
+		if (isInReplayMode) {
+			return TextChangeOperation.lastReplayedTimestamp;
+		} else {
+			return System.currentTimeMillis();
+		}
 	}
 
 	private void recordDeleteASTOperation(String fileID, Set<ASTNode> deletedNodes) {

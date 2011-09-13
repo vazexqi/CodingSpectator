@@ -21,12 +21,7 @@ public class InactiveASTOperationRecorder extends ASTOperationRecorder {
 	}
 
 	@Override
-	public void afterDocumentChange(DocumentEvent event) {
-		//do nothing
-	}
-
-	@Override
-	public void flushCurrentTextChange() {
+	public void flushCurrentTextChanges() {
 		//do nothing
 	}
 

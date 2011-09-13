@@ -35,11 +35,15 @@ public abstract class TextChangeOperation extends UserOperation {
 	protected int length;
 
 	//The following fields are computed during replay, do not serialize/deserialize them!
+
+	public static long lastReplayedTimestamp;
+
 	protected IDocument currentDocument= null;
 
 	protected ISourceViewer currentViewer= null;
 
 	private boolean isRecordedWhileRefactoring= false;
+
 
 	public TextChangeOperation() {
 		super();
@@ -95,6 +99,7 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	@Override
 	public void replay() throws BadLocationException, ExecutionException {
+		lastReplayedTimestamp= getTime();
 		if (isReplayedRefactoring) {
 			isRecordedWhileRefactoring= true;
 		} else {
@@ -137,6 +142,41 @@ public abstract class TextChangeOperation extends UserOperation {
 	public String getEditedText() {
 		updateCurrentState();
 		return currentDocument.get();
+	}
+
+	/**
+	 * Detects whether this text change and the given text change are possibly representing the same
+	 * text change happening in several edit boxes (e.g. when a developer renames a program entity).
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	public boolean isPossiblyCorrelatedWith(TextChangeOperation operation) {
+		final long maxTimeDelta= 150; // 150 ms.
+		return Math.abs(getTime() - operation.getTime()) < maxTimeDelta && newText.equals(operation.newText)
+				&& replacedText.equals(operation.replacedText) && !canBeCoherentWith(operation);
+	}
+
+	/**
+	 * Detects whether the given text change can possibly continue this text change (i.e. adding or
+	 * removing characters in a row).
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	private boolean canBeCoherentWith(TextChangeOperation operation) {
+		return offset + newText.length() == operation.offset || offset - replacedText.length() == operation.offset;
+	}
+
+	/**
+	 * Detects whether this text change is undone by the given text change.
+	 * 
+	 * @param operation
+	 * @return
+	 */
+	public boolean isUndoneBy(TextChangeOperation operation) {
+		return this instanceof PerformedTextChangeOperation && operation instanceof UndoneTextChangeOperation &&
+				offset == operation.offset && newText.equals(operation.replacedText) && replacedText.equals(operation.newText);
 	}
 
 	@Override
