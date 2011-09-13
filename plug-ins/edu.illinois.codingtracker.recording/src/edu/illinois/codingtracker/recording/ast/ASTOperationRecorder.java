@@ -79,7 +79,6 @@ public class ASTOperationRecorder {
 		long timestamp= getTextChangeTimestamp();
 		if (currentTextChanges.isEmpty()) {
 			currentTextChanges.add(new CoherentTextChange(event, timestamp));
-			correlatedBatchSize= -1;
 		} else {
 			addToCurrentTextChanges(event, timestamp);
 		}
@@ -246,6 +245,7 @@ public class ASTOperationRecorder {
 			recordAddASTOperation(currentFileID, addedNodes);
 		}
 		currentTextChanges.clear();
+		correlatedBatchSize= -1;
 	}
 
 	/**
