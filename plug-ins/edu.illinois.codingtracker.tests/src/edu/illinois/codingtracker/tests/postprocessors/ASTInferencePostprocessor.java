@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,6 +34,7 @@ import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
+import edu.illinois.codingtracker.tests.helpers.SnapshotDifferenceCalculator;
 
 
 /**
@@ -292,8 +292,13 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	@Override
-	protected File getResultRecordFile() {
-		return astMainRecordFile;
+	protected String getResultFilePostfix() {
+		return ".inferred_ast_operations";
+	}
+
+	@Override
+	protected String getResult() {
+		return ResourceHelper.readFileContent(astMainRecordFile);
 	}
 
 }

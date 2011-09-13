@@ -1,0 +1,168 @@
+/**
+ * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+ */
+package edu.illinois.codingtracker.tests.analyzers;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+
+import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
+import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
+import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
+import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
+import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
+
+
+/**
+ * This class calculates the number of affected files and lines of code for each performed, undone,
+ * or redone refactoring.
+ * 
+ * @author Stas Negara
+ * 
+ */
+public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
+
+	private static final String TABLE_HEADER= "timestamp,number of affected files,number of affected lines\n";
+
+	private StringBuffer result;
+
+	private long refactoringTimestamp;
+
+	private int affectedFilesCount;
+
+	private int affectedLinesCount;
+
+	private final Set<String> countedFiles= new HashSet<String>();
+
+	private final Map<String, Set<Integer>> countedLineNumbers= new HashMap<String, Set<Integer>>();
+
+
+	@Override
+	protected void checkPostprocessingPreconditions() {
+		//no preconditions
+	}
+
+	@Override
+	protected boolean shouldPostprocessVersionFolder(String folderName) {
+		return true;
+	}
+
+	@Override
+	protected String getRecordFileName() {
+		return "codechanges.txt";
+	}
+
+	@Override
+	protected void postprocess(List<UserOperation> userOperations) {
+		initialize();
+		for (UserOperation userOperation : userOperations) {
+			if (userOperation instanceof NewStartedRefactoringOperation) {
+				refactoringTimestamp= userOperation.getTime();
+			} else if (userOperation instanceof FinishedRefactoringOperation) {
+				appendAndResetCurrentState();
+			} else if (refactoringTimestamp != -1) { //Inside a refactoring.
+				if (userOperation instanceof TextChangeOperation) {
+					handleTextChangeOperation((TextChangeOperation)userOperation);
+				} else if (userOperation instanceof MovedResourceOperation) {
+					handleMovedResourceOperation((MovedResourceOperation)userOperation);
+				}
+				//TODO: Should we count deleted files as affected files and all their line numbers as affected line numbers?
+			}
+			try {
+				userOperation.replay();
+			} catch (Exception e) {
+				throw new RuntimeException("Could not replay user operation: " + userOperation, e);
+			}
+		}
+	}
+
+	private void handleMovedResourceOperation(MovedResourceOperation movedResourceOperation) {
+		String movedResourcePath= movedResourceOperation.getResourcePath();
+		IResource movedResource= ResourceHelper.findWorkspaceMember(movedResourcePath);
+		if (movedResource instanceof IFile) {
+			addAffectedFile(movedResourcePath);
+			//The destination file is the same as the source file, so it should not be counted separately.
+			String destinationResourcePath= movedResourceOperation.getDestinationPath();
+			countedFiles.add(destinationResourcePath);
+			remapLineNumbersForFiles(movedResourcePath, destinationResourcePath);
+		}
+	}
+
+	private void handleTextChangeOperation(TextChangeOperation textChangeOperation) {
+		String editedFilePath= textChangeOperation.getEditedFilePath();
+		addAffectedFile(editedFilePath);
+		Set<Integer> countedFileLineNumbers= getCountedLineNumbersForFile(editedFilePath);
+		int[] affectedLineNumbers= textChangeOperation.getAffectedLineNumbers();
+		for (int affectedLineNumber : affectedLineNumbers) {
+			//TODO: The line numbers may change during a refactoring, which could cause different line numbers represent
+			//the same line or different lines be represented with the same line number. Thus, the current implementation is
+			//an approximation.
+			if (!countedFileLineNumbers.contains(affectedLineNumber)) {
+				affectedLinesCount++;
+				countedFileLineNumbers.add(affectedLineNumber);
+			}
+		}
+	}
+
+	private void addAffectedFile(String filePath) {
+		if (!countedFiles.contains(filePath)) {
+			countedFiles.add(filePath);
+			affectedFilesCount++;
+		}
+	}
+
+	private Set<Integer> getCountedLineNumbersForFile(String filePath) {
+		Set<Integer> countedFileLineNumbers= countedLineNumbers.get(filePath);
+		if (countedFileLineNumbers == null) {
+			countedFileLineNumbers= new HashSet<Integer>();
+			countedLineNumbers.put(filePath, countedFileLineNumbers);
+		}
+		return countedFileLineNumbers;
+	}
+
+	private void remapLineNumbersForFiles(String oldFilePath, String newFilePath) {
+		Set<Integer> countedFileLineNumbers= countedLineNumbers.remove(oldFilePath);
+		if (countedFileLineNumbers != null) {
+			countedLineNumbers.put(newFilePath, countedFileLineNumbers);
+		}
+	}
+
+	private void initialize() {
+		result= new StringBuffer(TABLE_HEADER);
+		resetCurrentState();
+	}
+
+	private void resetCurrentState() {
+		refactoringTimestamp= -1;
+		affectedFilesCount= 0;
+		affectedLinesCount= 0;
+		countedFiles.clear();
+		countedLineNumbers.clear();
+	}
+
+	private void appendAndResetCurrentState() {
+		result.append(refactoringTimestamp).append(",");
+		result.append(affectedFilesCount).append(",");
+		result.append(affectedLinesCount).append("\n");
+		resetCurrentState();
+	}
+
+	@Override
+	protected String getResultFilePostfix() {
+		return ".refactoring_intensity";
+	}
+
+	@Override
+	protected String getResult() {
+		return result.toString();
+	}
+
+}

@@ -3,9 +3,9 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors;
 
-import java.io.File;
 import java.util.List;
 
+import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
@@ -105,8 +105,13 @@ public class UpdateOperationSequenceFormatPostprocessor extends CodingTrackerPos
 	}
 
 	@Override
-	protected File getResultRecordFile() {
-		return mainRecordFile;
+	protected String getResultFilePostfix() {
+		return ".fixed_old_format";
+	}
+
+	@Override
+	protected String getResult() {
+		return ResourceHelper.readFileContent(mainRecordFile);
 	}
 
 }

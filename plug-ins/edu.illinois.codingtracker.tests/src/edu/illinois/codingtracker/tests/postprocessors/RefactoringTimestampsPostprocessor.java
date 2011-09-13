@@ -3,9 +3,9 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors;
 
-import java.io.File;
 import java.util.List;
 
+import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingtracker.recording.TextRecorder;
@@ -54,8 +54,13 @@ public class RefactoringTimestampsPostprocessor extends CodingTrackerPostprocess
 	}
 
 	@Override
-	protected File getResultRecordFile() {
-		return mainRecordFile;
+	protected String getResultFilePostfix() {
+		return ".fixed_refactoring_timestamps";
+	}
+
+	@Override
+	protected String getResult() {
+		return ResourceHelper.readFileContent(mainRecordFile);
 	}
 
 }

@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.operations.textchanges;
 
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -14,6 +15,7 @@ import org.eclipse.text.undo.IDocumentUndoManager;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -41,6 +43,8 @@ public abstract class TextChangeOperation extends UserOperation {
 	protected IDocument currentDocument= null;
 
 	protected ISourceViewer currentViewer= null;
+
+	private IFile editedFile= null;
 
 	private boolean isRecordedWhileRefactoring= false;
 
@@ -132,16 +136,57 @@ public abstract class TextChangeOperation extends UserOperation {
 	private void updateCurrentState() {
 		EditorHelper.activateEditor(currentEditor);
 		if (currentEditor instanceof CompareEditor) {
-			currentViewer= EditorHelper.getEditingSourceViewer((CompareEditor)currentEditor);
+			CompareEditor compareEditor= (CompareEditor)currentEditor;
+			currentViewer= EditorHelper.getEditingSourceViewer(compareEditor);
+			editedFile= EditorHelper.getEditedJavaFile(compareEditor);
 		} else if (currentEditor instanceof AbstractDecoratedTextEditor) {
-			currentViewer= EditorHelper.getEditingSourceViewer((AbstractDecoratedTextEditor)currentEditor);
+			AbstractDecoratedTextEditor abstractDecoratedTextEditor= (AbstractDecoratedTextEditor)currentEditor;
+			currentViewer= EditorHelper.getEditingSourceViewer(abstractDecoratedTextEditor);
+			editedFile= EditorHelper.getEditedJavaFile(abstractDecoratedTextEditor);
 		}
 		currentDocument= currentViewer.getDocument();
 	}
 
+	/**
+	 * Valid only during replay.
+	 * 
+	 * @return
+	 */
 	public String getEditedText() {
 		updateCurrentState();
 		return currentDocument.get();
+	}
+
+	/**
+	 * Valid only during replay.
+	 * 
+	 * @return
+	 */
+	public String getEditedFilePath() {
+		updateCurrentState();
+		return ResourceHelper.getPortableResourcePath(editedFile);
+	}
+
+	/**
+	 * Valid only during replay.
+	 * 
+	 * @return
+	 */
+	public int[] getAffectedLineNumbers() {
+		updateCurrentState();
+		//Add 1 since IDocument#computeNumberOfLines returns a number that is less by 1 than the correct number.
+		int affectedLinesCount= 1 + Math.max(currentDocument.computeNumberOfLines(replacedText), currentDocument.computeNumberOfLines(newText));
+		int[] affectedLineNumbers= new int[affectedLinesCount];
+		int startLineNumber;
+		try {
+			startLineNumber= currentDocument.getLineOfOffset(offset);
+		} catch (BadLocationException e) {
+			throw new RuntimeException("Could not get the line number of offset: " + offset, e);
+		}
+		for (int i= 0; i < affectedLineNumbers.length; i++) {
+			affectedLineNumbers[i]= startLineNumber + i;
+		}
+		return affectedLineNumbers;
 	}
 
 	/**
