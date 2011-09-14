@@ -29,7 +29,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private final boolean shouldOverwriteOutputFiles= true;
 
-	private final String rootFolder= "C:/Users/Stas/Desktop/AST Test";
+	private final String rootFolder= System.getenv("POSTPROCESSOR_ROOT_FOLDER");
 
 	//@Ignore
 	@Test
