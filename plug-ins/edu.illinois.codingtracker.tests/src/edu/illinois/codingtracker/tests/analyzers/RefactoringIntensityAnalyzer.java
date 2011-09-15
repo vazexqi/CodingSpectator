@@ -140,7 +140,7 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 	}
 
 	private void initialize() {
-		result= new StringBuffer(TABLE_HEADER);
+		result= new StringBuffer();
 		resetCurrentState();
 	}
 
@@ -172,7 +172,22 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 
 	@Override
 	protected String getResult() {
+		return TABLE_HEADER + result.toString();
+	}
+
+	@Override
+	protected String getResultToMerge() {
 		return result.toString();
+	}
+
+	@Override
+	protected String getMergedFilePrefix() {
+		return TABLE_HEADER;
+	}
+
+	@Override
+	protected boolean shouldMergeResults() {
+		return true;
 	}
 
 }

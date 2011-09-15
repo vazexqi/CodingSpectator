@@ -27,9 +27,13 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	protected final static String VERSION_FOLDER_COMMON_PREFIX= "1.0.0.201";
 
+	private final static String COMBINED_FILE_PREFIX= "combined";
+
 	private final boolean shouldOverwriteOutputFiles= true;
 
-	private final String rootFolder= System.getenv("POSTPROCESSOR_ROOT_FOLDER");
+	private final String rootFolderName= System.getenv("POSTPROCESSOR_ROOT_FOLDER");
+
+	private File mergedOutputFile;
 
 	protected String postprocessedVersion;
 
@@ -43,7 +47,16 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	public void execute() {
 		checkPostprocessingPreconditions();
 		UserOperation.isPostprocessing= true;
-		visitLocation(new File(rootFolder));
+		prepareMergedOutputFile();
+		visitLocation(new File(rootFolderName));
+	}
+
+	private void prepareMergedOutputFile() {
+		if (shouldMergeResults()) {
+			mergedOutputFile= new File(rootFolderName, COMBINED_FILE_PREFIX + getResultFilePostfix());
+			checkExistance(mergedOutputFile);
+			writeToFile(mergedOutputFile, getMergedFilePrefix(), false);
+		}
 	}
 
 	private void visitLocation(File file) {
@@ -73,17 +86,28 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			postprocess(OperationDeserializer.getUserOperations(inputSequence));
 		} finally { //Write out the accumulated result even if the postprocessing did not complete successfully.
 			File outputFile= new File(file.getAbsolutePath() + getResultFilePostfix());
-			if (outputFile.exists() && !shouldOverwriteOutputFiles) {
-				throw new RuntimeException("Output file already exists: " + outputFile.getName());
-			}
-			try {
-				ResourceHelper.writeFileContent(outputFile, getResult(), false);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+			checkExistance(outputFile);
+			writeToFile(outputFile, getResult(), false);
+			if (shouldMergeResults()) {
+				writeToFile(mergedOutputFile, getResultToMerge(), true);
 			}
 		}
 		System.out.println("DONE");
 		before(); //After a file is postprocessed, reset the main record files.
+	}
+
+	private void writeToFile(File file, String text, boolean append) {
+		try {
+			ResourceHelper.writeFileContent(file, text, append);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void checkExistance(File file) {
+		if (file.exists() && !shouldOverwriteOutputFiles) {
+			throw new RuntimeException("Output file already exists: " + file.getName());
+		}
 	}
 
 	private void initializeFileData(File file) {
@@ -102,6 +126,18 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
 			//ignore
 		}
+	}
+
+	protected boolean shouldMergeResults() {
+		return false;
+	}
+
+	protected String getResultToMerge() {
+		return "";
+	}
+
+	protected String getMergedFilePrefix() {
+		return "";
 	}
 
 	protected abstract boolean shouldPostprocessVersionFolder(String folderName);
