@@ -31,6 +31,13 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private final String rootFolder= System.getenv("POSTPROCESSOR_ROOT_FOLDER");
 
+	protected String postprocessedVersion;
+
+	protected String postprocessedWorkspace;
+
+	protected String postprocessedParticipant;
+
+
 	//@Ignore
 	@Test
 	public void execute() {
@@ -46,6 +53,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			}
 		} else if (shouldPostprocessFile(file)) {
 			System.out.println("Postprocessing file: " + file.getAbsolutePath());
+			initializeFileData(file);
 			String inputSequence= ResourceHelper.readFileContent(file);
 			postprocess(OperationDeserializer.getUserOperations(inputSequence));
 			try {
@@ -69,6 +77,24 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private boolean isRecordFile(File file) {
 		return file.getName().equals(getRecordFileName());
+	}
+
+	private void initializeFileData(File file) {
+		final String defaulValue= "undefined";
+		postprocessedVersion= defaulValue;
+		postprocessedWorkspace= defaulValue;
+		postprocessedParticipant= defaulValue;
+		try {
+			File versionFolder= file.getParentFile().getParentFile();
+			postprocessedVersion= versionFolder.getName();
+			File workspaceFolder= versionFolder.getParentFile();
+			postprocessedWorkspace= workspaceFolder.getName();
+			File participantFolder= workspaceFolder.getParentFile();
+			postprocessedParticipant= participantFolder.getName();
+		} catch (Exception e) {
+			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
+			//ignore
+		}
 	}
 
 	protected abstract boolean shouldPostprocessVersionFolder(String folderName);

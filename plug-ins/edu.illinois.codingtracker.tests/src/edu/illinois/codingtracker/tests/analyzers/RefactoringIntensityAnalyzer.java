@@ -30,7 +30,7 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  */
 public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 
-	private static final String TABLE_HEADER= "timestamp,number of affected files,number of affected lines\n";
+	private static final String TABLE_HEADER= "participant,workspace,version,timestamp,number of affected files,number of affected lines\n";
 
 	private StringBuffer result;
 
@@ -153,10 +153,16 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 	}
 
 	private void appendAndResetCurrentState() {
-		result.append(refactoringTimestamp).append(",");
-		result.append(affectedFilesCount).append(",");
-		result.append(affectedLinesCount).append("\n");
+		appendCSVEntry(new Object[] { postprocessedParticipant, postprocessedWorkspace, postprocessedVersion,
+										refactoringTimestamp, affectedFilesCount, affectedLinesCount });
 		resetCurrentState();
+	}
+
+	private void appendCSVEntry(Object[] values) {
+		for (int i= 0; i < values.length - 1; i++) {
+			result.append(values[i]).append(",");
+		}
+		result.append(values[values.length - 1]).append("\n");
 	}
 
 	@Override
