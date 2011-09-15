@@ -64,10 +64,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private boolean shouldPostprocessFile(File file) {
 		String versionFolderName= file.getParentFile().getParentFile().getName();
-		if (shouldPostprocessVersionFolder(versionFolderName) && isRecordFile(file)) {
-			return true;
-		}
-		return false;
+		return shouldPostprocessVersionFolder(versionFolderName) && isRecordFile(file);
 	}
 
 	private boolean isRecordFile(File file) {

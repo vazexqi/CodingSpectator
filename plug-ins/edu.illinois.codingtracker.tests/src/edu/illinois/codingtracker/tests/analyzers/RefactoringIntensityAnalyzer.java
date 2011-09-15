@@ -52,6 +52,10 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 
 	@Override
 	protected boolean shouldPostprocessVersionFolder(String folderName) {
+		//Although the implementation of RefactoringIntensityAnalyzer accepts CodingTracker's sequences of any version, 
+		//the analysis of any sequence from the version 1.0.0.201104162211 will produce a correct result only for 
+		//the refactorings that edit a single file, while sequences from the versions that precede 1.0.0.201104162211 
+		//would not give any good analysis results at all. 
 		return true;
 	}
 
