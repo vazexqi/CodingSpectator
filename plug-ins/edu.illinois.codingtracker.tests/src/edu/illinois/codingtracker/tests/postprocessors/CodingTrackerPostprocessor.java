@@ -37,9 +37,9 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	protected String postprocessedVersion;
 
-	protected String postprocessedWorkspace;
+	protected String postprocessedWorkspaceID;
 
-	protected String postprocessedParticipant;
+	protected String postprocessedUsername;
 
 
 	//@Ignore
@@ -113,15 +113,15 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	private void initializeFileData(File file) {
 		final String defaulValue= "undefined";
 		postprocessedVersion= defaulValue;
-		postprocessedWorkspace= defaulValue;
-		postprocessedParticipant= defaulValue;
+		postprocessedWorkspaceID= defaulValue;
+		postprocessedUsername= defaulValue;
 		try {
 			File versionFolder= file.getParentFile().getParentFile();
 			postprocessedVersion= versionFolder.getName();
-			File workspaceFolder= versionFolder.getParentFile();
-			postprocessedWorkspace= workspaceFolder.getName();
-			File participantFolder= workspaceFolder.getParentFile();
-			postprocessedParticipant= participantFolder.getName();
+			File workspaceIDFolder= versionFolder.getParentFile();
+			postprocessedWorkspaceID= workspaceIDFolder.getName();
+			File usernameFolder= workspaceIDFolder.getParentFile();
+			postprocessedUsername= usernameFolder.getName();
 		} catch (Exception e) {
 			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
 			//ignore

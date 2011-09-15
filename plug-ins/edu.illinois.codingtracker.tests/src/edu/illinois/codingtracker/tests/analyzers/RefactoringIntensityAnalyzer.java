@@ -30,11 +30,13 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  */
 public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 
-	private static final String TABLE_HEADER= "participant,workspace,version,timestamp,number of affected files,number of affected lines\n";
+	private static final String TABLE_HEADER= "username,workspace ID,version,timestamp,refactoring ID,number of affected files,number of affected lines\n";
 
 	private StringBuffer result;
 
 	private long refactoringTimestamp;
+
+	private String refactoringID;
 
 	private int affectedFilesCount;
 
@@ -70,6 +72,7 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 		for (UserOperation userOperation : userOperations) {
 			if (userOperation instanceof NewStartedRefactoringOperation) {
 				refactoringTimestamp= userOperation.getTime();
+				refactoringID= ((NewStartedRefactoringOperation)userOperation).getID();
 			} else if (userOperation instanceof FinishedRefactoringOperation) {
 				appendAndResetCurrentState();
 			} else if (refactoringTimestamp != -1) { //Inside a refactoring.
@@ -146,6 +149,7 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 
 	private void resetCurrentState() {
 		refactoringTimestamp= -1;
+		refactoringID= "";
 		affectedFilesCount= 0;
 		affectedLinesCount= 0;
 		countedFiles.clear();
@@ -153,8 +157,8 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 	}
 
 	private void appendAndResetCurrentState() {
-		appendCSVEntry(new Object[] { postprocessedParticipant, postprocessedWorkspace, postprocessedVersion,
-										refactoringTimestamp, affectedFilesCount, affectedLinesCount });
+		appendCSVEntry(new Object[] { postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion,
+										refactoringTimestamp, refactoringID, affectedFilesCount, affectedLinesCount });
 		resetCurrentState();
 	}
 
