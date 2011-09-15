@@ -124,8 +124,12 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			postprocessedUsername= usernameFolder.getName();
 		} catch (Exception e) {
 			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
-			//ignore
+			handleFileDataInitializationException(file, e);
 		}
+	}
+
+	protected void handleFileDataInitializationException(File file, Exception e) {
+		//ignore by default
 	}
 
 	protected boolean shouldMergeResults() {

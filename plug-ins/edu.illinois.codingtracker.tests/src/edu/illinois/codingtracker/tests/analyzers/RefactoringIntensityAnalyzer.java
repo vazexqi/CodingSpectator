@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.tests.analyzers;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -192,6 +193,12 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 	@Override
 	protected boolean shouldMergeResults() {
 		return true;
+	}
+
+	@Override
+	protected void handleFileDataInitializationException(File file, Exception e) {
+		throw new RuntimeException("Wrong preprocessor root folder: can not initialize username, workspace ID, or version for file: "
+									+ file.getName(), e);
 	}
 
 }
