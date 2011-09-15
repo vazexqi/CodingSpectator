@@ -52,21 +52,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 				visitLocation(childFile);
 			}
 		} else if (shouldPostprocessFile(file)) {
-			System.out.println("Postprocessing file: " + file.getAbsolutePath());
-			initializeFileData(file);
-			String inputSequence= ResourceHelper.readFileContent(file);
-			postprocess(OperationDeserializer.getUserOperations(inputSequence));
-			try {
-				File outputFile= new File(file.getAbsolutePath() + getResultFilePostfix());
-				if (outputFile.exists() && !shouldOverwriteOutputFiles) {
-					throw new RuntimeException("Output file already exists: " + outputFile.getName());
-				}
-				ResourceHelper.writeFileContent(outputFile, getResult(), false);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			System.out.println("DONE");
-			before(); //After a file is postprocessed, reset the main record files.
+			postprocess(file);
 		}
 	}
 
@@ -77,6 +63,27 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private boolean isRecordFile(File file) {
 		return file.getName().equals(getRecordFileName());
+	}
+
+	private void postprocess(File file) {
+		System.out.println("Postprocessing file: " + file.getAbsolutePath());
+		initializeFileData(file);
+		String inputSequence= ResourceHelper.readFileContent(file);
+		try {
+			postprocess(OperationDeserializer.getUserOperations(inputSequence));
+		} finally { //Write out the accumulated result even if the postprocessing did not complete successfully.
+			File outputFile= new File(file.getAbsolutePath() + getResultFilePostfix());
+			if (outputFile.exists() && !shouldOverwriteOutputFiles) {
+				throw new RuntimeException("Output file already exists: " + outputFile.getName());
+			}
+			try {
+				ResourceHelper.writeFileContent(outputFile, getResult(), false);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		System.out.println("DONE");
+		before(); //After a file is postprocessed, reset the main record files.
 	}
 
 	private void initializeFileData(File file) {
