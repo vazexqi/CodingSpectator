@@ -50,7 +50,7 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 				previousTimestamp= currentTimestamp;
 			}
 		}
-		appendCSVEntry(new Object[] { postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, usageTime });
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, usageTime);
 	}
 
 	@Override
