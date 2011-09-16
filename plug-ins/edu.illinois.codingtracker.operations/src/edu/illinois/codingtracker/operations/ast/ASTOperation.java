@@ -38,6 +38,8 @@ public class ASTOperation extends UserOperation {
 
 	private long methodID;
 
+	private int methodLinesCount;
+
 	private int methodCyclomaticComplexity;
 
 	private String fullMethodName;
@@ -46,7 +48,8 @@ public class ASTOperation extends UserOperation {
 		super();
 	}
 
-	public ASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID, int methodCyclomaticComplexity, String fullMethodName, long timestamp) {
+	public ASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID,
+						int methodLinesCount, int methodCyclomaticComplexity, String fullMethodName, long timestamp) {
 		super(timestamp);
 		this.operationKind= operationKind;
 		nodeType= astNode.getClass().getSimpleName();
@@ -56,6 +59,7 @@ public class ASTOperation extends UserOperation {
 		nodeLength= astNode.getLength();
 		this.nodeID= nodeID;
 		this.methodID= methodID;
+		this.methodLinesCount= methodLinesCount;
 		this.methodCyclomaticComplexity= methodCyclomaticComplexity;
 		this.fullMethodName= fullMethodName;
 	}
@@ -81,6 +85,7 @@ public class ASTOperation extends UserOperation {
 		textChunk.append(nodeLength);
 		textChunk.append(nodeID);
 		textChunk.append(methodID);
+		textChunk.append(methodLinesCount);
 		textChunk.append(methodCyclomaticComplexity);
 		textChunk.append(fullMethodName);
 	}
@@ -95,6 +100,7 @@ public class ASTOperation extends UserOperation {
 		nodeLength= operationLexer.readInt();
 		nodeID= operationLexer.readLong();
 		methodID= operationLexer.readLong();
+		methodLinesCount= operationLexer.readInt();
 		methodCyclomaticComplexity= operationLexer.readInt();
 		fullMethodName= operationLexer.readString();
 	}
@@ -117,6 +123,7 @@ public class ASTOperation extends UserOperation {
 		sb.append("Node length: " + nodeLength + "\n");
 		sb.append("Node ID: " + nodeID + "\n");
 		sb.append("Method ID: " + methodID + "\n");
+		sb.append("Method lines count: " + methodLinesCount + "\n");
 		sb.append("Method cyclomatic complexity: " + methodCyclomaticComplexity + "\n");
 		if (!fullMethodName.isEmpty()) {
 			sb.append("Fully qualified method name: " + fullMethodName + "\n");
