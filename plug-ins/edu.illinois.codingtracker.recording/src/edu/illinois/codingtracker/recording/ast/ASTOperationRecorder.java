@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 
@@ -316,17 +317,22 @@ public class ASTOperationRecorder {
 	private void recordASTOperation(String fileID, OperationKind operationKind, ASTNode affectedNode, String newText) {
 		String containingMethodName= "";
 		long containingMethodPersistentID= -1;
+		int containingMethodLinesCount= -1;
 		int containingMethodCyclomaticComplexity= -1;
 		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(affectedNode);
 		if (containingMethod != null) {
-			//Note that for the added nodes we get the cyclomatic complexity of the resulting containing method that already
-			//contains these added nodes.
+			//Note that for added nodes we get lines count and cyclomatic complexity of the resulting containing method 
+			//that already contains these added nodes.
+			//Also, note that containingMethodLinesCount would not count lines with comments or white spaces, but would
+			//count several statements on the same line as separate lines (i.e. AST node is normalized such that each statement
+			//appears on a separate line, which is usually the case with the actual code as well).
+			containingMethodLinesCount= (new Document(containingMethod.toString().trim())).getNumberOfLines();
 			containingMethodCyclomaticComplexity= cyclomaticComplexityCalculator.getCyclomaticComplexity(containingMethod);
 			containingMethodName= ASTHelper.getQualifiedMethodName(containingMethod);
 			containingMethodPersistentID= ASTHelper.getPersistentNodeID(fileID, containingMethod);
 		}
 		ASTInferenceTextRecorder.recordASTOperation(operationKind, affectedNode, newText, ASTHelper.getPersistentNodeID(fileID, affectedNode), containingMethodPersistentID,
-				containingMethodCyclomaticComplexity, containingMethodName);
+				containingMethodLinesCount, containingMethodCyclomaticComplexity, containingMethodName);
 	}
 
 	public void recordASTOperationForDeletedResource(IResource deletedResource, boolean success) {

@@ -19,7 +19,7 @@ public abstract class CSVProducingAnalyzer extends CodingTrackerPostprocessor {
 	protected StringBuffer result;
 
 
-	protected void appendCSVEntry(Object[] values) {
+	protected void appendCSVEntry(Object... values) {
 		for (int i= 0; i < values.length - 1; i++) {
 			result.append(values[i]).append(",");
 		}

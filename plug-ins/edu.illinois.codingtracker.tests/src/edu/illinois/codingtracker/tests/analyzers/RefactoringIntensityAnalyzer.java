@@ -152,8 +152,8 @@ public class RefactoringIntensityAnalyzer extends CSVProducingAnalyzer {
 	}
 
 	private void appendAndResetCurrentState() {
-		appendCSVEntry(new Object[] { postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion,
-										refactoringTimestamp, refactoringID, affectedFilesCount, affectedLinesCount });
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, refactoringTimestamp,
+						refactoringID, affectedFilesCount, affectedLinesCount);
 		resetCurrentState();
 	}
 

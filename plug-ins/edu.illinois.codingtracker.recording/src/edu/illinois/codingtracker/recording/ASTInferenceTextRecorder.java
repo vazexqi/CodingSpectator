@@ -35,8 +35,9 @@ public class ASTInferenceTextRecorder {
 		safeRecorder.record(userOperation.generateSerializationText());
 	}
 
-	public static void recordASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID, int methodCyclomaticComplexity, String fullMethodName) {
-		ASTOperation astOperation= new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, methodCyclomaticComplexity, fullMethodName, getASTOperationTimestamp());
+	public static void recordASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID,
+											int methodLinesCount, int methodCyclomaticComplexity, String fullMethodName) {
+		ASTOperation astOperation= new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, methodLinesCount, methodCyclomaticComplexity, fullMethodName, getASTOperationTimestamp());
 		safeRecorder.record(astOperation.generateSerializationText());
 	}
 
