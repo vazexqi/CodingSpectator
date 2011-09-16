@@ -201,4 +201,9 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 									+ file.getName(), e);
 	}
 
+	@Override
+	protected boolean shouldStopAfterPostprocessingFailed() {
+		return false;
+	}
+
 }

@@ -65,7 +65,15 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 				visitLocation(childFile);
 			}
 		} else if (shouldPostprocessFile(file)) {
-			postprocess(file);
+			try {
+				postprocess(file);
+			} catch (Exception e) {
+				//Output the exception explicitly since it would not be printed to the console in a JUnit test.
+				e.printStackTrace();
+				if (shouldStopAfterPostprocessingFailed()) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 	}
 
@@ -82,8 +90,9 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		System.out.println("Postprocessing file: " + file.getAbsolutePath());
 		initializeFileData(file);
 		String inputSequence= ResourceHelper.readFileContent(file);
+		List<UserOperation> userOperations= OperationDeserializer.getUserOperations(inputSequence);
 		try {
-			postprocess(OperationDeserializer.getUserOperations(inputSequence));
+			postprocess(userOperations);
 		} finally { //Write out the accumulated result even if the postprocessing did not complete successfully.
 			File outputFile= new File(file.getAbsolutePath() + getResultFilePostfix());
 			checkExistance(outputFile);
@@ -126,6 +135,10 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
 			handleFileDataInitializationException(file, e);
 		}
+	}
+
+	protected boolean shouldStopAfterPostprocessingFailed() {
+		return true;
 	}
 
 	protected void handleFileDataInitializationException(File file, Exception e) {
