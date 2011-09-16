@@ -128,15 +128,20 @@ public class RefactoringEvent extends Event {
 		}
 	}
 
-	private long getNavigationDuration(String navigationHistoryString) throws NavigationHistory.ParseException {
+	private boolean hasNavigationDuration(String navigationHistoryString) throws ParseException {
 		NavigationHistory navigationHistory= NavigationHistory.parse(navigationHistoryString);
 		int numberOfNavigationHistoryItems= navigationHistory.getNavigationHistoryItems().size();
-		if (numberOfNavigationHistoryItems < 2) {
+		return numberOfNavigationHistoryItems >= 2;
+	}
+
+	private long getNavigationDuration(String navigationHistoryString) throws NavigationHistory.ParseException {
+		if (!hasNavigationDuration(navigationHistoryString)) {
 			throw new NavigationHistory.ParseException("Expected at least two items in the navigation history (" + navigationHistoryString + ") of a " + getRefactoringKind() + " "
 					+ capturedRefactoringDescriptor.getID() + " refactoring, which was " + (capturedRefactoringDescriptor.isInvokedByQuickAssist() ? "" : "not ")
 					+ "invoked by Quick Assist (username=" + username + ", workspace ID=" + workspaceID + ", CodingSpectator version=" + codingspectatorVersion + ", timestamp=" + getTimestamp()
 					+ ").");
 		}
+		NavigationHistory navigationHistory= NavigationHistory.parse(navigationHistoryString);
 		@SuppressWarnings("rawtypes")
 		Iterator iterator= navigationHistory.getNavigationHistoryItems().iterator();
 		NavigationHistoryItem currentNavigationHistoryItem= (NavigationHistoryItem)iterator.next();
