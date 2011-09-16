@@ -86,6 +86,10 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		return file.getName().equals(getRecordFileName());
 	}
 
+	protected String getRecordFileName() {
+		return "codechanges.txt";
+	}
+
 	private void postprocess(File file) {
 		System.out.println("Postprocessing file: " + file.getAbsolutePath());
 		initializeFileData(file);
@@ -94,9 +98,11 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		try {
 			postprocess(userOperations);
 		} finally { //Write out the accumulated result even if the postprocessing did not complete successfully.
-			File outputFile= new File(file.getAbsolutePath() + getResultFilePostfix());
-			checkExistance(outputFile);
-			writeToFile(outputFile, getResult(), false);
+			if (shouldOutputIndividualResults()) {
+				File outputFile= new File(file.getAbsolutePath() + getResultFilePostfix());
+				checkExistance(outputFile);
+				writeToFile(outputFile, getResult(), false);
+			}
 			if (shouldMergeResults()) {
 				writeToFile(mergedOutputFile, getResultToMerge(), true);
 			}
@@ -145,6 +151,10 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		//ignore by default
 	}
 
+	protected boolean shouldOutputIndividualResults() {
+		return true;
+	}
+
 	protected boolean shouldMergeResults() {
 		return false;
 	}
@@ -158,8 +168,6 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	}
 
 	protected abstract boolean shouldPostprocessVersionFolder(String folderName);
-
-	protected abstract String getRecordFileName();
 
 	protected abstract void checkPostprocessingPreconditions();
 

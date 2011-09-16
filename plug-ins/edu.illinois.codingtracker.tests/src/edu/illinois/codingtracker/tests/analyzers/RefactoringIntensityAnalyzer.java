@@ -3,7 +3,6 @@
  */
 package edu.illinois.codingtracker.tests.analyzers;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +18,6 @@ import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOpe
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
-import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
 
 
 /**
@@ -29,11 +27,7 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  * @author Stas Negara
  * 
  */
-public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
-
-	private static final String TABLE_HEADER= "username,workspace ID,version,timestamp,refactoring ID,number of affected files,number of affected lines\n";
-
-	private StringBuffer result;
+public class RefactoringIntensityAnalyzer extends CSVProducingAnalyzer {
 
 	private long refactoringTimestamp;
 
@@ -49,6 +43,11 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 
 
 	@Override
+	protected String getTableHeader() {
+		return "username,workspace ID,version,timestamp,refactoring ID,number of affected files,number of affected lines\n";
+	}
+
+	@Override
 	protected void checkPostprocessingPreconditions() {
 		//no preconditions
 	}
@@ -60,11 +59,6 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 		//the refactorings that edit a single file, while sequences from the versions that precede 1.0.0.201104162211 
 		//would not give any good analysis results at all. 
 		return true;
-	}
-
-	@Override
-	protected String getRecordFileName() {
-		return "codechanges.txt";
 	}
 
 	@Override
@@ -163,42 +157,14 @@ public class RefactoringIntensityAnalyzer extends CodingTrackerPostprocessor {
 		resetCurrentState();
 	}
 
-	private void appendCSVEntry(Object[] values) {
-		for (int i= 0; i < values.length - 1; i++) {
-			result.append(values[i]).append(",");
-		}
-		result.append(values[values.length - 1]).append("\n");
-	}
-
 	@Override
 	protected String getResultFilePostfix() {
 		return ".refactoring_intensity";
 	}
 
 	@Override
-	protected String getResult() {
-		return TABLE_HEADER + result.toString();
-	}
-
-	@Override
-	protected String getResultToMerge() {
-		return result.toString();
-	}
-
-	@Override
-	protected String getMergedFilePrefix() {
-		return TABLE_HEADER;
-	}
-
-	@Override
 	protected boolean shouldMergeResults() {
 		return true;
-	}
-
-	@Override
-	protected void handleFileDataInitializationException(File file, Exception e) {
-		throw new RuntimeException("Wrong preprocessor root folder: can not initialize username, workspace ID, or version for file: "
-									+ file.getName(), e);
 	}
 
 	@Override

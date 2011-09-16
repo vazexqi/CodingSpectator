@@ -62,11 +62,6 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	@Override
-	protected String getRecordFileName() {
-		return "codechanges.txt";
-	}
-
-	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
