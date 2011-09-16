@@ -32,7 +32,15 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
 	@Override
 	protected boolean shouldPostprocessVersionFolder(String folderName) {
-		return true;
+		if(isVersionString(folderName)){
+			// See #edu.illinois.codingtracker.tests.analyzers.RefactoringIntensityAnalyzer.shouldPostprocessVersionFolder(String)
+			return "1.0.0.201104162211".compareTo(folderName) <= 0; // if folderName is a greater version than 1.0.0.201104162211
+		}
+		return false;
+	}
+
+	private boolean isVersionString(String possibleVersion) {
+		return possibleVersion.matches("\\d\\.\\d\\.\\d\\.\\d{12}");
 	}
 
 	@Override
