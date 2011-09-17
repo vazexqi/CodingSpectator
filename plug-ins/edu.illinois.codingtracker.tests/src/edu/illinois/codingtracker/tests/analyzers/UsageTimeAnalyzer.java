@@ -34,7 +34,7 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
 	@Override
 	protected boolean shouldPostprocessVersionFolder(String folderName) {
-		return folderName.startsWith(VERSION_FOLDER_COMMON_PREFIX) && folderName.compareTo(EARLIEST_VERSION_FOR_ANALYSIS) > 0; // if folderName is a greater version than 1.0.0.201104162211
+		return folderName.startsWith(VERSION_FOLDER_COMMON_PREFIX) && folderName.compareTo(EARLIEST_VERSION_FOR_ANALYSIS) >= 0; // if folderName is a greater version than 1.0.0.201104162211
 	}
 
 	@Override
