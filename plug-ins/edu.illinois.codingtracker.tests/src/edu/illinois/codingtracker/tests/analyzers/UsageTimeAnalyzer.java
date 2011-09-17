@@ -17,6 +17,8 @@ import edu.illinois.codingtracker.operations.UserOperation;
  */
 public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
+	private static final String EARLIEST_VERSION_FOR_ANALYSIS = "1.0.0.201104162211";
+	
 	private static final int threshold= 30 * 60 * 1000; // 30 minutes expressed in milliseconds
 
 
@@ -32,15 +34,7 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
 	@Override
 	protected boolean shouldPostprocessVersionFolder(String folderName) {
-		if(isVersionString(folderName)){
-			// See #edu.illinois.codingtracker.tests.analyzers.RefactoringIntensityAnalyzer.shouldPostprocessVersionFolder(String)
-			return "1.0.0.201104162211".compareTo(folderName) <= 0; // if folderName is a greater version than 1.0.0.201104162211
-		}
-		return false;
-	}
-
-	private boolean isVersionString(String possibleVersion) {
-		return possibleVersion.matches("\\d\\.\\d\\.\\d\\.\\d{12}");
+		return folderName.startsWith(VERSION_FOLDER_COMMON_PREFIX) && folderName.compareTo(EARLIEST_VERSION_FOR_ANALYSIS) > 0; // if folderName is a greater version than 1.0.0.201104162211
 	}
 
 	@Override
