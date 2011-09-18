@@ -185,8 +185,8 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 
 	private void replaySnapshotsAsEdits(SnapshotedFileOperation snapshotedFileOperation, IFile editedFile, String[] snapshots, boolean shouldRestoreOriginalEditor) {
 		long timestamp= snapshotedFileOperation.getTime();
-		List<PerformedTextChangeOperation> editDifference= SnapshotDifferenceCalculator.getEditDifference(snapshots[0], snapshots[1], timestamp);
-		for (int i= 1; i < snapshots.length - 1; i++) {
+		List<PerformedTextChangeOperation> editDifference= new LinkedList<PerformedTextChangeOperation>();
+		for (int i= 0; i < snapshots.length - 1; i++) {
 			editDifference.addAll(SnapshotDifferenceCalculator.getEditDifference(snapshots[i], snapshots[i + 1], timestamp));
 		}
 		replayEditDifference(editDifference, editedFile, timestamp, shouldRestoreOriginalEditor);
