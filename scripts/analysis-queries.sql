@@ -1,3 +1,5 @@
+--This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+
 --Compute the number of each kind of refactoring invocation per refactoring ID for all users.
 \.
 
