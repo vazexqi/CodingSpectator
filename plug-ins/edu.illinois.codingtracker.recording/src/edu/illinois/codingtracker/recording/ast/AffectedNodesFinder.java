@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
  * @author Stas Negara
  * 
  */
-class CoveredNodesFinder extends ASTVisitor {
+class AffectedNodesFinder extends ASTVisitor {
 	private final int start;
 
 	private final int end;
@@ -25,7 +25,7 @@ class CoveredNodesFinder extends ASTVisitor {
 
 	private final List<ASTNode> coveredNodes= new LinkedList<ASTNode>();
 
-	public CoveredNodesFinder(ASTNode rootNode, int offset, int length) {
+	public AffectedNodesFinder(ASTNode rootNode, int offset, int length) {
 		super(true);
 		start= offset;
 		end= offset + length;

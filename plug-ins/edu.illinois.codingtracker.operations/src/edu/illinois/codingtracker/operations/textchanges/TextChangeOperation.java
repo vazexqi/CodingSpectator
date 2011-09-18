@@ -7,6 +7,7 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -79,6 +80,10 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	public String getNewText() {
 		return newText;
+	}
+
+	public DocumentEvent getDocumentEvent(String initialDocumentText) {
+		return new DocumentEvent(new Document(initialDocumentText), offset, length, newText);
 	}
 
 	protected IDocumentUndoManager getCurrentDocumentUndoManager() {

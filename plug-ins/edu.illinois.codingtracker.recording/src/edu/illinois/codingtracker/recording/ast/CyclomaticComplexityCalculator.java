@@ -43,8 +43,7 @@ public class CyclomaticComplexityCalculator {
 
 	private static int computeCyclomaticComplexity(MethodDeclaration methodDeclaration) {
 		int cyclomaticComplexity= 1;
-		ChildrenNodesFinder childrenNodesFinder= new ChildrenNodesFinder(methodDeclaration);
-		for (ASTNode childNode : childrenNodesFinder.getChildrenNodes()) {
+		for (ASTNode childNode : ASTHelper.getAllChildren(methodDeclaration)) {
 			cyclomaticComplexity+= getCyclomaticComplexityForNode(childNode);
 		}
 		return cyclomaticComplexity;

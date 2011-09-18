@@ -29,7 +29,7 @@ public class ASTInferenceTextRecorder {
 	public static void record(UserOperation userOperation) {
 		//Before any user operation, except text change operations, flush the accumulated AST changes.
 		if (!(userOperation instanceof TextChangeOperation)) {
-			astRecorder.flushCurrentTextChanges();
+			astRecorder.flushCurrentTextChanges(true);
 		}
 		lastTimestamp= userOperation.getTime();
 		safeRecorder.record(userOperation.generateSerializationText());

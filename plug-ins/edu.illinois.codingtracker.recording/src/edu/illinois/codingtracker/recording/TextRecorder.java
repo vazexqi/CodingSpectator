@@ -31,7 +31,7 @@ public class TextRecorder {
 			if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof TextChangeOperation) &&
 					!(userOperation instanceof EditedFileOperation) && !(userOperation instanceof EditedUnsychronizedFileOperation) &&
 					!(userOperation instanceof NewFileOperation)) {
-				astRecorder.flushCurrentTextChanges();
+				astRecorder.flushCurrentTextChanges(true);
 			}
 		}
 		safeRecorder.record(userOperation.generateSerializationText());

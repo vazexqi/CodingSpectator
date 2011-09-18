@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.helpers;
+package edu.illinois.codingtracker.recording.ast;
 
 import java.util.Iterator;
 import java.util.LinkedList;

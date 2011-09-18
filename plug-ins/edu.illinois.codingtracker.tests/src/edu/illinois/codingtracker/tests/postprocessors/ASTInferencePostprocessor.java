@@ -34,7 +34,7 @@ import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
-import edu.illinois.codingtracker.tests.helpers.SnapshotDifferenceCalculator;
+import edu.illinois.codingtracker.recording.ast.SnapshotDifferenceCalculator;
 
 
 /**

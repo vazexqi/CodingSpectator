@@ -21,7 +21,7 @@ public class InactiveASTOperationRecorder extends ASTOperationRecorder {
 	}
 
 	@Override
-	public void flushCurrentTextChanges() {
+	public void flushCurrentTextChanges(boolean isForced) {
 		//do nothing
 	}
 
