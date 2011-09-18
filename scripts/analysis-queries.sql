@@ -94,12 +94,12 @@ RETURN ID <> 'org.eclipse.jdt.ui.copy' AND ID <> 'org.eclipse.jdt.ui.delete' AND
 DROP TABLE "PUBLIC"."UDC_DATA" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."UDC_DATA" (
-"YEARMONTH" VARCHAR(1000),
-"COMMAND" VARCHAR(1000),
-"BUNDLEID" VARCHAR(1000),
-"BUNDLEVERSION" VARCHAR(1000),
-"EXECUTECOUNT" INT,
-"USERCOUNT" INT
+  "YEARMONTH" VARCHAR(1000),
+  "COMMAND" VARCHAR(1000),
+  "BUNDLEID" VARCHAR(1000),
+  "BUNDLEVERSION" VARCHAR(1000),
+  "EXECUTECOUNT" INT,
+  "USERCOUNT" INT
 );
 
 \m commands.csv
@@ -109,13 +109,13 @@ CREATE TABLE "PUBLIC"."UDC_DATA" (
 DROP TABLE "PUBLIC"."REFACTORING_CHANGE_SIZE" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."REFACTORING_CHANGE_SIZE" (
-"USERNAME" VARCHAR(10),
-"WORKSPACE_ID" VARCHAR(100),
-"VERSION" VARCHAR(100),
-"TIMESTAMP" BIGINT,
-"REFACTORING_ID" VARCHAR(100),
-"AFFECTED_FILES_COUNT" INT,
-"AFFECTED_LINES_COUNT" INT
+  "USERNAME" VARCHAR(100),
+  "WORKSPACE_ID" VARCHAR(100000),
+  "VERSION" VARCHAR(100),
+  "TIMESTAMP" BIGINT,
+  "REFACTORING_ID" VARCHAR(100),
+  "AFFECTED_FILES_COUNT" INT,
+  "AFFECTED_LINES_COUNT" INT
 );
 
 \m refactoring_change_intensity.csv
@@ -144,13 +144,51 @@ CREATE TABLE "PUBLIC"."REFACTORING_CHANGE_SIZE" (
 * *DSV_ROW_DELIM = \n
 * *DSV_TARGET_FILE=ChangeConfigurationCount.csv
 
-\x SELECT "PUBLIC"."REFACTORING_CHANGE_SIZE"."AFFECTED_FILES_COUNT" AS "F", "PUBLIC"."REFACTORING_CHANGE_SIZE"."AFFECTED_LINES_COUNT" AS "L", (SELECT "PUBLIC"."ALL_DATA"."navigation duration" FROM "PUBLIC"."ALL_DATA" WHERE "PUBLIC"."ALL_DATA"."workspace ID" = "PUBLIC"."REFACTORING_CHANGE_SIZE"."WORKSPACE_ID" AND ABS("PUBLIC"."ALL_DATA"."timestamp" - "PUBLIC"."REFACTORING_CHANGE_SIZE"."TIMESTAMP") < 2000 AND (CASE "PUBLIC"."ALL_DATA"."id" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."ALL_DATA"."id" END) = (CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END)) AS "G", COUNT(*) AS "C" FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" WHERE IS_JAVA_REFACTORING("PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID") GROUP BY "F", "L", "G";
+DROP TABLE "PUBLIC"."CHANGE_CONFIGURATION_COUNT" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."CHANGE_CONFIGURATION_COUNT" (
+  "AFFECTED_FILES_COUNT" INT,
+  "AFFECTED_LINES_COUNT" INT,
+  "CONFIGURATION_TIME_IN_MILLI_SEC" VARCHAR(100),
+  "MULTIPLICITY" INT
+);
+
+INSERT INTO "PUBLIC"."CHANGE_CONFIGURATION_COUNT" (
+  "AFFECTED_FILES_COUNT",
+  "AFFECTED_LINES_COUNT",
+  "CONFIGURATION_TIME_IN_MILLI_SEC",
+  "MULTIPLICITY"
+)
+SELECT
+"T1"."AFFECTED_FILES_COUNT" AS "AFFECTED_FILES_COUNT",
+"T1"."AFFECTED_LINES_COUNT" AS "AFFECTED_LINES_COUNT",
+(SELECT "T2"."navigation duration" AS "NAVIGATION_DURATION"
+ FROM "PUBLIC"."ALL_DATA" "T2"
+ WHERE 
+       "T2"."workspace ID" = "T1"."WORKSPACE_ID" AND
+       "T2"."recorder" = 'CODINGSPECTATOR' AND
+       ABS("T2"."timestamp" - "T1"."TIMESTAMP") < 1000 AND
+       (CASE "T2"."id"
+        WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN 'org.eclipse.jdt.ui.rename.class'
+        WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class'
+        ELSE "T2"."id" END) = 
+       (CASE "T1"."REFACTORING_ID"
+        WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN 'org.eclipse.jdt.ui.rename.class'
+        WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class'
+        ELSE "T1"."REFACTORING_ID" END)
+) AS "CONFIGURATION_TIME_IN_MILLI_SEC",
+COUNT(*) AS "MULTIPLICITY"
+FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" "T1"
+WHERE IS_JAVA_REFACTORING("T1"."REFACTORING_ID")
+GROUP BY "AFFECTED_FILES_COUNT", "AFFECTED_LINES_COUNT", "CONFIGURATION_TIME_IN_MILLI_SEC";
+
+\x "PUBLIC"."CHANGE_CONFIGURATION_COUNT"
 
 * *DSV_COL_DELIM = ,
 * *DSV_ROW_DELIM = \n
 * *DSV_TARGET_FILE=InvocationCountsPerRefactoringIDForChangeSize.csv
 
-\x SELECT CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END AS "R", COUNT(*) AS "C" FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" WHERE IS_JAVA_REFACTORING("PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID") GROUP BY CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END ORDER BY CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END;
+\x SELECT CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END AS "REFACTORING_ID", COUNT(*) AS "C" FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" WHERE IS_JAVA_REFACTORING("PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID") GROUP BY CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END ORDER BY CASE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN  'org.eclipse.jdt.ui.rename.class' WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class' ELSE "PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID" END;
 
 * *DSV_TARGET_TABLE = "PUBLIC"."UDC_ECLIPSE_MAPPING"
 
