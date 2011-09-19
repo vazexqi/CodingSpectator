@@ -45,11 +45,11 @@ public class SnapshotDifferenceCalculator {
 
 	private static long timestamp;
 
-	private static final List<PerformedTextChangeOperation> editDifference= new LinkedList<PerformedTextChangeOperation>();
+	private static final List<PerformedTextChangeOperation> snapshotDifference= new LinkedList<PerformedTextChangeOperation>();
 
 	@SuppressWarnings("rawtypes")
-	public static List<PerformedTextChangeOperation> getEditDifference(String currentSnapshot, String newSnapshot, long timestamp) {
-		editDifference.clear();
+	public static List<PerformedTextChangeOperation> getSnapshotDifference(String currentSnapshot, String newSnapshot, long timestamp) {
+		snapshotDifference.clear();
 		accumulatedOffsetDelta= 0;
 		leftDocument= new Document(currentSnapshot);
 		rightDocument= new Document(newSnapshot);
@@ -67,7 +67,7 @@ public class SnapshotDifferenceCalculator {
 		if (!leftDocument.get().equals(rightDocument.get())) {
 			throw new RuntimeException("Left document does not match right document after applying diffs!");
 		}
-		return editDifference;
+		return snapshotDifference;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -87,7 +87,7 @@ public class SnapshotDifferenceCalculator {
 				String newText= rightDocument.get(rightPosition.getOffset(), rightPosition.getLength());
 				leftDocument.replace(leftDocumentOffset, leftPosition.getLength(), newText);
 				DocumentEvent documentEvent= new DocumentEvent(leftDocument, leftDocumentOffset, leftPosition.getLength(), newText);
-				editDifference.add(new PerformedTextChangeOperation(documentEvent, replacedText, timestamp));
+				snapshotDifference.add(new PerformedTextChangeOperation(documentEvent, replacedText, timestamp));
 			} catch (BadLocationException e) {
 				throw new RuntimeException(e);
 			}

@@ -34,6 +34,7 @@ import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
+import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.SnapshotDifferenceCalculator;
 
 
@@ -185,23 +186,24 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 
 	private void replaySnapshotsAsEdits(SnapshotedFileOperation snapshotedFileOperation, IFile editedFile, String[] snapshots, boolean shouldRestoreOriginalEditor) {
 		long timestamp= snapshotedFileOperation.getTime();
-		List<PerformedTextChangeOperation> editDifference= new LinkedList<PerformedTextChangeOperation>();
+		List<PerformedTextChangeOperation> snapshotDifference= new LinkedList<PerformedTextChangeOperation>();
 		for (int i= 0; i < snapshots.length - 1; i++) {
-			editDifference.addAll(SnapshotDifferenceCalculator.getEditDifference(snapshots[i], snapshots[i + 1], timestamp));
+			snapshotDifference.addAll(SnapshotDifferenceCalculator.getSnapshotDifference(snapshots[i], snapshots[i + 1], timestamp));
 		}
-		replayEditDifference(editDifference, editedFile, timestamp, shouldRestoreOriginalEditor);
+		replaySnapshotDifference(snapshotDifference, editedFile, timestamp, shouldRestoreOriginalEditor);
 		record(snapshotedFileOperation);
 	}
 
-	private void replayEditDifference(List<PerformedTextChangeOperation> editDifference, IFile editedFile, long timestamp, boolean shouldRestoreOriginalEditor) {
-		if (editDifference.size() > 0) {
+	private void replaySnapshotDifference(List<PerformedTextChangeOperation> snapshotDifference, IFile editedFile, long timestamp, boolean shouldRestoreOriginalEditor) {
+		if (snapshotDifference.size() > 0) {
+			ASTOperationRecorder.isReplayingSnapshotDifference= true;
 			IEditorPart originalEditor= null;
 			if (shouldRestoreOriginalEditor) {
 				originalEditor= EditorHelper.getActiveEditor();
 			}
 			EditedFileOperation editedFileOperation= new EditedFileOperation(editedFile, timestamp);
 			replayAndRecord(editedFileOperation);
-			for (PerformedTextChangeOperation editDifferenceOperation : editDifference) {
+			for (PerformedTextChangeOperation editDifferenceOperation : snapshotDifference) {
 				replayAndRecord(editDifferenceOperation);
 			}
 			SavedFileOperation savedFileOperation= new SavedFileOperation(editedFile, true, timestamp);
@@ -209,6 +211,7 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 			if (shouldRestoreOriginalEditor) {
 				restoreOriginalEditor(originalEditor, timestamp);
 			}
+			ASTOperationRecorder.isReplayingSnapshotDifference= false;
 		}
 	}
 

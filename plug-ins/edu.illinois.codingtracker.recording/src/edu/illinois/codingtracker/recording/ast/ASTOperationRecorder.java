@@ -36,6 +36,8 @@ public class ASTOperationRecorder {
 
 	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
+	public static boolean isReplayingSnapshotDifference= false;
+
 	private static volatile ASTOperationRecorder astRecorderInstance= null;
 
 	private List<CoherentTextChange> currentTextChanges= new LinkedList<CoherentTextChange>();
@@ -89,7 +91,8 @@ public class ASTOperationRecorder {
 		if (correlatedBatchSize == -1) { //Batch size is not established yet.
 			CoherentTextChange lastTextChange= currentTextChanges.get(currentTextChanges.size() - 1);
 			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
-			if (lastTextChange.isFirstGluing() && lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
+			if (!isReplayingSnapshotDifference && lastTextChange.isFirstGluing() &&
+					lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
 				currentTextChanges.add(newTextChange);
 				applyTextChangeToBatch(event, currentTextChanges.size() - 1);
 			} else {
@@ -158,7 +161,7 @@ public class ASTOperationRecorder {
 		//Perform AST inference when forced or AST is no longer problematic.
 		if (isForced || !ASTHelper.isProblematicAST(finalDocumentText)) {
 			String currentSnapshot= snapshotBeforeASTProblems;
-			for (PerformedTextChangeOperation textChangeOperation : SnapshotDifferenceCalculator.getEditDifference(snapshotBeforeASTProblems, finalDocumentText, -1)) {
+			for (PerformedTextChangeOperation textChangeOperation : SnapshotDifferenceCalculator.getSnapshotDifference(snapshotBeforeASTProblems, finalDocumentText, -1)) {
 				CoherentTextChange coherentTextChange= new CoherentTextChange(textChangeOperation.getDocumentEvent(currentSnapshot), getTextChangeTimestamp());
 				ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(1, coherentTextChange);
 				inferAndRecordASTOperations(astOperationInferencer);

@@ -203,8 +203,33 @@ public abstract class TextChangeOperation extends UserOperation {
 	 */
 	public boolean isPossiblyCorrelatedWith(TextChangeOperation operation) {
 		final long maxTimeDelta= 150; // 150 ms.
-		return Math.abs(getTime() - operation.getTime()) < maxTimeDelta && newText.equals(operation.newText)
-				&& replacedText.equals(operation.replacedText) && !canBeCoherentWith(operation);
+		return Math.abs(getTime() - operation.getTime()) < maxTimeDelta && !isCommentingOrUncommenting() &&
+				newText.equals(operation.newText) && replacedText.equals(operation.replacedText) &&
+				isPossiblyChangingCode() && !containsNewLine() && !canBeCoherentWith(operation);
+	}
+
+	private boolean isPossiblyChangingCode() {
+		String actualReplacedText= replacedText.trim();
+		String actualNewText= newText.trim();
+		return !actualReplacedText.equals(actualNewText) && (!actualReplacedText.isEmpty() || !actualNewText.isEmpty());
+	}
+
+	private boolean containsNewLine() {
+		final String newLine= "\n";
+		return replacedText.indexOf(newLine) != -1 || newText.indexOf(newLine) != -1;
+	}
+
+	/**
+	 * Shows whether this text change comments or uncomments a line of code. This check is used to
+	 * avoid considering changes that might be produced by automated commenting or uncommenting
+	 * several lines of code as possibly correlated changes caused by several edit boxes.
+	 * 
+	 * @return
+	 */
+	private boolean isCommentingOrUncommenting() {
+		final String singleLineComment= "//";
+		return replacedText.equals(singleLineComment) && newText.isEmpty() ||
+				replacedText.isEmpty() && newText.equals(singleLineComment);
 	}
 
 	/**
