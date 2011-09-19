@@ -208,50 +208,51 @@ WHERE IS_JAVA_REFACTORING("T"."id") AND IS_CODINGSPECTATOR_PERFORMED("T"."record
 \x SELECT "PUBLIC"."REFACTORING_CHANGE_SIZE"."AFFECTED_FILES_COUNT" AS "AFFECTED_FILES_COUNT", "PUBLIC"."REFACTORING_CHANGE_SIZE"."AFFECTED_LINES_COUNT" AS "L", COUNT(*) AS "MULTIPLICITY" FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" WHERE IS_JAVA_REFACTORING("PUBLIC"."REFACTORING_CHANGE_SIZE"."REFACTORING_ID") GROUP BY "PUBLIC"."REFACTORING_CHANGE_SIZE"."AFFECTED_FILES_COUNT", "PUBLIC"."REFACTORING_CHANGE_SIZE"."AFFECTED_LINES_COUNT";
 
 -- List the affected number of lines and files and configuration time of every refactoring.
+-- Use the script refactoring-size-configuration-analysis.sql to combine the configuration data and refactoring size data
 
-DROP TABLE "PUBLIC"."CHANGE_CONFIGURATION_COUNT" IF EXISTS;
-
-CREATE TABLE "PUBLIC"."CHANGE_CONFIGURATION_COUNT" (
-  "AFFECTED_FILES_COUNT" INT,
-  "AFFECTED_LINES_COUNT" INT,
-  "CONFIGURATION_TIME_IN_MILLI_SEC" VARCHAR(100),
-  "MULTIPLICITY" INT
-);
-
-INSERT INTO "PUBLIC"."CHANGE_CONFIGURATION_COUNT" (
-  "AFFECTED_FILES_COUNT",
-  "AFFECTED_LINES_COUNT",
-  "CONFIGURATION_TIME_IN_MILLI_SEC",
-  "MULTIPLICITY"
-)
-SELECT
-"T1"."AFFECTED_FILES_COUNT" AS "AFFECTED_FILES_COUNT",
-"T1"."AFFECTED_LINES_COUNT" AS "AFFECTED_LINES_COUNT",
-(SELECT "T2"."navigation duration" AS "NAVIGATION_DURATION"
- FROM "PUBLIC"."ALL_DATA" "T2"
- WHERE 
-       "T2"."workspace ID" = "T1"."WORKSPACE_ID" AND
-       "T2"."recorder" = 'CODINGSPECTATOR' AND
-       ABS("T2"."timestamp" - "T1"."TIMESTAMP") < 1000 AND
-       (CASE "T2"."id"
-        WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN 'org.eclipse.jdt.ui.rename.class'
-        WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class'
-        ELSE "T2"."id" END) = 
-       (CASE "T1"."REFACTORING_ID"
-        WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN 'org.eclipse.jdt.ui.rename.class'
-        WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class'
-        ELSE "T1"."REFACTORING_ID" END)
-) AS "CONFIGURATION_TIME_IN_MILLI_SEC",
-COUNT(*) AS "MULTIPLICITY"
-FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" "T1"
-WHERE IS_JAVA_REFACTORING("T1"."REFACTORING_ID")
-GROUP BY "AFFECTED_FILES_COUNT", "AFFECTED_LINES_COUNT", "CONFIGURATION_TIME_IN_MILLI_SEC";
-
-* *DSV_COL_DELIM = ,
-* *DSV_ROW_DELIM = \n
-* *DSV_TARGET_FILE=ChangeConfigurationCount.csv
-
-\x "PUBLIC"."CHANGE_CONFIGURATION_COUNT"
+-- DROP TABLE "PUBLIC"."CHANGE_CONFIGURATION_COUNT" IF EXISTS;
+-- 
+-- CREATE TABLE "PUBLIC"."CHANGE_CONFIGURATION_COUNT" (
+--   "AFFECTED_FILES_COUNT" INT,
+--   "AFFECTED_LINES_COUNT" INT,
+--   "CONFIGURATION_TIME_IN_MILLI_SEC" VARCHAR(100),
+--   "MULTIPLICITY" INT
+-- );
+-- 
+-- INSERT INTO "PUBLIC"."CHANGE_CONFIGURATION_COUNT" (
+--   "AFFECTED_FILES_COUNT",
+--   "AFFECTED_LINES_COUNT",
+--   "CONFIGURATION_TIME_IN_MILLI_SEC",
+--   "MULTIPLICITY"
+-- )
+-- SELECT
+-- "T1"."AFFECTED_FILES_COUNT" AS "AFFECTED_FILES_COUNT",
+-- "T1"."AFFECTED_LINES_COUNT" AS "AFFECTED_LINES_COUNT",
+-- (SELECT "T2"."navigation duration" AS "NAVIGATION_DURATION"
+--  FROM "PUBLIC"."ALL_DATA" "T2"
+--  WHERE 
+--        "T2"."workspace ID" = "T1"."WORKSPACE_ID" AND
+--        "T2"."recorder" = 'CODINGSPECTATOR' AND
+--        ABS("T2"."timestamp" - "T1"."TIMESTAMP") < 1000 AND
+--        (CASE "T2"."id"
+--         WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN 'org.eclipse.jdt.ui.rename.class'
+--         WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class'
+--         ELSE "T2"."id" END) = 
+--        (CASE "T1"."REFACTORING_ID"
+--         WHEN 'org.eclipse.jdt.ui.rename.compilationunit' THEN 'org.eclipse.jdt.ui.rename.class'
+--         WHEN 'org.eclipse.jdt.ui.rename.type' THEN 'org.eclipse.jdt.ui.rename.class'
+--         ELSE "T1"."REFACTORING_ID" END)
+-- ) AS "CONFIGURATION_TIME_IN_MILLI_SEC",
+-- COUNT(*) AS "MULTIPLICITY"
+-- FROM "PUBLIC"."REFACTORING_CHANGE_SIZE" "T1"
+-- WHERE IS_JAVA_REFACTORING("T1"."REFACTORING_ID")
+-- GROUP BY "AFFECTED_FILES_COUNT", "AFFECTED_LINES_COUNT", "CONFIGURATION_TIME_IN_MILLI_SEC";
+-- 
+-- * *DSV_COL_DELIM = ,
+-- * *DSV_ROW_DELIM = \n
+-- * *DSV_TARGET_FILE=ChangeConfigurationCount.csv
+-- 
+-- \x "PUBLIC"."CHANGE_CONFIGURATION_COUNT"
 
 * *DSV_COL_DELIM = ,
 * *DSV_ROW_DELIM = \n
