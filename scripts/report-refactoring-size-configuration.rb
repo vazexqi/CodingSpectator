@@ -57,7 +57,7 @@ parse_options
 size_csv_rows = csv_to_rows($options[:size_csv_path])
 configuration_csv_rows = csv_to_rows($options[:configuration_csv_path])
 
-output_csv_header = ["REFACTORING_ID", "CONFIGURATION_TIMESTAMP", "SIZE_TIMESTAMP", "AFFECTED_FILES_COUNT", "AFFECTED_LINES_COUNT", "CONFIGURATION_TIME_IN_MILLI_SEC"]
+output_csv_header = ["REFACTORING_ID", "USERNAME", "CONFIGURATION_TIMESTAMP", "SIZE_TIMESTAMP", "AFFECTED_FILES_COUNT", "AFFECTED_LINES_COUNT", "CONFIGURATION_TIME_IN_MILLI_SEC"]
 puts output_csv_header.to_csv
 
 configuration_csv_rows.each do |configuration_csv_row|
@@ -68,7 +68,7 @@ configuration_csv_rows.each do |configuration_csv_row|
   end
 
   if matching_size_csv_row then
-    output_csv_row = [configuration_csv_row["REFACTORING_ID"], configuration_csv_row["TIMESTAMP"], matching_size_csv_row["TIMESTAMP"], matching_size_csv_row["AFFECTED_FILES_COUNT"], matching_size_csv_row["AFFECTED_LINES_COUNT"], configuration_csv_row["CONFIGURATION_TIME_IN_MILLI_SEC"]]
+    output_csv_row = [configuration_csv_row["REFACTORING_ID"], configuration_csv_row["USERNAME"], configuration_csv_row["TIMESTAMP"], matching_size_csv_row["TIMESTAMP"], matching_size_csv_row["AFFECTED_FILES_COUNT"], matching_size_csv_row["AFFECTED_LINES_COUNT"], configuration_csv_row["CONFIGURATION_TIME_IN_MILLI_SEC"]]
     puts output_csv_row.to_csv
   end
 end
