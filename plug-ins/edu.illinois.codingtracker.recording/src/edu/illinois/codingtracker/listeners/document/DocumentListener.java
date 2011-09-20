@@ -35,7 +35,7 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 			IDocument document= event.getDocument();
 			replacedText= document.get(event.getOffset(), event.getLength());
 			oldDocumentText= document.get();
-			astRecorder.beforeDocumentChange(event, getCurrentFileID());
+			astRecorder.beforeDocumentChange(event, getCurrentFilePath());
 		} catch (BadLocationException e) {
 			handleException(e, event, Messages.Recorder_BadDocumentLocation);
 		}
@@ -57,6 +57,6 @@ public abstract class DocumentListener extends BasicListener implements IDocumen
 
 	protected abstract void handleDocumentChange(DocumentEvent event);
 
-	protected abstract String getCurrentFileID();
+	protected abstract String getCurrentFilePath();
 
 }

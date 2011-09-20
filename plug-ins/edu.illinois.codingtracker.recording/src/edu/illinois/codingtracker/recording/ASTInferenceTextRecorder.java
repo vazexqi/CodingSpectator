@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
@@ -32,13 +33,21 @@ public class ASTInferenceTextRecorder {
 			astRecorder.flushCurrentTextChanges(true);
 		}
 		lastTimestamp= userOperation.getTime();
-		safeRecorder.record(userOperation.generateSerializationText());
+		performRecording(userOperation);
 	}
 
 	public static void recordASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID,
 											int methodLinesCount, int methodCyclomaticComplexity, String fullMethodName) {
 		ASTOperation astOperation= new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, methodLinesCount, methodCyclomaticComplexity, fullMethodName, getASTOperationTimestamp());
-		safeRecorder.record(astOperation.generateSerializationText());
+		performRecording(astOperation);
+	}
+
+	public static void recordASTFileOperation(String astFilePath) {
+		performRecording(new ASTFileOperation(astFilePath, getASTOperationTimestamp()));
+	}
+
+	private static void performRecording(UserOperation userOperation) {
+		safeRecorder.record(userOperation.generateSerializationText());
 	}
 
 	private static long getASTOperationTimestamp() {

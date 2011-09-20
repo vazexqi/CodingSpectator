@@ -27,9 +27,9 @@ public class ConflictEditorDocumentListener extends DocumentListener {
 	}
 
 	@Override
-	protected String getCurrentFileID() {
+	protected String getCurrentFilePath() {
 		//TODO: For now, return the conflict editor ID to distinguish AST elements. After implementing a better support for
-		//conflict editors operations, return the actual file's full path as the ID (like in FileDocumentListener).
+		//conflict editors operations, return the actual file's full path (like in FileDocumentListener).
 		return conflictEditorID;
 	}
 

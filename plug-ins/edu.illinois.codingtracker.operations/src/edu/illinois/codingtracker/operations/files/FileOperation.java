@@ -26,4 +26,8 @@ public abstract class FileOperation extends ResourceOperation {
 		super(file, timestamp);
 	}
 
+	public FileOperation(String filePath, long timestamp) {
+		super(filePath, timestamp);
+	}
+
 }

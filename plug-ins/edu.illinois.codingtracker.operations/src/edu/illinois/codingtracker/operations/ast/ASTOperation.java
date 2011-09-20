@@ -74,6 +74,10 @@ public class ASTOperation extends UserOperation {
 		return "AST operation";
 	}
 
+	public long getNodeID() {
+		return nodeID;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		int kindOrdinal= operationKind.ordinal();

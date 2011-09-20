@@ -228,6 +228,16 @@ public class ResourceHelper {
 		return containedJavaFiles;
 	}
 
+	public static Set<String> getFilePathsPrefixedBy(String prefix, Set<String> allFilePaths) {
+		Set<String> filePaths= new HashSet<String>();
+		for (String filePath : allFilePaths) {
+			if (filePath.equals(prefix) || filePath.startsWith(prefix + IPath.SEPARATOR)) {
+				filePaths.add(filePath);
+			}
+		}
+		return filePaths;
+	}
+
 	public static File getFileForResource(IResource resource) {
 		return resource.getLocation().toFile();
 	}

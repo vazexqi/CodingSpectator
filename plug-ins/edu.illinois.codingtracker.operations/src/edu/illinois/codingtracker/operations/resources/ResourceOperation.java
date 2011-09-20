@@ -56,6 +56,11 @@ public abstract class ResourceOperation extends UserOperation {
 		resourcePath= ResourceHelper.getPortableResourcePath(resource);
 	}
 
+	public ResourceOperation(String resourcePath, long timestamp) {
+		super(timestamp);
+		this.resourcePath= resourcePath;
+	}
+
 	public String getResourcePath() {
 		return resourcePath;
 	}

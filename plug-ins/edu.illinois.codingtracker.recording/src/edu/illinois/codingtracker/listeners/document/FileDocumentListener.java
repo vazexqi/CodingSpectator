@@ -23,7 +23,7 @@ public class FileDocumentListener extends DocumentListener {
 	}
 
 	@Override
-	protected String getCurrentFileID() {
+	protected String getCurrentFilePath() {
 		return ResourceHelper.getPortableResourcePath(documentFile);
 	}
 

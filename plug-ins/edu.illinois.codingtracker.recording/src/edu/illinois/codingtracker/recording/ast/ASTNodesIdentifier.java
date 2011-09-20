@@ -11,10 +11,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+
+import edu.illinois.codingtracker.helpers.ResourceHelper;
 
 /**
  * 
@@ -124,8 +125,8 @@ public class ASTNodesIdentifier {
 		return currentNode;
 	}
 
-	public static long getPersistentNodeID(String fileID, ASTNode node) {
-		return getPersistentNodeID(getFilePersistentNodeIDs(fileID), node);
+	public static long getPersistentNodeID(String filePath, ASTNode node) {
+		return getPersistentNodeID(getFilePersistentNodeIDs(filePath), node);
 	}
 
 	private static long getPersistentNodeID(Map<String, Long> filePersistentNodeIDs, ASTNode node) {
@@ -140,48 +141,50 @@ public class ASTNodesIdentifier {
 		return persistentNodeID;
 	}
 
-	public static void removePersistentNodeID(String fileID, ASTNode node) {
-		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(fileID);
+	public static void removePersistentNodeID(String filePath, ASTNode node) {
+		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
 		identifiedNodes.remove(getPersistentNodeID(filePersistentNodeIDs, node));
 		filePersistentNodeIDs.remove(getPositionalNodeID(node));
 	}
 
-	private static Map<String, Long> getFilePersistentNodeIDs(String fileID) {
-		Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(fileID);
+	private static Map<String, Long> getFilePersistentNodeIDs(String filePath) {
+		Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(filePath);
 		if (filePersistentNodeIDs == null) {
 			filePersistentNodeIDs= new HashMap<String, Long>();
-			persistentNodeIDs.put(fileID, filePersistentNodeIDs);
+			persistentNodeIDs.put(filePath, filePersistentNodeIDs);
 		}
 		return filePersistentNodeIDs;
 	}
 
-	public static void updatePersistentNodeIDs(String fileID, Map<ASTNode, ASTNode> matchedNodes) {
-		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(fileID);
+	public static void updatePersistentNodeIDs(String filePath, Map<ASTNode, ASTNode> matchedNodes) {
+		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
 		//Collect new mappings in a separate map and update the main map only in the end to avoid paths collisions.
 		Map<String, Long> newPersistentNodeIDs= new HashMap<String, Long>();
 		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
-			long persistentNodeID= getPersistentNodeID(filePersistentNodeIDs, mapEntry.getKey());
+			ASTNode oldNode= mapEntry.getKey();
+			ASTNode newNode= mapEntry.getValue();
+			long persistentNodeID= getPersistentNodeID(filePersistentNodeIDs, oldNode);
 			//Do NOT call removePersistentNodeID since we do not want to modify identifiedNodes.
-			filePersistentNodeIDs.remove(getPositionalNodeID(mapEntry.getKey()));
-			newPersistentNodeIDs.put(getPositionalNodeID(mapEntry.getValue()), persistentNodeID);
+			filePersistentNodeIDs.remove(getPositionalNodeID(oldNode));
+			newPersistentNodeIDs.put(getPositionalNodeID(newNode), persistentNodeID);
 		}
 		filePersistentNodeIDs.putAll(newPersistentNodeIDs);
 	}
 
 	public static void updateFilePersistentNodeIDsMapping(String oldPrefix, String newPrefix) {
-		for (String fileID : getFileIDsPrefixedBy(oldPrefix)) {
-			String newFileID= fileID.replaceFirst(oldPrefix, newPrefix);
-			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.remove(fileID);
-			persistentNodeIDs.put(newFileID, filePersistentNodeIDs);
+		for (String filePath : getFilePathsPrefixedBy(oldPrefix)) {
+			String newFilePath= filePath.replaceFirst(oldPrefix, newPrefix);
+			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.remove(filePath);
+			persistentNodeIDs.put(newFilePath, filePersistentNodeIDs);
 		}
 	}
 
-	public static Map<String, Set<ASTNode>> getASTNodesFromAllDeletedFiles(String deletedResourceID) {
+	public static Map<String, Set<ASTNode>> getASTNodesFromAllDeletedFiles(String deletedResourcePath) {
 		Map<String, Set<ASTNode>> collectedASTNodes= new HashMap<String, Set<ASTNode>>();
-		for (String fileID : getFileIDsPrefixedBy(deletedResourceID)) {
+		for (String filePath : getFilePathsPrefixedBy(deletedResourcePath)) {
 			Set<ASTNode> collectedFileASTNodes= new HashSet<ASTNode>();
-			collectedASTNodes.put(fileID, collectedFileASTNodes);
-			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(fileID);
+			collectedASTNodes.put(filePath, collectedFileASTNodes);
+			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(filePath);
 			for (long astNodeID : filePersistentNodeIDs.values()) {
 				collectedFileASTNodes.add(identifiedNodes.get(astNodeID));
 			}
@@ -189,14 +192,8 @@ public class ASTNodesIdentifier {
 		return collectedASTNodes;
 	}
 
-	private static Set<String> getFileIDsPrefixedBy(String prefix) {
-		Set<String> fileIDs= new HashSet<String>();
-		for (String fileID : persistentNodeIDs.keySet()) {
-			if (fileID.equals(prefix) || fileID.startsWith(prefix + IPath.SEPARATOR)) {
-				fileIDs.add(fileID);
-			}
-		}
-		return fileIDs;
+	private static Set<String> getFilePathsPrefixedBy(String prefix) {
+		return ResourceHelper.getFilePathsPrefixedBy(prefix, persistentNodeIDs.keySet());
 	}
 
 }
