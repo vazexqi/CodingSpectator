@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.recording.ast;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -32,6 +33,8 @@ public class ASTOperationInferencer {
 	private ASTNode newRootNode;
 
 	private ASTNode newCoveringNode;
+
+	private List<ASTNode> newCoveredNodes;
 
 	private ASTNode newCommonCoveringNode;
 
@@ -81,6 +84,7 @@ public class ASTOperationInferencer {
 		AffectedNodesFinder newAffectedNodesFinder= ASTHelper.getAffectedNodesFinder(newText, offset, addedTextLength);
 		newRootNode= newAffectedNodesFinder.getRootNode();
 		newCoveringNode= newAffectedNodesFinder.getCoveringNode();
+		newCoveredNodes= newAffectedNodesFinder.getCoveredNodes();
 
 		String initialCommonCoveringNodeID= ASTNodesIdentifier.getCommonPositonalNodeID(oldCoveringNode, newCoveringNode);
 		oldCommonCoveringNode= ASTNodesIdentifier.getASTNodeFromPositonalID(oldRootNode, initialCommonCoveringNodeID);
@@ -103,8 +107,13 @@ public class ASTOperationInferencer {
 			return true;
 		}
 		MethodDeclaration coveringMethodDeclaration= ASTHelper.getContainingMethod(newCoveringNode);
-		if (coveringMethodDeclaration != null) {
-			return ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration);
+		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
+			return true;
+		}
+		for (ASTNode coveredNode : newCoveredNodes) {
+			if (ASTHelper.isRecoveredOrMalformed(coveredNode)) {
+				return true;
+			}
 		}
 		return false;
 	}
