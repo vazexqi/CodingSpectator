@@ -33,6 +33,14 @@ public abstract class CommittedFileOperation extends SnapshotedFileOperation {
 		this.committedRevision= committedRevision;
 	}
 
+	public String getRevision() {
+		return revision;
+	}
+
+	public String getCommittedRevision() {
+		return committedRevision;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
