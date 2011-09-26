@@ -34,6 +34,8 @@ import org.eclipse.core.runtime.IPath;
  */
 public class ResourceHelper {
 
+	private static final String JAVA_FILE_EXTENSION= "java";
+
 	public static Charset UNIVERSAL_CHARSET= Charset.forName("UTF-8"); //should always exist, should not throw an exception here
 
 	public static String getCharsetNameForFile(IFile file) {
@@ -249,7 +251,7 @@ public class ResourceHelper {
 	}
 
 	public static boolean isJavaFile(IFile file) {
-		return "java".equals(file.getFileExtension());
+		return JAVA_FILE_EXTENSION.equals(file.getFileExtension());
 	}
 
 }

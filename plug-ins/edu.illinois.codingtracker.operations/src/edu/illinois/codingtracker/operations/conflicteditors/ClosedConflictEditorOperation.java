@@ -6,6 +6,7 @@ package edu.illinois.codingtracker.operations.conflicteditors;
 import org.eclipse.compare.internal.CompareEditor;
 
 import edu.illinois.codingtracker.helpers.Debugger;
+import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 
@@ -41,8 +42,7 @@ public class ClosedConflictEditorOperation extends ConflictEditorOperation {
 		if (compareEditor == null) {
 			Debugger.debugWarning("Can not close non existing conflict editor:\n" + this);
 		} else {
-			//Don't use getEditor().close(false), because it is executed asynchronously 
-			compareEditor.getSite().getPage().closeEditor(compareEditor, false);
+			EditorHelper.closeEditorSynchronously(compareEditor);
 			CompareEditorsUpkeeper.removeEditor(editorID);
 		}
 	}

@@ -3,11 +3,8 @@
  */
 package edu.illinois.codingtracker.operations.resources;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
@@ -64,16 +61,10 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 		IResource resource= findResource();
 		if (resource != null) {
 			if (isDeleted) {
-				//If deleted resource is opened in the active editor, close it first in order to avoid confusing the replayer 
-				//that tracks the current active editor.
-				IEditorPart activeEditor= EditorHelper.getActiveEditor();
-				if (activeEditor instanceof AbstractDecoratedTextEditor) {
-					IFile editedFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)activeEditor);
-					if (resource.equals(editedFile)) {
-						activeEditor.getSite().getPage().closeEditor(activeEditor, false);
-					}
-				}
-				resource.delete(true, null);
+				//To avoid confusing the replayer that tracks the currently active editor, close the editor (if any) 
+				//of the deleted resource.
+				EditorHelper.closeAllEditorsForResource(resourcePath);
+				resource.delete(IResource.FORCE, null);
 			} else {
 				addExternallyModifiedResource(resourcePath);
 			}

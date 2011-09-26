@@ -139,6 +139,11 @@ public class EditorHelper {
 		JavaPlugin.getActivePage().closeAllEditors(false);
 	}
 
+	public static void closeEditorSynchronously(IEditorPart editorPart) {
+		//This closes the given editor synchronously. 
+		editorPart.getSite().getPage().closeEditor(editorPart, false);
+	}
+
 	/**
 	 * Has a side effect of bringing to top the newly created editor.
 	 * 
@@ -162,12 +167,18 @@ public class EditorHelper {
 		return existingEditors;
 	}
 
-	public static ITextEditor getExistingEditor(String filePath) throws PartInitException {
-		Set<ITextEditor> existingEditors= getExistingEditors(filePath);
+	public static ITextEditor getExistingEditor(String resourcePath) throws PartInitException {
+		Set<ITextEditor> existingEditors= getExistingEditors(resourcePath);
 		if (!existingEditors.isEmpty()) {
 			return existingEditors.iterator().next();
 		}
 		return null;
+	}
+
+	public static void closeAllEditorsForResource(String resourcePath) throws PartInitException {
+		for (ITextEditor resourceEditor : getExistingEditors(resourcePath)) {
+			closeEditorSynchronously(resourceEditor);
+		}
 	}
 
 	public static IDocument getEditedDocument(ITextEditor editor) {
