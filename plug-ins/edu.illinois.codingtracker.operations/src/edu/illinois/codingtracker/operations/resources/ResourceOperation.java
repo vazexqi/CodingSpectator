@@ -172,7 +172,8 @@ public abstract class ResourceOperation extends UserOperation {
 			return false;
 		}
 		for (int i= 3; i < filePathFragments.length - 1; i++) {
-			if (!Character.isJavaIdentifierStart(filePathFragments[i].charAt(0)) || filePathFragments[i].contains("-")) {
+			if (!Character.isJavaIdentifierStart(filePathFragments[i].charAt(0)) || filePathFragments[i].contains("-") ||
+					filePathFragments[i].contains(" ")) {
 				return false;
 			}
 		}
