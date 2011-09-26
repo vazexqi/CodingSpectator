@@ -39,8 +39,7 @@ public class ClosedFileOperation extends FileOperation {
 	public void replay() throws CoreException {
 		ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
 		if (fileEditor != null) {
-			//Don't use getFileEditor().close(false), because it is executed asynchronously 
-			fileEditor.getSite().getPage().closeEditor(fileEditor, false);
+			EditorHelper.closeEditorSynchronously(fileEditor);
 		}
 	}
 
