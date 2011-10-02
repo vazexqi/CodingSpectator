@@ -34,7 +34,7 @@ public class ASTOperationInferencer {
 
 	private ASTNode newCoveringNode;
 
-	private List<ASTNode> newCoveredNodes;
+	private List<ASTNode> newAffectedNodes;
 
 	private ASTNode newCommonCoveringNode;
 
@@ -84,7 +84,7 @@ public class ASTOperationInferencer {
 		AffectedNodesFinder newAffectedNodesFinder= ASTHelper.getAffectedNodesFinder(newText, offset, addedTextLength);
 		newRootNode= newAffectedNodesFinder.getRootNode();
 		newCoveringNode= newAffectedNodesFinder.getCoveringNode();
-		newCoveredNodes= newAffectedNodesFinder.getCoveredNodes();
+		newAffectedNodes= newAffectedNodesFinder.getAffectedNodes();
 
 		String initialCommonCoveringNodeID= ASTNodesIdentifier.getCommonPositonalNodeID(oldCoveringNode, newCoveringNode);
 		oldCommonCoveringNode= ASTNodesIdentifier.getASTNodeFromPositonalID(oldRootNode, initialCommonCoveringNodeID);
@@ -110,8 +110,8 @@ public class ASTOperationInferencer {
 		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
 			return true;
 		}
-		for (ASTNode coveredNode : newCoveredNodes) {
-			if (ASTHelper.isRecoveredOrMalformed(coveredNode)) {
+		for (ASTNode affectedNode : newAffectedNodes) {
+			if (ASTHelper.isRecoveredOrMalformed(affectedNode)) {
 				return true;
 			}
 		}

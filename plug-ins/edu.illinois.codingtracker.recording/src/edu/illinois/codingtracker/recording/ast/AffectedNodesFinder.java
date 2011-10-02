@@ -23,14 +23,17 @@ class AffectedNodesFinder extends ASTVisitor {
 
 	private ASTNode coveringNode;
 
-	private final List<ASTNode> coveredNodes= new LinkedList<ASTNode>();
+	//Note that coveringNode sometimes does NOT make part of affectedNodes, 
+	//e.g. in cases when getNodeEnd(rootNode) == start == end.
+	private final List<ASTNode> affectedNodes= new LinkedList<ASTNode>();
+
 
 	public AffectedNodesFinder(ASTNode rootNode, int offset, int length) {
 		super(true);
 		start= offset;
 		end= offset + length;
 		this.rootNode= rootNode;
-		rootNode.accept(this);
+		collectAffectedNodes();
 	}
 
 	public ASTNode getRootNode() {
@@ -41,24 +44,46 @@ class AffectedNodesFinder extends ASTVisitor {
 		return coveringNode;
 	}
 
-	public List<ASTNode> getCoveredNodes() {
-		return coveredNodes;
+	public List<ASTNode> getAffectedNodes() {
+		return affectedNodes;
+	}
+
+	private void collectAffectedNodes() {
+		//First, determine the covering node.
+		rootNode.accept(this);
+
+		ChildrenNodesFinder childrenNodesFinder= new ChildrenNodesFinder(coveringNode);
+		for (ASTNode childNode : childrenNodesFinder.getChildrenNodes()) {
+			if (!isOutlier(childNode)) {
+				affectedNodes.add(childNode);
+			}
+		}
 	}
 
 	@Override
 	public boolean preVisit2(ASTNode node) {
-		int nodeStart= node.getStartPosition();
-		int nodeEnd= nodeStart + node.getLength();
-		if (start > nodeEnd || end < nodeStart) {
-			return false;
-		}
-		if (start >= nodeStart && end <= nodeEnd) {
+		//[start, end) is intersected with [nodeStart, nodeEnd)
+		if (start >= getNodeStart(node) && end <= getNodeEnd(node)) {
 			coveringNode= node;
+			return true;
 		}
-		if (start <= nodeStart && end >= nodeEnd) {
-			coveredNodes.add(node);
+		return false;
+	}
+
+	private boolean isOutlier(ASTNode node) {
+		//[start, end) is intersected with [nodeStart, nodeEnd)
+		if (start >= getNodeEnd(node) || end <= getNodeStart(node)) {
+			return true;
 		}
-		return true;
+		return false;
+	}
+
+	private int getNodeStart(ASTNode node) {
+		return node.getStartPosition();
+	}
+
+	private int getNodeEnd(ASTNode node) {
+		return node.getStartPosition() + node.getLength();
 	}
 
 }
