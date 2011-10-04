@@ -121,7 +121,8 @@ public class CodingSpectatorDataExtractor {
 			boolean hasValidVersionNumber= Pattern.compile("\\d\\.\\d\\.\\d\\.\\d*").matcher(fileName).matches();
 
 			//FIXME: See issue #244.
-			boolean isNotTooOld= fileName.compareTo("1.0.0.201105300951") >= 0;
+//			boolean isNotTooOld= fileName.compareTo("1.0.0.201105300951") >= 0;
+			boolean isNotTooOld= true;
 
 			if (fileName.equals("1.0.0.qualifier") || (hasValidVersionNumber && isNotTooOld)) {
 				filteredFiles.add(parentFolder.append(fileName));

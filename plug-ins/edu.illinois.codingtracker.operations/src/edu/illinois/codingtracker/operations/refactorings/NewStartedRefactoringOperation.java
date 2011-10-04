@@ -42,7 +42,12 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		PERFORM, UNDO, REDO
 	};
 
+	private static final int shouldAlwaysReplayOffset= 50;
+
 	private static Set<Long> unperformedRefactorings= new HashSet<Long>();
+
+	//Shows whether this is an older refactoring, which should always be replayed to reproduce the code changes.
+	private boolean shouldAlwaysReplay= false; //this flag is serialized/deserialized together with refactoringMode
 
 	private RefactoringMode refactoringMode;
 
@@ -60,13 +65,34 @@ public class NewStartedRefactoringOperation extends UserOperation {
 		super();
 	}
 
-	public NewStartedRefactoringOperation(RefactoringMode mode, RefactoringDescriptor refactoringDescriptor) {
+	public NewStartedRefactoringOperation(RefactoringMode refactoringMode, RefactoringDescriptor refactoringDescriptor) {
 		super(getRefactoringTimeStamp(refactoringDescriptor));
-		this.refactoringMode= mode;
+		this.refactoringMode= refactoringMode;
 		id= refactoringDescriptor.getID();
 		project= refactoringDescriptor.getProject();
 		flags= refactoringDescriptor.getFlags();
 		initializeArguments(getRefactoringArguments(refactoringDescriptor));
+	}
+
+	/**
+	 * This constructor should be used only for conversions performed by postprocessors.
+	 * 
+	 * @param refactoringMode
+	 * @param id
+	 * @param project
+	 * @param flags
+	 * @param arguments
+	 * @param timestamp
+	 */
+	public NewStartedRefactoringOperation(boolean shouldAlwaysReplay, RefactoringMode refactoringMode, String id, String project, int flags,
+											Map<String, String> arguments, long timestamp) {
+		super(timestamp);
+		this.shouldAlwaysReplay= shouldAlwaysReplay;
+		this.refactoringMode= refactoringMode;
+		this.id= id;
+		this.project= project;
+		this.flags= flags;
+		initializeArguments(arguments);
 	}
 
 	@Override
@@ -77,6 +103,10 @@ public class NewStartedRefactoringOperation extends UserOperation {
 	@Override
 	public String getDescription() {
 		return "[new] Started refactoring";
+	}
+
+	public boolean getShouldAlwaysReplay() {
+		return shouldAlwaysReplay;
 	}
 
 	public RefactoringMode getRefactoringMode() {
@@ -93,6 +123,16 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	public int getFlags() {
 		return flags;
+	}
+
+	/**
+	 * Note that returning a reference to a private collection breaks incapsulation. But considering
+	 * that this method is used only by postprocessors, it should be OK.
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getArguments() {
+		return arguments;
 	}
 
 	private static long getRefactoringTimeStamp(RefactoringDescriptor refactoringDescriptor) {
@@ -122,7 +162,8 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
-		textChunk.append(refactoringMode.ordinal());
+		int modeOrdinal= refactoringMode.ordinal();
+		textChunk.append(shouldAlwaysReplay ? shouldAlwaysReplayOffset + modeOrdinal : modeOrdinal);
 		textChunk.append(id);
 		textChunk.append(project);
 		textChunk.append(flags);
@@ -135,7 +176,12 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		refactoringMode= RefactoringMode.values()[operationLexer.readInt()];
+		int offsetModeOrdinal= operationLexer.readInt();
+		if (offsetModeOrdinal >= shouldAlwaysReplayOffset) {
+			offsetModeOrdinal-= shouldAlwaysReplayOffset;
+			shouldAlwaysReplay= true;
+		}
+		refactoringMode= RefactoringMode.values()[offsetModeOrdinal];
 		id= operationLexer.readString();
 		project= operationLexer.readString();
 		flags= operationLexer.readInt();
@@ -148,7 +194,7 @@ public class NewStartedRefactoringOperation extends UserOperation {
 	@Override
 	public void replay() throws CoreException {
 		isRefactoring= true;
-		if (isInTestMode) { //replay refactorings only in the test mode
+		if (shouldAlwaysReplay || isInTestMode) { //replay only older refactorings or if in the test mode
 			switch (refactoringMode) {
 				case PERFORM:
 					RefactoringDescriptor refactoringDescriptor= createRefactoringDescriptor();
@@ -237,6 +283,7 @@ public class NewStartedRefactoringOperation extends UserOperation {
 	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
+		sb.append("Should always replay: " + shouldAlwaysReplay + "\n");
 		sb.append("Refactoring mode: " + refactoringMode + "\n");
 		sb.append("ID: " + id + "\n");
 		sb.append("Project: " + project + "\n");

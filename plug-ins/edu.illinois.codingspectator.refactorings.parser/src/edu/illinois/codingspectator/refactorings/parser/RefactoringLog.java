@@ -105,6 +105,8 @@ public class RefactoringLog {
 	}
 
 	public Collection<CapturedRefactoringDescriptor> getRefactoringDescriptors(String javaProjectName) {
+		RefactoringHistoryManager.setPopulateProxiesWithRefactoringDescriptorFolder(); // Turn on storing and extracting of file path (timestamp) in RefactoringDescriptorProxy
+
 		RefactoringContributionManager.getInstance().setMustCreateDefaultRefactoringDescriptor(true);
 		RefactoringHistoryManager refactoringHistoryManager= new RefactoringHistoryManager(historyFolder.append(javaProjectName).getFileStore(), javaProjectName);
 		RefactoringHistory refactoringHistory= refactoringHistoryManager.readRefactoringHistory(0, Long.MAX_VALUE, new NullProgressMonitor());
@@ -116,6 +118,9 @@ public class RefactoringLog {
 				refactoringDescriptors.add(new CapturedRefactoringDescriptor(refactoringDescriptor));
 			}
 		}
+
+		RefactoringHistoryManager.unsetPopulateProxiesWithRefactoringDescriptorFolder(); // Turn off storing and extracting of file path (timestamp) in RefactoringDescriptorProxy
+
 		return refactoringDescriptors;
 	}
 
