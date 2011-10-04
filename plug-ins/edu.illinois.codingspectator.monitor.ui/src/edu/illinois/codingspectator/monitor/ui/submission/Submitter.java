@@ -92,9 +92,12 @@ public class Submitter {
 		try {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
+			if (svnManager.isLocalWorkCopyOutdated()) {
+				System.out.println("Local working copy is outdated.");
+			}
 			svnManager.doImport();
 			svnManager.doCheckout();
-			svnManager.doResolve();
+//			svnManager.doResolve();
 			svnManager.doAdd();
 			svnManager.doCommit();
 			submissionSucceeded= true;

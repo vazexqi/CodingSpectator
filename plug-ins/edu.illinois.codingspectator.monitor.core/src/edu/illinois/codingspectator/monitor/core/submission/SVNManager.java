@@ -41,8 +41,13 @@ public class SVNManager {
 		localSVNManager.doAdd();
 	}
 
+	@Deprecated
 	public void doResolve() throws SVNException {
 		localSVNManager.doResolve();
+	}
+
+	public boolean isLocalWorkCopyOutdated() throws SVNException {
+		return remoteSVNManager.hasIncomingChange();
 	}
 
 }

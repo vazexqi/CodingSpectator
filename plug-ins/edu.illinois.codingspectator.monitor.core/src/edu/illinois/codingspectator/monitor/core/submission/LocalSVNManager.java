@@ -75,6 +75,7 @@ public class LocalSVNManager extends AbstractSVNManager {
 		cm.getWCClient().doAdd(svnWorkingCopyDirectory, true, false, false, SVNDepth.INFINITY, false, false);
 	}
 
+	@Deprecated
 	public void doResolve() throws SVNException {
 		cm.getWCClient().doResolve(svnWorkingCopyDirectory, SVNDepth.INFINITY, SVNConflictChoice.THEIRS_FULL);
 	}
