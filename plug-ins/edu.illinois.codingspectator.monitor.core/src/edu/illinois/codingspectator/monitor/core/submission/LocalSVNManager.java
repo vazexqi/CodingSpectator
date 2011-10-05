@@ -40,6 +40,10 @@ public class LocalSVNManager extends AbstractSVNManager {
 		return cm.getWCClient().doInfo(svnWorkingCopyDirectory, SVNRevision.WORKING);
 	}
 
+	public long getRevisionNumber() throws SVNException {
+		return doInfo().getRevision().getNumber();
+	}
+
 	public String getSVNWorkingCopyUsername() {
 		try {
 			SVNInfo info= doInfo();

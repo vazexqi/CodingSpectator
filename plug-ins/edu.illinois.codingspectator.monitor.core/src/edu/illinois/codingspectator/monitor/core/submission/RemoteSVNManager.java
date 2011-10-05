@@ -60,8 +60,8 @@ public class RemoteSVNManager extends AbstractSVNManager {
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
 	}
 
-	public boolean hasIncomingChange() throws SVNException {
-		return cm.getStatusClient().doStatus(svnWorkingCopyDirectory, true).getRemoteRevision() != null;
+	public long getRevisionNumber() throws SVNException {
+		return cm.getWCClient().doInfo(urlManager.getPersonalRepositorySVNURL(), SVNRevision.HEAD, SVNRevision.HEAD).getRevision().getNumber();
 	}
 
 }
