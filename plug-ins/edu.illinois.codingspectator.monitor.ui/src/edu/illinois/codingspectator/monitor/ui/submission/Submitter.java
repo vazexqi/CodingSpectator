@@ -94,12 +94,14 @@ public class Submitter {
 			notifyPreSubmit();
 			if (svnManager.isLocalWorkCopyOutdated()) {
 				System.out.println("Local working copy is outdated.");
+				svnManager.doDelete("Deleted workspace data because of an outdated SVN working copy.");
 			}
 			svnManager.doImport();
 			svnManager.doCheckout();
 //			svnManager.doResolve();
 			svnManager.doAdd();
 			svnManager.doCommit();
+			svnManager.doCheckout(); // Updates the local revision numbers
 			submissionSucceeded= true;
 		} catch (Throwable e) {
 			throw new SubmissionException(e);

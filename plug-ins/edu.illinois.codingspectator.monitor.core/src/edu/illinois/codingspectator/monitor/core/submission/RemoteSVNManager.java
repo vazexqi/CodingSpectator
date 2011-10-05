@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -47,11 +48,11 @@ public class RemoteSVNManager extends AbstractSVNManager {
 	}
 
 	public void doImport() throws SVNException {
-		cm.getCommitClient().doImport(svnWorkingCopyDirectory, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
+		cm.getCommitClient().doImport(svnWorkingCopyDirectory, urlManager.getPersonalWorkspaceSVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
 	}
 
 	public void doCheckout() throws SVNException {
-		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), svnWorkingCopyDirectory, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
+		cm.getUpdateClient().doCheckout(urlManager.getPersonalWorkspaceSVNURL(), svnWorkingCopyDirectory, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
 				true);
 	}
 
@@ -61,7 +62,11 @@ public class RemoteSVNManager extends AbstractSVNManager {
 	}
 
 	public long getRevisionNumber() throws SVNException {
-		return cm.getWCClient().doInfo(urlManager.getPersonalRepositorySVNURL(), SVNRevision.HEAD, SVNRevision.HEAD).getRevision().getNumber();
+		return cm.getWCClient().doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD).getRevision().getNumber();
+	}
+
+	public void doDelete(String commitMessage) throws SVNException {
+		cm.getCommitClient().doDelete(new SVNURL[] { urlManager.getPersonalWorkspaceSVNURL() }, commitMessage);
 	}
 
 }

@@ -86,7 +86,7 @@ public class TestSubmitter {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { urlManager.getPersonalRepositorySVNURL() }, "Deleted test import");
+		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { urlManager.getPersonalWorkspaceSVNURL() }, "Deleted test import");
 		assertNotSame("The testing directory was not removed at the remote location.", SVNCommitInfo.NULL, deleteInfo);
 	}
 
@@ -98,7 +98,7 @@ public class TestSubmitter {
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.WATCHED_DIRECTORY + File.separator + ".svn").exists());
 
 		// Check that the directory has been created remotely.
-		SVNInfo info= workingCopyClient.doInfo(urlManager.getPersonalRepositorySVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
+		SVNInfo info= workingCopyClient.doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
 

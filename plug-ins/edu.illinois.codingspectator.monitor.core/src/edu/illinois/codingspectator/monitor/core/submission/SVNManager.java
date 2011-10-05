@@ -47,7 +47,11 @@ public class SVNManager {
 	}
 
 	public boolean isLocalWorkCopyOutdated() throws SVNException {
-		return remoteSVNManager.getRevisionNumber() - localSVNManager.getRevisionNumber() > 1;
+		return remoteSVNManager.getRevisionNumber() != localSVNManager.getRevisionNumber();
+	}
+
+	public void doDelete(String commitMessage) throws SVNException {
+		remoteSVNManager.doDelete(commitMessage);
 	}
 
 }
