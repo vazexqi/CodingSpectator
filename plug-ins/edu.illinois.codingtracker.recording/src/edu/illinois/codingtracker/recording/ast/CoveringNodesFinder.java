@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
  * @author Stas Negara
  * 
  */
-class AffectedNodesFinder extends ASTVisitor {
+class CoveringNodesFinder extends ASTVisitor {
 
 	private final List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
 
@@ -30,22 +30,14 @@ class AffectedNodesFinder extends ASTVisitor {
 
 	private int totalDelta;
 
-	//Note that coveringNode sometimes does NOT make part of affectedNodes, 
-	//e.g. in cases when getNodeEnd(rootNode) == start == end.
-	private final List<ASTNode> newAffectedNodes= new LinkedList<ASTNode>();
 
-	private final List<ASTNode> oldAffectedNodes= new LinkedList<ASTNode>();
-
-
-	public AffectedNodesFinder(List<CoherentTextChange> coherentTextChanges) {
+	public CoveringNodesFinder(List<CoherentTextChange> coherentTextChanges) {
 		super(true);
 		this.coherentTextChanges.addAll(coherentTextChanges);
 		oldRootNode= ASTHelper.getRootNode(getFirstTextChange().getInitialDocumentText());
 		newRootNode= ASTHelper.getRootNode(getLastTextChange().getFinalDocumentText());
 		oldCoveringNode= findCoveringNode(true);
 		newCoveringNode= findCoveringNode(false);
-		collectAffectedNodes(true);
-		collectAffectedNodes(false);
 	}
 
 	public ASTNode getNewRootNode() {
@@ -64,14 +56,6 @@ class AffectedNodesFinder extends ASTVisitor {
 		return oldCoveringNode;
 	}
 
-	public List<ASTNode> getNewAffectedNodes() {
-		return newAffectedNodes;
-	}
-
-	public List<ASTNode> getOldAffectedNodes() {
-		return oldAffectedNodes;
-	}
-
 	public int getTotalDelta() {
 		return totalDelta;
 	}
@@ -82,17 +66,6 @@ class AffectedNodesFinder extends ASTVisitor {
 
 	private CoherentTextChange getLastTextChange() {
 		return coherentTextChanges.get(coherentTextChanges.size() - 1);
-	}
-
-	private void collectAffectedNodes(boolean isOldAST) {
-		ASTNode coveringNode= isOldAST ? oldCoveringNode : newCoveringNode;
-		List<ASTNode> affectedNodes= isOldAST ? oldAffectedNodes : newAffectedNodes;
-		ChildrenNodesFinder childrenNodesFinder= new ChildrenNodesFinder(coveringNode);
-		for (ASTNode childNode : childrenNodesFinder.getChildrenNodes()) {
-			if (!isOutlier(childNode, isOldAST)) {
-				affectedNodes.add(childNode);
-			}
-		}
 	}
 
 	private ASTNode findCoveringNode(boolean isOldAST) {
@@ -134,11 +107,7 @@ class AffectedNodesFinder extends ASTVisitor {
 				getTextChangeEnd(textChange, isOldAST) <= getNodeEnd(node) + getActualDelta(oldCoveringDelta, isOldAST);
 	}
 
-	private boolean isOutlier(ASTNode node, boolean isOldAST) {
-		return isOutlier(node, isOldAST, new int[1]);
-	}
-
-	public boolean isOutlier(ASTNode node, boolean isOldAST, int[] accumulatedDeltaHolder) {
+	public Integer getOutlierDelta(ASTNode node, boolean isOldAST) {
 		int accumulatedDelta= 0;
 		TextChangesIterator textChangesIterator= new TextChangesIterator(isOldAST);
 		while (textChangesIterator.hasNext()) {
@@ -148,11 +117,10 @@ class AffectedNodesFinder extends ASTVisitor {
 			} else if (getNodeStart(node) + accumulatedDelta >= getTextChangeEnd(textChange, isOldAST)) {
 				accumulatedDelta+= getActualDelta(textChange.getDeltaTextLength(), isOldAST);
 			} else {
-				return false;
+				return null; //The given node is not an outlier, so there is no outlier delta to return.
 			}
 		}
-		accumulatedDeltaHolder[0]= accumulatedDelta;
-		return true;
+		return accumulatedDelta;
 	}
 
 	private int getActualDelta(int oldASTDelta, boolean isOldAST) {

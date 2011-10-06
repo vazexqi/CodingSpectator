@@ -25,7 +25,7 @@ import org.eclipse.jface.text.DocumentEvent;
  */
 public class ASTOperationInferencer {
 
-	AffectedNodesFinder affectedNodesFinder;
+	CoveringNodesFinder affectedNodesFinder;
 
 	private int batchSize;
 
@@ -83,7 +83,7 @@ public class ASTOperationInferencer {
 	}
 
 	private void initializeInferencer(List<CoherentTextChange> coherentTextChanges) {
-		affectedNodesFinder= new AffectedNodesFinder(coherentTextChanges);
+		affectedNodesFinder= new CoveringNodesFinder(coherentTextChanges);
 
 		ASTNode oldRootNode= affectedNodesFinder.getOldRootNode();
 		ASTNode oldCoveringNode= affectedNodesFinder.getOldCoveringNode();
@@ -116,9 +116,24 @@ public class ASTOperationInferencer {
 		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
 			return true;
 		}
-		for (ASTNode affectedNode : affectedNodesFinder.getNewAffectedNodes()) {
-			if (ASTHelper.isRecoveredOrMalformed(affectedNode)) {
-				return true;
+		return hasProblematicAffectedNodes();
+	}
+
+	private boolean hasProblematicAffectedNodes() {
+		Set<ASTNode> oldChildren= ASTHelper.getAllChildren(oldCommonCoveringNode);
+		for (ASTNode newChildNode : ASTHelper.getAllChildren(affectedNodesFinder.getNewCoveringNode())) {
+			if (ASTHelper.isRecoveredOrMalformed(newChildNode)) {
+				Integer outlierDelta= affectedNodesFinder.getOutlierDelta(newChildNode, false);
+				if (outlierDelta == null) {
+					//If the node is not outlier (i.e. it is affected), then it should be well formed.
+					return true;
+				} else {
+					//If an outlier is not well formed, there should exist the matching old node that is also not well formed.
+					ASTNode oldNode= findMatchingNode(newChildNode, oldChildren, outlierDelta);
+					if (oldNode == null || !ASTHelper.isRecoveredOrMalformed(oldNode)) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -145,21 +160,24 @@ public class ASTOperationInferencer {
 
 	private void matchNodesOutsideOfChangedRange(Set<ASTNode> oldNodes, Set<ASTNode> newNodes) {
 		for (ASTNode oldNode : oldNodes) {
-			int[] accumulatedDeltaHolder= new int[1];
-			if (affectedNodesFinder.isOutlier(oldNode, true, accumulatedDeltaHolder)) {
-				matchOldNodeOutsideOfChangedRange(oldNode, newNodes, accumulatedDeltaHolder[0]);
+			Integer outlierDelta= affectedNodesFinder.getOutlierDelta(oldNode, true);
+			if (outlierDelta != null) {
+				ASTNode newNode= findMatchingNode(oldNode, newNodes, outlierDelta);
+				if (newNode != null) {
+					matchedNodes.put(oldNode, newNode);
+				}
 			}
 		}
 	}
 
-	private void matchOldNodeOutsideOfChangedRange(ASTNode oldNode, Set<ASTNode> newNodes, int deltaTextLength) {
-		for (ASTNode newNode : newNodes) {
-			if (oldNode.getStartPosition() + deltaTextLength == newNode.getStartPosition() &&
-					oldNode.getLength() == newNode.getLength() && oldNode.getNodeType() == newNode.getNodeType()) {
-				matchedNodes.put(oldNode, newNode);
-				break;
+	private ASTNode findMatchingNode(ASTNode nodeToMatch, Set<ASTNode> candidateNodes, int deltaTextLength) {
+		for (ASTNode node : candidateNodes) {
+			if (nodeToMatch.getStartPosition() + deltaTextLength == node.getStartPosition() &&
+					nodeToMatch.getLength() == node.getLength() && nodeToMatch.getNodeType() == node.getNodeType()) {
+				return node;
 			}
 		}
+		return null;
 	}
 
 	private void matchNodesStructurally(Set<ASTNode> oldNodes) {
