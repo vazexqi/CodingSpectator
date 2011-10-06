@@ -151,10 +151,6 @@ public class ASTHelper {
 		System.out.println("ASTNode \"" + node.getClass().getSimpleName() + "\" [" + start + ", " + end + "): " + node);
 	}
 
-	public static AffectedNodesFinder getAffectedNodesFinder(String source, int offset, int length) {
-		return new AffectedNodesFinder(getRootNode(source), offset, length);
-	}
-
 	public static Set<ASTNode> getAllNodesFromText(String text) {
 		return getAllChildren(getRootNode(text));
 	}
@@ -164,7 +160,7 @@ public class ASTHelper {
 		return childrenNodesFinder.getChildrenNodes();
 	}
 
-	private static ASTNode getRootNode(String source) {
+	public static ASTNode getRootNode(String source) {
 		ASTParser parser= createParser();
 		parser.setSource(source.toCharArray());
 		return parser.createAST(null);

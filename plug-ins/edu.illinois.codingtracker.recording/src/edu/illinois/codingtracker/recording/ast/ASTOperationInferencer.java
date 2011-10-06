@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.recording.ast;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,8 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.DocumentEvent;
 
 
 /**
@@ -22,19 +25,9 @@ import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
  */
 public class ASTOperationInferencer {
 
+	AffectedNodesFinder affectedNodesFinder;
+
 	private int batchSize;
-
-	private int offset;
-
-	private int removedTextLength;
-
-	private int addedTextLength;
-
-	private ASTNode newRootNode;
-
-	private ASTNode newCoveringNode;
-
-	private List<ASTNode> newAffectedNodes;
 
 	private ASTNode newCommonCoveringNode;
 
@@ -51,13 +44,20 @@ public class ASTOperationInferencer {
 
 	public ASTOperationInferencer(int batchSize, CoherentTextChange coherentTextChange) {
 		this.batchSize= batchSize;
-		String oldText= coherentTextChange.getInitialDocumentText();
-		String newText= coherentTextChange.getFinalDocumentText();
-		boolean isMultiBatch= batchSize > 1;
-		this.offset= isMultiBatch ? 0 : coherentTextChange.getOffset();
-		this.removedTextLength= isMultiBatch ? oldText.length() : coherentTextChange.getRemovedTextLength();
-		this.addedTextLength= isMultiBatch ? newText.length() : coherentTextChange.getAddedTextLength();
-		initializeInferencer(oldText, newText);
+		if (batchSize > 1) {
+			//Multi batch - simulate that the whole document's content is replaced.
+			Document editedDocument= new Document(coherentTextChange.getInitialDocumentText());
+			String newText= coherentTextChange.getFinalDocumentText();
+			DocumentEvent documentEvent= new DocumentEvent(editedDocument, 0, editedDocument.getLength(), newText);
+			initializeInferencer(new CoherentTextChange(documentEvent, coherentTextChange.getTimestamp()));
+		} else {
+			initializeInferencer(coherentTextChange);
+		}
+	}
+
+	public ASTOperationInferencer(List<CoherentTextChange> coherentTextChanges) {
+		batchSize= 1;
+		initializeInferencer(coherentTextChanges);
 	}
 
 	public Map<ASTNode, ASTNode> getMatchedNodes() {
@@ -76,15 +76,20 @@ public class ASTOperationInferencer {
 		return addedNodes;
 	}
 
-	private void initializeInferencer(String oldText, String newText) {
-		AffectedNodesFinder oldAffectedNodesFinder= ASTHelper.getAffectedNodesFinder(oldText, offset, removedTextLength);
-		ASTNode oldRootNode= oldAffectedNodesFinder.getRootNode();
-		ASTNode oldCoveringNode= oldAffectedNodesFinder.getCoveringNode();
+	private void initializeInferencer(CoherentTextChange coherentTextChange) {
+		List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
+		coherentTextChanges.add(coherentTextChange);
+		initializeInferencer(coherentTextChanges);
+	}
 
-		AffectedNodesFinder newAffectedNodesFinder= ASTHelper.getAffectedNodesFinder(newText, offset, addedTextLength);
-		newRootNode= newAffectedNodesFinder.getRootNode();
-		newCoveringNode= newAffectedNodesFinder.getCoveringNode();
-		newAffectedNodes= newAffectedNodesFinder.getAffectedNodes();
+	private void initializeInferencer(List<CoherentTextChange> coherentTextChanges) {
+		affectedNodesFinder= new AffectedNodesFinder(coherentTextChanges);
+
+		ASTNode oldRootNode= affectedNodesFinder.getOldRootNode();
+		ASTNode oldCoveringNode= affectedNodesFinder.getOldCoveringNode();
+
+		ASTNode newRootNode= affectedNodesFinder.getNewRootNode();
+		ASTNode newCoveringNode= affectedNodesFinder.getNewCoveringNode();
 
 		String initialCommonCoveringNodeID= ASTNodesIdentifier.getCommonPositonalNodeID(oldCoveringNode, newCoveringNode);
 		oldCommonCoveringNode= ASTNodesIdentifier.getASTNodeFromPositonalID(oldRootNode, initialCommonCoveringNodeID);
@@ -97,12 +102,13 @@ public class ASTOperationInferencer {
 
 	private boolean areUnmatchingCoveringNodes(ASTNode oldCoveringNode, ASTNode newCoveringNode) {
 		return oldCoveringNode.getStartPosition() != newCoveringNode.getStartPosition() ||
-				oldCoveringNode.getLength() - removedTextLength + addedTextLength != newCoveringNode.getLength() ||
+				oldCoveringNode.getLength() + affectedNodesFinder.getTotalDelta() != newCoveringNode.getLength() ||
 				oldCoveringNode.getNodeType() != newCoveringNode.getNodeType();
 	}
 
 	//TODO: Consider that the old AST could be problematic as well.
 	public boolean isProblematicInference() {
+		ASTNode newCoveringNode= affectedNodesFinder.getNewCoveringNode();
 		if (ASTHelper.isRecoveredOrMalformed(newCoveringNode) || ASTHelper.isRecoveredOrMalformed(newCommonCoveringNode)) {
 			return true;
 		}
@@ -110,7 +116,7 @@ public class ASTOperationInferencer {
 		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
 			return true;
 		}
-		for (ASTNode affectedNode : newAffectedNodes) {
+		for (ASTNode affectedNode : affectedNodesFinder.getNewAffectedNodes()) {
 			if (ASTHelper.isRecoveredOrMalformed(affectedNode)) {
 				return true;
 			}
@@ -138,12 +144,10 @@ public class ASTOperationInferencer {
 	}
 
 	private void matchNodesOutsideOfChangedRange(Set<ASTNode> oldNodes, Set<ASTNode> newNodes) {
-		int deltaTextLength= addedTextLength - removedTextLength;
 		for (ASTNode oldNode : oldNodes) {
-			if (oldNode.getStartPosition() + oldNode.getLength() <= offset) {
-				matchOldNodeOutsideOfChangedRange(oldNode, newNodes, 0);
-			} else if (oldNode.getStartPosition() >= offset + removedTextLength) {
-				matchOldNodeOutsideOfChangedRange(oldNode, newNodes, deltaTextLength);
+			int[] accumulatedDeltaHolder= new int[1];
+			if (affectedNodesFinder.isOutlier(oldNode, true, accumulatedDeltaHolder)) {
+				matchOldNodeOutsideOfChangedRange(oldNode, newNodes, accumulatedDeltaHolder[0]);
 			}
 		}
 	}
@@ -159,6 +163,7 @@ public class ASTOperationInferencer {
 	}
 
 	private void matchNodesStructurally(Set<ASTNode> oldNodes) {
+		ASTNode newRootNode= affectedNodesFinder.getNewRootNode();
 		for (ASTNode oldNode : oldNodes) {
 			if (!matchedNodes.containsKey(oldNode)) {
 				String oldNodePositionalID= ASTNodesIdentifier.getPositionalNodeID(oldNode);

@@ -21,7 +21,6 @@ import org.eclipse.jface.text.IDocument;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
-import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 
@@ -40,7 +39,9 @@ public class ASTOperationRecorder {
 
 	private static volatile ASTOperationRecorder astRecorderInstance= null;
 
-	private List<CoherentTextChange> currentTextChanges= new LinkedList<CoherentTextChange>();
+	private List<CoherentTextChange> batchTextChanges= new LinkedList<CoherentTextChange>();
+
+	private List<CoherentTextChange> problematicTextChanges= new LinkedList<CoherentTextChange>();
 
 	private IDocument currentDocument;
 
@@ -55,8 +56,6 @@ public class ASTOperationRecorder {
 	private final CyclomaticComplexityCalculator cyclomaticComplexityCalculator= new CyclomaticComplexityCalculator();
 
 	private boolean isInProblemMode= false;
-
-	private String snapshotBeforeASTProblems;
 
 
 	public static ASTOperationRecorder getInstance() {
@@ -81,8 +80,8 @@ public class ASTOperationRecorder {
 		}
 		currentDocument= event.getDocument();
 		long timestamp= getTextChangeTimestamp();
-		if (currentTextChanges.isEmpty()) {
-			currentTextChanges.add(new CoherentTextChange(event, timestamp));
+		if (batchTextChanges.isEmpty()) {
+			batchTextChanges.add(new CoherentTextChange(event, timestamp));
 		} else {
 			addToCurrentTextChanges(event, timestamp);
 		}
@@ -91,14 +90,14 @@ public class ASTOperationRecorder {
 
 	private void addToCurrentTextChanges(DocumentEvent event, long timestamp) {
 		if (correlatedBatchSize == -1) { //Batch size is not established yet.
-			CoherentTextChange lastTextChange= currentTextChanges.get(currentTextChanges.size() - 1);
+			CoherentTextChange lastTextChange= batchTextChanges.get(batchTextChanges.size() - 1);
 			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
 			if (!isReplayingSnapshotDifference && lastTextChange.isFirstGluing() &&
 					lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
-				currentTextChanges.add(newTextChange);
-				applyTextChangeToBatch(event, currentTextChanges.size() - 1);
+				batchTextChanges.add(newTextChange);
+				applyTextChangeToBatch(event, batchTextChanges.size() - 1);
 			} else {
-				correlatedBatchSize= currentTextChanges.size();
+				correlatedBatchSize= batchTextChanges.size();
 				currentIndexToGlueWith= 0;
 				tryGluingInBatch(event, timestamp);
 			}
@@ -108,7 +107,7 @@ public class ASTOperationRecorder {
 	}
 
 	private void tryGluingInBatch(DocumentEvent event, long timestamp) {
-		CoherentTextChange textChangeToGlueWith= currentTextChanges.get(currentIndexToGlueWith);
+		CoherentTextChange textChangeToGlueWith= batchTextChanges.get(currentIndexToGlueWith);
 		if (textChangeToGlueWith.shouldGlueNewTextChange(event)) {
 			textChangeToGlueWith.glueNewTextChange(event, timestamp);
 			applyTextChangeToBatch(event, currentIndexToGlueWith);
@@ -118,7 +117,7 @@ public class ASTOperationRecorder {
 			}
 		} else {
 			flushCurrentTextChanges(false);
-			currentTextChanges.add(new CoherentTextChange(event, timestamp));
+			batchTextChanges.add(new CoherentTextChange(event, timestamp));
 		}
 	}
 
@@ -130,9 +129,9 @@ public class ASTOperationRecorder {
 	 *            again.
 	 */
 	private void applyTextChangeToBatch(DocumentEvent event, int excludeIndex) {
-		for (int i= 0; i < currentTextChanges.size(); i++) {
+		for (int i= 0; i < batchTextChanges.size(); i++) {
 			if (i != excludeIndex) {
-				currentTextChanges.get(i).applyTextChange(event);
+				batchTextChanges.get(i).applyTextChange(event);
 			}
 		}
 	}
@@ -143,38 +142,48 @@ public class ASTOperationRecorder {
 			if (isInProblemMode) {
 				flushProblematicTextChanges(isForced);
 			} else {
-				CoherentTextChange firstTextChange= currentTextChanges.get(0);
-				ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(currentTextChanges.size(), firstTextChange);
+				CoherentTextChange firstTextChange= batchTextChanges.get(0);
+				ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.size(), firstTextChange);
 				//Perform AST inference when forced or AST inference is not problematic.
 				if (isForced || !astOperationInferencer.isProblematicInference()) {
 					inferAndRecordASTOperations(astOperationInferencer);
 				} else {
-					isInProblemMode= true;
-					snapshotBeforeASTProblems= firstTextChange.getInitialDocumentText();
+					enterInProblemMode();
 				}
 			}
 		}
-		currentTextChanges.clear();
+		batchTextChanges.clear();
 		correlatedBatchSize= -1;
 	}
 
+	private void enterInProblemMode() {
+		ensureBatchContainsExactlyOneElement();
+		isInProblemMode= true;
+		//The only batch text change becomes the first problematic text change.
+		problematicTextChanges.add(batchTextChanges.get(0));
+	}
+
 	private void flushProblematicTextChanges(boolean isForced) {
-		String finalDocumentText= currentTextChanges.get(0).getFinalDocumentText();
-		//Perform AST inference when forced or AST is no longer problematic.
-		if (isForced || !ASTHelper.isProblematicAST(finalDocumentText)) {
-			String currentSnapshot= snapshotBeforeASTProblems;
-			for (PerformedTextChangeOperation textChangeOperation : SnapshotDifferenceCalculator.getSnapshotDifference(snapshotBeforeASTProblems, finalDocumentText, -1)) {
-				CoherentTextChange coherentTextChange= new CoherentTextChange(textChangeOperation.getDocumentEvent(currentSnapshot), getTextChangeTimestamp());
-				ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(1, coherentTextChange);
-				inferAndRecordASTOperations(astOperationInferencer);
-				currentSnapshot= coherentTextChange.getFinalDocumentText();
-			}
+		ensureBatchContainsExactlyOneElement();
+		problematicTextChanges.add(batchTextChanges.get(0));
+		ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(problematicTextChanges);
+
+		//Perform AST inference when forced or AST inference is no longer problematic.
+		if (isForced || !astOperationInferencer.isProblematicInference()) {
+			inferAndRecordASTOperations(astOperationInferencer);
+			problematicTextChanges.clear();
 			isInProblemMode= false;
 		}
 	}
 
+	private void ensureBatchContainsExactlyOneElement() {
+		if (batchTextChanges.size() != 1) {
+			throw new RuntimeException("Problem mode with a wrong batch size: " + batchTextChanges.size());
+		}
+	}
+
 	private boolean isAnythingToFlush() {
-		return !currentTextChanges.isEmpty() && currentTextChanges.get(0).isActualChange();
+		return isInProblemMode || !batchTextChanges.isEmpty() && batchTextChanges.get(0).isActualChange();
 	}
 
 	private void checkBatchedEditIsCompleted() {

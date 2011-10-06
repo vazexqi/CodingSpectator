@@ -18,6 +18,8 @@ import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
  */
 public class CoherentTextChange {
 
+	private final long timestamp;
+
 	private final IDocument editedDocument;
 
 	private final String initialDocumentText;
@@ -41,10 +43,11 @@ public class CoherentTextChange {
 	private boolean isBackspaceDeleting= false;
 
 
-	public CoherentTextChange(DocumentEvent documentEvent, long textChangeTimestamp) {
+	public CoherentTextChange(DocumentEvent documentEvent, long timestamp) {
+		this.timestamp= timestamp;
 		initialDocumentText= documentEvent.getDocument().get();
 		editedDocument= new Document(initialDocumentText);
-		initialTextChangeOperation= createTextChangeOperation(documentEvent, textChangeTimestamp);
+		initialTextChangeOperation= createTextChangeOperation(documentEvent);
 		baseOffset= documentEvent.getOffset();
 		initialRemovedTextLength= documentEvent.getLength();
 		String addedText= documentEvent.getText();
@@ -54,6 +57,10 @@ public class CoherentTextChange {
 			isDeletingOnly= true;
 		}
 		applyTextChange(documentEvent);
+	}
+
+	public long getTimestamp() {
+		return timestamp;
 	}
 
 	public String getInitialDocumentText() {
@@ -81,6 +88,10 @@ public class CoherentTextChange {
 			throw new RuntimeException("The remaining added text length is negative: " + remainingAddedTextLength);
 		}
 		return remainingAddedTextLength;
+	}
+
+	public int getDeltaTextLength() {
+		return getAddedTextLength() - getRemovedTextLength();
 	}
 
 	public boolean isActualChange() {
@@ -161,7 +172,7 @@ public class CoherentTextChange {
 		}
 	}
 
-	private TextChangeOperation createTextChangeOperation(DocumentEvent documentEvent, long timestamp) {
+	private TextChangeOperation createTextChangeOperation(DocumentEvent documentEvent) {
 		String replacedText;
 		try {
 			replacedText= editedDocument.get(documentEvent.getOffset(), documentEvent.getLength());
