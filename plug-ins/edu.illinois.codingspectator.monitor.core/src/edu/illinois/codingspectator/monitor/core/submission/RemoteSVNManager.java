@@ -38,7 +38,7 @@ public class RemoteSVNManager extends AbstractSVNManager {
 		cm= SVNClientManager.newInstance(null, username, password);
 	}
 
-	private static void setupLibrary() {
+	public static void setupLibrary() {
 		//For using over http:// and https://
 		DAVRepositoryFactory.setup();
 		//For using over svn:// and svn+xxx://
@@ -67,6 +67,15 @@ public class RemoteSVNManager extends AbstractSVNManager {
 
 	public void doDelete(String commitMessage) throws SVNException {
 		cm.getCommitClient().doDelete(new SVNURL[] { urlManager.getPersonalWorkspaceSVNURL() }, commitMessage);
+	}
+
+	public boolean isWatchedFolderInRepository() {
+		try {
+			getRevisionNumber();
+		} catch (SVNException e) {
+			return false;
+		}
+		return true;
 	}
 
 }

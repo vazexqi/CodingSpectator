@@ -16,9 +16,18 @@ import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationPr
  */
 public class MockAuthenticationProvider implements AuthenticationProvider {
 
+	private final String username;
+
+	private final String password;
+
+	public MockAuthenticationProvider(String username, String password) {
+		this.username= username;
+		this.password= password;
+	}
+
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
-		return new AuthenticationInfo("nchen", "nchen", false); //$NON-NLS-1$ //$NON-NLS-2$
+		return new AuthenticationInfo(username, password, false); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

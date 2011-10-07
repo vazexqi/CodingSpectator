@@ -3,13 +3,17 @@
  */
 package edu.illinois.codingspectator.monitor.core.submission;
 
+import java.io.File;
+
+import org.eclipse.core.runtime.CoreException;
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNConflictChoice;
 import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
+
+import edu.illinois.codingspectator.efs.EFSFile;
 
 /**
  * Local Subversion operations
@@ -79,9 +83,21 @@ public class LocalSVNManager extends AbstractSVNManager {
 		cm.getWCClient().doAdd(svnWorkingCopyDirectory, true, false, false, SVNDepth.INFINITY, false, false);
 	}
 
-	@Deprecated
-	public void doResolve() throws SVNException {
-		cm.getWCClient().doResolve(svnWorkingCopyDirectory, SVNDepth.INFINITY, SVNConflictChoice.THEIRS_FULL);
+	private void removeSVNMetaData(File path) throws CoreException {
+		for (File child : path.listFiles()) {
+			if (child.isDirectory()) {
+				if (".svn".equals(child.getName())) {
+					new EFSFile(child.getAbsolutePath()).delete();
+					System.out.println("Deleted " + child.getAbsolutePath());
+				} else {
+					removeSVNMetaData(child);
+				}
+			}
+		}
+	}
+
+	public void removeSVNMetaData() throws CoreException {
+		removeSVNMetaData(svnWorkingCopyDirectory);
 	}
 
 }

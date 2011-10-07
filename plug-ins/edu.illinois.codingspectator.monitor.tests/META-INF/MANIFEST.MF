@@ -11,6 +11,7 @@ Require-Bundle: edu.illinois.codingspectator.monitor.ui,
  org.eclipse.core.filesystem,
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.security,
- edu.illinois.codingspectator.monitor.core
+ edu.illinois.codingspectator.monitor.core,
+ edu.illinois.codingspectator.efs
 Bundle-Vendor: Univeristy of Illinois
 Bundle-ActivationPolicy: lazy

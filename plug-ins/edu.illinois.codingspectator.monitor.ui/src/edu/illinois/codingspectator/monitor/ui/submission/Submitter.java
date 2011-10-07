@@ -92,13 +92,19 @@ public class Submitter {
 		try {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
-			if (svnManager.isLocalWorkCopyOutdated()) {
-				System.out.println("Local working copy is outdated.");
-				svnManager.doDelete("Deleted workspace data because of an outdated SVN working copy.");
+			final String svnDeleteMessage= "Deleted workspace data because of an outdated SVN working copy.";
+			if (svnManager.isWatchedFolderInRepository()) {
+				if (!svnManager.isWorkingDirectoryValid()) {
+					svnManager.doDelete(svnDeleteMessage);
+				} else if (svnManager.isLocalWorkCopyOutdated()) {
+					svnManager.removeSVNMetaData();
+					svnManager.doDelete(svnDeleteMessage);
+				}
+			} else {
+				svnManager.removeSVNMetaData();
 			}
 			svnManager.doImport();
 			svnManager.doCheckout();
-//			svnManager.doResolve();
 			svnManager.doAdd();
 			svnManager.doCommit();
 			svnManager.doCheckout(); // Updates the local revision numbers
