@@ -8,8 +8,6 @@ import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.modifyF
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.submitter;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-
 import org.eclipse.core.runtime.CoreException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,8 +52,8 @@ public class TestSubmitterWithConflicts {
 		outdatedWatchedFolder.copyTo(watchedFolder);
 	}
 
-	private void cleanWatchedFolder() {
-		new File(Submitter.WATCHED_DIRECTORY).delete();
+	private void cleanWatchedFolder() throws CoreException {
+		new EFSFile(Submitter.WATCHED_DIRECTORY).delete();
 	}
 
 }

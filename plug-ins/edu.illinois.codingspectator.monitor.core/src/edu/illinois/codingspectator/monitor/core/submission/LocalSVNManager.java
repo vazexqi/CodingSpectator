@@ -88,7 +88,6 @@ public class LocalSVNManager extends AbstractSVNManager {
 			if (child.isDirectory()) {
 				if (".svn".equals(child.getName())) {
 					new EFSFile(child.getAbsolutePath()).delete();
-					System.out.println("Deleted " + child.getAbsolutePath());
 				} else {
 					removeSVNMetaData(child);
 				}
