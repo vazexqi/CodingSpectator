@@ -97,7 +97,7 @@ public class Submitter {
 			svnManager.doCheckout();
 			svnManager.doAdd();
 			svnManager.doCommit();
-			svnManager.doCheckout(); // Updates the local revision numbers
+			updateLocalRevisionNumbers();
 			submissionSucceeded= true;
 		} catch (Throwable e) {
 			throw new SubmissionException(e);
@@ -118,6 +118,10 @@ public class Submitter {
 		} else {
 			svnManager.removeSVNMetaData();
 		}
+	}
+
+	private void updateLocalRevisionNumbers() throws SVNException {
+		svnManager.doUpdate();
 	}
 
 	private Collection<SubmitterListener> lookupExtensions() {

@@ -56,6 +56,10 @@ public class RemoteSVNManager extends AbstractSVNManager {
 				true);
 	}
 
+	public void doUpdate() throws SVNException {
+		cm.getUpdateClient().doUpdate(svnWorkingCopyDirectory, SVNRevision.HEAD, SVNDepth.INFINITY, true, true);
+	}
+
 	public void doCommit() throws SVNException {
 		File[] pathToCommitFiles= new File[] { svnWorkingCopyDirectory };
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);

@@ -34,6 +34,10 @@ public class SVNManager {
 		remoteSVNManager.doCheckout();
 	}
 
+	public void doUpdate() throws SVNException {
+		remoteSVNManager.doUpdate();
+	}
+
 	public void doCommit() throws SVNException {
 		remoteSVNManager.doCommit();
 	}
