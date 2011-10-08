@@ -24,7 +24,7 @@ public class SVNManager {
 		remoteSVNManager= new RemoteSVNManager(urlManager, svnWorkingCopyDirectory, username, password);
 	}
 
-	public void doImport() throws SVNException {
+	public void doImportIfNecessary() throws SVNException {
 		if (localSVNManager.isWorkingDirectoryValid())
 			return;
 		remoteSVNManager.doImport();

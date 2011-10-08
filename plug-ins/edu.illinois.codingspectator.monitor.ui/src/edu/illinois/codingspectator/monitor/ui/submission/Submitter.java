@@ -92,18 +92,8 @@ public class Submitter {
 		try {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
-			final String svnDeleteMessage= "Deleted workspace data because of an outdated SVN working copy.";
-			if (svnManager.isWatchedFolderInRepository()) {
-				if (!svnManager.isWorkingDirectoryValid()) {
-					svnManager.doDelete(svnDeleteMessage);
-				} else if (svnManager.isLocalWorkCopyOutdated()) {
-					svnManager.removeSVNMetaData();
-					svnManager.doDelete(svnDeleteMessage);
-				}
-			} else {
-				svnManager.removeSVNMetaData();
-			}
-			svnManager.doImport();
+			resolveLocalAndRemoteDataMismatches();
+			svnManager.doImportIfNecessary();
 			svnManager.doCheckout();
 			svnManager.doAdd();
 			svnManager.doCommit();
@@ -113,6 +103,20 @@ public class Submitter {
 			throw new SubmissionException(e);
 		} finally {
 			notifyPostSubmit(submissionSucceeded);
+		}
+	}
+
+	private void resolveLocalAndRemoteDataMismatches() throws SVNException, CoreException {
+		final String svnDeleteMessage= "Deleted workspace data because of an outdated SVN working copy.";
+		if (svnManager.isWatchedFolderInRepository()) {
+			if (!svnManager.isWorkingDirectoryValid()) {
+				svnManager.doDelete(svnDeleteMessage);
+			} else if (svnManager.isLocalWorkCopyOutdated()) {
+				svnManager.removeSVNMetaData();
+				svnManager.doDelete(svnDeleteMessage);
+			}
+		} else {
+			svnManager.removeSVNMetaData();
 		}
 	}
 
