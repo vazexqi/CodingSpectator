@@ -1,7 +1,7 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
 -- This script gets a CSV report with the following header and reports the number of hours of usage of each user.
--- USERNAME,WORKSPACE_ID,VERSION,USAGE_TIME_IN_HOURS
+-- USERNAME,WORKSPACE_ID,VERSION,USAGE_TIME_IN_MILLI_SECS
 
 DROP TABLE "PUBLIC"."USAGE_TIMES" IF EXISTS;
 
