@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
@@ -112,10 +111,10 @@ public class ASTOperationInferencer {
 		if (ASTHelper.isRecoveredOrMalformed(newCoveringNode) || ASTHelper.isRecoveredOrMalformed(newCommonCoveringNode)) {
 			return true;
 		}
-		MethodDeclaration coveringMethodDeclaration= ASTHelper.getContainingMethod(newCoveringNode);
-		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
-			return true;
-		}
+//		MethodDeclaration coveringMethodDeclaration= ASTHelper.getContainingMethod(newCoveringNode);
+//		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
+//			return true;
+//		}
 		return hasProblematicAffectedNodes();
 	}
 
