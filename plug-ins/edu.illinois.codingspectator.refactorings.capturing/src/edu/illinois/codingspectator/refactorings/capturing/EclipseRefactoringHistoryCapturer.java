@@ -50,6 +50,10 @@ public class EclipseRefactoringHistoryCapturer implements SubmitterListener {
 	}
 
 	@Override
+	public void preCommit() {
+	}
+
+	@Override
 	public void postSubmit(boolean succeeded) {
 	}
 

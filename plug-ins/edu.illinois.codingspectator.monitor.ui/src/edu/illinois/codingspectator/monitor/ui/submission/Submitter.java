@@ -96,6 +96,7 @@ public class Submitter {
 			svnManager.doImportIfNecessary();
 			svnManager.doCheckout();
 			svnManager.doAdd();
+			notifyPreCommit();
 			svnManager.doCommit();
 			updateLocalRevisionNumbers();
 			submissionSucceeded= true;
@@ -147,6 +148,22 @@ public class Submitter {
 				@Override
 				public void run() throws Exception {
 					submitterListener.preSubmit();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
+		}
+	}
+
+	private void notifyPreCommit() {
+		for (final SubmitterListener submitterListener : submitterListeners) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					submitterListener.preCommit();
 				}
 
 				@Override
