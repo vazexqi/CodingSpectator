@@ -18,7 +18,7 @@ import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCClient;
 
 import edu.illinois.codingspectator.efs.EFSFile;
-import edu.illinois.codingspectator.monitor.core.submission.RemoteSVNManager;
+import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.URLManager;
 import edu.illinois.codingspectator.monitor.ui.prefs.UUIDGenerator;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
@@ -41,12 +41,12 @@ public class SubmitterHelper {
 
 	static final String FILENAME= "log.txt";
 
+	static SVNManager svnManager;
+
 	static void initializeSubmitter() {
 		submitter= new Submitter(new MockAuthenticationProvider(USERNAME, PASSWORD));
-
 		urlManager= new URLManager(Messages.MockAuthenticationProvider_TestRepositoryURL, USERNAME, UUID);
-
-		RemoteSVNManager.setupLibrary();
+		svnManager= new SVNManager(urlManager, Submitter.WATCHED_DIRECTORY, USERNAME, PASSWORD);
 		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);
 		workingCopyClient= clientManager.getWCClient();
 		commitClient= clientManager.getCommitClient();

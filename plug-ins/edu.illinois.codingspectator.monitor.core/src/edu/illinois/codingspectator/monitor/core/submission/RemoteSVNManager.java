@@ -38,7 +38,7 @@ public class RemoteSVNManager extends AbstractSVNManager {
 		cm= SVNClientManager.newInstance(null, username, password);
 	}
 
-	public static void setupLibrary() {
+	private static void setupLibrary() {
 		//For using over http:// and https://
 		DAVRepositoryFactory.setup();
 		//For using over svn:// and svn+xxx://

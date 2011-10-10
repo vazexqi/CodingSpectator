@@ -28,20 +28,39 @@ public class TestSubmitterWithConflicts {
 	}
 
 	@Test
-	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, CanceledDialogException {
-		modifyLogAndSubmit();
+	public void shouldSubmitOutdatedWorkingCopy() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, CanceledDialogException {
+		modifyLog();
+		submit();
 
 		long initialRevisionNumber= SubmitterHelper.getFileRevisionNumber();
 
-		modifyLogAndSubmit();
+		modifyLog();
+		submit();
 
 		assertTrue(SubmitterHelper.getFileRevisionNumber() > initialRevisionNumber);
 	}
 
-	private void modifyLogAndSubmit() throws CoreException, InitializationException, FailedAuthenticationException, CanceledDialogException, SubmissionException {
+	@Test
+	public void shouldSubmitConflictedWorkingCopy() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, CanceledDialogException {
+		modifyLog();
+		submit();
+
+		long initialRevisionNumber= SubmitterHelper.getFileRevisionNumber();
+
+		modifyLog();
+		SubmitterHelper.svnManager.doUpdate();
+		submit();
+
+		assertTrue(SubmitterHelper.getFileRevisionNumber() > initialRevisionNumber);
+	}
+
+	private void modifyLog() throws CoreException, InitializationException, FailedAuthenticationException, CanceledDialogException, SubmissionException {
 		cleanWatchedFolder();
 		makeWatchedFolderOutdated();
 		modifyFileInWatchedFolder();
+	}
+
+	private void submit() throws InitializationException, FailedAuthenticationException, CanceledDialogException, SubmissionException {
 		submitter.authenticateAndInitialize();
 		submitter.submit();
 	}
