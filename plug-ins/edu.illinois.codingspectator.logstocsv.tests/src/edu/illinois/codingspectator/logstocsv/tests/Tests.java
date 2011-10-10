@@ -39,30 +39,42 @@ public class Tests {
 	private IPath checksAfterRefactoringsExpectedLog;
 
 	private void computePaths(String testNumber) throws CoreException {
-		IPath pathToTestFolder= new Path("resources").append(testNumber);
-		String csvLogsFileName= "logs.csv";
-		csvExpectedLog= pathToTestFolder.append("expected-output").append(csvLogsFileName);
-		String checksAfterRefactoringsLogFileName= "checks-after-refactorings.csv";
-		checksAfterRefactoringsExpectedLog= pathToTestFolder.append("expected-output").append(checksAfterRefactoringsLogFileName);
-		pathToInputFolder= pathToTestFolder.append("input");
-		csvActualLogFolder= new EFSFile(pathToTestFolder.append("actual-output"));
+		IPath pathToTestFolder = new Path("resources").append(testNumber);
+		String csvLogsFileName = "logs.csv";
+		csvExpectedLog = pathToTestFolder.append("expected-output").append(
+				csvLogsFileName);
+		String checksAfterRefactoringsLogFileName = "checks-after-refactorings.csv";
+		checksAfterRefactoringsExpectedLog = pathToTestFolder.append(
+				"expected-output").append(checksAfterRefactoringsLogFileName);
+		pathToInputFolder = pathToTestFolder.append("input");
+		csvActualLogFolder = new EFSFile(
+				pathToTestFolder.append("actual-output"));
 		csvActualLogFolder.mkdir();
-		csvActualLog= csvActualLogFolder.append(csvLogsFileName);
-		checksAfterRefactoringsActualLog= csvActualLogFolder.append(checksAfterRefactoringsLogFileName);
+		csvActualLog = csvActualLogFolder.append(csvLogsFileName);
+		checksAfterRefactoringsActualLog = csvActualLogFolder
+				.append(checksAfterRefactoringsLogFileName);
 	}
 
 	private void generateReports() throws CoreException, IOException {
-		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.getPath().toOSString() });
+		ConvertLogsToCSV.main(new String[] { null,
+				pathToInputFolder.toOSString(),
+				csvActualLog.getPath().toOSString(),
+				checksAfterRefactoringsActualLog.getPath().toOSString() });
 	}
 
 	private void checkReports() throws IOException {
 		assertTrue(csvActualLog.exists());
-		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
+		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()),
+				FileUtils.getContents(csvActualLog.getPath().toOSString()));
 		assertTrue(checksAfterRefactoringsActualLog.exists());
-		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog.toOSString()), FileUtils.getContents(checksAfterRefactoringsActualLog.getPath().toOSString()));
+		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog
+				.toOSString()),
+				FileUtils.getContents(checksAfterRefactoringsActualLog
+						.getPath().toOSString()));
 	}
 
-	private void testReports(String testNumber) throws CoreException, IOException {
+	private void testReports(String testNumber) throws CoreException,
+			IOException {
 		computePaths(testNumber);
 		generateReports();
 		checkReports();
@@ -86,6 +98,16 @@ public class Tests {
 	@Test
 	public void test04() throws CoreException, IOException {
 		testReports("04");
+	}
+
+	@Test
+	public void test05() throws CoreException, IOException {
+		// This is the exact test as test04 except that the folders (yyyy/dd/ww)
+		// have been renamed.
+		// Because we now try to locate a refactoring descriptor based on the
+		// location of its proxy (instead of the converting the timestamp to a
+		// folder location) this will work. See issue #298
+		testReports("05");
 	}
 
 	@After

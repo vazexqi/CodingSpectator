@@ -54,7 +54,6 @@ import edu.illinois.codingtracker.operations.resources.DeletedResourceOperation;
 import edu.illinois.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
 import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
 import edu.illinois.codingtracker.operations.starts.LaunchedApplicationOperation;
-import edu.illinois.codingtracker.operations.starts.StartedEclipseOperation;
 import edu.illinois.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedConflictEditorTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
@@ -90,7 +89,6 @@ public class OperationRecorder {
 	}
 
 	private OperationRecorder() {
-		TextRecorder.record(new StartedEclipseOperation());
 	}
 
 	public void recordRefreshedFile(IFile refreshedFile, String replacedText) {

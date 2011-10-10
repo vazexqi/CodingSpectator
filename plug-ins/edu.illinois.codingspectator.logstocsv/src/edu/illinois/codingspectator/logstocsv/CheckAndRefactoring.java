@@ -24,8 +24,12 @@ public class CheckAndRefactoring implements Mappable {
 	@Override
 	public Map<String, String> toMap() {
 		Map<String, String> map= new HashMap<String, String>();
-		map.put("refactoring-timestamp", String.valueOf(refactoring.getTimestamp()));
-		map.put("check-timestamp", String.valueOf(check.getTimestamp()));
+		map.put("username", refactoring.username);
+		map.put("workspace ID", refactoring.workspaceID);
+		map.put("codingspectator version", refactoring.toMap().get("codingspectator version"));
+		map.put("refactoring ID", refactoring.toMap().get("id"));
+		map.put("refactoring timestamp", String.valueOf(refactoring.getTimestamp()));
+		map.put("check timestamp", String.valueOf(check.getTimestamp()));
 		return map;
 	}
 
