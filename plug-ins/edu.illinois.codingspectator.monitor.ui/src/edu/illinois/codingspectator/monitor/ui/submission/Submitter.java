@@ -93,32 +93,50 @@ public class Submitter {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
 			resolveLocalAndRemoteDataMismatches();
-			svnManager.doImportIfNecessary();
-			svnManager.doCheckout();
-			svnManager.doAdd();
-			notifyPreCommit();
-			svnManager.doCommit();
-			updateLocalRevisionNumbers();
+			doSVNSubmit();
 			submissionSucceeded= true;
-		} catch (Throwable e) {
-			throw new SubmissionException(e);
+		} catch (Throwable e1) {
+			try {
+				removeLocalAndRemoteData();
+				doSVNSubmit();
+				submissionSucceeded= true;
+			} catch (Throwable e2) {
+				throw new SubmissionException(e2);
+			}
 		} finally {
 			notifyPostSubmit(submissionSucceeded);
 		}
 	}
 
+	private void doSVNSubmit() throws SVNException {
+		svnManager.doImportIfNecessary();
+		svnManager.doCheckout();
+		svnManager.doAdd();
+		notifyPreCommit();
+		svnManager.doCommit();
+		updateLocalRevisionNumbers();
+	}
+
 	private void resolveLocalAndRemoteDataMismatches() throws SVNException, CoreException {
-		final String svnDeleteMessage= "Deleted workspace data because of an outdated SVN working copy.";
 		if (svnManager.isWatchedFolderInRepository()) {
 			if (!svnManager.isWorkingDirectoryValid()) {
-				svnManager.doDelete(svnDeleteMessage);
+				removeRemoteData();
 			} else if (svnManager.isLocalWorkCopyOutdated()) {
-				svnManager.removeSVNMetaData();
-				svnManager.doDelete(svnDeleteMessage);
+				removeLocalAndRemoteData();
 			}
 		} else {
 			svnManager.removeSVNMetaData();
 		}
+	}
+
+	private void removeRemoteData() throws SVNException {
+		final String svnDeleteMessage= "Deleted remote data because of an inconsistency between local and remote data.";
+		svnManager.doDelete(svnDeleteMessage);
+	}
+
+	private void removeLocalAndRemoteData() throws CoreException, SVNException {
+		svnManager.removeSVNMetaData();
+		removeRemoteData();
 	}
 
 	private void updateLocalRevisionNumbers() throws SVNException {
