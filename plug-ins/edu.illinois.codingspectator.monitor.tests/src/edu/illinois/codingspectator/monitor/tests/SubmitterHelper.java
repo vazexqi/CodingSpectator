@@ -46,7 +46,7 @@ public class SubmitterHelper {
 	static void initializeSubmitter() {
 		submitter= new Submitter(new MockAuthenticationProvider(USERNAME, PASSWORD));
 		urlManager= new URLManager(Messages.MockAuthenticationProvider_TestRepositoryURL, USERNAME, UUID);
-		svnManager= new SVNManager(urlManager, Submitter.WATCHED_DIRECTORY, USERNAME, PASSWORD);
+		svnManager= new SVNManager(urlManager, Submitter.WATCHED_FOLDER, USERNAME, PASSWORD);
 		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);
 		workingCopyClient= clientManager.getWCClient();
 		commitClient= clientManager.getCommitClient();
@@ -55,7 +55,7 @@ public class SubmitterHelper {
 	static void modifyFileInWatchedFolder() throws CoreException {
 		PrintWriter printWriter= null;
 		try {
-			EFSFile logFile= new EFSFile(Submitter.WATCHED_DIRECTORY).append(FILENAME);
+			EFSFile logFile= new EFSFile(Submitter.WATCHED_FOLDER).append(FILENAME);
 			OutputStream outputStream= logFile.getFileStore().openOutputStream(EFS.ATTRIBUTE_GROUP_READ | EFS.ATTRIBUTE_GROUP_WRITE, new NullProgressMonitor());
 			printWriter= new PrintWriter(outputStream);
 			printWriter.write(UUIDGenerator.generateID());

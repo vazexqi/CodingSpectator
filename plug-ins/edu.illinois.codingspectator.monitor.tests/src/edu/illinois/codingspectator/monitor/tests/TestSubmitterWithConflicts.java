@@ -67,12 +67,12 @@ public class TestSubmitterWithConflicts {
 
 	private void makeWatchedFolderOutdated() throws CoreException {
 		EFSFile outdatedWatchedFolder= new EFSFile("outdated-watched-folder");
-		EFSFile watchedFolder= new EFSFile(Submitter.WATCHED_DIRECTORY);
+		EFSFile watchedFolder= new EFSFile(Submitter.WATCHED_FOLDER);
 		outdatedWatchedFolder.copyTo(watchedFolder);
 	}
 
 	private void cleanWatchedFolder() throws CoreException {
-		new EFSFile(Submitter.WATCHED_DIRECTORY).delete();
+		new EFSFile(Submitter.WATCHED_FOLDER).delete();
 	}
 
 }

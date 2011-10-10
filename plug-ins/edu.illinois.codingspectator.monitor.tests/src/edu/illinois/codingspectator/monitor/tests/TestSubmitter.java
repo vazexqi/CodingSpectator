@@ -64,7 +64,7 @@ public class TestSubmitter {
 		submitter.authenticateAndInitialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
 
 		// Check that the working directory has been created locally.
-		assertTrue("Failed to initialize the submitter.", new File(Submitter.WATCHED_DIRECTORY + File.separator + ".svn").exists());
+		assertTrue("Failed to initialize the submitter.", new File(Submitter.WATCHED_FOLDER + File.separator + ".svn").exists());
 
 		// Check that the directory has been created remotely.
 		SVNInfo info= workingCopyClient.doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);

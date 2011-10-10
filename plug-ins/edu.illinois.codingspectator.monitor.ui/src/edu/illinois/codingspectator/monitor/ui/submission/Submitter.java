@@ -38,7 +38,7 @@ import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
  */
 public class Submitter {
 
-	public static final String WATCHED_DIRECTORY= CodingSpectatorDataPlugin.getStorageLocation().toOSString();
+	public static final String WATCHED_FOLDER= CodingSpectatorDataPlugin.getStorageLocation().toOSString();
 
 	private SVNManager svnManager;
 
@@ -65,7 +65,7 @@ public class Submitter {
 
 			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
 					.getInstance().getAndSetUUIDLazily());
-			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(), authenticationInfo.getPassword());
+			svnManager= new SVNManager(urlManager, WATCHED_FOLDER, authenticationInfo.getUserName(), authenticationInfo.getPassword());
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (StorageException e) {
 			throw new InitializationException(e);
@@ -239,7 +239,7 @@ public class Submitter {
 
 	protected void tryCleanup() throws InitializationException {
 		try {
-			LocalSVNManager svnManager= new LocalSVNManager(WATCHED_DIRECTORY);
+			LocalSVNManager svnManager= new LocalSVNManager(WATCHED_FOLDER);
 			svnManager.doCleanup();
 		} catch (SVNException e) {
 			throw new InitializationException(e);
