@@ -108,6 +108,18 @@ public class Submitter {
 		}
 	}
 
+	/**
+	 * The following method is useful for testing purposes. This methods notifies all
+	 * SubmitterListeners. Since some of the listeners transfer their data to the watched folder
+	 * when they get notified, this method gathers all the collected data into the watched folder.
+	 */
+	public void notifyListeners() {
+		submitterListeners= lookupExtensions();
+		notifyPreSubmit();
+		notifyPreCommit();
+		notifyPostSubmit(true);
+	}
+
 	private void doSVNSubmit() throws SVNException {
 		svnManager.doImportIfNecessary();
 		svnManager.doCheckout();
