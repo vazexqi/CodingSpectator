@@ -7,6 +7,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.internal.ui.startup.StartupListener;
 
 import edu.illinois.codingtracker.helpers.Debugger;
+import edu.illinois.codingtracker.operations.starts.StartedEclipseOperation;
+import edu.illinois.codingtracker.recording.TextRecorder;
 
 /**
  * 
@@ -25,16 +27,17 @@ public class JDTUIStartupListener implements StartupListener {
 		Debugger.debug("NOTIFIED");
 		if (doesMonitorUIExist()) {
 			Debugger.debug("STARTED");
+			FileBufferListener.register();
+			DocumentAdapterListener.register();
+			SelectionListener.register();
+			PartListener.register();
 			ResourceListener.register();
 			CVSResourceChangeListener.register();
 			OperationHistoryListener.register();
 			RefactoringExecutionListener.register();
-			SelectionListener.register();
-			PartListener.register();
 			JUnitListener.register();
 			LaunchListener.register();
-			FileBufferListener.register();
-			DocumentAdapterListener.register();
+			TextRecorder.record(new StartedEclipseOperation());
 		}
 	}
 
