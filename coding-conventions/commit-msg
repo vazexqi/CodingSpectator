@@ -17,7 +17,7 @@
 # Taken from http://www.paraview.org/Wiki/ParaView/Git
 #
 # Changed by Nicholas Chen (nchen@illinois.edu)
-# - First line is at most 80 characters
+# - First line is at most 72 characters
 # - Removed code for managing Gerrit
 #=============================================================================
 
@@ -63,8 +63,8 @@ msg_first() {
 --------
 '"$line"'
 --------'
-	elif test $len -gt 80 && ! msg_is_merge && ! msg_is_revert; then
-		die 'The first line may be at most 80 characters:
+	elif test $len -gt 72 && ! msg_is_merge && ! msg_is_revert; then
+		die 'The first line may be at most 72 characters:
 ------------------------------------------------------------------------------
 '"$line"'
 ------------------------------------------------------------------------------'

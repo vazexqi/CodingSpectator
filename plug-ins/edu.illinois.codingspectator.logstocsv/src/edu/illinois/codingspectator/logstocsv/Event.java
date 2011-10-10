@@ -14,6 +14,8 @@ import java.util.Map;
  * 
  */
 public abstract class Event implements Mappable {
+	
+	protected static final int ATTRIBUTE_LENGTH_LIMIT= 100000; // Limit long strings to a fixed size when mapping to VARCHAR in SQL
 
 	protected String username;
 

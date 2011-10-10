@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 #This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 #author: Mohsen Vakilian
-#This script lists the last data submission and CodingSpectator account creation dates of the participants in the CSV format.
+#This scripts compiles the following information about each participant in the CSV format.
+#1. the data of the creation of the participant's account
+#2. the date of the last data submission of the participant
+#3. the latest version of CodingSpectator that has submitted data from the participant's workspace
 
 require 'optparse'
 
@@ -54,18 +57,19 @@ end
 
 class SVNLog
 
-  attr_reader :date
+  attr_reader :date, :username
 
   def initialize(svn_log_string)
     svn_log_elements = svn_log_string.split('|')
     @date = svn_log_elements[2][1.."YYYY-MM-DD".length]
+    @username = svn_log_elements[1].strip
   end
 
 end
 
 class Participant
 
-  attr_reader :last_data_submission_date, :account_creation_date, :version
+  attr_reader :last_data_submission_date, :account_creation_date, :version, :codingtracker_data_size
 
   def initialize(username)
     @username = username
@@ -78,6 +82,7 @@ class Participant
   def summarize_activities
     find_latest_submission_information
     find_latest_codingspectator_version
+    compute_codingtracker_data_size
 
     $stderr.print "."
   end
@@ -86,17 +91,17 @@ class Participant
     svn_log = `svn log #{$svn_repo}/#{@username} #{svn_authentication_arguments} | grep "|"`
     svn_logs = svn_log.split("\n")
     svn_logs = svn_logs.map {|svn_log_string| SVNLog.new(svn_log_string)}
-    
-    last_commit_date = svn_logs.first.date
-    first_commit_date = svn_logs.last.date
-    
-    @account_creation_date = first_commit_date
 
-    if last_commit_date != first_commit_date 
-      @last_data_submission_date = last_commit_date
+    participant_last_commit = svn_logs.find {|svn_log| Participant.new(svn_log.username).a_summer_2011_participant?}
+
+    if participant_last_commit.nil?
+      participant_last_commit_date = ""
     else
-      @last_data_submission_date = ""
+      participant_last_commit_date = participant_last_commit.date
     end
+
+    @account_creation_date = svn_logs.last.date
+    @last_data_submission_date = participant_last_commit_date
   end
 
   def svn_ls(path_relative_to_username_folder)
@@ -110,11 +115,18 @@ class Participant
     @version = versions.max
   end
 
-  def to_s
-    @username + "," + @account_creation_date + "," + @last_data_submission_date + "," + @version
+  def compute_codingtracker_data_size
+    workspace_ids = svn_ls("")
+    workspace_id_versions = workspace_ids.map {|workspace_id| svn_ls(workspace_id).map {|version| workspace_id + "/" + version}}.flatten
+    codingtracker_log_sizes = workspace_id_versions.map {|workspace_id_version| svn_ls(workspace_id_version + "/codingtracker/codechanges.txt -v").map {|svn_ls_result| svn_ls_result.split(" ")[2].to_i}}.flatten
+    @codingtracker_data_size = codingtracker_log_sizes.inject(0) {|codingtracker_total_log_size, codingtracker_log_size| codingtracker_total_log_size + codingtracker_log_size}
   end
 
-  private :find_latest_submission_information, :svn_ls, :find_latest_codingspectator_version
+  def to_s
+    @username + "," + @account_creation_date + "," + @last_data_submission_date + "," + @version + "," + @codingtracker_data_size.to_s
+  end
+
+  private :find_latest_submission_information, :svn_ls, :find_latest_codingspectator_version, :compute_codingtracker_data_size
 
 end
 
@@ -142,7 +154,7 @@ class Participants
   end
 
   def to_s
-    csv_header = "username,account creation date (YYYY-MM-DD),last data submission date (YYYY-MM-DD),latest CodingSpectator version\n"
+    csv_header = "username,account creation date (YYYY-MM-DD),last data submission date (YYYY-MM-DD),latest CodingSpectator version,CodingTracker data size (Bytes)\n"
     all_participants_string = @participants.inject("") {|participants_string, participant| participants_string += participant.to_s + "\n"}
     csv_header + all_participants_string
   end
