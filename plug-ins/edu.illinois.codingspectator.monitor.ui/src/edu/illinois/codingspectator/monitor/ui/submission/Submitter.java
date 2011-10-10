@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.tmatesoft.svn.core.SVNAuthenticationException;
 import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
@@ -67,13 +66,7 @@ public class Submitter {
 			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
 					.getInstance().getAndSetUUIDLazily());
 			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(), authenticationInfo.getPassword());
-			svnManager.doImport();
-			svnManager.doCheckout();
 			prompter.saveAuthenticationInfo(authenticationInfo);
-		} catch (SVNAuthenticationException e) {
-			throw new FailedAuthenticationException(e);
-		} catch (SVNException e) {
-			throw new InitializationException(e);
 		} catch (StorageException e) {
 			throw new InitializationException(e);
 		} catch (IOException e) {
@@ -99,14 +92,37 @@ public class Submitter {
 		try {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
+			resolveLocalAndRemoteDataMismatches();
+			svnManager.doImportIfNecessary();
+			svnManager.doCheckout();
 			svnManager.doAdd();
+			notifyPreCommit();
 			svnManager.doCommit();
+			updateLocalRevisionNumbers();
 			submissionSucceeded= true;
 		} catch (Throwable e) {
 			throw new SubmissionException(e);
 		} finally {
 			notifyPostSubmit(submissionSucceeded);
 		}
+	}
+
+	private void resolveLocalAndRemoteDataMismatches() throws SVNException, CoreException {
+		final String svnDeleteMessage= "Deleted workspace data because of an outdated SVN working copy.";
+		if (svnManager.isWatchedFolderInRepository()) {
+			if (!svnManager.isWorkingDirectoryValid()) {
+				svnManager.doDelete(svnDeleteMessage);
+			} else if (svnManager.isLocalWorkCopyOutdated()) {
+				svnManager.removeSVNMetaData();
+				svnManager.doDelete(svnDeleteMessage);
+			}
+		} else {
+			svnManager.removeSVNMetaData();
+		}
+	}
+
+	private void updateLocalRevisionNumbers() throws SVNException {
+		svnManager.doUpdate();
 	}
 
 	private Collection<SubmitterListener> lookupExtensions() {
@@ -132,6 +148,22 @@ public class Submitter {
 				@Override
 				public void run() throws Exception {
 					submitterListener.preSubmit();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
+		}
+	}
+
+	private void notifyPreCommit() {
+		for (final SubmitterListener submitterListener : submitterListeners) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					submitterListener.preCommit();
 				}
 
 				@Override

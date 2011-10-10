@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.monitor.core.submission;
 
+import org.eclipse.core.runtime.CoreException;
 import org.tmatesoft.svn.core.SVNException;
 
 /**
@@ -23,7 +24,7 @@ public class SVNManager {
 		remoteSVNManager= new RemoteSVNManager(urlManager, svnWorkingCopyDirectory, username, password);
 	}
 
-	public void doImport() throws SVNException {
+	public void doImportIfNecessary() throws SVNException {
 		if (localSVNManager.isWorkingDirectoryValid())
 			return;
 		remoteSVNManager.doImport();
@@ -33,12 +34,36 @@ public class SVNManager {
 		remoteSVNManager.doCheckout();
 	}
 
+	public void doUpdate() throws SVNException {
+		remoteSVNManager.doUpdate();
+	}
+
 	public void doCommit() throws SVNException {
 		remoteSVNManager.doCommit();
 	}
 
 	public void doAdd() throws SVNException {
 		localSVNManager.doAdd();
+	}
+
+	public boolean isLocalWorkCopyOutdated() throws SVNException {
+		return remoteSVNManager.getRevisionNumber() != localSVNManager.getRevisionNumber();
+	}
+
+	public void doDelete(String commitMessage) throws SVNException {
+		remoteSVNManager.doDelete(commitMessage);
+	}
+
+	public void removeSVNMetaData() throws CoreException {
+		localSVNManager.removeSVNMetaData();
+	}
+
+	public boolean isWorkingDirectoryValid() {
+		return localSVNManager.isWorkingDirectoryValid();
+	}
+
+	public boolean isWatchedFolderInRepository() {
+		return remoteSVNManager.isWatchedFolderInRepository();
 	}
 
 }

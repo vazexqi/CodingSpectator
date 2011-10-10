@@ -33,7 +33,7 @@ public class URLManager {
 		return SVNURL.parseURIEncoded(url);
 	}
 
-	public SVNURL getPersonalRepositorySVNURL() throws SVNException {
+	public SVNURL getPersonalWorkspaceSVNURL() throws SVNException {
 		return getSVNURL(getPersonalRepositoryURL());
 	}
 

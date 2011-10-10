@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -37,7 +38,7 @@ public class RemoteSVNManager extends AbstractSVNManager {
 		cm= SVNClientManager.newInstance(null, username, password);
 	}
 
-	private static void setupLibrary() {
+	public static void setupLibrary() {
 		//For using over http:// and https://
 		DAVRepositoryFactory.setup();
 		//For using over svn:// and svn+xxx://
@@ -47,16 +48,38 @@ public class RemoteSVNManager extends AbstractSVNManager {
 	}
 
 	public void doImport() throws SVNException {
-		cm.getCommitClient().doImport(svnWorkingCopyDirectory, urlManager.getPersonalRepositorySVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
+		cm.getCommitClient().doImport(svnWorkingCopyDirectory, urlManager.getPersonalWorkspaceSVNURL(), "Initial import", null, false, true, SVNDepth.INFINITY);
 	}
 
 	public void doCheckout() throws SVNException {
-		cm.getUpdateClient().doCheckout(urlManager.getPersonalRepositorySVNURL(), svnWorkingCopyDirectory, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
+		cm.getUpdateClient().doCheckout(urlManager.getPersonalWorkspaceSVNURL(), svnWorkingCopyDirectory, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY,
 				true);
+	}
+
+	public void doUpdate() throws SVNException {
+		cm.getUpdateClient().doUpdate(svnWorkingCopyDirectory, SVNRevision.HEAD, SVNDepth.INFINITY, true, true);
 	}
 
 	public void doCommit() throws SVNException {
 		File[] pathToCommitFiles= new File[] { svnWorkingCopyDirectory };
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
 	}
+
+	public long getRevisionNumber() throws SVNException {
+		return cm.getWCClient().doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD).getRevision().getNumber();
+	}
+
+	public void doDelete(String commitMessage) throws SVNException {
+		cm.getCommitClient().doDelete(new SVNURL[] { urlManager.getPersonalWorkspaceSVNURL() }, commitMessage);
+	}
+
+	public boolean isWatchedFolderInRepository() {
+		try {
+			getRevisionNumber();
+		} catch (SVNException e) {
+			return false;
+		}
+		return true;
+	}
+
 }
