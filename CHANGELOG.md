@@ -1,3 +1,41 @@
+v1.0.0.201110111329 (Helios) and v1.0.0.201110111338 (Indigo)
+=============================================================
+- Improve the reliability and performance of SWTBot tests by using wait instead of sleep commands (issue [#226](https://github.com/vazexqi/CodingSpectator/issues/226)).
+- Assumed that recording compilation problems doesn't change user experience (issue [#211](https://github.com/vazexqi/CodingSpectator/issues/211)).
+- Added the instructions for setting up the secure storage mechanism of Eclipse on different platforms (issue [#265](https://github.com/vazexqi/CodingSpectator/issues/265)).
+- Confirmed that CodingTracker works fine with the refresh on access feature of Eclipse Indigo (issue [#266](https://github.com/vazexqi/CodingSpectator/issues/266)).
+- Wrote several SQL queries to analyze the collected data and answer our research questions (issue [#288](https://github.com/vazexqi/CodingSpectator/issues/288)).
+- Developed an analyzer to generate a CSV report of refactorings followed by runs of programs and tests (issue [#293](https://github.com/vazexqi/CodingSpectator/issues/293)).
+- Modified a script to report the latest version of CodingSpectator each participant has used to submit data (issue [#294](https://github.com/vazexqi/CodingSpectator/issues/294)).
+- Modified a script to report the amount of data CodingTracker has collected from each participant (issue [#316](https://github.com/vazexqi/CodingSpectator/issues/316)).
+- Considered the committer in Subversion logs when finding the latest data submission of each participant (issue [#296](https://github.com/vazexqi/CodingSpectator/issues/296)).
+- Fixed the parser of refactoring histories to correctly deserialize the refactorings captured by systems with different locales (issue [#298](https://github.com/vazexqi/CodingSpectator/issues/298)).
+- Assumed that Subversion's complaints about files that have been added to the working copy but do not exist are because the participants have manipulated the working copy (issue [#299](https://github.com/vazexqi/CodingSpectator/issues/299)).
+- Added a SQL query to compare the usage frequencies of refactorings reported by UDC and CodingSpectator (issue [#303](https://github.com/vazexqi/CodingSpectator/issues/303)).
+- Decided not to conduct the awareness survey online (issue [#315](https://github.com/vazexqi/CodingSpectator/issues/315)).
+- Marked parts of the captured code snippets that the participants had selected to invoke refactorings (issue [#317](https://github.com/vazexqi/CodingSpectator/issues/317)).
+- Fixed a bug in the `logstocsv` program that truncated the `comments` attribute of refactorings (issue [#320](https://github.com/vazexqi/CodingSpectator/issues/320)).
+- Wrote a script to combine the CSV reports of the size and configuration time of refactorings (issue [#322](https://github.com/vazexqi/CodingSpectator/issues/322)).
+- Changed the maximum length of the first line of commit messages to 72 characters (issue [#325](https://github.com/vazexqi/CodingSpectator/issues/325)).
+- Captured invocations of the Infer Generic Type Arguments refactoring (issue [#272](https://github.com/vazexqi/CodingSpectator/issues/272)).
+- Buffered the CodingSpectator data outside the watched folder and copied it over before submissions (issue [#287](https://github.com/vazexqi/CodingSpectator/issues/287)).
+- Moved two SVN operations from Submitter#authenticateAndInitialize to Submitter#submit (issue [#308](https://github.com/vazexqi/CodingSpectator/issues/308)).
+- Made the submitter upload data even when the watched folder is outdated or has conflicts (issues [#257](https://github.com/vazexqi/CodingSpectator/issues/257), [#309](https://github.com/vazexqi/CodingSpectator/issues/309), and [#311](https://github.com/vazexqi/CodingSpectator/issues/311)).
+- Used an instance of Eclipse without CodingSpectator to resolve the issue with old `SubmitterListener`s (issue [#326](https://github.com/vazexqi/CodingSpectator/issues/326)).
+- Increased the versions of two JDT bundles to make CodingSpectator compatible with Eclipse Indigo SR1 (issues [#327](https://github.com/vazexqi/CodingSpectator/issues/327), [#328](https://github.com/vazexqi/CodingSpectator/issues/328)).
+- Implemented usage time analyzer (issue [#321](https://github.com/vazexqi/CodingSpectator/issues/321)) and refactoring effects analyzer.
+- Improved the replay speed of CodingTracker, also added the 'jump to' action (issue [#314](https://github.com/vazexqi/CodingSpectator/issues/314)).
+- Added postprocessor to fix the negative refactoring timestamps and updated all the broken sequences (issue [#301](https://github.com/vazexqi/CodingSpectator/issues/301)).
+- Implemented an automated converter from the old to the new API of refactoring operations and updated all the old sequences correspondingly in order to simplify the supported API (issue [#300](https://github.com/vazexqi/CodingSpectator/issues/300)).
+- Implemented a postprocessor that fixes spurious SVN commit operations (issue [#241](https://github.com/vazexqi/CodingSpectator/issues/241)).
+- Sped up registering of CodingTracker's listeners (issue [#324](https://github.com/vazexqi/CodingSpectator/issues/324)).
+- Updated older CodingTracker sequences to the new data format and committed them to the internal repository (issue [#244](https://github.com/vazexqi/CodingSpectator/issues/244)).
+- Investigated `NoSuchMethodError` thrown from `org.eclipse.compare.core` and established that it is not caused by CodingTracker (issue [#253](https://github.com/vazexqi/CodingSpectator/issues/253)).
+- Implemented support for conflict editors opened via 'Compare With' menu (issue [#286](https://github.com/vazexqi/CodingSpectator/issues/286)).
+- Manually fixed and committed to the local repository a sequence containing conflict markers (issue [#291](https://github.com/vazexqi/CodingSpectator/issues/291)).
+- Explained to @reprogrammer what is `FinishedRefactoringOperation.success` (issue [#297](https://github.com/vazexqi/CodingSpectator/issues/297)).
+- Extended the functionality of the 'Find' replay action to look for an operation with the closest timestamp if a precise match cannot be found (issue [#313](https://github.com/vazexqi/CodingSpectator/issues/313)).
+
 v1.0.0.201107172332 (Helios) and v1.0.0.201107172337 (Indigo)
 =============================================================
 - Logged the encapsulate field refactoring (issues [#270](https://github.com/vazexqi/CodingSpectator/issues/270), [#275](https://github.com/vazexqi/CodingSpectator/issues/275), [#277](https://github.com/vazexqi/CodingSpectator/issues/277)).
