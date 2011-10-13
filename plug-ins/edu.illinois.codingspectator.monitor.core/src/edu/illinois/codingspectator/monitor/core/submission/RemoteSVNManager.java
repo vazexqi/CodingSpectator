@@ -12,6 +12,7 @@ import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
 import edu.illinois.codingspectator.monitor.core.Activator;
@@ -66,7 +67,11 @@ public class RemoteSVNManager extends AbstractSVNManager {
 	}
 
 	public long getRevisionNumber() throws SVNException {
-		return cm.getWCClient().doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD).getRevision().getNumber();
+		return doInfo().getRevision().getNumber();
+	}
+
+	private SVNInfo doInfo() throws SVNException {
+		return cm.getWCClient().doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
 	}
 
 	public void doDelete(String commitMessage) throws SVNException {
@@ -76,6 +81,15 @@ public class RemoteSVNManager extends AbstractSVNManager {
 	public boolean isWatchedFolderInRepository() {
 		try {
 			getRevisionNumber();
+		} catch (SVNException e) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean isAuthenticationInformationValid() {
+		try {
+			doInfo();
 		} catch (SVNException e) {
 			return false;
 		}

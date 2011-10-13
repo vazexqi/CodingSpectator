@@ -10,6 +10,7 @@ import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.modifyF
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.submitter;
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.urlManager;
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.workingCopyClient;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
@@ -27,8 +28,7 @@ import org.tmatesoft.svn.core.wc.SVNInfo;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
-import edu.illinois.codingspectator.monitor.ui.submission.Submitter.CanceledDialogException;
-import edu.illinois.codingspectator.monitor.ui.submission.Submitter.FailedAuthenticationException;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.AuthenticanResult;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.InitializationException;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionException;
 
@@ -60,9 +60,7 @@ public class TestSubmitter {
 		assertNotSame("The testing directory was not removed at the remote location.", SVNCommitInfo.NULL, deleteInfo);
 	}
 
-	private void shouldInitialize() throws InitializationException, SVNException, FailedAuthenticationException, CanceledDialogException {
-		submitter.authenticateAndInitialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
-
+	private void assertWorkingCopyExists() throws SVNException {
 		// Check that the working directory has been created locally.
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.WATCHED_FOLDER + File.separator + ".svn").exists());
 
@@ -72,8 +70,10 @@ public class TestSubmitter {
 	}
 
 	@Test
-	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, CanceledDialogException {
-		submitter.authenticateAndInitialize(); // This call is idempotent and can be called multiple times without affecting the state of the system.
+	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException {
+		AuthenticanResult authenticanResult= submitter.authenticate();
+
+		assertEquals(AuthenticanResult.OK, authenticanResult);
 
 		modifyFileInWatchedFolder();
 
@@ -85,7 +85,7 @@ public class TestSubmitter {
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 
-		shouldInitialize();
+		assertWorkingCopyExists();
 	}
 
 }

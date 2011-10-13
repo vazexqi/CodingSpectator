@@ -25,9 +25,15 @@ public class SVNManager {
 	}
 
 	public void doImportIfNecessary() throws SVNException {
-		if (localSVNManager.isWorkingDirectoryValid())
-			return;
-		remoteSVNManager.doImport();
+		if (!localSVNManager.isWorkingDirectoryValid()) {
+			remoteSVNManager.doImport();
+		}
+	}
+
+	public void doCleanupIfPossible() throws SVNException {
+		if (localSVNManager.isWorkingDirectoryValid()) {
+			localSVNManager.doCleanup();
+		}
 	}
 
 	public void doCheckout() throws SVNException {
@@ -64,6 +70,10 @@ public class SVNManager {
 
 	public boolean isWatchedFolderInRepository() {
 		return remoteSVNManager.isWatchedFolderInRepository();
+	}
+
+	public boolean isAuthenticationInformationValid() {
+		return remoteSVNManager.isAuthenticationInformationValid();
 	}
 
 }

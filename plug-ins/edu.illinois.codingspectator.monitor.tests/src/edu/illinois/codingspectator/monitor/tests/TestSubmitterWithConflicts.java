@@ -6,6 +6,7 @@ package edu.illinois.codingspectator.monitor.tests;
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.initializeSubmitter;
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.modifyFileInWatchedFolder;
 import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.submitter;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
@@ -15,8 +16,7 @@ import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.codingspectator.efs.EFSFile;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
-import edu.illinois.codingspectator.monitor.ui.submission.Submitter.CanceledDialogException;
-import edu.illinois.codingspectator.monitor.ui.submission.Submitter.FailedAuthenticationException;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter.AuthenticanResult;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.InitializationException;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionException;
 
@@ -28,7 +28,7 @@ public class TestSubmitterWithConflicts {
 	}
 
 	@Test
-	public void shouldSubmitOutdatedWorkingCopy() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, CanceledDialogException {
+	public void shouldSubmitOutdatedWorkingCopy() throws SubmissionException, InitializationException, SVNException, CoreException {
 		modifyLog();
 		submit();
 
@@ -41,7 +41,7 @@ public class TestSubmitterWithConflicts {
 	}
 
 	@Test
-	public void shouldSubmitConflictedWorkingCopy() throws SubmissionException, InitializationException, SVNException, CoreException, FailedAuthenticationException, CanceledDialogException {
+	public void shouldSubmitConflictedWorkingCopy() throws SubmissionException, InitializationException, SVNException, CoreException {
 		modifyLog();
 		submit();
 
@@ -54,14 +54,15 @@ public class TestSubmitterWithConflicts {
 		assertTrue(SubmitterHelper.getFileRevisionNumber() > initialRevisionNumber);
 	}
 
-	private void modifyLog() throws CoreException, InitializationException, FailedAuthenticationException, CanceledDialogException, SubmissionException {
+	private void modifyLog() throws CoreException {
 		cleanWatchedFolder();
 		makeWatchedFolderOutdated();
 		modifyFileInWatchedFolder();
 	}
 
-	private void submit() throws InitializationException, FailedAuthenticationException, CanceledDialogException, SubmissionException {
-		submitter.authenticateAndInitialize();
+	private void submit() throws InitializationException, SubmissionException {
+		AuthenticanResult authenticanResult= submitter.authenticate();
+		assertEquals(AuthenticanResult.OK, authenticanResult);
 		submitter.submit();
 	}
 

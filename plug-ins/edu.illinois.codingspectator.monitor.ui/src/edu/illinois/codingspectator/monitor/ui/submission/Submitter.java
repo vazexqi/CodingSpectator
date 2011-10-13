@@ -14,12 +14,10 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
-import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 import edu.illinois.codingspectator.monitor.core.submission.URLManager;
@@ -34,6 +32,7 @@ import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
  * 
  * @author Mohsen Vakilian
  * @author nchen
+ * @author Stas Negara
  * 
  */
 public class Submitter {
@@ -54,18 +53,25 @@ public class Submitter {
 		this.authenticationProvider= provider;
 	}
 
-	public void authenticateAndInitialize() throws InitializationException,
-			FailedAuthenticationException, CanceledDialogException {
+	public enum AuthenticanResult {
+		CANCELED_AUTHENTICATION, WRONG_AUTHENTICATION, OK
+	}
+
+	public AuthenticanResult authenticate() throws InitializationException {
+		AuthenticationProvider prompter= getAuthenticationPrompterLazily();
+		AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
+
+		if (isCanceled(authenticationInfo)) {
+			return AuthenticanResult.CANCELED_AUTHENTICATION;
+		}
+
+		URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade.getInstance().getAndSetUUIDLazily());
+		svnManager= new SVNManager(urlManager, WATCHED_FOLDER, authenticationInfo.getUserName(), authenticationInfo.getPassword());
+		if (!svnManager.isAuthenticationInformationValid()) {
+			return AuthenticanResult.WRONG_AUTHENTICATION;
+		}
+
 		try {
-			AuthenticationProvider prompter= getAuthenticationPrompterLazily();
-			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
-
-			if (isCanceled(authenticationInfo))
-				throw new CanceledDialogException();
-
-			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
-					.getInstance().getAndSetUUIDLazily());
-			svnManager= new SVNManager(urlManager, WATCHED_FOLDER, authenticationInfo.getUserName(), authenticationInfo.getPassword());
 			prompter.saveAuthenticationInfo(authenticationInfo);
 		} catch (StorageException e) {
 			throw new InitializationException(e);
@@ -73,6 +79,7 @@ public class Submitter {
 			throw new InitializationException(e);
 		}
 
+		return AuthenticanResult.OK;
 	}
 
 	private boolean isCanceled(AuthenticationInfo authenticationInfo) {
@@ -122,6 +129,7 @@ public class Submitter {
 
 	private void doSVNSubmit() throws SVNException {
 		svnManager.doImportIfNecessary();
+		svnManager.doCleanupIfPossible();
 		svnManager.doCheckout();
 		svnManager.doAdd();
 		notifyPreCommit();
@@ -223,39 +231,15 @@ public class Submitter {
 	 * @return true if it can obtain a valid credential or false if the user has forcibly canceled
 	 * @throws InitializationException
 	 */
-	public boolean promptUntilValidCredentialsOrCanceled()
-			throws InitializationException {
-		while (true) {
-			try {
-				authenticateAndInitialize();
-			} catch (FailedAuthenticationException authEx) {
-				try {
-					getAuthenticationPrompterLazily().clearSecureStorage();
-				} catch (IOException ioEx) {
-					throw new InitializationException(ioEx);
-				}
-				continue;
-			} catch (CanceledDialogException e) {
+	public boolean promptUntilValidCredentialsOrCanceled() throws InitializationException {
+		AuthenticanResult authenticanResult;
+		do {
+			authenticanResult= authenticate();
+			if (authenticanResult == AuthenticanResult.CANCELED_AUTHENTICATION) {
 				return false;
-			} catch (InitializationException initException) {
-				if (initException.isLockedDirectoryError()) {
-					tryCleanup();
-				} else {
-					throw initException;
-				}
 			}
-			break;
-		}
+		} while (authenticanResult != AuthenticanResult.OK);
 		return true;
-	}
-
-	protected void tryCleanup() throws InitializationException {
-		try {
-			LocalSVNManager svnManager= new LocalSVNManager(WATCHED_FOLDER);
-			svnManager.doCleanup();
-		} catch (SVNException e) {
-			throw new InitializationException(e);
-		}
 	}
 
 	@SuppressWarnings("serial")
@@ -271,34 +255,7 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class FailedAuthenticationException extends
-			SubmitterException {
-
-		public FailedAuthenticationException() {
-			super();
-		}
-
-		public FailedAuthenticationException(Throwable e) {
-			super(e);
-		}
-	}
-
-	@SuppressWarnings("serial")
-	public static class CanceledDialogException extends SubmitterException {
-
-		public CanceledDialogException() {
-			super();
-		}
-
-		public CanceledDialogException(Throwable e) {
-			super(e);
-		}
-	}
-
-	@SuppressWarnings("serial")
 	public static class InitializationException extends SubmitterException {
-
-		private SVNErrorCode errorCode;
 
 		public InitializationException(Throwable e) {
 			super(e);
@@ -306,16 +263,8 @@ public class Submitter {
 
 		public InitializationException(SVNException e) {
 			super(e);
-			errorCode= e.getErrorMessage().getErrorCode();
 		}
 
-		public boolean isLockedDirectoryError() {
-			if (errorCode != null) {
-				return errorCode.equals(SVNErrorCode.WC_LOCKED);
-			} else {
-				return false;
-			}
-		}
 	}
 
 	@SuppressWarnings("serial")
