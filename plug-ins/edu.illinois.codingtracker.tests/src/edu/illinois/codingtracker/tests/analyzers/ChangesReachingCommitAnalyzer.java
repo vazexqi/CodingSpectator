@@ -32,6 +32,7 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 
 	private String currentASTFilePath;
 
+	private int overallTotalChangesCount, overallCommittedChangesCount;
 
 	@Override
 	protected String getTableHeader() {
@@ -69,6 +70,8 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 			//TODO: Discard operations of adding and then deleting a node that happen inside a refactoring, since these are
 			//signs of spurious operations.
 		}
+		System.out.println("Total changes count: " + overallTotalChangesCount);
+		System.out.println("Committed changes count: " + overallCommittedChangesCount);
 	}
 
 	private void handleASTOperation(ASTOperation astOperation) {
@@ -87,6 +90,8 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 		int committedChangesCount= fileTouchedIDs.size();
 		int shadowedChangesCount= committedFileShadowedIDCounter == null ? 0 : committedFileShadowedIDCounter;
 		int totalChangesCount= committedChangesCount + shadowedChangesCount;
+		overallTotalChangesCount+= totalChangesCount;
+		overallCommittedChangesCount+= committedChangesCount;
 		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, committedFileOperation.getTime(), totalChangesCount, committedChangesCount);
 		//Reset the statistics for the committed file.
 		fileTouchedIDs.clear();
@@ -110,6 +115,8 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 		touchedIDs.clear();
 		shadowedIDCounters.clear();
 		currentASTFilePath= null;
+		overallTotalChangesCount= 0;
+		overallCommittedChangesCount= 0;
 	}
 
 	private Set<Long> getFileTouchedIDs(String filePath) {
