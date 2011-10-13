@@ -107,20 +107,18 @@ public class ASTOperationInferencer {
 
 	//TODO: Consider that the old AST could be problematic as well.
 	public boolean isProblematicInference() {
+		//Note that covering nodes sometimes could be outliers (i.e. not affected), e.g. when text is added at the last offset
+		//in a file. Therefore, covering nodes correctness should be checked separately.
 		ASTNode newCoveringNode= affectedNodesFinder.getNewCoveringNode();
 		if (ASTHelper.isRecoveredOrMalformed(newCoveringNode) || ASTHelper.isRecoveredOrMalformed(newCommonCoveringNode)) {
 			return true;
 		}
-//		MethodDeclaration coveringMethodDeclaration= ASTHelper.getContainingMethod(newCoveringNode);
-//		if (coveringMethodDeclaration != null && ASTHelper.isRecoveredOrMalformed(coveringMethodDeclaration)) {
-//			return true;
-//		}
 		return hasProblematicAffectedNodes();
 	}
 
 	private boolean hasProblematicAffectedNodes() {
 		Set<ASTNode> oldChildren= ASTHelper.getAllChildren(oldCommonCoveringNode);
-		for (ASTNode newChildNode : ASTHelper.getAllChildren(affectedNodesFinder.getNewCoveringNode())) {
+		for (ASTNode newChildNode : ASTHelper.getAllChildren(newCommonCoveringNode)) {
 			if (ASTHelper.isRecoveredOrMalformed(newChildNode)) {
 				Integer outlierDelta= affectedNodesFinder.getOutlierDelta(newChildNode, false);
 				if (outlierDelta == null) {
