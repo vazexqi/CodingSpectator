@@ -8,6 +8,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingtracker.operations.files.EditedUnsychronizedFileOperation;
+import edu.illinois.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.NewFileOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
@@ -31,7 +32,8 @@ public class TextRecorder {
 			if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof TextChangeOperation) &&
 					!(userOperation instanceof EditedFileOperation) && !(userOperation instanceof EditedUnsychronizedFileOperation) &&
 					!(userOperation instanceof NewFileOperation)) {
-				astRecorder.flushCurrentTextChanges(true);
+				//Saving a file does not force flushing since the corresponding AST might be broken.
+				astRecorder.flushCurrentTextChanges(!(userOperation instanceof SavedFileOperation));
 			}
 		}
 		safeRecorder.record(userOperation.generateSerializationText());

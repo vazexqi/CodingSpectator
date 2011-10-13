@@ -10,6 +10,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
+import edu.illinois.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 
@@ -30,7 +31,9 @@ public class ASTInferenceTextRecorder {
 	public static void record(UserOperation userOperation) {
 		//Before any user operation, except text change operations, flush the accumulated AST changes.
 		if (!(userOperation instanceof TextChangeOperation)) {
-			astRecorder.flushCurrentTextChanges(true);
+			//TODO: Some part of the below code are duplicated in TextRecorder.
+			//Saving a file does not force flushing since the corresponding AST might be broken.
+			astRecorder.flushCurrentTextChanges(!(userOperation instanceof SavedFileOperation));
 		}
 		lastTimestamp= userOperation.getTime();
 		performRecording(userOperation);
