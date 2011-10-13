@@ -4,9 +4,12 @@
 package edu.illinois.codingtracker.tests.analyzers;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
@@ -23,7 +26,7 @@ public class MethodChangesAnalyzer extends CSVProducingAnalyzer {
 
 	private final Map<Long, Integer> changesCounter= new HashMap<Long, Integer>();
 
-	private final Map<Long, String> methodInfo= new HashMap<Long, String>();
+	private final Map<String, Set<Long>> sortedMethodNames= new TreeMap<String, Set<Long>>();
 
 
 	@Override
@@ -60,29 +63,36 @@ public class MethodChangesAnalyzer extends CSVProducingAnalyzer {
 	private void handleASTOperation(ASTOperation astOperation) {
 		long methodID= astOperation.getMethodID();
 		if (methodID != -1) { //Check if there is a containing method.
-			if (!methodInfo.containsKey(methodID)) {
-				methodInfo.put(methodID, astOperation.getMethodName());
-				changesCounter.put(methodID, 1);
-			} else {
-				Integer currentChangesCount= changesCounter.get(methodID);
-				int newChangesCount= currentChangesCount + 1;
-				changesCounter.put(methodID, newChangesCount);
-			}
+			addMethodName(astOperation.getMethodName(), methodID);
+			Integer currentChangesCount= changesCounter.get(methodID);
+			int newChangesCount= currentChangesCount == null ? 1 : currentChangesCount + 1;
+			changesCounter.put(methodID, newChangesCount);
 		}
 	}
 
+	private void addMethodName(String methodName, long methodID) {
+		Set<Long> methodIDs= sortedMethodNames.get(methodName);
+		if (methodIDs == null) {
+			methodIDs= new HashSet<Long>();
+			sortedMethodNames.put(methodName, methodIDs);
+		}
+		methodIDs.add(methodID);
+	}
+
 	private void populateResults() {
-		for (Entry<Long, Integer> mapEntry : changesCounter.entrySet()) {
-			Long methodID= mapEntry.getKey();
-			Integer changesCount= mapEntry.getValue();
-			appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, methodID, methodInfo.get(methodID), changesCount);
+		for (Entry<String, Set<Long>> mapEntry : sortedMethodNames.entrySet()) {
+			String methodName= mapEntry.getKey();
+			for (long methodID : mapEntry.getValue()) {
+				Integer changesCount= changesCounter.get(methodID);
+				appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, methodID, methodName, changesCount);
+			}
 		}
 	}
 
 	private void initialize() {
 		result= new StringBuffer();
 		changesCounter.clear();
-		methodInfo.clear();
+		sortedMethodNames.clear();
 	}
 
 	@Override
