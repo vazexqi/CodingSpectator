@@ -1,3 +1,9 @@
+v1.0.0.201110132006 (Helios) and v1.0.0.201110132018 (Indigo)
+=============================================================
+- Prevented the installation of CodingSpectator on Eclipse Indigo SR1 (issues [#327](https://github.com/vazexqi/CodingSpectator/issues/327), [#328](https://github.com/vazexqi/CodingSpectator/issues/328), and [#330](https://github.com/vazexqi/CodingSpectator/issues/330)).
+- Made the authentication process prompt again if the user enters an incorrect piece of information the first time (issue [#308](https://github.com/vazexqi/CodingSpectator/issues/308), [#329](https://github.com/vazexqi/CodingSpectator/issues/329)).
+- Added the URL to the consent form to the login dialog (issue [#332](https://github.com/vazexqi/CodingSpectator/issues/332)).
+
 v1.0.0.201110111329 (Helios) and v1.0.0.201110111338 (Indigo)
 =============================================================
 - Improve the reliability and performance of SWTBot tests by using wait instead of sleep commands (issue [#226](https://github.com/vazexqi/CodingSpectator/issues/226)).
