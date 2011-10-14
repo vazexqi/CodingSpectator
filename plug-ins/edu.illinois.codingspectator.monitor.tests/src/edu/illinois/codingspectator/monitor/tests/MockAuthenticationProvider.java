@@ -29,8 +29,9 @@ public class MockAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
+		AuthenticationInfo nextAuthenticationInfo= authenticationInfos[numberOfTimesQueried % authenticationInfos.length];
 		++numberOfTimesQueried;
-		return authenticationInfos[numberOfTimesQueried - 1];
+		return nextAuthenticationInfo;
 	}
 
 	public int getNumberOfTimesQueried() {
