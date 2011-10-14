@@ -61,9 +61,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 				Shell shell= getDefaultParentShell();
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
 				String username= new LocalSVNManager(Submitter.WATCHED_FOLDER).getSVNWorkingCopyUsername();
-				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
-
-				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());
+				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, dialogState.getDialogDescription(), username, dialogState.getDialogType());
 				return dialog;
 			}
 

@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingspectator.monitor.ui;
 
+import java.text.MessageFormat;
+
 import org.eclipse.swt.SWT;
 
 /**
@@ -33,10 +35,10 @@ public class DialogState {
 	public String getDialogDescription() {
 		switch (dialogType) {
 			case FIRST_PROMPT_FOR_AUTHENTICATION_INFO:
-				return Messages.AuthenticationPrompter_DialogDescription;
+				return MessageFormat.format(Messages.AuthenticationPrompter_DialogDescription, Messages.PluginName, Messages.PluginName);
 
 			default:
-				return Messages.AuthenticationPrompter_DialogDescriptionForReenteringAuthenticationInfo;
+				return MessageFormat.format(Messages.AuthenticationPrompter_DialogDescriptionForReenteringAuthenticationInfo, Messages.PluginName);
 		}
 	}
 
