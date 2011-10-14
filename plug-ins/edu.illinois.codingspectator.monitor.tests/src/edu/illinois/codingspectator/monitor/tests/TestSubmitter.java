@@ -81,7 +81,7 @@ public class TestSubmitter {
 		submitter.submit();
 
 		// Check that the file has been created remotely.
-		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalRepositoryURL(), FILENAME));
+		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalWorkspaceURL(), FILENAME));
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 

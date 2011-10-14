@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
@@ -44,7 +45,7 @@ public class SubmitterHelper {
 	static SVNManager svnManager;
 
 	static void initializeSubmitter() {
-		submitter= new Submitter(new MockAuthenticationProvider(USERNAME, PASSWORD));
+		submitter= new Submitter(new MockAuthenticationProvider(getAuthenticationInfo()));
 		urlManager= new URLManager(Messages.MockAuthenticationProvider_TestRepositoryURL, USERNAME, UUID);
 		svnManager= new SVNManager(urlManager, Submitter.WATCHED_FOLDER, USERNAME, PASSWORD);
 		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);
@@ -66,9 +67,13 @@ public class SubmitterHelper {
 	}
 
 	static long getFileRevisionNumber() throws SVNException {
-		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalRepositoryURL(), FILENAME));
+		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalWorkspaceURL(), FILENAME));
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		return info.getRevision().getNumber();
+	}
+
+	static AuthenticationInfo getAuthenticationInfo() {
+		return new AuthenticationInfo(USERNAME, PASSWORD, false);
 	}
 
 }

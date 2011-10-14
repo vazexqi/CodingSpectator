@@ -33,12 +33,20 @@ public class URLManager {
 		return SVNURL.parseURIEncoded(url);
 	}
 
-	public SVNURL getPersonalWorkspaceSVNURL() throws SVNException {
-		return getSVNURL(getPersonalRepositoryURL());
+	public SVNURL getPersonalSVNURL() throws SVNException {
+		return getSVNURL(getPersonalURL());
 	}
 
-	public String getPersonalRepositoryURL() {
-		return joinByURLSeparator(repositoryBaseURL, username, UUID);
+	private String getPersonalURL() {
+		return joinByURLSeparator(repositoryBaseURL, username);
+	}
+
+	public SVNURL getPersonalWorkspaceSVNURL() throws SVNException {
+		return getSVNURL(getPersonalWorkspaceURL());
+	}
+
+	public String getPersonalWorkspaceURL() {
+		return joinByURLSeparator(getPersonalURL(), UUID);
 	}
 
 	public String joinByURLSeparator(final String... strings) {

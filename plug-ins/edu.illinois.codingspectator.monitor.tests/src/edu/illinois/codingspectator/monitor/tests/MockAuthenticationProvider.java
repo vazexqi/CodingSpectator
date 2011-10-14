@@ -10,24 +10,31 @@ import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
 
 /**
+ * 
+ * This authentication provider provides a wrong authentication information the first time it is
+ * asked for and provides the correct authentication information the second time.
+ * 
  * @author Mohsen Vakilian
- * @author nchen
  * 
  */
 public class MockAuthenticationProvider implements AuthenticationProvider {
 
-	private final String username;
+	private int numberOfTimesQueried= 0;
 
-	private final String password;
+	private final AuthenticationInfo[] authenticationInfos;
 
-	public MockAuthenticationProvider(String username, String password) {
-		this.username= username;
-		this.password= password;
+	public MockAuthenticationProvider(AuthenticationInfo... authenticationInfos) {
+		this.authenticationInfos= authenticationInfos;
 	}
 
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
-		return new AuthenticationInfo(username, password, false); //$NON-NLS-1$ //$NON-NLS-2$
+		++numberOfTimesQueried;
+		return authenticationInfos[numberOfTimesQueried - 1];
+	}
+
+	public int getNumberOfTimesQueried() {
+		return numberOfTimesQueried;
 	}
 
 	@Override

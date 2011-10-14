@@ -45,6 +45,8 @@ public class Submitter {
 
 	private Collection<SubmitterListener> submitterListeners= new ArrayList<SubmitterListener>();
 
+	private String uuid;
+
 	public Submitter() {
 
 	}
@@ -57,6 +59,10 @@ public class Submitter {
 		CANCELED_AUTHENTICATION, WRONG_AUTHENTICATION, OK
 	}
 
+	public String getUUID() {
+		return uuid;
+	}
+
 	public AuthenticanResult authenticate() throws InitializationException {
 		AuthenticationProvider prompter= getAuthenticationPrompterLazily();
 		AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
@@ -65,7 +71,8 @@ public class Submitter {
 			return AuthenticanResult.CANCELED_AUTHENTICATION;
 		}
 
-		URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade.getInstance().getAndSetUUIDLazily());
+		uuid= PrefsFacade.getInstance().getAndSetUUIDLazily();
+		URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), uuid);
 		svnManager= new SVNManager(urlManager, WATCHED_FOLDER, authenticationInfo.getUserName(), authenticationInfo.getPassword());
 		if (!svnManager.isAuthenticationInformationValid()) {
 			return AuthenticanResult.WRONG_AUTHENTICATION;

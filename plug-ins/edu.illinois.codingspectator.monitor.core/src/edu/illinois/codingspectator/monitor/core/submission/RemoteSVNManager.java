@@ -67,11 +67,11 @@ public class RemoteSVNManager extends AbstractSVNManager {
 	}
 
 	public long getRevisionNumber() throws SVNException {
-		return doInfo().getRevision().getNumber();
+		return doInfo(urlManager.getPersonalWorkspaceSVNURL()).getRevision().getNumber();
 	}
 
-	private SVNInfo doInfo() throws SVNException {
-		return cm.getWCClient().doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
+	private SVNInfo doInfo(SVNURL svnURL) throws SVNException {
+		return cm.getWCClient().doInfo(svnURL, SVNRevision.HEAD, SVNRevision.HEAD);
 	}
 
 	public void doDelete(String commitMessage) throws SVNException {
@@ -89,7 +89,7 @@ public class RemoteSVNManager extends AbstractSVNManager {
 
 	public boolean isAuthenticationInformationValid() {
 		try {
-			doInfo();
+			doInfo(urlManager.getPersonalSVNURL());
 		} catch (SVNException e) {
 			return false;
 		}
