@@ -141,10 +141,13 @@ public class ASTNodesIdentifier {
 		return persistentNodeID;
 	}
 
-	public static void removePersistentNodeID(String filePath, ASTNode node) {
+	public static long removePersistentNodeID(String filePath, ASTNode node) {
 		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
-		identifiedNodes.remove(getPersistentNodeID(filePersistentNodeIDs, node));
+		long persistentNodeID= getPersistentNodeID(filePersistentNodeIDs, node);
+		identifiedNodes.remove(persistentNodeID);
+		//Remove the persistent node ID entry after getting the persistentNodeID.
 		filePersistentNodeIDs.remove(getPositionalNodeID(node));
+		return persistentNodeID;
 	}
 
 	private static Map<String, Long> getFilePersistentNodeIDs(String filePath) {
@@ -163,10 +166,9 @@ public class ASTNodesIdentifier {
 		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
 			ASTNode oldNode= mapEntry.getKey();
 			ASTNode newNode= mapEntry.getValue();
-			long persistentNodeID= getPersistentNodeID(filePersistentNodeIDs, oldNode);
-			//Do NOT call removePersistentNodeID since we do not want to modify identifiedNodes.
-			filePersistentNodeIDs.remove(getPositionalNodeID(oldNode));
+			long persistentNodeID= removePersistentNodeID(filePath, oldNode);
 			newPersistentNodeIDs.put(getPositionalNodeID(newNode), persistentNodeID);
+			identifiedNodes.put(persistentNodeID, newNode);
 		}
 		filePersistentNodeIDs.putAll(newPersistentNodeIDs);
 	}
