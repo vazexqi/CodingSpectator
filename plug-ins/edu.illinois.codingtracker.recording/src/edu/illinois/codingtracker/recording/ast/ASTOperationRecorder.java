@@ -162,15 +162,21 @@ public class ASTOperationRecorder {
 	}
 
 	private void enterInProblemMode() {
-		ensureBatchContainsExactlyOneElement();
+		if (batchTextChanges.size() != 1) {
+			throw new RuntimeException("Entering in the problem mode with a wrong batch size: " + batchTextChanges.size());
+		}
 		isInProblemMode= true;
 		//The only batch text change becomes the first problematic text change.
 		problematicTextChanges.add(batchTextChanges.get(0));
 	}
 
 	private void flushProblematicTextChanges(boolean isForced) {
-		ensureBatchContainsExactlyOneElement();
-		problematicTextChanges.add(batchTextChanges.get(0));
+		if (batchTextChanges.size() > 1) {
+			throw new RuntimeException("Flushing problematic changes with a wrong batch size: " + batchTextChanges.size());
+		}
+		if (batchTextChanges.size() == 1) {
+			problematicTextChanges.add(batchTextChanges.get(0));
+		}
 		ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(problematicTextChanges);
 
 		//Perform AST inference when forced or AST inference is no longer problematic.
@@ -178,12 +184,6 @@ public class ASTOperationRecorder {
 			inferAndRecordASTOperations(astOperationInferencer);
 			problematicTextChanges.clear();
 			isInProblemMode= false;
-		}
-	}
-
-	private void ensureBatchContainsExactlyOneElement() {
-		if (batchTextChanges.size() != 1) {
-			throw new RuntimeException("Problem mode with a wrong batch size: " + batchTextChanges.size());
 		}
 	}
 
