@@ -19,4 +19,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: University of Ilinois
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingtracker.recording,
- edu.illinois.codingtracker.recording.ast
+ edu.illinois.codingtracker.recording.ast,
+ edu.illinois.codingtracker.recording.ast.helpers,
+ edu.illinois.codingtracker.recording.ast.identification

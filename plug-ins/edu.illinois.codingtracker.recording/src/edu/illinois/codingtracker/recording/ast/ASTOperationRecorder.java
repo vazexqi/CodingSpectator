@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.recording.ast;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,12 @@ import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
+import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
+import edu.illinois.codingtracker.recording.ast.helpers.CyclomaticComplexityCalculator;
+import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
+import edu.illinois.codingtracker.recording.ast.identification.IdentifiedNodeInfo;
+import edu.illinois.codingtracker.recording.ast.inferencing.ASTOperationInferencer;
+import edu.illinois.codingtracker.recording.ast.inferencing.CoherentTextChange;
 
 /**
  * 
@@ -52,8 +59,6 @@ public class ASTOperationRecorder {
 	private int currentIndexToGlueWith= 0;
 
 	private int correlatedBatchSize= -1;
-
-	private final CyclomaticComplexityCalculator cyclomaticComplexityCalculator= new CyclomaticComplexityCalculator();
 
 	private boolean isInProblemMode= false;
 
@@ -195,12 +200,12 @@ public class ASTOperationRecorder {
 	private void inferAndRecordASTOperations(ASTOperationInferencer astOperationInferencer) {
 		astOperationInferencer.inferASTOperations();
 
-		cyclomaticComplexityCalculator.resetCache();
+		CyclomaticComplexityCalculator.resetCache();
 		recordChangeASTOperations(currentEditedFilePath, astOperationInferencer.getChangedNodes());
 		recordDeleteASTOperations(currentEditedFilePath, astOperationInferencer.getDeletedNodes());
 
 		//Update the persistent IDs after delete, but before add. Also, do it as an atomic operation.
-		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, astOperationInferencer.getMatchedNodes());
+		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, astOperationInferencer.getMatchedNodes(), astOperationInferencer.getNewCommonCoveringNode());
 
 		recordAddASTOperations(currentEditedFilePath, astOperationInferencer.getAddedNodes());
 	}
@@ -222,13 +227,22 @@ public class ASTOperationRecorder {
 	}
 
 	private void recordDeleteASTOperations(String filePath, Set<ASTNode> deletedNodes) {
+		Set<IdentifiedNodeInfo> deletedNodeInfos= new HashSet<IdentifiedNodeInfo>();
 		for (ASTNode deletedNode : deletedNodes) {
-			recordASTOperation(filePath, OperationKind.DELETE, deletedNode, "");
+			deletedNodeInfos.add(new IdentifiedNodeInfo(filePath, deletedNode));
+		}
+		recordDeleteASTOperations(filePath, deletedNodeInfos, true);
+	}
+
+	private void recordDeleteASTOperations(String filePath, Set<IdentifiedNodeInfo> deletedNodeInfos, boolean shouldGetOriginalContainingMethods) {
+		for (IdentifiedNodeInfo deletedNodeInfo : deletedNodeInfos) {
+			recordASTOperation(filePath, OperationKind.DELETE, deletedNodeInfo.getIdentifiedNode(), "",
+								deletedNodeInfo.getContainingMethod(shouldGetOriginalContainingMethods));
 		}
 		//Delete nodes after recording all delete operations to avoid scenarios, in which recording a delete operation,
 		//requires a node that already was deleted (e.g. the containing method node).
-		for (ASTNode deletedNode : deletedNodes) {
-			ASTNodesIdentifier.removePersistentNodeID(filePath, deletedNode);
+		for (IdentifiedNodeInfo deletedNodeInfo : deletedNodeInfos) {
+			ASTNodesIdentifier.removePersistentNodeID(filePath, deletedNodeInfo.getIdentifiedNode());
 		}
 	}
 
@@ -239,11 +253,14 @@ public class ASTOperationRecorder {
 	}
 
 	private void recordASTOperation(String filePath, OperationKind operationKind, ASTNode affectedNode, String newText) {
+		recordASTOperation(filePath, operationKind, affectedNode, newText, ASTHelper.getContainingMethod(affectedNode));
+	}
+
+	private void recordASTOperation(String filePath, OperationKind operationKind, ASTNode affectedNode, String newText, MethodDeclaration containingMethod) {
 		String containingMethodName= "";
 		long containingMethodPersistentID= -1;
 		int containingMethodLinesCount= -1;
 		int containingMethodCyclomaticComplexity= -1;
-		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(affectedNode);
 		if (containingMethod != null) {
 			//Note that for added nodes we get lines count and cyclomatic complexity of the resulting containing method 
 			//that already contains these added nodes.
@@ -251,7 +268,7 @@ public class ASTOperationRecorder {
 			//count several statements on the same line as separate lines (i.e. AST node is normalized such that each statement
 			//appears on a separate line, which is usually the case with the actual code as well).
 			containingMethodLinesCount= (new Document(containingMethod.toString().trim())).getNumberOfLines();
-			containingMethodCyclomaticComplexity= cyclomaticComplexityCalculator.getCyclomaticComplexity(containingMethod);
+			containingMethodCyclomaticComplexity= CyclomaticComplexityCalculator.getCyclomaticComplexity(containingMethod);
 			containingMethodName= ASTHelper.getQualifiedMethodName(containingMethod);
 			containingMethodPersistentID= ASTNodesIdentifier.getPersistentNodeID(filePath, containingMethod);
 		}
@@ -265,11 +282,11 @@ public class ASTOperationRecorder {
 
 	public void recordASTOperationForDeletedResource(IResource deletedResource, boolean success) {
 		if (success) {
-			cyclomaticComplexityCalculator.resetCache();
+			CyclomaticComplexityCalculator.resetCache();
 			String deletedResourcePath= ResourceHelper.getPortableResourcePath(deletedResource);
-			Map<String, Set<ASTNode>> nodesToDelete= ASTNodesIdentifier.getASTNodesFromAllDeletedFiles(deletedResourcePath);
-			for (Entry<String, Set<ASTNode>> fileNodesToDelete : nodesToDelete.entrySet()) {
-				recordDeleteASTOperations(fileNodesToDelete.getKey(), fileNodesToDelete.getValue());
+			Map<String, Set<IdentifiedNodeInfo>> nodesToDelete= ASTNodesIdentifier.getNodeInfosFromAllDeletedFiles(deletedResourcePath);
+			for (Entry<String, Set<IdentifiedNodeInfo>> fileNodesToDelete : nodesToDelete.entrySet()) {
+				recordDeleteASTOperations(fileNodesToDelete.getKey(), fileNodesToDelete.getValue(), false);
 			}
 		}
 	}
@@ -282,7 +299,7 @@ public class ASTOperationRecorder {
 
 	public void recordASTOperationForCopiedResource(IResource copiedResource, IPath destination, boolean success) {
 		if (success) {
-			cyclomaticComplexityCalculator.resetCache();
+			CyclomaticComplexityCalculator.resetCache();
 			String copiedResourcePath= ResourceHelper.getPortableResourcePath(copiedResource);
 			String destinationPath= destination.toPortableString();
 			Set<IFile> containedJavaFiles;
@@ -300,7 +317,7 @@ public class ASTOperationRecorder {
 
 	public void recordASTOperationForCreatedResource(IResource createdResource, boolean success) {
 		if (success && createdResource instanceof IFile) {
-			cyclomaticComplexityCalculator.resetCache();
+			CyclomaticComplexityCalculator.resetCache();
 			IFile createdFile= (IFile)createdResource;
 			if (ResourceHelper.isJavaFile(createdFile)) {
 				addAllNodesFromJavaFile(ResourceHelper.getPortableResourcePath(createdFile), createdFile);

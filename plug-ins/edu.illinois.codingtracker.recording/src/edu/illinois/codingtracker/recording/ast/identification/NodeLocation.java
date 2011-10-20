@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.identification;
 
 import java.util.StringTokenizer;
 
@@ -23,19 +23,20 @@ public class NodeLocation {
 
 	private final int childIndex;
 
-	NodeLocation(ASTNode rootNode, String locationID) {
+
+	public NodeLocation(ASTNode rootNode, String locationID) {
 		parentNodeName= rootNode.getClass().getSimpleName();
 		this.locationID= locationID;
 		childIndex= -1;
 	}
 
-	NodeLocation(StructuralPropertyDescriptor locationInParent, int childIndex) {
+	public NodeLocation(StructuralPropertyDescriptor locationInParent, int childIndex) {
 		parentNodeName= locationInParent.getNodeClass().getSimpleName();
 		locationID= locationInParent.getId();
 		this.childIndex= childIndex;
 	}
 
-	NodeLocation(String locationString) {
+	public NodeLocation(String locationString) {
 		StringTokenizer locationTokenizer= new StringTokenizer(locationString, LOCATION_INTERNAL_DELIMITER);
 		parentNodeName= locationTokenizer.nextToken();
 		locationID= locationTokenizer.nextToken();
@@ -46,19 +47,19 @@ public class NodeLocation {
 		}
 	}
 
-	String getParentNodeName() {
+	public String getParentNodeName() {
 		return parentNodeName;
 	}
 
-	String getLocationID() {
+	public String getLocationID() {
 		return locationID;
 	}
 
-	int getChildIndex() {
+	public int getChildIndex() {
 		return childIndex;
 	}
 
-	String getLocationString() {
+	public String getLocationString() {
 		String childIndexString= childIndex == -1 ? "" : LOCATION_INTERNAL_DELIMITER + childIndex;
 		return parentNodeName + LOCATION_INTERNAL_DELIMITER + locationID + childIndexString;
 	}

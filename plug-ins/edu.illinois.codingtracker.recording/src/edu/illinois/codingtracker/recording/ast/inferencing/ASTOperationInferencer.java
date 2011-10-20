@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.inferencing;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +15,9 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
+
+import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
+import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
 
 
 /**
@@ -57,6 +60,10 @@ public class ASTOperationInferencer {
 	public ASTOperationInferencer(List<CoherentTextChange> coherentTextChanges) {
 		batchSize= 1;
 		initializeInferencer(coherentTextChanges);
+	}
+
+	public ASTNode getNewCommonCoveringNode() {
+		return newCommonCoveringNode;
 	}
 
 	public Map<ASTNode, ASTNode> getMatchedNodes() {

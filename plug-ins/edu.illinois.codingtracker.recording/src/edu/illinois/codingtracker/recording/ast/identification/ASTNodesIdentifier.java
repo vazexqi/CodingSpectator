@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.identification;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,9 +13,11 @@ import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 
 /**
  * 
@@ -27,7 +29,7 @@ public class ASTNodesIdentifier {
 
 	private static final Map<String, Map<String, Long>> persistentNodeIDs= new HashMap<String, Map<String, Long>>();
 
-	private static final Map<Long, ASTNode> identifiedNodes= new HashMap<Long, ASTNode>();
+	private static final Map<Long, IdentifiedNodeInfo> identifiedNodes= new HashMap<Long, IdentifiedNodeInfo>();
 
 	private static long nextFreePersistentID= 1;
 
@@ -126,26 +128,29 @@ public class ASTNodesIdentifier {
 	}
 
 	public static long getPersistentNodeID(String filePath, ASTNode node) {
-		return getPersistentNodeID(getFilePersistentNodeIDs(filePath), node);
+		return getPersistentNodeID(filePath, node, true);
 	}
 
-	private static long getPersistentNodeID(Map<String, Long> filePersistentNodeIDs, ASTNode node) {
+	private static long getPersistentNodeID(String filePath, ASTNode node, boolean shouldAddToIdentifiedNodes) {
+		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
 		String positionalNodeID= getPositionalNodeID(node);
 		Long persistentNodeID= filePersistentNodeIDs.get(positionalNodeID);
 		if (persistentNodeID == null) {
 			persistentNodeID= nextFreePersistentID;
 			filePersistentNodeIDs.put(positionalNodeID, nextFreePersistentID);
-			identifiedNodes.put(persistentNodeID, node);
 			nextFreePersistentID++;
+		}
+		if (shouldAddToIdentifiedNodes && !identifiedNodes.containsKey(persistentNodeID)) {
+			identifiedNodes.put(persistentNodeID, new IdentifiedNodeInfo(filePath, node));
 		}
 		return persistentNodeID;
 	}
 
 	public static long removePersistentNodeID(String filePath, ASTNode node) {
-		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
-		long persistentNodeID= getPersistentNodeID(filePersistentNodeIDs, node);
+		long persistentNodeID= getPersistentNodeID(filePath, node, false);
 		identifiedNodes.remove(persistentNodeID);
 		//Remove the persistent node ID entry after getting the persistentNodeID.
+		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
 		filePersistentNodeIDs.remove(getPositionalNodeID(node));
 		return persistentNodeID;
 	}
@@ -159,18 +164,30 @@ public class ASTNodesIdentifier {
 		return filePersistentNodeIDs;
 	}
 
-	public static void updatePersistentNodeIDs(String filePath, Map<ASTNode, ASTNode> matchedNodes) {
+	public static void updatePersistentNodeIDs(String filePath, Map<ASTNode, ASTNode> matchedNodes, ASTNode newCommonCoveringNode) {
 		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
-		//Collect new mappings in a separate map and update the main map only in the end to avoid paths collisions.
+		//To avoid structural IDs collisions, first collect new mappings in a separate map, then update the main map, 
+		//and finally, use the updated main map (indirectly) to update the identified nodes. 
 		Map<String, Long> newPersistentNodeIDs= new HashMap<String, Long>();
 		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
 			ASTNode oldNode= mapEntry.getKey();
 			ASTNode newNode= mapEntry.getValue();
 			long persistentNodeID= removePersistentNodeID(filePath, oldNode);
 			newPersistentNodeIDs.put(getPositionalNodeID(newNode), persistentNodeID);
-			identifiedNodes.put(persistentNodeID, newNode);
 		}
 		filePersistentNodeIDs.putAll(newPersistentNodeIDs);
+		updateIdentifiedNodes(filePath, matchedNodes, newCommonCoveringNode);
+	}
+
+	private static void updateIdentifiedNodes(String filePath, Map<ASTNode, ASTNode> matchedNodes, ASTNode newCommonCoveringNode) {
+		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
+			ASTNode newNode= mapEntry.getValue();
+			identifiedNodes.put(getPersistentNodeID(filePath, newNode), new IdentifiedNodeInfo(filePath, newNode));
+		}
+		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(newCommonCoveringNode);
+		if (containingMethod != null) {
+			identifiedNodes.put(getPersistentNodeID(filePath, containingMethod), new IdentifiedNodeInfo(filePath, containingMethod));
+		}
 	}
 
 	public static void updateFilePersistentNodeIDsMapping(String oldPrefix, String newPrefix) {
@@ -181,17 +198,22 @@ public class ASTNodesIdentifier {
 		}
 	}
 
-	public static Map<String, Set<ASTNode>> getASTNodesFromAllDeletedFiles(String deletedResourcePath) {
-		Map<String, Set<ASTNode>> collectedASTNodes= new HashMap<String, Set<ASTNode>>();
+	public static Map<String, Set<IdentifiedNodeInfo>> getNodeInfosFromAllDeletedFiles(String deletedResourcePath) {
+		Map<String, Set<IdentifiedNodeInfo>> collectedNodeInfos= new HashMap<String, Set<IdentifiedNodeInfo>>();
 		for (String filePath : getFilePathsPrefixedBy(deletedResourcePath)) {
-			Set<ASTNode> collectedFileASTNodes= new HashSet<ASTNode>();
-			collectedASTNodes.put(filePath, collectedFileASTNodes);
+			Set<IdentifiedNodeInfo> collectedFileNodeInfos= new HashSet<IdentifiedNodeInfo>();
+			collectedNodeInfos.put(filePath, collectedFileNodeInfos);
 			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.get(filePath);
 			for (long astNodeID : filePersistentNodeIDs.values()) {
-				collectedFileASTNodes.add(identifiedNodes.get(astNodeID));
+				collectedFileNodeInfos.add(identifiedNodes.get(astNodeID));
 			}
 		}
-		return collectedASTNodes;
+		return collectedNodeInfos;
+	}
+
+	public static ASTNode getIdentifiedNode(long persistentNodeID) {
+		//It is assumed that if the caller obtained persistentNodeID, the node should be already among identified nodes.
+		return identifiedNodes.get(persistentNodeID).getIdentifiedNode();
 	}
 
 	private static Set<String> getFilePathsPrefixedBy(String prefix) {

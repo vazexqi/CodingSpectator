@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.inferencing;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +10,8 @@ import java.util.Stack;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+
+import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 
 /**
  * 

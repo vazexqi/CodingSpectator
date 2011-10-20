@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.helpers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
+
 /**
  * 
  * @author Stas Negara
@@ -25,14 +26,14 @@ import org.eclipse.jdt.core.dom.WhileStatement;
  */
 public class CyclomaticComplexityCalculator {
 
-	private final Map<MethodDeclaration, Integer> cyclomaticComplexityCache= new HashMap<MethodDeclaration, Integer>();
+	private static final Map<MethodDeclaration, Integer> cyclomaticComplexityCache= new HashMap<MethodDeclaration, Integer>();
 
 
-	public void resetCache() {
+	public static void resetCache() {
 		cyclomaticComplexityCache.clear();
 	}
 
-	public int getCyclomaticComplexity(MethodDeclaration methodDeclaration) {
+	public static int getCyclomaticComplexity(MethodDeclaration methodDeclaration) {
 		Integer cyclomaticComplexity= cyclomaticComplexityCache.get(methodDeclaration);
 		if (cyclomaticComplexity == null) {
 			cyclomaticComplexity= computeCyclomaticComplexity(methodDeclaration);

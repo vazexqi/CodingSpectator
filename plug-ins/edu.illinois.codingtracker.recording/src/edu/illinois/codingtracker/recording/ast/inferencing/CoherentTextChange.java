@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.inferencing;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;

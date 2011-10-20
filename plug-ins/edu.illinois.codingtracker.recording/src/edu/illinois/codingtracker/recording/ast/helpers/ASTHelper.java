@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.recording.ast;
+package edu.illinois.codingtracker.recording.ast.helpers;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -11,12 +11,14 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+
 
 /**
  * 
@@ -156,8 +158,14 @@ public class ASTHelper {
 	}
 
 	public static Set<ASTNode> getAllChildren(ASTNode node) {
-		ChildrenNodesFinder childrenNodesFinder= new ChildrenNodesFinder(node);
-		return childrenNodesFinder.getChildrenNodes();
+		final Set<ASTNode> childrenNodes= new HashSet<ASTNode>();
+		node.accept(new ASTVisitor() {
+			@Override
+			public void preVisit(ASTNode visitedNode) {
+				childrenNodes.add(visitedNode);
+			}
+		});
+		return childrenNodes;
 	}
 
 	public static ASTNode getRootNode(String source) {
