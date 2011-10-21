@@ -11,7 +11,7 @@ import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingtracker.recording.TextRecorder;
-import edu.illinois.codingtracker.recording.ast.ASTNodesIdentifier;
+import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
 
 /**
  * 
