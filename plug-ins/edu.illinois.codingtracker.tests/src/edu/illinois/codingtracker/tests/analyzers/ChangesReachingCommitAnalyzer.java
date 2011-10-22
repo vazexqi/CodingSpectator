@@ -28,11 +28,14 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 
 	private final Map<String, Set<Long>> touchedIDs= new HashMap<String, Set<Long>>();
 
+	private final Map<String, Set<Long>> addedIDs= new HashMap<String, Set<Long>>();
+
 	private final Map<String, Integer> shadowedIDCounters= new HashMap<String, Integer>();
 
 	private String currentASTFilePath;
 
 	private int overallTotalChangesCount, overallCommittedChangesCount;
+
 
 	@Override
 	protected String getTableHeader() {
@@ -67,8 +70,6 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 			} else if (userOperation instanceof MovedResourceOperation) {
 				handleMovedResourceOperation((MovedResourceOperation)userOperation);
 			}
-			//TODO: Discard operations of adding and then deleting a node that happen inside a refactoring, since these are
-			//signs of spurious operations.
 		}
 		System.out.println("Total changes count: " + overallTotalChangesCount);
 		System.out.println("Committed changes count: " + overallCommittedChangesCount);
@@ -76,9 +77,21 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 
 	private void handleASTOperation(ASTOperation astOperation) {
 		Set<Long> fileTouchedIDs= getFileTouchedIDs(currentASTFilePath);
-		boolean isNewTouchedNode= fileTouchedIDs.add(astOperation.getNodeID());
-		if (!isNewTouchedNode) {
-			incrementCurrentFileShadowedIDCounter();
+		Set<Long> fileAddedIDs= getFileAddedIDs(currentASTFilePath);
+		long nodeID= astOperation.getNodeID();
+		boolean isNewTouchedNode= fileTouchedIDs.add(nodeID);
+		if (astOperation.isAdd()) {
+			if (!isNewTouchedNode) {
+				throw new RuntimeException("Add AST operation for an already touched ID: " + astOperation);
+			}
+			fileAddedIDs.add(nodeID);
+		} else if (!isNewTouchedNode) {
+			int increment= 1;
+			if (astOperation.isDelete() && fileAddedIDs.contains(nodeID)) {
+				fileTouchedIDs.remove(nodeID); //Node is added and deleted in the same commit, so nothing reaches commit.
+				increment= 2;
+			}
+			incrementCurrentFileShadowedIDCounter(increment);
 		}
 	}
 
@@ -86,7 +99,6 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 		String committedFilePath= committedFileOperation.getResourcePath();
 		Set<Long> fileTouchedIDs= getFileTouchedIDs(committedFilePath);
 		Integer committedFileShadowedIDCounter= shadowedIDCounters.get(committedFilePath);
-		//TODO: This is a conservative estimate that does not account for disappearing changes, e.g. adding and then deleting a node.
 		int committedChangesCount= fileTouchedIDs.size();
 		int shadowedChangesCount= committedFileShadowedIDCounter == null ? 0 : committedFileShadowedIDCounter;
 		int totalChangesCount= committedChangesCount + shadowedChangesCount;
@@ -95,6 +107,7 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, committedFileOperation.getTime(), totalChangesCount, committedChangesCount);
 		//Reset the statistics for the committed file.
 		fileTouchedIDs.clear();
+		getFileAddedIDs(committedFilePath).clear();
 		shadowedIDCounters.put(committedFilePath, 0);
 	}
 
@@ -105,6 +118,8 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 			String newFilePath= filePath.replaceFirst(oldPrefix, newPrefix);
 			Set<Long> fileTouchedIDs= touchedIDs.remove(filePath);
 			touchedIDs.put(newFilePath, fileTouchedIDs);
+			Set<Long> fileAddedIDs= addedIDs.remove(filePath);
+			addedIDs.put(newFilePath, fileAddedIDs);
 			Integer fileShadowedIDCounter= shadowedIDCounters.remove(filePath);
 			shadowedIDCounters.put(newFilePath, fileShadowedIDCounter);
 		}
@@ -113,6 +128,7 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 	private void initialize() {
 		result= new StringBuffer();
 		touchedIDs.clear();
+		addedIDs.clear();
 		shadowedIDCounters.clear();
 		currentASTFilePath= null;
 		overallTotalChangesCount= 0;
@@ -120,21 +136,29 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 	}
 
 	private Set<Long> getFileTouchedIDs(String filePath) {
-		Set<Long> fileTouchedIDs= touchedIDs.get(filePath);
-		if (fileTouchedIDs == null) {
-			fileTouchedIDs= new HashSet<Long>();
-			touchedIDs.put(filePath, fileTouchedIDs);
-		}
-		return fileTouchedIDs;
+		return getFileIDs(touchedIDs, filePath);
 	}
 
-	private void incrementCurrentFileShadowedIDCounter() {
+	private Set<Long> getFileAddedIDs(String filePath) {
+		return getFileIDs(addedIDs, filePath);
+	}
+
+	private Set<Long> getFileIDs(Map<String, Set<Long>> idMap, String filePath) {
+		Set<Long> fileIDs= idMap.get(filePath);
+		if (fileIDs == null) {
+			fileIDs= new HashSet<Long>();
+			idMap.put(filePath, fileIDs);
+		}
+		return fileIDs;
+	}
+
+	private void incrementCurrentFileShadowedIDCounter(int increment) {
 		Integer currentFileShadowedIDCounter= shadowedIDCounters.get(currentASTFilePath);
 		int newCounter;
 		if (currentFileShadowedIDCounter == null) {
-			newCounter= 1;
+			newCounter= increment;
 		} else {
-			newCounter= currentFileShadowedIDCounter + 1;
+			newCounter= currentFileShadowedIDCounter + increment;
 		}
 		shadowedIDCounters.put(currentASTFilePath, newCounter);
 	}

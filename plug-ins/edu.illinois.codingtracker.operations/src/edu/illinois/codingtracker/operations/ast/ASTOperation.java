@@ -86,6 +86,18 @@ public class ASTOperation extends UserOperation {
 		return fullMethodName;
 	}
 
+	public boolean isAdd() {
+		return operationKind == OperationKind.ADD;
+	}
+
+	public boolean isChange() {
+		return operationKind == OperationKind.CHANGE;
+	}
+
+	public boolean isDelete() {
+		return operationKind == OperationKind.DELETE;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		int kindOrdinal= operationKind.ordinal();
