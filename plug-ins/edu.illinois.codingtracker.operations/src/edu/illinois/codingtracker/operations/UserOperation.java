@@ -74,6 +74,10 @@ public abstract class UserOperation {
 		return true;
 	}
 
+	public static IEditorPart getCurrentEditor() {
+		return currentEditor;
+	}
+
 	protected abstract char getOperationSymbol();
 
 	public abstract String getDescription();

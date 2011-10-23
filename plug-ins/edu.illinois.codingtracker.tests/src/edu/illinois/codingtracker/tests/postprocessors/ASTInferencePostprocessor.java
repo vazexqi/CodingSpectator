@@ -6,7 +6,6 @@ package edu.illinois.codingtracker.tests.postprocessors;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -199,7 +198,7 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 			ASTOperationRecorder.isReplayingSnapshotDifference= true;
 			IEditorPart originalEditor= null;
 			if (shouldRestoreOriginalEditor) {
-				originalEditor= EditorHelper.getActiveEditor();
+				originalEditor= UserOperation.getCurrentEditor();
 			}
 			EditedFileOperation editedFileOperation= new EditedFileOperation(editedFile, timestamp);
 			replayAndRecord(editedFileOperation);
@@ -249,16 +248,16 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 	private void restoreOriginalEditor(IEditorPart originalEditor, long timestamp) {
 		if (originalEditor != null) {
 			IFile originalFile= null;
-			if (originalEditor instanceof CompareEditor) {
-				originalFile= EditorHelper.getEditedJavaFile((CompareEditor)originalEditor);
-			} else if (originalEditor instanceof AbstractDecoratedTextEditor) {
+			if (originalEditor instanceof AbstractDecoratedTextEditor) {
 				originalFile= EditorHelper.getEditedJavaFile((AbstractDecoratedTextEditor)originalEditor);
+			} else {
+				throw new RuntimeException("The original editor is of the wrong type: " + originalEditor);
 			}
 			if (originalFile != null) {
 				EditedFileOperation editedOriginalFileOperation= new EditedFileOperation(originalFile, timestamp);
 				replayAndRecord(editedOriginalFileOperation);
 			} else {
-				EditorHelper.activateEditor(originalEditor);
+				throw new RuntimeException("Could not retrieve the edited file from the original editor: " + originalEditor);
 			}
 		}
 	}
