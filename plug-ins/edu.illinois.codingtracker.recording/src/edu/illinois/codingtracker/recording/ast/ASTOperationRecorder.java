@@ -48,6 +48,8 @@ public class ASTOperationRecorder {
 
 	private List<CoherentTextChange> batchTextChanges= new LinkedList<CoherentTextChange>();
 
+	private List<CoherentTextChange> cachedTextChanges= new LinkedList<CoherentTextChange>();
+
 	private List<CoherentTextChange> problematicTextChanges= new LinkedList<CoherentTextChange>();
 
 	private IDocument currentDocument;
@@ -86,7 +88,7 @@ public class ASTOperationRecorder {
 		currentDocument= event.getDocument();
 		long timestamp= getTextChangeTimestamp();
 		if (batchTextChanges.isEmpty()) {
-			batchTextChanges.add(new CoherentTextChange(event, timestamp));
+			addNewCoherentTextChange(event, timestamp);
 		} else {
 			addToCurrentTextChanges(event, timestamp);
 		}
@@ -97,9 +99,9 @@ public class ASTOperationRecorder {
 		if (correlatedBatchSize == -1) { //Batch size is not established yet.
 			CoherentTextChange lastTextChange= batchTextChanges.get(batchTextChanges.size() - 1);
 			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
-			if (!isReplayingSnapshotDifference && lastTextChange.isFirstGluing() &&
+			if (!isReplayingSnapshotDifference && lastTextChange.isNeverGlued() &&
 					lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
-				batchTextChanges.add(newTextChange);
+				addNewCoherentTextChange(event, timestamp);
 				applyTextChangeToBatch(event, batchTextChanges.size() - 1);
 			} else {
 				correlatedBatchSize= batchTextChanges.size();
@@ -122,7 +124,7 @@ public class ASTOperationRecorder {
 			}
 		} else {
 			flushCurrentTextChanges(false);
-			batchTextChanges.add(new CoherentTextChange(event, timestamp));
+			addNewCoherentTextChange(event, timestamp);
 		}
 	}
 
@@ -141,6 +143,13 @@ public class ASTOperationRecorder {
 		}
 	}
 
+	private void addNewCoherentTextChange(DocumentEvent event, long timestamp) {
+		//Add two distinct CoherentTextChange objects since those that are in batchTextChanges will get updated,
+		//while we need to keep the original CoherentTextChange objects in cachedTextChanges.
+		batchTextChanges.add(new CoherentTextChange(event, timestamp));
+		cachedTextChanges.add(new CoherentTextChange(event, timestamp));
+	}
+
 	public void flushCurrentTextChanges(boolean isForced) {
 		if (isAnythingToFlush()) {
 			checkBatchedEditIsCompleted();
@@ -148,17 +157,33 @@ public class ASTOperationRecorder {
 				flushProblematicTextChanges(isForced);
 			} else {
 				CoherentTextChange firstTextChange= batchTextChanges.get(0);
-				ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.size(), firstTextChange);
-				//Perform AST inference when forced or AST inference is not problematic.
-				if (isForced || !astOperationInferencer.isProblematicInference()) {
-					inferAndRecordASTOperations(astOperationInferencer);
+				if (batchTextChanges.size() > 1 && firstTextChange.isNeverGlued()) {
+					flushBatchAsSeparateChanges(isForced);
 				} else {
-					enterInProblemMode();
+					ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.size(), firstTextChange);
+					//Perform AST inference when forced or AST inference is not problematic.
+					if (isForced || !astOperationInferencer.isProblematicInference()) {
+						inferAndRecordASTOperations(astOperationInferencer);
+					} else {
+						enterInProblemMode();
+					}
 				}
 			}
 		}
 		batchTextChanges.clear();
+		cachedTextChanges.clear();
 		correlatedBatchSize= -1;
+	}
+
+	private void flushBatchAsSeparateChanges(boolean isForced) {
+		batchTextChanges.clear();
+		//Make a copy of the cached text changes since each flushing would clean the field cachedTextChanges.
+		List<CoherentTextChange> cachedTextChanges= new LinkedList<CoherentTextChange>();
+		cachedTextChanges.addAll(this.cachedTextChanges);
+		for (CoherentTextChange textChange : cachedTextChanges) {
+			batchTextChanges.add(textChange);
+			flushCurrentTextChanges(isForced);
+		}
 	}
 
 	private void enterInProblemMode() {

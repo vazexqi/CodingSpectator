@@ -36,7 +36,7 @@ public class CoherentTextChange {
 
 	private TextChangeOperation initialTextChangeOperation;
 
-	private boolean firstGluing= true;
+	private boolean neverGlued= true;
 
 	private boolean isDeletingOnly= false;
 
@@ -98,8 +98,8 @@ public class CoherentTextChange {
 		return getRemovedTextLength() != 0 || getAddedTextLength() != 0;
 	}
 
-	public boolean isFirstGluing() {
-		return firstGluing;
+	public boolean isNeverGlued() {
+		return neverGlued;
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class CoherentTextChange {
 	 * @return
 	 */
 	public boolean isPossiblyCorrelatedWith(CoherentTextChange textChange) {
-		if (!firstGluing || !textChange.firstGluing) {
+		if (!neverGlued || !textChange.neverGlued) {
 			throw new RuntimeException("It is not valid to call the method \"isPossiblyCorrelatedWith\" if at least one argument represents an already glued text change!");
 		}
 		return initialTextChangeOperation.isPossiblyCorrelatedWith(textChange.initialTextChangeOperation);
@@ -126,7 +126,7 @@ public class CoherentTextChange {
 			intermediateRemovedTextLength+= newRemovedTextLength;
 		}
 		addedTextLength+= documentEvent.getText().length();
-		firstGluing= false;
+		neverGlued= false;
 		applyTextChange(documentEvent);
 	}
 
@@ -136,7 +136,7 @@ public class CoherentTextChange {
 		if (newRemovedTextLength == 0) {
 			isDeletingOnly= false;
 		}
-		if (isDeletingOnly && firstGluing) {
+		if (isDeletingOnly && neverGlued) {
 			isBackspaceDeleting= baseOffset != newOffset;
 		}
 		if (isDeletingOnly && !isBackspaceDeleting) {
