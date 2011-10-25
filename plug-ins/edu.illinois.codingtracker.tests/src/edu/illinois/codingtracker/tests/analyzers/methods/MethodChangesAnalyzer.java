@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.analyzers;
+package edu.illinois.codingtracker.tests.analyzers.methods;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
 
 
 /**

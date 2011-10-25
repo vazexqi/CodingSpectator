@@ -86,6 +86,14 @@ public class ASTOperation extends UserOperation {
 		return fullMethodName;
 	}
 
+	public int getMethodLinesCount() {
+		return methodLinesCount;
+	}
+
+	public int getMethodCyclomaticComplexity() {
+		return methodCyclomaticComplexity;
+	}
+
 	public boolean isAdd() {
 		return operationKind == OperationKind.ADD;
 	}
