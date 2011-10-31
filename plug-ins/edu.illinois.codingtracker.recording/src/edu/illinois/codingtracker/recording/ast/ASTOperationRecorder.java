@@ -48,8 +48,6 @@ public class ASTOperationRecorder {
 
 	private List<CoherentTextChange> batchTextChanges= new LinkedList<CoherentTextChange>();
 
-	private List<CoherentTextChange> cachedTextChanges= new LinkedList<CoherentTextChange>();
-
 	private List<CoherentTextChange> problematicTextChanges= new LinkedList<CoherentTextChange>();
 
 	private IDocument currentDocument;
@@ -88,7 +86,7 @@ public class ASTOperationRecorder {
 		currentDocument= event.getDocument();
 		long timestamp= getTextChangeTimestamp();
 		if (batchTextChanges.isEmpty()) {
-			addNewCoherentTextChange(event, timestamp);
+			batchTextChanges.add(new CoherentTextChange(event, timestamp));
 		} else {
 			addToCurrentTextChanges(event, timestamp);
 		}
@@ -101,8 +99,8 @@ public class ASTOperationRecorder {
 			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
 			if (!isReplayingSnapshotDifference && lastTextChange.isNeverGlued() &&
 					lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
-				addNewCoherentTextChange(event, timestamp);
-				applyTextChangeToBatch(event, batchTextChanges.size() - 1);
+				batchTextChanges.add(newTextChange);
+				processNewlyAddedBatchChange(event);
 			} else {
 				correlatedBatchSize= batchTextChanges.size();
 				currentIndexToGlueWith= 0;
@@ -113,10 +111,23 @@ public class ASTOperationRecorder {
 		}
 	}
 
+	private void processNewlyAddedBatchChange(DocumentEvent event) {
+		int newlyAddedChangeIndex= batchTextChanges.size() - 1;
+
+		//First, apply the new change on existing changes to ensure that the final text is the same for all batch changes.
+		applyTextChangeToBatch(event, newlyAddedChangeIndex);
+
+		//Next, undo all previous batch changes on the newly added one to ensure that the initial text is the same.
+		CoherentTextChange newlyAddedChange= batchTextChanges.get(newlyAddedChangeIndex);
+		for (int i= 0; i < newlyAddedChangeIndex; i++) {
+			newlyAddedChange.undoTextChange(batchTextChanges.get(i));
+		}
+	}
+
 	private void tryGluingInBatch(DocumentEvent event, long timestamp) {
 		CoherentTextChange textChangeToGlueWith= batchTextChanges.get(currentIndexToGlueWith);
 		if (textChangeToGlueWith.shouldGlueNewTextChange(event)) {
-			textChangeToGlueWith.glueNewTextChange(event, timestamp);
+			textChangeToGlueWith.glueNewTextChange(event);
 			applyTextChangeToBatch(event, currentIndexToGlueWith);
 			currentIndexToGlueWith++;
 			if (currentIndexToGlueWith == correlatedBatchSize) {
@@ -124,7 +135,7 @@ public class ASTOperationRecorder {
 			}
 		} else {
 			flushCurrentTextChanges(false);
-			addNewCoherentTextChange(event, timestamp);
+			batchTextChanges.add(new CoherentTextChange(event, timestamp));
 		}
 	}
 
@@ -143,24 +154,16 @@ public class ASTOperationRecorder {
 		}
 	}
 
-	private void addNewCoherentTextChange(DocumentEvent event, long timestamp) {
-		//Add two distinct CoherentTextChange objects since those that are in batchTextChanges will get updated,
-		//while we need to keep the original CoherentTextChange objects in cachedTextChanges.
-		batchTextChanges.add(new CoherentTextChange(event, timestamp));
-		cachedTextChanges.add(new CoherentTextChange(event, timestamp));
-	}
-
 	public void flushCurrentTextChanges(boolean isForced) {
 		if (isAnythingToFlush()) {
-			checkBatchedEditIsCompleted();
-			if (isInProblemMode) {
-				flushProblematicTextChanges(isForced);
+			checkBatchedEditIsWellFormed();
+			if (batchTextChanges.size() > 1) {
+				flushBatchAsSeparateChanges(isForced);
 			} else {
-				CoherentTextChange firstTextChange= batchTextChanges.get(0);
-				if (batchTextChanges.size() > 1 && firstTextChange.isNeverGlued()) {
-					flushBatchAsSeparateChanges(isForced);
+				if (isInProblemMode) {
+					flushProblematicTextChanges(isForced);
 				} else {
-					ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.size(), firstTextChange);
+					ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.get(0));
 					//Perform AST inference when forced or AST inference is not problematic.
 					if (isForced || !astOperationInferencer.isProblematicInference()) {
 						inferAndRecordASTOperations(astOperationInferencer);
@@ -171,34 +174,56 @@ public class ASTOperationRecorder {
 			}
 		}
 		batchTextChanges.clear();
-		cachedTextChanges.clear();
 		correlatedBatchSize= -1;
 	}
 
 	private void flushBatchAsSeparateChanges(boolean isForced) {
+		//Make a copy of the batch text changes since each flushing cleans the field batchTextChanges.
+		List<CoherentTextChange> batchChangesToFlush= new LinkedList<CoherentTextChange>();
+		batchChangesToFlush.addAll(batchTextChanges);
 		batchTextChanges.clear();
-		//Make a copy of the cached text changes since each flushing would clean the field cachedTextChanges.
-		List<CoherentTextChange> cachedTextChanges= new LinkedList<CoherentTextChange>();
-		cachedTextChanges.addAll(this.cachedTextChanges);
-		for (CoherentTextChange textChange : cachedTextChanges) {
-			batchTextChanges.add(textChange);
+
+		String changedText= batchChangesToFlush.get(0).getInitialDocumentText();
+		for (int i= 0; i < batchChangesToFlush.size(); i++) {
+			CoherentTextChange separateChange= createSeparateChange(batchChangesToFlush, i, changedText);
+			batchTextChanges.add(separateChange);
 			flushCurrentTextChanges(isForced);
+			//The initial text of the subsequent change is the final text of the previous change.
+			changedText= separateChange.getFinalDocumentText();
 		}
 	}
 
-	private void enterInProblemMode() {
-		if (batchTextChanges.size() != 1) {
-			throw new RuntimeException("Entering in the problem mode with a wrong batch size: " + batchTextChanges.size());
+	private CoherentTextChange createSeparateChange(List<CoherentTextChange> batchChanges, int batchChangeIndex,
+													String initialText) {
+		CoherentTextChange batchChange= batchChanges.get(batchChangeIndex);
+		int removedTextLength= batchChange.getRemovedTextLength();
+		String addedText= batchChange.getAddedText();
+		int adjustedOffset= getAdjustedOffset(batchChanges, batchChangeIndex);
+		Document editedDocument= new Document(initialText);
+		DocumentEvent documentEvent= new DocumentEvent(editedDocument, adjustedOffset, removedTextLength, addedText);
+		return new CoherentTextChange(documentEvent, batchChange.getTimestamp());
+	}
+
+	private int getAdjustedOffset(List<CoherentTextChange> batchChanges, int adjustedChangeIndex) {
+		CoherentTextChange adjustedChange= batchChanges.get(adjustedChangeIndex);
+		int adjustedOffset= adjustedChange.getOffset();
+		//Adjust the offset to account for the previous changes.
+		for (int i= 0; i < adjustedChangeIndex; i++) {
+			if (adjustedChange.getOffset() > batchChanges.get(i).getOffset()) {
+				//Delta text length is the same for all changes in a batch.
+				adjustedOffset+= adjustedChange.getDeltaTextLength();
+			}
 		}
+		return adjustedOffset;
+	}
+
+	private void enterInProblemMode() {
 		isInProblemMode= true;
 		//The only batch text change becomes the first problematic text change.
 		problematicTextChanges.add(batchTextChanges.get(0));
 	}
 
 	private void flushProblematicTextChanges(boolean isForced) {
-		if (batchTextChanges.size() > 1) {
-			throw new RuntimeException("Flushing problematic changes with a wrong batch size: " + batchTextChanges.size());
-		}
 		if (batchTextChanges.size() == 1) {
 			problematicTextChanges.add(batchTextChanges.get(0));
 		}
@@ -216,9 +241,24 @@ public class ASTOperationRecorder {
 		return isInProblemMode || !batchTextChanges.isEmpty() && batchTextChanges.get(0).isActualChange();
 	}
 
-	private void checkBatchedEditIsCompleted() {
+	private void checkBatchedEditIsWellFormed() {
 		if (correlatedBatchSize != -1 && currentIndexToGlueWith != 0) {
 			throw new RuntimeException("Stopped gluing in the middle of a correlated batch!");
+		}
+		if (!batchTextChanges.isEmpty()) {
+			CoherentTextChange firstChange= batchTextChanges.get(0);
+			final String initialText= firstChange.getInitialDocumentText();
+			final String finalText= firstChange.getFinalDocumentText();
+			final String removedText= firstChange.getRemovedText();
+			final String addedText= firstChange.getAddedText();
+			for (CoherentTextChange batchChange : batchTextChanges) {
+				if (!initialText.equals(batchChange.getInitialDocumentText()) ||
+						!finalText.equals(batchChange.getFinalDocumentText()) ||
+						!removedText.equals(batchChange.getRemovedText()) ||
+						!addedText.equals(batchChange.getAddedText())) {
+					throw new RuntimeException("Batch changes are not equivalent!");
+				}
+			}
 		}
 	}
 

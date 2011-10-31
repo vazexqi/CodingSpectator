@@ -22,19 +22,21 @@ public class CoherentTextChange {
 
 	private final IDocument editedDocument;
 
-	private final String initialDocumentText;
+	private String initialDocumentText;
 
 	private int baseOffset;
+
+	private int batchOffsetShift; //It is assigned only when this text change is part of a batch.
 
 	private int removedTextLength;
 
 	private int addedTextLength;
 
-	private int initialRemovedTextLength;
+	private final int initialRemovedTextLength;
 
 	private int intermediateRemovedTextLength;
 
-	private TextChangeOperation initialTextChangeOperation;
+	private final TextChangeOperation initialTextChangeOperation;
 
 	private boolean neverGlued= true;
 
@@ -44,18 +46,19 @@ public class CoherentTextChange {
 
 
 	public CoherentTextChange(DocumentEvent documentEvent, long timestamp) {
+		batchOffsetShift= 0;
 		this.timestamp= timestamp;
 		initialDocumentText= documentEvent.getDocument().get();
 		editedDocument= new Document(initialDocumentText);
-		initialTextChangeOperation= createTextChangeOperation(documentEvent);
 		baseOffset= documentEvent.getOffset();
 		initialRemovedTextLength= documentEvent.getLength();
-		String addedText= documentEvent.getText();
-		addedTextLength= addedText.length();
+		addedTextLength= documentEvent.getText().length();
 		intermediateRemovedTextLength= 0;
 		if (initialRemovedTextLength > 0 && addedTextLength == 0) {
 			isDeletingOnly= true;
 		}
+		String replacedText= initialDocumentText.substring(baseOffset, baseOffset + initialRemovedTextLength);
+		initialTextChangeOperation= new PerformedTextChangeOperation(documentEvent, replacedText, timestamp);
 		applyTextChange(documentEvent);
 	}
 
@@ -71,11 +74,31 @@ public class CoherentTextChange {
 		return editedDocument.get();
 	}
 
+	/**
+	 * The returned offset is always valid for the initial document. It is also valid for the final
+	 * document if this text change is not part of a batch. If this text change is part of a batch,
+	 * use {@link #getBatchOffset} to get the offset in the final document.
+	 * 
+	 * @return
+	 */
 	public int getOffset() {
 		if (isBackspaceDeleting) {
 			return baseOffset - removedTextLength;
 		}
 		return baseOffset;
+	}
+
+	/**
+	 * It is different from {@link #getOffset()} only when this text change is part of a batch.
+	 * 
+	 * @return
+	 */
+	private int getBatchOffset() {
+		return getOffset() + batchOffsetShift;
+	}
+
+	public String getRemovedText() {
+		return initialDocumentText.substring(getOffset(), getOffset() + getRemovedTextLength());
 	}
 
 	public int getRemovedTextLength() {
@@ -88,6 +111,10 @@ public class CoherentTextChange {
 			throw new RuntimeException("The remaining added text length is negative: " + remainingAddedTextLength);
 		}
 		return remainingAddedTextLength;
+	}
+
+	public String getAddedText() {
+		return getFinalDocumentText().substring(getBatchOffset(), getBatchOffset() + getAddedTextLength());
 	}
 
 	public int getDeltaTextLength() {
@@ -103,19 +130,17 @@ public class CoherentTextChange {
 	}
 
 	/**
-	 * Should be called before this and the given CoherentTextChange are glued the first time.
+	 * Can be called only before this and the given CoherentTextChange are glued the first time.
 	 * 
 	 * @param textChange
 	 * @return
 	 */
 	public boolean isPossiblyCorrelatedWith(CoherentTextChange textChange) {
-		if (!neverGlued || !textChange.neverGlued) {
-			throw new RuntimeException("It is not valid to call the method \"isPossiblyCorrelatedWith\" if at least one argument represents an already glued text change!");
-		}
+		checkBothNeverGlued(textChange, "isPossiblyCorrelatedWith");
 		return initialTextChangeOperation.isPossiblyCorrelatedWith(textChange.initialTextChangeOperation);
 	}
 
-	public void glueNewTextChange(DocumentEvent documentEvent, long textChangeTimestamp) {
+	public void glueNewTextChange(DocumentEvent documentEvent) {
 		if (!shouldGlueNewTextChange(documentEvent)) {
 			throw new RuntimeException("Should not call glueNewTextChange for an incoherent change offset: " + documentEvent.getOffset());
 		}
@@ -131,17 +156,19 @@ public class CoherentTextChange {
 	}
 
 	public boolean shouldGlueNewTextChange(DocumentEvent documentEvent) {
-		int newOffset= documentEvent.getOffset();
-		int newRemovedTextLength= documentEvent.getLength();
+		//Do NOT use getBatchOffset() since it might account for removedTextLength, which we do not need here.
+		final int currentOffset= baseOffset + batchOffsetShift;
+		final int newOffset= documentEvent.getOffset();
+		final int newRemovedTextLength= documentEvent.getLength();
 		if (newRemovedTextLength == 0) {
 			isDeletingOnly= false;
 		}
 		if (isDeletingOnly && neverGlued) {
-			isBackspaceDeleting= baseOffset != newOffset;
+			isBackspaceDeleting= currentOffset != newOffset;
 		}
 		if (isDeletingOnly && !isBackspaceDeleting) {
 			//System.out.println("To glue: " + (offset == newOffset));
-			return baseOffset == newOffset;
+			return currentOffset == newOffset;
 		} else {
 			//TODO: Consider also cases when a developer adds several nodes, then reconsiders and deletes all of them.
 			//Currently, we discard these additions and deletions. We need to introduce either a threshold on the number
@@ -153,33 +180,45 @@ public class CoherentTextChange {
 				return false;
 			}
 			//System.out.println("To glue: " + (offset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength));
-			return baseOffset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength;
+			return currentOffset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength;
 		}
 	}
 
 	public void applyTextChange(DocumentEvent documentEvent) {
-		int changeOffset= documentEvent.getOffset();
-		int removedTextLength= documentEvent.getLength();
-		String addedText= documentEvent.getText();
+		final int changeOffset= documentEvent.getOffset();
+		final int removedTextLength= documentEvent.getLength();
+		final String addedText= documentEvent.getText();
 		try {
 			editedDocument.replace(changeOffset, removedTextLength, addedText);
 		} catch (BadLocationException e) {
 			throw new RuntimeException("Could not apply text change to the edited document of a CoherentTextChange!", e);
 		}
-		//Note that for own updates (e.g. constructor or gluing) getOffset() == changeOffset, so nothing will get updated.
-		if (getOffset() > changeOffset) {
-			baseOffset+= addedText.length() - removedTextLength;
+		//Note that for own updates (e.g. constructor or gluing) getBatchOffset() == changeOffset, so nothing will get updated.
+		if (getBatchOffset() > changeOffset) {
+			batchOffsetShift+= addedText.length() - removedTextLength;
 		}
 	}
 
-	private TextChangeOperation createTextChangeOperation(DocumentEvent documentEvent) {
-		String replacedText;
-		try {
-			replacedText= editedDocument.get(documentEvent.getOffset(), documentEvent.getLength());
-		} catch (BadLocationException e) {
-			throw new RuntimeException("Could not get the replaced text: " + documentEvent, e);
+	/**
+	 * Can be called only in the batch mode and before this and the given CoherentTextChange are
+	 * glued the first time.
+	 * 
+	 * @param textChange
+	 * @return
+	 */
+	public void undoTextChange(CoherentTextChange textChange) {
+		checkBothNeverGlued(textChange, "undoTextChange");
+		initialDocumentText= textChange.getInitialDocumentText();
+		if (getBatchOffset() > textChange.getBatchOffset()) {
+			baseOffset-= textChange.getDeltaTextLength();
+			batchOffsetShift+= textChange.getDeltaTextLength();
 		}
-		return new PerformedTextChangeOperation(documentEvent, replacedText, timestamp);
+	}
+
+	private void checkBothNeverGlued(CoherentTextChange textChange, String checkingMethodName) {
+		if (!neverGlued || !textChange.neverGlued) {
+			throw new RuntimeException("It is not valid to call the method \"" + checkingMethodName + "\" if at least one argument represents an already glued text change!");
+		}
 	}
 
 }

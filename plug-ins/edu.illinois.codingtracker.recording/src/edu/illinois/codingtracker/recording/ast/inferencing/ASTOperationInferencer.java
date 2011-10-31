@@ -13,8 +13,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
@@ -29,8 +27,6 @@ public class ASTOperationInferencer {
 
 	CoveringNodesFinder affectedNodesFinder;
 
-	private int batchSize;
-
 	private ASTNode newCommonCoveringNode;
 
 	private ASTNode oldCommonCoveringNode;
@@ -44,21 +40,13 @@ public class ASTOperationInferencer {
 	private Set<ASTNode> addedNodes= new HashSet<ASTNode>();
 
 
-	public ASTOperationInferencer(int batchSize, CoherentTextChange coherentTextChange) {
-		this.batchSize= batchSize;
-		if (batchSize > 1) {
-			//Multi batch - simulate that the whole document's content is replaced.
-			Document editedDocument= new Document(coherentTextChange.getInitialDocumentText());
-			String newText= coherentTextChange.getFinalDocumentText();
-			DocumentEvent documentEvent= new DocumentEvent(editedDocument, 0, editedDocument.getLength(), newText);
-			initializeInferencer(new CoherentTextChange(documentEvent, coherentTextChange.getTimestamp()));
-		} else {
-			initializeInferencer(coherentTextChange);
-		}
+	public ASTOperationInferencer(CoherentTextChange coherentTextChange) {
+		List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
+		coherentTextChanges.add(coherentTextChange);
+		initializeInferencer(coherentTextChanges);
 	}
 
 	public ASTOperationInferencer(List<CoherentTextChange> coherentTextChanges) {
-		batchSize= 1;
 		initializeInferencer(coherentTextChanges);
 	}
 
@@ -80,12 +68,6 @@ public class ASTOperationInferencer {
 
 	public Set<ASTNode> getAddedNodes() {
 		return addedNodes;
-	}
-
-	private void initializeInferencer(CoherentTextChange coherentTextChange) {
-		List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
-		coherentTextChanges.add(coherentTextChange);
-		initializeInferencer(coherentTextChanges);
 	}
 
 	private void initializeInferencer(List<CoherentTextChange> coherentTextChanges) {
@@ -158,8 +140,6 @@ public class ASTOperationInferencer {
 		collectDeletedNodes(oldChildren);
 		collectAddedNodes(newChildren);
 		collectChangedNodes();
-
-		checkMultiBatchCorrectness();
 	}
 
 	private void matchNodesOutsideOfChangedRange(Set<ASTNode> oldNodes, Set<ASTNode> newNodes) {
@@ -226,42 +206,6 @@ public class ASTOperationInferencer {
 					changedNodes.put(oldNode, newNode);
 					break;
 				}
-			}
-		}
-	}
-
-	/**
-	 * More sanity checks to ensure that multi batches are created only for boxed renames (can
-	 * happen before rename and after extract method refactorings).
-	 * 
-	 */
-	private void checkMultiBatchCorrectness() {
-		if (batchSize <= 1) {
-			return; //Not a multi batch, so nothing to check.
-		}
-		if (changedNodes.size() != batchSize || !deletedNodes.isEmpty() || !addedNodes.isEmpty()) {
-			throw new RuntimeException("Multi batched node collections have wrong sizes!");
-		}
-		String oldText= null;
-		String newText= null;
-		Set<ASTNode> oldNodes= new HashSet<ASTNode>();
-		Set<ASTNode> newNodes= new HashSet<ASTNode>();
-		for (Entry<ASTNode, ASTNode> mapEntry : changedNodes.entrySet()) {
-			ASTNode oldNode= mapEntry.getKey();
-			ASTNode newNode= mapEntry.getValue();
-			if (oldNodes.contains(oldNode) || newNodes.contains(newNode)) {
-				throw new RuntimeException("Multi batched update changed same nodes more than ones!");
-			}
-			oldNodes.add(oldNode);
-			newNodes.add(newNode);
-			if (oldText == null) {
-				oldText= oldNode.toString();
-			}
-			if (newText == null) {
-				newText= newNode.toString();
-			}
-			if (!oldText.equals(oldNode.toString()) || !newText.equals(newNode.toString())) {
-				throw new RuntimeException("Multi batch update contains different old or new texts!");
 			}
 		}
 	}
