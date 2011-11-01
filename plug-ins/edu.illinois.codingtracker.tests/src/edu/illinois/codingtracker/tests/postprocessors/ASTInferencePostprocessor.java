@@ -43,7 +43,6 @@ import edu.illinois.codingtracker.recording.ast.helpers.SnapshotDifferenceCalcul
  * @author Stas Negara
  * 
  */
-@SuppressWarnings("restriction")
 public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 
 	private List<TextChangeOperation> bufferedTextChanges= new LinkedList<TextChangeOperation>();
