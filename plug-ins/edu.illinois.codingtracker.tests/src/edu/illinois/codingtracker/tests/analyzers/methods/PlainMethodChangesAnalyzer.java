@@ -23,7 +23,7 @@ import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
  * @author Stas Negara
  * 
  */
-public class MethodChangesAnalyzer extends CSVProducingAnalyzer {
+public class PlainMethodChangesAnalyzer extends CSVProducingAnalyzer {
 
 	private final Map<Long, Integer> changesCounter= new HashMap<Long, Integer>();
 
