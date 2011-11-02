@@ -23,6 +23,7 @@ import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 import edu.illinois.codingspectator.monitor.core.submission.URLManager;
 import edu.illinois.codingspectator.monitor.ui.Activator;
 import edu.illinois.codingspectator.monitor.ui.AuthenticationPrompter;
+import edu.illinois.codingspectator.monitor.ui.ExceptionUtil;
 import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 
 /**
@@ -111,7 +112,7 @@ public class Submitter {
 			submissionSucceeded= true;
 		} catch (Throwable e1) {
 			try {
-				removeLocalAndRemoteData("Deleted the remote data because the submission failed.");
+				removeLocalAndRemoteData("Deleted the remote data because the submission failed with the following exception:\n" + ExceptionUtil.getStackTrace(e1));
 				doSVNSubmit();
 				submissionSucceeded= true;
 			} catch (Throwable e2) {
