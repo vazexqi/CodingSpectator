@@ -3,6 +3,11 @@
  */
 package edu.illinois.codingspectator.monitor.tests;
 
+/**
+ * 
+ * @author Mohsen Vakilian
+ * 
+ */
 public class MockParticipantFactory {
 
 	private static MockParticipant[] participants= new MockParticipant[] { new MockParticipant("test.codingspectator", "test.codingspectator"),

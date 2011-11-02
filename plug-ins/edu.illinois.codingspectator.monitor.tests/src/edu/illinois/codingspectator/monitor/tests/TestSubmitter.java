@@ -68,7 +68,7 @@ public class TestSubmitter {
 	@Test
 	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException {
 		AuthenticanResult authenticanResult= submitterFactory.getSubmitter().authenticate();
-
+		assertEquals(MockSubmitterFactory.UUID, submitterFactory.getSubmitter().getUUID());
 		assertEquals(AuthenticanResult.OK, authenticanResult);
 
 		submitterFactory.modifyFileInWatchedFolder();

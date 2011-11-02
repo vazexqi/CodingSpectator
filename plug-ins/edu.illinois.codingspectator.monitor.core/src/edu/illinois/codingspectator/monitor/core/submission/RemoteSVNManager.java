@@ -66,7 +66,11 @@ public class RemoteSVNManager extends AbstractSVNManager {
 		cm.getCommitClient().doCommit(pathToCommitFiles, false, COMMIT_MESSAGE, null, null, false, true, SVNDepth.INFINITY);
 	}
 
-	public long getRevisionNumber() throws SVNException {
+	public long getCommittedRevisionNumber() throws SVNException {
+		return doInfo(urlManager.getPersonalWorkspaceSVNURL()).getCommittedRevision().getNumber();
+	}
+
+	private long getRevisionNumber() throws SVNException {
 		return doInfo(urlManager.getPersonalWorkspaceSVNURL()).getRevision().getNumber();
 	}
 

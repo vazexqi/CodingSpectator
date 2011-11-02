@@ -16,6 +16,11 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter.AuthenticanR
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.InitializationException;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionException;
 
+/**
+ * 
+ * @author Mohsen Vakilian
+ * 
+ */
 public class TestInterleavedSubmissions {
 
 	@Test
@@ -25,6 +30,7 @@ public class TestInterleavedSubmissions {
 
 		submitterFactory1.modifyFileInWatchedFolder();
 		submit(submitterFactory1);
+		long initialRevisionNumber= submitterFactory1.getFileRevisionNumber();
 		EFSFile watchedFolder= new EFSFile(Submitter.WATCHED_FOLDER);
 		EFSFile participant1BackupOfWatchedFolder= new EFSFile(Submitter.WATCHED_FOLDER + "_participant1_bak");
 		watchedFolder.moveTo(participant1BackupOfWatchedFolder);
@@ -35,10 +41,12 @@ public class TestInterleavedSubmissions {
 		submitterFactory1.modifyFileInWatchedFolder();
 		assertTrue("Detected an inconsistency between local and remote data when one didn't exist.", submitterFactory1.getSubmitter().doLocalAndRemoteDataMatch());
 		submit(submitterFactory1);
+		assertEquals(initialRevisionNumber + 2, submitterFactory1.getFileRevisionNumber());
 	}
 
 	private void submit(MockSubmitterFactory submitterFactory) throws InitializationException, SubmissionException {
 		AuthenticanResult authenticanResult= submitterFactory.getSubmitter().authenticate();
+		assertEquals(MockSubmitterFactory.UUID, submitterFactory.getSubmitter().getUUID());
 		assertEquals(AuthenticanResult.OK, authenticanResult);
 		submitterFactory.getSubmitter().submit();
 	}

@@ -3,6 +3,11 @@
  */
 package edu.illinois.codingspectator.monitor.tests;
 
+/**
+ * 
+ * @author Mohsen Vakilian
+ * 
+ */
 public class MockParticipant {
 
 	String username;

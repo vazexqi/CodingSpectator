@@ -24,9 +24,14 @@ import edu.illinois.codingspectator.monitor.core.submission.URLManager;
 import edu.illinois.codingspectator.monitor.ui.prefs.UUIDGenerator;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
+/**
+ * 
+ * @author Mohsen Vakilian
+ * 
+ */
 public class MockSubmitterFactory {
 
-	static final String UUID= "00000000-0000-0000-0000-000000000000";
+	public static final String UUID= "00000000-0000-0000-0000-000000000000";
 
 	static final String FILENAME= "log.txt";
 

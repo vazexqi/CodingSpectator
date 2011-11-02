@@ -17,6 +17,11 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter.AuthenticanR
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.InitializationException;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionException;
 
+/**
+ * 
+ * @author Mohsen Vakilian
+ * 
+ */
 public class TestSubmitterWithConflicts {
 
 	private static MockSubmitterFactory submitterFactory;
@@ -61,6 +66,7 @@ public class TestSubmitterWithConflicts {
 
 	private void submit() throws InitializationException, SubmissionException {
 		AuthenticanResult authenticanResult= submitterFactory.getSubmitter().authenticate();
+		assertEquals(MockSubmitterFactory.UUID, submitterFactory.getSubmitter().getUUID());
 		assertEquals(AuthenticanResult.OK, authenticanResult);
 		submitterFactory.getSubmitter().submit();
 	}
