@@ -111,7 +111,7 @@ public class Submitter {
 			submissionSucceeded= true;
 		} catch (Throwable e1) {
 			try {
-				removeLocalAndRemoteData();
+				removeLocalAndRemoteData("Deleted the remote data because the submission failed.");
 				doSVNSubmit();
 				submissionSucceeded= true;
 			} catch (Throwable e2) {
@@ -144,26 +144,36 @@ public class Submitter {
 		updateLocalRevisionNumbers();
 	}
 
+	/**
+	 * 
+	 * This method is used by an automated test.
+	 * 
+	 * @return
+	 * @throws SVNException
+	 */
+	public boolean doLocalAndRemoteDataMatch() throws SVNException {
+		return svnManager.isWatchedFolderInRepository() && svnManager.isWorkingDirectoryValid() && !svnManager.isLocalWorkCopyOutdated();
+	}
+
 	private void resolveLocalAndRemoteDataMismatches() throws SVNException, CoreException {
 		if (svnManager.isWatchedFolderInRepository()) {
 			if (!svnManager.isWorkingDirectoryValid()) {
-				removeRemoteData();
+				removeRemoteData("Deleted the remote data because the personal worskpace existed on the remote repository, but, the local working copy was invalid.");
 			} else if (svnManager.isLocalWorkCopyOutdated()) {
-				removeLocalAndRemoteData();
+				removeLocalAndRemoteData("Deleted the remote data because the local working copy was outdated.");
 			}
 		} else {
 			svnManager.removeSVNMetaData();
 		}
 	}
 
-	private void removeRemoteData() throws SVNException {
-		final String svnDeleteMessage= "Deleted remote data because of an inconsistency between local and remote data.";
-		svnManager.doDelete(svnDeleteMessage);
+	private void removeRemoteData(String svnMessage) throws SVNException {
+		svnManager.doDelete(svnMessage);
 	}
 
-	private void removeLocalAndRemoteData() throws CoreException, SVNException {
+	private void removeLocalAndRemoteData(String svnMessage) throws CoreException, SVNException {
 		svnManager.removeSVNMetaData();
-		removeRemoteData();
+		removeRemoteData(svnMessage);
 	}
 
 	private void updateLocalRevisionNumbers() throws SVNException {
