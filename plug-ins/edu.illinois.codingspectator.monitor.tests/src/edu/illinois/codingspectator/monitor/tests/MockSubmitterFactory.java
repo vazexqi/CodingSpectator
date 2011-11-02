@@ -90,13 +90,17 @@ public class MockSubmitterFactory {
 	public void modifyFileInWatchedFolder() throws CoreException {
 		PrintWriter printWriter= null;
 		try {
-			EFSFile logFile= new EFSFile(Submitter.WATCHED_FOLDER).append(FILENAME);
+			EFSFile watchedFolder= new EFSFile(Submitter.WATCHED_FOLDER);
+			watchedFolder.mkdir();
+			EFSFile logFile= watchedFolder.append(FILENAME);
 			OutputStream outputStream= logFile.getFileStore().openOutputStream(EFS.ATTRIBUTE_GROUP_READ | EFS.ATTRIBUTE_GROUP_WRITE, new NullProgressMonitor());
 			printWriter= new PrintWriter(outputStream);
 			printWriter.write(UUIDGenerator.generateID());
 			printWriter.flush();
 		} finally {
-			printWriter.close();
+			if (printWriter != null) {
+				printWriter.close();
+			}
 		}
 	}
 

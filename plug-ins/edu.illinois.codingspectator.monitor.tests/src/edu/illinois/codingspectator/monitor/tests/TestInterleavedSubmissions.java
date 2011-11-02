@@ -10,6 +10,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.junit.Test;
 import org.tmatesoft.svn.core.SVNException;
 
+import edu.illinois.codingspectator.efs.EFSFile;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.AuthenticanResult;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.InitializationException;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionException;
@@ -23,11 +25,15 @@ public class TestInterleavedSubmissions {
 
 		submitterFactory1.modifyFileInWatchedFolder();
 		submit(submitterFactory1);
+		EFSFile watchedFolder= new EFSFile(Submitter.WATCHED_FOLDER);
+		EFSFile participant1BackupOfWatchedFolder= new EFSFile(Submitter.WATCHED_FOLDER + "_participant1_bak");
+		watchedFolder.moveTo(participant1BackupOfWatchedFolder);
 		submitterFactory2.modifyFileInWatchedFolder();
 		submit(submitterFactory2);
+		watchedFolder.delete();
+		participant1BackupOfWatchedFolder.moveTo(watchedFolder);
 		submitterFactory1.modifyFileInWatchedFolder();
-		// CodingSpectator should not detect an inconsistency when performing the following submission operation.
-		assertTrue(submitterFactory1.getSubmitter().doLocalAndRemoteDataMatch());
+		assertTrue("Detected an inconsistency between local and remote data when one didn't exist.", submitterFactory1.getSubmitter().doLocalAndRemoteDataMatch());
 		submit(submitterFactory1);
 	}
 
