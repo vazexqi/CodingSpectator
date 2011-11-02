@@ -3,9 +3,6 @@
  */
 package edu.illinois.codingspectator.monitor.tests;
 
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.initializeSubmitter;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.modifyFileInWatchedFolder;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.submitter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -22,9 +19,11 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionEx
 
 public class TestSubmitterWithConflicts {
 
+	private static MockSubmitterFactory submitterFactory;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		initializeSubmitter();
+		submitterFactory= new MockSubmitterFactory();
 	}
 
 	@Test
@@ -32,12 +31,12 @@ public class TestSubmitterWithConflicts {
 		modifyLog();
 		submit();
 
-		long initialRevisionNumber= SubmitterHelper.getFileRevisionNumber();
+		long initialRevisionNumber= submitterFactory.getFileRevisionNumber();
 
 		modifyLog();
 		submit();
 
-		assertTrue(SubmitterHelper.getFileRevisionNumber() > initialRevisionNumber);
+		assertTrue(submitterFactory.getFileRevisionNumber() > initialRevisionNumber);
 	}
 
 	@Test
@@ -45,25 +44,25 @@ public class TestSubmitterWithConflicts {
 		modifyLog();
 		submit();
 
-		long initialRevisionNumber= SubmitterHelper.getFileRevisionNumber();
+		long initialRevisionNumber= submitterFactory.getFileRevisionNumber();
 
 		modifyLog();
-		SubmitterHelper.svnManager.doUpdate();
+		submitterFactory.getSVNManager().doUpdate();
 		submit();
 
-		assertTrue(SubmitterHelper.getFileRevisionNumber() > initialRevisionNumber);
+		assertTrue(submitterFactory.getFileRevisionNumber() > initialRevisionNumber);
 	}
 
 	private void modifyLog() throws CoreException {
 		cleanWatchedFolder();
 		makeWatchedFolderOutdated();
-		modifyFileInWatchedFolder();
+		submitterFactory.modifyFileInWatchedFolder();
 	}
 
 	private void submit() throws InitializationException, SubmissionException {
-		AuthenticanResult authenticanResult= submitter.authenticate();
+		AuthenticanResult authenticanResult= submitterFactory.getSubmitter().authenticate();
 		assertEquals(AuthenticanResult.OK, authenticanResult);
-		submitter.submit();
+		submitterFactory.getSubmitter().submit();
 	}
 
 	private void makeWatchedFolderOutdated() throws CoreException {

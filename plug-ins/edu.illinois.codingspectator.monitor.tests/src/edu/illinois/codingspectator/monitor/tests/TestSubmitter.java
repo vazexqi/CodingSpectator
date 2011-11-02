@@ -3,13 +3,7 @@
  */
 package edu.illinois.codingspectator.monitor.tests;
 
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.FILENAME;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.commitClient;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.initializeSubmitter;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.modifyFileInWatchedFolder;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.submitter;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.urlManager;
-import static edu.illinois.codingspectator.monitor.tests.SubmitterHelper.workingCopyClient;
+import static edu.illinois.codingspectator.monitor.tests.MockSubmitterFactory.FILENAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -49,14 +43,16 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter.SubmissionEx
  */
 public class TestSubmitter {
 
+	private static MockSubmitterFactory submitterFactory;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		initializeSubmitter();
+		submitterFactory= new MockSubmitterFactory();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		SVNCommitInfo deleteInfo= commitClient.doDelete(new SVNURL[] { urlManager.getPersonalWorkspaceSVNURL() }, "Deleted test import");
+		SVNCommitInfo deleteInfo= submitterFactory.getCommitClient().doDelete(new SVNURL[] { submitterFactory.getURLManager().getPersonalWorkspaceSVNURL() }, "Deleted test import");
 		assertNotSame("The testing directory was not removed at the remote location.", SVNCommitInfo.NULL, deleteInfo);
 	}
 
@@ -65,24 +61,24 @@ public class TestSubmitter {
 		assertTrue("Failed to initialize the submitter.", new File(Submitter.WATCHED_FOLDER + File.separator + ".svn").exists());
 
 		// Check that the directory has been created remotely.
-		SVNInfo info= workingCopyClient.doInfo(urlManager.getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
+		SVNInfo info= submitterFactory.getWorkingCopyClient().doInfo(submitterFactory.getURLManager().getPersonalWorkspaceSVNURL(), SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 	}
 
 	@Test
 	public void shouldSubmit() throws SubmissionException, InitializationException, SVNException, CoreException {
-		AuthenticanResult authenticanResult= submitter.authenticate();
+		AuthenticanResult authenticanResult= submitterFactory.getSubmitter().authenticate();
 
 		assertEquals(AuthenticanResult.OK, authenticanResult);
 
-		modifyFileInWatchedFolder();
+		submitterFactory.modifyFileInWatchedFolder();
 
 		// Add and commit the local file that we created.
-		submitter.submit();
+		submitterFactory.getSubmitter().submit();
 
 		// Check that the file has been created remotely.
-		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalWorkspaceURL(), FILENAME));
-		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
+		SVNURL url= submitterFactory.getURLManager().getSVNURL(submitterFactory.getURLManager().joinByURLSeparator(submitterFactory.getURLManager().getPersonalWorkspaceURL(), FILENAME));
+		SVNInfo info= submitterFactory.getWorkingCopyClient().doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		assertNotNull(info);
 
 		assertWorkingCopyExists();

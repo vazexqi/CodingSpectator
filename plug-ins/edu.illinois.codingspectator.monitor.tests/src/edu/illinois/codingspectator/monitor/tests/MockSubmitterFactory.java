@@ -24,36 +24,70 @@ import edu.illinois.codingspectator.monitor.core.submission.URLManager;
 import edu.illinois.codingspectator.monitor.ui.prefs.UUIDGenerator;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
-public class SubmitterHelper {
-
-	static Submitter submitter;
-
-	static final String USERNAME= "test.codingspectator";
-
-	static final String PASSWORD= "test.codingspectator";
-
-	static SVNWCClient workingCopyClient;
-
-	static SVNCommitClient commitClient;
+public class MockSubmitterFactory {
 
 	static final String UUID= "00000000-0000-0000-0000-000000000000";
 
-	static URLManager urlManager;
-
 	static final String FILENAME= "log.txt";
 
-	static SVNManager svnManager;
+	private String username;
 
-	static void initializeSubmitter() {
+	private String password;
+
+	private Submitter submitter;
+
+	private SVNWCClient workingCopyClient;
+
+	private SVNCommitClient commitClient;
+
+	private URLManager urlManager;
+
+	private SVNManager svnManager;
+
+	public MockSubmitterFactory(MockParticipant participant) {
+		username= participant.getUsername();
+		password= participant.getPassword();
 		submitter= new Submitter(new MockAuthenticationProvider(getAuthenticationInfo()));
-		urlManager= new URLManager(Messages.MockAuthenticationProvider_TestRepositoryURL, USERNAME, UUID);
-		svnManager= new SVNManager(urlManager, Submitter.WATCHED_FOLDER, USERNAME, PASSWORD);
-		SVNClientManager clientManager= SVNClientManager.newInstance(null, USERNAME, PASSWORD);
+		urlManager= new URLManager(Messages.MockAuthenticationProvider_TestRepositoryURL, username, UUID);
+		svnManager= new SVNManager(urlManager, Submitter.WATCHED_FOLDER, username, password);
+		SVNClientManager clientManager= SVNClientManager.newInstance(null, username, password);
 		workingCopyClient= clientManager.getWCClient();
 		commitClient= clientManager.getCommitClient();
 	}
 
-	static void modifyFileInWatchedFolder() throws CoreException {
+	public MockSubmitterFactory() {
+		this(MockParticipantFactory.getMockParticipant(0));
+	}
+
+	public Submitter getSubmitter() {
+		return submitter;
+	}
+
+	public SVNWCClient getWorkingCopyClient() {
+		return workingCopyClient;
+	}
+
+	public SVNCommitClient getCommitClient() {
+		return commitClient;
+	}
+
+	public URLManager getURLManager() {
+		return urlManager;
+	}
+
+	public SVNManager getSVNManager() {
+		return svnManager;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void modifyFileInWatchedFolder() throws CoreException {
 		PrintWriter printWriter= null;
 		try {
 			EFSFile logFile= new EFSFile(Submitter.WATCHED_FOLDER).append(FILENAME);
@@ -66,14 +100,14 @@ public class SubmitterHelper {
 		}
 	}
 
-	static long getFileRevisionNumber() throws SVNException {
+	public long getFileRevisionNumber() throws SVNException {
 		SVNURL url= urlManager.getSVNURL(urlManager.joinByURLSeparator(urlManager.getPersonalWorkspaceURL(), FILENAME));
 		SVNInfo info= workingCopyClient.doInfo(url, SVNRevision.HEAD, SVNRevision.HEAD);
 		return info.getRevision().getNumber();
 	}
 
-	static AuthenticationInfo getAuthenticationInfo() {
-		return new AuthenticationInfo(USERNAME, PASSWORD, false);
+	public AuthenticationInfo getAuthenticationInfo() {
+		return new AuthenticationInfo(username, password, false);
 	}
 
 }
