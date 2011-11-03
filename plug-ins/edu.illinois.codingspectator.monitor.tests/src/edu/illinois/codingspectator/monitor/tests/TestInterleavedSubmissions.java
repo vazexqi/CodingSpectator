@@ -28,6 +28,8 @@ public class TestInterleavedSubmissions {
 		MockSubmitterFactory submitterFactory1= new MockSubmitterFactory(MockParticipantFactory.getMockParticipant(0));
 		MockSubmitterFactory submitterFactory2= new MockSubmitterFactory(MockParticipantFactory.getMockParticipant(1));
 
+		removeExistingDataIfAny(submitterFactory1);
+		removeExistingDataIfAny(submitterFactory2);
 		submitterFactory1.modifyFileInWatchedFolder();
 		submit(submitterFactory1);
 		long initialRevisionNumber= submitterFactory1.getFileRevisionNumber();
@@ -49,6 +51,12 @@ public class TestInterleavedSubmissions {
 		assertEquals(MockSubmitterFactory.UUID, submitterFactory.getSubmitter().getUUID());
 		assertEquals(AuthenticanResult.OK, authenticanResult);
 		submitterFactory.getSubmitter().submit();
+	}
+
+	private void removeExistingDataIfAny(MockSubmitterFactory submitterFactory) throws SVNException {
+		if (submitterFactory.getSVNManager().isWatchedFolderInRepository()) {
+			submitterFactory.getSVNManager().doDelete(String.format("Removed the remoted data of mock participant '%s'.", submitterFactory.getUsername()));
+		}
 	}
 
 }
