@@ -16,7 +16,9 @@ public class NavigationHistoryItem {
 
 	public static final String BEGIN_MARKER= "["; //$NON-NLS-1$
 
-	private static final String INITIAL_DIALOG_BUTTON_LABEL= "BEGIN_REFACTORING"; //$NON-NLS-1$
+	private static final String OPEN_DIALOG_EVENT= "BEGIN_REFACTORING"; //$NON-NLS-1$
+
+	public static final String QUIT_DIALOG_EVENT= "QUIT_REFACTORING"; //$NON-NLS-1$
 
 	final String dialogID;
 
@@ -45,7 +47,7 @@ public class NavigationHistoryItem {
 	}
 
 	public NavigationHistoryItem(String initialDialogTitle) {
-		this(initialDialogTitle, INITIAL_DIALOG_BUTTON_LABEL);
+		this(initialDialogTitle, OPEN_DIALOG_EVENT);
 	}
 
 	public String getDialogID() {
