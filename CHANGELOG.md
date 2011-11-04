@@ -1,3 +1,10 @@
+v1.0.0.201111031900 (Helios) and v1.0.0.201111031917 (Indigo)
+=============================================================
+- Fixed the redundant detection of inconsistency between local and remote data (issue [#333](https://github.com/vazexqi/CodingSpectator/issues/333)).
+- Confirmed that `error.log` doesn't get rotated (issue [#278](https://github.com/vazexqi/CodingSpectator/issues/278)).
+- Logged the close events of refactoring dialogs in navigation histories (issue [#292](https://github.com/vazexqi/CodingSpectator/issues/292)).
+- Found a workaround for installing on an instance of Eclipse owned by root (issue [#242](https://github.com/vazexqi/CodingSpectator/issues/242)).
+
 v1.0.0.201110132006 (Helios) and v1.0.0.201110132018 (Indigo)
 =============================================================
 - Prevented the installation of CodingSpectator on Eclipse Indigo SR1 (issues [#327](https://github.com/vazexqi/CodingSpectator/issues/327), [#328](https://github.com/vazexqi/CodingSpectator/issues/328), and [#330](https://github.com/vazexqi/CodingSpectator/issues/330)).
