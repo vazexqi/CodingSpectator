@@ -4,6 +4,7 @@
 package edu.illinois.codingspectator.monitor.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.CoreException;
@@ -39,9 +40,10 @@ public class TestSubmitterWithConflicts {
 		long initialRevisionNumber= submitterFactory.getFileRevisionNumber();
 
 		modifyLog();
+		assertFalse(submitterFactory.getSubmitter().doLocalAndRemoteDataMatch());
 		submit();
 
-		assertTrue(submitterFactory.getFileRevisionNumber() > initialRevisionNumber);
+		assertEquals(initialRevisionNumber + 2, submitterFactory.getFileRevisionNumber());
 	}
 
 	@Test
@@ -53,9 +55,10 @@ public class TestSubmitterWithConflicts {
 
 		modifyLog();
 		submitterFactory.getSVNManager().doUpdate();
+		assertTrue(submitterFactory.getSubmitter().doLocalAndRemoteDataMatch());
 		submit();
 
-		assertTrue(submitterFactory.getFileRevisionNumber() > initialRevisionNumber);
+		assertEquals(initialRevisionNumber + 2, submitterFactory.getFileRevisionNumber());
 	}
 
 	private void modifyLog() throws CoreException {
