@@ -6,6 +6,8 @@ package edu.illinois.codingtracker.recording.ast.identification;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
+import edu.illinois.codingtracker.operations.ast.ASTMethodDescriptor;
+import edu.illinois.codingtracker.operations.ast.ASTNodeDescriptor;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 
 /**
@@ -15,39 +17,60 @@ import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
  */
 public class IdentifiedNodeInfo {
 
-	private final ASTNode identifiedNode;
+	private final String positionalNodeID;
 
-	private final MethodDeclaration containingMethod;
+	private long containingMethodID= -1;
 
-	private final long containingMethodID;
+	//Note that nodeDescriptor.nodeOffset could have an old value if there are changes in methods that precede in code 
+	//the containing method of this AST node. This is OK since nodeOffset is used only for debugging purposes.
+	private final ASTNodeDescriptor nodeDescriptor;
+
+	private final ASTMethodDescriptor methodDescriptor; //It is null if this identified node is not a MethodDeclaration.
 
 
-	public IdentifiedNodeInfo(String filePath, ASTNode identifiedNode) {
-		this.identifiedNode= identifiedNode;
+	public IdentifiedNodeInfo(String filePath, ASTNode identifiedNode, long persistentNodeID) {
+		positionalNodeID= ASTNodesIdentifier.getPositionalNodeID(identifiedNode);
+		nodeDescriptor= ASTHelper.createASTNodeDescriptor(persistentNodeID, identifiedNode, "");
 		if (identifiedNode instanceof MethodDeclaration) {
-			containingMethod= null;
-			containingMethodID= -1;
+			containingMethodID= persistentNodeID; //A method contains itself.
+			//Note that instances of IdentifiedNodeInfo are created only during recording of AST operations, and the cache of 
+			//the cyclomatic complexity calculator is always reset before this recording, so no need to reset it here again.
+			methodDescriptor= ASTHelper.createASTMethodDescriptor(persistentNodeID, (MethodDeclaration)identifiedNode);
 		} else {
-			containingMethod= ASTHelper.getContainingMethod(identifiedNode);
+			methodDescriptor= null;
+			MethodDeclaration containingMethod= ASTHelper.getContainingMethod(identifiedNode);
 			if (containingMethod != null) {
 				containingMethodID= ASTNodesIdentifier.getPersistentNodeID(filePath, containingMethod);
-			} else {
-				containingMethodID= -1;
 			}
 		}
 	}
 
-	public ASTNode getIdentifiedNode() {
-		return identifiedNode;
+	public long getNodeID() {
+		return nodeDescriptor.getNodeID();
 	}
 
-	public MethodDeclaration getContainingMethod(boolean shouldGetOriginal) {
-		if (shouldGetOriginal) {
-			return containingMethod;
-		}
-		if (containingMethodID != -1) {
-			return (MethodDeclaration)ASTNodesIdentifier.getIdentifiedNode(containingMethodID);
-		}
-		return null;
+	public String getPositionalNodeID() {
+		return positionalNodeID;
 	}
+
+	public ASTNodeDescriptor getASTNodeDescriptor() {
+		return nodeDescriptor;
+	}
+
+	public ASTMethodDescriptor getMethodDescriptor() {
+		return methodDescriptor;
+	}
+
+	public ASTMethodDescriptor getContainingMethodDescriptor() {
+		if (containingMethodID != -1) {
+			IdentifiedNodeInfo containingMethodNodeInfo= ASTNodesIdentifier.getIdentifiedNodeInfo(containingMethodID);
+			ASTMethodDescriptor containingMethodDecriptor= containingMethodNodeInfo.getMethodDescriptor();
+			if (containingMethodDecriptor == null) {
+				throw new RuntimeException("Containing method's node info does not represent a method declaration!");
+			}
+			return containingMethodDecriptor;
+		}
+		return ASTHelper.createEmptyASTMethodDescriptor();
+	}
+
 }

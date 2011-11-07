@@ -18,6 +18,13 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jface.text.Document;
+
+import edu.illinois.codingtracker.operations.ast.ASTMethodDescriptor;
+import edu.illinois.codingtracker.operations.ast.ASTNodeDescriptor;
+import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
+import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
+import edu.illinois.codingtracker.recording.ast.identification.IdentifiedNodeInfo;
 
 
 /**
@@ -183,6 +190,58 @@ public class ASTHelper {
 		parser.setResolveBindings(false);
 		parser.setBindingsRecovery(false);
 		return parser;
+	}
+
+	public static CompositeNodeDescriptor createCompositeNodeDescriptor(String filePath, ASTNode node, String nodeNewText) {
+		ASTNodeDescriptor astNodeDescriptor= createASTNodeDescriptor(filePath, node, nodeNewText);
+		ASTMethodDescriptor containingMethodDescriptor= createASTMethodDescriptor(filePath, getContainingMethod(node));
+		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor);
+	}
+
+	private static ASTNodeDescriptor createASTNodeDescriptor(String filePath, ASTNode node, String nodeNewText) {
+		long nodeID= ASTNodesIdentifier.getPersistentNodeID(filePath, node);
+		return createASTNodeDescriptor(nodeID, node, nodeNewText);
+	}
+
+	public static ASTNodeDescriptor createASTNodeDescriptor(long nodeID, ASTNode node, String nodeNewText) {
+		String nodeType= node.getClass().getSimpleName();
+		String nodeText= node.toString();
+		int nodeOffset= node.getStartPosition();
+		int nodeLength= node.getLength();
+		return new ASTNodeDescriptor(nodeID, nodeType, nodeText, nodeNewText, nodeOffset, nodeLength);
+	}
+
+	private static ASTMethodDescriptor createASTMethodDescriptor(String filePath, MethodDeclaration methodDeclaration) {
+		if (methodDeclaration == null) {
+			return createEmptyASTMethodDescriptor();
+		}
+		long methodID= ASTNodesIdentifier.getPersistentNodeID(filePath, methodDeclaration);
+		return createASTMethodDescriptor(methodID, methodDeclaration);
+	}
+
+	public static ASTMethodDescriptor createEmptyASTMethodDescriptor() {
+		return new ASTMethodDescriptor(-1, "", -1, -1);
+	}
+
+	public static ASTMethodDescriptor createASTMethodDescriptor(long methodID, MethodDeclaration methodDeclaration) {
+		String methodName= getQualifiedMethodName(methodDeclaration);
+
+		//Note that containingMethodLinesCount would not count lines with comments or white spaces, but would
+		//count several statements on the same line as separate lines (i.e. AST node is normalized such that each statement
+		//appears on a separate line, which is usually the case with the actual code as well).
+		int methodLinesCount= (new Document(methodDeclaration.toString().trim())).getNumberOfLines();
+
+		//Note that for added nodes we get lines count and cyclomatic complexity of the resulting containing method 
+		//that already contains these added nodes.
+		int methodCyclomaticComplexity= CyclomaticComplexityCalculator.getCyclomaticComplexity(methodDeclaration);
+
+		return new ASTMethodDescriptor(methodID, methodName, methodLinesCount, methodCyclomaticComplexity);
+	}
+
+	public static CompositeNodeDescriptor createCompositeNodeDescriptor(IdentifiedNodeInfo nodeInfo) {
+		ASTNodeDescriptor astNodeDescriptor= nodeInfo.getASTNodeDescriptor();
+		ASTMethodDescriptor containingMethodDescriptor= nodeInfo.getContainingMethodDescriptor();
+		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor);
 	}
 
 }

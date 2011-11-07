@@ -3,13 +3,12 @@
  */
 package edu.illinois.codingtracker.recording;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
+import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
 import edu.illinois.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
@@ -39,9 +38,8 @@ public class ASTInferenceTextRecorder {
 		performRecording(userOperation);
 	}
 
-	public static void recordASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID,
-											int methodLinesCount, int methodCyclomaticComplexity, String fullMethodName) {
-		ASTOperation astOperation= new ASTOperation(operationKind, astNode, newNodeText, nodeID, methodID, methodLinesCount, methodCyclomaticComplexity, fullMethodName, getASTOperationTimestamp());
+	public static void recordASTOperation(OperationKind operationKind, CompositeNodeDescriptor affectedNodeDescriptor) {
+		ASTOperation astOperation= new ASTOperation(operationKind, affectedNodeDescriptor, getASTOperationTimestamp());
 		performRecording(astOperation);
 	}
 

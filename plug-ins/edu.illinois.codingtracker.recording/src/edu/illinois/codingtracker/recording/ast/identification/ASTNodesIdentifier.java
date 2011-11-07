@@ -141,17 +141,22 @@ public class ASTNodesIdentifier {
 			nextFreePersistentID++;
 		}
 		if (shouldAddToIdentifiedNodes && !identifiedNodes.containsKey(persistentNodeID)) {
-			identifiedNodes.put(persistentNodeID, new IdentifiedNodeInfo(filePath, node));
+			identifiedNodes.put(persistentNodeID, new IdentifiedNodeInfo(filePath, node, persistentNodeID));
 		}
 		return persistentNodeID;
 	}
 
 	public static long removePersistentNodeID(String filePath, ASTNode node) {
 		long persistentNodeID= getPersistentNodeID(filePath, node, false);
+		String positionalNodeID= getPositionalNodeID(node);
+		return removePersistentNodeID(filePath, persistentNodeID, positionalNodeID);
+	}
+
+	public static long removePersistentNodeID(String filePath, long persistentNodeID, String positionalNodeID) {
 		identifiedNodes.remove(persistentNodeID);
 		//Remove the persistent node ID entry after getting the persistentNodeID.
 		Map<String, Long> filePersistentNodeIDs= getFilePersistentNodeIDs(filePath);
-		filePersistentNodeIDs.remove(getPositionalNodeID(node));
+		filePersistentNodeIDs.remove(positionalNodeID);
 		return persistentNodeID;
 	}
 
@@ -182,11 +187,13 @@ public class ASTNodesIdentifier {
 	private static void updateIdentifiedNodes(String filePath, Map<ASTNode, ASTNode> matchedNodes, ASTNode newCommonCoveringNode) {
 		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
 			ASTNode newNode= mapEntry.getValue();
-			identifiedNodes.put(getPersistentNodeID(filePath, newNode), new IdentifiedNodeInfo(filePath, newNode));
+			long newNodeID= getPersistentNodeID(filePath, newNode);
+			identifiedNodes.put(newNodeID, new IdentifiedNodeInfo(filePath, newNode, newNodeID));
 		}
 		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(newCommonCoveringNode);
 		if (containingMethod != null) {
-			identifiedNodes.put(getPersistentNodeID(filePath, containingMethod), new IdentifiedNodeInfo(filePath, containingMethod));
+			long containingMethodID= getPersistentNodeID(filePath, containingMethod);
+			identifiedNodes.put(containingMethodID, new IdentifiedNodeInfo(filePath, containingMethod, containingMethodID));
 		}
 	}
 
@@ -211,9 +218,9 @@ public class ASTNodesIdentifier {
 		return collectedNodeInfos;
 	}
 
-	public static ASTNode getIdentifiedNode(long persistentNodeID) {
+	public static IdentifiedNodeInfo getIdentifiedNodeInfo(long persistentNodeID) {
 		//It is assumed that if the caller obtained persistentNodeID, the node should be already among identified nodes.
-		return identifiedNodes.get(persistentNodeID).getIdentifiedNode();
+		return identifiedNodes.get(persistentNodeID);
 	}
 
 	private static Set<String> getFilePathsPrefixedBy(String prefix) {

@@ -3,8 +3,6 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -23,45 +21,17 @@ public class ASTOperation extends UserOperation {
 
 	private OperationKind operationKind;
 
-	private String nodeType;
+	CompositeNodeDescriptor affectedNodeDescriptor;
 
-	//The following 4 fields are mainly for the debugging purposes.
-	private String nodeText;
-
-	private String newNodeText; //Is present only for CHANGE operations.
-
-	private int nodeOffset;
-
-	private int nodeLength;
-
-	private long nodeID;
-
-	private long methodID;
-
-	private int methodLinesCount;
-
-	private int methodCyclomaticComplexity;
-
-	private String fullMethodName;
 
 	public ASTOperation() {
 		super();
 	}
 
-	public ASTOperation(OperationKind operationKind, ASTNode astNode, String newNodeText, long nodeID, long methodID,
-						int methodLinesCount, int methodCyclomaticComplexity, String fullMethodName, long timestamp) {
+	public ASTOperation(OperationKind operationKind, CompositeNodeDescriptor affectedNodeDescriptor, long timestamp) {
 		super(timestamp);
 		this.operationKind= operationKind;
-		nodeType= astNode.getClass().getSimpleName();
-		nodeText= astNode.toString();
-		this.newNodeText= newNodeText;
-		nodeOffset= astNode.getStartPosition();
-		nodeLength= astNode.getLength();
-		this.nodeID= nodeID;
-		this.methodID= methodID;
-		this.methodLinesCount= methodLinesCount;
-		this.methodCyclomaticComplexity= methodCyclomaticComplexity;
-		this.fullMethodName= fullMethodName;
+		this.affectedNodeDescriptor= affectedNodeDescriptor;
 	}
 
 	@Override
@@ -75,23 +45,23 @@ public class ASTOperation extends UserOperation {
 	}
 
 	public long getNodeID() {
-		return nodeID;
+		return affectedNodeDescriptor.getNodeID();
 	}
 
 	public long getMethodID() {
-		return methodID;
+		return affectedNodeDescriptor.getMethodID();
 	}
 
 	public String getMethodName() {
-		return fullMethodName;
+		return affectedNodeDescriptor.getMethodFullName();
 	}
 
 	public int getMethodLinesCount() {
-		return methodLinesCount;
+		return affectedNodeDescriptor.getMethodLinesCount();
 	}
 
 	public int getMethodCyclomaticComplexity() {
-		return methodCyclomaticComplexity;
+		return affectedNodeDescriptor.getMethodCyclomaticComplexity();
 	}
 
 	public boolean isAdd() {
@@ -110,31 +80,26 @@ public class ASTOperation extends UserOperation {
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		int kindOrdinal= operationKind.ordinal();
 		textChunk.append(kindOrdinal);
-		textChunk.append(nodeType);
-		textChunk.append(nodeText);
-		textChunk.append(newNodeText);
-		textChunk.append(nodeOffset);
-		textChunk.append(nodeLength);
-		textChunk.append(nodeID);
-		textChunk.append(methodID);
-		textChunk.append(methodLinesCount);
-		textChunk.append(methodCyclomaticComplexity);
-		textChunk.append(fullMethodName);
+		textChunk.append(affectedNodeDescriptor.getNodeID());
+		textChunk.append(affectedNodeDescriptor.getNodeType());
+		textChunk.append(affectedNodeDescriptor.getNodeText());
+		textChunk.append(affectedNodeDescriptor.getNodeNewText());
+		textChunk.append(affectedNodeDescriptor.getNodeOffset());
+		textChunk.append(affectedNodeDescriptor.getNodeLength());
+		textChunk.append(affectedNodeDescriptor.getMethodID());
+		textChunk.append(affectedNodeDescriptor.getMethodFullName());
+		textChunk.append(affectedNodeDescriptor.getMethodLinesCount());
+		textChunk.append(affectedNodeDescriptor.getMethodCyclomaticComplexity());
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		operationKind= OperationKind.values()[operationLexer.readInt()];
-		nodeType= operationLexer.readString();
-		nodeText= operationLexer.readString();
-		newNodeText= operationLexer.readString();
-		nodeOffset= operationLexer.readInt();
-		nodeLength= operationLexer.readInt();
-		nodeID= operationLexer.readLong();
-		methodID= operationLexer.readLong();
-		methodLinesCount= operationLexer.readInt();
-		methodCyclomaticComplexity= operationLexer.readInt();
-		fullMethodName= operationLexer.readString();
+		ASTNodeDescriptor astNodeDescriptor= new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readString(),
+				operationLexer.readString(), operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
+		ASTMethodDescriptor astMethodDescriptor= new ASTMethodDescriptor(operationLexer.readLong(),
+				operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
+		affectedNodeDescriptor= new CompositeNodeDescriptor(astNodeDescriptor, astMethodDescriptor);
 	}
 
 	@Override
@@ -146,20 +111,18 @@ public class ASTOperation extends UserOperation {
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Operation kind: " + operationKind + "\n");
-		sb.append("Node type: " + nodeType + "\n");
-		sb.append("Node text: " + nodeText + "\n");
-		if (!newNodeText.isEmpty()) {
-			sb.append("New node text: " + newNodeText + "\n");
+		sb.append("Node ID: " + affectedNodeDescriptor.getNodeID() + "\n");
+		sb.append("Node type: " + affectedNodeDescriptor.getNodeType() + "\n");
+		sb.append("Node text: " + affectedNodeDescriptor.getNodeText() + "\n");
+		if (isChange()) { //New node text is not empty only for CHANGE operations.
+			sb.append("New node text: " + affectedNodeDescriptor.getNodeNewText() + "\n");
 		}
-		sb.append("Node offset: " + nodeOffset + "\n");
-		sb.append("Node length: " + nodeLength + "\n");
-		sb.append("Node ID: " + nodeID + "\n");
-		sb.append("Method ID: " + methodID + "\n");
-		sb.append("Method lines count: " + methodLinesCount + "\n");
-		sb.append("Method cyclomatic complexity: " + methodCyclomaticComplexity + "\n");
-		if (!fullMethodName.isEmpty()) {
-			sb.append("Fully qualified method name: " + fullMethodName + "\n");
-		}
+		sb.append("Node offset: " + affectedNodeDescriptor.getNodeOffset() + "\n");
+		sb.append("Node length: " + affectedNodeDescriptor.getNodeLength() + "\n");
+		sb.append("Method ID: " + affectedNodeDescriptor.getMethodID() + "\n");
+		sb.append("Fully qualified method name: " + affectedNodeDescriptor.getMethodFullName() + "\n");
+		sb.append("Method lines count: " + affectedNodeDescriptor.getMethodLinesCount() + "\n");
+		sb.append("Method cyclomatic complexity: " + affectedNodeDescriptor.getMethodCyclomaticComplexity() + "\n");
 		sb.append(super.toString());
 		return sb.toString();
 	}
