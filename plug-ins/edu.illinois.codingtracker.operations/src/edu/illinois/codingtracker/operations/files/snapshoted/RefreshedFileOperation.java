@@ -89,7 +89,10 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 		} else {//If file editor does not exist, create a file with the replaced text and open an editor for it
 			createCompilationUnit(replacedText);
 			EditorHelper.createEditor(resourcePath);
-			EditorHelper.activateEditor(currentEditor);
+			//If there is a current editor, restore it.
+			if (currentEditor != null) {
+				EditorHelper.activateEditor(currentEditor);
+			}
 		}
 		refresh();
 	}
