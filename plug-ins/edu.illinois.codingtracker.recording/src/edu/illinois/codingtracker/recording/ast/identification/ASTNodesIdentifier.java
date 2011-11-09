@@ -199,7 +199,7 @@ public class ASTNodesIdentifier {
 
 	public static void updateFilePersistentNodeIDsMapping(String oldPrefix, String newPrefix) {
 		for (String filePath : getFilePathsPrefixedBy(oldPrefix)) {
-			String newFilePath= filePath.replaceFirst(oldPrefix, newPrefix);
+			String newFilePath= newPrefix + filePath.substring(oldPrefix.length());
 			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.remove(filePath);
 			persistentNodeIDs.put(newFilePath, filePersistentNodeIDs);
 		}
