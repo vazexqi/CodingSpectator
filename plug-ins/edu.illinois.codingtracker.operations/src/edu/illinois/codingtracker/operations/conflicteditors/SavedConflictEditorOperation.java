@@ -6,7 +6,7 @@ package edu.illinois.codingtracker.operations.conflicteditors;
 import org.eclipse.compare.internal.CompareEditor;
 
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
+import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -60,7 +60,7 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	public void replay() {
 		if (success) {
-			CompareEditor compareEditor= CompareEditorsUpkeeper.getEditor(editorID);
+			CompareEditor compareEditor= EditorHelper.getCompareEditor(editorID);
 			if (compareEditor == null) {
 				Debugger.debugWarning("Can not save non existing conflict editor:\n" + this);
 			} else {
