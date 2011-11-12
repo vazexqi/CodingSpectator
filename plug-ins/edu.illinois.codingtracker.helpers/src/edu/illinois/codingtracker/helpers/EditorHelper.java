@@ -169,7 +169,10 @@ public class EditorHelper {
 
 	public static void closeEditorSynchronously(IEditorPart editorPart) {
 		//This closes the given editor synchronously. 
-		editorPart.getSite().getPage().closeEditor(editorPart, false);
+		boolean success= editorPart.getSite().getPage().closeEditor(editorPart, false);
+		if (!success) {
+			throw new RuntimeException("Could not close editor: " + editorPart);
+		}
 		existingEditors.remove(editorPart);
 	}
 
