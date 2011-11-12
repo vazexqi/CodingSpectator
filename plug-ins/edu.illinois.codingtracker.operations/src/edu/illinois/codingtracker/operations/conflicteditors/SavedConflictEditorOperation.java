@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.operations.conflicteditors;
 
 import org.eclipse.compare.internal.CompareEditor;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
@@ -49,7 +50,7 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		if (!isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			success= operationLexer.readBoolean();
 		} else {
 			success= true;

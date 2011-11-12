@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.helpers.ViewerHelper;
@@ -386,7 +387,7 @@ public class UserOperationReplayer {
 
 	private void replayAndAdvanceCurrentUserOperation(ReplayPace replayPace) {
 		try {
-			if (!UserOperation.isInTestMode && currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
+			if (!Configuration.isInTestMode && currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
 					forcedExecutionStop= true;
 					userOperationExecutionThread.interrupt();

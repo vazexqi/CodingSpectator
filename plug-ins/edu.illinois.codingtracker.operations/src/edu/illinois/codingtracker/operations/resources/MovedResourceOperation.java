@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 
@@ -50,7 +51,7 @@ public class MovedResourceOperation extends ReorganizedResourceOperation {
 			//If a Java file is moved to a non Java file (e.g. file without ".java" extension), the editor (if any) of the moved Java file is closed.
 			//Therefore, if not in test mode, explicitly close the editors of the files that are contained in the moved resource such that the replayer 
 			//does not complain about the wrong editor, and do it before the resource is moved such that the affected files still exist.
-			if (!isInTestMode) {
+			if (!Configuration.isInTestMode) {
 				EditorHelper.closeAllEditorsForResource(resourcePath);
 			}
 			resource.move(new Path(destinationPath), updateFlags, null);
