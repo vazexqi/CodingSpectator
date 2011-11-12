@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.operations.files;
 
 import org.eclipse.core.resources.IFile;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -62,7 +63,7 @@ public class UpdatedFileOperation extends FileOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		if (!isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			revision= operationLexer.readString();
 			committedRevision= operationLexer.readString();
 		} else {

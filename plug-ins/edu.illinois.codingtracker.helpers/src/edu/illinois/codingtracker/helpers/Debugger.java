@@ -22,11 +22,9 @@ public class Debugger {
 
 	private static final String PLUGIN_ID= "edu.illinois.codingtracker.helpers";
 
-	private static final boolean isInDebugMode= System.getenv("DEBUG_MODE") != null;
-
 
 	public static void debug(String message) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 			System.out.println(message);
 		}
 	}
@@ -36,31 +34,31 @@ public class Debugger {
 	}
 
 	public static void debugFilePath(String message, IFile file) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 			System.out.println(message + ResourceHelper.getPortableResourcePath(file));
 		}
 	}
 
 	public static void debugWorkbenchPart(String message, IWorkbenchPart part) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 			System.out.println(message + part.getClass().getName());
 		}
 	}
 
 	public static void debugTextChunk(String message, CharSequence textChunk) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 			System.out.println(message + textChunk);
 		}
 	}
 
 	public static void debugFileSize(String message, File file) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 			System.out.println(message + file.length());
 		}
 	}
 
 	public static void debugRefactoringDescriptor(RefactoringDescriptor refactoringDescriptor) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 //			System.out.println("Refactoring descriptor id: " + refactoringDescriptor.getID());
 //			System.out.println("Project: " + refactoringDescriptor.getProject());
 //			System.out.println("Flags: " + refactoringDescriptor.getFlags());
@@ -77,7 +75,7 @@ public class Debugger {
 	}
 
 	public static void debugDocumentEvent(DocumentEvent documentEvent, String replacedText) {
-		if (isInDebugMode) {
+		if (Configuration.isInDebugMode) {
 //			System.out.println("Replaced text:\"" + replacedText + "\", new text:\"" + documentEvent.getText() +
 //								"\", offset=" + documentEvent.getOffset() + ", length=" + documentEvent.getLength());
 		}

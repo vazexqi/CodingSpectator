@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -31,8 +32,6 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private final boolean shouldOverwriteOutputFiles= true;
 
-	private final String rootFolderName= System.getenv("POSTPROCESSOR_ROOT_FOLDER");
-
 	private File mergedOutputFile;
 
 	protected String postprocessedVersion;
@@ -46,14 +45,13 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	@Test
 	public void execute() {
 		checkPostprocessingPreconditions();
-		UserOperation.isPostprocessing= true;
 		prepareMergedOutputFile();
-		visitLocation(new File(rootFolderName));
+		visitLocation(new File(Configuration.postprocessorRootFolderName));
 	}
 
 	private void prepareMergedOutputFile() {
 		if (shouldMergeResults()) {
-			mergedOutputFile= new File(rootFolderName, COMBINED_FILE_PREFIX + getResultFilePostfix());
+			mergedOutputFile= new File(Configuration.postprocessorRootFolderName, COMBINED_FILE_PREFIX + getResultFilePostfix());
 			checkExistance(mergedOutputFile);
 			writeToFile(mergedOutputFile, getMergedFilePrefix(), false);
 		}

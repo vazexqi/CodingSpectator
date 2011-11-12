@@ -6,6 +6,7 @@ package edu.illinois.codingtracker.operations.resources;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -42,7 +43,7 @@ public abstract class BreakableResourceOperation extends ResourceOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		if (!isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			success= operationLexer.readBoolean();
 		} else {
 			success= true;

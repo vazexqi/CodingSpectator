@@ -22,6 +22,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.core.refactoring.history.DefaultRefactoringDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.history.RefactoringContributionManager;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
@@ -197,7 +198,7 @@ public class NewStartedRefactoringOperation extends UserOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		if (shouldAlwaysReplay || isInTestMode) { //replay only older refactorings or if in the test mode
+		if (shouldAlwaysReplay || Configuration.isInTestMode) { //replay only older refactorings or if in the test mode
 			isReplayedRefactoring= true;
 			switch (refactoringMode) {
 				case PERFORM:
