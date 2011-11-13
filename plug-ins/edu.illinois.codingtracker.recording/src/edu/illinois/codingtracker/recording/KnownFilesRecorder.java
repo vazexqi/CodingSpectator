@@ -28,6 +28,7 @@ import edu.illinois.codingtracker.helpers.CollectionHelper;
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.helpers.Messages;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.helpers.StringHelper;
 
 /**
  * 
@@ -240,7 +241,8 @@ public class KnownFilesRecorder {
 				String newPrefix= getKeyForPath(destination) + IPath.SEPARATOR;
 				for (Entry<Object, Object> entry : reorganizedEntries) {
 					String oldEntryKey= (String)entry.getKey();
-					reorganizeKnownFile(oldEntryKey, replacePrefix(oldEntryKey, oldPrefix, newPrefix), shouldCreateNewEntry, shouldRemoveOldEntry);
+					String newEntryKey= StringHelper.replacePrefix(oldEntryKey, oldPrefix, newPrefix);
+					reorganizeKnownFile(oldEntryKey, newEntryKey, shouldCreateNewEntry, shouldRemoveOldEntry);
 				}
 				recordKnownFiles();
 			}
@@ -264,10 +266,6 @@ public class KnownFilesRecorder {
 			}
 		}
 		return result;
-	}
-
-	private String replacePrefix(String str, String oldPrefix, String newPrefix) {
-		return newPrefix + str.substring(oldPrefix.length());
 	}
 
 	private String getKeyForResource(IResource resource) {
