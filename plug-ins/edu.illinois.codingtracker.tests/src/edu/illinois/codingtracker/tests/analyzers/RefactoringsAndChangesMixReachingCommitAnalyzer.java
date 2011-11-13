@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.helpers.StringHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
@@ -157,7 +158,7 @@ public class RefactoringsAndChangesMixReachingCommitAnalyzer extends CSVProducin
 		String oldPrefix= movedResourceOperation.getResourcePath();
 		String newPrefix= movedResourceOperation.getDestinationPath();
 		for (String filePath : ResourceHelper.getFilePathsPrefixedBy(oldPrefix, changedMethodsIDs.keySet())) {
-			String newFilePath= filePath.replaceFirst(oldPrefix, newPrefix);
+			String newFilePath= StringHelper.replacePrefix(filePath, oldPrefix, newPrefix);
 			Set<Long> fileChangedMethodsIDs= changedMethodsIDs.remove(filePath);
 			changedMethodsIDs.put(newFilePath, fileChangedMethodsIDs);
 			Set<Long> fileRefactoredMethodsIDs= refactoredMethodsIDs.remove(filePath);

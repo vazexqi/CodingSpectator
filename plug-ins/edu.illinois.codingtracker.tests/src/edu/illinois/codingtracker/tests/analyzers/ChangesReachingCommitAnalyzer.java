@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.helpers.StringHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
@@ -115,7 +116,7 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 		String oldPrefix= movedResourceOperation.getResourcePath();
 		String newPrefix= movedResourceOperation.getDestinationPath();
 		for (String filePath : ResourceHelper.getFilePathsPrefixedBy(oldPrefix, touchedIDs.keySet())) {
-			String newFilePath= filePath.replaceFirst(oldPrefix, newPrefix);
+			String newFilePath= StringHelper.replacePrefix(filePath, oldPrefix, newPrefix);
 			Set<Long> fileTouchedIDs= touchedIDs.remove(filePath);
 			touchedIDs.put(newFilePath, fileTouchedIDs);
 			Set<Long> fileAddedIDs= addedIDs.remove(filePath);

@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.helpers.StringHelper;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 
 /**
@@ -199,7 +200,7 @@ public class ASTNodesIdentifier {
 
 	public static void updateFilePersistentNodeIDsMapping(String oldPrefix, String newPrefix) {
 		for (String filePath : getFilePathsPrefixedBy(oldPrefix)) {
-			String newFilePath= newPrefix + filePath.substring(oldPrefix.length());
+			String newFilePath= StringHelper.replacePrefix(filePath, oldPrefix, newPrefix);
 			Map<String, Long> filePersistentNodeIDs= persistentNodeIDs.remove(filePath);
 			persistentNodeIDs.put(newFilePath, filePersistentNodeIDs);
 		}

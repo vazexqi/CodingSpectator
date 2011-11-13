@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IDocument;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.helpers.StringHelper;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
@@ -357,8 +358,9 @@ public class ASTOperationRecorder {
 				throw new RuntimeException("Could not get contained Java files for resource: " + copiedResourcePath, e);
 			}
 			for (IFile containedJavaFile : containedJavaFiles) {
-				String filePath= ResourceHelper.getPortableResourcePath(containedJavaFile).replaceFirst(copiedResourcePath, destinationPath);
-				addAllNodesFromJavaFile(filePath, containedJavaFile);
+				String oldFilePath= ResourceHelper.getPortableResourcePath(containedJavaFile);
+				String newFilePath= StringHelper.replacePrefix(oldFilePath, copiedResourcePath, destinationPath);
+				addAllNodesFromJavaFile(newFilePath, containedJavaFile);
 			}
 		}
 	}
