@@ -4,6 +4,7 @@
 package edu.illinois.codingtracker.recording;
 
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.files.EditedFileOperation;
@@ -27,7 +28,7 @@ public class TextRecorder {
 
 
 	public static void record(UserOperation userOperation) {
-		if (!ASTOperationRecorder.isInReplayMode) {
+		if (!Configuration.isInReplayMode) {
 			//Before any user operation, excluding several exceptions, flush the accumulated AST changes.
 			if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof TextChangeOperation) &&
 					!(userOperation instanceof EditedFileOperation) && !(userOperation instanceof EditedUnsychronizedFileOperation) &&

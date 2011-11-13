@@ -21,4 +21,8 @@ public class Configuration {
 
 	public static final boolean isInPostprocessMode= postprocessorRootFolderName != null;
 
+	public static final boolean isInASTInferenceMode= System.getenv("AST_INFERENCE_MODE") != null;
+
+	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
+
 }

@@ -18,6 +18,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
@@ -36,10 +37,6 @@ import edu.illinois.codingtracker.recording.ast.inferencing.CoherentTextChange;
  * 
  */
 public class ASTOperationRecorder {
-
-	public static final boolean isInASTInferenceMode= System.getenv("AST_INFERENCE_MODE") != null;
-
-	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
 	public static boolean isReplayingSnapshotDifference= false;
 
@@ -64,7 +61,7 @@ public class ASTOperationRecorder {
 
 	public static ASTOperationRecorder getInstance() {
 		if (astRecorderInstance == null) {
-			if (isInASTInferenceMode) {
+			if (Configuration.isInASTInferenceMode) {
 				astRecorderInstance= new ASTOperationRecorder();
 			} else {
 				astRecorderInstance= new InactiveASTOperationRecorder();
@@ -275,7 +272,7 @@ public class ASTOperationRecorder {
 	}
 
 	private long getTextChangeTimestamp() {
-		if (isInReplayMode) {
+		if (Configuration.isInReplayMode) {
 			return TextChangeOperation.lastReplayedTimestamp;
 		} else {
 			return System.currentTimeMillis();

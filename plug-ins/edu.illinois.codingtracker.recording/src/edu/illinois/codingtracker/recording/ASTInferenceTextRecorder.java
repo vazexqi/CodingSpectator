@@ -4,6 +4,7 @@
 package edu.illinois.codingtracker.recording;
 
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
@@ -52,7 +53,7 @@ public class ASTInferenceTextRecorder {
 	}
 
 	private static long getASTOperationTimestamp() {
-		if (ASTOperationRecorder.isInReplayMode) {
+		if (Configuration.isInReplayMode) {
 			return lastTimestamp;
 		} else {
 			return System.currentTimeMillis();
