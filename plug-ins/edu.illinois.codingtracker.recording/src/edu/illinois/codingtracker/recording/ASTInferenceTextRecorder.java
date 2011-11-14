@@ -8,7 +8,7 @@ import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
 import edu.illinois.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
@@ -39,8 +39,8 @@ public class ASTInferenceTextRecorder {
 		performRecording(userOperation);
 	}
 
-	public static void recordASTOperation(OperationKind operationKind, CompositeNodeDescriptor affectedNodeDescriptor) {
-		ASTOperation astOperation= new ASTOperation(operationKind, affectedNodeDescriptor, getASTOperationTimestamp());
+	public static void recordASTOperation(ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor) {
+		ASTOperation astOperation= new ASTOperation(operationDescriptor, affectedNodeDescriptor, getASTOperationTimestamp());
 		performRecording(astOperation);
 	}
 

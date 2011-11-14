@@ -7,6 +7,7 @@ import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 
 /**
  * 
@@ -15,22 +16,18 @@ import edu.illinois.codingtracker.operations.UserOperation;
  */
 public class ASTOperation extends UserOperation {
 
-	public static enum OperationKind {
-		ADD, DELETE, CHANGE
-	};
+	private ASTOperationDescriptor operationDescriptor;
 
-	private OperationKind operationKind;
-
-	CompositeNodeDescriptor affectedNodeDescriptor;
+	private CompositeNodeDescriptor affectedNodeDescriptor;
 
 
 	public ASTOperation() {
 		super();
 	}
 
-	public ASTOperation(OperationKind operationKind, CompositeNodeDescriptor affectedNodeDescriptor, long timestamp) {
+	public ASTOperation(ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor, long timestamp) {
 		super(timestamp);
-		this.operationKind= operationKind;
+		this.operationDescriptor= operationDescriptor;
 		this.affectedNodeDescriptor= affectedNodeDescriptor;
 	}
 
@@ -64,22 +61,31 @@ public class ASTOperation extends UserOperation {
 		return affectedNodeDescriptor.getMethodCyclomaticComplexity();
 	}
 
+	public boolean isCommentingOrUncommenting() {
+		return operationDescriptor.isCommentingOrUncommenting();
+	}
+
+	public boolean isUndoing() {
+		return operationDescriptor.isUndoing();
+	}
+
 	public boolean isAdd() {
-		return operationKind == OperationKind.ADD;
+		return operationDescriptor.isAdd();
 	}
 
 	public boolean isChange() {
-		return operationKind == OperationKind.CHANGE;
+		return operationDescriptor.isChange();
 	}
 
 	public boolean isDelete() {
-		return operationKind == OperationKind.DELETE;
+		return operationDescriptor.isDelete();
 	}
 
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
-		int kindOrdinal= operationKind.ordinal();
-		textChunk.append(kindOrdinal);
+		textChunk.append(operationDescriptor.getOperationKind().ordinal());
+		textChunk.append(operationDescriptor.isCommentingOrUncommenting());
+		textChunk.append(operationDescriptor.isUndoing());
 		textChunk.append(affectedNodeDescriptor.getNodeID());
 		textChunk.append(affectedNodeDescriptor.getNodeType());
 		textChunk.append(affectedNodeDescriptor.getNodeText());
@@ -94,7 +100,8 @@ public class ASTOperation extends UserOperation {
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		operationKind= OperationKind.values()[operationLexer.readInt()];
+		operationDescriptor= new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()],
+				operationLexer.readBoolean(), operationLexer.readBoolean());
 		ASTNodeDescriptor astNodeDescriptor= new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readString(),
 				operationLexer.readString(), operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
 		ASTMethodDescriptor astMethodDescriptor= new ASTMethodDescriptor(operationLexer.readLong(),
@@ -110,7 +117,9 @@ public class ASTOperation extends UserOperation {
 	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
-		sb.append("Operation kind: " + operationKind + "\n");
+		sb.append("Operation kind: " + operationDescriptor.getOperationKind() + "\n");
+		sb.append("Is commenting or uncommenting: " + operationDescriptor.isCommentingOrUncommenting() + "\n");
+		sb.append("Is undoing: " + operationDescriptor.isUndoing() + "\n");
 		sb.append("Node ID: " + affectedNodeDescriptor.getNodeID() + "\n");
 		sb.append("Node type: " + affectedNodeDescriptor.getNodeType() + "\n");
 		sb.append("Node text: " + affectedNodeDescriptor.getNodeText() + "\n");

@@ -4,6 +4,7 @@
 package edu.illinois.codingtracker.operations.textchanges;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 
 import edu.illinois.codingtracker.operations.OperationSymbols;
@@ -14,6 +15,10 @@ import edu.illinois.codingtracker.operations.OperationSymbols;
  * 
  */
 public class UndoneTextChangeOperation extends TextChangeOperation {
+
+	//This flag allows to track replaying of undone text changes.
+	public static boolean isReplaying= false;
+
 
 	public UndoneTextChangeOperation() {
 		super();
@@ -31,6 +36,13 @@ public class UndoneTextChangeOperation extends TextChangeOperation {
 	@Override
 	public String getDescription() {
 		return "Undone text change";
+	}
+
+	@Override
+	public void replay() throws BadLocationException, ExecutionException {
+		isReplaying= true;
+		super.replay();
+		isReplaying= false;
 	}
 
 	@Override

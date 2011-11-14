@@ -21,7 +21,8 @@ import org.eclipse.jface.text.IDocument;
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.helpers.StringHelper;
-import edu.illinois.codingtracker.operations.ast.ASTOperation.OperationKind;
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor;
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
@@ -261,15 +262,17 @@ public class ASTOperationRecorder {
 
 	private void inferAndRecordASTOperations(ASTOperationInferencer astOperationInferencer) {
 		astOperationInferencer.inferASTOperations();
+		boolean isCommentingOrUncommenting= astOperationInferencer.isCommentingOrUncommenting();
+		boolean isUndoing= astOperationInferencer.isUndoing();
 
 		CyclomaticComplexityCalculator.resetCache();
-		recordChangeASTOperations(currentEditedFilePath, astOperationInferencer.getChangedNodes());
-		recordDeleteASTOperations(currentEditedFilePath, astOperationInferencer.getDeletedNodes());
+		recordChangeASTOperations(currentEditedFilePath, astOperationInferencer.getChangedNodes(), isCommentingOrUncommenting, isUndoing);
+		recordDeleteASTOperations(currentEditedFilePath, astOperationInferencer.getDeletedNodes(), isCommentingOrUncommenting, isUndoing);
 
 		//Update the persistent IDs after delete, but before add. Also, do it as an atomic operation.
 		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, astOperationInferencer.getMatchedNodes(), astOperationInferencer.getNewCommonCoveringNode());
 
-		recordAddASTOperations(currentEditedFilePath, astOperationInferencer.getAddedNodes());
+		recordAddASTOperations(currentEditedFilePath, astOperationInferencer.getAddedNodes(), isCommentingOrUncommenting, isUndoing);
 	}
 
 	private long getTextChangeTimestamp() {
@@ -280,11 +283,12 @@ public class ASTOperationRecorder {
 		}
 	}
 
-	private void recordChangeASTOperations(String filePath, Map<ASTNode, ASTNode> changedNodes) {
+	private void recordChangeASTOperations(String filePath, Map<ASTNode, ASTNode> changedNodes, boolean isCommentingOrUncommenting, boolean isUndoing) {
+		ASTOperationDescriptor operationDescriptor= new ASTOperationDescriptor(OperationKind.CHANGE, isCommentingOrUncommenting, isUndoing);
 		for (Entry<ASTNode, ASTNode> mapEntry : changedNodes.entrySet()) {
 			ASTNode oldNode= mapEntry.getKey();
 			ASTNode newNode= mapEntry.getValue();
-			recordASTOperation(filePath, OperationKind.CHANGE, ASTHelper.createCompositeNodeDescriptor(filePath, oldNode, newNode.toString()));
+			recordASTOperation(filePath, operationDescriptor, ASTHelper.createCompositeNodeDescriptor(filePath, oldNode, newNode.toString()));
 		}
 	}
 
@@ -293,7 +297,8 @@ public class ASTOperationRecorder {
 	 * @param filePath
 	 * @param deletedEntities - is either a set of ASTNode or IdentifiedNodeInfo.
 	 */
-	private void recordDeleteASTOperations(String filePath, Set<? extends Object> deletedEntities) {
+	private void recordDeleteASTOperations(String filePath, Set<? extends Object> deletedEntities, boolean isCommentingOrUncommenting, boolean isUndoing) {
+		ASTOperationDescriptor operationDescriptor= new ASTOperationDescriptor(OperationKind.DELETE, isCommentingOrUncommenting, isUndoing);
 		for (Object deletedEntity : deletedEntities) {
 			CompositeNodeDescriptor nodeDescriptor;
 			if (deletedEntity instanceof ASTNode) {
@@ -301,7 +306,7 @@ public class ASTOperationRecorder {
 			} else {
 				nodeDescriptor= ASTHelper.createCompositeNodeDescriptor((IdentifiedNodeInfo)deletedEntity);
 			}
-			recordASTOperation(filePath, OperationKind.DELETE, nodeDescriptor);
+			recordASTOperation(filePath, operationDescriptor, nodeDescriptor);
 		}
 		//Delete nodes after recording all delete operations to avoid scenarios, in which recording a delete operation,
 		//requires a node that already was deleted (e.g. the containing method node).
@@ -315,18 +320,19 @@ public class ASTOperationRecorder {
 		}
 	}
 
-	private void recordAddASTOperations(String filePath, Set<ASTNode> addedNodes) {
+	private void recordAddASTOperations(String filePath, Set<ASTNode> addedNodes, boolean isCommentingOrUncommenting, boolean isUndoing) {
+		ASTOperationDescriptor operationDescriptor= new ASTOperationDescriptor(OperationKind.ADD, isCommentingOrUncommenting, isUndoing);
 		for (ASTNode addedNode : addedNodes) {
-			recordASTOperation(filePath, OperationKind.ADD, ASTHelper.createCompositeNodeDescriptor(filePath, addedNode, ""));
+			recordASTOperation(filePath, operationDescriptor, ASTHelper.createCompositeNodeDescriptor(filePath, addedNode, ""));
 		}
 	}
 
-	private void recordASTOperation(String filePath, OperationKind operationKind, CompositeNodeDescriptor affectedNodeDescriptor) {
+	private void recordASTOperation(String filePath, ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor) {
 		if (!filePath.equals(currentRecordedFilePath)) {
 			currentRecordedFilePath= filePath;
 			ASTInferenceTextRecorder.recordASTFileOperation(currentRecordedFilePath);
 		}
-		ASTInferenceTextRecorder.recordASTOperation(operationKind, affectedNodeDescriptor);
+		ASTInferenceTextRecorder.recordASTOperation(operationDescriptor, affectedNodeDescriptor);
 	}
 
 	public void recordASTOperationForDeletedResource(IResource deletedResource, boolean success) {
@@ -335,7 +341,7 @@ public class ASTOperationRecorder {
 			String deletedResourcePath= ResourceHelper.getPortableResourcePath(deletedResource);
 			Map<String, Set<IdentifiedNodeInfo>> nodesToDelete= ASTNodesIdentifier.getNodeInfosFromAllDeletedFiles(deletedResourcePath);
 			for (Entry<String, Set<IdentifiedNodeInfo>> fileNodesToDelete : nodesToDelete.entrySet()) {
-				recordDeleteASTOperations(fileNodesToDelete.getKey(), fileNodesToDelete.getValue());
+				recordDeleteASTOperations(fileNodesToDelete.getKey(), fileNodesToDelete.getValue(), false, false);
 			}
 		}
 	}
@@ -377,7 +383,7 @@ public class ASTOperationRecorder {
 
 	private void addAllNodesFromJavaFile(String filePath, IFile javaFile) {
 		Set<ASTNode> allNodes= ASTHelper.getAllNodesFromText(ResourceHelper.readFileContent(javaFile));
-		recordAddASTOperations(filePath, allNodes);
+		recordAddASTOperations(filePath, allNodes, false, false);
 	}
 
 }

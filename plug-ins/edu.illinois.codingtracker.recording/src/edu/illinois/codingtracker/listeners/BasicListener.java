@@ -36,7 +36,8 @@ public abstract class BasicListener {
 
 	protected static volatile boolean isRefactoring= false;
 
-	protected static volatile boolean isUndoing= false;
+	//It is public such that online AST inferencing can detect that particular changes are caused by undoing code edits.
+	public static volatile boolean isUndoing= false;
 
 	protected static volatile boolean isRedoing= false;
 

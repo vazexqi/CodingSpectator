@@ -4,10 +4,9 @@
 package edu.illinois.codingtracker.tests.analyzers;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.helpers.StringHelper;
@@ -20,27 +19,29 @@ import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
 
 /**
  * This analyzer calculates how many changes are performed in between commits and how many of them
- * are actually committed.
+ * are shadowed by other changes in the same commit (i.e. how many of them do NOT reach a commit).
  * 
  * @author Stas Negara
  * 
  */
 public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 
-	private final Map<String, Set<Long>> touchedIDs= new HashMap<String, Set<Long>>();
-
-	private final Map<String, Set<Long>> addedIDs= new HashMap<String, Set<Long>>();
-
-	private final Map<String, Integer> shadowedIDCounters= new HashMap<String, Integer>();
+	private final Map<String, Map<Long, List<ASTOperation>>> astOperations= new HashMap<String, Map<Long, List<ASTOperation>>>();
 
 	private String currentASTFilePath;
 
-	private int overallTotalChangesCount, overallCommittedChangesCount;
+	private int overallChangesCount;
+
+	private int overallShadowedChangesCount;
+
+	private int overallShadowedCommentingOrUncommentingChangesCount;
+
+	private int overallShadowedUndoingChangesCount;
 
 
 	@Override
 	protected String getTableHeader() {
-		return "username,workspace ID,commit timestamp,total changes,committed changes\n";
+		return "username,workspace ID,commit timestamp,total changes,shadowed changes,shadowed commenting or uncommenting changes,shadowed undoing changes\n";
 	}
 
 	@Override
@@ -72,96 +73,73 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 				handleMovedResourceOperation((MovedResourceOperation)userOperation);
 			}
 		}
-		System.out.println("Total changes count: " + overallTotalChangesCount);
-		System.out.println("Committed changes count: " + overallCommittedChangesCount);
+		System.out.println("Overall changes count: " + overallChangesCount);
+		System.out.println("Overall shadowed changes count: " + overallShadowedChangesCount);
+		System.out.println("Overall shadowed commenting or uncommenting changes count: " + overallShadowedCommentingOrUncommentingChangesCount);
+		System.out.println("Overall shadowed undoing changes count: " + overallShadowedUndoingChangesCount);
 	}
 
 	private void handleASTOperation(ASTOperation astOperation) {
-		Set<Long> fileTouchedIDs= getFileTouchedIDs(currentASTFilePath);
-		Set<Long> fileAddedIDs= getFileAddedIDs(currentASTFilePath);
-		long nodeID= astOperation.getNodeID();
-		boolean isNewTouchedNode= fileTouchedIDs.add(nodeID);
-		if (astOperation.isAdd()) {
-			if (!isNewTouchedNode) {
-				throw new RuntimeException("Add AST operation for an already touched ID: " + astOperation);
-			}
-			fileAddedIDs.add(nodeID);
-		} else if (!isNewTouchedNode) {
-			int increment= 1;
-			if (astOperation.isDelete() && fileAddedIDs.contains(nodeID)) {
-				fileTouchedIDs.remove(nodeID); //Node is added and deleted in the same commit, so nothing reaches commit.
-				increment= 2;
-			}
-			incrementCurrentFileShadowedIDCounter(increment);
-		}
+		Map<Long, List<ASTOperation>> fileASTOperations= getFileASTOperations(currentASTFilePath);
+		List<ASTOperation> nodeASTOperations= getNodeASTOperations(fileASTOperations, astOperation.getNodeID());
+		nodeASTOperations.add(astOperation);
 	}
 
 	private void handleCommittedFileOperation(CommittedFileOperation committedFileOperation) {
 		String committedFilePath= committedFileOperation.getResourcePath();
-		Set<Long> fileTouchedIDs= getFileTouchedIDs(committedFilePath);
-		Integer committedFileShadowedIDCounter= shadowedIDCounters.get(committedFilePath);
-		int committedChangesCount= fileTouchedIDs.size();
-		int shadowedChangesCount= committedFileShadowedIDCounter == null ? 0 : committedFileShadowedIDCounter;
-		int totalChangesCount= committedChangesCount + shadowedChangesCount;
-		overallTotalChangesCount+= totalChangesCount;
-		overallCommittedChangesCount+= committedChangesCount;
-		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, committedFileOperation.getTime(), totalChangesCount, committedChangesCount);
+		Map<Long, List<ASTOperation>> fileASTOperations= getFileASTOperations(committedFilePath);
+		ChangeCounters changeCounters= new ChangeCounters(fileASTOperations);
+		updateOverallCounters(changeCounters);
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, committedFileOperation.getTime(),
+				changeCounters.changesCount, changeCounters.shadowedChangesCount,
+				changeCounters.shadowedCommentingOrUncommentingChangesCount, changeCounters.shadowedUndoingChangesCount);
 		//Reset the statistics for the committed file.
-		fileTouchedIDs.clear();
-		getFileAddedIDs(committedFilePath).clear();
-		shadowedIDCounters.put(committedFilePath, 0);
+		fileASTOperations.clear();
 	}
 
 	private void handleMovedResourceOperation(MovedResourceOperation movedResourceOperation) {
 		String oldPrefix= movedResourceOperation.getResourcePath();
 		String newPrefix= movedResourceOperation.getDestinationPath();
-		for (String filePath : ResourceHelper.getFilePathsPrefixedBy(oldPrefix, touchedIDs.keySet())) {
+		for (String filePath : ResourceHelper.getFilePathsPrefixedBy(oldPrefix, astOperations.keySet())) {
 			String newFilePath= StringHelper.replacePrefix(filePath, oldPrefix, newPrefix);
-			Set<Long> fileTouchedIDs= touchedIDs.remove(filePath);
-			touchedIDs.put(newFilePath, fileTouchedIDs);
-			Set<Long> fileAddedIDs= addedIDs.remove(filePath);
-			addedIDs.put(newFilePath, fileAddedIDs);
-			Integer fileShadowedIDCounter= shadowedIDCounters.remove(filePath);
-			shadowedIDCounters.put(newFilePath, fileShadowedIDCounter);
+			Map<Long, List<ASTOperation>> fileASTOperations= astOperations.remove(filePath);
+			astOperations.put(newFilePath, fileASTOperations);
 		}
 	}
 
 	private void initialize() {
 		result= new StringBuffer();
-		touchedIDs.clear();
-		addedIDs.clear();
-		shadowedIDCounters.clear();
+		astOperations.clear();
 		currentASTFilePath= null;
-		overallTotalChangesCount= 0;
-		overallCommittedChangesCount= 0;
+		overallChangesCount= 0;
+		overallShadowedChangesCount= 0;
+		overallShadowedCommentingOrUncommentingChangesCount= 0;
+		overallShadowedUndoingChangesCount= 0;
 	}
 
-	private Set<Long> getFileTouchedIDs(String filePath) {
-		return getFileIDs(touchedIDs, filePath);
+	private void updateOverallCounters(ChangeCounters changeCounters) {
+		overallChangesCount+= changeCounters.changesCount;
+		overallShadowedChangesCount+= changeCounters.shadowedChangesCount;
+		overallShadowedCommentingOrUncommentingChangesCount+= changeCounters.shadowedCommentingOrUncommentingChangesCount;
+		overallShadowedUndoingChangesCount+= changeCounters.shadowedUndoingChangesCount;
 	}
 
-	private Set<Long> getFileAddedIDs(String filePath) {
-		return getFileIDs(addedIDs, filePath);
-	}
-
-	private Set<Long> getFileIDs(Map<String, Set<Long>> idMap, String filePath) {
-		Set<Long> fileIDs= idMap.get(filePath);
-		if (fileIDs == null) {
-			fileIDs= new HashSet<Long>();
-			idMap.put(filePath, fileIDs);
+	private List<ASTOperation> getNodeASTOperations(Map<Long, List<ASTOperation>> fileASTOperations, long nodeID) {
+		List<ASTOperation> nodeASTOperations= fileASTOperations.get(nodeID);
+		if (nodeASTOperations == null) {
+			nodeASTOperations= new LinkedList<ASTOperation>();
+			fileASTOperations.put(nodeID, nodeASTOperations);
 		}
-		return fileIDs;
+		return nodeASTOperations;
 	}
 
-	private void incrementCurrentFileShadowedIDCounter(int increment) {
-		Integer currentFileShadowedIDCounter= shadowedIDCounters.get(currentASTFilePath);
-		int newCounter;
-		if (currentFileShadowedIDCounter == null) {
-			newCounter= increment;
-		} else {
-			newCounter= currentFileShadowedIDCounter + increment;
+	private Map<Long, List<ASTOperation>> getFileASTOperations(String filePath) {
+		Map<Long, List<ASTOperation>> fileASTOperations= astOperations.get(filePath);
+		if (fileASTOperations == null) {
+			fileASTOperations= new HashMap<Long, List<ASTOperation>>();
+			astOperations.put(filePath, fileASTOperations);
 		}
-		shadowedIDCounters.put(currentASTFilePath, newCounter);
+		return fileASTOperations;
 	}
 
 	@Override
@@ -172,6 +150,47 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 	@Override
 	protected boolean shouldMergeResults() {
 		return true;
+	}
+
+}
+
+class ChangeCounters {
+
+	int changesCount= 0;
+
+	int shadowedChangesCount= 0;
+
+	int shadowedCommentingOrUncommentingChangesCount= 0;
+
+	int shadowedUndoingChangesCount= 0;
+
+
+	ChangeCounters(Map<Long, List<ASTOperation>> fileASTOperations) {
+		for (List<ASTOperation> nodeOperations : fileASTOperations.values()) {
+			int nodeOperationsCount= nodeOperations.size();
+			changesCount+= nodeOperationsCount;
+			for (int i= 0; i < nodeOperationsCount - 1; i++) {
+				processShadowedOperation(nodeOperations.get(i));
+			}
+			if (nodeOperationsCount > 1) {
+				//If the first operation is add and the last operation is delete, then the last operation is also shadowed.
+				ASTOperation lastASTOperation= nodeOperations.get(nodeOperationsCount - 1);
+				if (nodeOperations.get(0).isAdd() && lastASTOperation.isDelete()) {
+					processShadowedOperation(lastASTOperation);
+				}
+			}
+		}
+	}
+
+	void processShadowedOperation(ASTOperation astOperation) {
+		shadowedChangesCount++;
+		//Note that an operation that is both commenting (or uncommenting) and undoing is counted as 
+		//commenting or uncommenting only to ensure that counts are disjoint.
+		if (astOperation.isCommentingOrUncommenting()) {
+			shadowedCommentingOrUncommentingChangesCount++;
+		} else if (astOperation.isUndoing()) {
+			shadowedUndoingChangesCount++;
+		}
 	}
 
 }

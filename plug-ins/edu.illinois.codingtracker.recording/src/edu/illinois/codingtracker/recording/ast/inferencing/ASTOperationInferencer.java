@@ -39,6 +39,10 @@ public class ASTOperationInferencer {
 
 	private Set<ASTNode> addedNodes= new HashSet<ASTNode>();
 
+	private boolean isPossiblyCommentingOrUncommentingChange;
+
+	private boolean isUndoing;
+
 
 	public ASTOperationInferencer(CoherentTextChange coherentTextChange) {
 		List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
@@ -70,7 +74,19 @@ public class ASTOperationInferencer {
 		return addedNodes;
 	}
 
+	public boolean isCommentingOrUncommenting() {
+		//A commenting or uncommenting change should either delete or add nodes. This check allows to filter out some 
+		//scenarios, in which comment markers are added or deleted in strings.
+		return isPossiblyCommentingOrUncommentingChange && (!deletedNodes.isEmpty() || !addedNodes.isEmpty());
+	}
+
+	public boolean isUndoing() {
+		return isUndoing;
+	}
+
 	private void initializeInferencer(List<CoherentTextChange> coherentTextChanges) {
+		initializeOperationState(coherentTextChanges);
+
 		affectedNodesFinder= new CoveringNodesFinder(coherentTextChanges);
 
 		ASTNode oldRootNode= affectedNodesFinder.getOldRootNode();
@@ -85,6 +101,24 @@ public class ASTOperationInferencer {
 		while (areUnmatchingCoveringNodes(oldCommonCoveringNode, newCommonCoveringNode)) {
 			oldCommonCoveringNode= oldCommonCoveringNode.getParent();
 			newCommonCoveringNode= newCommonCoveringNode.getParent();
+		}
+	}
+
+	private void initializeOperationState(List<CoherentTextChange> coherentTextChanges) {
+		isPossiblyCommentingOrUncommentingChange= false;
+		isUndoing= true;
+		for (CoherentTextChange textChange : coherentTextChanges) {
+			//We conservatively estimate that a single commenting or uncommenting change is sufficient to consider the
+			//whole change as being possibly commenting or uncommenting. In other words, we err in favor of 
+			//commenting/uncommenting actions.
+			if (textChange.isCommentingOrUncommenting()) {
+				isPossiblyCommentingOrUncommentingChange= true;
+			}
+
+			//All changes have to be undone edits to consider the inferenced AST operations the result of undoing.
+			if (!textChange.isUndoing()) {
+				isUndoing= false;
+			}
 		}
 	}
 

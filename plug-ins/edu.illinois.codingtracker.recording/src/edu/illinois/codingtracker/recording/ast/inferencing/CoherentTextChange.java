@@ -8,8 +8,10 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 
+import edu.illinois.codingtracker.listeners.BasicListener;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
+import edu.illinois.codingtracker.operations.textchanges.UndoneTextChangeOperation;
 
 /**
  * 
@@ -44,8 +46,11 @@ public class CoherentTextChange {
 
 	private boolean isBackspaceDeleting= false;
 
+	public boolean isUndoing= false;
+
 
 	public CoherentTextChange(DocumentEvent documentEvent, long timestamp) {
+		isUndoing= isCurrentEventUndoing();
 		batchOffsetShift= 0;
 		this.timestamp= timestamp;
 		initialDocumentText= documentEvent.getDocument().get();
@@ -130,6 +135,31 @@ public class CoherentTextChange {
 	}
 
 	/**
+	 * TODO: Note that if a comment is produced by editing the code such that the edits could not be
+	 * glued in a comment marker, but the resulting code is actually a comment marker (e.g. after
+	 * deleting space in between '/' and '*'), then we would incorrectly consider that this is NOT a
+	 * commenting/uncommenting change. Nevertheless, the current implementation correctly handles
+	 * the most common scenarios of commenting/uncommenting the code.
+	 * 
+	 * Also, note that this code is not meant to detect when comments are added/removed, but rather
+	 * when the existing code is commented or uncommented (i.e. the only change is adding/removing
+	 * the comment markers).
+	 * 
+	 * @return
+	 */
+	public boolean isCommentingOrUncommenting() {
+		return isCommentMarker(getAddedText()) || isCommentMarker(getRemovedText());
+	}
+
+	private boolean isCommentMarker(String str) {
+		return str.equals("//") || str.equals("/*") || str.equals("*/");
+	}
+
+	public boolean isUndoing() {
+		return isUndoing;
+	}
+
+	/**
 	 * Can be called only before this and the given CoherentTextChange are glued the first time.
 	 * 
 	 * @param textChange
@@ -144,6 +174,8 @@ public class CoherentTextChange {
 		if (!shouldGlueNewTextChange(documentEvent)) {
 			throw new RuntimeException("Should not call glueNewTextChange for an incoherent change offset: " + documentEvent.getOffset());
 		}
+		//All glued events should be undone to consider the whole change as an undone change.
+		isUndoing= isUndoing && isCurrentEventUndoing();
 		int newRemovedTextLength= documentEvent.getLength();
 		if (isDeletingOnly) {
 			removedTextLength+= newRemovedTextLength;
@@ -219,6 +251,11 @@ public class CoherentTextChange {
 		if (!neverGlued || !textChange.neverGlued) {
 			throw new RuntimeException("It is not valid to call the method \"" + checkingMethodName + "\" if at least one argument represents an already glued text change!");
 		}
+	}
+
+	private boolean isCurrentEventUndoing() {
+		//The first part is for online AST inferencing, the second part is for AST inferencing while replaying.
+		return BasicListener.isUndoing || UndoneTextChangeOperation.isReplaying;
 	}
 
 }
