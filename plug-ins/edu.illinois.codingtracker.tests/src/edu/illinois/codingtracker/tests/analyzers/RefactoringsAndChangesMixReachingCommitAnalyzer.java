@@ -26,7 +26,7 @@ import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
  * manually (or by a different refactoring) and what fraction they constitute from the number of
  * refactored methods.
  * 
- * TODO: This class has a lot in common with ChangesReachingCommitAnalyzer. Consider factoring out
+ * TODO: This class has some similarity with ChangesReachingCommitAnalyzer. Consider factoring out
  * common parts.
  * 
  * @author Stas Negara
