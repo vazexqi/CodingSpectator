@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
+import edu.illinois.codingtracker.operations.OperationLexer;
+import edu.illinois.codingtracker.operations.OperationTextChunk;
+
 
 /**
  * 
@@ -41,6 +44,25 @@ public class ASTMethodDescriptor {
 
 	public int getMethodCyclomaticComplexity() {
 		return methodCyclomaticComplexity;
+	}
+
+	public void populateTextChunk(OperationTextChunk textChunk) {
+		textChunk.append(methodID);
+		textChunk.append(methodFullName);
+		textChunk.append(methodLinesCount);
+		textChunk.append(methodCyclomaticComplexity);
+	}
+
+	public static ASTMethodDescriptor createFrom(OperationLexer operationLexer) {
+		return new ASTMethodDescriptor(operationLexer.readLong(), operationLexer.readString(), operationLexer.readInt(),
+										operationLexer.readInt());
+	}
+
+	public void appendContent(StringBuffer sb) {
+		sb.append("Method ID: " + methodID + "\n");
+		sb.append("Fully qualified method name: " + methodFullName + "\n");
+		sb.append("Method lines count: " + methodLinesCount + "\n");
+		sb.append("Method cyclomatic complexity: " + methodCyclomaticComplexity + "\n");
 	}
 
 }

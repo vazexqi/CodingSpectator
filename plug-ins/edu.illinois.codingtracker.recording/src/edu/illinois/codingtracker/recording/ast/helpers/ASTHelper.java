@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.recording.ast.helpers;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,10 +13,14 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.Document;
@@ -84,10 +89,20 @@ public class ASTHelper {
 		return null;
 	}
 
-	private static ASTNode getParent(ASTNode node, Class parentClass) {
+	/**
+	 * Returns the first encountered parent of any of the given parentClasses (including the classes
+	 * derived from parentClasses).
+	 * 
+	 * @param node
+	 * @param parentClasses
+	 * @return
+	 */
+	private static ASTNode getParent(ASTNode node, Class... parentClasses) {
 		while (node != null) {
-			if (node.getClass().equals(parentClass)) {
-				return node;
+			for (Class parentClass : parentClasses) {
+				if (parentClass.isInstance(node)) {
+					return node;
+				}
 			}
 			node= node.getParent();
 		}
@@ -164,12 +179,27 @@ public class ASTHelper {
 		return getAllChildren(getRootNode(text));
 	}
 
-	public static Set<ASTNode> getAllChildren(ASTNode node) {
+	/**
+	 * Returns all children of the given node except those that are under nodes of the given
+	 * ignoredClasses. Note that this method considers only the actual ignoredClasses and does not
+	 * consider classes derived from them.
+	 * 
+	 * @param node
+	 * @param ignoredClasses
+	 * @return
+	 */
+	public static Set<ASTNode> getAllChildren(ASTNode node, Class... ignoredClasses) {
+		final List<Class> ignoredClassesList= Arrays.asList(ignoredClasses);
 		final Set<ASTNode> childrenNodes= new HashSet<ASTNode>();
+
 		node.accept(new ASTVisitor() {
 			@Override
-			public void preVisit(ASTNode visitedNode) {
+			public boolean preVisit2(ASTNode visitedNode) {
+				if (ignoredClassesList.contains(visitedNode.getClass())) {
+					return false;
+				}
 				childrenNodes.add(visitedNode);
+				return true;
 			}
 		});
 		return childrenNodes;
@@ -195,7 +225,35 @@ public class ASTHelper {
 	public static CompositeNodeDescriptor createCompositeNodeDescriptor(String filePath, ASTNode node, String nodeNewText) {
 		ASTNodeDescriptor astNodeDescriptor= createASTNodeDescriptor(filePath, node, nodeNewText);
 		ASTMethodDescriptor containingMethodDescriptor= createASTMethodDescriptor(filePath, getContainingMethod(node));
-		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor);
+		Set<Long> clusterNodeIDs= collectClusterNodeIDs(filePath, node);
+		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor, clusterNodeIDs);
+	}
+
+	private static Set<Long> collectClusterNodeIDs(String filePath, ASTNode node) {
+		Set<Long> clusterNodeIDs= new HashSet<Long>();
+		for (ASTNode clusterNode : collectClusterNodes(node)) {
+			clusterNodeIDs.add(ASTNodesIdentifier.getPersistentNodeID(filePath, clusterNode));
+		}
+		return clusterNodeIDs;
+	}
+
+	private static Set<ASTNode> collectClusterNodes(ASTNode node) {
+		Set<ASTNode> clusterNodes= new HashSet<ASTNode>();
+		clusterNodes.addAll(getAllChildren(node));
+		if (node instanceof CompilationUnit) {
+			//Nothing else could be added for a top level AST node.
+			return clusterNodes;
+		}
+		ASTNode parentNode= getParent(node, Statement.class, BodyDeclaration.class, PackageDeclaration.class,
+										ImportDeclaration.class);
+
+		if (parentNode instanceof Statement) {
+			//Do not consider other statements that might be in a statement's Block.
+			clusterNodes.addAll(getAllChildren(parentNode, Block.class));
+		} else {
+			clusterNodes.addAll(getAllChildren(parentNode));
+		}
+		return clusterNodes;
 	}
 
 	private static ASTNodeDescriptor createASTNodeDescriptor(String filePath, ASTNode node, String nodeNewText) {
@@ -241,7 +299,8 @@ public class ASTHelper {
 	public static CompositeNodeDescriptor createCompositeNodeDescriptor(IdentifiedNodeInfo nodeInfo) {
 		ASTNodeDescriptor astNodeDescriptor= nodeInfo.getASTNodeDescriptor();
 		ASTMethodDescriptor containingMethodDescriptor= nodeInfo.getContainingMethodDescriptor();
-		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor);
+		Set<Long> clusterNodeIDs= nodeInfo.getClusterNodeIDs();
+		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor, clusterNodeIDs);
 	}
 
 }

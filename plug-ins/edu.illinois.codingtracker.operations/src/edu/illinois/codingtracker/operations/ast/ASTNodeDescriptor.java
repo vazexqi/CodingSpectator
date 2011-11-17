@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
+import edu.illinois.codingtracker.operations.OperationLexer;
+import edu.illinois.codingtracker.operations.OperationTextChunk;
+
 
 /**
  * 
@@ -55,6 +58,31 @@ public class ASTNodeDescriptor {
 
 	public int getNodeLength() {
 		return nodeLength;
+	}
+
+	public void populateTextChunk(OperationTextChunk textChunk) {
+		textChunk.append(nodeID);
+		textChunk.append(nodeType);
+		textChunk.append(nodeText);
+		textChunk.append(nodeNewText);
+		textChunk.append(nodeOffset);
+		textChunk.append(nodeLength);
+	}
+
+	public static ASTNodeDescriptor createFrom(OperationLexer operationLexer) {
+		return new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readString(), operationLexer.readString(),
+										operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
+	}
+
+	public void appendContent(StringBuffer sb) {
+		sb.append("Node ID: " + nodeID + "\n");
+		sb.append("Node type: " + nodeType + "\n");
+		sb.append("Node text: " + nodeText + "\n");
+		if (!nodeNewText.isEmpty()) {
+			sb.append("New node text: " + nodeNewText + "\n");
+		}
+		sb.append("Node offset: " + nodeOffset + "\n");
+		sb.append("Node length: " + nodeLength + "\n");
 	}
 
 }

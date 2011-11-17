@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.recording.ast.identification;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -26,6 +29,11 @@ public class IdentifiedNodeInfo {
 	private final ASTNodeDescriptor nodeDescriptor;
 
 	private final ASTMethodDescriptor methodDescriptor; //It is null if this identified node is not a MethodDeclaration.
+
+	//TODO: In the current implementation it is OK that this set is empty since this set is used only in analyzers that
+	//consider commit operations, while IdentifiedNodeInfos are used only when the whole file is deleted, and the current 
+	//data does not track commits of the deleted resources.
+	private final Set<Long> clusterNodeIDs= new HashSet<Long>();
 
 
 	public IdentifiedNodeInfo(String filePath, ASTNode identifiedNode, long persistentNodeID) {
@@ -71,6 +79,10 @@ public class IdentifiedNodeInfo {
 			return containingMethodDecriptor;
 		}
 		return ASTHelper.createEmptyASTMethodDescriptor();
+	}
+
+	public Set<Long> getClusterNodeIDs() {
+		return clusterNodeIDs;
 	}
 
 }

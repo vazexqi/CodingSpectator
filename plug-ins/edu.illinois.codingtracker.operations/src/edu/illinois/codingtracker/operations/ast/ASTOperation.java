@@ -7,7 +7,6 @@ import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingtracker.operations.UserOperation;
-import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 
 /**
  * 
@@ -83,30 +82,14 @@ public class ASTOperation extends UserOperation {
 
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
-		textChunk.append(operationDescriptor.getOperationKind().ordinal());
-		textChunk.append(operationDescriptor.isCommentingOrUncommenting());
-		textChunk.append(operationDescriptor.isUndoing());
-		textChunk.append(affectedNodeDescriptor.getNodeID());
-		textChunk.append(affectedNodeDescriptor.getNodeType());
-		textChunk.append(affectedNodeDescriptor.getNodeText());
-		textChunk.append(affectedNodeDescriptor.getNodeNewText());
-		textChunk.append(affectedNodeDescriptor.getNodeOffset());
-		textChunk.append(affectedNodeDescriptor.getNodeLength());
-		textChunk.append(affectedNodeDescriptor.getMethodID());
-		textChunk.append(affectedNodeDescriptor.getMethodFullName());
-		textChunk.append(affectedNodeDescriptor.getMethodLinesCount());
-		textChunk.append(affectedNodeDescriptor.getMethodCyclomaticComplexity());
+		operationDescriptor.populateTextChunk(textChunk);
+		affectedNodeDescriptor.populateTextChunk(textChunk);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
-		operationDescriptor= new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()],
-				operationLexer.readBoolean(), operationLexer.readBoolean());
-		ASTNodeDescriptor astNodeDescriptor= new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readString(),
-				operationLexer.readString(), operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
-		ASTMethodDescriptor astMethodDescriptor= new ASTMethodDescriptor(operationLexer.readLong(),
-				operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
-		affectedNodeDescriptor= new CompositeNodeDescriptor(astNodeDescriptor, astMethodDescriptor);
+		operationDescriptor= ASTOperationDescriptor.createFrom(operationLexer);
+		affectedNodeDescriptor= CompositeNodeDescriptor.createFrom(operationLexer);
 	}
 
 	@Override
@@ -117,21 +100,8 @@ public class ASTOperation extends UserOperation {
 	@Override
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
-		sb.append("Operation kind: " + operationDescriptor.getOperationKind() + "\n");
-		sb.append("Is commenting or uncommenting: " + operationDescriptor.isCommentingOrUncommenting() + "\n");
-		sb.append("Is undoing: " + operationDescriptor.isUndoing() + "\n");
-		sb.append("Node ID: " + affectedNodeDescriptor.getNodeID() + "\n");
-		sb.append("Node type: " + affectedNodeDescriptor.getNodeType() + "\n");
-		sb.append("Node text: " + affectedNodeDescriptor.getNodeText() + "\n");
-		if (isChange()) { //New node text is not empty only for CHANGE operations.
-			sb.append("New node text: " + affectedNodeDescriptor.getNodeNewText() + "\n");
-		}
-		sb.append("Node offset: " + affectedNodeDescriptor.getNodeOffset() + "\n");
-		sb.append("Node length: " + affectedNodeDescriptor.getNodeLength() + "\n");
-		sb.append("Method ID: " + affectedNodeDescriptor.getMethodID() + "\n");
-		sb.append("Fully qualified method name: " + affectedNodeDescriptor.getMethodFullName() + "\n");
-		sb.append("Method lines count: " + affectedNodeDescriptor.getMethodLinesCount() + "\n");
-		sb.append("Method cyclomatic complexity: " + affectedNodeDescriptor.getMethodCyclomaticComplexity() + "\n");
+		operationDescriptor.appendContent(sb);
+		affectedNodeDescriptor.appendContent(sb);
 		sb.append(super.toString());
 		return sb.toString();
 	}

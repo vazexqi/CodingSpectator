@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
+import edu.illinois.codingtracker.operations.OperationLexer;
+import edu.illinois.codingtracker.operations.OperationTextChunk;
+
 
 
 /**
@@ -51,6 +54,23 @@ public class ASTOperationDescriptor {
 
 	public boolean isDelete() {
 		return operationKind == OperationKind.DELETE;
+	}
+
+	public void populateTextChunk(OperationTextChunk textChunk) {
+		textChunk.append(operationKind.ordinal());
+		textChunk.append(isCommentingOrUncommenting);
+		textChunk.append(isUndoing);
+	}
+
+	public static ASTOperationDescriptor createFrom(OperationLexer operationLexer) {
+		return new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readBoolean(),
+											operationLexer.readBoolean());
+	}
+
+	public void appendContent(StringBuffer sb) {
+		sb.append("Operation kind: " + operationKind + "\n");
+		sb.append("Is commenting or uncommenting: " + isCommentingOrUncommenting + "\n");
+		sb.append("Is undoing: " + isUndoing + "\n");
 	}
 
 }
