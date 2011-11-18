@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.analyzers;
+package edu.illinois.codingtracker.tests.analyzers.commits;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +18,7 @@ import edu.illinois.codingtracker.operations.files.snapshoted.CommittedFileOpera
 import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
+import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
 
 
 /**
@@ -32,7 +33,7 @@ import edu.illinois.codingtracker.operations.resources.MovedResourceOperation;
  * @author Stas Negara
  * 
  */
-public class RefactoringsAndChangesMixReachingCommitAnalyzer extends CSVProducingAnalyzer {
+public class RefactoringsAndChangesMixPerMethodReachingCommitAnalyzer extends CSVProducingAnalyzer {
 
 	private static final int ratioNormalizationFactor= 100;
 
@@ -157,7 +158,7 @@ public class RefactoringsAndChangesMixReachingCommitAnalyzer extends CSVProducin
 	private void handleMovedResourceOperation(MovedResourceOperation movedResourceOperation) {
 		String oldPrefix= movedResourceOperation.getResourcePath();
 		String newPrefix= movedResourceOperation.getDestinationPath();
-		for (String filePath : ResourceHelper.getFilePathsPrefixedBy(oldPrefix, changedMethodsIDs.keySet())) {
+		for (String filePath : ResourceHelper.getFilePathsPrefixedBy(oldPrefix, getAllFilePaths())) {
 			String newFilePath= StringHelper.replacePrefix(filePath, oldPrefix, newPrefix);
 			Set<Long> fileChangedMethodsIDs= changedMethodsIDs.remove(filePath);
 			changedMethodsIDs.put(newFilePath, fileChangedMethodsIDs);
@@ -179,6 +180,14 @@ public class RefactoringsAndChangesMixReachingCommitAnalyzer extends CSVProducin
 		isInsideRefactoring= false;
 		totalRefactoredMethodsCount= 0;
 		totalRefactoredAndChangedMethodsCount= 0;
+	}
+
+	private Set<String> getAllFilePaths() {
+		Set<String> allFilePaths= new HashSet<String>();
+		allFilePaths.addAll(changedMethodsIDs.keySet());
+		allFilePaths.addAll(refactoredMethodsIDs.keySet());
+		allFilePaths.addAll(currentRefactoredMethodsIDs.keySet());
+		return allFilePaths;
 	}
 
 	private Set<Long> getFileChangedMethodsIDs(String filePath) {
@@ -208,7 +217,7 @@ public class RefactoringsAndChangesMixReachingCommitAnalyzer extends CSVProducin
 
 	@Override
 	protected String getResultFilePostfix() {
-		return ".refactorings_changes_mix";
+		return ".refactorings_changes_mix_method";
 	}
 
 	@Override

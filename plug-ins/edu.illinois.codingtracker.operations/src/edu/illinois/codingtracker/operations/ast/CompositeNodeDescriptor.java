@@ -71,6 +71,10 @@ public class CompositeNodeDescriptor {
 		return containingMethodDescriptor.getMethodCyclomaticComplexity();
 	}
 
+	public Set<Long> getClusterNodeIDs() {
+		return clusterNodeIDs;
+	}
+
 	public void populateTextChunk(OperationTextChunk textChunk) {
 		nodeDescriptor.populateTextChunk(textChunk);
 		containingMethodDescriptor.populateTextChunk(textChunk);

@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
+import java.util.Set;
+
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -58,6 +60,10 @@ public class ASTOperation extends UserOperation {
 
 	public int getMethodCyclomaticComplexity() {
 		return affectedNodeDescriptor.getMethodCyclomaticComplexity();
+	}
+
+	public Set<Long> getClusterNodeIDs() {
+		return affectedNodeDescriptor.getClusterNodeIDs();
 	}
 
 	public boolean isCommentingOrUncommenting() {
