@@ -4,6 +4,50 @@
 
 \i functions.sql
 
+DROP TABLE "PUBLIC"."ECLIPSE_REFACTORING_IDS" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."ECLIPSE_REFACTORING_IDS" (
+  "ID" VARCHAR(100)
+);
+
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.change.method.signature');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.convert.anonymous');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.extract.class');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.extract.constant');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.extract.interface');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.extract.method');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.extract.superclass');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.extract.temp');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.infer.typearguments');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.inline');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.inline.constant');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.inline.method');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.inline.temp');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.introduce.factory');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.introduce.indirection');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.introduce.parameter');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.introduce.parameter.object');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.move');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.move.inner');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.move.method');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.move.static');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.promote.temp');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.pull.up');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.push.down');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.compilationunit');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.enum.constant');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.field');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.java.project');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.local.variable');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.method');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.package');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.source.folder');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.type');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.type.parameter');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.rename.unknown.java.element');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.self.encapsulate');
+INSERT INTO "PUBLIC"."ECLIPSE_REFACTORING_IDS" ("ID") VALUES ('org.eclipse.jdt.ui.use.supertype');
+
 DROP TABLE "PUBLIC"."MESSAGE_PATTERNS" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."MESSAGE_PATTERNS" (
@@ -145,13 +189,41 @@ FROM "PUBLIC"."ALL_DATA" "T1" INNER JOIN "PUBLIC"."MESSAGE_PATTERNS" "T2" ON "T1
 WHERE IS_JAVA_REFACTORING("T1"."id") AND "T1"."username" LIKE 'cs-___' AND "T1"."recorder" = 'CODINGSPECTATOR' 
 ORDER BY "MESSAGE_PATTERN_ID", "KIND", "REFACTORING_ID", "USERNAME", "WORKSPACE_ID", "VERSION", "TIMESTAMP"/*, "MESSAGE"*/);
 
----* *DSV_COL_DELIM=||
+--* *DSV_COL_DELIM=||
 --* *DSV_ROW_DELIM=\n\n\n
 * *DSV_COL_DELIM=,
 * *DSV_ROW_DELIM=\n
 * *DSV_TARGET_FILE=RefactoringMessages.csv
 
 \x "PUBLIC"."REFACTORING_MESSAGES"
+
+DROP TABLE "PUBLIC"."REFACTORING_PATTERN_ID" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."REFACTORING_PATTERN_ID" (
+  "MESSAGE_PATTERN_ID" VARCHAR(1000),
+  "REFACTORING_ID" VARCHAR(100)
+);
+
+INSERT INTO "PUBLIC"."REFACTORING_PATTERN_ID" (
+  "MESSAGE_PATTERN_ID",
+  "REFACTORING_ID"
+)
+SELECT
+"MESSAGE_PATTERN_ID", "REFACTORING_ID"
+FROM
+(SELECT
+"T"."MESSAGE_PATTERN_ID" AS "MESSAGE_PATTERN_ID",
+"T"."REFACTORING_ID" AS "REFACTORING_ID",
+COUNT(*)
+FROM "PUBLIC"."REFACTORING_MESSAGES" "T"
+GROUP BY "T"."MESSAGE_PATTERN_ID", "T"."REFACTORING_ID"
+HAVING COUNT(*) > 1);
+
+* *DSV_COL_DELIM=,
+* *DSV_ROW_DELIM=\n
+* *DSV_TARGET_FILE=RefactoringPatternID.csv
+
+\x "PUBLIC"."REFACTORING_PATTERN_ID"
 
 DROP TABLE "PUBLIC"."UNMATCHED_MESSAGE_PATTERNS" IF EXISTS;
 
@@ -172,7 +244,6 @@ WHERE "T2"."status" LIKE "T1"."PATTERN" AND IS_JAVA_REFACTORING("T2"."id") AND "
 
 * *DSV_COL_DELIM=,
 * *DSV_ROW_DELIM=\n
-
 * *DSV_TARGET_FILE=UnmatchedMessagePatterns.csv
 
 \x "PUBLIC"."UNMATCHED_MESSAGE_PATTERNS"
@@ -197,7 +268,6 @@ WHERE "T1"."status" LIKE "T2"."PATTERN"
 
 * *DSV_COL_DELIM=,
 * *DSV_ROW_DELIM=\n
-
 * *DSV_TARGET_FILE=UnmatchedMessages.csv
 
 \x "PUBLIC"."UNMATCHED_MESSAGES"
