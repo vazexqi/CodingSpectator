@@ -23,7 +23,8 @@ import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
 /**
  * This analyzer calculates per commit: how many changes are performed and how many of them are
  * performed after running tests but before committing. Thus, commits without preceding tests are
- * ignored.
+ * ignored. Also, it computes how many of untested changes (i.e. changes after tests before commits)
+ * are commenting/uncommenting and undoing.
  * 
  * TODO: This class has some similarity with ChangesReachingCommitAnalyzer and
  * RefactoringsAndChangesMixReachingCommitAnalyzer. Consider factoring out common parts.
@@ -35,7 +36,7 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 
 	private final Map<String, Integer> commitChangesCounter= new HashMap<String, Integer>();
 
-	private final Map<String, Integer> commitAfterTestChangesCounter= new HashMap<String, Integer>();
+	private final Map<String, Set<ASTOperation>> commitAfterTestChanges= new HashMap<String, Set<ASTOperation>>();
 
 	private final Set<String> filesCommittedAfterTest= new HashSet<String>();
 
@@ -43,12 +44,18 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 
 	private String currentASTFilePath;
 
-	private int totalCommitChangesCount, totalCommitAfterTestChangesCount;
+	private int totalCommitChangesCount;
+
+	private int totalCommitAfterTestChangesCount;
+
+	private int totalCommitAfterTestCommentingOrUncommentingChangesCount;
+
+	private int totalCommitAfterTestUndoingChangesCount;
 
 
 	@Override
 	protected String getTableHeader() {
-		return "username,workspace ID,commit timestamp,changes count,after test changes count\n";
+		return "username,workspace ID,commit timestamp,changes count,after test changes count,after test commenting/uncommenting changes count,after test undoing changes count\n";
 	}
 
 	@Override
@@ -84,17 +91,19 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 		}
 		System.out.println("Total commit changes count: " + totalCommitChangesCount);
 		System.out.println("Total commit after test changes count: " + totalCommitAfterTestChangesCount);
+		System.out.println("Total commit after test commenting/uncommenting changes count: " + totalCommitAfterTestCommentingOrUncommentingChangesCount);
+		System.out.println("Total commit after test undoing changes count: " + totalCommitAfterTestUndoingChangesCount);
 	}
 
 	private void handleTestSessionStartedOperation() {
 		isNeverTested= false;
 		filesCommittedAfterTest.clear();
-		commitAfterTestChangesCounter.clear();
+		commitAfterTestChanges.clear();
 	}
 
 	private void handleASTOperation(ASTOperation astOperation) {
 		incrementCounter(commitChangesCounter);
-		incrementCounter(commitAfterTestChangesCounter);
+		getFileCommitAfterTestChanges(currentASTFilePath).add(astOperation);
 	}
 
 	private void handleCommittedFileOperation(CommittedFileOperation committedFileOperation) {
@@ -104,13 +113,11 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 			commitChangesCounter.remove(committedFilePath);
 			return;
 		}
-		int commitChangesCount= getCount(commitChangesCounter, committedFilePath);
-		int commitAfterTestChangesCount= getCount(commitAfterTestChangesCounter, committedFilePath);
-		totalCommitChangesCount+= commitChangesCount;
-		totalCommitAfterTestChangesCount+= commitAfterTestChangesCount;
-
-		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, committedFileOperation.getTime(),
-						commitChangesCount, commitAfterTestChangesCount);
+		ChangeCounters changeCounters= new ChangeCounters(committedFilePath);
+		updateTotalCounters(changeCounters);
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, committedFileOperation.getTime(), changeCounters.commitChangesCount,
+				changeCounters.commitAfterTestChangesCount, changeCounters.commitAfterTestCommentingOrUncommentingChangesCount,
+				changeCounters.commitAfterTestUndoingChangesCount);
 
 		filesCommittedAfterTest.add(committedFilePath);
 		//Reset statistics for the committed file.
@@ -124,8 +131,8 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 			String newFilePath= StringHelper.replacePrefix(filePath, oldPrefix, newPrefix);
 			Integer commitChangesCount= commitChangesCounter.remove(filePath);
 			commitChangesCounter.put(newFilePath, commitChangesCount);
-			Integer commitAfterTestChangesCount= commitAfterTestChangesCounter.remove(filePath);
-			commitAfterTestChangesCounter.put(newFilePath, commitAfterTestChangesCount);
+			Set<ASTOperation> fileCommitAfterTestChanges= commitAfterTestChanges.remove(filePath);
+			commitAfterTestChanges.put(newFilePath, fileCommitAfterTestChanges);
 			if (filesCommittedAfterTest.remove(filePath)) {
 				filesCommittedAfterTest.add(newFilePath);
 			}
@@ -135,12 +142,31 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 	private void initialize() {
 		result= new StringBuffer();
 		commitChangesCounter.clear();
-		commitAfterTestChangesCounter.clear();
+		commitAfterTestChanges.clear();
 		filesCommittedAfterTest.clear();
 		isNeverTested= true;
 		currentASTFilePath= null;
 		totalCommitChangesCount= 0;
 		totalCommitAfterTestChangesCount= 0;
+		totalCommitAfterTestCommentingOrUncommentingChangesCount= 0;
+		totalCommitAfterTestUndoingChangesCount= 0;
+	}
+
+	private void updateTotalCounters(ChangeCounters changeCounters) {
+		totalCommitChangesCount+= changeCounters.commitChangesCount;
+		totalCommitAfterTestChangesCount+= changeCounters.commitAfterTestChangesCount;
+		totalCommitAfterTestCommentingOrUncommentingChangesCount+= changeCounters.commitAfterTestCommentingOrUncommentingChangesCount;
+		totalCommitAfterTestUndoingChangesCount+= changeCounters.commitAfterTestUndoingChangesCount;
+	}
+
+
+	private Set<ASTOperation> getFileCommitAfterTestChanges(String filePath) {
+		Set<ASTOperation> fileCommitAfterTestChanges= commitAfterTestChanges.get(filePath);
+		if (fileCommitAfterTestChanges == null) {
+			fileCommitAfterTestChanges= new HashSet<ASTOperation>();
+			commitAfterTestChanges.put(filePath, fileCommitAfterTestChanges);
+		}
+		return fileCommitAfterTestChanges;
 	}
 
 	private void incrementCounter(Map<String, Integer> counter) {
@@ -165,6 +191,32 @@ public class ChangesAfterTestBeforeCommitAnalyzer extends CSVProducingAnalyzer {
 	@Override
 	protected boolean shouldMergeResults() {
 		return true;
+	}
+
+	class ChangeCounters {
+
+		int commitChangesCount= 0;
+
+		int commitAfterTestChangesCount= 0;
+
+		int commitAfterTestCommentingOrUncommentingChangesCount= 0;
+
+		int commitAfterTestUndoingChangesCount= 0;
+
+
+		ChangeCounters(String filePath) {
+			commitChangesCount= getCount(commitChangesCounter, filePath);
+			Set<ASTOperation> fileCommitAfterTestChanges= getFileCommitAfterTestChanges(filePath);
+			commitAfterTestChangesCount= fileCommitAfterTestChanges.size();
+			for (ASTOperation astOperation : fileCommitAfterTestChanges) {
+				if (astOperation.isCommentingOrUncommenting()) {
+					commitAfterTestCommentingOrUncommentingChangesCount++;
+				} else if (astOperation.isUndoing()) {
+					commitAfterTestUndoingChangesCount++;
+				}
+			}
+		}
+
 	}
 
 }

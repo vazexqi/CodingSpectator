@@ -153,45 +153,45 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 		return true;
 	}
 
-}
+	class ChangeCounters {
 
-class ChangeCounters {
+		int changesCount= 0;
 
-	int changesCount= 0;
+		int shadowedChangesCount= 0;
 
-	int shadowedChangesCount= 0;
+		int shadowedCommentingOrUncommentingChangesCount= 0;
 
-	int shadowedCommentingOrUncommentingChangesCount= 0;
-
-	int shadowedUndoingChangesCount= 0;
+		int shadowedUndoingChangesCount= 0;
 
 
-	ChangeCounters(Map<Long, List<ASTOperation>> fileASTOperations) {
-		for (List<ASTOperation> nodeOperations : fileASTOperations.values()) {
-			int nodeOperationsCount= nodeOperations.size();
-			changesCount+= nodeOperationsCount;
-			for (int i= 0; i < nodeOperationsCount - 1; i++) {
-				processShadowedOperation(nodeOperations.get(i));
-			}
-			if (nodeOperationsCount > 1) {
-				//If the first operation is add and the last operation is delete, then the last operation is also shadowed.
-				ASTOperation lastASTOperation= nodeOperations.get(nodeOperationsCount - 1);
-				if (nodeOperations.get(0).isAdd() && lastASTOperation.isDelete()) {
-					processShadowedOperation(lastASTOperation);
+		ChangeCounters(Map<Long, List<ASTOperation>> fileASTOperations) {
+			for (List<ASTOperation> nodeOperations : fileASTOperations.values()) {
+				int nodeOperationsCount= nodeOperations.size();
+				changesCount+= nodeOperationsCount;
+				for (int i= 0; i < nodeOperationsCount - 1; i++) {
+					processShadowedOperation(nodeOperations.get(i));
+				}
+				if (nodeOperationsCount > 1) {
+					//If the first operation is add and the last operation is delete, then the last operation is also shadowed.
+					ASTOperation lastASTOperation= nodeOperations.get(nodeOperationsCount - 1);
+					if (nodeOperations.get(0).isAdd() && lastASTOperation.isDelete()) {
+						processShadowedOperation(lastASTOperation);
+					}
 				}
 			}
 		}
-	}
 
-	void processShadowedOperation(ASTOperation astOperation) {
-		shadowedChangesCount++;
-		//Note that an operation that is both commenting (or uncommenting) and undoing is counted as 
-		//commenting or uncommenting only to ensure that counts are disjoint.
-		if (astOperation.isCommentingOrUncommenting()) {
-			shadowedCommentingOrUncommentingChangesCount++;
-		} else if (astOperation.isUndoing()) {
-			shadowedUndoingChangesCount++;
+		void processShadowedOperation(ASTOperation astOperation) {
+			shadowedChangesCount++;
+			//Note that an operation that is both commenting (or uncommenting) and undoing is counted as 
+			//commenting or uncommenting only to ensure that counts are disjoint.
+			if (astOperation.isCommentingOrUncommenting()) {
+				shadowedCommentingOrUncommentingChangesCount++;
+			} else if (astOperation.isUndoing()) {
+				shadowedUndoingChangesCount++;
+			}
 		}
+
 	}
 
 }
