@@ -35,6 +35,15 @@ public class TestCaseFinishedOperation extends JUnitOperation {
 		return "Finished test case";
 	}
 
+	public boolean hasFailed() {
+		//Both "Failure" and "Error" mean that the test has failed.
+		return result.equals("Failure") || result.equals("Error");
+	}
+
+	public boolean hasPassed() {
+		return result.equals("OK");
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);

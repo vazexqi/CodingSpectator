@@ -38,6 +38,10 @@ public class TestCaseStartedOperation extends JUnitOperation {
 		return "Started test case";
 	}
 
+	public String getFullyQualifiedMethodName() {
+		return testClassName + "." + testMethodName;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		super.populateTextChunk(textChunk);
