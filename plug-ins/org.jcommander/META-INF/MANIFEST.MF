@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.jcommander
+Bundle-SymbolicName: org.jcommander
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: University of Illinois
+Bundle-ClassPath: lib/jcommander-1.7.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.beust.jcommander
