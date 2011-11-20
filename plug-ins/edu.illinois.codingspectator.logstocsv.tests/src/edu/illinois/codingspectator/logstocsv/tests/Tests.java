@@ -39,42 +39,30 @@ public class Tests {
 	private IPath checksAfterRefactoringsExpectedLog;
 
 	private void computePaths(String testNumber) throws CoreException {
-		IPath pathToTestFolder = new Path("resources").append(testNumber);
-		String csvLogsFileName = "logs.csv";
-		csvExpectedLog = pathToTestFolder.append("expected-output").append(
-				csvLogsFileName);
-		String checksAfterRefactoringsLogFileName = "checks-after-refactorings.csv";
-		checksAfterRefactoringsExpectedLog = pathToTestFolder.append(
-				"expected-output").append(checksAfterRefactoringsLogFileName);
-		pathToInputFolder = pathToTestFolder.append("input");
-		csvActualLogFolder = new EFSFile(
-				pathToTestFolder.append("actual-output"));
+		IPath pathToTestFolder= new Path("resources").append(testNumber);
+		String csvLogsFileName= "logs.csv";
+		csvExpectedLog= pathToTestFolder.append("expected-output").append(csvLogsFileName);
+		String checksAfterRefactoringsLogFileName= "checks-after-refactorings.csv";
+		checksAfterRefactoringsExpectedLog= pathToTestFolder.append("expected-output").append(checksAfterRefactoringsLogFileName);
+		pathToInputFolder= pathToTestFolder.append("input");
+		csvActualLogFolder= new EFSFile(pathToTestFolder.append("actual-output"));
 		csvActualLogFolder.mkdir();
-		csvActualLog = csvActualLogFolder.append(csvLogsFileName);
-		checksAfterRefactoringsActualLog = csvActualLogFolder
-				.append(checksAfterRefactoringsLogFileName);
+		csvActualLog= csvActualLogFolder.append(csvLogsFileName);
+		checksAfterRefactoringsActualLog= csvActualLogFolder.append(checksAfterRefactoringsLogFileName);
 	}
 
 	private void generateReports() throws CoreException, IOException {
-		ConvertLogsToCSV.main(new String[] { null,
-				pathToInputFolder.toOSString(),
-				csvActualLog.getPath().toOSString(),
-				checksAfterRefactoringsActualLog.getPath().toOSString() });
+		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.getPath().toOSString() });
 	}
 
 	private void checkReports() throws IOException {
 		assertTrue(csvActualLog.exists());
-		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()),
-				FileUtils.getContents(csvActualLog.getPath().toOSString()));
+		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
 		assertTrue(checksAfterRefactoringsActualLog.exists());
-		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog
-				.toOSString()),
-				FileUtils.getContents(checksAfterRefactoringsActualLog
-						.getPath().toOSString()));
+		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog.toOSString()), FileUtils.getContents(checksAfterRefactoringsActualLog.getPath().toOSString()));
 	}
 
-	private void testReports(String testNumber) throws CoreException,
-			IOException {
+	private void testReports(String testNumber) throws CoreException, IOException {
 		computePaths(testNumber);
 		generateReports();
 		checkReports();
