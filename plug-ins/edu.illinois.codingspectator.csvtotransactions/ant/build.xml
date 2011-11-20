@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details. -->
+<project default="create_run_jar" name="Create Runnable Jar for Project edu.illinois.codingspectator.csvtotransactions">
+	<!--this file was created by Eclipse Runnable JAR Export Wizard-->
+	<!--ANT 1.7 is required                                        -->
+	<target name="create_run_jar">
+		<mkdir dir="bin/"/>
+		<jar destfile="bin/csvtotransactions.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="edu.illinois.codingspectator.csvtotransactions.CSVToTransactions" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+			<zipfileset excludes="META-INF/*.SF" src="../../org.supercsv/ant/lib/SuperCSV-with_src-1.52.jar" />
+			<zipfileset excludes="META-INF/*.SF" src="../../org.jcommander/lib/jcommander-1.7.jar" />
+			<fileset dir="../bin" />
+		</jar>
+	</target>
+
+	<target name="clean">
+		<delete includeemptydirs="true">
+			<fileset dir="bin" />
+		</delete>
+	</target>
+</project>

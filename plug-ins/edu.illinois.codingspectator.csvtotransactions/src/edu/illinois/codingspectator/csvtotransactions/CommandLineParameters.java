@@ -14,11 +14,11 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandDescription= "Generates transactions from UDC CSV file.")
 public class CommandLineParameters {
 
-	@Parameter(names= { "-i", "--input" }, description= "Path to the input UDC CSV file.")
+	@Parameter(names= { "-i", "--input" }, required= true, description= "Path to the input UDC CSV file.")
 	public String inputCSVFile;
 
-	@Parameter(names= { "-o", "--output" }, description= "The path to the output file containing the transactions.")
-	public String outputTransactionsFile= ".";
+	@Parameter(names= { "-o", "--output" }, required= true, description= "The path to the output file containing the transactions.")
+	public String outputTransactionsFile;
 
 	@Parameter(names= { "-t", "--timewindow" }, description= "This number is minimum number of minutes that splits two consecutive events in two different transactions.")
 	public long timeWindowInMinutes= 1;

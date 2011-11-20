@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 
 /**
  * 
@@ -54,12 +55,16 @@ public class CSVToTransactions {
 
 	public static void main(String[] args) throws IOException {
 		CommandLineParameters params= new CommandLineParameters();
-		JCommander commander= new JCommander(params, args);
-		if (params.help) {
-			commander.usage();
-		} else {
-			CSVToTransactions csvToTransactions= new CSVToTransactions(params.inputCSVFile, params.outputTransactionsFile, params.timeWindowInMinutes);
-			csvToTransactions.convertCSVToTransactions();
+		try {
+			JCommander commander= new JCommander(params, args);
+			if (params.help) {
+				commander.usage();
+			} else {
+				CSVToTransactions csvToTransactions= new CSVToTransactions(params.inputCSVFile, params.outputTransactionsFile, params.timeWindowInMinutes);
+				csvToTransactions.convertCSVToTransactions();
+			}
+		} catch (ParameterException e) {
+			new JCommander(params).usage();
 		}
 	}
 
