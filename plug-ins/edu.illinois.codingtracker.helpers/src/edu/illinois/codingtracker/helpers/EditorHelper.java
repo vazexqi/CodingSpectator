@@ -44,7 +44,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 @SuppressWarnings("restriction")
 public class EditorHelper {
 
-	private static final int MAXIMUM_OPEN_EDITORS_COUNT= 20; //Does not limit the number of CompareEditors.
+	private static final int MAXIMUM_OPEN_EDITORS_COUNT= 50; //Does not limit the number of CompareEditors.
 
 	private static final List<ITextEditor> existingEditors= new LinkedList<ITextEditor>(); //Does not include CompareEditors.
 
