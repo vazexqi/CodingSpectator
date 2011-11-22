@@ -23,7 +23,7 @@ do
   $GZ_UNZIPPER -t $file
   if [ $? -eq 0 ]
   then
-  $TIME --format="Time elapsed processing $file=%E" $GZ_UNZIPPER -k -d -c -p $NUMBER_OF_CORES $file | $PARALLEL -j+0 --pipe --block 100M grep -E -f "$UDC_REFACTORING_IDS_FILE_NAME" | sed s/org\.eclipse\.jdt\.ui\.edit\.text\.java\.//g  >> "$OUTPUT_FILE_NAME"
+  $TIME --format="Time elapsed processing $file=%E" $GZ_UNZIPPER -k -d -c -p $NUMBER_OF_CORES $file | $PARALLEL -j $NUMBER_OF_CORES --pipe --block 100M grep -E -f "$UDC_REFACTORING_IDS_FILE_NAME" | sed s/org\.eclipse\.jdt\.ui\.edit\.text\.java\.//g  >> "$OUTPUT_FILE_NAME"
   else
     echo "$file is corrupted."
   fi
