@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
-import org.eclipse.jface.text.IDocument;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
@@ -46,9 +45,14 @@ public class ASTOperationRecorder {
 
 	private List<CoherentTextChange> batchTextChanges= new LinkedList<CoherentTextChange>();
 
-	private List<CoherentTextChange> problematicTextChanges= new LinkedList<CoherentTextChange>();
+	//Contains a backup of batch changes, which is set after each completed iteration.
+	private List<CoherentTextChange> batchTextChangesBackup= new LinkedList<CoherentTextChange>();
 
-	private IDocument currentDocument;
+	//Contains original DocumentEvents from the last, incomplete batch iteration, so it should be used only
+	//when the batch contains at least one complete iteration.
+	private List<DocumentEvent> batchDocumentEventsLastIterationBackup= new LinkedList<DocumentEvent>();
+
+	private List<CoherentTextChange> problematicTextChanges= new LinkedList<CoherentTextChange>();
 
 	private String currentEditedFilePath;
 
@@ -77,18 +81,22 @@ public class ASTOperationRecorder {
 	}
 
 	public void beforeDocumentChange(DocumentEvent event, String filePath) {
-		//If the edited document has changed, flush the accumulated changes.
-		if (currentDocument != null && currentDocument != event.getDocument()) {
+		//If we start to edit a different file, flush the accumulated changes.
+		if (currentEditedFilePath != null && !currentEditedFilePath.equals(filePath)) {
 			flushCurrentTextChanges(true);
 		}
-		currentDocument= event.getDocument();
 		long timestamp= getTextChangeTimestamp();
+		addNewBatchChange(event, timestamp);
+		//Assign the current file path at the end to ensure that any prior flushing uses the old file path.
+		currentEditedFilePath= filePath;
+	}
+
+	private void addNewBatchChange(DocumentEvent event, long timestamp) {
 		if (batchTextChanges.isEmpty()) {
 			batchTextChanges.add(new CoherentTextChange(event, timestamp));
 		} else {
 			addToCurrentTextChanges(event, timestamp);
 		}
-		currentEditedFilePath= filePath;
 	}
 
 	private void addToCurrentTextChanges(DocumentEvent event, long timestamp) {
@@ -102,6 +110,7 @@ public class ASTOperationRecorder {
 			} else {
 				correlatedBatchSize= batchTextChanges.size();
 				currentIndexToGlueWith= 0;
+				updateBatchBackup();
 				tryGluingInBatch(event, timestamp);
 			}
 		} else { //Batch size is already established.
@@ -127,13 +136,36 @@ public class ASTOperationRecorder {
 		if (textChangeToGlueWith.shouldGlueNewTextChange(event)) {
 			textChangeToGlueWith.glueNewTextChange(event);
 			applyTextChangeToBatch(event, currentIndexToGlueWith);
-			currentIndexToGlueWith++;
-			if (currentIndexToGlueWith == correlatedBatchSize) {
-				currentIndexToGlueWith= 0;
-			}
+			//Clone the original document event since its document is updated by Eclipse.
+			batchDocumentEventsLastIterationBackup.add(CoherentTextChange.cloneDocumentEvent(event));
+			incrementGluingIndex();
 		} else {
-			flushCurrentTextChanges(false);
-			batchTextChanges.add(new CoherentTextChange(event, timestamp));
+			if (isAnythingToFlush() && isBatchIncomplete()) {
+				flushBatchBackup(false, true);
+			} else {
+				flushCurrentTextChanges(false);
+			}
+			addNewBatchChange(event, timestamp);
+		}
+	}
+
+	private void incrementGluingIndex() {
+		currentIndexToGlueWith++;
+		//If we reached the end of a batch, reset the gluing index and update the batch backup.
+		if (currentIndexToGlueWith == correlatedBatchSize) {
+			currentIndexToGlueWith= 0;
+			updateBatchBackup();
+		}
+	}
+
+	private void updateBatchBackup() {
+		//It makes sense to backup the batch only if it has more than one element since otherwise it can never be malformed.
+		if (correlatedBatchSize > 1) {
+			batchDocumentEventsLastIterationBackup.clear();
+			batchTextChangesBackup.clear();
+			for (CoherentTextChange textChange : batchTextChanges) {
+				batchTextChangesBackup.add(textChange.clone());
+			}
 		}
 	}
 
@@ -154,25 +186,64 @@ public class ASTOperationRecorder {
 
 	public void flushCurrentTextChanges(boolean isForced) {
 		if (isAnythingToFlush()) {
-			checkBatchedEditIsWellFormed();
-			if (batchTextChanges.size() > 1) {
-				flushBatchAsSeparateChanges(isForced);
+			if (isBatchIncomplete()) {
+				flushBatchBackup(isForced, false);
 			} else {
-				if (isInProblemMode) {
-					flushProblematicTextChanges(isForced);
+				checkBatchedEditIsWellFormed();
+				if (batchTextChanges.size() > 1) {
+					flushBatchAsSeparateChanges(isForced);
 				} else {
-					ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.get(0));
-					//Perform AST inference when forced or AST inference is not problematic.
-					if (isForced || !astOperationInferencer.isProblematicInference()) {
-						inferAndRecordASTOperations(astOperationInferencer);
-					} else {
-						enterInProblemMode();
-					}
+					flushSingleBatchTextChange(isForced);
 				}
 			}
 		}
+		resetBatch();
+	}
+
+	private void resetBatch() {
 		batchTextChanges.clear();
+		batchTextChangesBackup.clear();
+		batchDocumentEventsLastIterationBackup.clear();
 		correlatedBatchSize= -1;
+	}
+
+	/**
+	 * This method assumes that batchTextChanges contains 0 or 1 text changes, and 0 is allowed only
+	 * when the inference is in the problem mode.
+	 * 
+	 * @param isForced
+	 */
+	private void flushSingleBatchTextChange(boolean isForced) {
+		if (isInProblemMode) {
+			flushProblematicTextChanges(isForced);
+		} else {
+			ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.get(0));
+			//Perform AST inference when forced or AST inference is not problematic.
+			if (isForced || !astOperationInferencer.isProblematicInference()) {
+				inferAndRecordASTOperations(astOperationInferencer);
+			} else {
+				enterInProblemMode();
+			}
+		}
+	}
+
+	private void flushBatchBackup(boolean isForced, boolean isGluingFlush) {
+		//First, make a copy of the backed up document events since each flushing cleans the field 
+		//batchDocumentEventsLastIterationBackup.
+		List<DocumentEvent> documentEventsBackup= new LinkedList<DocumentEvent>();
+		documentEventsBackup.addAll(batchDocumentEventsLastIterationBackup);
+		//Next, flush the complete batch backup.
+		batchTextChanges.clear();
+		batchTextChanges.addAll(batchTextChangesBackup);
+		currentIndexToGlueWith= 0;
+		flushCurrentTextChanges(isForced);
+		//Finally, process anew the document events from the last, incomplete batch iteration.
+		for (DocumentEvent event : documentEventsBackup) {
+			beforeDocumentChange(event, currentEditedFilePath);
+		}
+		if (!isGluingFlush) {
+			flushCurrentTextChanges(isForced);
+		}
 	}
 
 	private void flushBatchAsSeparateChanges(boolean isForced) {
@@ -239,8 +310,12 @@ public class ASTOperationRecorder {
 		return isInProblemMode || !batchTextChanges.isEmpty() && batchTextChanges.get(0).isActualChange();
 	}
 
+	private boolean isBatchIncomplete() {
+		return correlatedBatchSize > 1 && currentIndexToGlueWith != 0;
+	}
+
 	private void checkBatchedEditIsWellFormed() {
-		if (correlatedBatchSize != -1 && currentIndexToGlueWith != 0) {
+		if (isBatchIncomplete()) {
 			throw new RuntimeException("Stopped gluing in the middle of a correlated batch!");
 		}
 		if (!batchTextChanges.isEmpty()) {

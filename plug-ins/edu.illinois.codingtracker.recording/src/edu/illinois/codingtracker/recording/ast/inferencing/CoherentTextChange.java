@@ -18,11 +18,12 @@ import edu.illinois.codingtracker.operations.textchanges.UndoneTextChangeOperati
  * @author Stas Negara
  * 
  */
-public class CoherentTextChange {
+public class CoherentTextChange implements Cloneable {
 
 	private final long timestamp;
 
-	private final IDocument editedDocument;
+	//This field is not final only to allow setting it in the method 'clone'.
+	private IDocument editedDocument;
 
 	private String initialDocumentText;
 
@@ -256,6 +257,26 @@ public class CoherentTextChange {
 	private boolean isCurrentEventUndoing() {
 		//The first part is for online AST inferencing, the second part is for AST inferencing while replaying.
 		return BasicListener.isUndoing || UndoneTextChangeOperation.isReplaying;
+	}
+
+	@Override
+	public CoherentTextChange clone() {
+		CoherentTextChange coherentTextChangeClone= null;
+		try {
+			coherentTextChangeClone= (CoherentTextChange)super.clone();
+		} catch (Exception e) {
+			//Should never get here.
+			throw new RuntimeException("Failed to clone coherent text change: " + this);
+		}
+		//Field editedDocumet is the only field that requires deep copying since all other fields are primitive, immutable, 
+		//or never mutated (the only mutable but never mutated field is initialTextChangeOperation).
+		coherentTextChangeClone.editedDocument= new Document(editedDocument.get());
+		return coherentTextChangeClone;
+	}
+
+	public static DocumentEvent cloneDocumentEvent(DocumentEvent event) {
+		Document document= new Document(event.getDocument().get());
+		return new DocumentEvent(document, event.getOffset(), event.getLength(), event.getText());
 	}
 
 }
