@@ -101,11 +101,8 @@ public class ASTOperationRecorder {
 
 	private void addToCurrentTextChanges(DocumentEvent event, long timestamp) {
 		if (correlatedBatchSize == -1) { //Batch size is not established yet.
-			CoherentTextChange lastTextChange= batchTextChanges.get(batchTextChanges.size() - 1);
-			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
-			if (!isReplayingSnapshotDifference && lastTextChange.isNeverGlued() &&
-					lastTextChange.isPossiblyCorrelatedWith(newTextChange)) {
-				batchTextChanges.add(newTextChange);
+			if (shouldExtendBatch(event, timestamp)) {
+				batchTextChanges.add(new CoherentTextChange(event, timestamp));
 				processNewlyAddedBatchChange(event);
 			} else {
 				correlatedBatchSize= batchTextChanges.size();
@@ -116,6 +113,20 @@ public class ASTOperationRecorder {
 		} else { //Batch size is already established.
 			tryGluingInBatch(event, timestamp);
 		}
+	}
+
+	private boolean shouldExtendBatch(DocumentEvent event, long timestamp) {
+		if (isReplayingSnapshotDifference) {
+			return false;
+		}
+		CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
+		for (CoherentTextChange existingBatchChange : batchTextChanges) {
+			if (!existingBatchChange.isPossiblyCorrelatedWith(newTextChange) ||
+					existingBatchChange.shouldGlueNewTextChange(event)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void processNewlyAddedBatchChange(DocumentEvent event) {

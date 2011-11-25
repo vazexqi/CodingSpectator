@@ -221,7 +221,7 @@ public abstract class TextChangeOperation extends UserOperation {
 		final long maxTimeDelta= 150; // 150 ms.
 		return Math.abs(getTime() - operation.getTime()) < maxTimeDelta && !isCommentingOrUncommenting() &&
 				newText.equals(operation.newText) && replacedText.equals(operation.replacedText) &&
-				isPossiblyChangingCode() && !containsNewLine() && !canBeCoherentWith(operation);
+				isPossiblyChangingCode() && !containsNewLine();
 	}
 
 	private boolean isPossiblyChangingCode() {
@@ -246,17 +246,6 @@ public abstract class TextChangeOperation extends UserOperation {
 		final String singleLineComment= "//";
 		return replacedText.equals(singleLineComment) && newText.isEmpty() ||
 				replacedText.isEmpty() && newText.equals(singleLineComment);
-	}
-
-	/**
-	 * Detects whether the given text change can possibly continue this text change (i.e. adding or
-	 * removing characters in a row).
-	 * 
-	 * @param operation
-	 * @return
-	 */
-	private boolean canBeCoherentWith(TextChangeOperation operation) {
-		return offset + newText.length() == operation.offset || offset - replacedText.length() == operation.offset;
 	}
 
 	/**
