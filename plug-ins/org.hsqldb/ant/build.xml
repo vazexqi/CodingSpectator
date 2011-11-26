@@ -39,11 +39,11 @@
 	</target>
 
 	<target name="install-jars" description="Fetches and installs the necessary jar for this project" depends="unzip" unless="jar-files.present">
-		<move todir="${lib-destination-dir}" flatten="yes">
+		<copy todir="${lib-destination-dir}" flatten="yes">
 			<fileset dir="${zip-destination-dir}" casesensitive="yes">
 			  <include name="**/${required.jar}"/>
 			</fileset>
-		</move>
+		</copy>
 		<antcall target="refresh" />
 		<antcall target="rebuild" />
 	</target>
