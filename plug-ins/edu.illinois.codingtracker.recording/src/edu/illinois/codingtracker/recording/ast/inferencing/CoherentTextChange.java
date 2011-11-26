@@ -31,17 +31,22 @@ public class CoherentTextChange implements Cloneable {
 
 	private int batchOffsetShift; //It is assigned only when this text change is part of a batch.
 
+	//The length of the text that is removed from the document (i.e. NOT from the own added text) by glued DocumentEvents.
+	//Thus, it does not include neither intermediateRemovedTextLength nor initialRemovedTextLength.
 	private int removedTextLength;
 
 	private int addedTextLength;
 
+	//The length of the text that is removed as the first change, i.e. by DocumentEvent from which an instance of 
+	//CoherentTextChange is created. Thus, it should be assigned only once, in the constructor of CoherentTextChange.
 	private final int initialRemovedTextLength;
 
+	//The length of the text that is removed from the own added text. Thus, it should never be greater than addedTextLength.
 	private int intermediateRemovedTextLength;
 
 	private final TextChangeOperation initialTextChangeOperation;
 
-	private boolean neverGlued= true;
+	private boolean isNeverGlued= true;
 
 	private boolean isDeletingOnly= false;
 
@@ -132,7 +137,7 @@ public class CoherentTextChange implements Cloneable {
 	}
 
 	public boolean isNeverGlued() {
-		return neverGlued;
+		return isNeverGlued;
 	}
 
 	/**
@@ -184,37 +189,42 @@ public class CoherentTextChange implements Cloneable {
 			intermediateRemovedTextLength+= newRemovedTextLength;
 		}
 		addedTextLength+= documentEvent.getText().length();
-		neverGlued= false;
+		//Updating the deleting state should follow the adjusting of addedTextLength.
+		updateDeletingState(documentEvent.getOffset());
 		applyTextChange(documentEvent);
+		isNeverGlued= false; //Set isNeverGlued at the end in order to avoid confusion in the preceding functionality.
+	}
+
+	private void updateDeletingState(int newOffset) {
+		//The check to establish isBackspaceDeleting should be done before isDeletingOnly update 
+		//in order to use the current value of isDeletingOnly.
+		if (isNeverGlued && isDeletingOnly) {
+			isBackspaceDeleting= getBatchOffset() != newOffset;
+		}
+		if (addedTextLength > 0) {
+			isDeletingOnly= false;
+		}
 	}
 
 	public boolean shouldGlueNewTextChange(DocumentEvent documentEvent) {
-		//Do NOT use getBatchOffset() since it might account for removedTextLength, which we do not need here.
-		final int currentOffset= baseOffset + batchOffsetShift;
+		final int currentOffset= getBatchOffset();
 		final int newOffset= documentEvent.getOffset();
 		final int newRemovedTextLength= documentEvent.getLength();
-		if (newRemovedTextLength == 0) {
-			isDeletingOnly= false;
+		if (isNeverGlued && isDeletingOnly && currentOffset == newOffset) {
+			return true;
 		}
-		if (isDeletingOnly && neverGlued) {
-			isBackspaceDeleting= currentOffset != newOffset;
-		}
-		if (isDeletingOnly && !isBackspaceDeleting) {
-			//System.out.println("To glue: " + (offset == newOffset));
+		if (isDeletingOnly && !isBackspaceDeleting && !isNeverGlued) {
 			return currentOffset == newOffset;
-		} else {
-			//TODO: Consider also cases when a developer adds several nodes, then reconsiders and deletes all of them.
-			//Currently, we discard these additions and deletions. We need to introduce either a threshold on the number
-			//of allowed deletions or the deletion of one or more AST nodes, at which point we need to treat the addition and
-			//deletion as two distinct operations. Thus, we would need to capture the document's text at the moment of reversal
-			//(i.e. when a developer starts to delete the recently added characters).
-			if (!isDeletingOnly && addedTextLength - intermediateRemovedTextLength - newRemovedTextLength < 0) {
-				//System.out.println("To glue: false");
-				return false;
-			}
-			//System.out.println("To glue: " + (offset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength));
-			return currentOffset - removedTextLength - intermediateRemovedTextLength + addedTextLength == newOffset + newRemovedTextLength;
 		}
+		//TODO: Consider also cases when a developer adds several nodes, then reconsiders and deletes all of them.
+		//Currently, we discard these additions and deletions. We need to introduce either a threshold on the number
+		//of allowed deletions or the deletion of one or more AST nodes, at which point we need to treat the addition and
+		//deletion as two distinct operations. Thus, we would need to capture the document's text at the moment of reversal
+		//(i.e. when a developer starts to delete the recently added characters).
+		if (!isDeletingOnly && addedTextLength - intermediateRemovedTextLength - newRemovedTextLength < 0) {
+			return false;
+		}
+		return currentOffset + addedTextLength - intermediateRemovedTextLength == newOffset + newRemovedTextLength;
 	}
 
 	public void applyTextChange(DocumentEvent documentEvent) {
@@ -249,7 +259,7 @@ public class CoherentTextChange implements Cloneable {
 	}
 
 	private void checkBothNeverGlued(CoherentTextChange textChange, String checkingMethodName) {
-		if (!neverGlued || !textChange.neverGlued) {
+		if (!isNeverGlued || !textChange.isNeverGlued) {
 			throw new RuntimeException("It is not valid to call the method \"" + checkingMethodName + "\" if at least one argument represents an already glued text change!");
 		}
 	}
