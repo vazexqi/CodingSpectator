@@ -8,7 +8,7 @@ CSV_TO_TRANSACTIONS=(java -XX:MaxPermSize=512m -Xms40m -Xmx1G -jar "$CSV_TO_TRAN
 TRANSACTIONS_TO_RULES="$CODINGSPECTATOR_GIT_FOLDER/scripts/udc-analysis/transactionstorules.R"
 ant -f "$CSV_TO_TRANSACTIONS_FOLDER/ant/build.xml"
 tar xfz "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-data.csv.tar.gz" --to-stdout > "$TEMP_UDC_REFACTORING_CSV_FILE"
-for time_window in 1 2 5
+for time_window in 1 2 5 10 30 60
 do
   "${CSV_TO_TRANSACTIONS[@]}" -t "$time_window" < "$TEMP_UDC_REFACTORING_CSV_FILE" | "$TRANSACTIONS_TO_RULES" > "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-association-rules-t-$time_window.csv"
 done
