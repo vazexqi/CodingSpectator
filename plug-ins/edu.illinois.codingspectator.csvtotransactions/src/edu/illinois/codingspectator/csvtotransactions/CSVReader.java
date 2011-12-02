@@ -3,8 +3,8 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -18,33 +18,20 @@ import org.supercsv.prefs.CsvPreference;
  */
 public class CSVReader implements Iterable<Map<String, String>> {
 
-	private String csvFilePath;
+	private CsvMapReader csvMapReader;
 
-	private CsvMapReader reader;
+	private String[] csvHeader;
 
-	private String[] header;
-
-	public CSVReader(String csvFilePath) {
-		this.csvFilePath= csvFilePath;
+	public CSVReader(Reader reader) {
+		csvMapReader= new CsvMapReader(reader, CsvPreference.EXCEL_PREFERENCE);
 	}
 
-	private void readCSVHeader() throws IOException {
-		if (reader == null) {
-			reader= new CsvMapReader(new FileReader(csvFilePath), CsvPreference.EXCEL_PREFERENCE);
-			header= reader.getCSVHeader(true);
-		}
-	}
-
-	private boolean isInitialized() {
-		return reader != null && header != null;
+	private void readHeader() throws IOException {
+		csvHeader= csvMapReader.getCSVHeader(true);
 	}
 
 	private Map<String, String> getNextRow() throws IOException {
-		if (!isInitialized()) {
-			readCSVHeader();
-		}
-		Map<String, String> row= reader.read(header);
-		return row;
+		return csvMapReader.read(csvHeader);
 	}
 
 	@Override
@@ -54,12 +41,18 @@ public class CSVReader implements Iterable<Map<String, String>> {
 
 	public class CSVRowIterator implements Iterator<Map<String, String>> {
 
+		boolean hasReadHeader= false;
+
 		boolean hasComputedNext= false;
 
 		Map<String, String> prospectiveNext= null;
 
 		private void computeNext() {
 			try {
+				if (!hasReadHeader) {
+					readHeader();
+					hasReadHeader= true;
+				}
 				prospectiveNext= getNextRow();
 				hasComputedNext= true;
 			} catch (IOException e) {
