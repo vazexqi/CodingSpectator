@@ -9,7 +9,7 @@ transactions = read.transactions(file = file("stdin"), format = "basket", sep = 
 #frequencies = itemFrequency(transactions)
 #cat(frequencies)
 #WRITE(frequencies, file = "tx.csv", sep = ",")
-rules = apriori(transactions, parameter = list(minlen=2, sup = 0.001, conf = 0.001))
+rules = apriori(transactions, parameter = list(minlen=1, sup = 0.001, conf = 0.001))
 summary(rules)
 inspect(rules)
 sink(file = NULL, type = "output")
