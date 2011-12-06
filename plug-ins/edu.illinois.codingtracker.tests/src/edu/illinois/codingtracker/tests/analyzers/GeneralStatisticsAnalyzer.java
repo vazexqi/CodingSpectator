@@ -7,6 +7,7 @@ import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.CommittedFileOperation;
+import edu.illinois.codingtracker.operations.junit.TestCaseStartedOperation;
 import edu.illinois.codingtracker.operations.junit.TestSessionLaunchedOperation;
 
 
@@ -21,7 +22,7 @@ public class GeneralStatisticsAnalyzer extends CSVProducingAnalyzer {
 
 	@Override
 	protected String getTableHeader() {
-		return "username,workspace ID,test sessions count,commit events count,file commits count\n";
+		return "username,workspace ID,test sessions count,test case runs count,commit events count,file commits count\n";
 	}
 
 	@Override
@@ -38,6 +39,7 @@ public class GeneralStatisticsAnalyzer extends CSVProducingAnalyzer {
 	protected void postprocess(List<UserOperation> userOperations) {
 		result= new StringBuffer();
 		int testSessionsCount= 0;
+		int testCaseRunsCount= 0;
 		int commitEventsCount= 0;
 		int fileCommitsCount= 0;
 		boolean isInsideCommit= false;
@@ -56,10 +58,14 @@ public class GeneralStatisticsAnalyzer extends CSVProducingAnalyzer {
 				if (userOperation instanceof TestSessionLaunchedOperation) {
 					testSessionsCount++;
 				}
+				if (userOperation instanceof TestCaseStartedOperation) {
+					testCaseRunsCount++;
+				}
 			}
 		}
-		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, testSessionsCount, commitEventsCount, fileCommitsCount);
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, testSessionsCount, testCaseRunsCount, commitEventsCount, fileCommitsCount);
 		System.out.println("Test sessions count: " + testSessionsCount);
+		System.out.println("Test case runs count: " + testCaseRunsCount);
 		System.out.println("Commit events count: " + commitEventsCount);
 		System.out.println("File commits count: " + fileCommitsCount);
 	}
