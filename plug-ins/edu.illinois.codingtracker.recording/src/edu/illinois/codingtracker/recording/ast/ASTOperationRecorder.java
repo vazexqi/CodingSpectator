@@ -144,7 +144,7 @@ public class ASTOperationRecorder {
 
 	private void tryGluingInBatch(DocumentEvent event, long timestamp) {
 		CoherentTextChange textChangeToGlueWith= batchTextChanges.get(currentIndexToGlueWith);
-		if (textChangeToGlueWith.shouldGlueNewTextChange(event)) {
+		if (shouldContinueBatch(event, timestamp) && textChangeToGlueWith.shouldGlueNewTextChange(event)) {
 			textChangeToGlueWith.glueNewTextChange(event);
 			applyTextChangeToBatch(event, currentIndexToGlueWith);
 			//Clone the original document event since its document is updated by Eclipse.
@@ -158,6 +158,18 @@ public class ASTOperationRecorder {
 			}
 			addNewBatchChange(event, timestamp);
 		}
+	}
+
+	private boolean shouldContinueBatch(DocumentEvent event, long timestamp) {
+		if (correlatedBatchSize > 1 && !batchDocumentEventsLastIterationBackup.isEmpty()) {
+			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
+			//It is sufficient to check against a single existing change since all existing changes are correlated among
+			//themselves by construction.
+			CoherentTextChange existingTextChange=
+					new CoherentTextChange(batchDocumentEventsLastIterationBackup.get(0), timestamp);
+			return newTextChange.isPossiblyCorrelatedWith(existingTextChange);
+		}
+		return true;
 	}
 
 	private void incrementGluingIndex() {
