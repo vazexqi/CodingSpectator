@@ -299,6 +299,9 @@ public class ASTHelper {
 	public static CompositeNodeDescriptor createCompositeNodeDescriptor(IdentifiedNodeInfo nodeInfo) {
 		ASTNodeDescriptor astNodeDescriptor= nodeInfo.getASTNodeDescriptor();
 		ASTMethodDescriptor containingMethodDescriptor= nodeInfo.getContainingMethodDescriptor();
+		if (containingMethodDescriptor == null) { //Could happen for orphan nodes.
+			return null;
+		}
 		Set<Long> clusterNodeIDs= nodeInfo.getClusterNodeIDs();
 		return new CompositeNodeDescriptor(astNodeDescriptor, containingMethodDescriptor, clusterNodeIDs);
 	}

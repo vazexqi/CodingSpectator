@@ -72,6 +72,15 @@ public class IdentifiedNodeInfo {
 	public ASTMethodDescriptor getContainingMethodDescriptor() {
 		if (containingMethodID != -1) {
 			IdentifiedNodeInfo containingMethodNodeInfo= ASTNodesIdentifier.getIdentifiedNodeInfo(containingMethodID);
+			//TODO: An orphan node could appear as a result of parsing problems. For example, recovered nodes are matched,
+			//IDs are assigned, then changes to other parts of the code affect the way the parser recovers the same nodes.
+			//As a result, in the following matching the same recovered nodes could have different positional IDs and would
+			//get new persistent IDs. Consequently, the previous persistent IDs start to identify orphan nodes.
+			//As a temporary solution, orphan nodes are ignored at this stage. Later, the algorithm might handle this scenario.
+			//See the data from cs-111 for an example of a sequence containing such scenario.
+			if (containingMethodNodeInfo == null) {
+				return null;
+			}
 			ASTMethodDescriptor containingMethodDecriptor= containingMethodNodeInfo.getMethodDescriptor();
 			if (containingMethodDecriptor == null) {
 				throw new RuntimeException("Containing method's node info does not represent a method declaration!");

@@ -188,7 +188,7 @@ public class ASTNodesIdentifier {
 	private static void updateIdentifiedNodes(String filePath, Map<ASTNode, ASTNode> matchedNodes, ASTNode newCommonCoveringNode) {
 		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
 			ASTNode newNode= mapEntry.getValue();
-			long newNodeID= getPersistentNodeID(filePath, newNode);
+			long newNodeID= getPersistentNodeID(filePath, newNode, false);
 			identifiedNodes.put(newNodeID, new IdentifiedNodeInfo(filePath, newNode, newNodeID));
 		}
 		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(newCommonCoveringNode);

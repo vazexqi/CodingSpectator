@@ -392,7 +392,9 @@ public class ASTOperationRecorder {
 			} else {
 				nodeDescriptor= ASTHelper.createCompositeNodeDescriptor((IdentifiedNodeInfo)deletedEntity);
 			}
-			recordASTOperation(filePath, operationDescriptor, nodeDescriptor);
+			if (nodeDescriptor != null) { //nodeDescriptor could be null for orphan nodes in IdentifiedNodeInfo.
+				recordASTOperation(filePath, operationDescriptor, nodeDescriptor);
+			}
 		}
 		//Delete nodes after recording all delete operations to avoid scenarios, in which recording a delete operation,
 		//requires a node that already was deleted (e.g. the containing method node).
