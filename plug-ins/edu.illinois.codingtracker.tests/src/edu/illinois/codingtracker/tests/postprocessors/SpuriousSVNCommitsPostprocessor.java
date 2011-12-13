@@ -28,6 +28,8 @@ public class SpuriousSVNCommitsPostprocessor extends CodingTrackerPostprocessor 
 
 	private final List<ExternallyModifiedResourceOperation> externalModifications= new LinkedList<ExternallyModifiedResourceOperation>();
 
+	private int fixedSpuriousCommitsCount;
+
 
 	@Override
 	protected void checkPostprocessingPreconditions() {
@@ -41,6 +43,7 @@ public class SpuriousSVNCommitsPostprocessor extends CodingTrackerPostprocessor 
 
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
+		fixedSpuriousCommitsCount= 0;
 		boolean isCollectingCommits= false;
 		boolean isCollectingExternalChanges= false;
 		for (UserOperation userOperation : userOperations) {
@@ -67,6 +70,7 @@ public class SpuriousSVNCommitsPostprocessor extends CodingTrackerPostprocessor 
 		if (isCollectingCommits) {
 			postprocessCollectedOperations();
 		}
+		System.out.println("Fixed spurious commits count: " + fixedSpuriousCommitsCount);
 	}
 
 	private void postprocessCollectedOperations() {
@@ -75,6 +79,7 @@ public class SpuriousSVNCommitsPostprocessor extends CodingTrackerPostprocessor 
 			UpdatedFileOperation updatedFileOperation= postprocessCollectedExternalModification(externalModification);
 			if (updatedFileOperation != null) {
 				resultingOperations.add(updatedFileOperation);
+				fixedSpuriousCommitsCount++;
 			} else {
 				resultingOperations.add(externalModification);
 			}
