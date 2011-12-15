@@ -53,6 +53,12 @@ public class MovedResourceOperation extends ReorganizedResourceOperation {
 			//does not complain about the wrong editor, and do it before the resource is moved such that the affected files still exist.
 			if (!Configuration.isInTestMode) {
 				EditorHelper.closeAllEditorsForResource(resourcePath);
+
+				//TODO: The following check is a duplicate of a part of ClosedFileOperation#replay.
+				//If the currentEditor no longer exist, reset the corresponding field.
+				if (!EditorHelper.isExistingEditor(currentEditor)) {
+					currentEditor= null;
+				}
 			}
 			resource.move(new Path(destinationPath), updateFlags, null);
 		}
