@@ -80,6 +80,15 @@ public class ASTOperationRecorder {
 		//do nothing
 	}
 
+	/**
+	 * Very dangerous! Should be used ONLY for batch processing to reset the state of the previous
+	 * sequence!
+	 */
+	public void resetCurrentFilePaths() {
+		currentEditedFilePath= null;
+		currentRecordedFilePath= null;
+	}
+
 	public void beforeDocumentChange(DocumentEvent event, String filePath) {
 		//If we start to edit a different file, flush the accumulated changes.
 		if (currentEditedFilePath != null && !currentEditedFilePath.equals(filePath)) {

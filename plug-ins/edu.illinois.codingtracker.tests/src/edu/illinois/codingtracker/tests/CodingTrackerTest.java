@@ -11,6 +11,7 @@ import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.KnownFilesRecorder;
 import edu.illinois.codingtracker.recording.TextRecorder;
+import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
 
 /**
@@ -35,6 +36,7 @@ public abstract class CodingTrackerTest {
 		astMainRecordFile.delete();
 		resetKnownFiles();
 		ASTNodesIdentifier.resetIDs();
+		ASTOperationRecorder.getInstance().resetCurrentFilePaths();
 	}
 
 	private static void resetKnownFiles() {
