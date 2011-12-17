@@ -135,6 +135,9 @@ public class ChangesReachingCommitAnalyzer extends CSVProducingAnalyzer {
 	}
 
 	private Map<Long, List<ASTOperation>> getFileASTOperations(String filePath) {
+		if (filePath == null) { //A sanity check.
+			throw new RuntimeException("An AST operation's filePath is null");
+		}
 		Map<Long, List<ASTOperation>> fileASTOperations= astOperations.get(filePath);
 		if (fileASTOperations == null) {
 			fileASTOperations= new HashMap<Long, List<ASTOperation>>();
