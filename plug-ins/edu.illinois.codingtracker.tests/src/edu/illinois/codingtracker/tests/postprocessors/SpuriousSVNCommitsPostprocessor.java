@@ -80,6 +80,7 @@ public class SpuriousSVNCommitsPostprocessor extends CodingTrackerPostprocessor 
 			if (updatedFileOperation != null) {
 				resultingOperations.add(updatedFileOperation);
 				fixedSpuriousCommitsCount++;
+				System.out.println("Timestamp: " + updatedFileOperation.getTime());
 			} else {
 				resultingOperations.add(externalModification);
 			}
