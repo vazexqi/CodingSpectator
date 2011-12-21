@@ -22,15 +22,21 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
 
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
 /**
  * A dialog to host refactoring wizards.
+ * 
+ * @author Mohsen Vakilian, nchen - Recorded the navigation history of the refactoring wizard.
+ * 
  */
 public class RefactoringWizardDialog extends WizardDialog {
 
 	private static final String DIALOG_SETTINGS= "RefactoringWizard"; //$NON-NLS-1$
+
 	private static final String WIDTH= "width"; //$NON-NLS-1$
+
 	private static final String HEIGHT= "height"; //$NON-NLS-1$
 
 	private IDialogSettings fSettings;
@@ -44,7 +50,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 
 	/**
 	 * Creates a new refactoring wizard dialog with the given wizard.
-	 *
+	 * 
 	 * @param parent the parent shell
 	 * @param wizard the refactoring wizard
 	 */
@@ -59,7 +65,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 		int width= 600;
 		int height= 400;
 
-		String settingsSectionId= DIALOG_SETTINGS + '.'+ wizard.getRefactoring().getName();
+		String settingsSectionId= DIALOG_SETTINGS + '.' + wizard.getRefactoring().getName();
 		fSettings= settings.getSection(settingsSectionId);
 		if (fSettings == null) {
 			fSettings= new DialogSettings(settingsSectionId);
@@ -67,11 +73,11 @@ public class RefactoringWizardDialog extends WizardDialog {
 			fSettings.put(WIDTH, width);
 			fSettings.put(HEIGHT, height);
 		} else {
-    		try {
-    			width= fSettings.getInt(WIDTH);
-    			height= fSettings.getInt(HEIGHT);
-    		} catch (NumberFormatException e) {
-    		}
+			try {
+				width= fSettings.getInt(WIDTH);
+				height= fSettings.getInt(HEIGHT);
+			} catch (NumberFormatException e) {
+			}
 		}
 		setMinimumPageSize(width, height);
 	}
@@ -97,6 +103,10 @@ public class RefactoringWizardDialog extends WizardDialog {
 	 */
 	protected void cancelPressed() {
 		storeCurrentSize();
+
+		//CODINGSPECTATOR: Record the time of pressing the cancel button.
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.CANCEL_LABEL));
+
 		super.cancelPressed();
 	}
 
@@ -105,13 +115,17 @@ public class RefactoringWizardDialog extends WizardDialog {
 	 */
 	protected void finishPressed() {
 		storeCurrentSize();
+
+		//CODINGSPECTATOR: Record the time of pressing the finish button.
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.FINISH_LABEL));
+
 		super.finishPressed();
 	}
 
 	private void storeCurrentSize() {
 		IWizardPage page= getCurrentPage();
 		Control control= page.getControl().getParent();
-		Point size = control.getSize();
+		Point size= control.getSize();
 		fSettings.put(WIDTH, size.x);
 		fSettings.put(HEIGHT, size.y);
 	}
@@ -121,7 +135,7 @@ public class RefactoringWizardDialog extends WizardDialog {
 	 */
 	public void updateButtons() {
 		super.updateButtons();
-		if (! fMakeNextButtonDefault)
+		if (!fMakeNextButtonDefault)
 			return;
 		if (getShell() == null)
 			return;
@@ -146,4 +160,32 @@ public class RefactoringWizardDialog extends WizardDialog {
 	private RefactoringWizard getRefactoringWizard() {
 		return (RefactoringWizard)getWizard();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	/**
+	 * FIXME: We don't know if this method ever gets invoked.
+	 */
+	protected void okPressed() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.OK_LABEL));
+		super.okPressed();
+	}
+
+	protected void nextPressed() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.NEXT_LABEL));
+		super.nextPressed();
+	}
+
+	protected void backPressed() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), IDialogConstants.BACK_LABEL));
+		super.backPressed();
+	}
+
+	protected void handleShellCloseEvent() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), NavigationHistoryItem.QUIT_DIALOG_EVENT));
+		super.handleShellCloseEvent();
+	}
+
 }

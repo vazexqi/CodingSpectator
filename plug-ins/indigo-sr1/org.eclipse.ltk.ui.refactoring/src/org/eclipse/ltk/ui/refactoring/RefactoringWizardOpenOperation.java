@@ -35,39 +35,43 @@ import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ltk.core.refactoring.CheckConditionsOperation;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.NavigationHistoryItem;
 import org.eclipse.ltk.internal.ui.refactoring.ExceptionHandler;
 import org.eclipse.ltk.internal.ui.refactoring.RefactoringUIMessages;
 import org.eclipse.ltk.internal.ui.refactoring.WorkbenchRunnableAdapter;
 
 
 /**
- * A helper class to open a refactoring wizard dialog. The class first checks
- * the initial conditions of the refactoring and depending on its outcome
- * the wizard dialog or an error dialog is shown.
+ * A helper class to open a refactoring wizard dialog. The class first checks the initial conditions
+ * of the refactoring and depending on its outcome the wizard dialog or an error dialog is shown.
  * <p>
  * Note: this class is not intended to be extended by clients.
  * </p>
- *
+ * 
  * @since 3.0
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Monitor the initial creation of the refactoring dialog (either
+ *         RefactoringWizardDialog or RefactoringWizardDialog2
+ * 
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class RefactoringWizardOpenOperation {
 
 	private RefactoringWizard fWizard;
+
 	private RefactoringStatus fInitialConditions;
 
 	/**
-	 * Constant (value 1025) indicating that the precondition check failed
-	 * when opening a refactoring wizard dialog.
-	 *
+	 * Constant (value 1025) indicating that the precondition check failed when opening a
+	 * refactoring wizard dialog.
+	 * 
 	 * @see #run(Shell, String)
 	 */
 	public static final int INITIAL_CONDITION_CHECKING_FAILED= IDialogConstants.CLIENT_ID + 1;
 
 	/**
 	 * Creates a new refactoring wizard starter for the given wizard.
-	 *
+	 * 
 	 * @param wizard the wizard to open a dialog for
 	 */
 	public RefactoringWizardOpenOperation(RefactoringWizard wizard) {
@@ -77,75 +81,71 @@ public class RefactoringWizardOpenOperation {
 
 	/**
 	 * Returns the outcome of the initial condition checking.
-	 *
-	 * @return the outcome of the initial condition checking or <code>null</code>
-	 *  if the condition checking hasn't been performed yet
+	 * 
+	 * @return the outcome of the initial condition checking or <code>null</code> if the condition
+	 *         checking hasn't been performed yet
 	 */
 	public RefactoringStatus getInitialConditionCheckingStatus() {
 		return fInitialConditions;
 	}
 
 	/**
-	 * Opens the refactoring dialog for the refactoring wizard passed to the constructor.
-	 * The method first checks the initial conditions of the refactoring. If the condition
-	 * checking returns a status with a severity of {@link RefactoringStatus#FATAL} then
-	 * a message dialog is opened containing the corresponding status message. No wizard
-	 * dialog is opened in this situation. If the condition checking passes then the
-	 * refactoring dialog is opened.
+	 * Opens the refactoring dialog for the refactoring wizard passed to the constructor. The method
+	 * first checks the initial conditions of the refactoring. If the condition checking returns a
+	 * status with a severity of {@link RefactoringStatus#FATAL} then a message dialog is opened
+	 * containing the corresponding status message. No wizard dialog is opened in this situation. If
+	 * the condition checking passes then the refactoring dialog is opened.
 	 * <p>
-	 * The methods ensures that the workspace lock is held while the condition checking,
-	 * change creation and change execution is performed. Clients can't make any assumption
-	 * about the thread in which these steps are executed. However the framework ensures
-	 * that the workspace lock is transfered to the thread in which the execution of the
-	 * steps takes place.
+	 * The methods ensures that the workspace lock is held while the condition checking, change
+	 * creation and change execution is performed. Clients can't make any assumption about the
+	 * thread in which these steps are executed. However the framework ensures that the workspace
+	 * lock is transfered to the thread in which the execution of the steps takes place.
 	 * </p>
-	 * @param parent the parent shell for the dialog or <code>null</code> if the dialog
-	 *  is a top level dialog
-	 * @param dialogTitle the dialog title of the message box presenting the failed
-	 *  condition check (if any)
-	 *
-	 * @return {@link #INITIAL_CONDITION_CHECKING_FAILED} if the initial condition checking
-	 *  failed and no wizard dialog was presented. Otherwise either {@link IDialogConstants#OK_ID}
-	 *  or {@link IDialogConstants#CANCEL_ID} is returned depending on whether the user
-	 *  has pressed the OK or cancel button on the wizard dialog.
-	 *
-	 * @throws InterruptedException if the initial condition checking got canceled by
-	 *  the user.
+	 * 
+	 * @param parent the parent shell for the dialog or <code>null</code> if the dialog is a top
+	 *            level dialog
+	 * @param dialogTitle the dialog title of the message box presenting the failed condition check
+	 *            (if any)
+	 * 
+	 * @return {@link #INITIAL_CONDITION_CHECKING_FAILED} if the initial condition checking failed
+	 *         and no wizard dialog was presented. Otherwise either {@link IDialogConstants#OK_ID}
+	 *         or {@link IDialogConstants#CANCEL_ID} is returned depending on whether the user has
+	 *         pressed the OK or cancel button on the wizard dialog.
+	 * 
+	 * @throws InterruptedException if the initial condition checking got canceled by the user.
 	 */
 	public int run(final Shell parent, final String dialogTitle) throws InterruptedException {
 		return run(parent, dialogTitle, null);
 	}
-	
+
 	/**
-	 * Opens the refactoring dialog for the refactoring wizard passed to the constructor.
-	 * The method first checks the initial conditions of the refactoring. If the condition
-	 * checking returns a status with a severity of {@link RefactoringStatus#FATAL} then
-	 * a message dialog is opened containing the corresponding status message. No wizard
-	 * dialog is opened in this situation. If the condition checking passes then the
-	 * refactoring dialog is opened.
+	 * Opens the refactoring dialog for the refactoring wizard passed to the constructor. The method
+	 * first checks the initial conditions of the refactoring. If the condition checking returns a
+	 * status with a severity of {@link RefactoringStatus#FATAL} then a message dialog is opened
+	 * containing the corresponding status message. No wizard dialog is opened in this situation. If
+	 * the condition checking passes then the refactoring dialog is opened.
 	 * <p>
-	 * The methods ensures that the workspace lock is held while the condition checking,
-	 * change creation and change execution is performed. Clients can't make any assumption
-	 * about the thread in which these steps are executed. However the framework ensures
-	 * that the workspace lock is transfered to the thread in which the execution of the
-	 * steps takes place.
+	 * The methods ensures that the workspace lock is held while the condition checking, change
+	 * creation and change execution is performed. Clients can't make any assumption about the
+	 * thread in which these steps are executed. However the framework ensures that the workspace
+	 * lock is transfered to the thread in which the execution of the steps takes place.
 	 * </p>
-	 * @param parent the parent shell for the dialog or <code>null</code> if the dialog
-	 *  is a top level dialog
-	 * @param dialogTitle the dialog title of the message box presenting the failed
-	 *  condition check (if any)
-	 * @param context the runnable context to use for conditions checking before the
-	 *  refactoring wizard dialog is visible. If <code>null</code>, the workbench window's
-	 *  progress service is used.  
-	 *
-	 * @return {@link #INITIAL_CONDITION_CHECKING_FAILED} if the initial condition checking
-	 *  failed and no wizard dialog was presented. Otherwise either {@link IDialogConstants#OK_ID}
-	 *  or {@link IDialogConstants#CANCEL_ID} is returned depending on whether the user
-	 *  has pressed the OK or cancel button on the wizard dialog.
-	 *
-	 * @throws InterruptedException if the initial condition checking got canceled by
-	 *  the user.
-	 *  
+	 * 
+	 * @param parent the parent shell for the dialog or <code>null</code> if the dialog is a top
+	 *            level dialog
+	 * @param dialogTitle the dialog title of the message box presenting the failed condition check
+	 *            (if any)
+	 * @param context the runnable context to use for conditions checking before the refactoring
+	 *            wizard dialog is visible. If <code>null</code>, the workbench window's progress
+	 *            service is used.
+	 * 
+	 * @return {@link #INITIAL_CONDITION_CHECKING_FAILED} if the initial condition checking failed
+	 *         and no wizard dialog was presented. Otherwise either {@link IDialogConstants#OK_ID}
+	 *         or {@link IDialogConstants#CANCEL_ID} is returned depending on whether the user has
+	 *         pressed the OK or cancel button on the wizard dialog.
+	 * 
+	 * @throws InterruptedException if the initial condition checking got canceled by the user.
+	 * 
 	 * @since 3.5
 	 */
 	public int run(final Shell parent, final String dialogTitle, final IRunnableContext context) throws InterruptedException {
@@ -161,6 +161,10 @@ public class RefactoringWizardOpenOperation {
 					manager.beginRule(ResourcesPlugin.getWorkspace().getRoot(), null);
 
 					refactoring.setValidationContext(parent);
+
+					//CODINGSPECTATOR: Inform the refactoring that RefactoringWizardOpenOperation has checked initial conditions on it.
+					refactoring.setRefWizOpenOpCheckedInitConds();
+
 					fInitialConditions= checkInitialConditions(refactoring, parent, dialogTitle, context);
 					if (fInitialConditions.hasFatalError()) {
 						String message= fInitialConditions.getMessageMatchingSeverity(RefactoringStatus.FATAL);
@@ -170,15 +174,18 @@ public class RefactoringWizardOpenOperation {
 						fWizard.setInitialConditionCheckingStatus(fInitialConditions);
 						Dialog dialog= RefactoringUI.createRefactoringWizardDialog(fWizard, parent);
 						dialog.create();
-						IWizardContainer wizardContainer= (IWizardContainer) dialog;
+						IWizardContainer wizardContainer= (IWizardContainer)dialog;
 						if (wizardContainer.getCurrentPage() == null)
 							/*
 							 * Don't show the dialog at all if there are no user
 							 * input pages and change creation was cancelled.
 							 */
 							result[0]= Window.CANCEL;
-						else
+						else {
+							// CODINGSPECTATOR: Monitor for initial creation of dialog
+							fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fWizard.getDefaultPageTitle()));
 							result[0]= dialog.open();
+						}
 					}
 				} catch (InterruptedException e) {
 					canceled[0]= e;
@@ -205,16 +212,16 @@ public class RefactoringWizardOpenOperation {
 			if (context == null) {
 				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(workbenchRunnableAdapter);
 			} else if (context instanceof IProgressService) {
-				((IProgressService) context).busyCursorWhile(workbenchRunnableAdapter);
+				((IProgressService)context).busyCursorWhile(workbenchRunnableAdapter);
 			} else {
 				context.run(true, true, workbenchRunnableAdapter);
 			}
 			return cco.getStatus();
 		} catch (InvocationTargetException e) {
 			ExceptionHandler.handle(e, parent, title,
-				RefactoringUIMessages.RefactoringUI_open_unexpected_exception);
+					RefactoringUIMessages.RefactoringUI_open_unexpected_exception);
 			return RefactoringStatus.createFatalErrorStatus(
-				RefactoringUIMessages.RefactoringUI_open_unexpected_exception);
+					RefactoringUIMessages.RefactoringUI_open_unexpected_exception);
 		}
 	}
 }
