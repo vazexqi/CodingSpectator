@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.swt.widgets.Display;
@@ -23,8 +26,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
@@ -99,6 +105,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.saveparticipant.SaveParticipantReg
 import org.eclipse.jdt.internal.ui.preferences.MembersOrderPreferenceCache;
 import org.eclipse.jdt.internal.ui.preferences.formatter.FormatterProfileStore;
 import org.eclipse.jdt.internal.ui.propertiesfileeditor.PropertiesFileDocumentProvider;
+import org.eclipse.jdt.internal.ui.startup.StartupListener;
 import org.eclipse.jdt.internal.ui.text.PreferencesAdapter;
 import org.eclipse.jdt.internal.ui.text.folding.JavaFoldingStructureProviderRegistry;
 import org.eclipse.jdt.internal.ui.text.java.ContentAssistHistory;
@@ -109,38 +116,49 @@ import org.eclipse.jdt.internal.ui.viewsupport.ImagesOnFileSystemRegistry;
 import org.eclipse.jdt.internal.ui.viewsupport.ProblemMarkerManager;
 import org.eclipse.jdt.internal.ui.wizards.buildpaths.ClasspathAttributeConfigurationDescriptors;
 
-
 /**
- * Represents the java plug-in. It provides a series of convenience methods such as
- * access to the workbench, keeps track of elements shared by all editors and viewers
- * of the plug-in such as document providers and find-replace-dialogs.
+ * Represents the java plug-in. It provides a series of convenience methods such as access to the
+ * workbench, keeps track of elements shared by all editors and viewers of the plug-in such as
+ * document providers and find-replace-dialogs.
+ * 
+ * @author Stas Negara, Mohsen Vakilian, nchen - Changed start(BundleContext) such that it calls
+ *         notifyStartupListeners(). Added notifyStartupListeners() to notify all interested
+ *         listeners that jdt.ui is about to start.
  */
 public class JavaPlugin extends AbstractUIPlugin {
 
 
 	/**
 	 * The view id for the workbench's Resource Navigator standard component.
+	 * 
 	 * @since 3.6
 	 */
 	public static final String ID_RES_NAV= IPageLayout.ID_RES_NAV;
 
 	/**
 	 * The key to store customized templates.
+	 * 
 	 * @since 3.0
 	 */
 	private static final String TEMPLATES_KEY= "org.eclipse.jdt.ui.text.custom_templates"; //$NON-NLS-1$
+
 	/**
 	 * The key to store customized code templates.
+	 * 
 	 * @since 3.0
 	 */
 	private static final String CODE_TEMPLATES_KEY= "org.eclipse.jdt.ui.text.custom_code_templates"; //$NON-NLS-1$
+
 	/**
 	 * The key to store whether the legacy templates have been migrated
+	 * 
 	 * @since 3.0
 	 */
 	private static final String TEMPLATES_MIGRATION_KEY= "org.eclipse.jdt.ui.text.templates_migrated"; //$NON-NLS-1$
+
 	/**
 	 * The key to store whether the legacy code templates have been migrated
+	 * 
 	 * @since 3.0
 	 */
 	private static final String CODE_TEMPLATES_MIGRATION_KEY= "org.eclipse.jdt.ui.text.code_templates_migrated"; //$NON-NLS-1$
@@ -149,6 +167,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	private static LinkedHashMap<String, Long> fgRepeatedMessages= new LinkedHashMap<String, Long>(20, 0.75f, true) {
 		private static final long serialVersionUID= 1L;
+
 		@Override
 		protected boolean removeEldestEntry(java.util.Map.Entry<String, Long> eldest) {
 			return size() >= 20;
@@ -157,28 +176,35 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * The template context type registry for the java editor.
+	 * 
 	 * @since 3.0
 	 */
 	private ContextTypeRegistry fContextTypeRegistry;
+
 	/**
 	 * The code template context type registry for the java editor.
+	 * 
 	 * @since 3.0
 	 */
 	private ContextTypeRegistry fCodeTemplateContextTypeRegistry;
 
 	/**
 	 * The template store for the java editor.
+	 * 
 	 * @since 3.0
 	 */
 	private TemplateStore fTemplateStore;
+
 	/**
 	 * The coded template store for the java editor.
+	 * 
 	 * @since 3.0
 	 */
 	private TemplateStore fCodeTemplateStore;
 
 	/**
 	 * Default instance of the appearance type filters.
+	 * 
 	 * @since 3.0
 	 */
 	private TypeFilter fTypeFilter;
@@ -190,17 +216,24 @@ public class JavaPlugin extends AbstractUIPlugin {
 	 * @deprecated to avoid deprecation warning
 	 */
 	private org.eclipse.jdt.core.IBufferFactory fBufferFactory;
+
 	private ICompilationUnitDocumentProvider fCompilationUnitDocumentProvider;
+
 	private ClassFileDocumentProvider fClassFileDocumentProvider;
+
 	private JavaTextTools fJavaTextTools;
+
 	private ProblemMarkerManager fProblemMarkerManager;
+
 	private ImageDescriptorRegistry fImageDescriptorRegistry;
 
 	private MembersOrderPreferenceCache fMembersOrderPreferenceCache;
+
 	private IPropertyChangeListener fFontPropertyChangeListener;
 
 	/**
 	 * Property change listener on this plugin's preference store.
+	 * 
 	 * @since 3.0
 	 */
 	private IPropertyChangeListener fPropertyChangeListener;
@@ -209,50 +242,57 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * The AST provider.
+	 * 
 	 * @since 3.0
 	 */
 	private ASTProvider fASTProvider;
 
 	/**
 	 * The combined preference store.
+	 * 
 	 * @since 3.0
 	 */
 	private IPreferenceStore fCombinedPreferenceStore;
 
 	/**
-	 * The extension point registry for the <code>org.eclipse.jdt.ui.javaFoldingStructureProvider</code>
-	 * extension point.
-	 *
+	 * The extension point registry for the
+	 * <code>org.eclipse.jdt.ui.javaFoldingStructureProvider</code> extension point.
+	 * 
 	 * @since 3.0
 	 */
 	private JavaFoldingStructureProviderRegistry fFoldingStructureProviderRegistry;
 
 	/**
 	 * The shared Java properties file document provider.
+	 * 
 	 * @since 3.1
 	 */
 	private IDocumentProvider fPropertiesFileDocumentProvider;
 
 	/**
 	 * Content assist history.
+	 * 
 	 * @since 3.2
 	 */
 	private ContentAssistHistory fContentAssistHistory;
 
 	/**
 	 * The save participant registry.
+	 * 
 	 * @since 3.3
 	 */
 	private SaveParticipantRegistry fSaveParticipantRegistry;
 
 	/**
 	 * The clean up registry
+	 * 
 	 * @since 3.4
 	 */
 	private CleanUpRegistry fCleanUpRegistry;
 
 	/**
 	 * The descriptors from the 'classpathAttributeConfiguration' extension point.
+	 * 
 	 * @since 3.3
 	 */
 	private ClasspathAttributeConfigurationDescriptors fClasspathAttributeConfigurationDescriptors;
@@ -263,6 +303,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Theme listener.
+	 * 
 	 * @since 3.3
 	 */
 	private IPropertyChangeListener fThemeListener;
@@ -284,11 +325,11 @@ public class JavaPlugin extends AbstractUIPlugin {
 	}
 
 	public static Shell getActiveWorkbenchShell() {
-		 IWorkbenchWindow window= getActiveWorkbenchWindow();
-		 if (window != null) {
-		 	return window.getShell();
-		 }
-		 return null;
+		IWorkbenchWindow window= getActiveWorkbenchWindow();
+		if (window != null) {
+			return window.getShell();
+		}
+		return null;
 	}
 
 	public static String getPluginId() {
@@ -318,12 +359,12 @@ public class JavaPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Log a message that is potentially repeated after a very short time.
-	 * The first time this method is called with a given message, the
-	 * message is written to the log along with the detail message and a stack trace.
+	 * Log a message that is potentially repeated after a very short time. The first time this
+	 * method is called with a given message, the message is written to the log along with the
+	 * detail message and a stack trace.
 	 * <p>
 	 * Only intended for use in debug statements.
-	 *
+	 * 
 	 * @param message the (generic) message
 	 * @param detail the detail message
 	 */
@@ -349,7 +390,33 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	public JavaPlugin() {
 		super();
-		fgJavaPlugin = this;
+		fgJavaPlugin= this;
+	}
+
+	/**
+	 * CODINGSPECTATOR: Notifies all registered jdt.ui start up listeners that jdt.ui is about to
+	 * start
+	 */
+	private void notifyStartupListeners() {
+		String extensionPointId= "org.eclipse.jdt.ui.startup"; //$NON-NLS-1$
+
+		IConfigurationElement[] configurationElements= Platform.getExtensionRegistry().getConfigurationElementsFor(extensionPointId);
+		try {
+			for (int i= 0; i < configurationElements.length; i++) {
+				final Object executableExtension= configurationElements[i].createExecutableExtension("class"); //$NON-NLS-1$
+				SafeRunner.run(new ISafeRunnable() {
+
+					public void run() throws Exception {
+						((StartupListener) executableExtension).jdtuiIsAboutToStart();
+					}
+
+					public void handleException(Throwable exception) {
+					}
+				});
+			}
+		} catch (CoreException e) {
+			throw new RuntimeException("Failed to create executable extensions for " + extensionPointId, e); //$NON-NLS-1$
+		}
 	}
 
 	/* (non - Javadoc)
@@ -358,6 +425,18 @@ public class JavaPlugin extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+
+		//CODINGSPECTATOR: Notify codingtracker.recording when jdt.ui is about to start
+		final BundleContext finalContext= context;
+		context.addBundleListener(new BundleListener() {
+
+			public void bundleChanged(BundleEvent event) {
+				if (event.getBundle() == getBundle() && event.getType() == BundleEvent.STARTED && getBundle().getState() == Bundle.ACTIVE) {
+					notifyStartupListeners();
+					finalContext.removeBundleListener(this);
+				}
+			}
+		});
 
 		WorkingCopyOwner.setPrimaryBufferProvider(new WorkingCopyOwner() {
 			@Override
@@ -391,7 +470,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 		}
 	}
 
-	/* package */ static void initializeAfterLoad(IProgressMonitor monitor) {
+	/* package */static void initializeAfterLoad(IProgressMonitor monitor) {
 		OpenTypeHistory.getInstance().checkConsistency(monitor);
 	}
 
@@ -651,9 +730,8 @@ public class JavaPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns the shared document provider for Java properties files
-	 * used by this plug-in instance.
-	 *
+	 * Returns the shared document provider for Java properties files used by this plug-in instance.
+	 * 
 	 * @return the shared document provider for Java properties files
 	 * @since 3.1
 	 */
@@ -701,7 +779,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the AST provider.
-	 *
+	 * 
 	 * @return the AST provider
 	 * @since 3.0
 	 */
@@ -736,7 +814,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns all Java editor text hovers contributed to the workbench.
-	 *
+	 * 
 	 * @return an array of JavaEditorTextHoverDescriptor
 	 * @since 2.1
 	 */
@@ -749,7 +827,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 				 */
 				@Override
 				public IConfigurationElement getConfigurationElement(Object object) {
-					return ((JavaEditorTextHoverDescriptor)object).getConfigurationElement();
+					return ((JavaEditorTextHoverDescriptor) object).getConfigurationElement();
 				}
 			};
 			sorter.sort(fJavaEditorTextHoverDescriptors);
@@ -759,7 +837,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 				if (PreferenceConstants.ID_BESTMATCH_HOVER.equals(fJavaEditorTextHoverDescriptors[i].getId())) {
 					JavaEditorTextHoverDescriptor hoverDescriptor= fJavaEditorTextHoverDescriptors[i];
 					for (int j= i; j > 0; j--)
-						fJavaEditorTextHoverDescriptors[j]= fJavaEditorTextHoverDescriptors[j-1];
+						fJavaEditorTextHoverDescriptors[j]= fJavaEditorTextHoverDescriptors[j - 1];
 					fJavaEditorTextHoverDescriptors[0]= hoverDescriptor;
 					break;
 				}
@@ -773,10 +851,9 @@ public class JavaPlugin extends AbstractUIPlugin {
 	/**
 	 * Resets the Java editor text hovers contributed to the workbench.
 	 * <p>
-	 * This will force a rebuild of the descriptors the next time
-	 * a client asks for them.
+	 * This will force a rebuild of the descriptors the next time a client asks for them.
 	 * </p>
-	 *
+	 * 
 	 * @since 2.1
 	 */
 	public synchronized void resetJavaEditorTextHoverDescriptors() {
@@ -785,7 +862,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Creates the Java plug-in's standard groups for view context menus.
-	 *
+	 * 
 	 * @param menu the menu manager to be populated
 	 */
 	public static void createStandardGroups(IMenuManager menu) {
@@ -808,7 +885,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the template context type registry for the java plug-in.
-	 *
+	 * 
 	 * @return the template context type registry for the java plug-in
 	 * @since 3.0
 	 */
@@ -836,7 +913,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Registers the given Java template context.
-	 *
+	 * 
 	 * @param registry the template context type registry
 	 * @param id the context type id
 	 * @param parent the parent context type
@@ -851,7 +928,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the template store for the java editor templates.
-	 *
+	 * 
 	 * @return the template store for the java editor templates
 	 * @since 3.0
 	 */
@@ -888,11 +965,9 @@ public class JavaPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns the template context type registry for the code generation
-	 * templates.
-	 *
-	 * @return the template context type registry for the code generation
-	 *         templates
+	 * Returns the template context type registry for the code generation templates.
+	 * 
+	 * @return the template context type registry for the code generation templates
 	 * @since 3.0
 	 */
 	public ContextTypeRegistry getCodeTemplateContextRegistry() {
@@ -907,7 +982,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the template store for the code generation templates.
-	 *
+	 * 
 	 * @return the template store for the code generation templates
 	 * @since 3.0
 	 */
@@ -957,9 +1032,9 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns a combined preference store, this store is read-only.
-	 *
+	 * 
 	 * @return the combined preference store
-	 *
+	 * 
 	 * @since 3.0
 	 */
 	public IPreferenceStore getCombinedPreferenceStore() {
@@ -998,7 +1073,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the save participant registry.
-	 *
+	 * 
 	 * @return the save participant registry, not null
 	 * @since 3.3
 	 */
@@ -1017,7 +1092,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the Java content assist history.
-	 *
+	 * 
 	 * @return the Java content assist history
 	 * @since 3.2
 	 */
@@ -1036,8 +1111,9 @@ public class JavaPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns a section in the Java plugin's dialog settings. If the section doesn't exist yet, it is created.
-	 *
+	 * Returns a section in the Java plugin's dialog settings. If the section doesn't exist yet, it
+	 * is created.
+	 * 
 	 * @param name the name of the section
 	 * @return the section of the given name
 	 * @since 3.2
@@ -1053,7 +1129,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the descriptors for the class path attribute configuration extension point
-	 *
+	 * 
 	 * @return access to the descriptors for the class path attribute configuration extension point
 	 * @since 3.3
 	 */
@@ -1066,7 +1142,7 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the image registry that keeps its images on the local file system.
-	 *
+	 * 
 	 * @return the image registry
 	 * @since 3.4
 	 */
@@ -1079,10 +1155,9 @@ public class JavaPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the content assist additional info focus affordance string.
-	 *
-	 * @return the affordance string which is <code>null</code> if the
-	 *			preference is disabled
-	 *
+	 * 
+	 * @return the affordance string which is <code>null</code> if the preference is disabled
+	 * 
 	 * @see EditorsUI#getTooltipAffordanceString()
 	 * @since 3.4
 	 */

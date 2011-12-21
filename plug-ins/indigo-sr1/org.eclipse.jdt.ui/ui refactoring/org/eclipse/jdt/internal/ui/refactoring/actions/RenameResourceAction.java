@@ -19,9 +19,16 @@ import org.eclipse.ui.IWorkbenchSite;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
 
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
+ * 
+ */
 public class RenameResourceAction extends SelectionDispatchAction {
 
 	public RenameResourceAction(IWorkbenchSite site) {
@@ -39,7 +46,10 @@ public class RenameResourceAction extends SelectionDispatchAction {
 
 	@Override
 	public void run(IStructuredSelection selection) {
-		IResource resource = getResource(selection);
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
+		IResource resource= getResource(selection);
 		if (!RefactoringAvailabilityTester.isRenameAvailable(resource))
 			return;
 		RefactoringExecutionStarter.startRenameResourceRefactoring(resource, getShell());
@@ -49,8 +59,8 @@ public class RenameResourceAction extends SelectionDispatchAction {
 		if (selection.size() != 1)
 			return null;
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IResource))
+		if (!(first instanceof IResource))
 			return null;
-		return (IResource)first;
+		return (IResource) first;
 	}
 }

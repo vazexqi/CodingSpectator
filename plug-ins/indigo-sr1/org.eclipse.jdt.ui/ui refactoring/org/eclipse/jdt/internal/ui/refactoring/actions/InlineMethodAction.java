@@ -27,19 +27,23 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.JavaElementUtil;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
 
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -47,10 +51,14 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
  * Inlines a method.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
+ * 
+ * @author Mohsen Vakilian, nchen - Captured a possible unavailability of the inline method
+ *         refactoring and structured selections. Also, initialized the global store of refactorings
+ *         at the beginning of the run methods.
  */
 public class InlineMethodAction extends SelectionDispatchAction {
 
@@ -58,6 +66,7 @@ public class InlineMethodAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
 	 */
 	public InlineMethodAction(JavaEditor editor) {
@@ -93,6 +102,9 @@ public class InlineMethodAction extends SelectionDispatchAction {
 	@Override
 	public void run(IStructuredSelection selection) {
 		try {
+			// CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			Assert.isTrue(RefactoringAvailabilityTester.isInlineMethodAvailable(selection));
 			IMethod method= (IMethod) selection.getFirstElement();
 			ISourceRange nameRange= method.getNameRange();
@@ -127,10 +139,13 @@ public class InlineMethodAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 		ITypeRoot typeRoot= SelectionConverter.getInput(fEditor);
 		if (typeRoot == null)
 			return;
-		if (! JavaElementUtil.isSourceAvailable(typeRoot))
+		if (!JavaElementUtil.isSourceAvailable(typeRoot))
 			return;
 		run(selection.getOffset(), selection.getLength(), typeRoot);
 	}
@@ -140,6 +155,9 @@ public class InlineMethodAction extends SelectionDispatchAction {
 			return;
 		CompilationUnit compilationUnit= RefactoringASTParser.parseWithASTProvider(typeRoot, true, null);
 		if (!RefactoringExecutionStarter.startInlineMethodRefactoring(typeRoot, compilationUnit, offset, length, getShell())) {
+			//CODINGSPECTATOR: I don't know under what circumstances the user hits this case of unavailability. But, I record the refactoring descriptor just to be safe.
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE_METHOD, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
+
 			MessageDialog.openInformation(getShell(), RefactoringMessages.InlineMethodAction_dialog_title, RefactoringMessages.InlineMethodAction_no_method_invocation_or_declaration_selected);
 		}
 	}

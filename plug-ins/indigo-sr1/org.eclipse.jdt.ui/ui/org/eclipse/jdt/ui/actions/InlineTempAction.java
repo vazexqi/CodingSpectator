@@ -25,25 +25,29 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 
 /**
- * Inlines the value of a local variable at all places where a read reference
- * is used.
- *
+ * Inlines the value of a local variable at all places where a read reference is used.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Initialized the global store of refactorings at the beginning of
+ *         the run methods.
  */
 public class InlineTempAction extends SelectionDispatchAction {
 
@@ -51,9 +55,9 @@ public class InlineTempAction extends SelectionDispatchAction {
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
-	 *
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public InlineTempAction(JavaEditor editor) {
@@ -62,7 +66,7 @@ public class InlineTempAction extends SelectionDispatchAction {
 		setEnabled(SelectionConverter.canOperateOn(fEditor));
 	}
 
-	/* package */ InlineTempAction(IWorkbenchSite site) {
+	/* package */InlineTempAction(IWorkbenchSite site) {
 		super(site);
 		setText(RefactoringMessages.InlineTempAction_label);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.INLINE_ACTION);
@@ -98,6 +102,9 @@ public class InlineTempAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 		ICompilationUnit input= SelectionConverter.getInputAsCompilationUnit(fEditor);
 		if (!ActionUtil.isEditable(fEditor))
 			return;
@@ -120,7 +127,7 @@ public class InlineTempAction extends SelectionDispatchAction {
 		setEnabled(false);
 	}
 
-	/* package */ boolean tryInlineTemp(ICompilationUnit unit, CompilationUnit node, ITextSelection selection, Shell shell) {
+	/* package */boolean tryInlineTemp(ICompilationUnit unit, CompilationUnit node, ITextSelection selection, Shell shell) {
 		return RefactoringExecutionStarter.startInlineTempRefactoring(unit, node, selection, shell);
 	}
 }

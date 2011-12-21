@@ -112,27 +112,42 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * Refactoring processor for the extract supertype refactoring.
- *
+ * 
+ * @author Mohsen Vakilian, nchen - Instrumented the extract supertype refactoring for
+ *         CodingSpectator.
+ * 
  * @since 3.2
  */
 public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor {
 
-	/** The extract attribute */
-	private static final String ATTRIBUTE_EXTRACT= "extract"; //$NON-NLS-1$
+	/**
+	 * The extract attribute
+	 * 
+	 * CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI
+	 * tests.
+	 * 
+	 */
+	public static final String ATTRIBUTE_EXTRACT= "extract"; //$NON-NLS-1$
 
-	/** The types attribute */
-	private static final String ATTRIBUTE_TYPES= "types"; //$NON-NLS-1$
+	/**
+	 * 
+	 * The types attribute
+	 * 
+	 * CODINGSPECTATOR: Made the name of the attribute public for the first time because of the UI
+	 * tests.
+	 * 
+	 */
+	public static final String ATTRIBUTE_TYPES= "types"; //$NON-NLS-1$
 
 	/** The extract supertype group category set */
 	private static final GroupCategorySet SET_EXTRACT_SUPERTYPE= new GroupCategorySet(new GroupCategory("org.eclipse.jdt.internal.corext.extractSupertype", //$NON-NLS-1$
 			RefactoringCoreMessages.ExtractSupertypeProcessor_category_name, RefactoringCoreMessages.ExtractSupertypeProcessor_category_description));
 
 	/**
-	 * The changes of the working copy layer (element type:
-	 * &lt;ICompilationUnit, TextEditBasedChange&gt;)
+	 * The changes of the working copy layer (element type: &lt;ICompilationUnit,
+	 * TextEditBasedChange&gt;)
 	 * <p>
-	 * The compilation units are all primary working copies or normal
-	 * compilation units.
+	 * The compilation units are all primary working copies or normal compilation units.
 	 * </p>
 	 */
 	private final Map<ICompilationUnit, CompilationUnitChange> fLayerChanges= new HashMap<ICompilationUnit, CompilationUnitChange>();
@@ -151,30 +166,24 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates a new extract supertype refactoring processor.
-	 *
-	 * @param members
-	 *            the members to extract, or <code>null</code> if invoked by
-	 *            scripting
-	 * @param settings
-	 *            the code generation settings, or <code>null</code> if
-	 *            invoked by scripting
+	 * 
+	 * @param members the members to extract, or <code>null</code> if invoked by scripting
+	 * @param settings the code generation settings, or <code>null</code> if invoked by scripting
 	 */
 	public ExtractSupertypeProcessor(final IMember[] members, final CodeGenerationSettings settings) {
 		super(members, settings, true);
 		if (members != null) {
 			final IType declaring= getDeclaringType();
 			if (declaring != null)
-				fTypesToExtract= new IType[] { declaring};
+				fTypesToExtract= new IType[] { declaring };
 		}
 	}
 
 	/**
 	 * Creates a new extract supertype refactoring processor from refactoring arguments.
-	 *
-	 * @param arguments
-	 *            the refactoring arguments
-	 * @param status
-	 *            the resulting status
+	 * 
+	 * @param arguments the refactoring arguments
+	 * @param status the resulting status
 	 */
 	public ExtractSupertypeProcessor(JavaRefactoringArguments arguments, RefactoringStatus status) {
 		super(null, null, true);
@@ -213,7 +222,7 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Checks whether the compilation unit to be extracted is valid.
-	 *
+	 * 
 	 * @return a status describing the outcome of the
 	 */
 	public RefactoringStatus checkExtractedCompilationUnit() {
@@ -251,7 +260,7 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Computes the destination type based on the new name.
-	 *
+	 * 
 	 * @param name the new name
 	 * @return the destination type
 	 */
@@ -280,59 +289,19 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * {@inheritDoc}
+	 * 
+	 * CODINGSPECTATOR: Extracted {@link #createRefactoringDescriptor()}.
 	 */
 	@Override
 	public Change createChange(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 		try {
-			final Map<String, String> arguments= new HashMap<String, String>();
-			String project= null;
+			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.ExtractSupertypeProcessor_extract_supertype,
+					fChangeManager.getAllChanges());
 			final IType declaring= getDeclaringType();
-			final IJavaProject javaProject= declaring.getJavaProject();
-			if (javaProject != null)
-				project= javaProject.getElementName();
-			int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-			try {
-				if (declaring.isLocal() || declaring.isAnonymous())
-					flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-			} catch (JavaModelException exception) {
-				JavaPlugin.log(exception);
-			}
-			final String description= Messages.format(RefactoringCoreMessages.ExtractSupertypeProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fTypeName));
-			final String header= Messages.format(RefactoringCoreMessages.ExtractSupertypeProcessor_descriptor_description, new String[] { JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED), JavaElementLabels.getElementLabel(fCachedDeclaringType, JavaElementLabels.ALL_FULLY_QUALIFIED)});
-			final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-			final IType[] types= getTypesToExtract();
-			String[] settings= new String[types.length];
-			for (int index= 0; index < settings.length; index++)
-				settings[index]= JavaElementLabels.getElementLabel(types[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
-			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractSupertypeProcessor_subtypes_pattern, settings));
-			comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractSupertypeProcessor_refactored_element_pattern, JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-			settings= new String[fMembersToMove.length];
-			for (int index= 0; index < settings.length; index++)
-				settings[index]= JavaElementLabels.getElementLabel(fMembersToMove[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
-			comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractInterfaceProcessor_extracted_members_pattern, settings));
-			addSuperTypeSettings(comment, true);
-			final ExtractSuperclassDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractSuperclassDescriptor(project, description, comment.asString(), arguments, flags);
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fTypeName);
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, getDeclaringType()));
-			arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
-			arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
-			arguments.put(ATTRIBUTE_STUBS, Boolean.valueOf(fCreateMethodStubs).toString());
-			arguments.put(ATTRIBUTE_EXTRACT, new Integer(fMembersToMove.length).toString());
-			for (int offset= 0; offset < fMembersToMove.length; offset++)
-				arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembersToMove[offset]));
-			arguments.put(ATTRIBUTE_DELETE, new Integer(fDeletedMethods.length).toString());
-			for (int offset= 0; offset < fDeletedMethods.length; offset++)
-				arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fDeletedMethods[offset]));
-			arguments.put(ATTRIBUTE_ABSTRACT, new Integer(fAbstractMethods.length).toString());
-			for (int offset= 0; offset < fAbstractMethods.length; offset++)
-				arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + fDeletedMethods.length + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fAbstractMethods[offset]));
-			arguments.put(ATTRIBUTE_TYPES, new Integer(fTypesToExtract.length).toString());
-			for (int offset= 0; offset < fTypesToExtract.length; offset++)
-				arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + fDeletedMethods.length + fAbstractMethods.length + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fTypesToExtract[offset]));
-			final DynamicValidationRefactoringChange change= new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.ExtractSupertypeProcessor_extract_supertype, fChangeManager.getAllChanges());
 			final IFile file= ResourceUtil.getFile(declaring.getCompilationUnit());
 			if (fSuperSource != null && fSuperSource.length() > 0)
-				change.add(new CreateCompilationUnitChange(declaring.getPackageFragment().getCompilationUnit(JavaModelUtil.getRenamedCUName(declaring.getCompilationUnit(), fTypeName)), fSuperSource, file.getCharset(false)));
+				change.add(new CreateCompilationUnitChange(declaring.getPackageFragment().getCompilationUnit(JavaModelUtil.getRenamedCUName(declaring.getCompilationUnit(), fTypeName)), fSuperSource,
+						file.getCharset(false)));
 			return change;
 		} finally {
 			monitor.done();
@@ -340,17 +309,83 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 		}
 	}
 
+	// Extracted the following method from {@link #createChange(IProgressMonitor)}
+	private ExtractSuperclassDescriptor createRefactoringDescriptor() {
+		//CODINGSPECTATOR: If the fDestinationType is null, use some default descriptive name instead.
+		String destinationTypeString;
+		if (fDestinationType != null) {
+			destinationTypeString= JavaElementLabels.getElementLabel(fDestinationType, JavaElementLabels.ALL_FULLY_QUALIFIED);
+		} else {
+			destinationTypeString= "CodingSpectatorDefaultDestinationTypeName"; //$NON-NLS-1$
+		}
+
+		final Map<String, String> arguments= new HashMap<String, String>();
+		String project= null;
+		final IType declaring= getDeclaringType();
+		final IJavaProject javaProject= declaring.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		try {
+			if (declaring.isLocal() || declaring.isAnonymous())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String description= Messages.format(RefactoringCoreMessages.ExtractSupertypeProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fTypeName));
+
+		//CODINGSPECTATOR
+		final String header= Messages.format(
+				RefactoringCoreMessages.ExtractSupertypeProcessor_descriptor_description,
+				new String[] { destinationTypeString, JavaElementLabels.getElementLabel(fCachedDeclaringType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		final IType[] types= getTypesToExtract();
+		String[] settings= new String[types.length];
+		for (int index= 0; index < settings.length; index++)
+			settings[index]= JavaElementLabels.getElementLabel(types[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
+		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractSupertypeProcessor_subtypes_pattern, settings));
+
+		//CODINGSPECTATOR
+		comment.addSetting(Messages.format(RefactoringCoreMessages.ExtractSupertypeProcessor_refactored_element_pattern, destinationTypeString));
+
+		settings= new String[fMembersToMove.length];
+		for (int index= 0; index < settings.length; index++)
+			settings[index]= JavaElementLabels.getElementLabel(fMembersToMove[index], JavaElementLabels.ALL_FULLY_QUALIFIED);
+		comment.addSetting(JDTRefactoringDescriptorComment.createCompositeSetting(RefactoringCoreMessages.ExtractInterfaceProcessor_extracted_members_pattern, settings));
+		addSuperTypeSettings(comment, true);
+		final ExtractSuperclassDescriptor descriptor= RefactoringSignatureDescriptorFactory.createExtractSuperclassDescriptor(project, description, comment.asString(), arguments, flags);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_NAME, fTypeName);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, getDeclaringType()));
+		arguments.put(ATTRIBUTE_REPLACE, Boolean.valueOf(fReplace).toString());
+		arguments.put(ATTRIBUTE_INSTANCEOF, Boolean.valueOf(fInstanceOf).toString());
+		arguments.put(ATTRIBUTE_STUBS, Boolean.valueOf(fCreateMethodStubs).toString());
+		arguments.put(ATTRIBUTE_EXTRACT, new Integer(fMembersToMove.length).toString());
+		for (int offset= 0; offset < fMembersToMove.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fMembersToMove[offset]));
+		arguments.put(ATTRIBUTE_DELETE, new Integer(fDeletedMethods.length).toString());
+		for (int offset= 0; offset < fDeletedMethods.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + 1), JavaRefactoringDescriptorUtil.elementToHandle(project, fDeletedMethods[offset]));
+		arguments.put(ATTRIBUTE_ABSTRACT, new Integer(fAbstractMethods.length).toString());
+		for (int offset= 0; offset < fAbstractMethods.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + fDeletedMethods.length + 1),
+					JavaRefactoringDescriptorUtil.elementToHandle(project, fAbstractMethods[offset]));
+		arguments.put(ATTRIBUTE_TYPES, new Integer(fTypesToExtract.length).toString());
+		for (int offset= 0; offset < fTypesToExtract.length; offset++)
+			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_ELEMENT + (offset + fMembersToMove.length + fDeletedMethods.length + fAbstractMethods.length + 1),
+					JavaRefactoringDescriptorUtil.elementToHandle(project, fTypesToExtract[offset]));
+
+		return descriptor;
+	}
+
 	/**
 	 * Creates the new extracted supertype.
-	 *
-	 * @param superType
-	 *            the super type, or <code>null</code> if no super type (ie.
+	 * 
+	 * @param superType the super type, or <code>null</code> if no super type (ie.
 	 *            <code>java.lang.Object</code>) is available
-	 * @param monitor
-	 *            the progress monitor
+	 * @param monitor the progress monitor
 	 * @return a status describing the outcome of the operation
-	 * @throws CoreException
-	 *             if an error occurs
+	 * @throws CoreException if an error occurs
 	 */
 	protected final RefactoringStatus createExtractedSuperType(final IType superType, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(monitor);
@@ -379,21 +414,16 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates a working copy for the modified subtype.
-	 *
-	 * @param unit
-	 *            the compilation unit
-	 * @param root
-	 *            the compilation unit node
-	 * @param subDeclaration
-	 *            the declaration of the subtype to modify
-	 * @param extractedType
-	 *            the extracted super type
-	 * @param extractedBinding
-	 *            the binding of the extracted super type
-	 * @param status
-	 *            the refactoring status
+	 * 
+	 * @param unit the compilation unit
+	 * @param root the compilation unit node
+	 * @param subDeclaration the declaration of the subtype to modify
+	 * @param extractedType the extracted super type
+	 * @param extractedBinding the binding of the extracted super type
+	 * @param status the refactoring status
 	 */
-	protected final void createModifiedSubType(final ICompilationUnit unit, final CompilationUnit root, final IType extractedType, final ITypeBinding extractedBinding, final AbstractTypeDeclaration subDeclaration, final RefactoringStatus status) {
+	protected final void createModifiedSubType(final ICompilationUnit unit, final CompilationUnit root, final IType extractedType, final ITypeBinding extractedBinding,
+			final AbstractTypeDeclaration subDeclaration, final RefactoringStatus status) {
 		Assert.isNotNull(unit);
 		Assert.isNotNull(subDeclaration);
 		Assert.isNotNull(extractedType);
@@ -428,16 +458,12 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates the necessary constructors for the extracted supertype.
-	 *
-	 * @param targetRewrite
-	 *            the target compilation unit rewrite
-	 * @param superType
-	 *            the super type, or <code>null</code> if no super type (ie.
+	 * 
+	 * @param targetRewrite the target compilation unit rewrite
+	 * @param superType the super type, or <code>null</code> if no super type (ie.
 	 *            <code>java.lang.Object</code>) is available
-	 * @param targetDeclaration
-	 *            the type declaration of the target type
-	 * @param status
-	 *            the refactoring status
+	 * @param targetDeclaration the type declaration of the target type
+	 * @param status the refactoring status
 	 */
 	protected final void createNecessaryConstructors(final CompilationUnitRewrite targetRewrite, final IType superType, final AbstractTypeDeclaration targetDeclaration, final RefactoringStatus status) {
 		Assert.isNotNull(targetRewrite);
@@ -477,23 +503,18 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates the source for the new compilation unit containing the supertype.
-	 *
-	 * @param extractedWorkingCopy
-	 *            the working copy of the new extracted supertype
-	 * @param superType
-	 *            the super type, or <code>null</code> if no super type (ie.
+	 * 
+	 * @param extractedWorkingCopy the working copy of the new extracted supertype
+	 * @param superType the super type, or <code>null</code> if no super type (ie.
 	 *            <code>java.lang.Object</code>) is available
-	 * @param declaringDeclaration
-	 *            the declaration of the declaring type
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to display progress
+	 * @param declaringDeclaration the declaration of the declaring type
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to display progress
 	 * @return the source of the new compilation unit, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs
+	 * @throws CoreException if an error occurs
 	 */
-	protected final String createSuperTypeSource(final ICompilationUnit extractedWorkingCopy, final IType superType, final AbstractTypeDeclaration declaringDeclaration, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
+	protected final String createSuperTypeSource(final ICompilationUnit extractedWorkingCopy, final IType superType, final AbstractTypeDeclaration declaringDeclaration,
+			final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(extractedWorkingCopy);
 		Assert.isNotNull(declaringDeclaration);
 		Assert.isNotNull(status);
@@ -522,8 +543,8 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 					fTypeBindings.add(superBinding);
 				final ITypeBinding[] bindings= binding.getInterfaces();
 				for (int i= 0; i < bindings.length; i++) {
-	                fTypeBindings.add(bindings[i]);
-                }
+					fTypeBindings.add(bindings[i]);
+				}
 			}
 			final String imports= createTypeImports(extractedWorkingCopy, monitor);
 			if (imports != null && !"".equals(imports)) { //$NON-NLS-1$
@@ -560,28 +581,20 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 	}
 
 	/**
-	 * Creates the declaration of the new supertype, excluding any comments or
-	 * package declaration.
-	 *
-	 * @param extractedWorkingCopy
-	 *            the working copy of the new extracted supertype
-	 * @param superType
-	 *            the super type, or <code>null</code> if no super type (ie.
+	 * Creates the declaration of the new supertype, excluding any comments or package declaration.
+	 * 
+	 * @param extractedWorkingCopy the working copy of the new extracted supertype
+	 * @param superType the super type, or <code>null</code> if no super type (ie.
 	 *            <code>java.lang.Object</code>) is available
-	 * @param declaringDeclaration
-	 *            the declaration of the declaring type
-	 * @param comment
-	 *            the comment of the new type declaration
-	 * @param buffer
-	 *            the string buffer containing the declaration
-	 * @param status
-	 *            the refactoring status
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws CoreException
-	 *             if an error occurs
+	 * @param declaringDeclaration the declaration of the declaring type
+	 * @param comment the comment of the new type declaration
+	 * @param buffer the string buffer containing the declaration
+	 * @param status the refactoring status
+	 * @param monitor the progress monitor to use
+	 * @throws CoreException if an error occurs
 	 */
-	protected final void createTypeDeclaration(final ICompilationUnit extractedWorkingCopy, final IType superType, final AbstractTypeDeclaration declaringDeclaration, final String comment, final StringBuffer buffer, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
+	protected final void createTypeDeclaration(final ICompilationUnit extractedWorkingCopy, final IType superType, final AbstractTypeDeclaration declaringDeclaration, final String comment,
+			final StringBuffer buffer, final RefactoringStatus status, final IProgressMonitor monitor) throws CoreException {
 		Assert.isNotNull(extractedWorkingCopy);
 		Assert.isNotNull(declaringDeclaration);
 		Assert.isNotNull(buffer);
@@ -643,17 +656,14 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates the type parameters of the new supertype.
-	 *
-	 * @param targetRewrite
-	 *            the target compilation unit rewrite
-	 * @param subType
-	 *            the subtype
-	 * @param sourceDeclaration
-	 *            the type declaration of the source type
-	 * @param targetDeclaration
-	 *            the type declaration of the target type
+	 * 
+	 * @param targetRewrite the target compilation unit rewrite
+	 * @param subType the subtype
+	 * @param sourceDeclaration the type declaration of the source type
+	 * @param targetDeclaration the type declaration of the target type
 	 */
-	protected final void createTypeParameters(final CompilationUnitRewrite targetRewrite, final IType subType, final AbstractTypeDeclaration sourceDeclaration, final AbstractTypeDeclaration targetDeclaration) {
+	protected final void createTypeParameters(final CompilationUnitRewrite targetRewrite, final IType subType, final AbstractTypeDeclaration sourceDeclaration,
+			final AbstractTypeDeclaration targetDeclaration) {
 		Assert.isNotNull(targetRewrite);
 		Assert.isNotNull(sourceDeclaration);
 		Assert.isNotNull(targetDeclaration);
@@ -670,21 +680,16 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates a new type signature of a subtype.
-	 *
-	 * @param subRewrite
-	 *            the compilation unit rewrite of a subtype
-	 * @param declaration
-	 *            the type declaration of a subtype
-	 * @param extractedType
-	 *            the extracted super type
-	 * @param extractedBinding
-	 *            the binding of the extracted super type
-	 * @param monitor
-	 *            the progress monitor to use
-	 * @throws JavaModelException
-	 *             if the type parameters cannot be retrieved
+	 * 
+	 * @param subRewrite the compilation unit rewrite of a subtype
+	 * @param declaration the type declaration of a subtype
+	 * @param extractedType the extracted super type
+	 * @param extractedBinding the binding of the extracted super type
+	 * @param monitor the progress monitor to use
+	 * @throws JavaModelException if the type parameters cannot be retrieved
 	 */
-	protected final void createTypeSignature(final CompilationUnitRewrite subRewrite, final AbstractTypeDeclaration declaration, final IType extractedType, final ITypeBinding extractedBinding, final IProgressMonitor monitor) throws JavaModelException {
+	protected final void createTypeSignature(final CompilationUnitRewrite subRewrite, final AbstractTypeDeclaration declaration, final IType extractedType, final ITypeBinding extractedBinding,
+			final IProgressMonitor monitor) throws JavaModelException {
 		Assert.isNotNull(subRewrite);
 		Assert.isNotNull(declaration);
 		Assert.isNotNull(extractedType);
@@ -717,7 +722,8 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 					rewriter.replace(superClass, type, subRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.ExtractSupertypeProcessor_add_supertype, SET_EXTRACT_SUPERTYPE));
 					subRewrite.getImportRemover().registerRemovedNode(superClass);
 				} else
-					rewriter.set(extended, TypeDeclaration.SUPERCLASS_TYPE_PROPERTY, type, subRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.ExtractSupertypeProcessor_add_supertype, SET_EXTRACT_SUPERTYPE));
+					rewriter.set(extended, TypeDeclaration.SUPERCLASS_TYPE_PROPERTY, type,
+							subRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.ExtractSupertypeProcessor_add_supertype, SET_EXTRACT_SUPERTYPE));
 			}
 		} finally {
 			monitor.done();
@@ -726,18 +732,15 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Creates the type signature of the extracted supertype.
-	 *
-	 * @param targetRewrite
-	 *            the target compilation unit rewrite
-	 * @param superType
-	 *            the super type, or <code>null</code> if no super type (ie.
+	 * 
+	 * @param targetRewrite the target compilation unit rewrite
+	 * @param superType the super type, or <code>null</code> if no super type (ie.
 	 *            <code>java.lang.Object</code>) is available
-	 * @param declaringDeclaration
-	 *            the declaration of the declaring type
-	 * @param targetDeclaration
-	 *            the type declaration of the target type
+	 * @param declaringDeclaration the declaration of the declaring type
+	 * @param targetDeclaration the type declaration of the target type
 	 */
-	protected final void createTypeSignature(final CompilationUnitRewrite targetRewrite, final IType superType, final AbstractTypeDeclaration declaringDeclaration, final AbstractTypeDeclaration targetDeclaration) {
+	protected final void createTypeSignature(final CompilationUnitRewrite targetRewrite, final IType superType, final AbstractTypeDeclaration declaringDeclaration,
+			final AbstractTypeDeclaration targetDeclaration) {
 		Assert.isNotNull(targetRewrite);
 		Assert.isNotNull(declaringDeclaration);
 		Assert.isNotNull(targetDeclaration);
@@ -810,7 +813,7 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 				}
 				collection.add(current);
 			}
-			final ITypeBinding[] extractBindings= { null};
+			final ITypeBinding[] extractBindings= { null };
 			final ASTParser extractParser= ASTParser.newParser(ASTProvider.SHARED_AST_LEVEL);
 			extractParser.setWorkingCopyOwner(fOwner);
 			extractParser.setResolveBindings(true);
@@ -922,12 +925,12 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 	 */
 	@Override
 	public Object[] getElements() {
-		return new Object[] { getDeclaringType()};
+		return new Object[] { getDeclaringType() };
 	}
 
 	/**
 	 * Returns the extracted type.
-	 *
+	 * 
 	 * @return the extracted type, or <code>null</code>
 	 */
 	public IType getExtractedType() {
@@ -936,7 +939,7 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Returns the type name.
-	 *
+	 * 
 	 * @return the type name
 	 */
 	public String getTypeName() {
@@ -944,9 +947,8 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 	}
 
 	/**
-	 * Returns the types to extract. The declaring type may or may not be
-	 * contained in the result.
-	 *
+	 * Returns the types to extract. The declaring type may or may not be contained in the result.
+	 * 
 	 * @return the types to extract
 	 */
 	public IType[] getTypesToExtract() {
@@ -1178,9 +1180,8 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 
 	/**
 	 * Sets the type name.
-	 *
-	 * @param name
-	 *            the type name
+	 * 
+	 * @param name the type name
 	 */
 	public void setTypeName(final String name) {
 		Assert.isNotNull(name);
@@ -1188,15 +1189,26 @@ public final class ExtractSupertypeProcessor extends PullUpRefactoringProcessor 
 	}
 
 	/**
-	 * Sets the types to extract. Must be a subset of
-	 * <code>getPossibleCandidates()</code>. If the declaring type is not
-	 * contained, it will automatically be added.
-	 *
-	 * @param types
-	 *            the types to extract
+	 * Sets the types to extract. Must be a subset of <code>getPossibleCandidates()</code>. If the
+	 * declaring type is not contained, it will automatically be added.
+	 * 
+	 * @param types the types to extract
 	 */
 	public void setTypesToExtract(final IType[] types) {
 		Assert.isNotNull(types);
 		fTypesToExtract= types;
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.EXTRACT_SUPERCLASS;
+	}
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
+
 }

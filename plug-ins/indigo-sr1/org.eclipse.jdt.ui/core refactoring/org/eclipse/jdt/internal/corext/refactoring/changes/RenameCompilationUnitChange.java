@@ -28,6 +28,12 @@ import org.eclipse.jdt.internal.corext.util.Messages;
 
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
+
 public final class RenameCompilationUnitChange extends AbstractJavaElementRenameChange {
 
 	public RenameCompilationUnitChange(ICompilationUnit unit, String newName) {
@@ -39,6 +45,11 @@ public final class RenameCompilationUnitChange extends AbstractJavaElementRename
 		super(resourcePath, oldName, newName, stampToRestore);
 
 		setValidationMethod(VALIDATE_NOT_READ_ONLY | SAVE_IF_DIRTY);
+	}
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		return new Object[] { getModifiedElement() };
 	}
 
 	@Override
@@ -64,7 +75,7 @@ public final class RenameCompilationUnitChange extends AbstractJavaElementRename
 
 	@Override
 	public String getName() {
-		String[] keys= new String[] { BasicElementLabels.getJavaElementName(getOldName()), BasicElementLabels.getJavaElementName(getNewName())};
+		String[] keys= new String[] { BasicElementLabels.getJavaElementName(getOldName()), BasicElementLabels.getJavaElementName(getNewName()) };
 		return Messages.format(RefactoringCoreMessages.RenameCompilationUnitChange_name, keys);
 	}
 }

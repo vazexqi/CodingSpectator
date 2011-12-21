@@ -31,7 +31,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
 
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringChangeDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -86,6 +85,7 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.base.JavaStatusContext;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.WatchedJavaRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.rename.TempDeclarationFinder;
 import org.eclipse.jdt.internal.corext.refactoring.rename.TempOccurrenceAnalyzer;
 import org.eclipse.jdt.internal.corext.refactoring.structure.CompilationUnitRewrite;
@@ -101,19 +101,29 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 import org.eclipse.jdt.internal.ui.viewsupport.BindingLabelProvider;
 
-public class InlineTempRefactoring extends Refactoring {
+/**
+ * 
+ * @author Mohsen Vakilian, nchen - Instrumented the class using WatchedJavaRefactoring.
+ * 
+ */
+public class InlineTempRefactoring extends WatchedJavaRefactoring {
 
 	private int fSelectionStart;
+
 	private int fSelectionLength;
+
 	private ICompilationUnit fCu;
 
 	//the following fields are set after the construction
 	private VariableDeclaration fVariableDeclaration;
+
 	private SimpleName[] fReferences;
+
 	private CompilationUnit fASTRoot;
 
 	/**
 	 * Creates a new inline constant refactoring.
+	 * 
 	 * @param unit the compilation unit, or <code>null</code> if invoked by scripting
 	 * @param node compilation unit node, or <code>null</code>
 	 * @param selectionStart start
@@ -132,6 +142,7 @@ public class InlineTempRefactoring extends Refactoring {
 
 	/**
 	 * Creates a new inline constant refactoring.
+	 * 
 	 * @param unit the compilation unit, or <code>null</code> if invoked by scripting
 	 * @param selectionStart start
 	 * @param selectionLength length
@@ -152,11 +163,11 @@ public class InlineTempRefactoring extends Refactoring {
 		fCu= (ICompilationUnit) fASTRoot.getJavaElement();
 	}
 
-    public InlineTempRefactoring(JavaRefactoringArguments arguments, RefactoringStatus status) {
-   		this(null, null, 0, 0);
-   		RefactoringStatus initializeStatus= initialize(arguments);
-   		status.merge(initializeStatus);
-    }
+	public InlineTempRefactoring(JavaRefactoringArguments arguments, RefactoringStatus status) {
+		this(null, null, 0, 0);
+		RefactoringStatus initializeStatus= initialize(arguments);
+		status.merge(initializeStatus);
+	}
 
 
 	public RefactoringStatus checkIfTempSelected() {
@@ -193,6 +204,9 @@ public class InlineTempRefactoring extends Refactoring {
 	}
 
 	/*
+	 * CODINGSPECTATOR: Log the refactoring if it failed with fatal error while checking initial
+	 * conditions.
+	 *
 	 * @see Refactoring#checkActivation(IProgressMonitor)
 	 */
 	@Override
@@ -200,24 +214,38 @@ public class InlineTempRefactoring extends Refactoring {
 		try {
 			pm.beginTask("", 1); //$NON-NLS-1$
 
-			RefactoringStatus result= Checks.validateModifiesFiles(ResourceUtil.getFiles(new ICompilationUnit[]{fCu}), getValidationContext());
-			if (result.hasFatalError())
+			RefactoringStatus result= Checks.validateModifiesFiles(ResourceUtil.getFiles(new ICompilationUnit[] { fCu }), getValidationContext());
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 
 			VariableDeclaration declaration= getVariableDeclaration();
 
 			result.merge(checkSelection(declaration));
-			if (result.hasFatalError())
+			if (result.hasFatalError()) {
+				//CODINGSPECTATOR
+				logUnavailableRefactoring(result);
+
 				return result;
+			}
 
 			result.merge(checkInitializer(declaration));
+
+			//CODINGSPECTATOR: If there are fatal errors before a return statement in the "checkInitialConditions" method, log the refactoring as unavailable.
+			if (result.hasFatalError()) {
+				logUnavailableRefactoring(result);
+			}
+
 			return result;
 		} finally {
 			pm.done();
 		}
 	}
 
-    private RefactoringStatus checkInitializer(VariableDeclaration decl) {
+	private RefactoringStatus checkInitializer(VariableDeclaration decl) {
 		if (decl.getInitializer().getNodeType() == ASTNode.NULL_LITERAL)
 			return RefactoringStatus.createFatalErrorStatus(RefactoringCoreMessages.InlineTemRefactoring_error_message_nulLiteralsCannotBeInlined);
 		return null;
@@ -278,30 +306,11 @@ public class InlineTempRefactoring extends Refactoring {
 
 	//----- changes
 
+	//CODINGSPECTATOR: Extracted getRefactoringDescriptor.
 	@Override
 	public Change createChange(IProgressMonitor pm) throws CoreException {
 		try {
 			pm.beginTask(RefactoringCoreMessages.InlineTempRefactoring_preview, 2);
-			final Map<String, String> arguments= new HashMap<String, String>();
-			String project= null;
-			IJavaProject javaProject= fCu.getJavaProject();
-			if (javaProject != null)
-				project= javaProject.getElementName();
-
-			final IVariableBinding binding= getVariableDeclaration().resolveBinding();
-			String text= null;
-			final IMethodBinding method= binding.getDeclaringMethod();
-			if (method != null)
-				text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
-			else
-				text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
-			final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
-			final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description, new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text});
-			final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
-			comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-			final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments, RefactoringDescriptor.NONE);
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
-			arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
 
 			CompilationUnitRewrite cuRewrite= new CompilationUnitRewrite(fCu, fASTRoot);
 
@@ -309,7 +318,7 @@ public class InlineTempRefactoring extends Refactoring {
 			removeTemp(cuRewrite);
 
 			final CompilationUnitChange result= cuRewrite.createChange(RefactoringCoreMessages.InlineTempRefactoring_inline, false, new SubProgressMonitor(pm, 1));
-			result.setDescriptor(new RefactoringChangeDescriptor(descriptor));
+			result.setDescriptor(new RefactoringChangeDescriptor(createRefactoringDescriptor()));
 			return result;
 		} finally {
 			pm.done();
@@ -322,14 +331,14 @@ public class InlineTempRefactoring extends Refactoring {
 		TextEditGroup groupDesc= cuRewrite.createGroupDescription(RefactoringCoreMessages.InlineTempRefactoring_inline_edit_name);
 		ASTRewrite rewrite= cuRewrite.getASTRewrite();
 
-		for (int i= 0; i < references.length; i++){
+		for (int i= 0; i < references.length; i++) {
 			SimpleName curr= references[i];
 			ASTNode initializerCopy= getInitializerSource(cuRewrite, curr);
 			rewrite.replace(curr, initializerCopy, groupDesc);
 		}
 	}
 
-    private void removeTemp(CompilationUnitRewrite cuRewrite) {
+	private void removeTemp(CompilationUnitRewrite cuRewrite) {
 		VariableDeclaration variableDeclaration= getVariableDeclaration();
 		TextEditGroup groupDesc= cuRewrite.createGroupDescription(RefactoringCoreMessages.InlineTempRefactoring_remove_edit_name);
 		ASTNode parent= variableDeclaration.getParent();
@@ -371,9 +380,9 @@ public class InlineTempRefactoring extends Refactoring {
 				}
 			}
 		}
-		
+
 		Expression copy= (Expression) rewrite.getASTRewrite().createCopyTarget(initializer);
-		
+
 		AST ast= rewrite.getAST();
 		ITypeBinding explicitCast= ASTNodes.getExplicitCast(initializer, reference);
 		if (explicitCast != null) {
@@ -386,7 +395,7 @@ public class InlineTempRefactoring extends Refactoring {
 			cast.setExpression(copy);
 			cast.setType(rewrite.getImportRewrite().addImport(explicitCast, ast));
 			copy= cast;
-			
+
 		} else if (initializer instanceof ArrayInitializer && ASTNodes.getDimensions(varDecl) > 0) {
 			ArrayType newType= (ArrayType) ASTNodeFactory.newType(ast, varDecl);
 
@@ -464,7 +473,8 @@ public class InlineTempRefactoring extends Refactoring {
 				fSelectionStart= offset;
 				fSelectionLength= length;
 			} else
-				return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_illegal_argument, new Object[] { selection, JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION}));
+				return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_illegal_argument, new Object[] { selection,
+						JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION }));
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION));
 		final String handle= arguments.getAttribute(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT);
@@ -474,11 +484,50 @@ public class InlineTempRefactoring extends Refactoring {
 				return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getName(), IJavaRefactorings.INLINE_LOCAL_VARIABLE);
 			else {
 				fCu= (ICompilationUnit) element;
-	        	if (checkIfTempSelected().hasFatalError())
+				if (checkIfTempSelected().hasFatalError())
 					return JavaRefactoringDescriptorUtil.createInputFatalStatus(element, getName(), IJavaRefactorings.INLINE_LOCAL_VARIABLE);
 			}
 		} else
 			return RefactoringStatus.createFatalErrorStatus(Messages.format(RefactoringCoreMessages.InitializableRefactoring_argument_not_exist, JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT));
 		return new RefactoringStatus();
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	private InlineLocalVariableDescriptor createRefactoringDescriptor() {
+		final Map<String, String> arguments= new HashMap<String, String>();
+		String project= null;
+		IJavaProject javaProject= fCu.getJavaProject();
+		if (javaProject != null)
+			project= javaProject.getElementName();
+
+		final IVariableBinding binding= getVariableDeclaration().resolveBinding();
+		String text= null;
+		final IMethodBinding method= binding.getDeclaringMethod();
+		if (method != null)
+			text= BindingLabelProvider.getBindingLabel(method, JavaElementLabels.ALL_FULLY_QUALIFIED);
+		else
+			text= BasicElementLabels.getJavaElementName('{' + JavaElementLabels.ELLIPSIS_STRING + '}');
+		final String description= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description_short, BasicElementLabels.getJavaElementName(binding.getName()));
+		final String header= Messages.format(RefactoringCoreMessages.InlineTempRefactoring_descriptor_description,
+				new String[] { BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED), text });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(project, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.InlineTempRefactoring_original_pattern, BindingLabelProvider.getBindingLabel(binding, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		final InlineLocalVariableDescriptor descriptor= RefactoringSignatureDescriptorFactory.createInlineLocalVariableDescriptor(project, description, comment.asString(), arguments,
+				RefactoringDescriptor.NONE);
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_INPUT, JavaRefactoringDescriptorUtil.elementToHandle(project, fCu));
+		arguments.put(JavaRefactoringDescriptorUtil.ATTRIBUTE_SELECTION, String.valueOf(fSelectionStart) + ' ' + String.valueOf(fSelectionLength));
+		return descriptor;
+	}
+
+	protected RefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
+
+	protected String getDescriptorID() {
+		return IJavaRefactorings.INLINE_LOCAL_VARIABLE;
+	}
+
 }

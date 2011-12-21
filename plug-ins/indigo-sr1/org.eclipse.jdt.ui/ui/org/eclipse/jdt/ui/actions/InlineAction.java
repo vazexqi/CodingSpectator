@@ -24,12 +24,17 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.refactoring.util.RefactoringASTParser;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.refactoring.actions.InlineConstantAction;
@@ -37,42 +42,49 @@ import org.eclipse.jdt.internal.ui.refactoring.actions.InlineMethodAction;
 
 /**
  * Inlines a method, local variable or a static final field.
- *
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability. Also, initialized the global
+ *          store of refactorings at the beginning of the run methods.
  */
 public class InlineAction extends SelectionDispatchAction {
 
 	private JavaEditor fEditor;
+
 	private final InlineTempAction fInlineTemp;
+
 	private final InlineMethodAction fInlineMethod;
+
 	private final InlineConstantAction fInlineConstant;
 
 	/**
-	 * Creates a new <code>InlineAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>InlineAction</code>. The action requires that the selection provided by
+	 * the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public InlineAction(IWorkbenchSite site) {
 		super(site);
 		setText(RefactoringMessages.InlineAction_Inline);
-		fInlineTemp		= new InlineTempAction(site);
-		fInlineConstant	= new InlineConstantAction(site);
-		fInlineMethod	= new InlineMethodAction(site);
+		fInlineTemp= new InlineTempAction(site);
+		fInlineConstant= new InlineConstantAction(site);
+		fInlineMethod= new InlineMethodAction(site);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.INLINE_ACTION);
 	}
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the compilation unit editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public InlineAction(JavaEditor editor) {
@@ -80,9 +92,9 @@ public class InlineAction extends SelectionDispatchAction {
 		super(editor.getEditorSite());
 		setText(RefactoringMessages.InlineAction_Inline);
 		fEditor= editor;
-		fInlineTemp		= new InlineTempAction(editor);
-		fInlineConstant	= new InlineConstantAction(editor);
-		fInlineMethod	= new InlineMethodAction(editor);
+		fInlineTemp= new InlineTempAction(editor);
+		fInlineConstant= new InlineConstantAction(editor);
+		fInlineMethod= new InlineMethodAction(editor);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.INLINE_ACTION);
 		setEnabled(SelectionConverter.getInputAsCompilationUnit(fEditor) != null);
 	}
@@ -103,6 +115,9 @@ public class InlineAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(ITextSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 		if (!ActionUtil.isEditable(fEditor))
 			return;
 
@@ -124,6 +139,11 @@ public class InlineAction extends SelectionDispatchAction {
 		if (fInlineMethod.isEnabled() && fInlineMethod.tryInlineMethod(typeRoot, node, selection, getShell()))
 			return;
 
+		// CODINGSPECTATOR: At the this point all we know is that the user has tried to perform an inline refactoring.
+		// But, we don't know what kind of inline he/she has been trying to do.
+		// Therefore, we use the descriptor ID of the unknown inline refactoring to report the user's attempt to perform an inline refactoring.  
+		UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.INLINE, RefactoringMessages.InlineAction_select);
+
 		MessageDialog.openInformation(getShell(), RefactoringMessages.InlineAction_dialog_title, RefactoringMessages.InlineAction_select);
 	}
 
@@ -132,6 +152,9 @@ public class InlineAction extends SelectionDispatchAction {
 	 */
 	@Override
 	public void run(IStructuredSelection selection) {
+		//CODINGSPECTATOR
+		RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 		if (fInlineConstant.isEnabled())
 			fInlineConstant.run(selection);
 		else if (fInlineMethod.isEnabled())
@@ -139,6 +162,6 @@ public class InlineAction extends SelectionDispatchAction {
 		else
 			//inline temp will never be enabled on IStructuredSelection
 			//don't bother running it
-			Assert.isTrue(! fInlineTemp.isEnabled());
+			Assert.isTrue(!fInlineTemp.isEnabled());
 	}
 }

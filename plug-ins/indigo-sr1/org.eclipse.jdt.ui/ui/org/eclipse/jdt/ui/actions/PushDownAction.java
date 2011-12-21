@@ -27,15 +27,20 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringExecutionStarter;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
 import org.eclipse.jdt.internal.corext.util.JavaModelUtil;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaTextSelection;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
@@ -44,16 +49,19 @@ import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 /**
  * Action to push down methods and fields into subclasses.
  * <p>
- * Action is applicable to selections containing elements of type
- * <code>IField</code> and <code>IMethod</code>.
- *
+ * Action is applicable to selections containing elements of type <code>IField</code> and
+ * <code>IMethod</code>.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.1
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, Balaji Ambresh Rajkumar, nchen - Captured when the refactoring is
+ *         unavailable.
  */
 public class PushDownAction extends SelectionDispatchAction {
 
@@ -64,7 +72,7 @@ public class PushDownAction extends SelectionDispatchAction {
 			try {
 				final IType type= RefactoringAvailabilityTester.getSingleSelectedType(selection);
 				if (type != null)
-					return new IType[] { type};
+					return new IType[] { type };
 			} catch (JavaModelException exception) {
 				JavaPlugin.log(exception);
 			}
@@ -81,11 +89,10 @@ public class PushDownAction extends SelectionDispatchAction {
 	private JavaEditor fEditor;
 
 	/**
-	 * Note: This constructor is for internal use only. Clients should not call
-	 * this constructor.
-	 *
+	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public PushDownAction(JavaEditor editor) {
@@ -95,12 +102,11 @@ public class PushDownAction extends SelectionDispatchAction {
 	}
 
 	/**
-	 * Creates a new <code>PushDownAction</code>. The action requires that
-	 * the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>PushDownAction</code>. The action requires that the selection provided by
+	 * the site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
-	 * @param site
-	 *            the site providing context information for this action
+	 * 
+	 * @param site the site providing context information for this action
 	 */
 	public PushDownAction(IWorkbenchSite site) {
 		super(site);
@@ -121,6 +127,9 @@ public class PushDownAction extends SelectionDispatchAction {
 	@Override
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			IMember[] members= getSelectedMembers(selection);
 			if (RefactoringAvailabilityTester.isPushDownAvailable(members) && ActionUtil.isEditable(getShell(), members[0]))
 				RefactoringExecutionStarter.startPushDownRefactoring(members, getShell());
@@ -135,14 +144,20 @@ public class PushDownAction extends SelectionDispatchAction {
 	@Override
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			IMember member= getSelectedMemberFromEditor();
-			IMember[] array= new IMember[] { member};
+			IMember[] array= new IMember[] { member };
 			if (member != null && RefactoringAvailabilityTester.isPushDownAvailable(array)) {
 				RefactoringExecutionStarter.startPushDownRefactoring(array, getShell());
 			} else {
-				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, RefactoringMessages.PushDownAction_To_activate);
+				//CODINGSPECTATOR
+				String errorMessage= RefactoringMessages.PushDownAction_To_activate;
+				UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.PUSH_DOWN, errorMessage);
+				MessageDialog.openInformation(getShell(), RefactoringMessages.OpenRefactoringWizardAction_unavailable, errorMessage);
 			}
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);

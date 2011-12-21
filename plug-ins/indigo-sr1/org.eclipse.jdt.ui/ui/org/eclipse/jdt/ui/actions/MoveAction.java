@@ -31,12 +31,17 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.refactoring.IJavaRefactorings;
 
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringAvailabilityTester;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.RefactoringGlobalStore;
+
+import org.eclipse.jdt.ui.actions.codingspectator.UnavailableRefactoringLogger;
 
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jdt.internal.ui.actions.SelectionConverter;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringMessages;
 import org.eclipse.jdt.internal.ui.refactoring.actions.MoveInstanceMethodAction;
@@ -45,22 +50,24 @@ import org.eclipse.jdt.internal.ui.refactoring.reorg.ReorgMoveAction;
 import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
 
 /**
- * This action moves Java elements to a new location. The action prompts
- * the user for the new location.
+ * This action moves Java elements to a new location. The action prompts the user for the new
+ * location.
  * <p>
- * The action is applicable to a homogeneous selection containing either
- * projects, package fragment roots, package fragments, compilation units,
- * or static methods.
- *
+ * The action is applicable to a homogeneous selection containing either projects, package fragment
+ * roots, package fragments, compilation units, or static methods.
+ * 
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
- *
+ * 
  * @since 2.0
- *
+ * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @authors Mohsen Vakilian, nchen: Logged refactoring unavailability; captured more precise
+ *          information about selection
  */
-public class MoveAction extends SelectionDispatchAction{
+public class MoveAction extends SelectionDispatchAction {
 //TODO: remove duplicate availability checks. Look at
 //- f...Action.selectionChanged
 //- f...Action.isEnabled
@@ -71,15 +78,18 @@ public class MoveAction extends SelectionDispatchAction{
 //bug 35748 (no JavaElements for local types).
 
 	private JavaEditor fEditor;
+
 	private MoveInstanceMethodAction fMoveInstanceMethodAction;
+
 	private MoveStaticMembersAction fMoveStaticMembersAction;
+
 	private ReorgMoveAction fReorgMoveAction;
 
 	/**
-	 * Creates a new <code>MoveAction</code>. The action requires
-	 * that the selection provided by the site's selection provider is of type <code>
+	 * Creates a new <code>MoveAction</code>. The action requires that the selection provided by the
+	 * site's selection provider is of type <code>
 	 * org.eclipse.jface.viewers.IStructuredSelection</code>.
-	 *
+	 * 
 	 * @param site the site providing context information for this action
 	 */
 	public MoveAction(IWorkbenchSite site) {
@@ -93,8 +103,9 @@ public class MoveAction extends SelectionDispatchAction{
 
 	/**
 	 * Note: This constructor is for internal use only. Clients should not call this constructor.
+	 * 
 	 * @param editor the java editor
-	 *
+	 * 
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	public MoveAction(JavaEditor editor) {
@@ -136,6 +147,9 @@ public class MoveAction extends SelectionDispatchAction{
 	@Override
 	public void run(IStructuredSelection selection) {
 		try {
+			//CODINGSPECTATOR
+			RefactoringGlobalStore.getNewInstance().setStructuredSelection(selection);
+
 			if (fMoveInstanceMethodAction.isEnabled() && tryMoveInstanceMethod(selection))
 				return;
 
@@ -157,6 +171,9 @@ public class MoveAction extends SelectionDispatchAction{
 	@Override
 	public void run(ITextSelection selection) {
 		try {
+			// CODINGSPECTATOR: Capture precise selection information
+			RefactoringGlobalStore.getNewInstance().setEditorSelectionInfo(EditorUtility.getEditorInputJavaElement(fEditor, false), selection);
+
 			if (!ActionUtil.isEditable(fEditor))
 				return;
 			if (fMoveStaticMembersAction.isEnabled() && tryMoveStaticMembers(selection))
@@ -168,6 +185,9 @@ public class MoveAction extends SelectionDispatchAction{
 			if (tryReorgMove())
 				return;
 
+			//CODINGSPECTATOR
+			UnavailableRefactoringLogger.logUnavailableRefactoringEvent(IJavaRefactorings.MOVE, RefactoringMessages.MoveAction_select);
+
 			MessageDialog.openInformation(getShell(), RefactoringMessages.MoveAction_Move, RefactoringMessages.MoveAction_select);
 		} catch (JavaModelException e) {
 			ExceptionHandler.handle(e, RefactoringMessages.OpenRefactoringWizardAction_refactoring, RefactoringMessages.OpenRefactoringWizardAction_exception);
@@ -178,19 +198,19 @@ public class MoveAction extends SelectionDispatchAction{
 		IJavaElement element= SelectionConverter.getElementAtOffset(fEditor);
 		if (element == null || !(element instanceof IMember))
 			return false;
-		IMember[] array= new IMember[] { (IMember) element};
+		IMember[] array= new IMember[] { (IMember) element };
 		if (!RefactoringAvailabilityTester.isMoveStaticMembersAvailable(array))
 			return false;
 		fMoveStaticMembersAction.run(selection);
 		return true;
 	}
 
-	private static IMember[] getSelectedMembers(IStructuredSelection selection){
+	private static IMember[] getSelectedMembers(IStructuredSelection selection) {
 		if (selection.isEmpty())
 			return null;
 
-		for  (Iterator<?> iter= selection.iterator(); iter.hasNext(); ) {
-			if (! (iter.next() instanceof IMember))
+		for (Iterator<?> iter= selection.iterator(); iter.hasNext();) {
+			if (!(iter.next() instanceof IMember))
 				return null;
 		}
 		return convertToMemberArray(selection.toArray());
@@ -239,7 +259,7 @@ public class MoveAction extends SelectionDispatchAction{
 			return null;
 
 		Object first= selection.getFirstElement();
-		if (! (first instanceof IMethod))
+		if (!(first instanceof IMethod))
 			return null;
 		return (IMethod) first;
 	}
@@ -254,7 +274,8 @@ public class MoveAction extends SelectionDispatchAction{
 		if (!fReorgMoveAction.isEnabled())
 			return false;
 
-		fReorgMoveAction.run(mockStructuredSelection);
+		//CODINGSPECTATOR: Replaced run by runWithoutRecordingSelection to avoid recording a structured selection (issue #216).
+		fReorgMoveAction.runWithoutRecordingSelection(mockStructuredSelection);
 		return true;
 	}
 
@@ -270,7 +291,7 @@ public class MoveAction extends SelectionDispatchAction{
 		setEnabled(computeEnableState());
 	}
 
-	private boolean computeEnableState(){
+	private boolean computeEnableState() {
 		return fMoveStaticMembersAction.isEnabled()
 				|| fMoveInstanceMethodAction.isEnabled()
 				|| fReorgMoveAction.isEnabled();

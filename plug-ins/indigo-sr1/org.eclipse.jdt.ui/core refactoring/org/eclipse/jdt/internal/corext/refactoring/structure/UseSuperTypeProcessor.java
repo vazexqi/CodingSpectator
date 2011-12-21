@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringArguments;
 import org.eclipse.jdt.internal.corext.refactoring.JavaRefactoringDescriptorUtil;
 import org.eclipse.jdt.internal.corext.refactoring.RefactoringCoreMessages;
 import org.eclipse.jdt.internal.corext.refactoring.changes.DynamicValidationRefactoringChange;
+import org.eclipse.jdt.internal.corext.refactoring.codingspectator.IWatchedJavaProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsModel;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeConstraintsSolver;
 import org.eclipse.jdt.internal.corext.refactoring.structure.constraints.SuperTypeRefactoringProcessor;
@@ -75,19 +76,19 @@ import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
 
 /**
  * Refactoring processor to replace type occurrences by a super type.
+ * 
+ * @author Mohsen Vakilian, nchen, Balaji Ambresh Rajkumar - Instrumented the refactoring.
  */
-public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
+public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor implements IWatchedJavaProcessor {
 
 	private static final String IDENTIFIER= "org.eclipse.jdt.ui.useSuperTypeProcessor"; //$NON-NLS-1$
 
 	/**
-	 * Finds the type with the given fully qualified name (generic type
-	 * parameters included) in the hierarchy.
-	 *
-	 * @param type
-	 *            The hierarchy type to find the super type in
-	 * @param name
-	 *            The fully qualified name of the super type
+	 * Finds the type with the given fully qualified name (generic type parameters included) in the
+	 * hierarchy.
+	 * 
+	 * @param type The hierarchy type to find the super type in
+	 * @param name The fully qualified name of the super type
 	 * @return The found super type, or <code>null</code>
 	 */
 	protected static ITypeBinding findTypeInHierarchy(final ITypeBinding type, final String name) {
@@ -124,9 +125,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates a new super type processor.
-	 *
-	 * @param subType
-	 *            the subtype to replace its occurrences
+	 * 
+	 * @param subType the subtype to replace its occurrences
 	 */
 	public UseSuperTypeProcessor(final IType subType) {
 		super(null);
@@ -136,11 +136,9 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates a new super type processor.
-	 *
-	 * @param subType
-	 *            the subtype to replace its occurrences
-	 * @param superType
-	 *            the supertype as replacement
+	 * 
+	 * @param subType the subtype to replace its occurrences
+	 * @param superType the supertype as replacement
 	 */
 	public UseSuperTypeProcessor(final IType subType, final IType superType) {
 		super(null);
@@ -151,11 +149,9 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Creates a new super type processor from refactoring arguments.
-	 *
-	 * @param arguments
-	 *            the refactoring arguments
-	 * @param status
-	 *            the resulting status
+	 * 
+	 * @param arguments the refactoring arguments
+	 * @param status the resulting status
 	 */
 	public UseSuperTypeProcessor(JavaRefactoringArguments arguments, RefactoringStatus status) {
 		super(null);
@@ -205,6 +201,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	}
 
 	/*
+	 * CODINGSPECTATOR: Extracted {@link UseSuperTypeProcessor#createRefactoringDescriptor()}
+	 * 
 	 * @see org.eclipse.ltk.core.refactoring.participants.RefactoringProcessor#createChange(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
@@ -217,31 +215,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 			final TextEditBasedChange[] changes= fChangeManager.getAllChanges();
 			if (changes != null && changes.length != 0) {
 				fChanges= changes.length;
-				IJavaProject project= null;
-				if (!fSubType.isBinary())
-					project= fSubType.getJavaProject();
-				int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
-				try {
-					if (fSubType.isLocal() || fSubType.isAnonymous())
-						flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
-				} catch (JavaModelException exception) {
-					JavaPlugin.log(exception);
-				}
-				final String name= project != null ? project.getElementName() : null;
-				final String description= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description_short, BasicElementLabels.getJavaElementName(fSuperType.getElementName()));
-				final String header= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description, new String[] { JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED), JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
-				final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(name, this, header);
-				comment.addSetting(Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_refactored_element_pattern, JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
-				addSuperTypeSettings(comment, false);
-				final UseSupertypeDescriptor descriptor= RefactoringSignatureDescriptorFactory.createUseSupertypeDescriptor();
-				descriptor.setProject(name);
-				descriptor.setDescription(description);
-				descriptor.setComment(comment.asString());
-				descriptor.setFlags(flags);
-				descriptor.setSubtype(getSubType());
-				descriptor.setSupertype(getSuperType());
-				descriptor.setReplaceInstanceof(fInstanceOf);
-				return new DynamicValidationRefactoringChange(descriptor, RefactoringCoreMessages.UseSupertypeWherePossibleRefactoring_name, fChangeManager.getAllChanges());
+				return new DynamicValidationRefactoringChange(createRefactoringDescriptor(), RefactoringCoreMessages.UseSupertypeWherePossibleRefactoring_name, fChangeManager.getAllChanges());
 			}
 			monitor.worked(1);
 		} finally {
@@ -250,18 +224,48 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 		return null;
 	}
 
+	// Extracted from createChange
+	private UseSupertypeDescriptor createRefactoringDescriptor() {
+		IJavaProject project= null;
+		if (!fSubType.isBinary())
+			project= fSubType.getJavaProject();
+		int flags= JavaRefactoringDescriptor.JAR_MIGRATION | JavaRefactoringDescriptor.JAR_REFACTORING | RefactoringDescriptor.STRUCTURAL_CHANGE | RefactoringDescriptor.MULTI_CHANGE;
+		try {
+			if (fSubType.isLocal() || fSubType.isAnonymous())
+				flags|= JavaRefactoringDescriptor.JAR_SOURCE_ATTACHMENT;
+		} catch (JavaModelException exception) {
+			JavaPlugin.log(exception);
+		}
+		final String name= project != null ? project.getElementName() : null;
+		final String description= Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description_short,
+				BasicElementLabels.getJavaElementName(fSuperType.getElementName()));
+		final String header= Messages.format(
+				RefactoringCoreMessages.UseSuperTypeProcessor_descriptor_description,
+				new String[] { JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED),
+						JavaElementLabels.getElementLabel(fSubType, JavaElementLabels.ALL_FULLY_QUALIFIED) });
+		final JDTRefactoringDescriptorComment comment= new JDTRefactoringDescriptorComment(name, this, header);
+		comment.addSetting(Messages.format(RefactoringCoreMessages.UseSuperTypeProcessor_refactored_element_pattern,
+				JavaElementLabels.getElementLabel(fSuperType, JavaElementLabels.ALL_FULLY_QUALIFIED)));
+		addSuperTypeSettings(comment, false);
+		final UseSupertypeDescriptor descriptor= RefactoringSignatureDescriptorFactory.createUseSupertypeDescriptor();
+		descriptor.setProject(name);
+		descriptor.setDescription(description);
+		descriptor.setComment(comment.asString());
+		descriptor.setFlags(flags);
+		descriptor.setSubtype(getSubType());
+		descriptor.setSupertype(getSuperType());
+		descriptor.setReplaceInstanceof(fInstanceOf);
+		return descriptor;
+	}
+
 	/**
 	 * Creates the text change manager for this processor.
-	 *
-	 * @param monitor
-	 *            the progress monitor to display progress
-	 * @param status
-	 *            the refactoring status
+	 * 
+	 * @param monitor the progress monitor to display progress
+	 * @param status the refactoring status
 	 * @return the created text change manager
-	 * @throws JavaModelException
-	 *             if the method declaration could not be found
-	 * @throws CoreException
-	 *             if the changes could not be generated
+	 * @throws JavaModelException if the method declaration could not be found
+	 * @throws CoreException if the changes could not be generated
 	 */
 	protected final TextEditBasedChangeManager createChangeManager(final IProgressMonitor monitor, final RefactoringStatus status) throws JavaModelException, CoreException {
 		Assert.isNotNull(status);
@@ -298,7 +302,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 									if (superBinding != null) {
 										solveSuperTypeConstraints(subRewrite.getCu(), subRewrite.getRoot(), fSubType, subBinding, superBinding, new SubProgressMonitor(monitor, 100), status);
 										if (!status.hasFatalError()) {
-											rewriteTypeOccurrences(manager, this, subRewrite, subRewrite.getCu(), subRewrite.getRoot(), new HashSet<String>(), status, new SubProgressMonitor(monitor, 200));
+											rewriteTypeOccurrences(manager, this, subRewrite, subRewrite.getCu(), subRewrite.getRoot(), new HashSet<String>(), status, new SubProgressMonitor(monitor,
+													200));
 											final TextChange change= subRewrite.createChange(true);
 											if (change != null)
 												manager.manage(subRewrite.getCu(), change);
@@ -333,9 +338,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	}
 
 	/**
-	 * Returns the number of files that are affected from the last change
-	 * generation.
-	 *
+	 * Returns the number of files that are affected from the last change generation.
+	 * 
 	 * @return The number of files which are affected
 	 */
 	public final int getChanges() {
@@ -368,7 +372,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Returns the subtype to be replaced.
-	 *
+	 * 
 	 * @return The subtype to be replaced
 	 */
 	public final IType getSubType() {
@@ -377,7 +381,7 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Returns the supertype as replacement.
-	 *
+	 * 
 	 * @return The supertype as replacement
 	 */
 	public final IType getSuperType() {
@@ -416,7 +420,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	 */
 	@Override
 	public final boolean isApplicable() throws CoreException {
-		return Checks.isAvailable(fSubType) && Checks.isAvailable(fSuperType) && !fSubType.isAnonymous() && !fSubType.isAnnotation() && !fSuperType.isAnonymous() && !fSuperType.isAnnotation() && !fSuperType.isEnum();
+		return Checks.isAvailable(fSubType) && Checks.isAvailable(fSuperType) && !fSubType.isAnonymous() && !fSubType.isAnnotation() && !fSuperType.isAnonymous() && !fSuperType.isAnnotation()
+				&& !fSuperType.isEnum();
 	}
 
 	/*
@@ -431,7 +436,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected final void rewriteTypeOccurrences(final TextEditBasedChangeManager manager, final ASTRequestor requestor, final CompilationUnitRewrite rewrite, final ICompilationUnit unit, final CompilationUnit node, final Set<String> replacements, final IProgressMonitor monitor) throws CoreException {
+	protected final void rewriteTypeOccurrences(final TextEditBasedChangeManager manager, final ASTRequestor requestor, final CompilationUnitRewrite rewrite, final ICompilationUnit unit,
+			final CompilationUnit node, final Set<String> replacements, final IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask("", 100); //$NON-NLS-1$
 			monitor.setTaskName(RefactoringCoreMessages.ExtractInterfaceProcessor_creating);
@@ -455,7 +461,8 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 						if (estimate != null && variable instanceof ITypeConstraintVariable) {
 							final ASTNode result= NodeFinder.perform(node, ((ITypeConstraintVariable) variable).getRange().getSourceRange());
 							if (result != null)
-								rewriteTypeOccurrence(estimate, currentRewrite, result, currentRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.SuperTypeRefactoringProcessor_update_type_occurrence, SET_SUPER_TYPE));
+								rewriteTypeOccurrence(estimate, currentRewrite, result,
+										currentRewrite.createCategorizedGroupDescription(RefactoringCoreMessages.SuperTypeRefactoringProcessor_update_type_occurrence, SET_SUPER_TYPE));
 						}
 						subMonitor.worked(10);
 					}
@@ -475,13 +482,25 @@ public final class UseSuperTypeProcessor extends SuperTypeRefactoringProcessor {
 
 	/**
 	 * Sets the supertype as replacement.
-	 *
-	 * @param type
-	 *            The supertype to set
+	 * 
+	 * @param type The supertype to set
 	 */
 	public final void setSuperType(final IType type) {
 		Assert.isNotNull(type);
 
 		fSuperType= type;
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public String getDescriptorID() {
+		return IJavaRefactorings.USE_SUPER_TYPE;
+	}
+
+	public JavaRefactoringDescriptor getOriginalRefactoringDescriptor() {
+		return createRefactoringDescriptor();
+	}
+
 }
