@@ -41,10 +41,14 @@ import org.eclipse.jdt.core.refactoring.descriptors.PullUpDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.PushDownDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.RenameJavaElementDescriptor;
 import org.eclipse.jdt.core.refactoring.descriptors.UseSupertypeDescriptor;
+import org.eclipse.jdt.core.refactoring.descriptors.codingspectator.InlineDescriptor;
+import org.eclipse.jdt.core.refactoring.descriptors.codingspectator.RenameUnknownJavaElementDescriptor;
 
 /**
  * Internal factory for Java refactoring signature descriptors.
- *  
+ * 
+ * @author Mohsen Vakilian, nchen - Added factory methods for new kinds of descriptors.
+ * 
  * @since 3.5
  */
 public class RefactoringSignatureDescriptorFactory {
@@ -52,7 +56,7 @@ public class RefactoringSignatureDescriptorFactory {
 	public static ChangeMethodSignatureDescriptor createChangeMethodSignatureDescriptor() {
 		return new ChangeMethodSignatureDescriptor();
 	}
-	
+
 	public static ChangeMethodSignatureDescriptor createChangeMethodSignatureDescriptor(String project, String description, String comment, Map arguments, int flags) {
 		return new ChangeMethodSignatureDescriptor(project, description, comment, arguments, flags);
 	}
@@ -282,4 +286,23 @@ public class RefactoringSignatureDescriptorFactory {
 		return new UseSupertypeDescriptor(project, description, comment, arguments, flags);
 	}
 
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	public static InlineDescriptor createInlineDescriptor() {
+		return new InlineDescriptor();
+	}
+
+	public static InlineDescriptor createInlineDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		return new InlineDescriptor(project, description, comment, arguments, flags);
+	}
+
+	public static RenameUnknownJavaElementDescriptor createRenameUnknownJavaElementDescriptor() {
+		return new RenameUnknownJavaElementDescriptor();
+	}
+
+	public static RenameUnknownJavaElementDescriptor createRenameUnknownJavaElementDescriptor(String project, String description, String comment, Map arguments, int flags) {
+		return new RenameUnknownJavaElementDescriptor(project, description, comment, arguments, flags);
+	}
 }

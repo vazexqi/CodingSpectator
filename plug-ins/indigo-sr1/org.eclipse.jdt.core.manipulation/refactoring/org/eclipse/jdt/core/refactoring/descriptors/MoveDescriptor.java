@@ -37,18 +37,19 @@ import org.eclipse.jdt.internal.core.refactoring.descriptors.JavaRefactoringDesc
  * Refactoring descriptor for the move refactoring.
  * <p>
  * An instance of this refactoring descriptor may be obtained by calling
- * {@link RefactoringContribution#createDescriptor()} on a refactoring
- * contribution requested by invoking
- * {@link RefactoringCore#getRefactoringContribution(String)} with the
- * appropriate refactoring id.
+ * {@link RefactoringContribution#createDescriptor()} on a refactoring contribution requested by
+ * invoking {@link RefactoringCore#getRefactoringContribution(String)} with the appropriate
+ * refactoring id.
  * </p>
  * <p>
  * Note: this class is not intended to be instantiated by clients.
  * </p>
- *
+ * 
  * @since 1.1
- *
+ * 
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * 
+ * @author Mohsen Vakilian, Balaji Ambresh Rajkumar - Changed the visibility of logged attributes.
  */
 public final class MoveDescriptor extends JavaRefactoringDescriptor {
 
@@ -56,10 +57,12 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	private static final String ATTRIBUTE_DESTINATION= "destination"; //$NON-NLS-1$
 
 	/** The files attribute */
-	private static final String ATTRIBUTE_FILES= "files"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_FILES= "files"; //$NON-NLS-1$
 
 	/** The folders attribute */
-	private static final String ATTRIBUTE_FOLDERS= "folders"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_FOLDERS= "folders"; //$NON-NLS-1$
 
 	/** The fragments attribute */
 	private static final String ATTRIBUTE_FRAGMENTS= "fragments"; //$NON-NLS-1$
@@ -68,22 +71,27 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	private static final String ATTRIBUTE_MEMBERS= "members"; //$NON-NLS-1$
 
 	/** The patterns attribute */
-	private static final String ATTRIBUTE_PATTERNS= "patterns"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_PATTERNS= "patterns"; //$NON-NLS-1$
 
 	/** The policy attribute */
-	private static final String ATTRIBUTE_POLICY= "policy"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_POLICY= "policy"; //$NON-NLS-1$
 
 	/** The qualified attribute */
-	private static final String ATTRIBUTE_QUALIFIED= "qualified"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_QUALIFIED= "qualified"; //$NON-NLS-1$
 
 	/** The roots attribute */
 	private static final String ATTRIBUTE_ROOTS= "roots"; //$NON-NLS-1$
 
 	/** The target attribute (a resource) */
-	private static final String ATTRIBUTE_TARGET= "target"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_TARGET= "target"; //$NON-NLS-1$
 
 	/** The units attribute */
-	private static final String ATTRIBUTE_UNITS= "units"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String ATTRIBUTE_UNITS= "units"; //$NON-NLS-1$
 
 	/** The move members policy */
 	private static final String POLICY_MOVE_MEMBERS= "org.eclipse.jdt.ui.moveMembers"; //$NON-NLS-1$
@@ -92,7 +100,8 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	private static final String POLICY_MOVE_PACKAGES= "org.eclipse.jdt.ui.movePackages"; //$NON-NLS-1$
 
 	/** The move resources policy */
-	private static final String POLICY_MOVE_RESOURCES= "org.eclipse.jdt.ui.moveResources"; //$NON-NLS-1$
+	// CODINGSPECTATOR
+	public static final String POLICY_MOVE_RESOURCES= "org.eclipse.jdt.ui.moveResources"; //$NON-NLS-1$
 
 	/** The move package fragment roots policy */
 	private static final String POLICY_MOVE_ROOTS= "org.eclipse.jdt.ui.moveRoots"; //$NON-NLS-1$
@@ -139,23 +148,17 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 
 	/**
 	 * Creates a new refactoring descriptor.
-	 *
-	 * @param project
-	 *            the non-empty name of the project associated with this
-	 *            refactoring, or <code>null</code> for a workspace
-	 *            refactoring
-	 * @param description
-	 *            a non-empty human-readable description of the particular
-	 *            refactoring instance
-	 * @param comment
-	 *            the human-readable comment of the particular refactoring
-	 *            instance, or <code>null</code> for no comment
-	 * @param arguments
-	 * 			  a map of arguments that will be persisted and describes
-	 * 			  all settings for this refactoring
-	 * @param flags
-	 *            the flags of the refactoring descriptor
-	 *
+	 * 
+	 * @param project the non-empty name of the project associated with this refactoring, or
+	 *            <code>null</code> for a workspace refactoring
+	 * @param description a non-empty human-readable description of the particular refactoring
+	 *            instance
+	 * @param comment the human-readable comment of the particular refactoring instance, or
+	 *            <code>null</code> for no comment
+	 * @param arguments a map of arguments that will be persisted and describes all settings for
+	 *            this refactoring
+	 * @param flags the flags of the refactoring descriptor
+	 * 
 	 * @since 1.2
 	 */
 	public MoveDescriptor(String project, String description, String comment, Map arguments, int flags) {
@@ -175,13 +178,13 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 			offset+= fFiles.length;
 			fFolders= JavaRefactoringDescriptorUtil.getResourcePathArray(fArguments, ATTRIBUTE_FOLDERS, ATTRIBUTE_ELEMENT, offset, project);
 			offset+= fFolders.length;
-			fUnits= (ICompilationUnit[]) JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_UNITS, ATTRIBUTE_ELEMENT, offset, project, ICompilationUnit.class);
+			fUnits= (ICompilationUnit[])JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_UNITS, ATTRIBUTE_ELEMENT, offset, project, ICompilationUnit.class);
 		} else if (POLICY_MOVE_ROOTS.equals(fMovePolicy)) {
-			fRoots= (IPackageFragmentRoot[]) JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_ROOTS, ATTRIBUTE_ELEMENT, 1, project, IPackageFragmentRoot.class);
+			fRoots= (IPackageFragmentRoot[])JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_ROOTS, ATTRIBUTE_ELEMENT, 1, project, IPackageFragmentRoot.class);
 		} else if (POLICY_MOVE_PACKAGES.equals(fMovePolicy)) {
-			fFragments= (IPackageFragment[]) JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_FRAGMENTS, ATTRIBUTE_ELEMENT, 1, project, IPackageFragment.class);
+			fFragments= (IPackageFragment[])JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_FRAGMENTS, ATTRIBUTE_ELEMENT, 1, project, IPackageFragment.class);
 		} else if (POLICY_MOVE_MEMBERS.equals(fMovePolicy)) {
-			fMembers= (IMember[]) JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_MEMBERS, ATTRIBUTE_ELEMENT, 1, project, IMember.class);
+			fMembers= (IMember[])JavaRefactoringDescriptorUtil.getJavaElementArray(fArguments, ATTRIBUTE_MEMBERS, ATTRIBUTE_ELEMENT, 1, project, IMember.class);
 		}
 	}
 
@@ -193,9 +196,9 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 		JavaRefactoringDescriptorUtil.setString(fArguments, ATTRIBUTE_POLICY, fMovePolicy);
 		final String project= getProject();
 		if (fDestination instanceof IJavaElement)
-			JavaRefactoringDescriptorUtil.setJavaElement(fArguments, ATTRIBUTE_DESTINATION, project, (IJavaElement) fDestination);
+			JavaRefactoringDescriptorUtil.setJavaElement(fArguments, ATTRIBUTE_DESTINATION, project, (IJavaElement)fDestination);
 		else if (fDestination instanceof IPath)
-			JavaRefactoringDescriptorUtil.setResourcePath(fArguments, ATTRIBUTE_TARGET, project, (IPath) fDestination);
+			JavaRefactoringDescriptorUtil.setResourcePath(fArguments, ATTRIBUTE_TARGET, project, (IPath)fDestination);
 		if (POLICY_MOVE_RESOURCES.equals(fMovePolicy)) {
 			JavaRefactoringDescriptorUtil.setBoolean(fArguments, ATTRIBUTE_REFERENCES, fReferences);
 			JavaRefactoringDescriptorUtil.setBoolean(fArguments, ATTRIBUTE_QUALIFIED, fQualified);
@@ -218,12 +221,10 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the destination of the move.
 	 * <p>
-	 * Note: Clients may call only one of the <code>setDestination</code>
-	 * methods.
+	 * Note: Clients may call only one of the <code>setDestination</code> methods.
 	 * </p>
-	 *
-	 * @param element
-	 *            the java element
+	 * 
+	 * @param element the java element
 	 */
 	public void setDestination(IJavaElement element) {
 		Assert.isNotNull(element);
@@ -233,12 +234,10 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the destination of the move.
 	 * <p>
-	 * Note: Clients may call only one of the <code>setDestination</code>
-	 * methods.
+	 * Note: Clients may call only one of the <code>setDestination</code> methods.
 	 * </p>
-	 *
-	 * @param resource
-	 *            the resource
+	 * 
+	 * @param resource the resource
 	 */
 	public void setDestination(IResource resource) {
 		Assert.isNotNull(resource);
@@ -248,21 +247,20 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the file name patterns to use during qualified name updating.
 	 * <p>
-	 * The syntax of the file name patterns is a sequence of individual name
-	 * patterns, separated by comma. Additionally, wildcard characters '*' (any
-	 * string) and '?' (any character) may be used.
+	 * The syntax of the file name patterns is a sequence of individual name patterns, separated by
+	 * comma. Additionally, wildcard characters '*' (any string) and '?' (any character) may be
+	 * used.
 	 * </p>
 	 * <p>
-	 * Note: If file name patterns are set, qualified name updating must be
-	 * enabled by calling {@link #setUpdateQualifiedNames(boolean)}.
+	 * Note: If file name patterns are set, qualified name updating must be enabled by calling
+	 * {@link #setUpdateQualifiedNames(boolean)}.
 	 * </p>
 	 * <p>
-	 * Note: Qualified name updating is currently applicable to files, folders
-	 * and compilation units. The default is to not update qualified names.
+	 * Note: Qualified name updating is currently applicable to files, folders and compilation
+	 * units. The default is to not update qualified names.
 	 * </p>
-	 *
-	 * @param patterns
-	 *            the non-empty file name patterns string
+	 * 
+	 * @param patterns the non-empty file name patterns string
 	 */
 	public void setFileNamePatterns(final String patterns) {
 		Assert.isNotNull(patterns);
@@ -273,12 +271,10 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the members to move.
 	 * <p>
-	 * Note: Clients must only call one of the <code>setMoveXXX</code>
-	 * methods.
+	 * Note: Clients must only call one of the <code>setMoveXXX</code> methods.
 	 * </p>
-	 *
-	 * @param members
-	 *            the members to move
+	 * 
+	 * @param members the members to move
 	 */
 	public void setMoveMembers(final IMember[] members) {
 		Assert.isNotNull(members);
@@ -290,12 +286,10 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the package fragment roots to move.
 	 * <p>
-	 * Note: Clients must only call one of the <code>setMoveXXX</code>
-	 * methods.
+	 * Note: Clients must only call one of the <code>setMoveXXX</code> methods.
 	 * </p>
-	 *
-	 * @param roots
-	 *            the package fragment roots to move
+	 * 
+	 * @param roots the package fragment roots to move
 	 */
 	public void setMovePackageFragmentRoots(final IPackageFragmentRoot[] roots) {
 		Assert.isNotNull(roots);
@@ -307,12 +301,10 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the package fragments to move.
 	 * <p>
-	 * Note: Clients must only call one of the <code>setMoveXXX</code>
-	 * methods.
+	 * Note: Clients must only call one of the <code>setMoveXXX</code> methods.
 	 * </p>
-	 *
-	 * @param fragments
-	 *            the package fragments to move
+	 * 
+	 * @param fragments the package fragments to move
 	 */
 	public void setMovePackages(final IPackageFragment[] fragments) {
 		Assert.isNotNull(fragments);
@@ -324,16 +316,12 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Sets the resources and compilation units to move.
 	 * <p>
-	 * Note: Clients must only call one of the <code>setMoveXXX</code>
-	 * methods.
+	 * Note: Clients must only call one of the <code>setMoveXXX</code> methods.
 	 * </p>
-	 *
-	 * @param files
-	 *            the files to move
-	 * @param folders
-	 *            the folders to move
-	 * @param units
-	 *            the compilation units to move
+	 * 
+	 * @param files the files to move
+	 * @param folders the folders to move
+	 * @param units the compilation units to move
 	 */
 	public void setMoveResources(final IFile[] files, final IFolder[] folders, final ICompilationUnit[] units) {
 		Assert.isNotNull(files);
@@ -355,20 +343,16 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 	/**
 	 * Determines whether qualified names of the Java element should be renamed.
 	 * <p>
-	 * Qualified name updating adapts fully qualified names of the Java element
-	 * to be renamed in non-Java text files. Clients may specify file name
-	 * patterns by calling {@link #setFileNamePatterns(String)} to constrain the
-	 * set of text files to be processed.
+	 * Qualified name updating adapts fully qualified names of the Java element to be renamed in
+	 * non-Java text files. Clients may specify file name patterns by calling
+	 * {@link #setFileNamePatterns(String)} to constrain the set of text files to be processed.
 	 * </p>
 	 * <p>
-	 * Note: Qualified name updating is currently applicable to files, folders
-	 * and compilation units. The default is to use no file name patterns
-	 * (meaning that all files are processed).
+	 * Note: Qualified name updating is currently applicable to files, folders and compilation
+	 * units. The default is to use no file name patterns (meaning that all files are processed).
 	 * </p>
-	 *
-	 * @param update
-	 *            <code>true</code> to update qualified names,
-	 *            <code>false</code> otherwise
+	 * 
+	 * @param update <code>true</code> to update qualified names, <code>false</code> otherwise
 	 */
 	public void setUpdateQualifiedNames(final boolean update) {
 		fQualified= update;
@@ -376,10 +360,8 @@ public final class MoveDescriptor extends JavaRefactoringDescriptor {
 
 	/**
 	 * Determines whether references to the Java element should be renamed.
-	 *
-	 * @param update
-	 *            <code>true</code> to update references, <code>false</code>
-	 *            otherwise
+	 * 
+	 * @param update <code>true</code> to update references, <code>false</code> otherwise
 	 */
 	public void setUpdateReferences(final boolean update) {
 		fReferences= update;

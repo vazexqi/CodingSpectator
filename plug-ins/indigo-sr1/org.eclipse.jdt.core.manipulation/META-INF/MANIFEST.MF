@@ -16,6 +16,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.jdt.core.manipulation,
  org.eclipse.jdt.core.refactoring,
  org.eclipse.jdt.core.refactoring.descriptors,
+ org.eclipse.jdt.core.refactoring.descriptors.codingspectator,
  org.eclipse.jdt.core.refactoring.participants,
  org.eclipse.jdt.internal.core.manipulation;x-internal:=true,
  org.eclipse.jdt.internal.core.refactoring.descriptors;x-friends:="org.eclipse.jdt.ui"
