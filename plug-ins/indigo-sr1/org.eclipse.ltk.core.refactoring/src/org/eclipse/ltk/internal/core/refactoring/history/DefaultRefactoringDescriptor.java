@@ -23,9 +23,12 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
 
 /**
- * Default implementation of a refactoring descriptor.
- * This refactoring descriptor can only be used as temporary storage to transfer
- * refactoring descriptor data. {@link #createRefactoring(RefactoringStatus)} always returns null.
+ * Default implementation of a refactoring descriptor. This refactoring descriptor can only be used
+ * as temporary storage to transfer refactoring descriptor data.
+ * {@link #createRefactoring(RefactoringStatus)} always returns null.
+ * 
+ * @author Mohsen Vakilian, nchen - Added ability to add more information by cloning an existing
+ *         descriptor.
  *
  * @since 3.2
  */
@@ -37,18 +40,12 @@ public final class DefaultRefactoringDescriptor extends RefactoringDescriptor {
 	/**
 	 * Creates a new default refactoring descriptor.
 	 *
-	 * @param id
-	 *            the unique id of the refactoring
-	 * @param project
-	 *            the project name, or <code>null</code>
-	 * @param description
-	 *            the description
-	 * @param comment
-	 *            the comment, or <code>null</code>
-	 * @param arguments
-	 *            the argument map
-	 * @param flags
-	 *            the flags
+	 * @param id the unique id of the refactoring
+	 * @param project the project name, or <code>null</code>
+	 * @param description the description
+	 * @param comment the comment, or <code>null</code>
+	 * @param arguments the argument map
+	 * @param flags the flags
 	 */
 	public DefaultRefactoringDescriptor(final String id, final String project, final String description, final String comment, final Map arguments, final int flags) {
 		super(id, project, description, comment, flags);
@@ -74,4 +71,18 @@ public final class DefaultRefactoringDescriptor extends RefactoringDescriptor {
 	public Map getArguments() {
 		return fArguments;
 	}
+
+	//////////////////
+	// CODINGSPECTATOR
+	//////////////////
+	public RefactoringDescriptor cloneByAugmenting(Map arguments) {
+		Map augmentedArguments= new HashMap(getArguments());
+		augmentedArguments.putAll(arguments);
+		DefaultRefactoringDescriptor augmentedDescriptor= new DefaultRefactoringDescriptor(getID(), getProject(), getDescription(), getComment(), augmentedArguments, getFlags());
+		if (getTimeStamp() != -1) {
+			augmentedDescriptor.setTimeStamp(getTimeStamp());
+		}
+		return augmentedDescriptor;
+	}
+
 }

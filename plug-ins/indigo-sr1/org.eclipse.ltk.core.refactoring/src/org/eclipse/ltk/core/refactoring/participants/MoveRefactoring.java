@@ -12,9 +12,14 @@ package org.eclipse.ltk.core.refactoring.participants;
 
 import org.eclipse.core.runtime.Assert;
 
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
+
 /**
- * A generic move refactoring. The actual refactoring is done
- * by the move processor passed to the constructor.
+ * A generic move refactoring. The actual refactoring is done by the move processor passed to the
+ * constructor.
  * <p>
  * This class is not intended to be subclassed by clients.
  * </p>
@@ -22,8 +27,10 @@ import org.eclipse.core.runtime.Assert;
  * @since 3.0
  *
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @author Mohsen Vakilian, nchen - Made the class implement IWatchedRefactoring.
  */
-public class MoveRefactoring extends ProcessorBasedRefactoring {
+public class MoveRefactoring extends ProcessorBasedRefactoring implements IWatchedRefactoring {
 
 	private MoveProcessor fProcessor;
 
@@ -52,5 +59,19 @@ public class MoveRefactoring extends ProcessorBasedRefactoring {
 	 */
 	public RefactoringProcessor getProcessor() {
 		return fProcessor;
+	}
+
+	///////////////////////////////////////////////
+	//CODINGSPECTATOR: Added the following methods.
+	///////////////////////////////////////////////
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		if (!isWatched())
+			throw new UnsupportedOperationException();
+		return ((IWatchedProcessor)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	public boolean isWatched() {
+		return fProcessor instanceof IWatchedProcessor;
 	}
 }

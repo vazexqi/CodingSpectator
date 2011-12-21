@@ -36,14 +36,23 @@ import org.eclipse.ltk.core.refactoring.IValidationCheckResultQuery;
 import org.eclipse.ltk.core.refactoring.RefactoringCore;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
-
+/**
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
+ */
 public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdvancedUndoableOperation  {
 
 	private String fLabel;
+
 	private String fDescription;
+
 	private Change fExecuteChange;
+
 	private Change fUndoChange;
+
 	private Change fRedoChange;
+
 	private Change fActiveChange;
 
 	private ChangeDescriptor fChangeDescriptor;
@@ -52,11 +61,14 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 
 	private static class ContextAdapter implements IAdaptable {
 		private IAdaptable fInfoAdapter;
+
 		private String fTitle;
+
 		public ContextAdapter(IAdaptable infoAdapter, String title) {
 			fInfoAdapter= infoAdapter;
 			fTitle= title;
 		}
+
 		public Object getAdapter(Class adapter) {
 			if (String.class.equals(adapter))
 				return fTitle;
@@ -66,8 +78,11 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 
 	private static class ExecuteResult {
 		boolean changeExecuted;
+
 		Change reverseChange;
+
 		RefactoringStatus validationStatus;
+
 		public ExecuteResult() {
 			validationStatus= new RefactoringStatus();
 		}
@@ -118,6 +133,13 @@ public class UndoableOperation2ChangeAdapter implements IUndoableOperation, IAdv
 		if (fActiveChange == null)
 			return null;
 		return fActiveChange.getAffectedObjects();
+	}
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects.
+	public Object[] getAllAffectedObjects() {
+		if (fActiveChange == null)
+			return null;
+		return fActiveChange.getAllAffectedObjects();
 	}
 
 	public void addContext(IUndoContext context) {

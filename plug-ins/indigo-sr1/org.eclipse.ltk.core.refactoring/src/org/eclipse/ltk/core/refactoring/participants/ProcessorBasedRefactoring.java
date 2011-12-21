@@ -35,30 +35,39 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.IRefactoringCoreStatusCodes;
 import org.eclipse.ltk.core.refactoring.Refactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedProcessor;
+import org.eclipse.ltk.core.refactoring.codingspectator.IWatchedRefactoring;
+import org.eclipse.ltk.core.refactoring.codingspectator.Logger;
 import org.eclipse.ltk.internal.core.refactoring.Messages;
 import org.eclipse.ltk.internal.core.refactoring.ParticipantDescriptor;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 
 /**
- * An base implementation for refactorings that are split into
- * one refactoring processor and 0..n participants.
+ * An base implementation for refactorings that are split into one refactoring processor and 0..n
+ * participants.
  * <p>
- * This class can be subclassed by clients wishing to provide a special
- * refactoring which uses a processor/participant architecture.
+ * This class can be subclassed by clients wishing to provide a special refactoring which uses a
+ * processor/participant architecture.
  * </p>
- * <p>Since 3.4, this class is non abstract and can be instantiated. {@link #getProcessor()} will
- * return the processor passed in {@link #ProcessorBasedRefactoring(RefactoringProcessor)} or
- * the processor set by {@link #setProcessor(RefactoringProcessor)}.
+ * <p>
+ * Since 3.4, this class is non abstract and can be instantiated. {@link #getProcessor()} will
+ * return the processor passed in {@link #ProcessorBasedRefactoring(RefactoringProcessor)} or the
+ * processor set by {@link #setProcessor(RefactoringProcessor)}.
  *
  * @since 3.0
+ * 
+ * @author Mohsen Vakilian, nchen - Logged refactorings with fatal errors while checking initial
+ *         conditions.
  */
-public class ProcessorBasedRefactoring extends Refactoring {
+public class ProcessorBasedRefactoring extends Refactoring implements IWatchedRefactoring {
 
 	private static final String PERF_CHECK_CONDITIONS= "org.eclipse.ltk.core.refactoring/perf/participants/checkConditions"; //$NON-NLS-1$
+
 	private static final String PERF_CREATE_CHANGES= "org.eclipse.ltk.core.refactoring/perf/participants/createChanges"; //$NON-NLS-1$
 
 	private RefactoringProcessor fProcessor;
@@ -73,6 +82,7 @@ public class ProcessorBasedRefactoring extends Refactoring {
 
 	private static class ProcessorChange extends CompositeChange {
 		private Map/*<Change, RefactoringParticipant>*/ fParticipantMap;
+
 		private List/*<RefactoringParticipant>*/ fPreChangeParticipants; // can be null
 
 		public ProcessorChange(String name) {
@@ -124,8 +134,8 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Creates a new processor based refactoring. Clients must override {@link #getProcessor()} to return a processor or set the
-	 * processor with {@link #setProcessor(RefactoringProcessor)}.
+	 * Creates a new processor based refactoring. Clients must override {@link #getProcessor()} to
+	 * return a processor or set the processor with {@link #setProcessor(RefactoringProcessor)}.
 	 *
 	 * @deprecated use {@link #ProcessorBasedRefactoring(RefactoringProcessor)} instead
 	 */
@@ -144,10 +154,11 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Return the processor associated with this refactoring. The
-	 * method must not return <code>null</code>. Implementors can override this method
-	 * to return the processor to be used by this refactoring. Since 3.4, this method returns the processor passed in
-	 * {@link #ProcessorBasedRefactoring(RefactoringProcessor)} or by {@link #setProcessor(RefactoringProcessor)}.
+	 * Return the processor associated with this refactoring. The method must not return
+	 * <code>null</code>. Implementors can override this method to return the processor to be used
+	 * by this refactoring. Since 3.4, this method returns the processor passed in
+	 * {@link #ProcessorBasedRefactoring(RefactoringProcessor)} or by
+	 * {@link #setProcessor(RefactoringProcessor)}.
 	 *
 	 * @return the processor associated with this refactoring
 	 */
@@ -156,8 +167,8 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Sets the processor associated with this refactoring. The
-	 * processor must not be <code>null</code>.
+	 * Sets the processor associated with this refactoring. The processor must not be
+	 * <code>null</code>.
 	 *
 	 * @param processor the processor associated with this refactoring
 	 *
@@ -169,14 +180,13 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Checks whether the refactoring is applicable to the elements to be
-	 * refactored or not.
+	 * Checks whether the refactoring is applicable to the elements to be refactored or not.
 	 * <p>
-	 * This default implementation forwards the call to the refactoring
-	 * processor.
+	 * This default implementation forwards the call to the refactoring processor.
 	 * </p>
-	 * @return <code>true</code> if the refactoring is applicable to the
-	 *         elements; otherwise <code>false</code> is returned.
+	 * 
+	 * @return <code>true</code> if the refactoring is applicable to the elements; otherwise
+	 *         <code>false</code> is returned.
 	 * @throws CoreException if the test fails
 	 */
 	public final boolean isApplicable() throws CoreException {
@@ -202,6 +212,9 @@ public class ProcessorBasedRefactoring extends Refactoring {
 
 		result.merge(getProcessor().checkInitialConditions(new SubProgressMonitor(pm, 8)));
 		if (result.hasFatalError()) {
+			//CODINGSPECTATOR
+			logUnavailableRefactoring(result);
+
 			pm.done();
 			return result;
 		}
@@ -357,16 +370,13 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Returns the text change for the given element or <code>null</code>
-	 * if a text change doesn't exist. This method only returns a valid
-	 * result during change creation. Outside of change creation always
-	 * <code>null</code> is returned.
+	 * Returns the text change for the given element or <code>null</code> if a text change doesn't
+	 * exist. This method only returns a valid result during change creation. Outside of change
+	 * creation always <code>null</code> is returned.
 	 *
-	 * @param element the element to be modified for which a text change
-	 *  is requested
+	 * @param element the element to be modified for which a text change is requested
 	 *
-	 * @return the text change or <code>null</code> if no text change exists
-	 *  for the element
+	 * @return the text change or <code>null</code> if no text change exists for the element
 	 *
 	 * @since 3.1
 	 */
@@ -377,20 +387,16 @@ public class ProcessorBasedRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Adapts the refactoring to the given type. The adapter is resolved
-	 * as follows:
+	 * Adapts the refactoring to the given type. The adapter is resolved as follows:
 	 * <ol>
-	 *   <li>the refactoring itself is checked whether it is an instance
-	 *       of the requested type.</li>
-	 *   <li>its processor is checked whether it is an instance of the
-	 *       requested type.</li>
+	 * <li>the refactoring itself is checked whether it is an instance of the requested type.</li>
+	 * <li>its processor is checked whether it is an instance of the requested type.</li>
 	 *   <li>the request is delegated to the super class.</li>
 	 * </ol>
 	 *
 	 * @param clazz the adapter class to look up
 	 *
-	 * @return the requested adapter or <code>null</code>if no adapter
-	 *  exists.
+	 * @return the requested adapter or <code>null</code>if no adapter exists.
 	 */
 	public Object getAdapter(Class clazz) {
 		if (clazz.isInstance(this))
@@ -442,4 +448,30 @@ public class ProcessorBasedRefactoring extends Refactoring {
 			}
 		}
 	}
+
+	/////////////////
+	//CODINGSPECTATOR
+	/////////////////
+
+	protected void logUnavailableRefactoring(RefactoringStatus refactoringStatus) {
+		if (isRefWizOpenOpCheckedInitConds()) {
+			if (fProcessor instanceof IWatchedProcessor) {
+				IWatchedProcessor watchedProcessor= (IWatchedProcessor)fProcessor;
+				Logger.logUnavailableRefactoringEvent(watchedProcessor.getDescriptorID(), watchedProcessor.getJavaProjectName(), watchedProcessor.getCodeSnippetInformation(),
+						refactoringStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL));
+				unsetRefWizOpenOpCheckedInitConds();
+			}
+		}
+	}
+
+	public RefactoringDescriptor getSimpleRefactoringDescriptor(RefactoringStatus refactoringStatus) {
+		if (!isWatched())
+			throw new UnsupportedOperationException();
+		return ((IWatchedProcessor)fProcessor).getSimpleRefactoringDescriptor(refactoringStatus);
+	}
+
+	public boolean isWatched() {
+		return fProcessor instanceof IWatchedProcessor;
+	}
+
 }

@@ -28,13 +28,16 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 
 /**
- * Represents a composite change. Composite changes can be marked
- * as synthetic. A synthetic composite changes might not be rendered
- * in the refactoring preview tree to save display real-estate.
+ * Represents a composite change. Composite changes can be marked as synthetic. A synthetic
+ * composite changes might not be rendered in the refactoring preview tree to save display
+ * real-estate.
  * <p>
  * Clients may subclass this class.
  * </p>
  *
+ * @author Stas Negara - Added getAllAffectedObjects() (in order to avoid changing
+ *         getAffectedObjects())
+ * 
  * @see Change
  *
  * @since 3.0
@@ -42,26 +45,28 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 public class CompositeChange extends Change {
 
 	private String fName;
+
 	private List fChanges;
+
 	private boolean fIsSynthetic;
+
 	private Change fUndoUntilException;
 
 	/**
 	 * Creates a new composite change with the given name.
 	 *
-	 * @param name the human readable name of the change. Will
-	 *  be used to display the change in the user interface
+	 * @param name the human readable name of the change. Will be used to display the change in the
+	 *            user interface
 	 */
 	public CompositeChange(String name) {
 		this(name, new ArrayList(2));
 	}
 
 	/**
-	 * Creates a new composite change with the given name and array
-	 * of children.
+	 * Creates a new composite change with the given name and array of children.
 	 *
-	 * @param name the human readable name of the change. Will
-	 *  be used to display the change in the user interface
+	 * @param name the human readable name of the change. Will be used to display the change in the
+	 *            user interface
 	 * @param children the initial array of children
 	 */
 	public CompositeChange(String name, Change[] children) {
@@ -79,8 +84,7 @@ public class CompositeChange extends Change {
 	/**
 	 * Returns whether this change is synthetic or not.
 	 *
-	 * @return <code>true</code>if this change is synthetic; otherwise
-	 *  <code>false</code>
+	 * @return <code>true</code>if this change is synthetic; otherwise <code>false</code>
 	 */
 	public boolean isSynthetic() {
 		return fIsSynthetic;
@@ -101,8 +105,8 @@ public class CompositeChange extends Change {
 	}
 
 	/**
-	 * Adds the given change to the list of children. The change to be added
-	 * can be <code>null</code>. Adding a "null" change does nothing.
+	 * Adds the given change to the list of children. The change to be added can be
+	 * <code>null</code>. Adding a "null" change does nothing.
 	 *
 	 * @param change the change to add
 	 */
@@ -126,9 +130,8 @@ public class CompositeChange extends Change {
 	}
 
 	/**
-	 * Merges the children of the given composite change into this
-	 * change. This means the changes are removed from the given
-	 * composite change and added to this change.
+	 * Merges the children of the given composite change into this change. This means the changes
+	 * are removed from the given composite change and added to this change.
 	 *
 	 * @param change the change to merge
 	 */
@@ -146,8 +149,8 @@ public class CompositeChange extends Change {
 	 *
 	 * @param change the change to remove
 	 *
-	 * @return <code>true</code> if the change contained the given
-	 *  child; otherwise <code>false</code> is returned
+	 * @return <code>true</code> if the change contained the given child; otherwise
+	 *         <code>false</code> is returned
 	 */
 	public boolean remove(Change change) {
 		Assert.isNotNull(change);
@@ -162,8 +165,7 @@ public class CompositeChange extends Change {
 	/**
 	 * Removes all changes from this composite change.
 	 *
-	 * @return the list of changes removed from this composite
-	 * change
+	 * @return the list of changes removed from this composite change
 	 *
 	 * @since 3.1
 	 */
@@ -176,8 +178,7 @@ public class CompositeChange extends Change {
 	/**
 	 * Returns the children managed by this composite change.
 	 *
-	 * @return the children of this change or an empty array if no
-	 *  children exist
+	 * @return the children of this change or an empty array if no children exist
 	 */
 	public Change[] getChildren() {
 		return (Change[])fChanges.toArray(new Change[fChanges.size()]);
@@ -202,8 +203,7 @@ public class CompositeChange extends Change {
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * The composite change sends <code>initializeValidationData</code> to all its
-	 * children.
+	 * The composite change sends <code>initializeValidationData</code> to all its children.
 	 * </p>
 	 * <p>
 	 * Client are allowed to extend this method.
@@ -221,10 +221,10 @@ public class CompositeChange extends Change {
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * The composite change sends <code>isValid</code> to all its children
-	 * until the first one returns a status with a severity of <code>FATAL
-	 * </code>. If one of the children throws an exception the remaining children
-	 * will not receive the <code>isValid</code> call.
+	 * The composite change sends <code>isValid</code> to all its children until the first one
+	 * returns a status with a severity of <code>FATAL
+	 * </code>. If one of the children throws an exception the remaining children will not receive
+	 * the <code>isValid</code> call.
 	 * </p>
 	 * <p>
 	 * Client are allowed to extend this method.
@@ -249,11 +249,11 @@ public class CompositeChange extends Change {
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * The composite change sends <code>perform</code> to all its <em>enabled</em>
-	 * children. If one of the children throws an exception the remaining children
-	 * will not receive the <code>perform</code> call. In this case the method <code>
-	 * getUndoUntilException</code> can be used to get an undo object containing the
-	 * undo objects of all executed children.
+	 * The composite change sends <code>perform</code> to all its <em>enabled</em> children. If one
+	 * of the children throws an exception the remaining children will not receive the
+	 * <code>perform</code> call. In this case the method <code>
+	 * getUndoUntilException</code> can be used to get an undo object containing the undo objects of
+	 * all executed children.
 	 * </p>
 	 * <p>
 	 * Client are allowed to extend this method.
@@ -302,6 +302,7 @@ public class CompositeChange extends Change {
 					public void run() throws Exception {
 						changeToDispose.dispose();
 					}
+
 					public void handleException(Throwable exception) {
 						RefactoringCorePlugin.log(exception);
 					}
@@ -346,11 +347,11 @@ public class CompositeChange extends Change {
 	}
 
 	/**
-	 * Note: this is an internal method and should not be overridden outside of
-	 * the refactoring framework.
+	 * Note: this is an internal method and should not be overridden outside of the refactoring
+	 * framework.
 	 * <p>
-	 * The method gets called if one of the changes managed by this
-	 * composite change generates an exception when performed.
+	 * The method gets called if one of the changes managed by this composite change generates an
+	 * exception when performed.
 	 * </p>
 	 *
 	 * @param change the change that caused the exception
@@ -363,16 +364,15 @@ public class CompositeChange extends Change {
 	}
 
 	/**
-	 * Note: this is an internal method and should not be overridden outside of
-	 * the refactoring framework.
+	 * Note: this is an internal method and should not be overridden outside of the refactoring
+	 * framework.
 	 * <p>
-	 * The method gets called if one of the changes managed by this
-	 * composite change generates an operation canceled exception when
-	 * performed.
+	 * The method gets called if one of the changes managed by this composite change generates an
+	 * operation canceled exception when performed.
 	 * </p>
 	 *
-	 * @return <code>true</code> if performing the change should
-	 *  continue on cancel; otherwise <code>false</code>
+	 * @return <code>true</code> if performing the change should continue on cancel; otherwise
+	 *         <code>false</code>
      *
      * @since 3.1
      *
@@ -383,17 +383,17 @@ public class CompositeChange extends Change {
 	}
 
 	/**
-	 * Note: this is an internal method and should not be overridden outside of
-	 * the refactoring framework.
+	 * Note: this is an internal method and should not be overridden outside of the refactoring
+	 * framework.
 	 * <p>
-	 * The method gets called if the execution of this change got canceled,
-	 * but <code>internalContinueOnCancel</code> returned true.
+	 * The method gets called if the execution of this change got canceled, but
+	 * <code>internalContinueOnCancel</code> returned true.
 	 * </p>
 	 *
 	 * @param change the change to perform
 	 *
-	 * @return <code>true</code> if the given change should be performed although
-	 *  the execution got canceled; otherwise <code>false</code>
+	 * @return <code>true</code> if the given change should be performed although the execution got
+	 *         canceled; otherwise <code>false</code>
 	 *
 	 * @since 3.1
 	 *
@@ -406,8 +406,8 @@ public class CompositeChange extends Change {
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * The composite change sends <code>dispose</code> to all its children. It is guaranteed
-	 * that all children receive the <code>dispose</code> call.
+	 * The composite change sends <code>dispose</code> to all its children. It is guaranteed that
+	 * all children receive the <code>dispose</code> call.
 	 * </p>
 	 */
 	public void dispose() {
@@ -417,6 +417,7 @@ public class CompositeChange extends Change {
 				public void run() throws Exception {
 					change.dispose();
 				}
+
 				public void handleException(Throwable exception) {
 					RefactoringCorePlugin.log(exception);
 				}
@@ -425,28 +426,27 @@ public class CompositeChange extends Change {
 	}
 
 	/**
-	 * Returns the undo object containing all undo changes of those children
-	 * that got successfully executed while performing this change. Returns
-	 * <code>null</code> if all changes were executed successfully.
+	 * Returns the undo object containing all undo changes of those children that got successfully
+	 * executed while performing this change. Returns <code>null</code> if all changes were executed
+	 * successfully.
 	 * <p>
 	 * This method is not intended to be overridden or extended.
 	 * </p>
-	 * @return the undo object containing all undo changes of those children
-	 *  that got successfully executed while performing this change
+	 * 
+	 * @return the undo object containing all undo changes of those children that got successfully
+	 *         executed while performing this change
 	 */
 	public Change getUndoUntilException() {
 		return fUndoUntilException;
 	}
 
 	/**
-	 * Hook to create an undo change. The method should be overridden
-	 * by clients which provide their own composite change to create
-	 * a corresponding undo change.
+	 * Hook to create an undo change. The method should be overridden by clients which provide their
+	 * own composite change to create a corresponding undo change.
 	 *
-	 * @param childUndos the child undo. The undo edits appear in the
-	 *  list in the reverse order of their execution. So the first
-	 *  change in the array is the undo change of the last change
-	 *  that got executed.
+	 * @param childUndos the child undo. The undo edits appear in the list in the reverse order of
+	 *            their execution. So the first change in the array is the undo change of the last
+	 *            change that got executed.
 	 *
 	 * @return the undo change
 	 */
@@ -467,6 +467,21 @@ public class CompositeChange extends Change {
 			if (affectedObjects == null)
 				return null;
 			result.addAll(Arrays.asList(affectedObjects));
+		}
+		return result.toArray();
+	}
+
+	//CODINGSPECTATOR: Added the method getAllAffectedObjects().
+	public Object[] getAllAffectedObjects() {
+		if (fChanges.size() == 0)
+			return new Object[0];
+		List result= new ArrayList();
+		for (Iterator iter= fChanges.iterator(); iter.hasNext();) {
+			Change change= (Change)iter.next();
+			Object[] affectedObjects= change.getAllAffectedObjects();
+			if (affectedObjects != null) {
+				result.addAll(Arrays.asList(affectedObjects));
+			}
 		}
 		return result.toArray();
 	}

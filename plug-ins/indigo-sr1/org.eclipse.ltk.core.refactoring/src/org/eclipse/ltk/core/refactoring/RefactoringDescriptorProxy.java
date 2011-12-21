@@ -20,27 +20,23 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryServi
 /**
  * Proxy of a refactoring descriptor.
  * <p>
- * Refactoring descriptors are exposed by the refactoring history service as
- * lightweight proxy objects. Refactoring descriptor proxies have an efficient
- * memory representation and are therefore suited to model huge refactoring
- * histories which may be displayed in the user interface. The refactoring
- * history service may hand out any number of proxies for a given descriptor.
- * Proxies only offer direct access to the time stamp {@link #getTimeStamp()},
- * the related project {@link #getProject()} and description
- * {@link #getDescription()}. In order to access other information such as
- * arguments and comments, clients have to call
- * {@link #requestDescriptor(IProgressMonitor)} in order to obtain the actual
- * refactoring descriptor.
+ * Refactoring descriptors are exposed by the refactoring history service as lightweight proxy
+ * objects. Refactoring descriptor proxies have an efficient memory representation and are therefore
+ * suited to model huge refactoring histories which may be displayed in the user interface. The
+ * refactoring history service may hand out any number of proxies for a given descriptor. Proxies
+ * only offer direct access to the time stamp {@link #getTimeStamp()}, the related project
+ * {@link #getProject()} and description {@link #getDescription()}. In order to access other
+ * information such as arguments and comments, clients have to call
+ * {@link #requestDescriptor(IProgressMonitor)} in order to obtain the actual refactoring
+ * descriptor.
  * </p>
  * <p>
- * Refactoring descriptors are potentially heavy weight objects which should not
- * be held on to. Proxies which are retrieved from external sources (e.g. not
- * from the local refactoring history service) may encapsulate refactoring
- * descriptors and should not be held in memory as well.
+ * Refactoring descriptors are potentially heavy weight objects which should not be held on to.
+ * Proxies which are retrieved from external sources (e.g. not from the local refactoring history
+ * service) may encapsulate refactoring descriptors and should not be held in memory as well.
  * </p>
  * <p>
- * All time stamps are measured as the milliseconds since January 1, 1970,
- * 00:00:00 GMT.
+ * All time stamps are measured as the milliseconds since January 1, 1970, 00:00:00 GMT.
  * </p>
  * <p>
  * Note: this class is not intended to be subclassed by clients.
@@ -52,6 +48,10 @@ import org.eclipse.ltk.internal.core.refactoring.history.RefactoringHistoryServi
  * @since 3.2
  *
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @authors nchen, Mohsen Vakilian - Added a parameter to store the folder where this
+ *          RefactoringDescriptorProxy comes from (used during the process of obtaining a
+ *          RefactoringDescriptor)
  */
 public abstract class RefactoringDescriptorProxy extends PlatformObject implements Comparable {
 
@@ -99,10 +99,20 @@ public abstract class RefactoringDescriptorProxy extends PlatformObject implemen
 	/**
 	 * Returns the time stamp of this refactoring.
 	 *
-	 * @return the time stamp, or <code>-1</code> if no time information is
-	 *         available
+	 * @return the time stamp, or <code>-1</code> if no time information is available
 	 */
 	public abstract long getTimeStamp();
+
+	//CODINGSPECTATOR
+	private String refactoringDescriptorFolder;
+
+	public String getRefactoringDescriptorFolder() {
+		return refactoringDescriptorFolder;
+	}
+
+	public void setRefactoringDescriptorFolder(String refactoringProjectFolder) {
+		this.refactoringDescriptorFolder= refactoringProjectFolder;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -118,12 +128,10 @@ public abstract class RefactoringDescriptorProxy extends PlatformObject implemen
 	/**
 	 * Resolves this proxy and returns the associated refactoring descriptor.
 	 * <p>
-	 * Clients must connect to the refactoring history service first before
-	 * calling this method.
+	 * Clients must connect to the refactoring history service first before calling this method.
 	 * </p>
 	 *
-	 * @param monitor
-	 *            the progress monitor to use, or <code>null</code>
+	 * @param monitor the progress monitor to use, or <code>null</code>
 	 *
 	 * @return the refactoring descriptor, or <code>null</code>
 	 */

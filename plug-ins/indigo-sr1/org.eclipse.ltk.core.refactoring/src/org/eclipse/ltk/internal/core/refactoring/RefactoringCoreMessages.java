@@ -190,6 +190,16 @@ public final class RefactoringCoreMessages extends NLS {
 
 	public static String RefactoringHistoryService_deleting_refactorings;
 
+	public static String RefactoringHistoryService_GenericVersionNumber;
+
+	public static String CodingSpectator_FeatureBundleName;
+
+	public static String RefactoringHistoryService_RefactoringsCanceledDirectory;
+
+	public static String RefactoringHistoryService_RefactoringsUnavailableDirectory;
+
+	public static String RefactoringHistoryService_RefactoringsPerformedDirectory;
+
 	public static String RefactoringHistoryService_resolving_information;
 
 	public static String RefactoringHistoryService_retrieving_history;

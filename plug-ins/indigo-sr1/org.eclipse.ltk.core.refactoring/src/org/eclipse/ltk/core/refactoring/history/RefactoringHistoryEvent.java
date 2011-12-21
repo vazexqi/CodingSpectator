@@ -16,14 +16,12 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
 
 /**
- * Event object to communicate refactoring history notifications. These include
- * the addition and removal of refactoring descriptors to the global refactoring
- * history index.
+ * Event object to communicate refactoring history notifications. These include the addition and
+ * removal of refactoring descriptors to the global refactoring history index.
  * <p>
- * Refactoring history listeners must be prepared to receive notifications from
- * a background thread. Any UI access occurring inside the implementation must
- * be properly synchronized using the techniques specified by the client's
- * widget library.
+ * Refactoring history listeners must be prepared to receive notifications from a background thread.
+ * Any UI access occurring inside the implementation must be properly synchronized using the
+ * techniques specified by the client's widget library.
  * </p>
  * <p>
  * Note: this class is not intended to be instantiated by clients.
@@ -35,30 +33,50 @@ import org.eclipse.ltk.core.refactoring.RefactoringDescriptorProxy;
  * @since 3.2
  *
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * 
+ * @author Mohsen Vakilia, nchen: Added new events to capture disallowed, performed and canceled refactorings
  */
 public final class RefactoringHistoryEvent {
 
+	//CODINGSPECTATOR
+	
 	/**
-	 * Event type indicating that a refactoring descriptor has been added to its
-	 * associated history (value 4)
+	 * Event type indicating that a refactoring could not be invoked (invalid selection) (value 32)
+	 */
+	public static final int CODINGSPECTATOR_REFACTORING_UNAVAILABLE= 32;
+
+	
+	/**
+	 * Event type indicating that a refactoring descriptor has been performed (value 16)
+	 */
+	public static final int CODINGSPECTATOR_REFACTORING_PERFORMED= 16;
+
+	/**
+	 * Event type indicating that a refactoring descriptor has been canceled (value 8)
+	 */
+	public static final int CODINGSPECTATOR_REFACTORING_CANCELED= 8;
+
+	/**
+	 * Event type indicating that a refactoring descriptor has been added to its associated history
+	 * (value 4)
 	 */
 	public static final int ADDED= 4;
 
 	/**
-	 * Event type indicating that a refactoring descriptor has been deleted from
-	 * its associated history (value 3)
+	 * Event type indicating that a refactoring descriptor has been deleted from its associated
+	 * history (value 3)
 	 */
 	public static final int DELETED= 3;
 
 	/**
-	 * Event type indicating that a refactoring descriptor has been popped from
-	 * the history stack (value 2)
+	 * Event type indicating that a refactoring descriptor has been popped from the history stack
+	 * (value 2)
 	 */
 	public static final int POPPED= 2;
 
 	/**
-	 * Event type indicating that a refactoring descriptor has been pushed to
-	 * the history stack (value 1)
+	 * Event type indicating that a refactoring descriptor has been pushed to the history stack
+	 * (value 1)
 	 */
 	public static final int PUSHED= 1;
 
@@ -74,12 +92,9 @@ public final class RefactoringHistoryEvent {
 	/**
 	 * Creates a new refactoring history event.
 	 *
-	 * @param service
-	 *            the refactoring history service
-	 * @param type
-	 *            the event type
-	 * @param proxy
-	 *            the refactoring descriptor proxy
+	 * @param service the refactoring history service
+	 * @param type the event type
+	 * @param proxy the refactoring descriptor proxy
 	 */
 	public RefactoringHistoryEvent(final IRefactoringHistoryService service, final int type, final RefactoringDescriptorProxy proxy) {
 		Assert.isNotNull(service);
@@ -92,10 +107,9 @@ public final class RefactoringHistoryEvent {
 	/**
 	 * Returns the refactoring descriptor proxy.
 	 * <p>
-	 * Depending on the event, this proxy may refer to an inexisting refactoring
-	 * and cannot be resolved to a refactoring descriptor. Clients should also
-	 * be prepared to receive notifications for unknown refactorings, which are
-	 * discriminated by their special id
+	 * Depending on the event, this proxy may refer to an inexisting refactoring and cannot be
+	 * resolved to a refactoring descriptor. Clients should also be prepared to receive
+	 * notifications for unknown refactorings, which are discriminated by their special id
 	 * {@link RefactoringDescriptor#ID_UNKNOWN};
 	 * </p>
 	 *

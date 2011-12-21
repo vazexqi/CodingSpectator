@@ -17,6 +17,7 @@ import org.eclipse.core.filesystem.IFileStore;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.eclipse.core.resources.IProject;
@@ -31,8 +32,11 @@ import org.eclipse.ltk.internal.core.refactoring.RefactoringCoreMessages;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 
 /**
- * Refactoring history listener which continuously persists the global
- * refactoring history in the different history locations.
+ * Refactoring history listener which continuously persists the global refactoring history in the
+ * different history locations.
+ * 
+ * @author Mohsen Vakilian, nchen - Added the support for serializing three new types of events,
+ *         i.e. canceled, performed and unavailable refactorings to the proper directories
  *
  * @since 3.2
  */
@@ -43,15 +47,38 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 	 */
 	public void historyNotification(final RefactoringHistoryEvent event) {
 		Assert.isNotNull(event);
+		serialize(event, getHistoryFolder(event));
+	}
+
+	private IFileStore getHistoryFolder(final RefactoringHistoryEvent event) {
+
+
+		Assert.isNotNull(event);
 		switch (event.getEventType()) {
+		//CODINGSPECTATOR: Added the following three cases for handling the events that CodingSpectator is interested in.
+			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED:
+				return getCodingSpectatorFileStore(RefactoringHistoryService.getRefactoringHistoryCanceledFolder());
+
+			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED:
+				return getCodingSpectatorFileStore(RefactoringHistoryService.getRefactoringHistoryPerformedFolder());
+
+			case RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE:
+				return getCodingSpectatorFileStore(RefactoringHistoryService.getRefactoringHistoryUnavailableFolder());
+
 			case RefactoringHistoryEvent.ADDED:
 			case RefactoringHistoryEvent.PUSHED:
-			case RefactoringHistoryEvent.POPPED: {
+			case RefactoringHistoryEvent.POPPED:
+				return getEclipseRefactoringHistoryFileStore();
+		}
+		return null;
+	}
+
+	private void serialize(final RefactoringHistoryEvent event, IFileStore store) {
 				final RefactoringDescriptorProxy proxy= event.getDescriptor();
 				final long stamp= proxy.getTimeStamp();
 				if (stamp >= 0) {
 					final String name= proxy.getProject();
-					final IFileStore store= EFS.getLocalFileSystem().getStore(RefactoringCorePlugin.getDefault().getStateLocation()).getChild(RefactoringHistoryService.NAME_HISTORY_FOLDER);
+
 					if (name != null && !"".equals(name)) { //$NON-NLS-1$
 						final IProject project= ResourcesPlugin.getWorkspace().getRoot().getProject(name);
 						if (project.isAccessible()) {
@@ -87,31 +114,56 @@ public final class RefactoringHistorySerializer implements IRefactoringHistoryLi
 					}
 				}
 			}
+
+	//CODINGSPECTATOR: Extracted the method getFileStore().
+	public static IFileStore getEclipseRefactoringHistoryFileStore() {
+		return EFS.getLocalFileSystem().getStore(getEclipseRefactoringHistoryFolder());
+	}
+
+	//CODINGSPECTATOR: Extracted this method from getFileStore().
+	public static IPath getEclipseRefactoringHistoryFolder() {
+		return RefactoringCorePlugin.getDefault().getStateLocation().append(RefactoringHistoryService.NAME_HISTORY_FOLDER);
+	}
+
+	//CODINGSPECTATOR: The path to where CodingSpectator stores the refactoring histories it captures.
+	public static IPath getCodingSpectatorRefactoringHistoryFolder() {
+		return RefactoringCorePlugin.getDefault().getStateLocation().append("codingspectator"); //$NON-NLS-1$
 		}
+
+	//CODINGSPECTATOR: Serialize these events to the CodingSpectator data folder
+	private IFileStore getCodingSpectatorFileStore(String historyFolder) {
+		return EFS.getLocalFileSystem().getStore(getCodingSpectatorRefactoringHistoryFolder().append(historyFolder));
 	}
 
 	/**
 	 * Processes the history event.
 	 *
-	 * @param store
-	 *            the file store
-	 * @param event
-	 *            the history event
-	 * @param name
-	 *            the project name, or <code>null</code>
-	 * @throws CoreException
-	 *             if an error occurs
+	 * @param store the file store
+	 * @param event the history event
+	 * @param name the project name, or <code>null</code>
+	 * @throws CoreException if an error occurs
 	 */
 	private void processHistoryNotification(final IFileStore store, final RefactoringHistoryEvent event, final String name) throws CoreException {
 		final RefactoringDescriptorProxy proxy= event.getDescriptor();
 		final int type= event.getEventType();
 		final RefactoringHistoryManager manager= new RefactoringHistoryManager(store, name);
 		final NullProgressMonitor monitor= new NullProgressMonitor();
-		if (type == RefactoringHistoryEvent.PUSHED || type == RefactoringHistoryEvent.ADDED) {
+		if (isInsertion(type)) {
 			final RefactoringDescriptor descriptor= proxy.requestDescriptor(monitor);
 			if (descriptor != null)
 				manager.addRefactoringDescriptor(descriptor, type == RefactoringHistoryEvent.ADDED, monitor);
-		} else if (type == RefactoringHistoryEvent.POPPED)
+		} else
 			manager.removeRefactoringDescriptors(new RefactoringDescriptorProxy[] { proxy}, monitor, RefactoringCoreMessages.RefactoringHistoryService_updating_history);
+	}
+
+	private boolean isInsertion(final int type) {
+		//CODINGSPECTATOR: Made the two events of CodingSpectator get inserted to the history file.
+		if (type == RefactoringHistoryEvent.PUSHED || type == RefactoringHistoryEvent.ADDED || type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_CANCELED
+				|| type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_PERFORMED || type == RefactoringHistoryEvent.CODINGSPECTATOR_REFACTORING_UNAVAILABLE)
+			return true;
+		else if (type == RefactoringHistoryEvent.POPPED)
+			return false;
+		else
+			throw new IllegalArgumentException();
 	}
 }
