@@ -36,7 +36,46 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * 
+ * 
+ * @author Stas Negara - Added field resourceListener and assigned a default stub to it. Added event
+ *         notifications to methods move, copy, delete, and refreshLocal.
+ * 
+ */
 public abstract class Resource extends PlatformObject implements IResource, ICoreConstants, Cloneable, IPathRequestor {
+	
+	//CODINGSPECTATOR
+	public static IResourceListener resourceListener= new IResourceListener() { //default stub that does nothing
+
+		public void createdResource(IResource resource, int updateFlags, boolean success) {//stub
+		}
+
+		public void movedResource(IResource resource, IPath destination, int updateFlags, boolean success) {//stub
+		}
+
+		public void copiedResource(IResource resource, IPath destination, int updateFlags, boolean success) {//stub
+		}
+
+		public void deletedResource(IResource resource, int updateFlags, boolean success) {//stub
+		}
+
+		public void externallyModifiedResource(IResource resource, boolean isDeleted) {//stub
+		}
+
+		public void externallyCreatedResource(IResource resource) {//stub
+		}
+
+		public void refreshedResource(IResource resource) {//stub
+		}
+
+		public void savedFile(IFile file, boolean success) {//stub
+		}
+
+		public void savedCompareEditor(Object compareEditor, boolean success) {//stub
+		}
+	};
+
 	/* package */IPath path;
 	/* package */Workspace workspace;
 
@@ -533,6 +572,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			checkValidPath(destination, getType(), false);
 			Resource destResource = workspace.newResource(destination, getType());
 			final ISchedulingRule rule = workspace.getRuleFactory().copyRule(this, destResource);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.copy API
@@ -540,10 +581,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				assertCopyRequirements(destination, getType(), updateFlags);
 				workspace.beginOperation(true);
 				getLocalManager().copy(this, destResource, updateFlags, Policy.subMonitorFor(monitor, Policy.opWork));
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.copiedResource(this, destination, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -559,6 +602,7 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 		copy(destDesc, updateFlags, monitor);
 	}
 
+	//CODINGSPECTATOR - Note: Did not find the callers of this method. Anyway, copying of children will be recorded in copy(IPath...).
 	/* (non-Javadoc)
 	 * Used when a folder is to be copied to a project.
 	 * @see IResource#copy(IProjectDescription, int, IProgressMonitor)
@@ -756,6 +800,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			monitor.beginTask("", Policy.totalWork * 1000); //$NON-NLS-1$
 			monitor.subTask(message);
 			final ISchedulingRule rule = workspace.getRuleFactory().deleteRule(this);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// if there is no resource then there is nothing to delete so just return
@@ -798,10 +844,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				//make sure the rule factory is cleared on project deletion
 				if (getType() == PROJECT)
 					((Rules) workspace.getRuleFactory()).setRuleFactory((IProject) this, null);
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.deletedResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork * 1000));
 			}
 		} finally {
@@ -1572,6 +1620,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 			checkValidPath(destination, getType(), false);
 			Resource destResource = workspace.newResource(destination, getType());
 			final ISchedulingRule rule = workspace.getRuleFactory().moveRule(this, destResource);
+			//CODINGSPECTATOR - added variable 'fullSuccess' and all code accessing it.
+			boolean fullSuccess= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				// The following assert method throws CoreExceptions as stated in the IResource.move API
@@ -1601,10 +1651,12 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				}
 				if (!tree.getStatus().isOK())
 					throw new ResourceException(tree.getStatus());
+				fullSuccess= success;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.movedResource(this, destination, updateFlags, fullSuccess);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
@@ -1667,6 +1719,8 @@ public abstract class Resource extends PlatformObject implements IResource, ICor
 				Policy.log(e);
 				throw e;
 			} finally {
+				//CODINGSPECTATOR
+				resourceListener.refreshedResource(this);
 				workspace.endOperation(rule, build, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {

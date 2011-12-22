@@ -21,6 +21,11 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * 
+ * @author Stas Negara - Added sending a notification about creating the folder in method create.
+ * 
+ */
 public class Folder extends Container implements IFolder {
 	protected Folder(IPath path, Workspace container) {
 		super(path, container);
@@ -88,6 +93,8 @@ public class Folder extends Container implements IFolder {
 			monitor.beginTask(message, Policy.totalWork);
 			checkValidPath(path, FOLDER, true);
 			final ISchedulingRule rule = workspace.getRuleFactory().createRule(this);
+			//CODINGSPECTATOR - added variable 'success' and all code accessing it.
+			boolean success= false;
 			try {
 				workspace.prepareOperation(rule, monitor);
 				IFileStore store = getStore();
@@ -106,10 +113,12 @@ public class Folder extends Container implements IFolder {
 				}
 				internalCreate(updateFlags, local, Policy.subMonitorFor(monitor, Policy.opWork));
 				workspace.getAliasManager().updateAliases(this, getStore(), IResource.DEPTH_ZERO, monitor);
+				success= true;
 			} catch (OperationCanceledException e) {
 				workspace.getWorkManager().operationCanceled();
 				throw e;
 			} finally {
+				resourceListener.createdResource(this, updateFlags, success);
 				workspace.endOperation(rule, true, Policy.subMonitorFor(monitor, Policy.endOpWork));
 			}
 		} finally {
