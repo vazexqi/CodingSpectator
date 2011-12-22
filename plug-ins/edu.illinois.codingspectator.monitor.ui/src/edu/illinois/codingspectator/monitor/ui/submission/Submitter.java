@@ -14,18 +14,16 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.security.storage.StorageException;
-import org.tmatesoft.svn.core.SVNAuthenticationException;
-import org.tmatesoft.svn.core.SVNErrorCode;
 import org.tmatesoft.svn.core.SVNException;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 import edu.illinois.codingspectator.monitor.core.authentication.AuthenticationProvider;
-import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SVNManager;
 import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 import edu.illinois.codingspectator.monitor.core.submission.URLManager;
 import edu.illinois.codingspectator.monitor.ui.Activator;
 import edu.illinois.codingspectator.monitor.ui.AuthenticationPrompter;
+import edu.illinois.codingspectator.monitor.ui.ExceptionUtil;
 import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
 
 /**
@@ -35,17 +33,20 @@ import edu.illinois.codingspectator.monitor.ui.prefs.PrefsFacade;
  * 
  * @author Mohsen Vakilian
  * @author nchen
+ * @author Stas Negara
  * 
  */
 public class Submitter {
 
-	public static final String WATCHED_DIRECTORY= CodingSpectatorDataPlugin.getStorageLocation().toOSString();
+	public static final String WATCHED_FOLDER= CodingSpectatorDataPlugin.getStorageLocation().toOSString();
 
 	private SVNManager svnManager;
 
 	private AuthenticationProvider authenticationProvider;
 
 	private Collection<SubmitterListener> submitterListeners= new ArrayList<SubmitterListener>();
+
+	private String uuid;
 
 	public Submitter() {
 
@@ -55,31 +56,38 @@ public class Submitter {
 		this.authenticationProvider= provider;
 	}
 
-	public void authenticateAndInitialize() throws InitializationException,
-			FailedAuthenticationException, CanceledDialogException {
+	public enum AuthenticanResult {
+		CANCELED_AUTHENTICATION, WRONG_AUTHENTICATION, OK
+	}
+
+	public String getUUID() {
+		return uuid;
+	}
+
+	public AuthenticanResult authenticate() throws InitializationException {
+		AuthenticationProvider prompter= getAuthenticationPrompterLazily();
+		AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
+
+		if (isCanceled(authenticationInfo)) {
+			return AuthenticanResult.CANCELED_AUTHENTICATION;
+		}
+
+		uuid= PrefsFacade.getInstance().getAndSetUUIDLazily();
+		URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), uuid);
+		svnManager= new SVNManager(urlManager, WATCHED_FOLDER, authenticationInfo.getUserName(), authenticationInfo.getPassword());
+		if (!svnManager.isAuthenticationInformationValid()) {
+			return AuthenticanResult.WRONG_AUTHENTICATION;
+		}
+
 		try {
-			AuthenticationProvider prompter= getAuthenticationPrompterLazily();
-			AuthenticationInfo authenticationInfo= prompter.findUsernamePassword();
-
-			if (isCanceled(authenticationInfo))
-				throw new CanceledDialogException();
-
-			URLManager urlManager= new URLManager(prompter.getRepositoryURL(), authenticationInfo.getUserName(), PrefsFacade
-					.getInstance().getAndSetUUIDLazily());
-			svnManager= new SVNManager(urlManager, WATCHED_DIRECTORY, authenticationInfo.getUserName(), authenticationInfo.getPassword());
-			svnManager.doImport();
-			svnManager.doCheckout();
 			prompter.saveAuthenticationInfo(authenticationInfo);
-		} catch (SVNAuthenticationException e) {
-			throw new FailedAuthenticationException(e);
-		} catch (SVNException e) {
-			throw new InitializationException(e);
 		} catch (StorageException e) {
 			throw new InitializationException(e);
 		} catch (IOException e) {
 			throw new InitializationException(e);
 		}
 
+		return AuthenticanResult.OK;
 	}
 
 	private boolean isCanceled(AuthenticationInfo authenticationInfo) {
@@ -99,14 +107,78 @@ public class Submitter {
 		try {
 			submitterListeners= lookupExtensions();
 			notifyPreSubmit();
-			svnManager.doAdd();
-			svnManager.doCommit();
+			resolveLocalAndRemoteDataMismatches();
+			doSVNSubmit();
 			submissionSucceeded= true;
-		} catch (Throwable e) {
-			throw new SubmissionException(e);
+		} catch (Throwable e1) {
+			try {
+				removeLocalAndRemoteData("Deleted the remote data because the submission failed with the following exception:\n" + ExceptionUtil.getStackTrace(e1));
+				doSVNSubmit();
+				submissionSucceeded= true;
+			} catch (Throwable e2) {
+				throw new SubmissionException(e2);
+			}
 		} finally {
 			notifyPostSubmit(submissionSucceeded);
 		}
+	}
+
+	/**
+	 * The following method is useful for testing purposes. This methods notifies all
+	 * SubmitterListeners. Since some of the listeners transfer their data to the watched folder
+	 * when they get notified, this method gathers all the collected data into the watched folder.
+	 */
+	public void notifyListeners() {
+		submitterListeners= lookupExtensions();
+		notifyPreSubmit();
+		notifyPreCommit();
+		notifyPostSubmit(true);
+	}
+
+	private void doSVNSubmit() throws SVNException {
+		svnManager.doImportIfNecessary();
+		svnManager.doCleanupIfPossible();
+		svnManager.doCheckout();
+		svnManager.doAdd();
+		notifyPreCommit();
+		svnManager.doCommit();
+		updateLocalRevisionNumbers();
+	}
+
+	/**
+	 * 
+	 * This method is used by an automated test.
+	 * 
+	 * @return
+	 * @throws SVNException
+	 */
+	public boolean doLocalAndRemoteDataMatch() throws SVNException {
+		return svnManager.isWatchedFolderInRepository() && svnManager.isWorkingDirectoryValid() && !svnManager.isLocalWorkCopyOutdated();
+	}
+
+	private void resolveLocalAndRemoteDataMismatches() throws SVNException, CoreException {
+		if (svnManager.isWatchedFolderInRepository()) {
+			if (!svnManager.isWorkingDirectoryValid()) {
+				removeRemoteData("Deleted the remote data because the personal worskpace existed on the remote repository, but, the local working copy was invalid.");
+			} else if (svnManager.isLocalWorkCopyOutdated()) {
+				removeLocalAndRemoteData("Deleted the remote data because the local working copy was outdated.");
+			}
+		} else {
+			svnManager.removeSVNMetaData();
+		}
+	}
+
+	private void removeRemoteData(String svnMessage) throws SVNException {
+		svnManager.doDelete(svnMessage);
+	}
+
+	private void removeLocalAndRemoteData(String svnMessage) throws CoreException, SVNException {
+		svnManager.removeSVNMetaData();
+		removeRemoteData(svnMessage);
+	}
+
+	private void updateLocalRevisionNumbers() throws SVNException {
+		svnManager.doUpdate();
 	}
 
 	private Collection<SubmitterListener> lookupExtensions() {
@@ -141,6 +213,22 @@ public class Submitter {
 		}
 	}
 
+	private void notifyPreCommit() {
+		for (final SubmitterListener submitterListener : submitterListeners) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					submitterListener.preCommit();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
+		}
+	}
+
 	private void notifyPostSubmit(final boolean succeeded) {
 		for (final SubmitterListener submitterListener : submitterListeners) {
 			SafeRunner.run(new ISafeRunnable() {
@@ -161,39 +249,15 @@ public class Submitter {
 	 * @return true if it can obtain a valid credential or false if the user has forcibly canceled
 	 * @throws InitializationException
 	 */
-	public boolean promptUntilValidCredentialsOrCanceled()
-			throws InitializationException {
-		while (true) {
-			try {
-				authenticateAndInitialize();
-			} catch (FailedAuthenticationException authEx) {
-				try {
-					getAuthenticationPrompterLazily().clearSecureStorage();
-				} catch (IOException ioEx) {
-					throw new InitializationException(ioEx);
-				}
-				continue;
-			} catch (CanceledDialogException e) {
+	public boolean promptUntilValidCredentialsOrCanceled() throws InitializationException {
+		AuthenticanResult authenticanResult;
+		do {
+			authenticanResult= authenticate();
+			if (authenticanResult == AuthenticanResult.CANCELED_AUTHENTICATION) {
 				return false;
-			} catch (InitializationException initException) {
-				if (initException.isLockedDirectoryError()) {
-					tryCleanup();
-				} else {
-					throw initException;
-				}
 			}
-			break;
-		}
+		} while (authenticanResult != AuthenticanResult.OK);
 		return true;
-	}
-
-	protected void tryCleanup() throws InitializationException {
-		try {
-			LocalSVNManager svnManager= new LocalSVNManager(WATCHED_DIRECTORY);
-			svnManager.doCleanup();
-		} catch (SVNException e) {
-			throw new InitializationException(e);
-		}
 	}
 
 	@SuppressWarnings("serial")
@@ -209,34 +273,7 @@ public class Submitter {
 	}
 
 	@SuppressWarnings("serial")
-	public static class FailedAuthenticationException extends
-			SubmitterException {
-
-		public FailedAuthenticationException() {
-			super();
-		}
-
-		public FailedAuthenticationException(Throwable e) {
-			super(e);
-		}
-	}
-
-	@SuppressWarnings("serial")
-	public static class CanceledDialogException extends SubmitterException {
-
-		public CanceledDialogException() {
-			super();
-		}
-
-		public CanceledDialogException(Throwable e) {
-			super(e);
-		}
-	}
-
-	@SuppressWarnings("serial")
 	public static class InitializationException extends SubmitterException {
-
-		private SVNErrorCode errorCode;
 
 		public InitializationException(Throwable e) {
 			super(e);
@@ -244,16 +281,8 @@ public class Submitter {
 
 		public InitializationException(SVNException e) {
 			super(e);
-			errorCode= e.getErrorMessage().getErrorCode();
 		}
 
-		public boolean isLockedDirectoryError() {
-			if (errorCode != null) {
-				return errorCode.equals(SVNErrorCode.WC_LOCKED);
-			} else {
-				return false;
-			}
-		}
 	}
 
 	@SuppressWarnings("serial")

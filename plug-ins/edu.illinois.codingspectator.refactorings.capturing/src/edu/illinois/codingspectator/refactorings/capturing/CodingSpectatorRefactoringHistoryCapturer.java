@@ -40,6 +40,10 @@ public class CodingSpectatorRefactoringHistoryCapturer implements SubmitterListe
 	}
 
 	@Override
+	public void preCommit() {
+	}
+
+	@Override
 	public void postSubmit(boolean succeeded) {
 	}
 

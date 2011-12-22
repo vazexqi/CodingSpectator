@@ -5,8 +5,8 @@ package edu.illinois.codingspectator.monitor.core.submission;
 
 /**
  * 
- * Note that {@link #postSubmit(boolean)} can be called without a preceding {@link #preSubmit()}
- * call.
+ * Note that {@link #postSubmit(boolean)} can be called without preceding {@link #preSubmit()}
+ * and/or {@link #preCommit()} calls.
  * 
  * @author Mohsen Vakilian
  * @author nchen
@@ -16,6 +16,8 @@ package edu.illinois.codingspectator.monitor.core.submission;
 public interface SubmitterListener {
 
 	public void preSubmit();
+
+	public void preCommit();
 
 	public void postSubmit(boolean succeeded);
 

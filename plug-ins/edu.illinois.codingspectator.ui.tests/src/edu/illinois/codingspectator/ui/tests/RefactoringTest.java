@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 import edu.illinois.codingspectator.efs.EFSFile;
+import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;
 
@@ -112,11 +113,17 @@ public abstract class RefactoringTest {
 		bot.prepareJavaTextInEditor(getRefactoringKind(), getTestFileFullName());
 	}
 
+	private void gatherAllDataInWatchedFolder() {
+		new Submitter().notifyListeners();
+	}
+
 	protected void waitUntilActualLogsExist() throws CoreException {
 		bot.waitUntil(new DefaultCondition() {
 
 			@Override
 			public boolean test() throws Exception {
+				gatherAllDataInWatchedFolder();
+
 				boolean allActualLogsAreEmpty= true;
 				for (LogChecker logChecker : getLogCheckers()) {
 					allActualLogsAreEmpty&= logChecker.actualLogExists();
@@ -208,8 +215,8 @@ public abstract class RefactoringTest {
 
 	@Test
 	public final void logsShouldBeCorrect() throws Exception {
-		doGenerateExpectedFiles();
 		waitUntilActualLogsExist();
+		doGenerateExpectedFiles();
 		doLogsShouldBeCorrect();
 	}
 

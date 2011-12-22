@@ -7,5 +7,5 @@ Bundle-Vendor: University of Illinois
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.mergehistories
-Bundle-ClassPath: lib/jcommander-1.7.jar
-Require-Bundle: edu.illinois.codingspectator.file.utils
+Require-Bundle: edu.illinois.codingspectator.file.utils,
+ org.jcommander

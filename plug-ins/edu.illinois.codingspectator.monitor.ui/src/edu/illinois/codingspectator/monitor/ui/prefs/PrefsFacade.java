@@ -58,7 +58,7 @@ public class PrefsFacade {
 		if (!isUUIDSet()) {
 			String generatedID;
 			if (RunningModes.isInProductionMode()) {
-				generatedID= new LocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyRepositoryUUID();
+				generatedID= new LocalSVNManager(Submitter.WATCHED_FOLDER).getSVNWorkingCopyRepositoryUUID();
 				if (generatedID.isEmpty()) {
 					generatedID= UUIDGenerator.generateID();
 				}

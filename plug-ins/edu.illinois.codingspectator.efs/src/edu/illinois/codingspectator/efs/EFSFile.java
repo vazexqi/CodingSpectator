@@ -67,6 +67,10 @@ public class EFSFile {
 		getFileStore().copy(destination.getFileStore(), EFS.OVERWRITE, null);
 	}
 
+	public void moveTo(EFSFile destination) throws CoreException {
+		getFileStore().move(destination.getFileStore(), EFS.OVERWRITE, null);
+	}
+
 	public void mkdir() throws CoreException {
 		getFileStore().mkdir(EFS.NONE, null);
 	}

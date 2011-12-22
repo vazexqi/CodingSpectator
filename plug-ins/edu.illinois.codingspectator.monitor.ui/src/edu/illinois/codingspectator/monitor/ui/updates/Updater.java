@@ -24,6 +24,10 @@ public class Updater implements SubmitterListener {
 	}
 
 	@Override
+	public void preCommit() {
+	}
+
+	@Override
 	public void postSubmit(boolean succeeded) {
 		if (isEclipseVersionIsSupported()) {
 			new BundleUpdater(getUpdateSiteURL(), "edu.illinois.codingspectator.feature.group").checkForUpdates();

@@ -6,6 +6,9 @@ package edu.illinois.codingspectator.saferecorder;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.SafeRunner;
+
 import edu.illinois.codingspectator.monitor.core.submission.SubmitterListener;
 
 /**
@@ -27,13 +30,40 @@ public class RecorderSubmitterListener implements SubmitterListener {
 
 	@Override
 	public void preSubmit() {
-		for (SafeRecorder safeRecorderInstance : safeRecorderInstances) {
-			safeRecorderInstance.aboutToSubmit();
+	}
+
+	@Override
+	public void preCommit() {
+		for (final SafeRecorder safeRecorderInstance : safeRecorderInstances) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					safeRecorderInstance.aboutToCommit();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
 		}
 	}
 
 	@Override
 	public void postSubmit(boolean succeeded) {
+		for (final SafeRecorder safeRecorderInstance : safeRecorderInstances) {
+			SafeRunner.run(new ISafeRunnable() {
+
+				@Override
+				public void run() throws Exception {
+					safeRecorderInstance.commitCompleted();
+				}
+
+				@Override
+				public void handleException(Throwable exception) {
+				}
+			});
+		}
 	}
 
 }
