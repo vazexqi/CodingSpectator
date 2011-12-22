@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.helpers;
+package edu.illinois.codingtracker.compare.helpers;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,10 +32,13 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import edu.illinois.codingtracker.helpers.ResourceHelper;
+
 /**
  * 
  * @author Stas Negara
- * @author Mohsen Vakilian - Extracted this class from CodeChangeTracker
+ * @author Mohsen Vakilian - Extracted this class from CodeChangeTracker and moved it to this
+ *         plug-in.
  * 
  */
 @SuppressWarnings("restriction")
