@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;

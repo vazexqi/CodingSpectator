@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;

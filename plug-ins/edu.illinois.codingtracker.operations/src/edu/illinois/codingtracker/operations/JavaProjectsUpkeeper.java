@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 

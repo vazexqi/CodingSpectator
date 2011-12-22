@@ -14,7 +14,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 
 /**
  * 

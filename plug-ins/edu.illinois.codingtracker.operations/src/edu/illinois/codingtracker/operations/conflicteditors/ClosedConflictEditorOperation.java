@@ -5,8 +5,8 @@ package edu.illinois.codingtracker.operations.conflicteditors;
 
 import org.eclipse.compare.internal.CompareEditor;
 
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 

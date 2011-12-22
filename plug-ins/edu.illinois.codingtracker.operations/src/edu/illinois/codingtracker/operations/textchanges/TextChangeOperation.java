@@ -13,7 +13,7 @@ import org.eclipse.text.undo.DocumentUndoManagerRegistry;
 import org.eclipse.text.undo.IDocumentUndoManager;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingtracker.operations.UserOperation;

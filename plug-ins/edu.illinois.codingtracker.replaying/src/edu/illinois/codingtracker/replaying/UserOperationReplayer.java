@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
