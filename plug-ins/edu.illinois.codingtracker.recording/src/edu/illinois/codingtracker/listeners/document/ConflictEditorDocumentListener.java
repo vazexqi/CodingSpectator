@@ -6,7 +6,7 @@ package edu.illinois.codingtracker.listeners.document;
 import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.jface.text.DocumentEvent;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 
 /**
  * 

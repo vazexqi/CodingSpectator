@@ -19,8 +19,8 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.history.RefactoringExecutionEvent;
 
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.FileRevision;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;

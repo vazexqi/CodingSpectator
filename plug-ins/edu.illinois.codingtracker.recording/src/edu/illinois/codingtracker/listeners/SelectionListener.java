@@ -13,8 +13,8 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.listeners.document.ConflictEditorDocumentListener;
 
 /**

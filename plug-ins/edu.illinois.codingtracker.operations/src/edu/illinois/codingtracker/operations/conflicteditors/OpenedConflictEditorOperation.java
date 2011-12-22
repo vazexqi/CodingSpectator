@@ -8,7 +8,7 @@ import org.eclipse.compare.internal.CompareEditor;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationLexer;

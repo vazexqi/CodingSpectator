@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.jdt.project.manipulation.JavaProjectHelper;
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
