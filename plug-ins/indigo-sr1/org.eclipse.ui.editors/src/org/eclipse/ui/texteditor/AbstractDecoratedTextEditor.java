@@ -47,6 +47,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
@@ -169,6 +170,10 @@ import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
  * but used in many heavy weight (and especially source editing) editors, such as line numbers,
  * change ruler, overview ruler, print margins, current line highlighting, etc.
  *
+ * @author Stas Negara - Added getHackedViewer() in order to get public access to the source viewer.
+ *         Overrode method createUndoRedoActions() such that while replaying the approvers are not
+ *         registered in order to avoid confirmation dialog boxes.
+ * 
  * @since 3.0
  */
 public abstract class AbstractDecoratedTextEditor extends StatusTextEditor {
@@ -312,6 +317,20 @@ public abstract class AbstractDecoratedTextEditor extends StatusTextEditor {
 	 * @since 3.5
 	 */
 	private FocusedInformationPresenter fInformationPresenter;
+
+	//CODINGSPECTATOR: Added the method getHackedViewer.
+	public final ISourceViewer getHackedViewer() {
+		return getSourceViewer();
+	}
+
+	//CODINGSPECTATOR: Overrode method createUndoRedoActions() such that while replaying the approvers are not registered in order to avoid confirmation dialog boxes.
+	protected void createUndoRedoActions() {
+		if (Platform.getBundle("edu.illinois.codingtracker.replaying") != null) { //$NON-NLS-1$
+			//do nothing
+		} else {
+			super.createUndoRedoActions();
+		}
+	}
 
 	/*
 	 * Workaround for IllegalAccessError thrown because we are accessing
