@@ -17,6 +17,7 @@ import java.util.HashSet;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.IPropertyChangeNotifier;
+import org.eclipse.core.internal.resources.Resource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -70,6 +71,8 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 /**
  * A CompareEditor takes a ICompareEditorInput as input.
  * Most functionality is delegated to the ICompareEditorInput.
+ * 
+ * @author Stas Negara - Added sending notifications about saved editor contents in method doSave.
  */
 public class CompareEditor extends EditorPart implements IReusableEditor, ISaveablesSource, IPropertyChangeListener, ISaveablesLifecycleListener {
 
@@ -538,8 +541,16 @@ public class CompareEditor extends EditorPart implements IReusableEditor, ISavea
 		
 		WorkspaceModifyOperation operation= new WorkspaceModifyOperation() {
 			public void execute(IProgressMonitor pm) throws CoreException {
-				if (input instanceof CompareEditorInput)
-					((CompareEditorInput)input).saveChanges(pm);
+				if (input instanceof CompareEditorInput) {
+					//CODINGSPECTATOR: added variable 'success' and all code accessing it, and a try/finally block
+					boolean success= false;
+					try {
+						((CompareEditorInput)input).saveChanges(pm);
+						success= true;
+					} finally {
+						Resource.resourceListener.savedCompareEditor(CompareEditor.this, success);
+					}
+				}
 			}
 		};
 

@@ -141,6 +141,9 @@ import org.eclipse.ui.texteditor.ITextEditorExtension3;
  * implement this interface to call {@link #setDirty(boolean)} when the dirty state of
  * any of the models managed by the subclass change dirty state.
  * 
+ * @author Stas Negara - Added getContentViewer() (in order to be able to get to its contained
+ *         viewers)
+ * 
  * @see CompareUI
  * @see CompareEditorInput
  */
@@ -237,6 +240,14 @@ public abstract class CompareEditorInput extends PlatformObject implements IEdit
 				return creator.getInput();
 			return null;
 		}
+	}
+
+	//CODINGSPECTATOR: Added the method getContentViewer. 
+	public Viewer getContentViewer() {
+		if (fContentInputPane != null) {
+			return fContentInputPane.getViewer();
+		}
+		return null;
 	}
 
 	/**
