@@ -513,6 +513,9 @@ public class RefactoringWizardDialog2 extends Dialog implements IWizardContainer
 	}
 
 	protected void handleShellCloseEvent() {
+		//CODINGSPECTATOR: Record the time of quitting the refactoring by clicking on the close button or pressing ESC. 
+		fWizard.addNavigationHistoryItem(new NavigationHistoryItem(fCurrentPage.getName(), NavigationHistoryItem.QUIT_DIALOG_EVENT));
+
 		if (fActiveRunningOperations == 0) {
 			if (fWizard.performCancel())
 				super.handleShellCloseEvent();

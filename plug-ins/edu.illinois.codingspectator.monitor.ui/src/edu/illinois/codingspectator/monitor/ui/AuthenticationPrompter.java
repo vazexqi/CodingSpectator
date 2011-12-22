@@ -60,10 +60,8 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 			private UserValidationDialog setupDialog(final String loginDestination) {
 				Shell shell= getDefaultParentShell();
 				String dialogTitle= MessageFormat.format(Messages.AuthenticationPrompter_DialogTitle, loginDestination);
-				String username= new LocalSVNManager(Submitter.WATCHED_DIRECTORY).getSVNWorkingCopyUsername();
-				String message= MessageFormat.format(dialogState.getDialogDescription(), loginDestination);
-
-				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, message, username, dialogState.getDialogType());
+				String username= new LocalSVNManager(Submitter.WATCHED_FOLDER).getSVNWorkingCopyUsername();
+				UserValidationDialog dialog= new UserValidationDialog(shell, dialogTitle, dialogState.getDialogDescription(), username, dialogState.getDialogType());
 				return dialog;
 			}
 
@@ -87,7 +85,7 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	}
 
 
-	private AuthenticationInfo askOrLookupCredentials() throws IOException {
+	private AuthenticationInfo lookupCredentialsOrAsk() throws IOException {
 		AuthenticationInfo authenticationInfo= secureStorageFacade.getStoredAuthenticationInfo();
 		if (authenticationInfo != null) {
 			return authenticationInfo;
@@ -101,13 +99,10 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 		secureStorageFacade.saveAuthenticationInfo(authenticationInfo);
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.illinois.refactoringwatcher.monitor.authentication.AuthenticationProvider#findUsernamePassword()
-	 */
 	@Override
 	public AuthenticationInfo findUsernamePassword() {
 		try {
-			return askOrLookupCredentials();
+			return lookupCredentialsOrAsk();
 		} catch (Exception ex) {
 			Status errorStatus= Activator.getDefault().createErrorStatus(Messages.AuthenticationPrompter_FailureMessage, ex);
 			Activator.getDefault().log(errorStatus);

@@ -8,7 +8,8 @@ Bundle-Vendor: University of Illinois
 Require-Bundle: org.eclipse.core.runtime,
  org.tmatesoft.svn.eclipse,
  org.eclipse.equinox.p2.core,
- org.eclipse.equinox.security
+ org.eclipse.equinox.security,
+ edu.illinois.codingspectator.efs
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: edu.illinois.codingspectator.monitor.core,

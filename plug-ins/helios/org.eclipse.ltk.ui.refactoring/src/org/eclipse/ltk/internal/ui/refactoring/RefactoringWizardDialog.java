@@ -183,4 +183,9 @@ public class RefactoringWizardDialog extends WizardDialog {
 		super.backPressed();
 	}
 
+	protected void handleShellCloseEvent() {
+		getRefactoringWizard().addNavigationHistoryItem(new NavigationHistoryItem(getCurrentPage().getName(), NavigationHistoryItem.QUIT_DIALOG_EVENT));
+		super.handleShellCloseEvent();
+	}
+
 }
