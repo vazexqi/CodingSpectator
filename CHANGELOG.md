@@ -1,3 +1,9 @@
+v1.0.0.201112231337 (Helios), v1.0.0.201112231437 (Indigo), and v1.0.0.201112231504 (Indigo SR1)
+=================================================================================================
+- Released a version of CodingSpectator for Eclipse Indigo SR1 (issues [#327](https://github.com/vazexqi/CodingSpectator/issues/327), [#328](https://github.com/vazexqi/CodingSpectator/issues/328), [#330](https://github.com/vazexqi/CodingSpectator/issues/330), [#338](https://github.com/vazexqi/CodingSpectator/issues/338)).
+- Moved release independent bundles to `plug-ins/common` (issue [#339](https://github.com/vazexqi/CodingSpectator/issues/339)).
+- Extracted `edu.illinois.codingtracker.compare.helpers` from `edu.illinois.codingtracker.helpers` (issue [#260](https://github.com/vazexqi/CodingSpectator/issues/260)).
+
 v1.0.0.201111031900 (Helios) and v1.0.0.201111031917 (Indigo)
 =============================================================
 - Fixed the redundant detection of inconsistency between local and remote data (issue [#333](https://github.com/vazexqi/CodingSpectator/issues/333)).
