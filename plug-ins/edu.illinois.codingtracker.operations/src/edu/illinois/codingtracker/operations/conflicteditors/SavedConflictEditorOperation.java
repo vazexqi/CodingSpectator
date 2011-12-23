@@ -7,7 +7,7 @@ import org.eclipse.compare.internal.CompareEditor;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;

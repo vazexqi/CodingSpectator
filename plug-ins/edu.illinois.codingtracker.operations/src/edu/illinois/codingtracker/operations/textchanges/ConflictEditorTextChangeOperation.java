@@ -9,7 +9,7 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ui.IEditorPart;
 
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.helpers.EditorHelper;
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 
