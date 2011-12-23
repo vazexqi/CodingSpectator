@@ -3,7 +3,7 @@ captured-by-codingspectator,code-snippet,code-snippet-with-selection-markers,cod
 - Original project: 'Prj'
 - Method name: 'm'
 - Destination type: 'C'
-- Declared visibility: 'private'",false,Extract method 'm',0,false,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{C.java,,,m,,,Prj,ECLIPSE,PERFORMED,false,82 4,,,0,,,1312764803883,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+- Declared visibility: 'private'",false,Extract method 'm',0,false,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{C.java,,,m,,,Prj,ECLIPSE,PERFORMED,false,82 4,,,0,,,1312764803883,cs-000,1.0,2,00-0-0-0-000
 true,"
 public class C {
 
@@ -23,7 +23,7 @@ public class C {
 - Method name: 'extracted'
 - Destination type: 'C'
 - Declared visibility: 'private'",false,Extract method 'extracted',0,false,786434,Sun Aug 07 19:53:12 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{C.java,false,false,extracted,995,"{[Extract Method,BEGIN_REFACTORING,1312764791619],[ExtractMethodInputPage,Cancel,1312764792614],}",Prj,CODINGSPECTATOR,CANCELLED,false,63 25,63 25,"System.out.println(""HI"");",1,"<OK
->",,1312764792642,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+>",,1312764792642,cs-000,1.0,2,00-0-0-0-000
 true,"
 public class C {
 
@@ -43,7 +43,7 @@ public class C {
 - Method name: 'm'
 - Destination type: 'C'
 - Declared visibility: 'private'",false,Extract method 'm',0,false,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{C.java,false,false,m,2198,"{[Extract Method,BEGIN_REFACTORING,1312764801244],[ExtractMethodInputPage,OK,1312764803442],}",Prj,CODINGSPECTATOR,PERFORMED,false,82 4,82 4,"""HI""",1,"<OK
->",,1312764803956,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+>",,1312764803956,cs-000,1.0,2,00-0-0-0-000
 true,"
 public class C {
 
@@ -63,7 +63,7 @@ public class C {
 - Method name: 'extracted'
 - Destination type: 'C'
 - Declared visibility: 'private'",false,Extract method 'extracted',0,false,786434,Sun Aug 07 19:48:23 CDT 2011,org.eclipse.jdt.ui.extract.method,/src<{C.java,true,false,extracted,,,Prj,CODINGSPECTATOR,PERFORMED,false,82 4,82 4,"""HI""",1,"<OK
->",,1312764503333,cs-000,1.0,2,00000000-0000-0000-0000-000000000000
+>",,1312764503333,cs-000,1.0,2,00-0-0-0-000
 true,"
 public class C {
 
@@ -73,14 +73,14 @@ public /* CODINGSPECTATOR: SELECTION BEGINS */class/* CODINGSPECTATOR: SELECTION
 
 }
 ",1.0.0.qualifier,,,,CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring,,,0,Sun Aug 07 19:48:05 CDT 2011,org.eclipse.jdt.ui.rename.unknown.java.element,,,,,,,Prj,CODINGSPECTATOR,UNAVAILABLE,,,8 5,class,6,"Operation unavailable on the current selection.
-Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",,1312764485051,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:48:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312764503318,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:48:23 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764503463,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:48:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312764503463,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:48:33 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764513324,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312764803660,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:53:23 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764803882,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312764803883,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:53:39 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764819462,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,REDONE,,,,,,,,1312764803883,cs-000,,,00000000-0000-0000-0000-000000000000
-,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:53:42 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764822375,cs-000,,,00000000-0000-0000-0000-000000000000
+Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",,1312764485051,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:48:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312764503318,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:48:23 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764503463,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:48:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312764503463,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:48:33 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764513324,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,PERFORMED,,,,,,,,1312764803660,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:53:23 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764803882,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,UNDONE,,,,,,,,1312764803883,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:53:39 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764819462,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,[new] Started refactoring,,,,,,786434,Sun Aug 07 19:53:23 CDT 2011,org.eclipse.jdt.ui.extract.method,,,,,,,Prj,CODINGTRACKER,REDONE,,,,,,,,1312764803883,cs-000,,,00-0-0-0-000
+,,,1.0.0.qualifier,Finished refactoring,,,,,,,Sun Aug 07 19:53:42 CDT 2011,,,,,,,,,CODINGTRACKER,,,,,,,,true,1312764822375,cs-000,,,00-0-0-0-000

@@ -3,7 +3,7 @@ captured-by-codingspectator,code-snippet,code-snippet-with-selection-markers,cod
 - Original project: 'Prj'
 - Original element: 'code.C.m()'
 - Renamed element: 'code.C.n()'
-- Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,,,,n,,,,Prj,ECLIPSE,PERFORMED,true,,,0,,1306524870684,cs-000,1.0,00000000-0000-0000-0000-000000000000
+- Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,,,,n,,,,Prj,ECLIPSE,PERFORMED,true,,,0,,1306524870684,cs-000,1.0,00-0-0-0-000
 true,"package code;
 
 public class C {
@@ -32,7 +32,7 @@ public class C {
 - Original element: 'code.C.a'
 - Textual move only
 - Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:22 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,5298,"{[Textual Move,BEGIN_REFACTORING,1306524857276],[PreviewPage,Previe&w >,1306524860849],[PreviewPage,Cancel,1306524862574],}",org.eclipse.jdt.ui.moveMembers,Prj,CODINGSPECTATOR,CANCELLED,,38 0,,1,"<OK
->",1306524862665,cs-000,1.0,00000000-0000-0000-0000-000000000000
+>",1306524862665,cs-000,1.0,00-0-0-0-000
 true,"package code;
 
 public class C {
@@ -61,7 +61,7 @@ public class C {
 - Original element: 'code.C.a'
 - Textual move only
 - Update references to refactored element",,,Move field,/src<code{D.java,/src<code{C.java[C^a,589830,Fri May 27 14:34:40 CDT 2011,org.eclipse.jdt.ui.move,,false,false,1,,1692,"{[Textual Move,BEGIN_REFACTORING,1306524878385],[MoveInputPage,OK,1306524880077],}",org.eclipse.jdt.ui.moveMembers,Prj,CODINGSPECTATOR,PERFORMED,,38 0,,1,"<OK
->",1306524880268,cs-000,1.0,00000000-0000-0000-0000-000000000000
+>",1306524880268,cs-000,1.0,00-0-0-0-000
 true,"package code;
 
 public class C {
@@ -89,7 +89,7 @@ public class C {
 - Original element: 'code.C.m()'
 - Renamed element: 'code.C.n()'
 - Update references to refactored element",false,false,Rename method 'm',,,589830,Fri May 27 14:34:30 CDT 2011,org.eclipse.jdt.ui.rename.method,/src<code{C.java[C~m,false,false,,n,,,,Prj,CODINGSPECTATOR,PERFORMED,true,59 0,,1,"<OK
->",1306524870410,cs-000,1.0,00000000-0000-0000-0000-000000000000
+>",1306524870410,cs-000,1.0,00-0-0-0-000
 true,"package code;
 
 public class C {
@@ -101,4 +101,4 @@ public /* CODINGSPECTATOR: SELECTION BEGINS */class/* CODINGSPECTATOR: SELECTION
 
 }
 ",1.0.0.qualifier,,,,CODINGSPECTATOR: RefactoringDescriptor from an unavailable refactoring,,,0,Fri May 27 14:32:41 CDT 2011,org.eclipse.jdt.ui.rename.unknown.java.element,,,,,,,,,Prj,CODINGSPECTATOR,UNAVAILABLE,,22 5,class,6,"Operation unavailable on the current selection.
-Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",1306524761563,cs-000,,00000000-0000-0000-0000-000000000000
+Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable",1306524761563,cs-000,,00-0-0-0-000
