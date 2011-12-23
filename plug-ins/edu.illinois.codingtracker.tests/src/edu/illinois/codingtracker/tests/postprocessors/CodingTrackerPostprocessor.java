@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -30,14 +31,12 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private final boolean shouldOverwriteOutputFiles= true;
 
-	private final String rootFolder= "C:/Users/Stas/Desktop/Old CodingTracker format data";
 
 	@Ignore
 	@Test
 	public void execute() {
 		checkPostprocessingPreconditions();
-		UserOperation.isPostprocessing= true;
-		visitLocation(new File(rootFolder));
+		visitLocation(new File(Configuration.postprocessorRootFolderName));
 	}
 
 	private void visitLocation(File file) {

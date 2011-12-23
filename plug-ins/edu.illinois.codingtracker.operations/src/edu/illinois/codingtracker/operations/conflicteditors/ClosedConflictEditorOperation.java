@@ -7,7 +7,6 @@ import org.eclipse.compare.internal.CompareEditor;
 
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 
 /**
@@ -38,12 +37,12 @@ public class ClosedConflictEditorOperation extends ConflictEditorOperation {
 
 	@Override
 	public void replay() {
-		CompareEditor compareEditor= CompareEditorsUpkeeper.getEditor(editorID);
+		CompareEditor compareEditor= EditorHelper.getCompareEditor(editorID);
 		if (compareEditor == null) {
 			Debugger.debugWarning("Can not close non existing conflict editor:\n" + this);
 		} else {
 			EditorHelper.closeEditorSynchronously(compareEditor);
-			CompareEditorsUpkeeper.removeEditor(editorID);
+			EditorHelper.removeCompareEditor(editorID);
 		}
 	}
 

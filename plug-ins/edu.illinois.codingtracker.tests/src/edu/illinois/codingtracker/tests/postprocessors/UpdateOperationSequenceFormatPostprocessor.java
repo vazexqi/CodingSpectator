@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.tests.postprocessors;
 
 import java.util.List;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
@@ -34,7 +35,7 @@ public class UpdateOperationSequenceFormatPostprocessor extends CodingTrackerPos
 
 	@Override
 	protected void checkPostprocessingPreconditions() {
-		if (!UserOperation.isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			throw new RuntimeException("Set environment variable OLD_CODINGTRACKER_FORMAT to perform the format update correctly");
 		}
 	}

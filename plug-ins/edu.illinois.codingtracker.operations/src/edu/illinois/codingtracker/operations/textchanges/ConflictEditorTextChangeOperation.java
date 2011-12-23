@@ -9,7 +9,7 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ui.IEditorPart;
 
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
+import edu.illinois.codingtracker.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 
@@ -46,7 +46,7 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 	@Override
 	public void replay() throws ExecutionException, BadLocationException {
 		IEditorPart oldEditor= currentEditor;
-		currentEditor= CompareEditorsUpkeeper.getEditor(editorID);
+		currentEditor= EditorHelper.getCompareEditor(editorID);
 		if (currentEditor == null) {
 			//Sometimes, CodingTracker records document changes of closed conflict editors. This should not happen unless Eclipse 
 			//does not handle correctly certain scenarios, but we do not know yet which kind of scenarios cause this problem. 

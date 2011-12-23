@@ -8,6 +8,7 @@ import java.util.Date;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.ui.IEditorPart;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.Debugger;
 
 /**
@@ -17,18 +18,13 @@ import edu.illinois.codingtracker.helpers.Debugger;
  */
 public abstract class UserOperation {
 
-	public static final boolean isInTestMode= System.getenv("TEST_MODE") != null;
-
-	public static final boolean isOldFormat= System.getenv("OLD_CODINGTRACKER_FORMAT") != null;
-
-	public static boolean isPostprocessing= false;
-
 	//Made public to be able to assign when the replayer is loaded/reset
 	public static boolean isReplayedRefactoring= false;
 
 	protected static IEditorPart currentEditor= null;
 
 	private long timestamp;
+
 
 	public UserOperation() {
 		timestamp= System.currentTimeMillis();
@@ -52,7 +48,7 @@ public abstract class UserOperation {
 		}
 		initializeFrom(operationLexer);
 		timestamp= operationLexer.readLong();
-		if (timestamp < 0 && !isPostprocessing) {
+		if (timestamp < 0 && !Configuration.isInPostprocessMode) {
 			throw new RuntimeException("Operation has a negative timestamp:\n" + this);
 		}
 	}

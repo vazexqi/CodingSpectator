@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.Path;
 
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
-import edu.illinois.codingtracker.operations.CompareEditorsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -66,7 +65,7 @@ public class OpenedConflictEditorOperation extends ConflictEditorOperation {
 		IResource editedFile= ResourceHelper.findWorkspaceMember(new Path(editedFilePath));
 		ResourceHelper.checkResourceExists(editedFile, "Conflict editor file does not exist: " + this);
 		CompareUI.openCompareEditor(new DocumentCompareEditorInput(editedFile, initialContent));
-		CompareEditorsUpkeeper.addEditor(editorID, (CompareEditor)EditorHelper.getActiveEditor());
+		EditorHelper.addCompareEditor(editorID, (CompareEditor)EditorHelper.getActiveEditor());
 	}
 
 	@Override

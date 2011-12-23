@@ -41,6 +41,9 @@ public class ClosedFileOperation extends FileOperation {
 		if (fileEditor != null) {
 			EditorHelper.closeEditorSynchronously(fileEditor);
 		}
+		//If the currentEditor no longer exist, reset the corresponding field.
+		if (!EditorHelper.isExistingEditor(currentEditor)) {
+			currentEditor= null;
+		}
 	}
-
 }

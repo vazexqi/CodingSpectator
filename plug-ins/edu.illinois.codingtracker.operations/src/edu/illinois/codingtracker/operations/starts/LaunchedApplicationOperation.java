@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.operations.starts;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -63,7 +64,7 @@ public class LaunchedApplicationOperation extends UserOperation {
 		launchName= operationLexer.readString();
 		application= operationLexer.readString();
 		product= operationLexer.readString();
-		if (!isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			useProduct= operationLexer.readBoolean();
 		} else {
 			useProduct= Boolean.valueOf(operationLexer.readString());

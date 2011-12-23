@@ -6,6 +6,7 @@ package edu.illinois.codingtracker.operations.resources;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
@@ -49,7 +50,7 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		if (!isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			isDeleted= operationLexer.readBoolean();
 		} else {
 			isDeleted= false;

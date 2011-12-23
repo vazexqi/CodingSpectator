@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -43,7 +44,7 @@ public abstract class CommittedFileOperation extends SnapshotedFileOperation {
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		super.initializeFrom(operationLexer);
-		if (!isOldFormat) {
+		if (!Configuration.isOldFormat) {
 			revision= operationLexer.readString();
 			committedRevision= operationLexer.readString();
 		} else {
