@@ -13,7 +13,7 @@ def parse_options
     opts.banner = "Usage: #{File.basename(__FILE__)} [options]"
 
     $options[:release] = nil
-    opts.on('-r', '--eclipse-release release', 'Name of the Eclipse release to prepare feature patches for (indigo or helios)') do |release|
+    opts.on('-r', '--eclipse-release release', 'Name of the Eclipse release to prepare feature patches for (helios, indigo, or indigo-sr1)') do |release|
       $options[:release] = release
     end
 
