@@ -5,7 +5,7 @@
       version="1.4.0.qualifier"
       provider-name="Eclipse Packaging Project"
       license-feature="org.eclipse.platform"
-      license-feature-version="3.7.0.qualifier">
+      license-feature-version="3.7.1.qualifier">
 
    <description url="http://www.eclipse.org/epp/usagedata/index.php">
       The Usage Data Collector collects information
