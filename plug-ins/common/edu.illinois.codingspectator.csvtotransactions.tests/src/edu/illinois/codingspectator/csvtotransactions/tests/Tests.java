@@ -68,6 +68,16 @@ public class Tests {
 		testReports("01");
 	}
 
+	@Test
+	public void test02() throws CoreException, IOException {
+		testReports("02");
+	}
+
+	@Test
+	public void test03() throws CoreException, IOException {
+		testReports("03");
+	}
+
 	@After
 	public void cleanUp() throws CoreException {
 		actualFolder.delete();

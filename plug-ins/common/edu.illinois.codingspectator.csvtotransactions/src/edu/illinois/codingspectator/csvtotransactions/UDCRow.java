@@ -39,7 +39,7 @@ public class UDCRow implements CSVRow {
 	@Override
 	public boolean shouldBelongToTheTransactionOf(CSVRow csvRow) {
 		if (!(csvRow instanceof UDCRow)) {
-			return false;
+			throw new IllegalArgumentException("Expected a UDRow.");
 		}
 		UDCRow udcRow= (UDCRow)csvRow;
 		return getUser().equals(udcRow.getUser()) && Math.abs(getTimestamp() - udcRow.getTimestamp()) <= timeWindowInMinutes * 60 * 1000;
