@@ -12,6 +12,12 @@ import java.util.Map;
  */
 public class UDCRow implements CSVRow {
 
+	private static final String USER_ID_KEY= "userId";
+
+	private static final String TIME_KEY= "time";
+
+	private static final String DESCRIPTION_KEY= "description";
+
 	private Map<String, String> row;
 
 	private Transaction transaction;
@@ -19,27 +25,34 @@ public class UDCRow implements CSVRow {
 	private long timeWindowInMinutes;
 
 	public UDCRow(Map<String, String> row, long timeWindowInMinutes) {
+		if (!UDCRow.isValid(row)) {
+			throw new IllegalArgumentException("Invalid row:\n" + row.toString());
+		}
 		this.row= row;
 		this.timeWindowInMinutes= timeWindowInMinutes;
 	}
 
+	private static boolean isValid(Map<String, String> row) {
+		return row.containsKey(USER_ID_KEY) && row.containsKey(TIME_KEY) && row.containsKey(DESCRIPTION_KEY);
+	}
+
 	private String getUser() {
-		return row.get("userId");
+		return row.get(USER_ID_KEY);
 	}
 
 	private long getTimestamp() {
-		return Long.parseLong(row.get("time"));
+		return Long.parseLong(row.get(TIME_KEY));
 	}
 
 	@Override
 	public String getItem() {
-		return row.get("description");
+		return row.get(DESCRIPTION_KEY);
 	}
 
 	@Override
 	public boolean shouldBelongToTheTransactionOf(CSVRow csvRow) {
 		if (!(csvRow instanceof UDCRow)) {
-			throw new IllegalArgumentException("Expected a UDRow.");
+			throw new IllegalArgumentException("Expected a UDCRow.");
 		}
 		UDCRow udcRow= (UDCRow)csvRow;
 		return getUser().equals(udcRow.getUser()) && Math.abs(getTimestamp() - udcRow.getTimestamp()) <= timeWindowInMinutes * 60 * 1000;

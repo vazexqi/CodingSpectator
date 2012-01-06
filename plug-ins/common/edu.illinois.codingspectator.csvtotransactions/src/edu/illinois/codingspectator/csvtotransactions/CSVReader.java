@@ -5,6 +5,7 @@ package edu.illinois.codingspectator.csvtotransactions;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -22,12 +23,24 @@ public class CSVReader implements Iterable<Map<String, String>> {
 
 	private String[] csvHeader;
 
+	private String[] expectedCSVHeader;
+
 	public CSVReader(Reader reader) {
 		csvMapReader= new CsvMapReader(reader, CsvPreference.EXCEL_PREFERENCE);
 	}
 
+	public CSVReader(Reader reader, String[] expectedCSVHeader) {
+		this(reader);
+		this.expectedCSVHeader= expectedCSVHeader;
+	}
+
 	private void readHeader() throws IOException {
 		csvHeader= csvMapReader.getCSVHeader(true);
+		if (expectedCSVHeader != null) {
+			if (!Arrays.equals(expectedCSVHeader, csvHeader)) {
+				throw new RuntimeException("Expected CSV header:\n" + Arrays.toString(expectedCSVHeader) + "got:\n" + Arrays.toString(csvHeader));
+			}
+		}
 	}
 
 	private Map<String, String> getNextRow() throws IOException {

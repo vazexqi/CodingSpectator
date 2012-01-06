@@ -33,7 +33,7 @@ public class CSVToTransactions {
 
 	public void convertCSVToTransactions() throws IOException {
 		try {
-			CSVReader csvReader= new CSVReader(reader);
+			CSVReader csvReader= new CSVReader(reader, new String[] { "userId", "what", "kind", "bundleId", "bundleVersion", "description", "time" });
 			TransactionWriter transactionWriter= new TransactionWriter(writer);
 			Iterator<Map<String, String>> iterator= csvReader.iterator();
 			Transaction lastTransaction= new Transaction();
@@ -43,7 +43,8 @@ public class CSVToTransactions {
 				lastRow.setTransaction(lastTransaction);
 			}
 			while (iterator.hasNext()) {
-				UDCRow currentRow= new UDCRow(iterator.next(), timeWindowInMinutes);
+				Map<String, String> currentCSVRow= iterator.next();
+				UDCRow currentRow= new UDCRow(currentCSVRow, timeWindowInMinutes);
 				if (!currentRow.shouldBelongToTheTransactionOf(lastRow)) {
 					transactionWriter.writeTransaction(lastTransaction);
 					lastTransaction= new Transaction();
