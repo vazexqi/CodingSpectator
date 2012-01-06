@@ -8,9 +8,14 @@ CSV_TO_TRANSACTIONS=(java -XX:MaxPermSize=512m -Xms40m -Xmx1G -jar "$CSV_TO_TRAN
 TRANSACTIONS_TO_RULES="$CODINGSPECTATOR_GIT_FOLDER/scripts/udc-analysis/transactionstorules.R"
 UDC_COMMAND_IDS_UNDER_STUDY="$CODINGSPECTATOR_GIT_FOLDER/scripts/udc-analysis/udc-refactoring-ids"
 ant -f "$CSV_TO_TRANSACTIONS_FOLDER/ant/build.xml"
-#echo "userId,what,kind,bundleId,bundleVersion,description,time" > "$TEMP_UDC_REFACTORING_CSV_FILE"
-#tar xfz "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-data.csv.tar.gz" --to-stdout | grep -E -f "$UDC_COMMAND_IDS_UNDER_STUDY" >> "$TEMP_UDC_REFACTORING_CSV_FILE"
-tar xfz "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-data.csv.tar.gz" --to-stdout >> "$TEMP_UDC_REFACTORING_CSV_FILE"
+
+echo "userId,what,kind,bundleId,bundleVersion,description,time" > "$TEMP_UDC_REFACTORING_CSV_FILE"
+tar xfz "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-data.csv.tar.gz" --to-stdout | grep -E -f "$UDC_COMMAND_IDS_UNDER_STUDY" >> "$TEMP_UDC_REFACTORING_CSV_FILE"
+#tar xfz "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-data.csv.tar.gz" --to-stdout >> "$TEMP_UDC_REFACTORING_CSV_FILE"
+
+#See <http://stackoverflow.com/q/114814/130224> and <http://stackoverflow.com/q/8385627/130224>
+echo "The input UDC file has $(expr $(cat "$TEMP_UDC_REFACTORING_CSV_FILE" | sed '/^\s*$/d' | wc -l) - 1) rows of data, i.e. non-header rows."
+
 for time_window in 1 2 5 10 30 60
 do
   "${CSV_TO_TRANSACTIONS[@]}" -t "$time_window" < "$TEMP_UDC_REFACTORING_CSV_FILE" | "$TRANSACTIONS_TO_RULES" > "$TIMESTAMPED_UDC_DATA_FOLDER/udc-refactoring-association-rules-t-$time_window.csv"
