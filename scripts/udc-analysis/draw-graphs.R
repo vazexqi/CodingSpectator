@@ -75,7 +75,7 @@ png_file_name <- paste(udc_distributions_folder, "users-all-refactorings.png", s
 png(filename = png_file_name, width = 1000, height = 1000, res = 100)
 data <- data.frame(refactorings)
 binwidth <- 50
-breaks <- seq(min(refactorings) - binwidth / 2, max(refactorings) + binwidth / 2, by = binwidth)
+breaks <- seq(0 - binwidth / 2, max(refactorings) + binwidth / 2, by = binwidth)
 ticks <- breaks + binwidth / 2
 ggplot(data, stat = "identity", aes(x = refactorings)) +
 stat_bin(aes(y = ..count..), breaks = breaks, geom = "point", position = "identity") +
