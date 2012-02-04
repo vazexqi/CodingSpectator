@@ -62,7 +62,6 @@ end
 
 parse_options
 
-puts "ARGV = #{ARGV}"
 workspace_paths = find_all_workspaces(ARGF.read)
 missing_workspaces = find_missing_workspaces(workspace_paths)
 missing_workspaces.each { |workspace_path| puts workspace_path }
