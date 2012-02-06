@@ -70,7 +70,7 @@ WHERE IS_JAVA_REFACTORING("REFACTORING_ID");
 * *DSV_ROW_DELIM = \n
 * *DSV_TARGET_FILE=JavaRefactoringChangeSize.csv
 
-\x "PUBLIC"."JAVA_REFACTORING_CHANGE_SIZE"
+\x SELECT * FROM "PUBLIC"."JAVA_REFACTORING_CHANGE_SIZE"
 
 \p Extracting the configuration time of Java refactorings
 
@@ -104,7 +104,7 @@ WHERE IS_JAVA_REFACTORING("T"."id") AND IS_CODINGSPECTATOR_PERFORMED("T"."record
 * *DSV_ROW_DELIM = \n
 * *DSV_TARGET_FILE=JavaRefactoringConfigurationTime.csv
 
-\x "PUBLIC"."JAVA_REFACTORING_CONFIGURATION_TIME"
+\x SELECT * FROM "PUBLIC"."JAVA_REFACTORING_CONFIGURATION_TIME"
 
 * *DSV_COL_DELIM = ,
 * *DSV_ROW_DELIM = \n
@@ -385,7 +385,7 @@ ORDER BY "PUBLIC"."ALL_DATA"."id";
 * *DSV_COL_DELIM=,
 * *DSV_TARGET_FILE=PerRefactoringID.csv
 
-\x "PUBLIC"."PER_REFACTORING_ID"
+\x SELECT * FROM "PUBLIC"."PER_REFACTORING_ID"
 
 
 --Compute the number of each kind of refactoring invocation per user.
@@ -477,7 +477,7 @@ ORDER BY "PUBLIC"."ALL_DATA"."username";
 * *DSV_COL_DELIM=,
 * *DSV_TARGET_FILE=PerUsername.csv
 
-\x "PUBLIC"."PER_USERNAME"
+\x SELECT * FROM "PUBLIC"."PER_USERNAME"
 
 --Compute the number of different kinds of status for every pair of refactoring ID and refactoring invocation kind.
 DROP TABLE "PUBLIC"."PER_REFACTORING_ID_KIND" IF EXISTS;
@@ -544,5 +544,5 @@ ORDER BY "PUBLIC"."ALL_DATA"."id", "PUBLIC"."ALL_DATA"."recorder", "PUBLIC"."ALL
 * *DSV_COL_DELIM=,
 * *DSV_TARGET_FILE=PerRefactoringIDKind.csv
 
-\x "PUBLIC"."PER_REFACTORING_ID_KIND"
+\x SELECT * FROM "PUBLIC"."PER_REFACTORING_ID_KIND"
 
