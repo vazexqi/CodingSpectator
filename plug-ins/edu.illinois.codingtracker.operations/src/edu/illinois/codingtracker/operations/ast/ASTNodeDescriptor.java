@@ -16,6 +16,8 @@ public class ASTNodeDescriptor {
 
 	private final long nodeID;
 
+	private final long parentID;
+
 	private final String nodeType;
 
 	private final String nodeText;
@@ -27,8 +29,9 @@ public class ASTNodeDescriptor {
 	private final int nodeLength;
 
 
-	public ASTNodeDescriptor(long nodeID, String nodeType, String nodeText, String nodeNewText, int nodeOffset, int nodeLength) {
+	public ASTNodeDescriptor(long nodeID, long parentID, String nodeType, String nodeText, String nodeNewText, int nodeOffset, int nodeLength) {
 		this.nodeID= nodeID;
+		this.parentID= parentID;
 		this.nodeType= nodeType;
 		this.nodeText= nodeText;
 		this.nodeNewText= nodeNewText;
@@ -38,6 +41,10 @@ public class ASTNodeDescriptor {
 
 	public long getNodeID() {
 		return nodeID;
+	}
+
+	public long getParentID() {
+		return parentID;
 	}
 
 	public String getNodeType() {
@@ -62,6 +69,7 @@ public class ASTNodeDescriptor {
 
 	public void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(nodeID);
+		textChunk.append(parentID);
 		textChunk.append(nodeType);
 		textChunk.append(nodeText);
 		textChunk.append(nodeNewText);
@@ -70,12 +78,13 @@ public class ASTNodeDescriptor {
 	}
 
 	public static ASTNodeDescriptor createFrom(OperationLexer operationLexer) {
-		return new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readString(), operationLexer.readString(),
+		return new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readLong(), operationLexer.readString(), operationLexer.readString(),
 										operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
 	}
 
 	public void appendContent(StringBuffer sb) {
 		sb.append("Node ID: " + nodeID + "\n");
+		sb.append("Parent ID: " + parentID + "\n");
 		sb.append("Node type: " + nodeType + "\n");
 		sb.append("Node text: " + nodeText + "\n");
 		if (!nodeNewText.isEmpty()) {

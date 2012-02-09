@@ -128,6 +128,18 @@ public class ASTNodesIdentifier {
 		return currentNode;
 	}
 
+	public static long getParentNodeID(String filePath, ASTNode node) {
+		return getParentNodeID(filePath, node, true);
+	}
+
+	public static long getParentNodeID(String filePath, ASTNode node, boolean shouldAddToIdentifiedNodes) {
+		ASTNode parent= node.getParent();
+		if (parent != null) {
+			return getPersistentNodeID(filePath, parent, shouldAddToIdentifiedNodes);
+		}
+		return -1;
+	}
+
 	public static long getPersistentNodeID(String filePath, ASTNode node) {
 		return getPersistentNodeID(filePath, node, true);
 	}
@@ -142,7 +154,8 @@ public class ASTNodesIdentifier {
 			nextFreePersistentID++;
 		}
 		if (shouldAddToIdentifiedNodes && !identifiedNodes.containsKey(persistentNodeID)) {
-			identifiedNodes.put(persistentNodeID, new IdentifiedNodeInfo(filePath, node, persistentNodeID));
+			long parentID= getParentNodeID(filePath, node);
+			identifiedNodes.put(persistentNodeID, new IdentifiedNodeInfo(filePath, node, persistentNodeID, parentID));
 		}
 		return persistentNodeID;
 	}
@@ -189,12 +202,14 @@ public class ASTNodesIdentifier {
 		for (Entry<ASTNode, ASTNode> mapEntry : matchedNodes.entrySet()) {
 			ASTNode newNode= mapEntry.getValue();
 			long newNodeID= getPersistentNodeID(filePath, newNode, false);
-			identifiedNodes.put(newNodeID, new IdentifiedNodeInfo(filePath, newNode, newNodeID));
+			long newParentID= getParentNodeID(filePath, newNode, false);
+			identifiedNodes.put(newNodeID, new IdentifiedNodeInfo(filePath, newNode, newNodeID, newParentID));
 		}
 		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(newCommonCoveringNode);
 		if (containingMethod != null) {
 			long containingMethodID= getPersistentNodeID(filePath, containingMethod);
-			identifiedNodes.put(containingMethodID, new IdentifiedNodeInfo(filePath, containingMethod, containingMethodID));
+			long methodParentID= getParentNodeID(filePath, containingMethod, false);
+			identifiedNodes.put(containingMethodID, new IdentifiedNodeInfo(filePath, containingMethod, containingMethodID, methodParentID));
 		}
 	}
 

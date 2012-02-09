@@ -258,15 +258,16 @@ public class ASTHelper {
 
 	private static ASTNodeDescriptor createASTNodeDescriptor(String filePath, ASTNode node, String nodeNewText) {
 		long nodeID= ASTNodesIdentifier.getPersistentNodeID(filePath, node);
-		return createASTNodeDescriptor(nodeID, node, nodeNewText);
+		long parentID= ASTNodesIdentifier.getParentNodeID(filePath, node);
+		return createASTNodeDescriptor(nodeID, parentID, node, nodeNewText);
 	}
 
-	public static ASTNodeDescriptor createASTNodeDescriptor(long nodeID, ASTNode node, String nodeNewText) {
+	public static ASTNodeDescriptor createASTNodeDescriptor(long nodeID, long parentID, ASTNode node, String nodeNewText) {
 		String nodeType= node.getClass().getSimpleName();
 		String nodeText= node.toString();
 		int nodeOffset= node.getStartPosition();
 		int nodeLength= node.getLength();
-		return new ASTNodeDescriptor(nodeID, nodeType, nodeText, nodeNewText, nodeOffset, nodeLength);
+		return new ASTNodeDescriptor(nodeID, parentID, nodeType, nodeText, nodeNewText, nodeOffset, nodeLength);
 	}
 
 	private static ASTMethodDescriptor createASTMethodDescriptor(String filePath, MethodDeclaration methodDeclaration) {

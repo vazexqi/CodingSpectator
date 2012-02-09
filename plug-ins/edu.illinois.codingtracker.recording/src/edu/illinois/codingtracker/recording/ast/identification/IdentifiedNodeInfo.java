@@ -36,9 +36,9 @@ public class IdentifiedNodeInfo {
 	private final Set<Long> clusterNodeIDs= new HashSet<Long>();
 
 
-	public IdentifiedNodeInfo(String filePath, ASTNode identifiedNode, long persistentNodeID) {
+	public IdentifiedNodeInfo(String filePath, ASTNode identifiedNode, long persistentNodeID, long parentID) {
 		positionalNodeID= ASTNodesIdentifier.getPositionalNodeID(identifiedNode);
-		nodeDescriptor= ASTHelper.createASTNodeDescriptor(persistentNodeID, identifiedNode, "");
+		nodeDescriptor= ASTHelper.createASTNodeDescriptor(persistentNodeID, parentID, identifiedNode, "");
 		if (identifiedNode instanceof MethodDeclaration) {
 			containingMethodID= persistentNodeID; //A method contains itself.
 			//Note that instances of IdentifiedNodeInfo are created only during recording of AST operations, and the cache of 
