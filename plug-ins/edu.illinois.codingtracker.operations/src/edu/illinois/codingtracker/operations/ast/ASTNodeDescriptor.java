@@ -14,9 +14,9 @@ import edu.illinois.codingtracker.operations.OperationTextChunk;
  */
 public class ASTNodeDescriptor {
 
-	private final long nodeID;
+	private final long nodeID; //persistent ID
 
-	private final long parentID;
+	private final String positionalID;
 
 	private final String nodeType;
 
@@ -29,9 +29,9 @@ public class ASTNodeDescriptor {
 	private final int nodeLength;
 
 
-	public ASTNodeDescriptor(long nodeID, long parentID, String nodeType, String nodeText, String nodeNewText, int nodeOffset, int nodeLength) {
+	public ASTNodeDescriptor(long nodeID, String positionalID, String nodeType, String nodeText, String nodeNewText, int nodeOffset, int nodeLength) {
 		this.nodeID= nodeID;
-		this.parentID= parentID;
+		this.positionalID= positionalID;
 		this.nodeType= nodeType;
 		this.nodeText= nodeText;
 		this.nodeNewText= nodeNewText;
@@ -43,8 +43,8 @@ public class ASTNodeDescriptor {
 		return nodeID;
 	}
 
-	public long getParentID() {
-		return parentID;
+	public String getPositionalID() {
+		return positionalID;
 	}
 
 	public String getNodeType() {
@@ -69,7 +69,7 @@ public class ASTNodeDescriptor {
 
 	public void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(nodeID);
-		textChunk.append(parentID);
+		textChunk.append(positionalID);
 		textChunk.append(nodeType);
 		textChunk.append(nodeText);
 		textChunk.append(nodeNewText);
@@ -78,13 +78,13 @@ public class ASTNodeDescriptor {
 	}
 
 	public static ASTNodeDescriptor createFrom(OperationLexer operationLexer) {
-		return new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readLong(), operationLexer.readString(), operationLexer.readString(),
+		return new ASTNodeDescriptor(operationLexer.readLong(), operationLexer.readString(), operationLexer.readString(), operationLexer.readString(),
 										operationLexer.readString(), operationLexer.readInt(), operationLexer.readInt());
 	}
 
 	public void appendContent(StringBuffer sb) {
 		sb.append("Node ID: " + nodeID + "\n");
-		sb.append("Parent ID: " + parentID + "\n");
+		sb.append("Positional ID: " + positionalID + "\n");
 		sb.append("Node type: " + nodeType + "\n");
 		sb.append("Node text: " + nodeText + "\n");
 		if (!nodeNewText.isEmpty()) {
