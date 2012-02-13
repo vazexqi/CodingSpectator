@@ -64,7 +64,13 @@ public class PerformedRefactoringMatcher {
 			}
 		}
 
-		return matchedPerformedRefactorings;
+		return sorted(matchedPerformedRefactorings);
+	}
+
+	private ArrayList<MatchedPerformedRefactorings> sorted(Collection<MatchedPerformedRefactorings> matched) {
+		MatchedPerformedRefactorings[] matchedArray= matched.toArray(new MatchedPerformedRefactorings[] {});
+		Arrays.sort(matchedArray);
+		return new ArrayList<MatchedPerformedRefactorings>(Arrays.asList(matchedArray));
 	}
 
 	private boolean isCodingSpectatorPerformedRefactoring(Event event) {

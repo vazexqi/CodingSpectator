@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Mohsen Vakilian
  * 
  */
-public class MatchedPerformedRefactorings implements Mappable {
+public class MatchedPerformedRefactorings implements Mappable, Comparable<MatchedPerformedRefactorings> {
 
 	private String username;
 
@@ -94,4 +94,16 @@ public class MatchedPerformedRefactorings implements Mappable {
 		return true;
 	}
 
+	@Override
+	public int compareTo(MatchedPerformedRefactorings o) {
+		if (workspaceID.equals(o.workspaceID)) {
+			if (codingspectatorTimestamp == -1 || o.codingspectatorTimestamp == -1) {
+				return Long.signum(codingtrackerTimestamp - o.codingtrackerTimestamp);
+			} else {
+				return Long.signum(codingspectatorTimestamp - o.codingspectatorTimestamp);
+			}
+		} else {
+			return workspaceID.compareTo(o.workspaceID);
+		}
+	}
 }
