@@ -56,11 +56,11 @@ public class PerformedRefactoringMatcher {
 			UserOperationEvent ctEvent= (UserOperationEvent)event;
 			int index= Collections.binarySearch(sortedCodingSpectatorPerformedRefactorings, event, getEventTimestampComparatorForFinding());
 			if (index >= 0) {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, ctEvent.toMap().get("id"), ctEvent
-						.getTimestamp(), sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp()));
+				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, ctEvent.toMap().get("id"),
+						sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp(), ctEvent.getTimestamp()));
 			} else {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, ctEvent.toMap().get("id"), ctEvent
-						.getTimestamp(), -1));
+				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, ctEvent.toMap().get("id"), -1, ctEvent
+						.getTimestamp()));
 			}
 		}
 
@@ -125,11 +125,13 @@ public class PerformedRefactoringMatcher {
 	}
 
 	private Comparator<Event> getEventTimestampComparatorForFinding() {
+		final int TIMESTAMP_EPSILON= 500;
 		return new Comparator<Event>() {
 
 			@Override
 			public int compare(Event e1, Event e2) {
-				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < 1000) {
+				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < TIMESTAMP_EPSILON && e1.toMap().get("id").equals(e2.toMap().get("id"))
+						&& e1.toMap().get("project").equals(e2.toMap().get("project"))) {
 					return 0;
 				}
 				else {

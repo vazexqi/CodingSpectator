@@ -38,28 +38,38 @@ public class Tests {
 
 	private IPath checksAfterRefactoringsExpectedLog;
 
+	private EFSFile matchedPerformedRefactoringsActualLog;
+
+	private IPath matchedPerformedRefactoringsExpectedLog;
+
 	private void computePaths(String testNumber) throws CoreException {
 		IPath pathToTestFolder= new Path("resources").append(testNumber);
 		String csvLogsFileName= "logs.csv";
 		csvExpectedLog= pathToTestFolder.append("expected-output").append(csvLogsFileName);
 		String checksAfterRefactoringsLogFileName= "checks-after-refactorings.csv";
+		String matchedPerformedRefactoringsLogFileName= "matched-performed-refactorings.csv";
 		checksAfterRefactoringsExpectedLog= pathToTestFolder.append("expected-output").append(checksAfterRefactoringsLogFileName);
+		matchedPerformedRefactoringsExpectedLog= pathToTestFolder.append("expected-output").append(matchedPerformedRefactoringsLogFileName);
 		pathToInputFolder= pathToTestFolder.append("input");
 		csvActualLogFolder= new EFSFile(pathToTestFolder.append("actual-output"));
 		csvActualLogFolder.mkdir();
 		csvActualLog= csvActualLogFolder.append(csvLogsFileName);
 		checksAfterRefactoringsActualLog= csvActualLogFolder.append(checksAfterRefactoringsLogFileName);
+		matchedPerformedRefactoringsActualLog= csvActualLogFolder.append(matchedPerformedRefactoringsLogFileName);
 	}
 
 	private void generateReports() throws CoreException, IOException {
-		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.getPath().toOSString() });
+		ConvertLogsToCSV.main(new String[] { null, pathToInputFolder.toOSString(), csvActualLog.getPath().toOSString(), checksAfterRefactoringsActualLog.getPath().toOSString(),
+				matchedPerformedRefactoringsActualLog.getPath().toOSString() });
 	}
 
 	private void checkReports() throws IOException {
 		assertTrue(csvActualLog.exists());
 		assertEquals(FileUtils.getContents(csvExpectedLog.toOSString()), FileUtils.getContents(csvActualLog.getPath().toOSString()));
 		assertTrue(checksAfterRefactoringsActualLog.exists());
+		assertTrue(matchedPerformedRefactoringsActualLog.exists());
 		assertEquals(FileUtils.getContents(checksAfterRefactoringsExpectedLog.toOSString()), FileUtils.getContents(checksAfterRefactoringsActualLog.getPath().toOSString()));
+		assertEquals(FileUtils.getContents(matchedPerformedRefactoringsExpectedLog.toOSString()), FileUtils.getContents(matchedPerformedRefactoringsActualLog.getPath().toOSString()));
 	}
 
 	private void testReports(String testNumber) throws CoreException, IOException {
