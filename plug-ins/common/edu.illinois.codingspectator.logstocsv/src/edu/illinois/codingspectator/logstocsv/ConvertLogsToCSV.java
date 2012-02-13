@@ -29,6 +29,11 @@ public class ConvertLogsToCSV {
 			String checksAfterRefactoringsCSVFileName= args[3];
 			new CheckAndRefactoringPatternFinder(events, checksAfterRefactoringsCSVFileName).reportChecksAfterRefactorings();
 		}
+
+		if (args.length >= 5) {
+			String matchedPerformedRefactoringsCSVFileName= args[4];
+			new PerformedRefactoringMatcher(events, matchedPerformedRefactoringsCSVFileName).reportMatchedPerformedRefactorings();
+		}
 	}
 
 }

@@ -22,7 +22,8 @@ public class ConvertLogsToCSVRunner {
 		String codingspectatorDataPath= System.getenv("CS_DATA");
 		String csvPath= System.getenv("CS_CSV");
 		String checksAfterRefactoringsPath= System.getenv("CS_CHECKS_AFTER_REFACTORINGS");
-		ConvertLogsToCSV.main(new String[] { null, codingspectatorDataPath, csvPath, checksAfterRefactoringsPath });
+		String matchedPerformedRefactorings= System.getenv("CS_MATCHED_PERFORMED_REFACTORINGS");
+		ConvertLogsToCSV.main(new String[] { null, codingspectatorDataPath, csvPath, checksAfterRefactoringsPath, matchedPerformedRefactorings });
 	}
 
 }

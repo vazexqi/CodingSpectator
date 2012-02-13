@@ -40,7 +40,7 @@ public class RefactoringEvent extends Event {
 		map.put("comment", truncateString(comment));
 		map.put("description", capturedRefactoringDescriptor.getDescription());
 		map.put("flags", String.valueOf(capturedRefactoringDescriptor.getFlags()));
-		map.put("id", capturedRefactoringDescriptor.getID());
+		map.put("id", getRefactoringID());
 		map.put("project", capturedRefactoringDescriptor.getProject());
 		map.put("timestamp", String.valueOf(getTimestamp()));
 		Date timestampDate= new Date(getTimestamp());
@@ -72,6 +72,10 @@ public class RefactoringEvent extends Event {
 			map.put("code-snippet-with-selection-markers", getCodesnippetWithSelectionMarkers());
 		}
 		return map;
+	}
+
+	public String getRefactoringID() {
+		return capturedRefactoringDescriptor.getID();
 	}
 
 	private String truncateString(String comment) {
@@ -137,7 +141,7 @@ public class RefactoringEvent extends Event {
 	private long getNavigationDuration(String navigationHistoryString) throws NavigationHistory.ParseException {
 		if (!hasNavigationDuration(navigationHistoryString)) {
 			throw new NavigationHistory.ParseException("Expected at least two items in the navigation history (" + navigationHistoryString + ") of a " + getRefactoringKind() + " "
-					+ capturedRefactoringDescriptor.getID() + " refactoring, which was " + (capturedRefactoringDescriptor.isInvokedByQuickAssist() ? "" : "not ")
+					+ getRefactoringID() + " refactoring, which was " + (capturedRefactoringDescriptor.isInvokedByQuickAssist() ? "" : "not ")
 					+ "invoked by Quick Assist (username=" + username + ", workspace ID=" + workspaceID + ", CodingSpectator version=" + codingspectatorVersion + ", timestamp=" + getTimestamp()
 					+ ").");
 		}

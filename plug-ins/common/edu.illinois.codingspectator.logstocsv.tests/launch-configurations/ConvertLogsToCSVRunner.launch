@@ -23,6 +23,7 @@
 <mapEntry key="CS_CHECKS_AFTER_REFACTORINGS" value="${data_output_path}/checks-after-refactorings.csv"/>
 <mapEntry key="CS_CSV" value="${data_output_path}/logs.csv"/>
 <mapEntry key="CS_DATA" value="${data_input_path}"/>
+<mapEntry key="CS_MATCHED_PERFORMED_REFACTORINGS" value="${data_output_path}/matched-performed-refactorings.csv"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
