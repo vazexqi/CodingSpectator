@@ -3,8 +3,13 @@
  */
 package edu.illinois.codingspectator.logstocsv;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * @author Mohsen Vakilian
@@ -33,6 +38,15 @@ public class MatchedPerformedRefactorings implements Mappable, Comparable<Matche
 		this.codingtrackerTimestamp= codingtrackerTimestamp;
 	}
 
+	private String toHumanReadableTimestamp(long timestamp) {
+		if (timestamp == -1) {
+			return "";
+		}
+		DateFormat dateFormat= SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.SHORT, SimpleDateFormat.FULL, Locale.US);
+		dateFormat.setTimeZone(TimeZone.getTimeZone("America/Chicago"));
+		return dateFormat.format(new Date(timestamp));
+	}
+
 	@Override
 	public Map<String, String> toMap() {
 		Map<String, String> map= new HashMap<String, String>();
@@ -41,7 +55,9 @@ public class MatchedPerformedRefactorings implements Mappable, Comparable<Matche
 		map.put("codingspectator version", codingspectatorVersion);
 		map.put("refactoring ID", refactoringID);
 		map.put("codingspectator timestamp", String.valueOf(codingspectatorTimestamp));
+		map.put("codingspectator human-readable timestamp", toHumanReadableTimestamp(codingspectatorTimestamp));
 		map.put("codingtracker timestamp", String.valueOf(codingtrackerTimestamp));
+		map.put("codingtracker human-readable timestamp", toHumanReadableTimestamp(codingtrackerTimestamp));
 		return map;
 	}
 

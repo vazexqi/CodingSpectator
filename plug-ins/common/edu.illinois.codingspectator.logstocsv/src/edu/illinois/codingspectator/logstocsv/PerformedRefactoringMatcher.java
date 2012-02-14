@@ -45,11 +45,11 @@ public class PerformedRefactoringMatcher {
 			RefactoringEvent csEvent= (RefactoringEvent)event;
 			int index= findClosestMatchingEvent(sortedCodingTrackerPerformedRefactorings, event);
 			if (index >= 0) {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion, csEvent.getRefactoringID(), csEvent
-						.getTimestamp(), sortedCodingTrackerPerformedRefactorings.get(index).getTimestamp()));
+				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion,
+						toJavaRefactoringID(csEvent.getRefactoringID()), csEvent.getTimestamp(), sortedCodingTrackerPerformedRefactorings.get(index).getTimestamp()));
 			} else {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion, csEvent.getRefactoringID(), csEvent
-						.getTimestamp(), -1));
+				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion,
+						toJavaRefactoringID(csEvent.getRefactoringID()), csEvent.getTimestamp(), -1));
 			}
 		}
 		for (Event event : sortedCodingTrackerPerformedRefactorings) {
@@ -68,12 +68,13 @@ public class PerformedRefactoringMatcher {
 	}
 
 	private int findClosestMatchingEvent(ArrayList<Event> sortedCodingTrackerPerformedRefactorings, Event event) {
-		long maxTimestampDifference= 500;
+		final long MAX_TIMESTAMP_DIFFERENCE= 5 * 60 * 1000; // 5 minutes in milliseconds
+		long timestampDifference= 500;
 		int index= -1;
 		do {
-			index= Collections.binarySearch(sortedCodingTrackerPerformedRefactorings, event, getEventTimestampComparatorForFinding(maxTimestampDifference));
-			maxTimestampDifference+= 500;
-		} while (index < 0 && maxTimestampDifference < 10000);
+			index= Collections.binarySearch(sortedCodingTrackerPerformedRefactorings, event, getEventTimestampComparatorForFinding(timestampDifference));
+			timestampDifference+= 500;
+		} while (index < 0 && timestampDifference < MAX_TIMESTAMP_DIFFERENCE);
 		return index;
 	}
 
