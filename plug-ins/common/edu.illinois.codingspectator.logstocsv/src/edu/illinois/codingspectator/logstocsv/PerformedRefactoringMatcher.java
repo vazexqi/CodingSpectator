@@ -43,7 +43,7 @@ public class PerformedRefactoringMatcher {
 		Collection<MatchedPerformedRefactorings> matchedPerformedRefactorings= new HashSet<MatchedPerformedRefactorings>();
 		for (Event event : sortedCodingSpectatorPerformedRefactorings) {
 			RefactoringEvent csEvent= (RefactoringEvent)event;
-			int index= Collections.binarySearch(sortedCodingTrackerPerformedRefactorings, event, getEventTimestampComparatorForFinding());
+			int index= findClosestMatchingEvent(sortedCodingTrackerPerformedRefactorings, event);
 			if (index >= 0) {
 				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion, csEvent.getRefactoringID(), csEvent
 						.getTimestamp(), sortedCodingTrackerPerformedRefactorings.get(index).getTimestamp()));
@@ -54,17 +54,27 @@ public class PerformedRefactoringMatcher {
 		}
 		for (Event event : sortedCodingTrackerPerformedRefactorings) {
 			UserOperationEvent ctEvent= (UserOperationEvent)event;
-			int index= Collections.binarySearch(sortedCodingSpectatorPerformedRefactorings, event, getEventTimestampComparatorForFinding());
+			int index= findClosestMatchingEvent(sortedCodingSpectatorPerformedRefactorings, event);
 			if (index >= 0) {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, ctEvent.toMap().get("id"),
-						sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp(), ctEvent.getTimestamp()));
+				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion,
+						toJavaRefactoringID(ctEvent.toMap().get("id")), sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp(), ctEvent.getTimestamp()));
 			} else {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, ctEvent.toMap().get("id"), -1, ctEvent
-						.getTimestamp()));
+				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion,
+						toJavaRefactoringID(ctEvent.toMap().get("id")), -1, ctEvent.getTimestamp()));
 			}
 		}
 
 		return sorted(matchedPerformedRefactorings);
+	}
+
+	private int findClosestMatchingEvent(ArrayList<Event> sortedCodingTrackerPerformedRefactorings, Event event) {
+		long maxTimestampDifference= 500;
+		int index= -1;
+		do {
+			index= Collections.binarySearch(sortedCodingTrackerPerformedRefactorings, event, getEventTimestampComparatorForFinding(maxTimestampDifference));
+			maxTimestampDifference+= 500;
+		} while (index < 0 && maxTimestampDifference < 10000);
+		return index;
 	}
 
 	private ArrayList<MatchedPerformedRefactorings> sorted(Collection<MatchedPerformedRefactorings> matched) {
@@ -130,13 +140,23 @@ public class PerformedRefactoringMatcher {
 		};
 	}
 
-	private Comparator<Event> getEventTimestampComparatorForFinding() {
-		final int TIMESTAMP_EPSILON= 500;
+	private String toJavaRefactoringID(String id) {
+		final String JAVA_RENAME_CLASS_ID= "org.eclipse.jdt.ui.rename.class";
+		if (id.equals("org.eclipse.jdt.ui.rename.compilationunit")) {
+			return JAVA_RENAME_CLASS_ID;
+		}
+		if (id.equals("org.eclipse.jdt.ui.rename.type")) {
+			return JAVA_RENAME_CLASS_ID;
+		}
+		return id;
+	}
+
+	private Comparator<Event> getEventTimestampComparatorForFinding(final long maxTimestampDifference) {
 		return new Comparator<Event>() {
 
 			@Override
 			public int compare(Event e1, Event e2) {
-				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < TIMESTAMP_EPSILON && e1.toMap().get("id").equals(e2.toMap().get("id"))
+				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < maxTimestampDifference && toJavaRefactoringID(e1.toMap().get("id")).equals(toJavaRefactoringID(e2.toMap().get("id")))
 						&& e1.toMap().get("project").equals(e2.toMap().get("project"))) {
 					return 0;
 				}
