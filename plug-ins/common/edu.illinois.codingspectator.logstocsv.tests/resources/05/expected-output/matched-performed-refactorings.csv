@@ -1,3 +1,3 @@
-codingspectator human-readable timestamp,codingspectator timestamp,codingspectator version,codingtracker human-readable timestamp,codingtracker timestamp,refactoring ID,username,workspace ID
-8/7/11 7:48:23 PM CDT,1312764503333,1.0.0.qualifier,8/7/11 7:48:23 PM CDT,1312764503318,org.eclipse.jdt.ui.extract.method,cs-000,00-0-0-0-000
-8/7/11 7:53:23 PM CDT,1312764803956,1.0.0.qualifier,8/7/11 7:53:23 PM CDT,1312764803660,org.eclipse.jdt.ui.extract.method,cs-000,00-0-0-0-000
+codingspectator human-readable timestamp,codingspectator timestamp,codingspectator version,codingtracker human-readable timestamp,codingtracker timestamp,missing,refactoring ID,username,workspace ID
+8/7/11 7:48:23 PM CDT,1312764503333,1.0.0.qualifier,8/7/11 7:48:23 PM CDT,1312764503318,,org.eclipse.jdt.ui.extract.method,cs-000,00-0-0-0-000
+8/7/11 7:53:23 PM CDT,1312764803956,1.0.0.qualifier,8/7/11 7:53:23 PM CDT,1312764803660,,org.eclipse.jdt.ui.extract.method,cs-000,00-0-0-0-000
