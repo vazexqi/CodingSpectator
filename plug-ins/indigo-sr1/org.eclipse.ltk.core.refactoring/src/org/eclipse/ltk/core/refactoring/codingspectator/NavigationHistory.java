@@ -51,7 +51,7 @@ public class NavigationHistory {
 			head= indexOfBeginMarker + 1;
 			int indexOfEndMarker= navigationHistoryString.indexOf(NavigationHistoryItem.END_MARKER, head);
 			if (indexOfEndMarker == -1) {
-				throw new ParseException("Expected " + NavigationHistoryItem.END_MARKER);
+				throw new ParseException("Expected " + NavigationHistoryItem.END_MARKER + " in " + navigationHistoryString + " starting from index " + head);
 			}
 			head= indexOfEndMarker + 1;
 			navigationHistory.addItem(NavigationHistoryItem.parse(navigationHistoryString.substring(indexOfBeginMarker, indexOfEndMarker + 1)));
