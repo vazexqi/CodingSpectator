@@ -25,6 +25,14 @@ public class ASTOperationDescriptor {
 
 	private final boolean isUndoing;
 
+	//Not final since these fields are assigned while inferring "move", which is done in a separate subsequent pass.
+
+	private long moveID= -1;
+
+	private boolean isFirstMoved= false;
+
+	private boolean isLastMoved= false;
+
 
 	public ASTOperationDescriptor(OperationKind operationKind, boolean isCommentingOrUncommenting, boolean isUndoing) {
 		this.operationKind= operationKind;
@@ -44,6 +52,31 @@ public class ASTOperationDescriptor {
 		return isUndoing;
 	}
 
+
+	public long getMoveID() {
+		return moveID;
+	}
+
+	public void setMoveID(long moveID) {
+		this.moveID= moveID;
+	}
+
+	public boolean isFirstMoved() {
+		return isFirstMoved;
+	}
+
+	public void setFirstMoved(boolean isFirstMoved) {
+		this.isFirstMoved= isFirstMoved;
+	}
+
+	public boolean isLastMoved() {
+		return isLastMoved;
+	}
+
+	public void setLastMoved(boolean isLastMoved) {
+		this.isLastMoved= isLastMoved;
+	}
+
 	public boolean isAdd() {
 		return operationKind == OperationKind.ADD;
 	}
@@ -60,17 +93,27 @@ public class ASTOperationDescriptor {
 		textChunk.append(operationKind.ordinal());
 		textChunk.append(isCommentingOrUncommenting);
 		textChunk.append(isUndoing);
+		textChunk.append(moveID);
+		textChunk.append(isFirstMoved);
+		textChunk.append(isLastMoved);
 	}
 
 	public static ASTOperationDescriptor createFrom(OperationLexer operationLexer) {
-		return new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readBoolean(),
-											operationLexer.readBoolean());
+		ASTOperationDescriptor operationDescriptor= new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readBoolean(),
+																				operationLexer.readBoolean());
+		operationDescriptor.setMoveID(operationLexer.readLong());
+		operationDescriptor.setFirstMoved(operationLexer.readBoolean());
+		operationDescriptor.setLastMoved(operationLexer.readBoolean());
+		return operationDescriptor;
 	}
 
 	public void appendContent(StringBuffer sb) {
 		sb.append("Operation kind: " + operationKind + "\n");
 		sb.append("Is commenting or uncommenting: " + isCommentingOrUncommenting + "\n");
 		sb.append("Is undoing: " + isUndoing + "\n");
+		sb.append("Move ID: " + moveID + "\n");
+		sb.append("Is first moved: " + isFirstMoved + "\n");
+		sb.append("Is last moved: " + isLastMoved + "\n");
 	}
 
 }

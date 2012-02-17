@@ -46,6 +46,14 @@ public class ASTOperation extends UserOperation {
 		return affectedNodeDescriptor.getNodeID();
 	}
 
+	public String getNodeType() {
+		return affectedNodeDescriptor.getNodeType();
+	}
+
+	public String getNodeText() {
+		return affectedNodeDescriptor.getNodeText();
+	}
+
 	public long getMethodID() {
 		return affectedNodeDescriptor.getMethodID();
 	}
@@ -72,6 +80,30 @@ public class ASTOperation extends UserOperation {
 
 	public boolean isUndoing() {
 		return operationDescriptor.isUndoing();
+	}
+
+	public long getMoveID() {
+		return operationDescriptor.getMoveID();
+	}
+
+	public void setMoveID(long moveID) {
+		operationDescriptor.setMoveID(moveID);
+	}
+
+	public boolean isFirstMoved() {
+		return operationDescriptor.isFirstMoved();
+	}
+
+	public void setFirstMoved(boolean isFirstMoved) {
+		operationDescriptor.setFirstMoved(isFirstMoved);
+	}
+
+	public boolean isLastMoved() {
+		return operationDescriptor.isLastMoved();
+	}
+
+	public void setLastMoved(boolean isLastMoved) {
+		operationDescriptor.setLastMoved(isLastMoved);
 	}
 
 	public boolean isAdd() {
