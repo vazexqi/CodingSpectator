@@ -47,9 +47,12 @@ public class NodeOperations {
 		if (Math.abs(getLastOperation().getTime() - astOperation.getTime()) > timeThreshold) {
 			return false;
 		}
+		//First heuristic - split by the method to which the operations' nodes belong.
+		//TODO: Consider other heuristics, e.g., time relation (what is closer in time).
+		if (shouldSplitByMethod(astOperation)) {
+			return false;
+		}
 		//Should not add this operation if the relation will become N-to-N.
-		//TODO: Instead of breaking the grouped operations at this point, implement a heuristic that will
-		//consider structural relations (e.g., belong to the same method) and/or time relation (what is closer in time).
 		if (astOperation.isAdd()) {
 			if (addOperationsCount > 0 && deleteOperationsCount > 1) {
 				return false;
@@ -62,8 +65,27 @@ public class NodeOperations {
 		return true;
 	}
 
+	public boolean shouldSplitByMethod(ASTOperation astOperation) {
+		long currentMethodID= operations.get(0).getMethodID();
+		for (ASTOperation addedOperation : operations) {
+			long methodID= addedOperation.getMethodID();
+			//If the added operations belong to different methods or there is an operation that does not belong to any method,
+			//then there is no reason to split for a new operation.
+			if (methodID == -1 || methodID != currentMethodID) {
+				return false;
+			}
+		}
+		long newMethodID= astOperation.getMethodID();
+		//Also, check if the already added operations form a completed move in order to avoid erroneously splitting moves that 
+		//are part of extract method refactoring, i.e., when statements are moved from one method to another.
+		if (isCompletedMove() && newMethodID != -1 && newMethodID != currentMethodID) {
+			return true;
+		}
+		return false;
+	}
+
 	public void recordMoveAndResetState() {
-		if (addOperationsCount > 0 && deleteOperationsCount > 0) {
+		if (isCompletedMove()) {
 			operations.get(0).setFirstMoved(true);
 			getLastOperation().setLastMoved(true);
 			for (ASTOperation operation : operations) {
@@ -72,6 +94,10 @@ public class NodeOperations {
 			nextMoveID++;
 		}
 		resetState();
+	}
+
+	private boolean isCompletedMove() {
+		return addOperationsCount > 0 && deleteOperationsCount > 0;
 	}
 
 	private void resetState() {
