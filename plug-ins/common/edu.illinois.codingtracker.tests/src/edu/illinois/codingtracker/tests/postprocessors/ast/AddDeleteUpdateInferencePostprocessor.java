@@ -155,6 +155,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 	}
 
 	private void handleOneStepSnapshotedFileOperation(SnapshotedFileOperation snapshotedFileOperation, boolean willReplaceFile, boolean shouldRestoreOriginalEditor) {
+		record(snapshotedFileOperation);
 		IResource workspaceResource= ResourceHelper.findWorkspaceMember(snapshotedFileOperation.getResourcePath());
 		if (workspaceResource instanceof IFile && willReplaceFile) {
 			IFile editedFile= (IFile)workspaceResource;
@@ -162,11 +163,12 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 			String newContent= snapshotedFileOperation.getFileContent();
 			replaySnapshotsAsEdits(snapshotedFileOperation, editedFile, new String[] { currentContent, newContent }, shouldRestoreOriginalEditor);
 		} else { //Resource does not exist or is not a file.
-			replayAndRecord(snapshotedFileOperation);
+			replay(snapshotedFileOperation);
 		}
 	}
 
 	private void handleRefreshedFileOperation(RefreshedFileOperation refreshedFileOperation) {
+		record(refreshedFileOperation);
 		String replacedText= refreshedFileOperation.getReplacedText();
 		String newContent= refreshedFileOperation.getFileContent();
 		IFile refreshedFile= findOrCreateRefreshedCompilationUnit(refreshedFileOperation);
@@ -184,7 +186,6 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 			snapshotDifference.addAll(SnapshotDifferenceCalculator.getSnapshotDifference(snapshots[i], snapshots[i + 1], timestamp));
 		}
 		replaySnapshotDifference(snapshotDifference, editedFile, timestamp, shouldRestoreOriginalEditor);
-		record(snapshotedFileOperation);
 	}
 
 	private void replaySnapshotDifference(List<PerformedTextChangeOperation> snapshotDifference, IFile editedFile, long timestamp, boolean shouldRestoreOriginalEditor) {
@@ -195,12 +196,12 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 				originalEditor= UserOperation.getCurrentEditor();
 			}
 			EditedFileOperation editedFileOperation= new EditedFileOperation(editedFile, timestamp);
-			replayAndRecord(editedFileOperation);
+			replay(editedFileOperation);
 			for (PerformedTextChangeOperation editDifferenceOperation : snapshotDifference) {
-				replayAndRecord(editDifferenceOperation);
+				replay(editDifferenceOperation);
 			}
 			SavedFileOperation savedFileOperation= new SavedFileOperation(editedFile, true, timestamp);
-			replayAndRecord(savedFileOperation);
+			replay(savedFileOperation);
 			if (shouldRestoreOriginalEditor) {
 				restoreOriginalEditor(originalEditor, timestamp);
 			}
@@ -249,7 +250,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 			}
 			if (originalFile != null) {
 				EditedFileOperation editedOriginalFileOperation= new EditedFileOperation(originalFile, timestamp);
-				replayAndRecord(editedOriginalFileOperation);
+				replay(editedOriginalFileOperation);
 			} else {
 				throw new RuntimeException("Could not retrieve the edited file from the original editor: " + originalEditor);
 			}
