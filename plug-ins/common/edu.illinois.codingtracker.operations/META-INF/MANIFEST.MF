@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingtracker.operations
+Bundle-SymbolicName: edu.illinois.codingtracker.operations
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: edu.illinois.codingtracker.operations,
+ edu.illinois.codingtracker.operations.ast,
+ edu.illinois.codingtracker.operations.conflicteditors,
+ edu.illinois.codingtracker.operations.files,
+ edu.illinois.codingtracker.operations.files.snapshoted,
+ edu.illinois.codingtracker.operations.junit,
+ edu.illinois.codingtracker.operations.options,
+ edu.illinois.codingtracker.operations.refactorings,
+ edu.illinois.codingtracker.operations.references,
+ edu.illinois.codingtracker.operations.resources,
+ edu.illinois.codingtracker.operations.starts,
+ edu.illinois.codingtracker.operations.textchanges
+Require-Bundle: edu.illinois.codingtracker.compare.helpers;visibility:=reexport,
+ edu.illinois.codingtracker.helpers;visibility:=reexport,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui,
+ edu.illinois.codingtracker.jdt.project.manipulation
+Bundle-Vendor: University of Illinois

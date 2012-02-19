@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingtracker.helpers
+Bundle-SymbolicName: edu.illinois.codingtracker.helpers
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: edu.illinois.codingtracker.helpers
+Require-Bundle: org.eclipse.core.resources;visibility:=reexport,
+ org.eclipse.ui;visibility:=reexport,
+ org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.ltk.core.refactoring;visibility:=reexport,
+ org.eclipse.ui.editors;visibility:=reexport,
+ org.eclipse.jface.text;visibility:=reexport
+Bundle-Vendor: University of Illinois
