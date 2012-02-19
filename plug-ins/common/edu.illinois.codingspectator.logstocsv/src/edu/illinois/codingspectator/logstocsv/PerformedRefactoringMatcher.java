@@ -45,22 +45,18 @@ public class PerformedRefactoringMatcher {
 			RefactoringEvent csEvent= (RefactoringEvent)event;
 			int index= findClosestMatchingEvent(sortedCodingTrackerPerformedRefactorings, event);
 			if (index >= 0) {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion,
-						toJavaRefactoringID(csEvent.getRefactoringID()), csEvent.getTimestamp(), sortedCodingTrackerPerformedRefactorings.get(index).getTimestamp()));
+				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(csEvent, sortedCodingTrackerPerformedRefactorings.get(index).getTimestamp()));
 			} else {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion,
-						toJavaRefactoringID(csEvent.getRefactoringID()), csEvent.getTimestamp(), -1));
+				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(csEvent, -1));
 			}
 		}
 		for (Event event : sortedCodingTrackerPerformedRefactorings) {
 			UserOperationEvent ctEvent= (UserOperationEvent)event;
 			int index= findClosestMatchingEvent(sortedCodingSpectatorPerformedRefactorings, event);
 			if (index >= 0) {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion,
-						toJavaRefactoringID(ctEvent.toMap().get("id")), sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp(), ctEvent.getTimestamp()));
+				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(ctEvent, sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp()));
 			} else {
-				matchedPerformedRefactorings.add(new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion,
-						toJavaRefactoringID(ctEvent.toMap().get("id")), -1, ctEvent.getTimestamp()));
+				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(ctEvent, -1));
 			}
 		}
 
@@ -141,17 +137,6 @@ public class PerformedRefactoringMatcher {
 		};
 	}
 
-	private String toJavaRefactoringID(String id) {
-		final String JAVA_RENAME_CLASS_ID= "org.eclipse.jdt.ui.rename.class";
-		if (id.equals("org.eclipse.jdt.ui.rename.compilationunit")) {
-			return JAVA_RENAME_CLASS_ID;
-		}
-		if (id.equals("org.eclipse.jdt.ui.rename.type")) {
-			return JAVA_RENAME_CLASS_ID;
-		}
-		return id;
-	}
-
 	private String normalizedProjectName(String projectName) {
 		if (projectName == null || ".workspace".equals(projectName)) {
 			return "";
@@ -166,7 +151,7 @@ public class PerformedRefactoringMatcher {
 
 			@Override
 			public int compare(Event e1, Event e2) {
-				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < maxTimestampDifference && toJavaRefactoringID(e1.toMap().get("id")).equals(toJavaRefactoringID(e2.toMap().get("id")))
+				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < maxTimestampDifference && Utils.toJavaRefactoringID(e1.toMap().get("id")).equals(Utils.toJavaRefactoringID(e2.toMap().get("id")))
 						&& normalizedProjectName(e1.toMap().get("project")).equals(normalizedProjectName(e2.toMap().get("project")))) {
 					return 0;
 				}

@@ -40,6 +40,16 @@ public class MatchedPerformedRefactorings implements Mappable, Comparable<Matche
 		this.codingtrackerTimestamp= codingtrackerTimestamp;
 	}
 
+	public static MatchedPerformedRefactorings createMatchedPerformedRefactorings(RefactoringEvent csEvent, long matchingTimestamp) {
+		return new MatchedPerformedRefactorings(csEvent.username, csEvent.workspaceID, csEvent.codingspectatorVersion, Utils.toJavaRefactoringID(csEvent.getRefactoringID()), csEvent.getTimestamp(),
+				matchingTimestamp);
+	}
+
+	public static MatchedPerformedRefactorings createMatchedPerformedRefactorings(UserOperationEvent ctEvent, long matchingTimestamp) {
+		return new MatchedPerformedRefactorings(ctEvent.username, ctEvent.workspaceID, ctEvent.codingspectatorVersion, Utils.toJavaRefactoringID(ctEvent.toMap().get("id")), matchingTimestamp,
+				ctEvent.getTimestamp());
+	}
+
 	private static boolean isRefactoringUnderStudy(String refactoringID) {
 		List<String> refactoringIDsUnderStudy= Arrays.asList(
 				"org.eclipse.jdt.ui.promote.temp",
