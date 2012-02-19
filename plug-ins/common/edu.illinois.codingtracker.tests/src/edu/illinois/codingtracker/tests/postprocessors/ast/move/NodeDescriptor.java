@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.postprocessors.move;
+package edu.illinois.codingtracker.tests.postprocessors.ast.move;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 

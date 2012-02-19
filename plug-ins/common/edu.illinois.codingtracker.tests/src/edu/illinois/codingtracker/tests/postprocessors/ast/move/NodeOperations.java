@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.postprocessors.move;
+package edu.illinois.codingtracker.tests.postprocessors.ast.move;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class NodeOperations {
 
 	public void addOperation(ASTOperation astOperation) {
 		if (!shouldAddOperation(astOperation)) {
-			recordMoveAndResetState();
+			markMoveAndResetState();
 		}
 		operations.add(astOperation);
 		incrementCounters(astOperation);
@@ -84,7 +84,7 @@ public class NodeOperations {
 		return false;
 	}
 
-	public void recordMoveAndResetState() {
+	public void markMoveAndResetState() {
 		if (isCompletedMove()) {
 			operations.get(0).setFirstMoved(true);
 			getLastOperation().setLastMoved(true);

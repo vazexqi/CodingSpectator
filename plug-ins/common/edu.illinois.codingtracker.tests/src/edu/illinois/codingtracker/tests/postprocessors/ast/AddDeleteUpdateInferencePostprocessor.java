@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.postprocessors;
+package edu.illinois.codingtracker.tests.postprocessors.ast;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -32,18 +32,18 @@ import edu.illinois.codingtracker.operations.references.ReferencingProjectsChang
 import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
-import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.SnapshotDifferenceCalculator;
 
 
 /**
- * This class infers AST operations and records them along with the original user operations.
+ * This class infers three basic AST operations (add, delete, and update) and records them along
+ * with the original user operations.
  * 
  * @author Stas Negara
  * 
  */
-public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
+public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 
 	private List<TextChangeOperation> bufferedTextChanges= new LinkedList<TextChangeOperation>();
 
@@ -51,13 +51,8 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 
 
 	@Override
-	protected void checkPostprocessingPreconditions() {
-		//no preconditions
-	}
-
-	@Override
-	protected boolean shouldPostprocessVersionFolder(String folderName) {
-		return true;
+	protected String getResultFilePostfix() {
+		return ".inferred_ast_operations";
 	}
 
 	@Override
@@ -272,29 +267,6 @@ public class ASTInferencePostprocessor extends CodingTrackerPostprocessor {
 			record(userOperation);
 			replay(userOperation);
 		}
-	}
-
-	private void replay(UserOperation userOperation) {
-		System.out.println("Replaying operation: " + userOperation.generateSerializationText());
-		try {
-			userOperation.replay();
-		} catch (Exception e) {
-			throw new RuntimeException("Could not replay user operation: " + userOperation, e);
-		}
-	}
-
-	private void record(UserOperation userOperation) {
-		ASTInferenceTextRecorder.record(userOperation);
-	}
-
-	@Override
-	protected String getResultFilePostfix() {
-		return ".inferred_ast_operations";
-	}
-
-	@Override
-	protected String getResult() {
-		return ResourceHelper.readFileContent(astMainRecordFile);
 	}
 
 }

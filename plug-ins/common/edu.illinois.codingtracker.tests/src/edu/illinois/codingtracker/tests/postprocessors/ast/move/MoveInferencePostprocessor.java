@@ -1,18 +1,16 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.postprocessors.move;
+package edu.illinois.codingtracker.tests.postprocessors.ast.move;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.recording.TextRecorder;
-import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
+import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
 
 
 /**
@@ -22,24 +20,19 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  * @author Stas Negara
  * 
  */
-public class MoveInferencePostprocessor extends CodingTrackerPostprocessor {
+public class MoveInferencePostprocessor extends ASTPostprocessor {
 
 	private final Map<NodeDescriptor, NodeOperations> nodeOperationsMap= new HashMap<NodeDescriptor, NodeOperations>();
 
 
 	@Override
-	protected void checkPostprocessingPreconditions() {
-		//no preconditions
-	}
-
-	@Override
-	protected boolean shouldPostprocessVersionFolder(String folderName) {
-		return true;
-	}
-
-	@Override
 	protected String getRecordFileName() {
 		return "codechanges.txt.inferred_ast_operations";
+	}
+
+	@Override
+	protected String getResultFilePostfix() {
+		return ".with_move";
 	}
 
 	@Override
@@ -50,11 +43,11 @@ public class MoveInferencePostprocessor extends CodingTrackerPostprocessor {
 			}
 		}
 		for (Entry<NodeDescriptor, NodeOperations> entry : nodeOperationsMap.entrySet()) {
-			entry.getValue().recordMoveAndResetState();
+			entry.getValue().markMoveAndResetState();
 		}
 		//Processing is done, record the updated sequence.
 		for (UserOperation userOperation : userOperations) {
-			TextRecorder.record(userOperation);
+			record(userOperation);
 		}
 	}
 
@@ -68,16 +61,6 @@ public class MoveInferencePostprocessor extends CodingTrackerPostprocessor {
 				nodeOperations.addOperation(astOperation);
 			}
 		}
-	}
-
-	@Override
-	protected String getResultFilePostfix() {
-		return ".with_move";
-	}
-
-	@Override
-	protected String getResult() {
-		return ResourceHelper.readFileContent(mainRecordFile);
 	}
 
 }
