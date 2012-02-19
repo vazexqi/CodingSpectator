@@ -40,21 +40,26 @@ public class PerformedRefactoringMatcher {
 	private Collection<MatchedPerformedRefactorings> matchPerformedRefactorings() {
 		ArrayList<Event> sortedCodingTrackerPerformedRefactorings= sortedByTimestamp(getCodingTrackerPerformedRefactorings());
 		ArrayList<Event> sortedCodingSpectatorPerformedRefactorings= sortedByTimestamp(getCodingSpectatorPerformedRefactorings());
+		ArrayList<Event> remainingSortedCodingSpectatorPerformedRefactorings= new ArrayList<Event>();
 		Collection<MatchedPerformedRefactorings> matchedPerformedRefactorings= new HashSet<MatchedPerformedRefactorings>();
 		for (Event event : sortedCodingSpectatorPerformedRefactorings) {
 			RefactoringEvent csEvent= (RefactoringEvent)event;
 			int index= findClosestMatchingEvent(sortedCodingTrackerPerformedRefactorings, event);
 			if (index >= 0) {
 				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(csEvent, sortedCodingTrackerPerformedRefactorings.get(index).getTimestamp()));
+				sortedCodingTrackerPerformedRefactorings.remove(index);
 			} else {
 				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(csEvent, -1));
+				remainingSortedCodingSpectatorPerformedRefactorings.add(csEvent);
 			}
 		}
 		for (Event event : sortedCodingTrackerPerformedRefactorings) {
 			UserOperationEvent ctEvent= (UserOperationEvent)event;
-			int index= findClosestMatchingEvent(sortedCodingSpectatorPerformedRefactorings, event);
+			int index= findClosestMatchingEvent(remainingSortedCodingSpectatorPerformedRefactorings, event);
 			if (index >= 0) {
-				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(ctEvent, sortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp()));
+				matchedPerformedRefactorings.add(MatchedPerformedRefactorings
+						.createMatchedPerformedRefactorings(ctEvent, remainingSortedCodingSpectatorPerformedRefactorings.get(index).getTimestamp()));
+				remainingSortedCodingSpectatorPerformedRefactorings.remove(index);
 			} else {
 				matchedPerformedRefactorings.add(MatchedPerformedRefactorings.createMatchedPerformedRefactorings(ctEvent, -1));
 			}
