@@ -68,12 +68,12 @@ public class PerformedRefactoringMatcher {
 		return sorted(matchedPerformedRefactorings);
 	}
 
-	private int findClosestMatchingEvent(ArrayList<Event> sortedCodingTrackerPerformedRefactorings, Event event) {
+	private int findClosestMatchingEvent(ArrayList<Event> sortedEvents, Event event) {
 		final long MAX_TIMESTAMP_DIFFERENCE= 5 * 60 * 1000; // 5 minutes in milliseconds
 		long timestampDifference= 500;
 		int index= -1;
 		do {
-			index= Collections.binarySearch(sortedCodingTrackerPerformedRefactorings, event, getEventTimestampComparatorForFinding(timestampDifference));
+			index= Collections.binarySearch(sortedEvents, event, getEventTimestampComparatorForFinding(timestampDifference));
 			timestampDifference+= 500;
 		} while (index < 0 && timestampDifference < MAX_TIMESTAMP_DIFFERENCE);
 		return index;
