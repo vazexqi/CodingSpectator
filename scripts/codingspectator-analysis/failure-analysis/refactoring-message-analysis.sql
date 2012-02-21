@@ -1,9 +1,5 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
-\c false
-
-\i functions.sql
-
 DROP TABLE "PUBLIC"."ECLIPSE_REFACTORING_IDS" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."ECLIPSE_REFACTORING_IDS" (
@@ -108,7 +104,7 @@ INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP48'
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP49', '%FATALERROR%FATALERROR: This is an invalid name for a file or folder%', 'FATALERROR');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP50', '%WARNING: The visibility of method % will be changed to default.%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP51', '%WARNING: The visibility of method % will be changed to public.%', 'WARNING');
-INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP51', '%WARNING: The visibility of field % will be changed to public.%', 'WARNING');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP52', '%WARNING: The visibility of field % will be changed to public.%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP53', '%WARNING: The visibility of field % will be changed to default.%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP54', '%WARNING: The visibility of field % will be changed to protected.%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP55', '%WARNING: The method invocations to % cannot be updated, since the original method is used polymorphically.%', 'WARNING');
@@ -135,11 +131,16 @@ INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP75'
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP76', 'Push Down is not allowed on type %, since it does not have subclasses to which members could be pushed down.%', 'UNAVAILABLE');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP77', '%WARNING: Package % already exists in this project in folder%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP78', '%FATALERROR%FATALERROR: Compilation unit % already exists%', 'FATALERROR');
-INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP79', '%WARNING: By convention, Java type names usually don''t contain the $ character%', 'WARNING');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP79', '%WARNING: By convention, Java type names usually don''t contain the % character%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP80', '%Operation unavailable on the current selection.%Select a Java project, source folder, resource, package, compilation unit, type, field, method, parameter or a local variable%', 'UNAVAILABLE');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP81', '%Operation unavailable on the current selection.%Select a Java project, source folder, resource, package or a compilation unit, or a non-binary type, field, method, parameter, local variable, or type variable.%', 'UNAVAILABLE');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP82', '%WARNING: % contains compiler errors. This may affect field access update.%', 'WARNING');
 INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP83', 'Only local variables declared in methods can be converted to fields.%', 'UNAVAILABLE');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP84', '%ERROR: Void methods cannot return a value%', 'ERROR');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP85', '%ERROR: The local variable % may not have been initialized%', 'ERROR');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP86', 'Local variable ''%'' is not initialized at declaration.%', 'UNAVAILABLE');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP87', '%ERROR: A field with this name is already defined.%', 'ERROR');
+INSERT INTO "PUBLIC"."MESSAGE_PATTERNS" ("ID", "PATTERN", "KIND") VALUES ('MP88', 'This refactoring cannot be used to move potentially recursive methods.%', 'UNAVAILABLE');
 
 * *DSV_COL_DELIM=|
 * *DSV_ROW_DELIM=\n

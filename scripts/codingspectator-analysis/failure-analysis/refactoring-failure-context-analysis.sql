@@ -2,7 +2,7 @@
 
 --This script generates a report of all events that are close to certain kinds of refactoring failures.
 
-\i summarize-refactoring-messages.sql
+\i refactoring-message-analysis.sql
 
 \c false
 

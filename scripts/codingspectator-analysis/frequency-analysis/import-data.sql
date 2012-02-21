@@ -1,0 +1,56 @@
+--This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+
+\p Inserting some "pseudo" IDs that correspond with the UDC umbrella IDs for refactorings
+
+INSERT INTO "PUBLIC"."ALL_DATA" ("id")
+VALUES ('org.eclipse.jdt.ui.rename.all');
+
+INSERT INTO "PUBLIC"."ALL_DATA" ("id")
+VALUES ('org.eclipse.jdt.ui.move.all');
+
+INSERT INTO "PUBLIC"."ALL_DATA" ("id")
+VALUES ('org.eclipse.jdt.ui.inline.all');
+
+DROP TABLE "PUBLIC"."UDC_DATA" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."UDC_DATA" (
+  "YEARMONTH" VARCHAR(1000),
+  "COMMAND" VARCHAR(1000),
+  "BUNDLEID" VARCHAR(1000),
+  "BUNDLEVERSION" VARCHAR(1000),
+  "EXECUTECOUNT" INT,
+  "USERCOUNT" INT
+);
+
+* *DSV_COL_SPLITTER = ,
+* *DSV_TARGET_TABLE = "PUBLIC"."UDC_DATA"
+
+\m commands.csv
+
+DROP TABLE "PUBLIC"."REFACTORING_CHANGE_SIZE" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."REFACTORING_CHANGE_SIZE" (
+  "USERNAME" VARCHAR(100),
+  "WORKSPACE_ID" VARCHAR(100000),
+  "VERSION" VARCHAR(100),
+  "TIMESTAMP" BIGINT,
+  "REFACTORING_ID" VARCHAR(100),
+  "AFFECTED_FILES_COUNT" INT,
+  "AFFECTED_LINES_COUNT" INT
+);
+
+* *DSV_TARGET_TABLE = "PUBLIC"."REFACTORING_CHANGE_SIZE"
+
+\m refactoring_change_intensity.csv
+
+* *DSV_TARGET_TABLE = "PUBLIC"."UDC_ECLIPSE_MAPPING"
+
+DROP TABLE "PUBLIC"."UDC_ECLIPSE_MAPPING" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."UDC_ECLIPSE_MAPPING" (
+"UDCID" VARCHAR(1000),
+"ECLIPSEID" VARCHAR(1000)
+);
+
+\m refactoringmapping.csv
+
