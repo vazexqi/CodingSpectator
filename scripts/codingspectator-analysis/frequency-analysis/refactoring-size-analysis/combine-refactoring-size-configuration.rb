@@ -64,7 +64,7 @@ configuration_csv_rows.each do |configuration_csv_row|
   matching_size_csv_row = size_csv_rows.find do |size_csv_row|
     configuration_csv_row["WORKSPACE_ID"] == size_csv_row["WORKSPACE_ID"] and
     configuration_csv_row["REFACTORING_ID"] == size_csv_row["REFACTORING_ID"] and
-    (configuration_csv_row["TIMESTAMP"].to_i - size_csv_row["TIMESTAMP"].to_i).abs < 1000
+    (configuration_csv_row["TIMESTAMP"].to_i - size_csv_row["TIMESTAMP"].to_i).abs < 1000 #TODO: This matching is not good enough. Some refactorings are about 5 minutes apart.
   end
 
   if matching_size_csv_row then

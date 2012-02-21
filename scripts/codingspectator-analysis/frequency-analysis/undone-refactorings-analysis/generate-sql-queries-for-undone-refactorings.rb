@@ -2,7 +2,9 @@
 #This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 #author: Nick Chen
 
-# This file generate the RAW SQL queries for the file intersection-queries.sql.
+# This file generate the RAW SQL queries for the file
+# "undone-refactorings-analysis.sql".
+#
 # The only reason we need this file is because hsqldb has problems capturing
 # proper closured for correlated subqueries.
 
