@@ -6,6 +6,8 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.ast.ManualRefactoringOperation;
 import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
 
 
@@ -32,7 +34,15 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 	protected void postprocess(List<UserOperation> userOperations) {
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
+			//TODO: Should replay and record be a single method?
+			replay(userOperation);
 			record(userOperation);
+			if (userOperation instanceof ASTOperation) {
+				ManualRefactoringOperation refactoringOperation= ExtractVariableRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
+				if (refactoringOperation != null) {
+					record(refactoringOperation);
+				}
+			}
 		}
 	}
 

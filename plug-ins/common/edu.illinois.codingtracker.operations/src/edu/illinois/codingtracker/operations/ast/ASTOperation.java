@@ -46,6 +46,10 @@ public class ASTOperation extends UserOperation {
 		return affectedNodeDescriptor.getNodeID();
 	}
 
+	public String getPositionalID() {
+		return affectedNodeDescriptor.getPositionalID();
+	}
+
 	public String getNodeType() {
 		return affectedNodeDescriptor.getNodeType();
 	}

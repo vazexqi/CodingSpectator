@@ -64,10 +64,16 @@ public class ASTOperationRecorder {
 
 	private boolean isInProblemMode= false;
 
+	//Persist some information required for refactoring inference.
+
+	private ASTNode lastOldRootNode;
+
+	private ASTNode lastNewRootNode;
+
 
 	public static ASTOperationRecorder getInstance() {
 		if (astRecorderInstance == null) {
-			if (Configuration.isInASTInferenceMode) {
+			if (Configuration.isInASTInferenceMode || Configuration.isInRefactoringInferenceMode) {
 				astRecorderInstance= new ASTOperationRecorder();
 			} else {
 				astRecorderInstance= new InactiveASTOperationRecorder();
@@ -78,6 +84,18 @@ public class ASTOperationRecorder {
 
 	ASTOperationRecorder() { //hide the constructor
 		//do nothing
+	}
+
+	public ASTNode getLastOldRootNode() {
+		return lastOldRootNode;
+	}
+
+	public ASTNode getLastNewRootNode() {
+		return lastNewRootNode;
+	}
+
+	public String getCurrentRecordedFilePath() {
+		return currentRecordedFilePath;
 	}
 
 	/**
@@ -368,6 +386,9 @@ public class ASTOperationRecorder {
 	}
 
 	private void inferAndRecordASTOperations(ASTOperationInferencer astOperationInferencer) {
+		lastOldRootNode= astOperationInferencer.getOldRootNode();
+		lastNewRootNode= astOperationInferencer.getNewRootNode();
+
 		astOperationInferencer.inferASTOperations();
 		boolean isCommentingOrUncommenting= astOperationInferencer.isCommentingOrUncommenting();
 		boolean isUndoing= astOperationInferencer.isUndoing();
@@ -439,9 +460,13 @@ public class ASTOperationRecorder {
 	private void recordASTOperation(String filePath, ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor) {
 		if (!filePath.equals(currentRecordedFilePath)) {
 			currentRecordedFilePath= filePath;
-			ASTInferenceTextRecorder.recordASTFileOperation(currentRecordedFilePath);
+			if (!Configuration.isInRefactoringInferenceMode) {
+				ASTInferenceTextRecorder.recordASTFileOperation(currentRecordedFilePath);
+			}
 		}
-		ASTInferenceTextRecorder.recordASTOperation(operationDescriptor, affectedNodeDescriptor);
+		if (!Configuration.isInRefactoringInferenceMode) {
+			ASTInferenceTextRecorder.recordASTOperation(operationDescriptor, affectedNodeDescriptor);
+		}
 	}
 
 	public void recordASTOperationForDeletedResource(IResource deletedResource, boolean success) {

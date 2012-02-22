@@ -23,6 +23,8 @@ public class Configuration {
 
 	public static final boolean isInASTInferenceMode= System.getenv("AST_INFERENCE_MODE") != null;
 
+	public static final boolean isInRefactoringInferenceMode= System.getenv("REFACTORING_INFERENCE_MODE") != null;
+
 	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
 }

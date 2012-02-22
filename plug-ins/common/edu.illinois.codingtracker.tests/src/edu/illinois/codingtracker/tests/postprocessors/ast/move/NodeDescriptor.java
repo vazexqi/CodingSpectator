@@ -24,6 +24,10 @@ public class NodeDescriptor {
 		this.nodeText= astOperation.getNodeText();
 	}
 
+	public String getNodeText() {
+		return nodeText;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime= 31;

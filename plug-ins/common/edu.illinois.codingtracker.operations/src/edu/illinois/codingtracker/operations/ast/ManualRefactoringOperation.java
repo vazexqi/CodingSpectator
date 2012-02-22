@@ -3,6 +3,10 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -23,15 +27,20 @@ public class ManualRefactoringOperation extends UserOperation {
 
 	private long refactoringID;
 
+	private final Map<String, String> arguments= new TreeMap<String, String>(); //TreeMap ensures a particular order.
+
 
 	public ManualRefactoringOperation() {
 		super();
 	}
 
-	public ManualRefactoringOperation(RefactoringKind refactoringKind, long refactoringID, long timestamp) {
+	public ManualRefactoringOperation(RefactoringKind refactoringKind, long refactoringID, Map<String, String> arguments, long timestamp) {
 		super(timestamp);
 		this.refactoringKind= refactoringKind;
 		this.refactoringID= refactoringID;
+		for (Entry<String, String> argumentEntry : arguments.entrySet()) {
+			this.arguments.put(argumentEntry.getKey(), argumentEntry.getValue());
+		}
 	}
 
 
@@ -49,12 +58,21 @@ public class ManualRefactoringOperation extends UserOperation {
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(refactoringKind.ordinal());
 		textChunk.append(refactoringID);
+		textChunk.append(arguments.size());
+		for (Entry<String, String> argumentEntry : arguments.entrySet()) {
+			textChunk.append(argumentEntry.getKey());
+			textChunk.append(argumentEntry.getValue());
+		}
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		refactoringKind= RefactoringKind.values()[operationLexer.readInt()];
 		refactoringID= operationLexer.readLong();
+		int argumentsCount= operationLexer.readInt();
+		for (int i= 0; i < argumentsCount; i++) {
+			arguments.put(operationLexer.readString(), operationLexer.readString());
+		}
 	}
 
 	@Override
@@ -67,6 +85,11 @@ public class ManualRefactoringOperation extends UserOperation {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Refactoring kind: " + refactoringKind + "\n");
 		sb.append("Refactoring ID: " + refactoringID + "\n");
+		sb.append("Arguments count: " + arguments.size() + "\n");
+		for (Entry<String, String> argumentEntry : arguments.entrySet()) {
+			sb.append("Key: " + argumentEntry.getKey() + "\n");
+			sb.append("Value: " + argumentEntry.getValue() + "\n");
+		}
 		sb.append(super.toString());
 		return sb.toString();
 	}

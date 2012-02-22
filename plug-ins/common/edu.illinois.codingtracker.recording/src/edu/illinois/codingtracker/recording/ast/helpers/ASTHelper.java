@@ -97,7 +97,7 @@ public class ASTHelper {
 	 * @param parentClasses
 	 * @return
 	 */
-	private static ASTNode getParent(ASTNode node, Class... parentClasses) {
+	public static ASTNode getParent(ASTNode node, Class... parentClasses) {
 		while (node != null) {
 			for (Class parentClass : parentClasses) {
 				if (parentClass.isInstance(node)) {

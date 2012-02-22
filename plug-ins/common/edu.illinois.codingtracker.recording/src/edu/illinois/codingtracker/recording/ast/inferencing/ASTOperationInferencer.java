@@ -25,7 +25,7 @@ import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifie
  */
 public class ASTOperationInferencer {
 
-	CoveringNodesFinder affectedNodesFinder;
+	private CoveringNodesFinder affectedNodesFinder;
 
 	private ASTNode newCommonCoveringNode;
 
@@ -42,6 +42,11 @@ public class ASTOperationInferencer {
 	private boolean isPossiblyCommentingOrUncommentingChange;
 
 	private boolean isUndoing;
+
+	//Persist some information required for refactoring inference
+	private ASTNode oldRootNode;
+
+	private ASTNode newRootNode;
 
 
 	public ASTOperationInferencer(CoherentTextChange coherentTextChange) {
@@ -84,15 +89,23 @@ public class ASTOperationInferencer {
 		return isUndoing;
 	}
 
+	public ASTNode getOldRootNode() {
+		return oldRootNode;
+	}
+
+	public ASTNode getNewRootNode() {
+		return newRootNode;
+	}
+
 	private void initializeInferencer(List<CoherentTextChange> coherentTextChanges) {
 		initializeOperationState(coherentTextChanges);
 
 		affectedNodesFinder= new CoveringNodesFinder(coherentTextChanges);
 
-		ASTNode oldRootNode= affectedNodesFinder.getOldRootNode();
+		oldRootNode= affectedNodesFinder.getOldRootNode();
 		ASTNode oldCoveringNode= affectedNodesFinder.getOldCoveringNode();
 
-		ASTNode newRootNode= affectedNodesFinder.getNewRootNode();
+		newRootNode= affectedNodesFinder.getNewRootNode();
 		ASTNode newCoveringNode= affectedNodesFinder.getNewCoveringNode();
 
 		String initialCommonCoveringNodeID= ASTNodesIdentifier.getCommonPositonalNodeID(oldCoveringNode, newCoveringNode);

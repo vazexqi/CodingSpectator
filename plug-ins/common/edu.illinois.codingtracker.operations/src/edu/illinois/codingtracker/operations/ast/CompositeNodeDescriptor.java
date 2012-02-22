@@ -35,6 +35,10 @@ public class CompositeNodeDescriptor {
 		return nodeDescriptor.getNodeID();
 	}
 
+	public String getPositionalID() {
+		return nodeDescriptor.getPositionalID();
+	}
+
 	public String getNodeType() {
 		return nodeDescriptor.getNodeType();
 	}
