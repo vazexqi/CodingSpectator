@@ -167,14 +167,18 @@ public class MatchedPerformedRefactorings implements Mappable, Comparable<Matche
 
 	@Override
 	public int compareTo(MatchedPerformedRefactorings o) {
-		if (workspaceID.equals(o.workspaceID)) {
-			if (codingspectatorTimestamp == -1 || o.codingspectatorTimestamp == -1) {
-				return Long.signum(codingtrackerTimestamp - o.codingtrackerTimestamp);
+		if (username.equals(o.username)) {
+			if (workspaceID.equals(o.workspaceID)) {
+				if (codingspectatorTimestamp == -1 || o.codingspectatorTimestamp == -1) {
+					return Long.signum(codingtrackerTimestamp - o.codingtrackerTimestamp);
+				} else {
+					return Long.signum(codingspectatorTimestamp - o.codingspectatorTimestamp);
+				}
 			} else {
-				return Long.signum(codingspectatorTimestamp - o.codingspectatorTimestamp);
+				return workspaceID.compareTo(o.workspaceID);
 			}
 		} else {
-			return workspaceID.compareTo(o.workspaceID);
+			return username.compareTo(o.username);
 		}
 	}
 }
