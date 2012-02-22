@@ -142,25 +142,14 @@ public class PerformedRefactoringMatcher {
 		};
 	}
 
-	private String normalizedProjectName(String projectName) {
-		if (projectName == null || ".workspace".equals(projectName)) {
-			return "";
-		}
-		else {
-			return projectName;
-		}
-	}
-
 	private Comparator<Event> getEventTimestampComparatorForFinding(final long maxTimestampDifference) {
 		return new Comparator<Event>() {
 
 			@Override
 			public int compare(Event e1, Event e2) {
-				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < maxTimestampDifference && Utils.toJavaRefactoringID(e1.toMap().get("id")).equals(Utils.toJavaRefactoringID(e2.toMap().get("id")))
-						&& normalizedProjectName(e1.toMap().get("project")).equals(normalizedProjectName(e2.toMap().get("project")))) {
+				if (Math.abs(e1.getTimestamp() - e2.getTimestamp()) < maxTimestampDifference && Utils.toJavaRefactoringID(e1.toMap().get("id")).equals(Utils.toJavaRefactoringID(e2.toMap().get("id")))) {
 					return 0;
-				}
-				else {
+				} else {
 					return Long.signum(e1.getTimestamp() - e2.getTimestamp());
 				}
 			}
