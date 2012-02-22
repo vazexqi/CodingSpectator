@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.operations.ast.ManualRefactoringOperation;
-import edu.illinois.codingtracker.operations.ast.ManualRefactoringOperation.RefactoringKind;
+import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
+import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringPropertiesFactory;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
 
@@ -31,7 +31,7 @@ public class ExtractVariableRefactoringFactory {
 	private static final Set<ExtractVariableRefactoring> currentRefactorings= new HashSet<ExtractVariableRefactoring>();
 
 
-	public static ManualRefactoringOperation handleASTOperation(ASTOperation operation) {
+	public static InferredRefactoringOperation handleASTOperation(ASTOperation operation) {
 		RefactoringProperty refactoringProperty= RefactoringPropertiesFactory.createProperty(operation);
 		if (refactoringProperty != null) {
 			//TODO: Decide whether a refactoring property can be a (tentative) part of several refactorings 
@@ -45,7 +45,7 @@ public class ExtractVariableRefactoringFactory {
 					if (refactoring.isComplete()) {
 						//TODO: Decide what to do with shared properties, if allowed.
 						currentRefactorings.remove(refactoring);
-						return new ManualRefactoringOperation(refactoringKind, refactoringID++, refactoring.getArguments(), operation.getTime());
+						return new InferredRefactoringOperation(refactoringKind, refactoringID++, refactoring.getArguments(), operation.getTime());
 					}
 					wasAdded= true;
 				}

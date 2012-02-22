@@ -7,7 +7,7 @@ import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.operations.ast.ManualRefactoringOperation;
+import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
 import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
 
 
@@ -38,7 +38,7 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 			replay(userOperation);
 			record(userOperation);
 			if (userOperation instanceof ASTOperation) {
-				ManualRefactoringOperation refactoringOperation= ExtractVariableRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
+				InferredRefactoringOperation refactoringOperation= ExtractVariableRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
 				if (refactoringOperation != null) {
 					record(refactoringOperation);
 				}

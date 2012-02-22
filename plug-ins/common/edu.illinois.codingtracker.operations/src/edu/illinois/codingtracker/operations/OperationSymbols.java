@@ -102,6 +102,6 @@ public abstract class OperationSymbols {
 
 	public static final char AST_FILE_OPERATION_SYMBOL= 'R';
 
-	public static final char MANUAL_REFACTORING_OPERATION_SYMBOL= 'S';
+	public static final char INFERRED_REFACTORING_OPERATION_SYMBOL= 'S';
 
 }

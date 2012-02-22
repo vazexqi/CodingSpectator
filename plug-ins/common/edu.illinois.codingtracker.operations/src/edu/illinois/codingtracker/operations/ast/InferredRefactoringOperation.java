@@ -17,7 +17,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
  * @author Stas Negara
  * 
  */
-public class ManualRefactoringOperation extends UserOperation {
+public class InferredRefactoringOperation extends UserOperation {
 
 	public static enum RefactoringKind {
 		EXTRACT_LOCAL_VARIABLE, EXTRACT_LOCAL_CONSTANT, INLINE_LOCAL_VARIABLE, INLINE_LOCAL_CONSTANT, RENAME_LOCAL_VARIABLE
@@ -30,11 +30,11 @@ public class ManualRefactoringOperation extends UserOperation {
 	private final Map<String, String> arguments= new TreeMap<String, String>(); //TreeMap ensures a particular order.
 
 
-	public ManualRefactoringOperation() {
+	public InferredRefactoringOperation() {
 		super();
 	}
 
-	public ManualRefactoringOperation(RefactoringKind refactoringKind, long refactoringID, Map<String, String> arguments, long timestamp) {
+	public InferredRefactoringOperation(RefactoringKind refactoringKind, long refactoringID, Map<String, String> arguments, long timestamp) {
 		super(timestamp);
 		this.refactoringKind= refactoringKind;
 		this.refactoringID= refactoringID;
@@ -46,12 +46,12 @@ public class ManualRefactoringOperation extends UserOperation {
 
 	@Override
 	protected char getOperationSymbol() {
-		return OperationSymbols.MANUAL_REFACTORING_OPERATION_SYMBOL;
+		return OperationSymbols.INFERRED_REFACTORING_OPERATION_SYMBOL;
 	}
 
 	@Override
 	public String getDescription() {
-		return "Inferred manual refactoring";
+		return "Inferred refactoring";
 	}
 
 	@Override

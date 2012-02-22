@@ -10,6 +10,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import edu.illinois.codingtracker.helpers.ViewerHelper;
+import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
 import edu.illinois.codingtracker.operations.files.RefactoredSavedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
 import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
@@ -26,7 +29,7 @@ import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 public class OperationSequenceFilter extends ViewerFilter {
 
 	private enum FilteredOperations {
-		TEXT_CHANGES, REFACTORINGS, SNAPSHOTS, OTHERS
+		TEXT_CHANGES, REFACTORINGS, SNAPSHOTS, AST_OPERATIONS, INFERRED_REFACTORINGS, OTHERS
 	}
 
 	private final OperationSequenceView operationSequenceView;
@@ -36,6 +39,10 @@ public class OperationSequenceFilter extends ViewerFilter {
 	private boolean showRefactorings= true;
 
 	private boolean showSnapshots= true;
+
+	private boolean showASTOperations= true;
+
+	private boolean showInferredRefactorings= true;
 
 	private boolean showOthers= true;
 
@@ -59,6 +66,12 @@ public class OperationSequenceFilter extends ViewerFilter {
 		if (element instanceof SnapshotedFileOperation) {
 			return showSnapshots;
 		}
+		if (element instanceof ASTOperation || element instanceof ASTFileOperation) {
+			return showASTOperations;
+		}
+		if (element instanceof InferredRefactoringOperation) {
+			return showInferredRefactorings;
+		}
 		return showOthers;
 	}
 
@@ -67,6 +80,8 @@ public class OperationSequenceFilter extends ViewerFilter {
 		toolBarManager.add(createFilterAction("Text Changes", "Display text change operations", FilteredOperations.TEXT_CHANGES));
 		toolBarManager.add(createFilterAction("Refactorings", "Display refactoring operations", FilteredOperations.REFACTORINGS));
 		toolBarManager.add(createFilterAction("Snapshots", "Display snapshot-producing operations", FilteredOperations.SNAPSHOTS));
+		toolBarManager.add(createFilterAction("AST Operations", "Display AST node operations", FilteredOperations.AST_OPERATIONS));
+		toolBarManager.add(createFilterAction("Inferred Refactorings", "Display inferred refactoring operations", FilteredOperations.INFERRED_REFACTORINGS));
 		toolBarManager.add(createFilterAction("Others", "Display all other operations", FilteredOperations.OTHERS));
 	}
 
@@ -92,6 +107,12 @@ public class OperationSequenceFilter extends ViewerFilter {
 				break;
 			case SNAPSHOTS:
 				showSnapshots= !showSnapshots;
+				break;
+			case AST_OPERATIONS:
+				showASTOperations= !showASTOperations;
+				break;
+			case INFERRED_REFACTORINGS:
+				showInferredRefactorings= !showInferredRefactorings;
 				break;
 			case OTHERS:
 				showOthers= !showOthers;
