@@ -47,8 +47,13 @@ public class RefactoringPropertiesFactory {
 				ASTNode parent= ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class);
 				if (parent != null) {
 					VariableDeclarationFragment variableDeclaration= (VariableDeclarationFragment)parent;
-					String variableName= variableDeclaration.getName().getIdentifier();
-					return new MovedToInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID);
+					if (affectedNode == variableDeclaration.getInitializer()) {
+						String variableName= variableDeclaration.getName().getIdentifier();
+						return new MovedToInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID);
+					}
+				} else if (affectedNode instanceof SimpleName) { //TODO: Duplicated code.
+					String variableName= ((SimpleName)affectedNode).getIdentifier();
+					return new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode));
 				}
 			} else {
 				if (affectedNode instanceof VariableDeclarationFragment) {
