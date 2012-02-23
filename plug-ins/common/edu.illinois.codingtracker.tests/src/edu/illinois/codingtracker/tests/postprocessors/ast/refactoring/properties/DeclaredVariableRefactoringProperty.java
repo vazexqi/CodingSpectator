@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class DeclaredVariableRefactoringProperty implements RefactoringProperty {
+public class DeclaredVariableRefactoringProperty extends RefactoringProperty {
 
 	private final String variableName;
 

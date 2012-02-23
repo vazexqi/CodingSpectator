@@ -5,14 +5,13 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 
-
 /**
  * This class represents an added reference to a variable.
  * 
  * @author Stas Negara
  * 
  */
-public class AddedVariableReferenceRefactoringProperty implements RefactoringProperty {
+public class AddedVariableReferenceRefactoringProperty extends RefactoringProperty {
 
 	private final String variableName;
 

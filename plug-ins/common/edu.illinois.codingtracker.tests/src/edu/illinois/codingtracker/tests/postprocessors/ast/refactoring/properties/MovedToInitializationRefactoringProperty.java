@@ -13,7 +13,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  * @author Stas Negara
  * 
  */
-public class MovedToInitializationRefactoringProperty implements RefactoringProperty {
+public class MovedToInitializationRefactoringProperty extends RefactoringProperty {
 
 	private final NodeDescriptor movedNode;
 

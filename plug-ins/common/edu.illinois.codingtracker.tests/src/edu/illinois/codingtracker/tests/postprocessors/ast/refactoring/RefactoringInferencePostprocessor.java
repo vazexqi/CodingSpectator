@@ -32,6 +32,7 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
+		ExtractVariableRefactoringFactory.resetCurrentRefactorings();
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
 			//TODO: Should replay and record be a single method?

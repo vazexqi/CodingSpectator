@@ -31,34 +31,59 @@ public class ExtractVariableRefactoringFactory {
 	private static final Set<ExtractVariableRefactoring> currentRefactorings= new HashSet<ExtractVariableRefactoring>();
 
 
+	/**
+	 * Should be called before processing a sequence.
+	 */
+	public static void resetCurrentRefactorings() {
+		refactoringID= 1;
+		currentRefactorings.clear();
+	}
+
 	public static InferredRefactoringOperation handleASTOperation(ASTOperation operation) {
+		//TODO: Should remove refactorings after some time threshold (i.e., after a reasonable time for a manual refactoring).
 		RefactoringProperty refactoringProperty= RefactoringPropertiesFactory.createProperty(operation);
 		if (refactoringProperty != null) {
-			//TODO: Decide whether a refactoring property can be a (tentative) part of several refactorings 
-			//and how this should be handled, when one of the refactorings becomes complete. Apparently, a property
-			//could be a part of refactorings of different kind. It is not clear if this is true for several refactorings
-			//of the same kind.
-			boolean wasAdded= false;
-			for (ExtractVariableRefactoring refactoring : currentRefactorings) {
-				if (refactoring.canBePart(refactoringProperty)) {
-					refactoring.addProperty(refactoringProperty);
-					if (refactoring.isComplete()) {
-						//TODO: Decide what to do with shared properties, if allowed.
-						currentRefactorings.remove(refactoring);
-						return new InferredRefactoringOperation(refactoringKind, refactoringID++, refactoring.getArguments(), operation.getTime());
-					}
-					wasAdded= true;
-				}
+			ExtractVariableRefactoring completeRefactoring= addProperty(refactoringProperty);
+			if (completeRefactoring != null) {
+				InferredRefactoringOperation inferredRefactoring= new InferredRefactoringOperation(refactoringKind, refactoringID++, completeRefactoring.getArguments(), operation.getTime());
+				disableProperties(completeRefactoring);
+				return inferredRefactoring;
 			}
-			if (!wasAdded) {
-				ExtractVariableRefactoring newRefactoring= new ExtractVariableRefactoring();
-				if (newRefactoring.canBePart(refactoringProperty)) {
-					newRefactoring.addProperty(refactoringProperty);
-					currentRefactorings.add(newRefactoring);
-				}
+			//TODO: Revise to avoid creation of unnecessary object.
+			ExtractVariableRefactoring newRefactoring= new ExtractVariableRefactoring();
+			if (newRefactoring.canBePart(refactoringProperty)) {
+				currentRefactorings.add(newRefactoring.addProperty(refactoringProperty));
 			}
 		}
 		return null;
+	}
+
+	private static ExtractVariableRefactoring addProperty(RefactoringProperty refactoringProperty) {
+		Set<ExtractVariableRefactoring> newRefactorings= new HashSet<ExtractVariableRefactoring>();
+		for (ExtractVariableRefactoring refactoring : currentRefactorings) {
+			if (refactoring.canBePart(refactoringProperty)) {
+				ExtractVariableRefactoring newRefactoring= refactoring.addProperty(refactoringProperty);
+				newRefactorings.add(newRefactoring);
+				if (newRefactoring.isComplete()) {
+					return newRefactoring;
+				}
+			}
+		}
+		currentRefactorings.addAll(newRefactorings);
+		return null;
+	}
+
+	private static void disableProperties(ExtractVariableRefactoring completeRefactoring) {
+		//TODO: After disabling some properties, there could remain duplicated refactorings in currentRefactorings, i.e.,
+		//refactorings with exactly the same set of properties, which could lead to a huge performance overhead.
+		completeRefactoring.disableProperties();
+		Set<ExtractVariableRefactoring> disabledRefactorings= new HashSet<ExtractVariableRefactoring>();
+		for (ExtractVariableRefactoring refactoring : currentRefactorings) {
+			if (refactoring.checkDisabled()) {
+				disabledRefactorings.add(refactoring);
+			}
+		}
+		currentRefactorings.removeAll(disabledRefactorings);
 	}
 
 }

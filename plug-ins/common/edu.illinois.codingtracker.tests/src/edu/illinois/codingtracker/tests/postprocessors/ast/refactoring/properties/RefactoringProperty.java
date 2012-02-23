@@ -5,13 +5,22 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 
-
 /**
  * 
  * @author Stas Negara
  * 
  */
-public interface RefactoringProperty {
+public abstract class RefactoringProperty {
 
+	private boolean isActive= true;
+
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void disable() {
+		isActive= false;
+	}
 
 }
