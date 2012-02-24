@@ -6,9 +6,10 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
 import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AddedVariableReferenceRefactoringProperty;
-import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.DeclaredVariableRefactoringProperty;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AddedVariableDeclarationRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.MovedFromUsageRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.MovedToInitializationRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
@@ -22,7 +23,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  * @author Stas Negara
  * 
  */
-public class ExtractVariableRefactoring {
+public class ExtractVariableRefactoring implements InferredRefactoring {
 
 	private NodeDescriptor movedNode;
 
@@ -34,13 +35,44 @@ public class ExtractVariableRefactoring {
 
 	private MovedToInitializationRefactoringProperty movedToInitialization;
 
-	private DeclaredVariableRefactoringProperty declaredVariable;
+	private AddedVariableDeclarationRefactoringProperty addedVariableDeclaration;
 
 	private MovedFromUsageRefactoringProperty movedFromUsage;
 
 	private AddedVariableReferenceRefactoringProperty addedVariableReference;
 
 
+	private ExtractVariableRefactoring() {
+
+	}
+
+	public static ExtractVariableRefactoring createRefactoring(RefactoringProperty refactoringProperty) {
+		if (!isAcceptableProperty(refactoringProperty)) {
+			throw new RuntimeException("Can not create ExtractVariableRefactoring for property: " + refactoringProperty);
+		}
+		ExtractVariableRefactoring newRefactoring= new ExtractVariableRefactoring();
+		addProperty(newRefactoring, refactoringProperty);
+		return newRefactoring;
+	}
+
+	public static boolean isAcceptableProperty(RefactoringProperty refactoringProperty) {
+		return refactoringProperty instanceof MovedToInitializationRefactoringProperty ||
+				refactoringProperty instanceof AddedVariableDeclarationRefactoringProperty ||
+				refactoringProperty instanceof MovedFromUsageRefactoringProperty ||
+				refactoringProperty instanceof AddedVariableReferenceRefactoringProperty;
+	}
+
+	@Override
+	public RefactoringKind getKind() {
+		return RefactoringKind.EXTRACT_LOCAL_VARIABLE;
+	}
+
+	@Override
+	public boolean isComplete() {
+		return movedToInitialization != null && addedVariableDeclaration != null && movedFromUsage != null && addedVariableReference != null;
+	}
+
+	@Override
 	public boolean canBePart(RefactoringProperty refactoringProperty) {
 		if (refactoringProperty instanceof MovedToInitializationRefactoringProperty) {
 			if (movedToInitialization != null) {
@@ -57,12 +89,12 @@ public class ExtractVariableRefactoring {
 				return false;
 			}
 			return true;
-		} else if (refactoringProperty instanceof DeclaredVariableRefactoringProperty) {
-			if (declaredVariable != null) {
+		} else if (refactoringProperty instanceof AddedVariableDeclarationRefactoringProperty) {
+			if (addedVariableDeclaration != null) {
 				return false;
 			}
-			DeclaredVariableRefactoringProperty declaredVariable= (DeclaredVariableRefactoringProperty)refactoringProperty;
-			if (variableName != null && !variableName.equals(declaredVariable.getVariableName())) {
+			AddedVariableDeclarationRefactoringProperty addedVariableDeclaration= (AddedVariableDeclarationRefactoringProperty)refactoringProperty;
+			if (variableName != null && !variableName.equals(addedVariableDeclaration.getVariableName())) {
 				return false;
 			}
 			return true;
@@ -97,40 +129,39 @@ public class ExtractVariableRefactoring {
 		return false;
 	}
 
-	/**
-	 * Does not change this refactoring, but rather returns a new one, with this refactoring
-	 * property added to it.
-	 * 
-	 * @param refactoringProperty
-	 */
-	public ExtractVariableRefactoring addProperty(RefactoringProperty refactoringProperty) {
+	@Override
+	public InferredRefactoring addProperty(RefactoringProperty refactoringProperty) {
 		if (!canBePart(refactoringProperty)) {
 			throw new RuntimeException("Can not add property: " + refactoringProperty);
 		}
 		ExtractVariableRefactoring resultRefactoring= createCopy();
+		addProperty(resultRefactoring, refactoringProperty);
+		return resultRefactoring;
+	}
+
+	private static void addProperty(ExtractVariableRefactoring refactoring, RefactoringProperty refactoringProperty) {
 		if (refactoringProperty instanceof MovedToInitializationRefactoringProperty) {
 			MovedToInitializationRefactoringProperty movedToInitialization= (MovedToInitializationRefactoringProperty)refactoringProperty;
-			resultRefactoring.movedToInitialization= movedToInitialization;
-			resultRefactoring.movedNode= movedToInitialization.getMovedNode();
-			resultRefactoring.moveID= movedToInitialization.getMoveID();
-			resultRefactoring.variableName= movedToInitialization.getVariableName();
-		} else if (refactoringProperty instanceof DeclaredVariableRefactoringProperty) {
-			DeclaredVariableRefactoringProperty declaredVariable= (DeclaredVariableRefactoringProperty)refactoringProperty;
-			resultRefactoring.declaredVariable= declaredVariable;
-			resultRefactoring.variableName= declaredVariable.getVariableName();
+			refactoring.movedToInitialization= movedToInitialization;
+			refactoring.movedNode= movedToInitialization.getMovedNode();
+			refactoring.moveID= movedToInitialization.getMoveID();
+			refactoring.variableName= movedToInitialization.getVariableName();
+		} else if (refactoringProperty instanceof AddedVariableDeclarationRefactoringProperty) {
+			AddedVariableDeclarationRefactoringProperty addedVariableDeclaration= (AddedVariableDeclarationRefactoringProperty)refactoringProperty;
+			refactoring.addedVariableDeclaration= addedVariableDeclaration;
+			refactoring.variableName= addedVariableDeclaration.getVariableName();
 		} else if (refactoringProperty instanceof MovedFromUsageRefactoringProperty) {
 			MovedFromUsageRefactoringProperty movedFromUsage= (MovedFromUsageRefactoringProperty)refactoringProperty;
-			resultRefactoring.movedFromUsage= movedFromUsage;
-			resultRefactoring.movedNode= movedFromUsage.getMovedNode();
-			resultRefactoring.moveID= movedFromUsage.getMoveID();
-			resultRefactoring.parentID= movedFromUsage.getParentID();
+			refactoring.movedFromUsage= movedFromUsage;
+			refactoring.movedNode= movedFromUsage.getMovedNode();
+			refactoring.moveID= movedFromUsage.getMoveID();
+			refactoring.parentID= movedFromUsage.getParentID();
 		} else if (refactoringProperty instanceof AddedVariableReferenceRefactoringProperty) {
 			AddedVariableReferenceRefactoringProperty addedVariableReference= (AddedVariableReferenceRefactoringProperty)refactoringProperty;
-			resultRefactoring.addedVariableReference= addedVariableReference;
-			resultRefactoring.variableName= addedVariableReference.getVariableName();
-			resultRefactoring.parentID= addedVariableReference.getParentID();
+			refactoring.addedVariableReference= addedVariableReference;
+			refactoring.variableName= addedVariableReference.getVariableName();
+			refactoring.parentID= addedVariableReference.getParentID();
 		}
-		return resultRefactoring;
 	}
 
 	private ExtractVariableRefactoring createCopy() {
@@ -140,29 +171,27 @@ public class ExtractVariableRefactoring {
 		copyRefactoring.variableName= variableName;
 		copyRefactoring.parentID= parentID;
 		copyRefactoring.movedToInitialization= movedToInitialization;
-		copyRefactoring.declaredVariable= declaredVariable;
+		copyRefactoring.addedVariableDeclaration= addedVariableDeclaration;
 		copyRefactoring.movedFromUsage= movedFromUsage;
 		copyRefactoring.addedVariableReference= addedVariableReference;
 		return copyRefactoring;
 	}
 
-	public boolean isComplete() {
-		return movedToInitialization != null && declaredVariable != null && movedFromUsage != null && addedVariableReference != null;
-	}
-
+	@Override
 	public void disableProperties() {
 		movedToInitialization.disable();
-		declaredVariable.disable();
+		addedVariableDeclaration.disable();
 		movedFromUsage.disable();
 		addedVariableReference.disable();
 	}
 
+	@Override
 	public boolean checkDisabled() {
 		if (movedToInitialization != null && !movedToInitialization.isActive()) {
 			movedToInitialization= null;
 		}
-		if (declaredVariable != null && !declaredVariable.isActive()) {
-			declaredVariable= null;
+		if (addedVariableDeclaration != null && !addedVariableDeclaration.isActive()) {
+			addedVariableDeclaration= null;
 		}
 		if (movedFromUsage != null && !movedFromUsage.isActive()) {
 			movedFromUsage= null;
@@ -171,7 +200,7 @@ public class ExtractVariableRefactoring {
 			addedVariableReference= null;
 		}
 		resetState();
-		return movedToInitialization == null && declaredVariable == null && movedFromUsage == null && addedVariableReference == null;
+		return movedToInitialization == null && addedVariableDeclaration == null && movedFromUsage == null && addedVariableReference == null;
 	}
 
 	private void resetState() {
@@ -184,8 +213,8 @@ public class ExtractVariableRefactoring {
 			moveID= movedToInitialization.getMoveID();
 			variableName= movedToInitialization.getVariableName();
 		}
-		if (declaredVariable != null) {
-			variableName= declaredVariable.getVariableName();
+		if (addedVariableDeclaration != null) {
+			variableName= addedVariableDeclaration.getVariableName();
 		}
 		if (movedFromUsage != null) {
 			movedNode= movedFromUsage.getMovedNode();
@@ -198,6 +227,7 @@ public class ExtractVariableRefactoring {
 		}
 	}
 
+	@Override
 	public Map<String, String> getArguments() {
 		Map<String, String> arguments= new HashMap<String, String>();
 		arguments.put("VariableName", variableName);

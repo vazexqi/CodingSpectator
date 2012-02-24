@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -30,10 +33,13 @@ public class RefactoringPropertiesFactory {
 	/**
 	 * Returns null if there is no refactoring property corresponding to the given operation.
 	 * 
+	 * TODO: Refactor!!!
+	 * 
 	 * @param operation
 	 * @return
 	 */
-	public static RefactoringProperty createProperty(ASTOperation operation) {
+	public static Set<RefactoringProperty> retrieveProperties(ASTOperation operation) {
+		Set<RefactoringProperty> properties= new HashSet<RefactoringProperty>();
 		ASTNode rootNode;
 		if (operation.isDelete()) {
 			rootNode= astOperationRecorder.getLastOldRootNode();
@@ -49,29 +55,50 @@ public class RefactoringPropertiesFactory {
 					VariableDeclarationFragment variableDeclaration= (VariableDeclarationFragment)parent;
 					if (affectedNode == variableDeclaration.getInitializer()) {
 						String variableName= variableDeclaration.getName().getIdentifier();
-						return new MovedToInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID);
+						properties.add(new MovedToInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID));
 					}
-				} else if (affectedNode instanceof SimpleName) { //TODO: Duplicated code.
-					String variableName= ((SimpleName)affectedNode).getIdentifier();
-					return new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode));
+				} else {
+					properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation), moveID, getParentID(affectedNode)));
+					if (affectedNode instanceof SimpleName) {
+						String variableName= ((SimpleName)affectedNode).getIdentifier();
+						properties.add(new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
+					}
 				}
 			} else {
 				if (affectedNode instanceof VariableDeclarationFragment) {
 					String variableName= ((VariableDeclarationFragment)affectedNode).getName().getIdentifier();
-					return new DeclaredVariableRefactoringProperty(variableName);
+					properties.add(new AddedVariableDeclarationRefactoringProperty(variableName));
 				} else if (affectedNode instanceof SimpleName &&
 							ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class) == null) {
 					String variableName= ((SimpleName)affectedNode).getIdentifier();
-					return new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode));
+					properties.add(new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
 				}
 			}
 		} else if (operation.isDelete()) {
 			long moveID= operation.getMoveID();
 			if (moveID != -1) {
-				return new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation), moveID, getParentID(affectedNode));
+				ASTNode parent= ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class);
+				if (parent != null) {
+					VariableDeclarationFragment variableDeclaration= (VariableDeclarationFragment)parent;
+					if (affectedNode == variableDeclaration.getInitializer()) {
+						String variableName= variableDeclaration.getName().getIdentifier();
+						properties.add(new MovedFromInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID));
+					}
+				} else {
+					properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation), moveID, getParentID(affectedNode)));
+				}
+			} else {
+				if (affectedNode instanceof VariableDeclarationFragment) {
+					String variableName= ((VariableDeclarationFragment)affectedNode).getName().getIdentifier();
+					properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName));
+				} else if (affectedNode instanceof SimpleName &&
+							ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class) == null) {
+					String variableName= ((SimpleName)affectedNode).getIdentifier();
+					properties.add(new DeletedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
+				}
 			}
 		}
-		return null;
+		return properties;
 	}
 
 	private static long getParentID(ASTNode node) {
