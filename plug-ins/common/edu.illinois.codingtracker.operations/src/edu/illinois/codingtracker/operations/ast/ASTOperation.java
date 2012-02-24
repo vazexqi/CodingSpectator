@@ -58,6 +58,10 @@ public class ASTOperation extends UserOperation {
 		return affectedNodeDescriptor.getNodeText();
 	}
 
+	public String getNodeNewText() {
+		return affectedNodeDescriptor.getNodeNewText();
+	}
+
 	public long getMethodID() {
 		return affectedNodeDescriptor.getMethodID();
 	}

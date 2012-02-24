@@ -14,19 +14,21 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  * @author Stas Negara
  * 
  */
-public interface InferredRefactoring {
+public abstract class InferredRefactoring {
 
-	public RefactoringKind getKind();
+	public abstract RefactoringKind getKind();
 
-	public Map<String, String> getArguments();
+	public abstract Map<String, String> getArguments();
 
-	public boolean isComplete();
+	public abstract boolean isComplete();
 
-	public void disableProperties();
+	protected abstract boolean isDisabled();
 
-	public boolean checkDisabled();
+	public abstract void disableProperties();
 
-	public boolean canBePart(RefactoringProperty refactoringProperty);
+	public abstract boolean checkDisabled();
+
+	public abstract boolean canBePart(RefactoringProperty refactoringProperty);
 
 	/**
 	 * Should not change this refactoring, but rather should return a new one, with this refactoring
@@ -34,6 +36,6 @@ public interface InferredRefactoring {
 	 * 
 	 * @param refactoringProperty
 	 */
-	public InferredRefactoring addProperty(RefactoringProperty refactoringProperty);
+	public abstract InferredRefactoring addProperty(RefactoringProperty refactoringProperty);
 
 }

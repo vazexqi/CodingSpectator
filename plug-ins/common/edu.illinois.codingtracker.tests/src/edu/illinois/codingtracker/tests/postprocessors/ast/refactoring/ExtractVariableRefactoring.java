@@ -8,8 +8,8 @@ import java.util.Map;
 
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
 import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
-import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AddedVariableReferenceRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AddedVariableDeclarationRefactoringProperty;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AddedVariableReferenceRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.MovedFromUsageRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.MovedToInitializationRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
@@ -23,7 +23,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  * @author Stas Negara
  * 
  */
-public class ExtractVariableRefactoring implements InferredRefactoring {
+public class ExtractVariableRefactoring extends InferredRefactoring {
 
 	private NodeDescriptor movedNode;
 
@@ -70,6 +70,11 @@ public class ExtractVariableRefactoring implements InferredRefactoring {
 	@Override
 	public boolean isComplete() {
 		return movedToInitialization != null && addedVariableDeclaration != null && movedFromUsage != null && addedVariableReference != null;
+	}
+
+	@Override
+	protected boolean isDisabled() {
+		return movedToInitialization == null && addedVariableDeclaration == null && movedFromUsage == null && addedVariableReference == null;
 	}
 
 	@Override
@@ -200,7 +205,7 @@ public class ExtractVariableRefactoring implements InferredRefactoring {
 			addedVariableReference= null;
 		}
 		resetState();
-		return movedToInitialization == null && addedVariableDeclaration == null && movedFromUsage == null && addedVariableReference == null;
+		return isDisabled();
 	}
 
 	private void resetState() {

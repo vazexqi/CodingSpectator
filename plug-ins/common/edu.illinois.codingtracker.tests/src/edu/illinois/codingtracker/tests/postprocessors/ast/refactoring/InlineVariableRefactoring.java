@@ -23,7 +23,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  * @author Stas Negara
  * 
  */
-public class InlineVariableRefactoring implements InferredRefactoring {
+public class InlineVariableRefactoring extends InferredRefactoring {
 
 	private NodeDescriptor movedNode;
 
@@ -70,6 +70,11 @@ public class InlineVariableRefactoring implements InferredRefactoring {
 	@Override
 	public boolean isComplete() {
 		return movedFromInitialization != null && deletedVariableDeclaration != null && movedToUsage != null && deletedVariableReference != null;
+	}
+
+	@Override
+	protected boolean isDisabled() {
+		return movedFromInitialization == null && deletedVariableDeclaration == null && movedToUsage == null && deletedVariableReference == null;
 	}
 
 	@Override
@@ -200,7 +205,7 @@ public class InlineVariableRefactoring implements InferredRefactoring {
 			deletedVariableReference= null;
 		}
 		resetState();
-		return movedFromInitialization == null && deletedVariableDeclaration == null && movedToUsage == null && deletedVariableReference == null;
+		return isDisabled();
 	}
 
 	private void resetState() {

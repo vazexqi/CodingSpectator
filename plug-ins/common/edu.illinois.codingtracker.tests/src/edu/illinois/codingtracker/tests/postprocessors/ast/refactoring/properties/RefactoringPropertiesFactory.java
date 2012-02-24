@@ -41,10 +41,10 @@ public class RefactoringPropertiesFactory {
 	public static Set<RefactoringProperty> retrieveProperties(ASTOperation operation) {
 		Set<RefactoringProperty> properties= new HashSet<RefactoringProperty>();
 		ASTNode rootNode;
-		if (operation.isDelete()) {
-			rootNode= astOperationRecorder.getLastOldRootNode();
-		} else {
+		if (operation.isAdd()) {
 			rootNode= astOperationRecorder.getLastNewRootNode();
+		} else {
+			rootNode= astOperationRecorder.getLastOldRootNode();
 		}
 		ASTNode affectedNode= ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, operation.getPositionalID());
 		if (operation.isAdd()) {
@@ -96,6 +96,15 @@ public class RefactoringPropertiesFactory {
 					String variableName= ((SimpleName)affectedNode).getIdentifier();
 					properties.add(new DeletedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
 				}
+			}
+		} else if (operation.isChange() && affectedNode instanceof SimpleName) {
+			String oldVariableName= ((SimpleName)affectedNode).getIdentifier();
+			String newVariableName= operation.getNodeNewText();
+			ASTNode parent= ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class);
+			if (parent != null && ((VariableDeclarationFragment)parent).getName() == affectedNode) {
+				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldVariableName, newVariableName));
+			} else {
+				properties.add(new ChangedVariableNameInUsageRefactoringProperty(oldVariableName, newVariableName));
 			}
 		}
 		return properties;
