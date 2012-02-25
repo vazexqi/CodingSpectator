@@ -1,42 +1,61 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
--- This script gets a CSV report with the following header and reports the number of hours of usage of each user.
+-- This script gets a CSV report with the following header and reports the
+-- number of hours of usage of each user.
 -- USERNAME,WORKSPACE_ID,VERSION,USAGE_TIME_IN_MILLI_SECS
 
 DROP TABLE "PUBLIC"."USAGE_TIMES" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."USAGE_TIMES" (
+
   "USERNAME" VARCHAR(100),
+
   "WORKSPACE_ID" VARCHAR(100),
+
   "VERSION" VARCHAR(100),
+
   "USAGE_TIME_IN_MILLI_SECS" BIGINT
+
 );
 
-* *DSV_COL_SPLITTER = ,
-* *DSV_TARGET_TABLE = "PUBLIC"."USAGE_TIMES"
+* *DSV_COL_SPLITTER =,
+
+* *DSV_TARGET_TABLE ="PUBLIC"."USAGE_TIMES"
 
 \m usage_time.csv
 
 DROP TABLE "PUBLIC"."USAGE_TIME_PER_USER" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."USAGE_TIME_PER_USER" (
+
   "USERNAME" VARCHAR(100),
-  "USAGE_TIME_IN_HOURS" BIGINT
+
+  "USAGE_TIME_IN_HOURS" NUMERIC(5, 2)
+
 );
 
 INSERT INTO "PUBLIC"."USAGE_TIME_PER_USER" (
+
   "USERNAME",
+
   "USAGE_TIME_IN_HOURS"
-)
-SELECT
+
+) SELECT
+
 "T"."USERNAME" AS "USERNAME",
-SUM("T"."USAGE_TIME_IN_MILLI_SECS") / (1000 * 60 * 60) AS "USAGE_TIME_IN_HOURS"
+
+CONVERT(SUM("T"."USAGE_TIME_IN_MILLI_SECS"), SQL_FLOAT) / (1000 * 60 * 60) AS
+"USAGE_TIME_IN_HOURS"
+
 FROM "PUBLIC"."USAGE_TIMES" "T"
+
 GROUP BY "USERNAME";
 
-* *DSV_COL_DELIM = ,
-* *DSV_ROW_DELIM = \n
-* *DSV_TARGET_FILE=UsageTimePerUser.csv
+* *DSV_COL_DELIM =,
+
+* *DSV_ROW_DELIM =\n
+
+* *DSV_TARGET_FILE =UsageTimePerUser.csv
 
 \x SELECT * FROM "PUBLIC"."USAGE_TIME_PER_USER"
 
