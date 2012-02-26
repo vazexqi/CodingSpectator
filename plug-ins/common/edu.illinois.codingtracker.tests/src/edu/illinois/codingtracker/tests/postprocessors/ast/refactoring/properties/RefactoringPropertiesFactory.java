@@ -46,9 +46,11 @@ public class RefactoringPropertiesFactory {
 		} else {
 			rootNode= astOperationRecorder.getLastOldRootNode();
 		}
+		//TODO: This does not work for boxed edits.
 		ASTNode affectedNode= ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, operation.getPositionalID());
 		if (operation.isAdd()) {
 			long moveID= operation.getMoveID();
+			long parentID= getParentID(affectedNode, false);
 			if (moveID != -1) {
 				ASTNode parent= ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class);
 				if (parent != null) {
@@ -58,10 +60,10 @@ public class RefactoringPropertiesFactory {
 						properties.add(new MovedToInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID));
 					}
 				} else {
-					properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation), moveID, getParentID(affectedNode)));
+					properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation), moveID, parentID));
 					if (affectedNode instanceof SimpleName) {
 						String variableName= ((SimpleName)affectedNode).getIdentifier();
-						properties.add(new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
+						properties.add(new AddedVariableReferenceRefactoringProperty(variableName, parentID));
 					}
 				}
 			} else {
@@ -71,11 +73,12 @@ public class RefactoringPropertiesFactory {
 				} else if (affectedNode instanceof SimpleName &&
 							ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class) == null) {
 					String variableName= ((SimpleName)affectedNode).getIdentifier();
-					properties.add(new AddedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
+					properties.add(new AddedVariableReferenceRefactoringProperty(variableName, parentID));
 				}
 			}
 		} else if (operation.isDelete()) {
 			long moveID= operation.getMoveID();
+			long parentID= getParentID(affectedNode, true);
 			if (moveID != -1) {
 				ASTNode parent= ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class);
 				if (parent != null) {
@@ -84,17 +87,17 @@ public class RefactoringPropertiesFactory {
 						String variableName= variableDeclaration.getName().getIdentifier();
 						properties.add(new MovedFromInitializationRefactoringProperty(new NodeDescriptor(operation), variableName, moveID));
 					}
-				} else {
-					properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation), moveID, getParentID(affectedNode)));
+				} else if (parentID != -1) {
+					properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation), moveID, parentID));
 				}
 			} else {
 				if (affectedNode instanceof VariableDeclarationFragment) {
 					String variableName= ((VariableDeclarationFragment)affectedNode).getName().getIdentifier();
 					properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName));
-				} else if (affectedNode instanceof SimpleName &&
+				} else if (parentID != -1 && affectedNode instanceof SimpleName &&
 							ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class) == null) {
 					String variableName= ((SimpleName)affectedNode).getIdentifier();
-					properties.add(new DeletedVariableReferenceRefactoringProperty(variableName, getParentID(affectedNode)));
+					properties.add(new DeletedVariableReferenceRefactoringProperty(variableName, parentID));
 				}
 			}
 		} else if (operation.isChange() && affectedNode instanceof SimpleName) {
@@ -110,8 +113,26 @@ public class RefactoringPropertiesFactory {
 		return properties;
 	}
 
-	private static long getParentID(ASTNode node) {
-		return ASTNodesIdentifier.getPersistentNodeID(astOperationRecorder.getCurrentRecordedFilePath(), node.getParent());
+	private static long getParentID(ASTNode node, boolean isOld) {
+		ASTNode parentNode= node.getParent();
+		if (isOld) {
+			if (astOperationRecorder.isDeleted(parentNode)) {
+				return -1;
+			} else {
+				ASTNode newParentNode= astOperationRecorder.getNewMatch(parentNode);
+				if (newParentNode != null) {
+					return getNodeID(newParentNode);
+				} else {
+					throw new RuntimeException("A parent node of a deleted node is neither deleted nor matched");
+				}
+			}
+		} else {
+			return getNodeID(parentNode);
+		}
+	}
+
+	private static long getNodeID(ASTNode node) {
+		return ASTNodesIdentifier.getPersistentNodeID(astOperationRecorder.getCurrentRecordedFilePath(), node);
 	}
 
 }

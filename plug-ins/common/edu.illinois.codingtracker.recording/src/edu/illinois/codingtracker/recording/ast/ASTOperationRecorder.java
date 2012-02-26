@@ -70,6 +70,10 @@ public class ASTOperationRecorder {
 
 	private ASTNode lastNewRootNode;
 
+	private Set<ASTNode> lastDeletedNodes;
+
+	private Map<ASTNode, ASTNode> lastMatchedNodes;
+
 
 	public static ASTOperationRecorder getInstance() {
 		if (astRecorderInstance == null) {
@@ -86,6 +90,10 @@ public class ASTOperationRecorder {
 		//do nothing
 	}
 
+	public String getCurrentRecordedFilePath() {
+		return currentRecordedFilePath;
+	}
+
 	public ASTNode getLastOldRootNode() {
 		return lastOldRootNode;
 	}
@@ -94,8 +102,12 @@ public class ASTOperationRecorder {
 		return lastNewRootNode;
 	}
 
-	public String getCurrentRecordedFilePath() {
-		return currentRecordedFilePath;
+	public boolean isDeleted(ASTNode node) {
+		return lastDeletedNodes.contains(node);
+	}
+
+	public ASTNode getNewMatch(ASTNode oldNode) {
+		return lastMatchedNodes.get(oldNode);
 	}
 
 	/**
@@ -395,10 +407,11 @@ public class ASTOperationRecorder {
 
 		CyclomaticComplexityCalculator.resetCache();
 		recordChangeASTOperations(currentEditedFilePath, astOperationInferencer.getChangedNodes(), isCommentingOrUncommenting, isUndoing);
-		recordDeleteASTOperations(currentEditedFilePath, astOperationInferencer.getDeletedNodes(), isCommentingOrUncommenting, isUndoing);
+		lastDeletedNodes= astOperationInferencer.getDeletedNodes();
+		recordDeleteASTOperations(currentEditedFilePath, lastDeletedNodes, isCommentingOrUncommenting, isUndoing);
 
-		//Update the persistent IDs after delete, but before add. Also, do it as an atomic operation.
-		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, astOperationInferencer.getMatchedNodes(), astOperationInferencer.getNewCommonCoveringNode());
+		lastMatchedNodes= astOperationInferencer.getMatchedNodes();
+		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, lastMatchedNodes, astOperationInferencer.getNewCommonCoveringNode());
 
 		recordAddASTOperations(currentEditedFilePath, astOperationInferencer.getAddedNodes(), isCommentingOrUncommenting, isUndoing);
 	}
