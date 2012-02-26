@@ -156,13 +156,14 @@ public class ASTOperationInferencer {
 		Set<ASTNode> oldChildren= ASTHelper.getAllChildren(oldCommonCoveringNode);
 		for (ASTNode newChildNode : ASTHelper.getAllChildren(newCommonCoveringNode)) {
 			if (ASTHelper.isRecoveredOrMalformed(newChildNode)) {
-				Integer outlierDelta= affectedNodesFinder.getOutlierDelta(newChildNode, false);
-				if (outlierDelta == null) {
-					//If the node is not outlier (i.e. it is affected), then it should be well formed.
+				MatchDelta matchDelta= affectedNodesFinder.getMatchDelta(newChildNode, false);
+				if (matchDelta == null) {
+					//If the node is directly affected, then it should be well formed.
 					return true;
 				} else {
-					//If an outlier is not well formed, there should exist the matching old node that is also not well formed.
-					ASTNode oldNode= findMatchingNode(newChildNode, oldChildren, outlierDelta);
+					//If the node is not directly affected and is not well formed, there should exist the matching 
+					//old node that is also not well formed.
+					ASTNode oldNode= findMatchingNode(newChildNode, oldChildren, matchDelta);
 					if (oldNode == null || !ASTHelper.isRecoveredOrMalformed(oldNode)) {
 						return true;
 					}
@@ -177,8 +178,9 @@ public class ASTOperationInferencer {
 		Set<ASTNode> oldChildren= ASTHelper.getAllChildren(oldCommonCoveringNode);
 		Set<ASTNode> newChildren= ASTHelper.getAllChildren(newCommonCoveringNode);
 
-		//First, match nodes that are completely before or completely after the changed range.
-		matchNodesOutsideOfChangedRange(oldChildren, newChildren);
+		//First, match nodes that are completely before or completely after the changed range
+		//and nodes that have a child completely covering the changed range.
+		matchNodesTextually(oldChildren, newChildren);
 
 		//Next, match yet unmatched nodes with the same structural positions and types.
 		matchNodesStructurally(oldChildren);
@@ -189,11 +191,11 @@ public class ASTOperationInferencer {
 		collectChangedNodes();
 	}
 
-	private void matchNodesOutsideOfChangedRange(Set<ASTNode> oldNodes, Set<ASTNode> newNodes) {
+	private void matchNodesTextually(Set<ASTNode> oldNodes, Set<ASTNode> newNodes) {
 		for (ASTNode oldNode : oldNodes) {
-			Integer outlierDelta= affectedNodesFinder.getOutlierDelta(oldNode, true);
-			if (outlierDelta != null) {
-				ASTNode newNode= findMatchingNode(oldNode, newNodes, outlierDelta);
+			MatchDelta matchDelta= affectedNodesFinder.getMatchDelta(oldNode, true);
+			if (matchDelta != null) {
+				ASTNode newNode= findMatchingNode(oldNode, newNodes, matchDelta);
 				if (newNode != null) {
 					matchedNodes.put(oldNode, newNode);
 				}
@@ -201,10 +203,11 @@ public class ASTOperationInferencer {
 		}
 	}
 
-	private ASTNode findMatchingNode(ASTNode nodeToMatch, Set<ASTNode> candidateNodes, int deltaTextLength) {
+	private ASTNode findMatchingNode(ASTNode nodeToMatch, Set<ASTNode> candidateNodes, MatchDelta matchDelta) {
 		for (ASTNode node : candidateNodes) {
-			if (nodeToMatch.getStartPosition() + deltaTextLength == node.getStartPosition() &&
-					nodeToMatch.getLength() == node.getLength() && nodeToMatch.getNodeType() == node.getNodeType()) {
+			if (nodeToMatch.getStartPosition() + matchDelta.outlierDelta == node.getStartPosition() &&
+					nodeToMatch.getLength() + matchDelta.coveringDelta == node.getLength() &&
+					nodeToMatch.getNodeType() == node.getNodeType()) {
 				return node;
 			}
 		}

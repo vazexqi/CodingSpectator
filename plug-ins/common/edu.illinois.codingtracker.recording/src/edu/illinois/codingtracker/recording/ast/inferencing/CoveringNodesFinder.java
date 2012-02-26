@@ -109,20 +109,45 @@ class CoveringNodesFinder extends ASTVisitor {
 				getTextChangeEnd(textChange, isOldAST) <= getNodeEnd(node) + getActualDelta(oldCoveringDelta, isOldAST);
 	}
 
-	public Integer getOutlierDelta(ASTNode node, boolean isOldAST) {
-		int accumulatedDelta= 0;
+	public MatchDelta getMatchDelta(ASTNode node, boolean isOldAST) {
+		MatchDelta matchDelta= new MatchDelta();
 		TextChangesIterator textChangesIterator= new TextChangesIterator(isOldAST);
 		while (textChangesIterator.hasNext()) {
-			CoherentTextChange textChange= textChangesIterator.getNext();
-			if (getNodeEnd(node) + accumulatedDelta <= getTextChangeStart(textChange)) {
-				//no change to delta
-			} else if (getNodeStart(node) + accumulatedDelta >= getTextChangeEnd(textChange, isOldAST)) {
-				accumulatedDelta+= getActualDelta(textChange.getDeltaTextLength(), isOldAST);
-			} else {
-				return null; //The given node is not an outlier, so there is no outlier delta to return.
+			if (!updateMatchDelta(matchDelta, node, textChangesIterator.getNext(), isOldAST)) {
+				return null; //The given node is directly affected, so there is no matching delta to return.
 			}
 		}
-		return accumulatedDelta;
+		return matchDelta;
+	}
+
+	/**
+	 * Returns false if the delta should not be updated, i.e., the node is directly affected by the
+	 * given text change.
+	 * 
+	 * @param matchDelta
+	 * @param node
+	 * @param textChange
+	 * @param isOldAST
+	 * @return
+	 */
+	private boolean updateMatchDelta(MatchDelta matchDelta, ASTNode node, CoherentTextChange textChange, boolean isOldAST) {
+		int textChangeStart= getTextChangeStart(textChange);
+		int nodeEnd= getNodeEnd(node, matchDelta);
+		if (nodeEnd <= textChangeStart) { //outlies before
+			//no change to delta
+		} else {
+			int textChangeEnd= getTextChangeEnd(textChange, isOldAST);
+			int nodeStart= getNodeStart(node, matchDelta);
+			int actualDelta= getActualDelta(textChange.getDeltaTextLength(), isOldAST);
+			if (nodeStart >= textChangeEnd) { //outlies after
+				matchDelta.outlierDelta+= actualDelta;
+			} else if (nodeStart <= textChangeStart && nodeEnd >= textChangeEnd) { //covers
+				matchDelta.coveringDelta+= actualDelta;
+			} else {
+				return false; //The given node is directly affected, so the delta should not be updated.
+			}
+		}
+		return true;
 	}
 
 	private int getActualDelta(int oldASTDelta, boolean isOldAST) {
@@ -142,8 +167,16 @@ class CoveringNodesFinder extends ASTVisitor {
 		return node.getStartPosition();
 	}
 
+	private int getNodeStart(ASTNode node, MatchDelta matchDelta) {
+		return getNodeStart(node) + matchDelta.outlierDelta;
+	}
+
 	private int getNodeEnd(ASTNode node) {
 		return node.getStartPosition() + node.getLength();
+	}
+
+	private int getNodeEnd(ASTNode node, MatchDelta matchDelta) {
+		return getNodeEnd(node) + matchDelta.outlierDelta + matchDelta.coveringDelta;
 	}
 
 	private class TextChangesIterator {
