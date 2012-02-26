@@ -74,7 +74,7 @@ CREATE TABLE "PUBLIC"."UDC_ECLIPSE_MAPPING" (
 
 );
 
-\p Importing the mapping between the IDs of refactoring ID in UDC and Eclipse refactoring histories
+\p Importing the mapping between the IDs of refactorings in UDC data and Eclipse refactoring histories
 
 \m refactoringmapping.csv
 

@@ -18,6 +18,7 @@ CREATE TABLE "PUBLIC"."REFACTORING_ID_TO_HUMAN_NAME" (
 
 * *DSV_TARGET_FILE =UsageTableFor2012ICSE.csv
 
+/*
 -- It seems that "Infer Generic Type" was never used so we special case it here
 INSERT INTO "PUBLIC"."PER_REFACTORING_ID" 
 
@@ -29,6 +30,7 @@ INSERT INTO "PUBLIC"."PER_REFACTORING_ID"
 "AVG_PERFORMED_OR_CANCELED_CONFIGURATION_DURATION_IN_MILLI_SEC")
 
 VALUES ('org.eclipse.jdt.ui.change.type', 0, 0, 0, 0, 0, 0, 0, 0, 0);
+*/
 
 \.
 

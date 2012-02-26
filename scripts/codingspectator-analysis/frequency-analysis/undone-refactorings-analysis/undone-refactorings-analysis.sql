@@ -1,7 +1,5 @@
 -- This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
-\p The results of this script are not precise because it matches CodingSpectator and CodingTracker refactorings inaccurately.
-
 DROP TABLE "PUBLIC"."UNDONE_CODINGSPECTATOR_COUNT" IF EXISTS;
 
 CREATE TABLE "PUBLIC"."UNDONE_CODINGSPECTATOR_COUNT" (
@@ -11,8 +9,6 @@ CREATE TABLE "PUBLIC"."UNDONE_CODINGSPECTATOR_COUNT" (
   "UNDONE_COUNT" INT,
 
 );
-
-\p Constructing count of CodingSpectator refactorings that were undone
 
 -- BEGIN RUBY GENERATED LINES ---
 
@@ -2497,13 +2493,15 @@ AND "PUBLIC"."ALL_DATA"."username" LIKE 'cs-___') as "T" WHERE "T"."id" =
 
 -- END RUBY GENERATED LINES ---
 
-\p Exporting "PUBLIC"."UNDONE_CODINGSPECTATOR_COUNT"
-
 * *DSV_COL_DELIM =,
 
 * *DSV_ROW_DELIM =\n
 
 * *DSV_TARGET_FILE =UndoneCodingSpectatorRefactorings.csv
+
+\p The following results are not precise because CodingSpectator and CodingTracker refactorings were matched inaccurately.
+
+\p Reporting the number of CodingSpectator refactorings that were undone
 
 \x SELECT * FROM "PUBLIC"."UNDONE_CODINGSPECTATOR_COUNT"
 
