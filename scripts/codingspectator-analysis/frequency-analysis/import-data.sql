@@ -1,5 +1,23 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
+\p Creating an index on ALL_DATA
+
+CREATE INDEX EVENT_LOCATOR_INDEX ON "PUBLIC"."ALL_DATA" (
+
+  "username",
+
+  "workspace ID",
+
+  "codingspectator version",
+
+  "timestamp",
+
+  "recorder",
+
+  "refactoring kind"
+
+);
+
 \p Inserting some "pseudo" IDs that correspond with the UDC umbrella IDs for refactorings
 
 INSERT INTO "PUBLIC"."ALL_DATA" ("id") VALUES
