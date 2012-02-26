@@ -78,3 +78,21 @@ CREATE TABLE "PUBLIC"."UDC_ECLIPSE_MAPPING" (
 
 \m refactoringmapping.csv
 
+\p Importing the mapping between the IDs of refactorings and their human readable names
+
+DROP TABLE "PUBLIC"."REFACTORING_ID_TO_HUMAN_NAME" IF EXISTS;
+
+CREATE TABLE "PUBLIC"."REFACTORING_ID_TO_HUMAN_NAME" (
+
+  REFACTORING_ID VARCHAR(100),
+
+  HUMAN_READABLE_NAME VARCHAR(100)
+
+);
+
+* *DSV_COL_SPLITTER =,
+
+* *DSV_TARGET_TABLE ="PUBLIC"."REFACTORING_ID_TO_HUMAN_NAME"
+
+\m refactoring_id_human_name_mapping.csv
+
