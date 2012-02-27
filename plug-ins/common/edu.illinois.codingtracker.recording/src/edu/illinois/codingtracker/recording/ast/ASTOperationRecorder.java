@@ -398,6 +398,8 @@ public class ASTOperationRecorder {
 	}
 
 	private void inferAndRecordASTOperations(ASTOperationInferencer astOperationInferencer) {
+		recordCoherentTextChanges(astOperationInferencer.getCoherentTextChanges());
+
 		lastOldRootNode= astOperationInferencer.getOldRootNode();
 		lastNewRootNode= astOperationInferencer.getNewRootNode();
 
@@ -414,6 +416,12 @@ public class ASTOperationRecorder {
 		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, lastMatchedNodes, astOperationInferencer.getNewCommonCoveringNode());
 
 		recordAddASTOperations(currentEditedFilePath, astOperationInferencer.getAddedNodes(), isCommentingOrUncommenting, isUndoing);
+	}
+
+	private void recordCoherentTextChanges(List<CoherentTextChange> coherentTextChanges) {
+		for (CoherentTextChange coherentTextChange : coherentTextChanges) {
+			ASTInferenceTextRecorder.record(coherentTextChange.createTextChangeOperation());
+		}
 	}
 
 	private long getTextChangeTimestamp() {

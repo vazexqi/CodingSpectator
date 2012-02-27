@@ -269,6 +269,12 @@ public class CoherentTextChange implements Cloneable {
 		return BasicListener.isUndoing || UndoneTextChangeOperation.isReplaying;
 	}
 
+	public PerformedTextChangeOperation createTextChangeOperation() {
+		Document editedDocument= new Document(getInitialDocumentText());
+		DocumentEvent documentEvent= new DocumentEvent(editedDocument, getOffset(), getRemovedTextLength(), getAddedText());
+		return new PerformedTextChangeOperation(documentEvent, getRemovedText(), getTimestamp());
+	}
+
 	@Override
 	public CoherentTextChange clone() {
 		CoherentTextChange coherentTextChangeClone= null;

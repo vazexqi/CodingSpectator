@@ -46,7 +46,6 @@ public class RefactoringPropertiesFactory {
 		} else {
 			rootNode= astOperationRecorder.getLastOldRootNode();
 		}
-		//TODO: This does not work for boxed edits.
 		ASTNode affectedNode= ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, operation.getPositionalID());
 		if (operation.isAdd()) {
 			long moveID= operation.getMoveID();

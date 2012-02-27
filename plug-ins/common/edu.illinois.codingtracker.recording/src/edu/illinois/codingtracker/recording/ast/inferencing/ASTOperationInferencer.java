@@ -25,6 +25,8 @@ import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifie
  */
 public class ASTOperationInferencer {
 
+	private final List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
+
 	private CoveringNodesFinder affectedNodesFinder;
 
 	private ASTNode newCommonCoveringNode;
@@ -50,13 +52,17 @@ public class ASTOperationInferencer {
 
 
 	public ASTOperationInferencer(CoherentTextChange coherentTextChange) {
-		List<CoherentTextChange> coherentTextChanges= new LinkedList<CoherentTextChange>();
 		coherentTextChanges.add(coherentTextChange);
-		initializeInferencer(coherentTextChanges);
+		initializeInferencer();
 	}
 
 	public ASTOperationInferencer(List<CoherentTextChange> coherentTextChanges) {
-		initializeInferencer(coherentTextChanges);
+		this.coherentTextChanges.addAll(coherentTextChanges);
+		initializeInferencer();
+	}
+
+	public List<CoherentTextChange> getCoherentTextChanges() {
+		return coherentTextChanges;
 	}
 
 	public ASTNode getNewCommonCoveringNode() {
@@ -97,7 +103,7 @@ public class ASTOperationInferencer {
 		return newRootNode;
 	}
 
-	private void initializeInferencer(List<CoherentTextChange> coherentTextChanges) {
+	private void initializeInferencer() {
 		initializeOperationState(coherentTextChanges);
 
 		affectedNodesFinder= new CoveringNodesFinder(coherentTextChanges);
