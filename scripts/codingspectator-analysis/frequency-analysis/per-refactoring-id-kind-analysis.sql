@@ -134,6 +134,8 @@ ORDER BY "PUBLIC"."ALL_DATA"."id", "PUBLIC"."ALL_DATA"."recorder",
 
 * *DSV_COL_DELIM =,
 
+* *DSV_ROW_DELIM =\n
+
 * *DSV_TARGET_FILE =PerRefactoringIDKind.csv
 
 \x SELECT * FROM "PUBLIC"."PER_REFACTORING_ID_KIND"

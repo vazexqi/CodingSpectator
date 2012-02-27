@@ -193,6 +193,8 @@ ORDER BY "PUBLIC"."ALL_DATA"."username";
 
 * *DSV_COL_DELIM =,
 
+* *DSV_ROW_DELIM =\n
+
 * *DSV_TARGET_FILE =PerUsername.csv
 
 \x SELECT * FROM "PUBLIC"."PER_USERNAME"

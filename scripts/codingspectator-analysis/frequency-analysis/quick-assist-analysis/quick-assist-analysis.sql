@@ -8,12 +8,6 @@
  *
  */
 
-* *DSV_COL_DELIM =,
-
-* *DSV_ROW_DELIM =\n
-
-* *DSV_TARGET_FILE =PerUserRateOfPerformedRefactoringSupportedByQuickAssist.csv
-
 DROP TABLE
 "PUBLIC"."PER_USER_RATE_OF_PERFORMED_REFACOTRING_SUPPORTED_BY_QUICK_ASSIST" IF
 EXISTS;
@@ -87,6 +81,12 @@ WHERE IS_JAVA_REFACTORING("P"."id") AND "P"."username" LIKE 'cs-___' AND
 GROUP BY "P"."username"
 
 ORDER BY "P"."username";
+
+* *DSV_COL_DELIM =,
+
+* *DSV_ROW_DELIM =\n
+
+* *DSV_TARGET_FILE =PerUserRateOfPerformedRefactoringSupportedByQuickAssist.csv
 
 \x SELECT * FROM "PUBLIC"."PER_USER_RATE_OF_PERFORMED_REFACOTRING_SUPPORTED_BY_QUICK_ASSIST"
 
