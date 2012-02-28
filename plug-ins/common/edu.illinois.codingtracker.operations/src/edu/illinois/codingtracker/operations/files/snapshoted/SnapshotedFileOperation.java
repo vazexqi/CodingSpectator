@@ -6,6 +6,7 @@ package edu.illinois.codingtracker.operations.files.snapshoted;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
@@ -52,7 +53,13 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		createCompilationUnit(fileContent);
+		if (Configuration.isASTSequence) {
+			if (!(ResourceHelper.findWorkspaceMember(resourcePath) instanceof IFile)) {
+				createCompilationUnit(fileContent);
+			}
+		} else {
+			createCompilationUnit(fileContent);
+		}
 		removeExternallyModifiedResource(resourcePath);
 	}
 

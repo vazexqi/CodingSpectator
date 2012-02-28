@@ -161,7 +161,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 			String newContent= snapshotedFileOperation.getFileContent();
 			replaySnapshotsAsEdits(snapshotedFileOperation, editedFile, new String[] { currentContent, newContent }, shouldRestoreOriginalEditor);
 		} else { //Resource does not exist or is not a file.
-			replay(snapshotedFileOperation);
+			replayAndRecord(snapshotedFileOperation);
 		}
 	}
 
@@ -194,12 +194,12 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 				originalEditor= UserOperation.getCurrentEditor();
 			}
 			EditedFileOperation editedFileOperation= new EditedFileOperation(editedFile, timestamp);
-			replay(editedFileOperation);
+			replayAndRecord(editedFileOperation);
 			for (PerformedTextChangeOperation editDifferenceOperation : snapshotDifference) {
-				replay(editDifferenceOperation);
+				replayAndRecord(editDifferenceOperation);
 			}
 			SavedFileOperation savedFileOperation= new SavedFileOperation(editedFile, true, timestamp);
-			replay(savedFileOperation);
+			replayAndRecord(savedFileOperation);
 			if (shouldRestoreOriginalEditor) {
 				restoreOriginalEditor(originalEditor, timestamp);
 			}
@@ -248,7 +248,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 			}
 			if (originalFile != null) {
 				EditedFileOperation editedOriginalFileOperation= new EditedFileOperation(originalFile, timestamp);
-				replay(editedOriginalFileOperation);
+				replayAndRecord(editedOriginalFileOperation);
 			} else {
 				throw new RuntimeException("Could not retrieve the edited file from the original editor: " + originalEditor);
 			}
