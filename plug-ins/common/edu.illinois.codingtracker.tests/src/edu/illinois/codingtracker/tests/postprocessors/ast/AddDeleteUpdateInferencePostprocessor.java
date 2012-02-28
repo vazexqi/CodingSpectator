@@ -111,8 +111,6 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 		for (TextChangeOperation textChangeOperation : bufferedTextChanges) {
 			if (shouldReplayBufferedTextChanges) {
 				replayAndRecord(textChangeOperation);
-			} else {
-				record(textChangeOperation);
 			}
 		}
 		for (UserOperation refactoringPredecessor : refactoringPredecessors) {
