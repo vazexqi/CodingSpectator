@@ -15,29 +15,11 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  */
 public class MovedToInitializationRefactoringProperty extends RefactoringProperty {
 
-	private final NodeDescriptor movedNode;
-
-	private final String variableName;
-
-	private final long moveID;
-
 
 	public MovedToInitializationRefactoringProperty(NodeDescriptor movedNode, String variableName, long moveID) {
-		this.movedNode= movedNode;
-		this.variableName= variableName;
-		this.moveID= moveID;
-	}
-
-	public NodeDescriptor getMovedNode() {
-		return movedNode;
-	}
-
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public long getMoveID() {
-		return moveID;
+		addAttribute(RefactoringPropertyAttributes.MOVED_NODE, movedNode);
+		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
+		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
 	}
 
 }

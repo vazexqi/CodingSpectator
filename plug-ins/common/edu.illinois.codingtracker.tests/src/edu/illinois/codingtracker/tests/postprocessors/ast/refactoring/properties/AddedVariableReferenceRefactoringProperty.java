@@ -13,22 +13,10 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  */
 public class AddedVariableReferenceRefactoringProperty extends RefactoringProperty {
 
-	private final String variableName;
-
-	private final long parentID;
-
 
 	public AddedVariableReferenceRefactoringProperty(String variableName, long parentID) {
-		this.variableName= variableName;
-		this.parentID= parentID;
-	}
-
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public long getParentID() {
-		return parentID;
+		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
+		addAttribute(RefactoringPropertyAttributes.PARENT_ID, parentID);
 	}
 
 }

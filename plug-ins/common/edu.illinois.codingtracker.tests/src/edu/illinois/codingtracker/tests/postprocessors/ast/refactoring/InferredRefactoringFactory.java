@@ -21,7 +21,6 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  */
 public class InferredRefactoringFactory {
 
-	//TODO: Should be shared among all refactoring kinds.
 	private static long refactoringID= 1;
 
 	private static final Set<InferredRefactoring> currentRefactorings= new HashSet<InferredRefactoring>();

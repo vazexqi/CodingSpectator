@@ -4,12 +4,14 @@
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
-import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.ChangedVariableNameInDeclarationRefactoringProperty;
-import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.ChangedVariableNameInUsageRefactoringProperty;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperties;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringPropertyAttributes;
 
 
 
@@ -22,13 +24,12 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  */
 public class RenameVariableRefactoring extends InferredRefactoring {
 
-	private String oldVariableName;
+	private static final Set<String> acceptableProperties= new HashSet<String>();
 
-	private String newVariableName;
-
-	private ChangedVariableNameInDeclarationRefactoringProperty changedInDeclaration;
-
-	private ChangedVariableNameInUsageRefactoringProperty changedInUsage;
+	static {
+		acceptableProperties.add(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_DECLARATION);
+		acceptableProperties.add(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_USAGE);
+	}
 
 
 	private RenameVariableRefactoring() {
@@ -45,8 +46,17 @@ public class RenameVariableRefactoring extends InferredRefactoring {
 	}
 
 	public static boolean isAcceptableProperty(RefactoringProperty refactoringProperty) {
-		return refactoringProperty instanceof ChangedVariableNameInDeclarationRefactoringProperty ||
-				refactoringProperty instanceof ChangedVariableNameInUsageRefactoringProperty;
+		return acceptableProperties.contains(refactoringProperty.getClassName());
+	}
+
+	@Override
+	protected InferredRefactoring createFreshInstance() {
+		return new RenameVariableRefactoring();
+	}
+
+	@Override
+	protected Set<String> getAcceptableProperties() {
+		return acceptableProperties;
 	}
 
 	@Override
@@ -55,111 +65,10 @@ public class RenameVariableRefactoring extends InferredRefactoring {
 	}
 
 	@Override
-	public boolean isComplete() {
-		return changedInDeclaration != null && changedInUsage != null;
-	}
-
-	@Override
-	protected boolean isDisabled() {
-		return changedInDeclaration == null && changedInUsage == null;
-	}
-
-	@Override
-	public boolean canBePart(RefactoringProperty refactoringProperty) {
-		if (refactoringProperty instanceof ChangedVariableNameInDeclarationRefactoringProperty) {
-			if (changedInDeclaration != null) {
-				return false;
-			}
-			ChangedVariableNameInDeclarationRefactoringProperty changedInDeclaration= (ChangedVariableNameInDeclarationRefactoringProperty)refactoringProperty;
-			if (oldVariableName != null && !oldVariableName.equals(changedInDeclaration.getOldVariableName())) {
-				return false;
-			}
-			if (newVariableName != null && !newVariableName.equals(changedInDeclaration.getNewVariableName())) {
-				return false;
-			}
-			return true;
-		} else if (refactoringProperty instanceof ChangedVariableNameInUsageRefactoringProperty) {
-			if (changedInUsage != null) {
-				return false;
-			}
-			ChangedVariableNameInUsageRefactoringProperty changedInUsage= (ChangedVariableNameInUsageRefactoringProperty)refactoringProperty;
-			if (oldVariableName != null && !oldVariableName.equals(changedInUsage.getOldVariableName())) {
-				return false;
-			}
-			if (newVariableName != null && !newVariableName.equals(changedInUsage.getNewVariableName())) {
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public InferredRefactoring addProperty(RefactoringProperty refactoringProperty) {
-		if (!canBePart(refactoringProperty)) {
-			throw new RuntimeException("Can not add property: " + refactoringProperty);
-		}
-		RenameVariableRefactoring resultRefactoring= createCopy();
-		addProperty(resultRefactoring, refactoringProperty);
-		return resultRefactoring;
-	}
-
-	private static void addProperty(RenameVariableRefactoring refactoring, RefactoringProperty refactoringProperty) {
-		if (refactoringProperty instanceof ChangedVariableNameInDeclarationRefactoringProperty) {
-			ChangedVariableNameInDeclarationRefactoringProperty changedInDeclaration= (ChangedVariableNameInDeclarationRefactoringProperty)refactoringProperty;
-			refactoring.changedInDeclaration= changedInDeclaration;
-			refactoring.oldVariableName= changedInDeclaration.getOldVariableName();
-			refactoring.newVariableName= changedInDeclaration.getNewVariableName();
-		} else if (refactoringProperty instanceof ChangedVariableNameInUsageRefactoringProperty) {
-			ChangedVariableNameInUsageRefactoringProperty changedInUsage= (ChangedVariableNameInUsageRefactoringProperty)refactoringProperty;
-			refactoring.changedInUsage= changedInUsage;
-			refactoring.oldVariableName= changedInUsage.getOldVariableName();
-			refactoring.newVariableName= changedInUsage.getNewVariableName();
-		}
-	}
-
-	private RenameVariableRefactoring createCopy() {
-		RenameVariableRefactoring copyRefactoring= new RenameVariableRefactoring();
-		copyRefactoring.oldVariableName= oldVariableName;
-		copyRefactoring.newVariableName= newVariableName;
-		copyRefactoring.changedInDeclaration= changedInDeclaration;
-		copyRefactoring.changedInUsage= changedInUsage;
-		return copyRefactoring;
-	}
-
-	@Override
-	public void disableProperties() {
-		changedInDeclaration.disable();
-		changedInUsage.disable();
-	}
-
-	@Override
-	public boolean checkDisabled() {
-		if (changedInDeclaration != null && !changedInDeclaration.isActive()) {
-			changedInDeclaration= null;
-		}
-		if (changedInUsage != null && !changedInUsage.isActive()) {
-			changedInUsage= null;
-		}
-		resetState();
-		return isDisabled();
-	}
-
-	private void resetState() {
-		oldVariableName= null;
-		newVariableName= null;
-		if (changedInDeclaration != null) {
-			oldVariableName= changedInDeclaration.getOldVariableName();
-			newVariableName= changedInDeclaration.getNewVariableName();
-		}
-		if (changedInUsage != null) {
-			oldVariableName= changedInUsage.getOldVariableName();
-			newVariableName= changedInUsage.getNewVariableName();
-		}
-	}
-
-	@Override
 	public Map<String, String> getArguments() {
+		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_DECLARATION);
+		String oldVariableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.OLD_VARIABLE_NAME);
+		String newVariableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.NEW_VARIABLE_NAME);
 		Map<String, String> arguments= new HashMap<String, String>();
 		arguments.put("OldVariableName", oldVariableName);
 		arguments.put("NewVariableName", newVariableName);

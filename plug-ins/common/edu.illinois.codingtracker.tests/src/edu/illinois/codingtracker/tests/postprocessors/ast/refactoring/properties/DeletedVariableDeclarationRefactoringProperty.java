@@ -13,15 +13,9 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  */
 public class DeletedVariableDeclarationRefactoringProperty extends RefactoringProperty {
 
-	private final String variableName;
-
 
 	public DeletedVariableDeclarationRefactoringProperty(String variableName) {
-		this.variableName= variableName;
-	}
-
-	public String getVariableName() {
-		return variableName;
+		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
 	}
 
 }

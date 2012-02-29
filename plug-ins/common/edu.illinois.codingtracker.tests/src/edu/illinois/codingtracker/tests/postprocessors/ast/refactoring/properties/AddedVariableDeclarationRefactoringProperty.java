@@ -13,15 +13,10 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  */
 public class AddedVariableDeclarationRefactoringProperty extends RefactoringProperty {
 
-	private final String variableName;
-
 
 	public AddedVariableDeclarationRefactoringProperty(String variableName) {
-		this.variableName= variableName;
+		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
 	}
 
-	public String getVariableName() {
-		return variableName;
-	}
 
 }

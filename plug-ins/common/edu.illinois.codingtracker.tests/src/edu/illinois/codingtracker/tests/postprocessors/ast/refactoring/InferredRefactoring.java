@@ -3,7 +3,10 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
@@ -16,19 +19,51 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  */
 public abstract class InferredRefactoring {
 
+	private final Map<String, RefactoringProperty> properties= new HashMap<String, RefactoringProperty>();
+
+
+	protected abstract Set<String> getAcceptableProperties();
+
 	public abstract RefactoringKind getKind();
 
+	protected abstract InferredRefactoring createFreshInstance();
+
+	/**
+	 * Should be called only for complete refactorings.
+	 * 
+	 * @return
+	 */
 	public abstract Map<String, String> getArguments();
 
-	public abstract boolean isComplete();
+	protected static void addProperty(InferredRefactoring inferredRefactoring, RefactoringProperty refactoringProperty) {
+		inferredRefactoring.properties.put(refactoringProperty.getClassName(), refactoringProperty);
+	}
 
-	protected abstract boolean isDisabled();
+	protected RefactoringProperty getProperty(String propertyName) {
+		return properties.get(propertyName);
+	}
 
-	public abstract void disableProperties();
+	public boolean isComplete() {
+		for (String acceptableProperty : getAcceptableProperties()) {
+			if (properties.get(acceptableProperty) == null) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-	public abstract boolean checkDisabled();
-
-	public abstract boolean canBePart(RefactoringProperty refactoringProperty);
+	public boolean canBePart(RefactoringProperty refactoringProperty) {
+		if (!getAcceptableProperties().contains(refactoringProperty.getClassName()) ||
+				properties.get(refactoringProperty.getClassName()) != null) {
+			return false;
+		}
+		for (RefactoringProperty property : properties.values()) {
+			if (!property.doesMatch(refactoringProperty)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Should not change this refactoring, but rather should return a new one, with this refactoring
@@ -36,6 +71,35 @@ public abstract class InferredRefactoring {
 	 * 
 	 * @param refactoringProperty
 	 */
-	public abstract InferredRefactoring addProperty(RefactoringProperty refactoringProperty);
+	public InferredRefactoring addProperty(RefactoringProperty refactoringProperty) {
+		if (!canBePart(refactoringProperty)) {
+			throw new RuntimeException("Can not add property: " + refactoringProperty);
+		}
+		InferredRefactoring resultRefactoring= createCopy();
+		addProperty(resultRefactoring, refactoringProperty);
+		return resultRefactoring;
+	}
+
+	private InferredRefactoring createCopy() {
+		InferredRefactoring copyRefactoring= createFreshInstance();
+		copyRefactoring.properties.putAll(properties);
+		return copyRefactoring;
+	}
+
+	public void disableProperties() {
+		for (RefactoringProperty property : properties.values()) {
+			property.disable();
+		}
+	}
+
+	public boolean checkDisabled() {
+		Iterator<RefactoringProperty> propertiesIterator= properties.values().iterator();
+		while (propertiesIterator.hasNext()) {
+			if (!propertiesIterator.next().isActive()) {
+				propertiesIterator.remove();
+			}
+		}
+		return properties.size() == 0;
+	}
 
 }
