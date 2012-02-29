@@ -14,15 +14,15 @@ public interface RefactoringProperties {
 
 	public static final String ADDED_VARIABLE_DECLARATION= "AddedVariableDeclarationRefactoringProperty";
 
-	public static final String ADDED_VARIABLE_REFERENCE= "AddedVariableReferenceRefactoringProperty";
+	public static final String ADDED_ENTITY_REFERENCE= "AddedEntityReferenceRefactoringProperty";
 
 	public static final String CHANGED_VARIABLE_NAME_IN_DECLARATION= "ChangedVariableNameInDeclarationRefactoringProperty";
 
-	public static final String CHANGED_VARIABLE_NAME_IN_USAGE= "ChangedVariableNameInUsageRefactoringProperty";
+	public static final String CHANGED_ENTITY_NAME_IN_USAGE= "ChangedEntityNameInUsageRefactoringProperty";
 
 	public static final String DELETED_VARIABLE_DECLARATION= "DeletedVariableDeclarationRefactoringProperty";
 
-	public static final String DELETED_VARIABLE_REFERENCE= "DeletedVariableReferenceRefactoringProperty";
+	public static final String DELETED_ENTITY_REFERENCE= "DeletedEntityReferenceRefactoringProperty";
 
 	public static final String MOVED_FROM_INITIALIZATION= "MovedFromInitializationRefactoringProperty";
 

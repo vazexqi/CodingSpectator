@@ -16,9 +16,9 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 public class MovedFromInitializationRefactoringProperty extends RefactoringProperty {
 
 
-	public MovedFromInitializationRefactoringProperty(NodeDescriptor movedNode, String variableName, long moveID) {
+	public MovedFromInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long moveID) {
 		addAttribute(RefactoringPropertyAttributes.MOVED_NODE, movedNode);
-		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
 	}
 

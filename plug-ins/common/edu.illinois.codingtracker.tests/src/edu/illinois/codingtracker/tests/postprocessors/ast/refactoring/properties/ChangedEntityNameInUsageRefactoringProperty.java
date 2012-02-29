@@ -6,15 +6,15 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 /**
- * This class represents changing a variable's name in its declaration.
+ * This class represents changing a variable's name in its usage.
  * 
  * @author Stas Negara
  * 
  */
-public class ChangedVariableNameInDeclarationRefactoringProperty extends RefactoringProperty {
+public class ChangedEntityNameInUsageRefactoringProperty extends RefactoringProperty {
 
 
-	public ChangedVariableNameInDeclarationRefactoringProperty(String oldEntityName, String newEntityName) {
+	public ChangedEntityNameInUsageRefactoringProperty(String oldEntityName, String newEntityName) {
 		addAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME, oldEntityName);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
 	}

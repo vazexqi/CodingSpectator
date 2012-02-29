@@ -28,7 +28,7 @@ public class RenameVariableRefactoring extends InferredRefactoring {
 
 	static {
 		acceptableProperties.add(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_USAGE);
+		acceptableProperties.add(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
 	}
 
 
@@ -67,8 +67,8 @@ public class RenameVariableRefactoring extends InferredRefactoring {
 	@Override
 	public Map<String, String> getArguments() {
 		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_DECLARATION);
-		String oldVariableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.OLD_VARIABLE_NAME);
-		String newVariableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.NEW_VARIABLE_NAME);
+		String oldVariableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME);
+		String newVariableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME);
 		Map<String, String> arguments= new HashMap<String, String>();
 		arguments.put("OldVariableName", oldVariableName);
 		arguments.put("NewVariableName", newVariableName);

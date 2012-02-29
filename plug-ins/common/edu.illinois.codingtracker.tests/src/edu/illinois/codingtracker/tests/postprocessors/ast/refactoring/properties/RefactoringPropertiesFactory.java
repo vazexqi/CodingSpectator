@@ -9,6 +9,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
@@ -57,12 +58,14 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleChangedNode(SimpleName changedNode, ASTOperation operation) {
-		String oldVariableName= changedNode.getIdentifier();
-		String newVariableName= operation.getNodeNewText();
-		if (isDeclaredVariable(changedNode)) {
-			properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldVariableName, newVariableName));
+		String oldEntityName= changedNode.getIdentifier();
+		String newEntityName= operation.getNodeNewText();
+		if (isDeclaredEntity(changedNode)) {
+			if (isInLocalVariableDeclaration(changedNode)) {
+				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+			}
 		} else {
-			properties.add(new ChangedVariableNameInUsageRefactoringProperty(oldVariableName, newVariableName));
+			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
 		}
 	}
 
@@ -76,9 +79,9 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleDeletedMovedNode(ASTNode deletedNode, NodeDescriptor nodeDescriptor, long moveID) {
-		String variableName= getDeclaredVariableNameForInitializer(deletedNode);
-		if (variableName != null) {
-			properties.add(new MovedFromInitializationRefactoringProperty(nodeDescriptor, variableName, moveID));
+		String entityName= getDeclaredEntityNameForInitializer(deletedNode);
+		if (entityName != null) {
+			properties.add(new MovedFromInitializationRefactoringProperty(nodeDescriptor, entityName, moveID));
 		} else {
 			long parentID= getParentID(deletedNode, true);
 			if (parentID != -1) {
@@ -89,13 +92,15 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleDeletedNotMovedNode(ASTNode deletedNode) {
 		if (deletedNode instanceof VariableDeclarationFragment) {
-			String variableName= getDeclaredVariableName((VariableDeclarationFragment)deletedNode);
-			properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName));
-		} else if (deletedNode instanceof SimpleName && !isDeclaredVariable(deletedNode)) {
+			String entityName= getDeclaredEntityName((VariableDeclarationFragment)deletedNode);
+			if (isInLocalVariableDeclaration(deletedNode)) {
+				properties.add(new DeletedVariableDeclarationRefactoringProperty(entityName));
+			}
+		} else if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
 			long parentID= getParentID(deletedNode, true);
 			if (parentID != -1) {
-				String variableName= ((SimpleName)deletedNode).getIdentifier();
-				properties.add(new DeletedVariableReferenceRefactoringProperty(variableName, parentID));
+				String entityName= ((SimpleName)deletedNode).getIdentifier();
+				properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, parentID));
 			}
 		}
 	}
@@ -110,26 +115,28 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleAddedMovedNode(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
-		String declarationVariableName= getDeclaredVariableNameForInitializer(addedNode);
-		if (declarationVariableName != null) {
-			properties.add(new MovedToInitializationRefactoringProperty(nodeDescriptor, declarationVariableName, moveID));
+		String declarationEntityName= getDeclaredEntityNameForInitializer(addedNode);
+		if (declarationEntityName != null) {
+			properties.add(new MovedToInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
 		} else {
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
 			if (addedNode instanceof SimpleName) {
-				String referenceVariableName= ((SimpleName)addedNode).getIdentifier();
-				properties.add(new AddedVariableReferenceRefactoringProperty(referenceVariableName, parentID));
+				String referenceEntityName= ((SimpleName)addedNode).getIdentifier();
+				properties.add(new AddedEntityReferenceRefactoringProperty(referenceEntityName, parentID));
 			}
 		}
 	}
 
 	private static void handleAddedNotMovedNode(ASTNode addedNode) {
 		if (addedNode instanceof VariableDeclarationFragment) {
-			String variableName= getDeclaredVariableName((VariableDeclarationFragment)addedNode);
-			properties.add(new AddedVariableDeclarationRefactoringProperty(variableName));
-		} else if (addedNode instanceof SimpleName && !isDeclaredVariable(addedNode)) {
-			String variableName= ((SimpleName)addedNode).getIdentifier();
-			properties.add(new AddedVariableReferenceRefactoringProperty(variableName, getParentID(addedNode, false)));
+			String entityName= getDeclaredEntityName((VariableDeclarationFragment)addedNode);
+			if (isInLocalVariableDeclaration(addedNode)) {
+				properties.add(new AddedVariableDeclarationRefactoringProperty(entityName));
+			}
+		} else if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
+			String entityName= ((SimpleName)addedNode).getIdentifier();
+			properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getParentID(addedNode, false)));
 		}
 	}
 
@@ -139,20 +146,24 @@ public class RefactoringPropertiesFactory {
 	 * @param node
 	 * @return
 	 */
-	private static String getDeclaredVariableNameForInitializer(ASTNode node) {
+	private static String getDeclaredEntityNameForInitializer(ASTNode node) {
 		VariableDeclarationFragment variableDeclaration= getEnclosingVariableDeclarationFragment(node);
 		if (variableDeclaration != null && node == variableDeclaration.getInitializer()) {
-			return getDeclaredVariableName(variableDeclaration);
+			return getDeclaredEntityName(variableDeclaration);
 		}
 		return null;
 	}
 
-	private static boolean isDeclaredVariable(ASTNode node) {
+	private static boolean isDeclaredEntity(ASTNode node) {
 		VariableDeclarationFragment variableDeclaration= getEnclosingVariableDeclarationFragment(node);
 		if (variableDeclaration != null && node == variableDeclaration.getName()) {
 			return true;
 		}
 		return false;
+	}
+
+	private static boolean isInLocalVariableDeclaration(ASTNode node) {
+		return ASTHelper.getParent(node, VariableDeclarationStatement.class) != null;
 	}
 
 	private static VariableDeclarationFragment getEnclosingVariableDeclarationFragment(ASTNode node) {
@@ -163,7 +174,7 @@ public class RefactoringPropertiesFactory {
 		return null;
 	}
 
-	private static String getDeclaredVariableName(VariableDeclarationFragment variableDeclaration) {
+	private static String getDeclaredEntityName(VariableDeclarationFragment variableDeclaration) {
 		return variableDeclaration.getName().getIdentifier();
 	}
 

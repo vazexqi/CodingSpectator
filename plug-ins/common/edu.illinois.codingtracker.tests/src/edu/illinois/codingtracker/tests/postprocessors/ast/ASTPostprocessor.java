@@ -8,6 +8,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.resources.DeletedResourceOperation;
+import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
 
@@ -48,6 +49,20 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 			userOperation.replay();
 		} catch (Exception e) {
 			throw new RuntimeException("Could not replay user operation: " + userOperation, e);
+		}
+	}
+
+	protected void replayAndRecord(UserOperation userOperation) {
+		//Do not record TextChangeOperations since instead of them we record the corresponding CoherentTextChanges.
+		//For all other operations, first record and then replay in order to preserve the right ordering 
+		//(i.e. ASTOperation follow operation(s) that caused it) and the right timestamp 
+		//(i.e. ASTOperation has the timestamp of the last operation that caused it).
+		if (userOperation instanceof TextChangeOperation) {
+			replay(userOperation);
+			//record(userOperation);
+		} else {
+			record(userOperation);
+			replay(userOperation);
 		}
 	}
 

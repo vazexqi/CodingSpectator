@@ -35,9 +35,7 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 		InferredRefactoringFactory.resetCurrentRefactorings();
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
-			//TODO: Should replay and record be a single method?
-			replay(userOperation);
-			record(userOperation);
+			replayAndRecord(userOperation);
 			if (shouldProcess(userOperation)) {
 				InferredRefactoringOperation refactoringOperation= InferredRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
 				if (refactoringOperation != null) {

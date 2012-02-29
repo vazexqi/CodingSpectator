@@ -11,11 +11,11 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class AddedVariableReferenceRefactoringProperty extends RefactoringProperty {
+public class AddedEntityReferenceRefactoringProperty extends RefactoringProperty {
 
 
-	public AddedVariableReferenceRefactoringProperty(String variableName, long parentID) {
-		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
+	public AddedEntityReferenceRefactoringProperty(String entityName, long parentID) {
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.PARENT_ID, parentID);
 	}
 

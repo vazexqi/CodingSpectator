@@ -31,7 +31,7 @@ public class ExtractVariableRefactoring extends InferredRefactoring {
 		acceptableProperties.add(RefactoringProperties.MOVED_TO_INITIALIZATION);
 		acceptableProperties.add(RefactoringProperties.ADDED_VARIABLE_DECLARATION);
 		acceptableProperties.add(RefactoringProperties.MOVED_FROM_USAGE);
-		acceptableProperties.add(RefactoringProperties.ADDED_VARIABLE_REFERENCE);
+		acceptableProperties.add(RefactoringProperties.ADDED_ENTITY_REFERENCE);
 	}
 
 
@@ -70,7 +70,7 @@ public class ExtractVariableRefactoring extends InferredRefactoring {
 	@Override
 	public Map<String, String> getArguments() {
 		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.MOVED_TO_INITIALIZATION);
-		String variableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.VARIABLE_NAME);
+		String variableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME);
 		NodeDescriptor nodeDescriptor= (NodeDescriptor)refactoringProperty.getAttribute(RefactoringPropertyAttributes.MOVED_NODE);
 		Map<String, String> arguments= new HashMap<String, String>();
 		arguments.put("VariableName", variableName);

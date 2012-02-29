@@ -14,8 +14,8 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class AddedVariableDeclarationRefactoringProperty extends RefactoringProperty {
 
 
-	public AddedVariableDeclarationRefactoringProperty(String variableName) {
-		addAttribute(RefactoringPropertyAttributes.VARIABLE_NAME, variableName);
+	public AddedVariableDeclarationRefactoringProperty(String entityName) {
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 	}
 
 

@@ -12,11 +12,11 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  */
 public interface RefactoringPropertyAttributes {
 
-	public static final String VARIABLE_NAME= "variableName";
+	public static final String ENTITY_NAME= "entityName";
 
-	public static final String OLD_VARIABLE_NAME= "oldVariableName";
+	public static final String OLD_ENTITY_NAME= "oldEntityName";
 
-	public static final String NEW_VARIABLE_NAME= "newVariableName";
+	public static final String NEW_ENTITY_NAME= "newEntityName";
 
 	public static final String MOVED_NODE= "movedNode";
 
