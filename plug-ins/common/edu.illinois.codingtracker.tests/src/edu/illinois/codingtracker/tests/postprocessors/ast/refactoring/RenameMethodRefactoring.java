@@ -16,30 +16,31 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class represents an instance of partially or fully inferred manual Rename Field refactoring.
+ * This class represents an instance of partially or fully inferred manual Rename Method
+ * refactoring.
  * 
  * @author Stas Negara
  * 
  */
-public class RenameFieldRefactoring extends InferredRefactoring {
+public class RenameMethodRefactoring extends InferredRefactoring {
 
 	private static final Set<String> acceptableProperties= new HashSet<String>();
 
 	static {
-		acceptableProperties.add(RefactoringProperties.CHANGED_FIELD_NAME_IN_DECLARATION);
+		acceptableProperties.add(RefactoringProperties.CHANGED_METHOD_NAME_IN_DECLARATION);
 		acceptableProperties.add(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
 	}
 
 
-	private RenameFieldRefactoring() {
+	private RenameMethodRefactoring() {
 
 	}
 
-	public static RenameFieldRefactoring createRefactoring(RefactoringProperty refactoringProperty) {
+	public static RenameMethodRefactoring createRefactoring(RefactoringProperty refactoringProperty) {
 		if (!isAcceptableProperty(refactoringProperty)) {
-			throw new RuntimeException("Can not create RenameFieldRefactoring for property: " + refactoringProperty);
+			throw new RuntimeException("Can not create RenameMethodRefactoring for property: " + refactoringProperty);
 		}
-		RenameFieldRefactoring newRefactoring= new RenameFieldRefactoring();
+		RenameMethodRefactoring newRefactoring= new RenameMethodRefactoring();
 		addProperty(newRefactoring, refactoringProperty);
 		return newRefactoring;
 	}
@@ -50,7 +51,7 @@ public class RenameFieldRefactoring extends InferredRefactoring {
 
 	@Override
 	protected InferredRefactoring createFreshInstance() {
-		return new RenameFieldRefactoring();
+		return new RenameMethodRefactoring();
 	}
 
 	@Override
@@ -60,17 +61,17 @@ public class RenameFieldRefactoring extends InferredRefactoring {
 
 	@Override
 	public RefactoringKind getKind() {
-		return RefactoringKind.RENAME_FIELD;
+		return RefactoringKind.RENAME_METHOD;
 	}
 
 	@Override
 	public Map<String, String> getArguments() {
-		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.CHANGED_FIELD_NAME_IN_DECLARATION);
+		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.CHANGED_METHOD_NAME_IN_DECLARATION);
 		String oldEntityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME);
 		String newEntityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME);
 		Map<String, String> arguments= new HashMap<String, String>();
-		arguments.put("OldFieldName", oldEntityName);
-		arguments.put("NewFieldName", newEntityName);
+		arguments.put("OldMethodName", oldEntityName);
+		arguments.put("NewMethodName", newEntityName);
 		return arguments;
 	}
 

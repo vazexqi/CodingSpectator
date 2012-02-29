@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -66,6 +67,8 @@ public class RefactoringPropertiesFactory {
 				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
 			} else if (isInFieldDeclaration(changedNode)) {
 				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+			} else if (isInMethodDeclaration(changedNode)) {
+				properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
 			}
 		} else {
 			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
@@ -162,6 +165,10 @@ public class RefactoringPropertiesFactory {
 		if (variableDeclaration != null && node == variableDeclaration.getName()) {
 			return true;
 		}
+		ASTNode methodDeclaration= ASTHelper.getParent(node, MethodDeclaration.class);
+		if (methodDeclaration != null && node == ((MethodDeclaration)methodDeclaration).getName()) {
+			return true;
+		}
 		return false;
 	}
 
@@ -171,6 +178,19 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isInFieldDeclaration(ASTNode node) {
 		return ASTHelper.getParent(node, FieldDeclaration.class) != null;
+	}
+
+	/**
+	 * Ignores constructors. Constructors are detected as methods without a return type. We can not
+	 * use isConstructor, since it would not work if the class is being renamed (which makes
+	 * original constructors to be considered as ordinary methods until they are renamed as well).
+	 * 
+	 * @param node
+	 * @return
+	 */
+	private static boolean isInMethodDeclaration(ASTNode node) {
+		ASTNode methodDeclaration= ASTHelper.getParent(node, MethodDeclaration.class);
+		return methodDeclaration != null && ((MethodDeclaration)methodDeclaration).getReturnType2() != null;
 	}
 
 	private static VariableDeclarationFragment getEnclosingVariableDeclarationFragment(ASTNode node) {

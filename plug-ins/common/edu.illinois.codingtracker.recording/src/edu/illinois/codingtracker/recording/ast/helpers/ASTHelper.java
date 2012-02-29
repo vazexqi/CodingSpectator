@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.Document;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.ast.ASTMethodDescriptor;
 import edu.illinois.codingtracker.operations.ast.ASTNodeDescriptor;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
@@ -216,9 +217,14 @@ public class ASTHelper {
 		ASTParser parser= ASTParser.newParser(AST.JLS3);
 		parser.setStatementsRecovery(true);
 		parser.setIgnoreMethodBodies(false);
-		//Avoid resolving bindings to speed up the parsing.
-		parser.setResolveBindings(false);
-		parser.setBindingsRecovery(false);
+		//To speed up the parsing, avoid resolving bindings unless it is necessary.
+		boolean shouldResolveBindings= false;
+		if (Configuration.isInRefactoringInferenceMode) {
+			//TODO: Do we really use this?
+			shouldResolveBindings= true;
+		}
+		parser.setResolveBindings(shouldResolveBindings);
+		parser.setBindingsRecovery(shouldResolveBindings);
 		return parser;
 	}
 
