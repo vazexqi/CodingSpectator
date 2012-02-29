@@ -5,6 +5,9 @@ package edu.illinois.codingtracker.tests.postprocessors.ast;
 
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.resources.DeletedResourceOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
 
@@ -16,6 +19,9 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  * 
  */
 public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
+
+	private boolean isDeletedResource= false;
+
 
 	@Override
 	protected void checkPostprocessingPreconditions() {
@@ -43,6 +49,15 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 		} catch (Exception e) {
 			throw new RuntimeException("Could not replay user operation: " + userOperation, e);
 		}
+	}
+
+	protected boolean shouldProcess(UserOperation userOperation) {
+		if (userOperation instanceof DeletedResourceOperation) {
+			isDeletedResource= true;
+		} else if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof ASTFileOperation)) {
+			isDeletedResource= false;
+		}
+		return userOperation instanceof ASTOperation && !isDeletedResource; //Ignore AST operations for deleted resource.
 	}
 
 }

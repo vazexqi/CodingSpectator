@@ -38,7 +38,7 @@ public class MoveInferencePostprocessor extends ASTPostprocessor {
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
 		for (UserOperation userOperation : userOperations) {
-			if (userOperation instanceof ASTOperation) {
+			if (shouldProcess(userOperation)) {
 				processASTOperation((ASTOperation)userOperation);
 			}
 		}
