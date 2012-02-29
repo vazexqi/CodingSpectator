@@ -16,6 +16,8 @@ public interface RefactoringProperties {
 
 	public static final String ADDED_ENTITY_REFERENCE= "AddedEntityReferenceRefactoringProperty";
 
+	public static final String CHANGED_FIELD_NAME_IN_DECLARATION= "ChangedFieldNameInDeclarationRefactoringProperty";
+
 	public static final String CHANGED_VARIABLE_NAME_IN_DECLARATION= "ChangedVariableNameInDeclarationRefactoringProperty";
 
 	public static final String CHANGED_ENTITY_NAME_IN_USAGE= "ChangedEntityNameInUsageRefactoringProperty";

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -63,6 +64,8 @@ public class RefactoringPropertiesFactory {
 		if (isDeclaredEntity(changedNode)) {
 			if (isInLocalVariableDeclaration(changedNode)) {
 				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+			} else if (isInFieldDeclaration(changedNode)) {
+				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
 			}
 		} else {
 			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
@@ -164,6 +167,10 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isInLocalVariableDeclaration(ASTNode node) {
 		return ASTHelper.getParent(node, VariableDeclarationStatement.class) != null;
+	}
+
+	private static boolean isInFieldDeclaration(ASTNode node) {
+		return ASTHelper.getParent(node, FieldDeclaration.class) != null;
 	}
 
 	private static VariableDeclarationFragment getEnclosingVariableDeclarationFragment(ASTNode node) {
