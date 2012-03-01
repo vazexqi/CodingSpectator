@@ -52,17 +52,34 @@ public class NodeOperations {
 		if (shouldSplitByMethod(astOperation)) {
 			return false;
 		}
-		//Should not add this operation if the relation will become N-to-N.
+		//Should not add more than one operation on the same node 
+		//and should not add an operation that will make the relation N-to-N.
+		if (isExistingNode(astOperation) || willBecomeNtoN(astOperation)) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean willBecomeNtoN(ASTOperation astOperation) {
 		if (astOperation.isAdd()) {
 			if (addOperationsCount > 0 && deleteOperationsCount > 1) {
-				return false;
+				return true;
 			}
 		} else if (astOperation.isDelete()) {
 			if (addOperationsCount > 1 && deleteOperationsCount > 0) {
-				return false;
+				return true;
 			}
 		}
-		return true;
+		return false;
+	}
+
+	private boolean isExistingNode(ASTOperation astOperation) {
+		for (ASTOperation addedOperation : operations) {
+			if (addedOperation.getNodeID() == astOperation.getNodeID()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean shouldSplitByMethod(ASTOperation astOperation) {
