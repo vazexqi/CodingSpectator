@@ -32,11 +32,11 @@ public interface RefactoringProperties {
 
 	public static final String DELETED_ENTITY_REFERENCE= "DeletedEntityReferenceRefactoringProperty";
 
-	public static final String MOVED_FROM_INITIALIZATION= "MovedFromInitializationRefactoringProperty";
+	public static final String MOVED_FROM_VARIABLE_INITIALIZATION= "MovedFromVariableInitializationRefactoringProperty";
 
 	public static final String MOVED_FROM_USAGE= "MovedFromUsageRefactoringProperty";
 
-	public static final String MOVED_TO_INITIALIZATION= "MovedToInitializationRefactoringProperty";
+	public static final String MOVED_TO_VARIABLE_INITIALIZATION= "MovedToVariableInitializationRefactoringProperty";
 
 	public static final String MOVED_TO_USAGE= "MovedToUsageRefactoringProperty";
 

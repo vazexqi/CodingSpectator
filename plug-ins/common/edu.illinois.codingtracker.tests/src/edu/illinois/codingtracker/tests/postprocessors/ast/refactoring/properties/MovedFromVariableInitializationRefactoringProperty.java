@@ -8,15 +8,15 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 
 
 /**
- * This class represents an AST node deleted from initialization of a variable.
+ * This class represents an AST node deleted from initialization of a local variable.
  * 
  * @author Stas Negara
  * 
  */
-public class MovedFromInitializationRefactoringProperty extends RefactoringProperty {
+public class MovedFromVariableInitializationRefactoringProperty extends RefactoringProperty {
 
 
-	public MovedFromInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long moveID) {
+	public MovedFromVariableInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long moveID) {
 		addAttribute(RefactoringPropertyAttributes.MOVED_NODE, movedNode);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);

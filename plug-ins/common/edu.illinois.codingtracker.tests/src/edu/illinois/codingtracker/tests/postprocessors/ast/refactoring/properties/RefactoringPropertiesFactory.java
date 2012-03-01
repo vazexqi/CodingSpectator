@@ -106,8 +106,8 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleDeletedMovedNode(ASTNode deletedNode, NodeDescriptor nodeDescriptor, long moveID) {
 		String entityName= getDeclaredEntityNameForInitializer(deletedNode);
-		if (entityName != null) {
-			properties.add(new MovedFromInitializationRefactoringProperty(nodeDescriptor, entityName, moveID));
+		if (entityName != null && isInLocalVariableDeclaration(deletedNode)) {
+			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName, moveID));
 		} else {
 			long parentID= getParentID(deletedNode, true);
 			if (parentID != -1) {
@@ -150,8 +150,8 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedMovedNode(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
 		String declarationEntityName= getDeclaredEntityNameForInitializer(addedNode);
-		if (declarationEntityName != null) {
-			properties.add(new MovedToInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
+		if (declarationEntityName != null && isInLocalVariableDeclaration(addedNode)) {
+			properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
 		} else {
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
