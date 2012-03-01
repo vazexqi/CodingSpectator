@@ -150,8 +150,12 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedMovedNode(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
 		String declarationEntityName= getDeclaredEntityNameForInitializer(addedNode);
-		if (declarationEntityName != null && isInLocalVariableDeclaration(addedNode)) {
-			properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
+		if (declarationEntityName != null) {
+			if (isInLocalVariableDeclaration(addedNode)) {
+				properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
+			} else if (isInFieldDeclaration(addedNode)) {
+				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
+			}
 		} else {
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));

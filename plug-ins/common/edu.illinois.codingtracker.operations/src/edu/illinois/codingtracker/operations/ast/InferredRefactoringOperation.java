@@ -20,7 +20,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 public class InferredRefactoringOperation extends UserOperation {
 
 	public static enum RefactoringKind {
-		EXTRACT_LOCAL_VARIABLE, INLINE_LOCAL_VARIABLE, RENAME_LOCAL_VARIABLE, RENAME_FIELD, RENAME_METHOD, RENAME_CLASS, PROMOTE_TEMP
+		EXTRACT_LOCAL_VARIABLE, INLINE_LOCAL_VARIABLE, RENAME_LOCAL_VARIABLE, RENAME_FIELD, RENAME_METHOD, RENAME_CLASS, PROMOTE_TEMP, EXTRACT_CONSTANT
 	};
 
 	private RefactoringKind refactoringKind;

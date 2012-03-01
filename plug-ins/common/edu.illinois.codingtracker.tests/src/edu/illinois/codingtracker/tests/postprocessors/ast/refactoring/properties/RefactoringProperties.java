@@ -36,6 +36,8 @@ public interface RefactoringProperties {
 
 	public static final String MOVED_FROM_USAGE= "MovedFromUsageRefactoringProperty";
 
+	public static final String MOVED_TO_FIELD_INITIALIZATION= "MovedToFieldInitializationRefactoringProperty";
+
 	public static final String MOVED_TO_VARIABLE_INITIALIZATION= "MovedToVariableInitializationRefactoringProperty";
 
 	public static final String MOVED_TO_USAGE= "MovedToUsageRefactoringProperty";
