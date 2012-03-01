@@ -70,10 +70,10 @@ public class InlineVariableRefactoring extends InferredRefactoring {
 	@Override
 	public Map<String, String> getArguments() {
 		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.MOVED_FROM_INITIALIZATION);
-		String variableName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME);
+		String entityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME);
 		NodeDescriptor nodeDescriptor= (NodeDescriptor)refactoringProperty.getAttribute(RefactoringPropertyAttributes.MOVED_NODE);
 		Map<String, String> arguments= new HashMap<String, String>();
-		arguments.put("VariableName", variableName);
+		arguments.put("VariableName", entityName);
 		arguments.put("InlinedValue", nodeDescriptor.getNodeText());
 		return arguments;
 	}

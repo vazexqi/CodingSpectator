@@ -6,15 +6,15 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 /**
- * This class represents an added declaration of a variable.
+ * This class represents an added declaration of a field.
  * 
  * @author Stas Negara
  * 
  */
-public class AddedVariableDeclarationRefactoringProperty extends RefactoringProperty {
+public class AddedFieldDeclarationRefactoringProperty extends RefactoringProperty {
 
 
-	public AddedVariableDeclarationRefactoringProperty(String entityName) {
+	public AddedFieldDeclarationRefactoringProperty(String entityName) {
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 	}
 

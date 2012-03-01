@@ -12,9 +12,11 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  */
 public interface RefactoringProperties {
 
-	public static final String ADDED_VARIABLE_DECLARATION= "AddedVariableDeclarationRefactoringProperty";
-
 	public static final String ADDED_ENTITY_REFERENCE= "AddedEntityReferenceRefactoringProperty";
+
+	public static final String ADDED_FIELD_DECLARATION= "AddedFieldDeclarationRefactoringProperty";
+
+	public static final String ADDED_VARIABLE_DECLARATION= "AddedVariableDeclarationRefactoringProperty";
 
 	public static final String CHANGED_FIELD_NAME_IN_DECLARATION= "ChangedFieldNameInDeclarationRefactoringProperty";
 
