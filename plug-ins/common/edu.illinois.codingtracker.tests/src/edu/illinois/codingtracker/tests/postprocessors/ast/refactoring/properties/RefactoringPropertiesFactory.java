@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -149,21 +152,41 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleAddedMovedNode(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
-		String declarationEntityName= getDeclaredEntityNameForInitializer(addedNode);
-		if (declarationEntityName != null) {
-			if (isInLocalVariableDeclaration(addedNode)) {
-				properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
-			} else if (isInFieldDeclaration(addedNode)) {
-				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declarationEntityName, moveID));
-			}
-		} else {
+		if (!handleAddedMovedInitializationOrAssignment(addedNode, nodeDescriptor, moveID)) {
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
 			if (addedNode instanceof SimpleName) {
-				String referenceEntityName= ((SimpleName)addedNode).getIdentifier();
-				properties.add(new AddedEntityReferenceRefactoringProperty(referenceEntityName, parentID));
+				String referencedEntityName= ((SimpleName)addedNode).getIdentifier();
+				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName, parentID));
 			}
 		}
+	}
+
+	/**
+	 * Returns true if the given addedNode is indeed a moved initialization or assignment.
+	 * 
+	 * @param addedNode
+	 * @param nodeDescriptor
+	 * @param moveID
+	 * @return
+	 */
+	private static boolean handleAddedMovedInitializationOrAssignment(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
+		String declaredEntityName= getDeclaredEntityNameForInitializer(addedNode);
+		if (declaredEntityName != null) {
+			if (isInLocalVariableDeclaration(addedNode)) {
+				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, declaredEntityName, moveID));
+			} else if (isInFieldDeclaration(addedNode)) {
+				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName, moveID));
+			}
+			return true;
+		} else {
+			String assignedEntityName= getAssignedEntityNameForAssignment(addedNode);
+			if (assignedEntityName != null && isInExpressionStatement(addedNode)) {
+				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, assignedEntityName, moveID));
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static void handleAddedNotMovedNode(ASTNode addedNode) {
@@ -183,6 +206,26 @@ public class RefactoringPropertiesFactory {
 		VariableDeclarationFragment variableDeclaration= getEnclosingVariableDeclarationFragment(node);
 		if (variableDeclaration != null && node == variableDeclaration.getInitializer()) {
 			return getDeclaredEntityName(variableDeclaration);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns null if the given node is not an assigned expression in a variable assignment.
+	 * 
+	 * @param node
+	 * @return
+	 */
+	private static String getAssignedEntityNameForAssignment(ASTNode node) {
+		ASTNode parent= ASTHelper.getParent(node, Assignment.class);
+		if (parent != null) {
+			Assignment assignment= (Assignment)parent;
+			if (node == assignment.getRightHandSide()) {
+				Expression leftHandSide= assignment.getLeftHandSide();
+				if (leftHandSide instanceof SimpleName) {
+					return ((SimpleName)leftHandSide).getIdentifier();
+				}
+			}
 		}
 		return null;
 	}
@@ -219,6 +262,10 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isInFieldDeclaration(ASTNode node) {
 		return ASTHelper.getParent(node, FieldDeclaration.class) != null;
+	}
+
+	private static boolean isInExpressionStatement(ASTNode node) {
+		return ASTHelper.getParent(node, ExpressionStatement.class) != null;
 	}
 
 	private static VariableDeclarationFragment getEnclosingVariableDeclarationFragment(ASTNode node) {

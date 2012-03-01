@@ -8,15 +8,15 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 
 
 /**
- * This class represents an AST node added as initialization of a local variable.
+ * This class represents an AST node added as initialization or assignment of a local variable.
  * 
  * @author Stas Negara
  * 
  */
-public class MovedToVariableInitializationRefactoringProperty extends RefactoringProperty {
+public class MovedToVariableInitializationOrAssignmentRefactoringProperty extends RefactoringProperty {
 
 
-	public MovedToVariableInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long moveID) {
+	public MovedToVariableInitializationOrAssignmentRefactoringProperty(NodeDescriptor movedNode, String entityName, long moveID) {
 		addAttribute(RefactoringPropertyAttributes.MOVED_NODE, movedNode);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
