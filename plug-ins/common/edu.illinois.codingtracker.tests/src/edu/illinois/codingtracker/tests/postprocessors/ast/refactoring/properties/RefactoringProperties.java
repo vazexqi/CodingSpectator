@@ -20,6 +20,8 @@ public interface RefactoringProperties {
 
 	public static final String CHANGED_METHOD_NAME_IN_DECLARATION= "ChangedMethodNameInDeclarationRefactoringProperty";
 
+	public static final String CHANGED_TYPE_NAME_IN_DECLARATION= "ChangedTypeNameInDeclarationRefactoringProperty";
+
 	public static final String CHANGED_VARIABLE_NAME_IN_DECLARATION= "ChangedVariableNameInDeclarationRefactoringProperty";
 
 	public static final String CHANGED_ENTITY_NAME_IN_USAGE= "ChangedEntityNameInUsageRefactoringProperty";

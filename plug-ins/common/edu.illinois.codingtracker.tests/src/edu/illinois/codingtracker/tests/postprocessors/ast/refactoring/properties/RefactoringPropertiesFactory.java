@@ -10,6 +10,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -63,15 +64,23 @@ public class RefactoringPropertiesFactory {
 		String oldEntityName= changedNode.getIdentifier();
 		String newEntityName= operation.getNodeNewText();
 		if (isDeclaredEntity(changedNode)) {
+			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
+		} else {
+			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
+		}
+	}
+
+	private static void handleChangedDeclaredEntity(SimpleName changedNode, String oldEntityName, String newEntityName) {
+		if (isLocalVariableOrFieldDeclaredEntity(changedNode)) {
 			if (isInLocalVariableDeclaration(changedNode)) {
 				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
 			} else if (isInFieldDeclaration(changedNode)) {
 				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
-			} else if (isInMethodDeclaration(changedNode)) {
-				properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
 			}
-		} else {
-			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
+		} else if (isMethodDeclaredEntity(changedNode, true)) {
+			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+		} else if (isTypeDeclaredEntity(changedNode)) {
+			properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
 		}
 	}
 
@@ -161,15 +170,29 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static boolean isDeclaredEntity(ASTNode node) {
+		return isLocalVariableOrFieldDeclaredEntity(node) || isMethodDeclaredEntity(node, false) || isTypeDeclaredEntity(node);
+	}
+
+	private static boolean isLocalVariableOrFieldDeclaredEntity(ASTNode node) {
 		VariableDeclarationFragment variableDeclaration= getEnclosingVariableDeclarationFragment(node);
-		if (variableDeclaration != null && node == variableDeclaration.getName()) {
-			return true;
-		}
-		ASTNode methodDeclaration= ASTHelper.getParent(node, MethodDeclaration.class);
-		if (methodDeclaration != null && node == ((MethodDeclaration)methodDeclaration).getName()) {
-			return true;
+		return variableDeclaration != null && node == variableDeclaration.getName();
+	}
+
+	private static boolean isMethodDeclaredEntity(ASTNode node, boolean ignoreConstructors) {
+		ASTNode parent= ASTHelper.getParent(node, MethodDeclaration.class);
+		if (parent != null) {
+			MethodDeclaration methodDeclaration= (MethodDeclaration)parent;
+			//Constructors are detected as methods without a return type. We can not
+			//use isConstructor, since it would not work if the class is being renamed (which makes
+			//original constructors to be considered as ordinary methods until they are renamed as well).
+			return node == methodDeclaration.getName() && (!ignoreConstructors || methodDeclaration.getReturnType2() != null);
 		}
 		return false;
+	}
+
+	private static boolean isTypeDeclaredEntity(ASTNode node) {
+		ASTNode typeDeclaration= ASTHelper.getParent(node, TypeDeclaration.class);
+		return typeDeclaration != null && node == ((TypeDeclaration)typeDeclaration).getName();
 	}
 
 	private static boolean isInLocalVariableDeclaration(ASTNode node) {
@@ -178,19 +201,6 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isInFieldDeclaration(ASTNode node) {
 		return ASTHelper.getParent(node, FieldDeclaration.class) != null;
-	}
-
-	/**
-	 * Ignores constructors. Constructors are detected as methods without a return type. We can not
-	 * use isConstructor, since it would not work if the class is being renamed (which makes
-	 * original constructors to be considered as ordinary methods until they are renamed as well).
-	 * 
-	 * @param node
-	 * @return
-	 */
-	private static boolean isInMethodDeclaration(ASTNode node) {
-		ASTNode methodDeclaration= ASTHelper.getParent(node, MethodDeclaration.class);
-		return methodDeclaration != null && ((MethodDeclaration)methodDeclaration).getReturnType2() != null;
 	}
 
 	private static VariableDeclarationFragment getEnclosingVariableDeclarationFragment(ASTNode node) {
