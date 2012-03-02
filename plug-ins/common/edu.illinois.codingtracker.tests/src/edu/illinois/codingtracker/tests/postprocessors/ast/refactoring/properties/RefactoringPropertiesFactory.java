@@ -94,8 +94,9 @@ public class RefactoringPropertiesFactory {
 			long moveID= operation.getMoveID();
 			if (moveID != -1) {
 				handleDeletedMovedNode(deletedNode, new NodeDescriptor(operation), moveID);
-			} else {
-				handleDeletedNotMovedNode(deletedNode);
+			}
+			if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
+				handleDeletedReferenceNode((SimpleName)deletedNode);
 			}
 		}
 	}
@@ -119,13 +120,11 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleDeletedNotMovedNode(ASTNode deletedNode) {
-		if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
-			long parentID= getParentID(deletedNode, true);
-			if (parentID != -1) {
-				String entityName= ((SimpleName)deletedNode).getIdentifier();
-				properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, parentID));
-			}
+	private static void handleDeletedReferenceNode(SimpleName referenceNode) {
+		long parentID= getParentID(referenceNode, true);
+		if (parentID != -1) {
+			String entityName= referenceNode.getIdentifier();
+			properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, parentID));
 		}
 	}
 
@@ -136,8 +135,9 @@ public class RefactoringPropertiesFactory {
 			long moveID= operation.getMoveID();
 			if (moveID != -1) {
 				handleAddedMovedNode(addedNode, new NodeDescriptor(operation), moveID);
-			} else {
-				handleAddedNotMovedNode(addedNode);
+			}
+			if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
+				handleAddedReferenceNode((SimpleName)addedNode);
 			}
 		}
 	}
@@ -189,11 +189,9 @@ public class RefactoringPropertiesFactory {
 		return false;
 	}
 
-	private static void handleAddedNotMovedNode(ASTNode addedNode) {
-		if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
-			String entityName= ((SimpleName)addedNode).getIdentifier();
-			properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getParentID(addedNode, false)));
-		}
+	private static void handleAddedReferenceNode(SimpleName referenceNode) {
+		String entityName= referenceNode.getIdentifier();
+		properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getParentID(referenceNode, false)));
 	}
 
 	/**
