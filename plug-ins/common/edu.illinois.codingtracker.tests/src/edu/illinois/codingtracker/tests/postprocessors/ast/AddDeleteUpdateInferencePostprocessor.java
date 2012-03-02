@@ -161,7 +161,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 			String newContent= snapshotedFileOperation.getFileContent();
 			replaySnapshotsAsEdits(snapshotedFileOperation, editedFile, new String[] { currentContent, newContent }, shouldRestoreOriginalEditor);
 		} else { //Resource does not exist or is not a file.
-			replayAndRecord(snapshotedFileOperation);
+			replay(snapshotedFileOperation);
 		}
 	}
 
