@@ -16,6 +16,15 @@ import java.util.Map.Entry;
  */
 public abstract class RefactoringProperty {
 
+	//Attributes, whose values should be different to allow the properties to match.
+	private static final Map<String, String> disjointAttributes= new HashMap<String, String>();
+
+	static {
+		//Disjoint attributes are (obviously) symmetrical.
+		disjointAttributes.put(RefactoringPropertyAttributes.SOURCE_METHOD_ID, RefactoringPropertyAttributes.DESTINATION_METHOD_ID);
+		disjointAttributes.put(RefactoringPropertyAttributes.DESTINATION_METHOD_ID, RefactoringPropertyAttributes.SOURCE_METHOD_ID);
+	}
+
 	private final Map<String, Object> attributes= new HashMap<String, Object>();
 
 	private boolean isActive= true;
@@ -45,6 +54,10 @@ public abstract class RefactoringProperty {
 		for (Entry<String, Object> entry : attributes.entrySet()) {
 			Object objectToMatch= anotherProperty.attributes.get(entry.getKey());
 			if (objectToMatch != null && !objectToMatch.equals(entry.getValue())) {
+				return false;
+			}
+			Object objectToDisjoin= anotherProperty.attributes.get(disjointAttributes.get(entry.getKey()));
+			if (objectToDisjoin != null && objectToDisjoin.equals(entry.getValue())) {
 				return false;
 			}
 		}

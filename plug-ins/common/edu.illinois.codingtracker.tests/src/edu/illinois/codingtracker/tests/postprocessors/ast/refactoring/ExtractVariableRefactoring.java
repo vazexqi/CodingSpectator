@@ -17,8 +17,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class represents an instance of partially or fully inferred manual Extract Variable
- * refactoring.
+ * This class represents an instance of partially or fully inferred Extract Variable refactoring.
  * 
  * @author Stas Negara
  * 

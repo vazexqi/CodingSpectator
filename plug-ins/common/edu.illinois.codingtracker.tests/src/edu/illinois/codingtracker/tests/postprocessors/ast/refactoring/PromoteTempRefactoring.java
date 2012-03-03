@@ -16,7 +16,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class represents an instance of partially or fully inferred manual Promote Temp refactoring.
+ * This class represents an instance of partially or fully inferred Promote Temp refactoring.
  * 
  * @author Stas Negara
  * 

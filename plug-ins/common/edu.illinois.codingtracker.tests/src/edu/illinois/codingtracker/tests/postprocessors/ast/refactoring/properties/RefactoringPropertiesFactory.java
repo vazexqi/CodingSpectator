@@ -12,7 +12,9 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -93,7 +95,7 @@ public class RefactoringPropertiesFactory {
 		} else {
 			long moveID= operation.getMoveID();
 			if (moveID != -1) {
-				handleDeletedMovedNode(deletedNode, new NodeDescriptor(operation), moveID);
+				handleDeletedMovedNode(deletedNode, operation, moveID);
 			}
 			if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
 				handleDeletedReferenceNode((SimpleName)deletedNode);
@@ -108,11 +110,15 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleDeletedMovedNode(ASTNode deletedNode, NodeDescriptor nodeDescriptor, long moveID) {
+	private static void handleDeletedMovedNode(ASTNode deletedNode, ASTOperation operation, long moveID) {
+		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		String entityName= getDeclaredEntityNameForInitializer(deletedNode);
 		if (entityName != null && isInLocalVariableDeclaration(deletedNode)) {
 			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName, moveID));
 		} else {
+			if (operation.getMethodID() != -1 && !isTooSimpleForExtractMethod(deletedNode)) {
+				properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID));
+			}
 			long parentID= getParentID(deletedNode, true);
 			if (parentID != -1) {
 				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
@@ -131,13 +137,18 @@ public class RefactoringPropertiesFactory {
 	private static void handleAddedNode(ASTNode addedNode, ASTOperation operation) {
 		if (addedNode instanceof VariableDeclarationFragment) {
 			handleAddedVariableDeclarationFragment((VariableDeclarationFragment)addedNode);
+		} else if (addedNode instanceof MethodDeclaration) {
+			handleAddedMethodDeclaration((MethodDeclaration)addedNode, operation);
 		} else {
 			long moveID= operation.getMoveID();
 			if (moveID != -1) {
-				handleAddedMovedNode(addedNode, new NodeDescriptor(operation), moveID);
+				handleAddedMovedNode(addedNode, operation, moveID);
 			}
 			if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
 				handleAddedReferenceNode((SimpleName)addedNode);
+			}
+			if (addedNode instanceof MethodInvocation) {
+				handleAddedMethodInvocation((MethodInvocation)addedNode, operation);
 			}
 		}
 	}
@@ -151,8 +162,26 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleAddedMovedNode(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
+	private static void handleAddedMethodDeclaration(MethodDeclaration methodDeclaration, ASTOperation operation) {
+		String methodName= methodDeclaration.getName().getIdentifier();
+		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, operation.getNodeID()));
+	}
+
+	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, ASTOperation operation) {
+		long sourceMethodID= operation.getMethodID();
+		if (sourceMethodID != -1) {
+			String destinationMethodName= methodInvocation.getName().getIdentifier();
+			String sourceMethodName= ASTHelper.getContainingMethod(methodInvocation).getName().getIdentifier();
+			properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, sourceMethodName, sourceMethodID));
+		}
+	}
+
+	private static void handleAddedMovedNode(ASTNode addedNode, ASTOperation operation, long moveID) {
+		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		if (!handleAddedMovedInitializationOrAssignment(addedNode, nodeDescriptor, moveID)) {
+			if (operation.getMethodID() != -1 && !isTooSimpleForExtractMethod(addedNode)) {
+				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), moveID));
+			}
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
 			if (addedNode instanceof SimpleName) {
@@ -192,6 +221,10 @@ public class RefactoringPropertiesFactory {
 	private static void handleAddedReferenceNode(SimpleName referenceNode) {
 		String entityName= referenceNode.getIdentifier();
 		properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getParentID(referenceNode, false)));
+	}
+
+	private static boolean isTooSimpleForExtractMethod(ASTNode node) {
+		return node instanceof SimpleName || node instanceof SimpleType;
 	}
 
 	/**

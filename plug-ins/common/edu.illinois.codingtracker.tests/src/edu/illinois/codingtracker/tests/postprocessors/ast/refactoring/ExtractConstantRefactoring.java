@@ -17,8 +17,8 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class represents an instance of partially or fully inferred manual Extract Constant
- * refactoring (i.e., extracting a constant or an expression to a field).
+ * This class represents an instance of partially or fully inferred Extract Constant refactoring
+ * (i.e., extracting a constant or an expression to a field).
  * 
  * @author Stas Negara
  * 

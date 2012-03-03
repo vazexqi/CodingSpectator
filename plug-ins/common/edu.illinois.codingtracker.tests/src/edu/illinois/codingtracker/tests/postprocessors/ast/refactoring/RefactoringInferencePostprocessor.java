@@ -12,8 +12,8 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
 
 
 /**
- * This class infers manual refactorings and inserts them in the sequence with AST operations. TODO:
- * Decide if each kind of refactoring should be inferred by a separate class.
+ * This class infers refactorings and inserts them in the sequence with AST operations. TODO: Decide
+ * if each kind of refactoring should be inferred by a separate class.
  * 
  * @author Stas Negara
  * 

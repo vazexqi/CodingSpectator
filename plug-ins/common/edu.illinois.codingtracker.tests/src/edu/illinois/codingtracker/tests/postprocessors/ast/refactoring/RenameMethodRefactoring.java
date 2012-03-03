@@ -16,8 +16,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class represents an instance of partially or fully inferred manual Rename Method
- * refactoring.
+ * This class represents an instance of partially or fully inferred Rename Method refactoring.
  * 
  * @author Stas Negara
  * 

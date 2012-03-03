@@ -16,31 +16,32 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class represents an instance of partially or fully inferred Rename Local Variable
- * refactoring.
+ * This class represents an instance of partially or fully inferred Extract Method refactoring.
  * 
  * @author Stas Negara
  * 
  */
-public class RenameVariableRefactoring extends InferredRefactoring {
+public class ExtractMethodRefactoring extends InferredRefactoring {
 
 	private static final Set<String> acceptableProperties= new HashSet<String>();
 
 	static {
-		acceptableProperties.add(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+		acceptableProperties.add(RefactoringProperties.ADDED_METHOD_DECLARATION);
+		acceptableProperties.add(RefactoringProperties.MOVED_TO_METHOD);
+		acceptableProperties.add(RefactoringProperties.MOVED_FROM_METHOD);
+		acceptableProperties.add(RefactoringProperties.ADDED_METHOD_INVOCATION);
 	}
 
 
-	private RenameVariableRefactoring() {
+	private ExtractMethodRefactoring() {
 
 	}
 
-	public static RenameVariableRefactoring createRefactoring(RefactoringProperty refactoringProperty) {
+	public static ExtractMethodRefactoring createRefactoring(RefactoringProperty refactoringProperty) {
 		if (!isAcceptableProperty(refactoringProperty)) {
-			throw new RuntimeException("Can not create RenameVariableRefactoring for property: " + refactoringProperty);
+			throw new RuntimeException("Can not create ExtractMethodRefactoring for property: " + refactoringProperty);
 		}
-		RenameVariableRefactoring newRefactoring= new RenameVariableRefactoring();
+		ExtractMethodRefactoring newRefactoring= new ExtractMethodRefactoring();
 		addProperty(newRefactoring, refactoringProperty);
 		return newRefactoring;
 	}
@@ -51,7 +52,7 @@ public class RenameVariableRefactoring extends InferredRefactoring {
 
 	@Override
 	protected InferredRefactoring createFreshInstance() {
-		return new RenameVariableRefactoring();
+		return new ExtractMethodRefactoring();
 	}
 
 	@Override
@@ -61,17 +62,17 @@ public class RenameVariableRefactoring extends InferredRefactoring {
 
 	@Override
 	public RefactoringKind getKind() {
-		return RefactoringKind.RENAME_LOCAL_VARIABLE;
+		return RefactoringKind.EXTRACT_METHOD;
 	}
 
 	@Override
 	public Map<String, String> getArguments() {
-		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.CHANGED_VARIABLE_NAME_IN_DECLARATION);
-		String oldEntityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME);
-		String newEntityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME);
+		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.ADDED_METHOD_INVOCATION);
+		String sourceMethodName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.SOURCE_METHOD_NAME);
+		String destinationMethodName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.DESTINATION_METHOD_NAME);
 		Map<String, String> arguments= new HashMap<String, String>();
-		arguments.put("OldVariableName", oldEntityName);
-		arguments.put("NewVariableName", newEntityName);
+		arguments.put("SourceMethodName", sourceMethodName);
+		arguments.put("DestinationMethodName", destinationMethodName);
 		return arguments;
 	}
 

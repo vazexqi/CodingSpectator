@@ -14,7 +14,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 
 
 /**
- * This class handles instances of the inferred manual refactorings.
+ * This class handles instances of the inferred refactorings.
  * 
  * @author Stas Negara
  * 
@@ -68,6 +68,9 @@ public class InferredRefactoringFactory {
 			}
 			if (ExtractConstantRefactoring.isAcceptableProperty(refactoringProperty)) {
 				currentRefactorings.add(ExtractConstantRefactoring.createRefactoring(refactoringProperty));
+			}
+			if (ExtractMethodRefactoring.isAcceptableProperty(refactoringProperty)) {
+				currentRefactorings.add(ExtractMethodRefactoring.createRefactoring(refactoringProperty));
 			}
 		}
 		return null;
