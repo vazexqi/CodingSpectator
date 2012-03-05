@@ -14,11 +14,19 @@ public interface RefactoringProperties {
 
 	public static final String ADDED_ENTITY_REFERENCE= "AddedEntityReferenceRefactoringProperty";
 
+	public static final String ADDED_FIELD_ASSIGNMENT= "AddedFieldAssignmentRefactoringProperty";
+
 	public static final String ADDED_FIELD_DECLARATION= "AddedFieldDeclarationRefactoringProperty";
+
+	public static final String ADDED_FIELD_RETURN= "AddedFieldReturnRefactoringProperty";
+
+	public static final String ADDED_GETTER_METHOD_DECLARATION= "AddedGetterMethodDeclarationRefactoringProperty";
 
 	public static final String ADDED_METHOD_DECLARATION= "AddedMethodDeclarationRefactoringProperty";
 
 	public static final String ADDED_METHOD_INVOCATION= "AddedMethodInvocationRefactoringProperty";
+
+	public static final String ADDED_SETTER_METHOD_DECLARATION= "AddedSetterMethodDeclarationRefactoringProperty";
 
 	public static final String ADDED_VARIABLE_DECLARATION= "AddedVariableDeclarationRefactoringProperty";
 
@@ -35,6 +43,8 @@ public interface RefactoringProperties {
 	public static final String DELETED_VARIABLE_DECLARATION= "DeletedVariableDeclarationRefactoringProperty";
 
 	public static final String DELETED_ENTITY_REFERENCE= "DeletedEntityReferenceRefactoringProperty";
+
+	public static final String MADE_FIELD_PRIVATE= "MadeFieldPrivateRefactoringProperty";
 
 	public static final String MOVED_FROM_METHOD= "MovedFromMethodRefactoringProperty";
 

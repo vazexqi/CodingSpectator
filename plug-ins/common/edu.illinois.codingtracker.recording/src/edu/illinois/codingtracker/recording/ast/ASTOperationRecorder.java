@@ -70,6 +70,8 @@ public class ASTOperationRecorder {
 
 	private ASTNode lastNewRootNode;
 
+	private Set<ASTNode> lastAddedNodes;
+
 	private Set<ASTNode> lastDeletedNodes;
 
 	private Map<ASTNode, ASTNode> lastMatchedNodes;
@@ -100,6 +102,10 @@ public class ASTOperationRecorder {
 
 	public ASTNode getLastNewRootNode() {
 		return lastNewRootNode;
+	}
+
+	public boolean isAdded(ASTNode node) {
+		return lastAddedNodes.contains(node);
 	}
 
 	public boolean isDeleted(ASTNode node) {
@@ -415,7 +421,8 @@ public class ASTOperationRecorder {
 		lastMatchedNodes= astOperationInferencer.getMatchedNodes();
 		ASTNodesIdentifier.updatePersistentNodeIDs(currentEditedFilePath, lastMatchedNodes, astOperationInferencer.getNewCommonCoveringNode());
 
-		recordAddASTOperations(currentEditedFilePath, astOperationInferencer.getAddedNodes(), isCommentingOrUncommenting, isUndoing);
+		lastAddedNodes= astOperationInferencer.getAddedNodes();
+		recordAddASTOperations(currentEditedFilePath, lastAddedNodes, isCommentingOrUncommenting, isUndoing);
 	}
 
 	private void recordCoherentTextChanges(List<CoherentTextChange> coherentTextChanges) {

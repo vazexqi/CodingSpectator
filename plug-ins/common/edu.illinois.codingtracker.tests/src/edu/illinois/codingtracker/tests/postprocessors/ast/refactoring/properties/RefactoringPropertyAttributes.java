@@ -32,4 +32,12 @@ public interface RefactoringPropertyAttributes {
 
 	public static final String SOURCE_METHOD_ID= "sourceMethodID";
 
+	public static final String GETTER_METHOD_NAME= "getterMethodName";
+
+	public static final String GETTER_METHOD_ID= "getterMethodID";
+
+	public static final String SETTER_METHOD_NAME= "setterMethodName";
+
+	public static final String SETTER_METHOD_ID= "setterMethodID";
+
 }

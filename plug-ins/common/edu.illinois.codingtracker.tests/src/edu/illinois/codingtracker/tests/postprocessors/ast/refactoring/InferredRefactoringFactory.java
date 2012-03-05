@@ -72,6 +72,9 @@ public class InferredRefactoringFactory {
 			if (ExtractMethodRefactoring.isAcceptableProperty(refactoringProperty)) {
 				currentRefactorings.add(ExtractMethodRefactoring.createRefactoring(refactoringProperty));
 			}
+			if (EncapsulateFieldRefactoring.isAcceptableProperty(refactoringProperty)) {
+				currentRefactorings.add(EncapsulateFieldRefactoring.createRefactoring(refactoringProperty));
+			}
 		}
 		return null;
 	}

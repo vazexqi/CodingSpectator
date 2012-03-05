@@ -10,9 +10,12 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -34,6 +37,8 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  * 
  */
 public class RefactoringPropertiesFactory {
+
+	private static final String PRIVATE_MODIFIER= "private";
 
 	private static final ASTOperationRecorder astOperationRecorder= ASTOperationRecorder.getInstance();
 
@@ -59,19 +64,38 @@ public class RefactoringPropertiesFactory {
 			handleAddedNode(affectedNode, operation);
 		} else if (operation.isDelete()) {
 			handleDeletedNode(affectedNode, operation);
-		} else if (operation.isChange() && affectedNode instanceof SimpleName) {
-			handleChangedNode((SimpleName)affectedNode, operation);
+		} else if (operation.isChange()) {
+			handleChangedNode(affectedNode, operation);
 		}
 		return properties;
 	}
 
-	private static void handleChangedNode(SimpleName changedNode, ASTOperation operation) {
+	private static void handleChangedNode(ASTNode changedNode, ASTOperation operation) {
+		if (changedNode instanceof SimpleName) {
+			handleChangedSimpleName((SimpleName)changedNode, operation);
+		} else if (changedNode instanceof Modifier && operation.getNodeNewText().equals(PRIVATE_MODIFIER)) {
+			handlePrivateModifier((Modifier)changedNode);
+		}
+	}
+
+	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
 		String oldEntityName= changedNode.getIdentifier();
 		String newEntityName= operation.getNodeNewText();
 		if (isDeclaredEntity(changedNode)) {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
 		} else {
 			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
+		}
+	}
+
+	private static void handlePrivateModifier(Modifier modifier) {
+		ASTNode parent= modifier.getParent();
+		//The change in visibility of a field should not be a result of adding the field itself.
+		if (parent instanceof FieldDeclaration && !astOperationRecorder.isAdded(parent)) {
+			for (Object fragment : ((FieldDeclaration)parent).fragments()) {
+				String fieldName= ((VariableDeclarationFragment)fragment).getName().getIdentifier();
+				properties.add(MadeFieldPrivateRefactoringProperty.createInstance(fieldName));
+			}
 		}
 	}
 
@@ -144,11 +168,15 @@ public class RefactoringPropertiesFactory {
 			if (moveID != -1) {
 				handleAddedMovedNode(addedNode, operation, moveID);
 			}
+			long methodID= operation.getMethodID();
+			if (methodID != -1) {
+				handleAddedNodeToMethod(addedNode, methodID);
+			}
 			if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
 				handleAddedReferenceNode((SimpleName)addedNode);
 			}
-			if (addedNode instanceof MethodInvocation) {
-				handleAddedMethodInvocation((MethodInvocation)addedNode, operation);
+			if (addedNode instanceof Modifier && operation.getNodeText().equals(PRIVATE_MODIFIER)) {
+				handlePrivateModifier((Modifier)addedNode);
 			}
 		}
 	}
@@ -164,15 +192,56 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedMethodDeclaration(MethodDeclaration methodDeclaration, ASTOperation operation) {
 		String methodName= methodDeclaration.getName().getIdentifier();
-		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, operation.getNodeID()));
+		long methodID= operation.getNodeID();
+		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, methodID));
+		//This is somewhat inefficient, but since at this point we do not know whether the added method is a getter,
+		//a setter, or none of the above, we just tentatively consider every possibility.
+		properties.add(new AddedGetterMethodDeclarationRefactoringProperty(methodName, methodID));
+		properties.add(new AddedSetterMethodDeclarationRefactoringProperty(methodName, methodID));
 	}
 
-	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, ASTOperation operation) {
-		long sourceMethodID= operation.getMethodID();
-		if (sourceMethodID != -1) {
-			String destinationMethodName= methodInvocation.getName().getIdentifier();
-			String sourceMethodName= ASTHelper.getContainingMethod(methodInvocation).getName().getIdentifier();
-			properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, sourceMethodName, sourceMethodID));
+	private static void handleAddedNodeToMethod(ASTNode addedNode, long methodID) {
+		if (addedNode instanceof MethodInvocation) {
+			handleAddedMethodInvocation((MethodInvocation)addedNode, methodID);
+		}
+		if (addedNode instanceof ReturnStatement) {
+			handleAddedReturnStatement((ReturnStatement)addedNode, methodID);
+		}
+		if (addedNode instanceof ExpressionStatement) {
+			handleAddedExpressionStatement((ExpressionStatement)addedNode, methodID);
+		}
+	}
+
+	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, long sourceMethodID) {
+		String destinationMethodName= methodInvocation.getName().getIdentifier();
+		String sourceMethodName= ASTHelper.getContainingMethod(methodInvocation).getName().getIdentifier();
+		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, sourceMethodName, sourceMethodID));
+	}
+
+	private static void handleAddedReturnStatement(ReturnStatement returnStatement, long methodID) {
+		SimpleName returnedFieldName= getFieldNameFromExpression(returnStatement.getExpression());
+		if (returnedFieldName != null) {
+			FieldDeclaration fieldDeclaration= getFieldDeclarationForName(returnedFieldName);
+			if (fieldDeclaration != null) {
+				properties.add(new AddedFieldReturnRefactoringProperty(returnedFieldName.getIdentifier(), methodID));
+				//The private visibility of a field should not be a result of adding the field itself.
+				if (Modifier.isPrivate(fieldDeclaration.getModifiers()) && !astOperationRecorder.isAdded(fieldDeclaration)) {
+					properties.add(MadeFieldPrivateRefactoringProperty.createInstance(returnedFieldName.getIdentifier()));
+				}
+			}
+		}
+	}
+
+	private static void handleAddedExpressionStatement(ExpressionStatement expressionStatement, long methodID) {
+		Expression expression= expressionStatement.getExpression();
+		if (expression instanceof Assignment) {
+			SimpleName assignedFieldName= getFieldNameFromExpression(((Assignment)expression).getLeftHandSide());
+			if (assignedFieldName != null) {
+				FieldDeclaration fieldDeclaration= getFieldDeclarationForName(assignedFieldName);
+				if (fieldDeclaration != null) {
+					properties.add(new AddedFieldAssignmentRefactoringProperty(assignedFieldName.getIdentifier(), methodID));
+				}
+			}
 		}
 	}
 
@@ -225,6 +294,30 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {
 		return node instanceof SimpleName || node instanceof SimpleType;
+	}
+
+	private static SimpleName getFieldNameFromExpression(Expression expression) {
+		if (expression instanceof FieldAccess) {
+			return ((FieldAccess)expression).getName();
+		}
+		if (expression instanceof SimpleName) {
+			return (SimpleName)expression;
+		}
+		return null;
+	}
+
+	private static FieldDeclaration getFieldDeclarationForName(SimpleName name) {
+		TypeDeclaration containingType= ASTHelper.getContainingType(name);
+		if (containingType != null) {
+			for (FieldDeclaration fieldDeclaration : containingType.getFields()) {
+				for (Object fragment : fieldDeclaration.fragments()) {
+					if (((VariableDeclarationFragment)fragment).getName().getIdentifier().equals(name.getIdentifier())) {
+						return fieldDeclaration;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
