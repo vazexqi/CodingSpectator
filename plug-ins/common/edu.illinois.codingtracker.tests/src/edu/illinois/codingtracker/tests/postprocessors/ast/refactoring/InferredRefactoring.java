@@ -87,7 +87,8 @@ public abstract class InferredRefactoring {
 
 	/**
 	 * Should not change this refactoring, but rather should return a new one, with this refactoring
-	 * property added to it.
+	 * property added to it. For corrective properties, the current refactoring is updated, and null
+	 * is returned (since there is no new refactoring to return).
 	 * 
 	 * @param refactoringProperty
 	 */
@@ -96,21 +97,18 @@ public abstract class InferredRefactoring {
 			throw new RuntimeException("Can not add property: " + refactoringProperty);
 		}
 		if (refactoringProperty instanceof CorrectiveRefactoringProperty) {
-			return addCorrectiveProperty((CorrectiveRefactoringProperty)refactoringProperty);
+			applyCorrectiveProperty((CorrectiveRefactoringProperty)refactoringProperty);
+			return null;
 		}
 		InferredRefactoring resultRefactoring= createCopy();
 		addProperty(resultRefactoring, refactoringProperty);
 		return resultRefactoring;
 	}
 
-	private InferredRefactoring addCorrectiveProperty(CorrectiveRefactoringProperty correctiveProperty) {
-		InferredRefactoring resultRefactoring= createFreshInstance();
+	private void applyCorrectiveProperty(CorrectiveRefactoringProperty correctiveProperty) {
 		for (Entry<String, RefactoringProperty> propertyEntry : properties.entrySet()) {
-			RefactoringProperty resultProperty= propertyEntry.getValue().createLinkedCopy();
-			correctiveProperty.correct(resultProperty);
-			resultRefactoring.properties.put(propertyEntry.getKey(), resultProperty);
+			correctiveProperty.correct(propertyEntry.getValue());
 		}
-		return resultRefactoring;
 	}
 
 	private InferredRefactoring createCopy() {

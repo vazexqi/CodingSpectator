@@ -38,11 +38,10 @@ public abstract class RefactoringProperty {
 
 	private final Map<String, Object> attributes= new HashMap<String, Object>();
 
-	private final Set<RefactoringProperty> linkedProperties= new HashSet<RefactoringProperty>();
-
 	private boolean isActive= true;
 
 
+	//TODO: Currently it is not used.
 	protected abstract RefactoringProperty createFreshInstance();
 
 	public String getClassName() {
@@ -55,11 +54,6 @@ public abstract class RefactoringProperty {
 
 	public void disable() {
 		isActive= false;
-		for (RefactoringProperty linkedProperty : linkedProperties) {
-			if (linkedProperty.isActive()) {
-				linkedProperty.disable();
-			}
-		}
 	}
 
 	protected void addAttribute(String name, Object value) {
@@ -89,14 +83,6 @@ public abstract class RefactoringProperty {
 
 	protected boolean isIgnoredAttribute(String attribute) {
 		return ignoredAttributes.contains(attribute);
-	}
-
-	public RefactoringProperty createLinkedCopy() {
-		RefactoringProperty newInstance= createFreshInstance();
-		linkedProperties.add(newInstance);
-		newInstance.linkedProperties.add(this);
-		newInstance.attributes.putAll(attributes);
-		return newInstance;
 	}
 
 }

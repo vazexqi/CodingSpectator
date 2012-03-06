@@ -84,9 +84,11 @@ public class InferredRefactoringFactory {
 		for (InferredRefactoring refactoring : currentRefactorings) {
 			if (refactoring.canBePart(refactoringProperty)) {
 				InferredRefactoring newRefactoring= refactoring.addProperty(refactoringProperty);
-				newRefactorings.add(newRefactoring);
-				if (newRefactoring.isComplete()) {
-					return newRefactoring;
+				if (newRefactoring != null) {
+					newRefactorings.add(newRefactoring);
+					if (newRefactoring.isComplete()) {
+						return newRefactoring;
+					}
 				}
 			}
 		}
