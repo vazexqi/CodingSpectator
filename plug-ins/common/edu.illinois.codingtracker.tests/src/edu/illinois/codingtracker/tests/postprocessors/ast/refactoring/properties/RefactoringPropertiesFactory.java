@@ -73,6 +73,11 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleChangedNode(ASTNode changedNode, ASTOperation operation) {
+		long moveID= operation.getMoveID();
+		if (moveID != NO_NODE_ID) {
+			//When a changed node is moved, it is treated as being added.
+			handleAddedMovedNode(changedNode, operation, moveID);
+		}
 		if (changedNode instanceof SimpleName) {
 			handleChangedSimpleName((SimpleName)changedNode, operation);
 		} else if (changedNode instanceof Modifier && operation.getNodeNewText().equals(PRIVATE_MODIFIER)) {
