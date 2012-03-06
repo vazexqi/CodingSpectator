@@ -23,7 +23,7 @@ public class NodeOperations {
 
 	private final List<ASTOperation> operations= new LinkedList<ASTOperation>();
 
-	private int addOperationsCount= 0;
+	private int addOrChangeOperationsCount= 0;
 
 	private int deleteOperationsCount= 0;
 
@@ -61,12 +61,12 @@ public class NodeOperations {
 	}
 
 	private boolean willBecomeNtoN(ASTOperation astOperation) {
-		if (astOperation.isAdd()) {
-			if (addOperationsCount > 0 && deleteOperationsCount > 1) {
+		if (astOperation.isAdd() || astOperation.isChange()) {
+			if (addOrChangeOperationsCount > 0 && deleteOperationsCount > 1) {
 				return true;
 			}
 		} else if (astOperation.isDelete()) {
-			if (addOperationsCount > 1 && deleteOperationsCount > 0) {
+			if (addOrChangeOperationsCount > 1 && deleteOperationsCount > 0) {
 				return true;
 			}
 		}
@@ -114,22 +114,22 @@ public class NodeOperations {
 	}
 
 	private boolean isCompletedMove() {
-		return addOperationsCount > 0 && deleteOperationsCount > 0;
+		return addOrChangeOperationsCount > 0 && deleteOperationsCount > 0;
 	}
 
 	private void resetState() {
 		operations.clear();
-		addOperationsCount= 0;
+		addOrChangeOperationsCount= 0;
 		deleteOperationsCount= 0;
 	}
 
 	private void incrementCounters(ASTOperation astOperation) {
-		if (astOperation.isAdd()) {
-			addOperationsCount++;
+		if (astOperation.isAdd() || astOperation.isChange()) {
+			addOrChangeOperationsCount++;
 		} else if (astOperation.isDelete()) {
 			deleteOperationsCount++;
 		} else {
-			throw new RuntimeException("Can add only 'add' and 'delete' operations: " + astOperation);
+			throw new RuntimeException("Can add only 'add', 'change', and 'delete' operations: " + astOperation);
 		}
 	}
 

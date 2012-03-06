@@ -52,7 +52,7 @@ public class MoveInferencePostprocessor extends ASTPostprocessor {
 	}
 
 	private void processASTOperation(ASTOperation astOperation) {
-		if (astOperation.isAdd() || astOperation.isDelete()) {
+		if (astOperation.isAdd() || astOperation.isChange() || astOperation.isDelete()) {
 			NodeDescriptor nodeDescriptor= new NodeDescriptor(astOperation);
 			NodeOperations nodeOperations= nodeOperationsMap.get(nodeDescriptor);
 			if (nodeOperations == null) {

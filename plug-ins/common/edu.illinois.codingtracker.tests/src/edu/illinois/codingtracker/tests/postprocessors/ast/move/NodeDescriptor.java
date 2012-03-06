@@ -21,7 +21,11 @@ public class NodeDescriptor {
 
 	public NodeDescriptor(ASTOperation astOperation) {
 		this.nodeType= astOperation.getNodeType();
-		this.nodeText= astOperation.getNodeText();
+		if (astOperation.isChange()) {
+			this.nodeText= astOperation.getNodeNewText();
+		} else {
+			this.nodeText= astOperation.getNodeText();
+		}
 	}
 
 	public String getNodeText() {
