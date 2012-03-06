@@ -38,6 +38,8 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  */
 public class RefactoringPropertiesFactory {
 
+	private static final int NO_NODE_ID= -1;
+
 	private static final String PRIVATE_MODIFIER= "private";
 
 	private static final ASTOperationRecorder astOperationRecorder= ASTOperationRecorder.getInstance();
@@ -81,6 +83,7 @@ public class RefactoringPropertiesFactory {
 	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
 		String oldEntityName= changedNode.getIdentifier();
 		String newEntityName= operation.getNodeNewText();
+		properties.add(new CorrectiveRefactoringProperty(oldEntityName, getNodeID(changedNode), newEntityName));
 		if (isDeclaredEntity(changedNode)) {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
 		} else {
@@ -93,8 +96,8 @@ public class RefactoringPropertiesFactory {
 		//The change in visibility of a field should not be a result of adding the field itself.
 		if (parent instanceof FieldDeclaration && !astOperationRecorder.isAdded(parent)) {
 			for (Object fragment : ((FieldDeclaration)parent).fragments()) {
-				String fieldName= ((VariableDeclarationFragment)fragment).getName().getIdentifier();
-				properties.add(MadeFieldPrivateRefactoringProperty.createInstance(fieldName));
+				SimpleName fieldName= ((VariableDeclarationFragment)fragment).getName();
+				properties.add(MadeFieldPrivateRefactoringProperty.createInstance(fieldName.getIdentifier(), getNodeID(fieldName)));
 			}
 		}
 	}
@@ -118,7 +121,7 @@ public class RefactoringPropertiesFactory {
 			handleDeletedVariableDeclarationFragment((VariableDeclarationFragment)deletedNode);
 		} else {
 			long moveID= operation.getMoveID();
-			if (moveID != -1) {
+			if (moveID != NO_NODE_ID) {
 				handleDeletedMovedNode(deletedNode, operation, moveID);
 			}
 			if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
@@ -128,23 +131,23 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleDeletedVariableDeclarationFragment(VariableDeclarationFragment variableDeclaration) {
-		String entityName= getDeclaredEntityName(variableDeclaration);
 		if (isInLocalVariableDeclaration(variableDeclaration)) {
-			properties.add(new DeletedVariableDeclarationRefactoringProperty(entityName));
+			String variableName= variableDeclaration.getName().getIdentifier();
+			properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName, NO_NODE_ID));
 		}
 	}
 
 	private static void handleDeletedMovedNode(ASTNode deletedNode, ASTOperation operation, long moveID) {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
-		String entityName= getDeclaredEntityNameForInitializer(deletedNode);
+		SimpleName entityName= getDeclaredEntityNameForInitializer(deletedNode);
 		if (entityName != null && isInLocalVariableDeclaration(deletedNode)) {
-			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName, moveID));
+			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName.getIdentifier(), getNodeID(entityName), moveID));
 		} else {
-			if (operation.getMethodID() != -1 && !isTooSimpleForExtractMethod(deletedNode)) {
+			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(deletedNode)) {
 				properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID));
 			}
 			long parentID= getParentID(deletedNode, true);
-			if (parentID != -1) {
+			if (parentID != NO_NODE_ID) {
 				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
 			}
 		}
@@ -152,9 +155,9 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleDeletedReferenceNode(SimpleName referenceNode) {
 		long parentID= getParentID(referenceNode, true);
-		if (parentID != -1) {
+		if (parentID != NO_NODE_ID) {
 			String entityName= referenceNode.getIdentifier();
-			properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, parentID));
+			properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, NO_NODE_ID, parentID));
 		}
 	}
 
@@ -165,11 +168,11 @@ public class RefactoringPropertiesFactory {
 			handleAddedMethodDeclaration((MethodDeclaration)addedNode, operation);
 		} else {
 			long moveID= operation.getMoveID();
-			if (moveID != -1) {
+			if (moveID != NO_NODE_ID) {
 				handleAddedMovedNode(addedNode, operation, moveID);
 			}
 			long methodID= operation.getMethodID();
-			if (methodID != -1) {
+			if (methodID != NO_NODE_ID) {
 				handleAddedNodeToMethod(addedNode, methodID);
 			}
 			if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
@@ -182,18 +185,20 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleAddedVariableDeclarationFragment(VariableDeclarationFragment variableDeclaration) {
-		String entityName= getDeclaredEntityName(variableDeclaration);
+		String entityName= variableDeclaration.getName().getIdentifier();
+		long entityNameNodeID= getNodeID(variableDeclaration.getName());
 		if (isInLocalVariableDeclaration(variableDeclaration)) {
-			properties.add(new AddedVariableDeclarationRefactoringProperty(entityName));
+			properties.add(new AddedVariableDeclarationRefactoringProperty(entityName, entityNameNodeID));
 		} else if (isInFieldDeclaration(variableDeclaration)) {
-			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName));
+			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName, entityNameNodeID));
 		}
 	}
 
 	private static void handleAddedMethodDeclaration(MethodDeclaration methodDeclaration, ASTOperation operation) {
 		String methodName= methodDeclaration.getName().getIdentifier();
+		long methodNameNodeID= getNodeID(methodDeclaration.getName());
 		long methodID= operation.getNodeID();
-		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, methodID));
+		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, methodNameNodeID, methodID));
 		//This is somewhat inefficient, but since at this point we do not know whether the added method is a getter,
 		//a setter, or none of the above, we just tentatively consider every possibility.
 		properties.add(new AddedGetterMethodDeclarationRefactoringProperty(methodName, methodID));
@@ -214,8 +219,9 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, long sourceMethodID) {
 		String destinationMethodName= methodInvocation.getName().getIdentifier();
+		long destinationMethodNameNodeID= getNodeID(methodInvocation.getName());
 		String sourceMethodName= ASTHelper.getContainingMethod(methodInvocation).getName().getIdentifier();
-		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, sourceMethodName, sourceMethodID));
+		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, destinationMethodNameNodeID, sourceMethodName, sourceMethodID));
 	}
 
 	private static void handleAddedReturnStatement(ReturnStatement returnStatement, long methodID) {
@@ -223,10 +229,11 @@ public class RefactoringPropertiesFactory {
 		if (returnedFieldName != null) {
 			FieldDeclaration fieldDeclaration= getFieldDeclarationForName(returnedFieldName);
 			if (fieldDeclaration != null) {
-				properties.add(new AddedFieldReturnRefactoringProperty(returnedFieldName.getIdentifier(), methodID));
+				long returnedFieldNameNodeID= getNodeID(returnedFieldName);
+				properties.add(new AddedFieldReturnRefactoringProperty(returnedFieldName.getIdentifier(), returnedFieldNameNodeID, methodID));
 				//The private visibility of a field should not be a result of adding the field itself.
 				if (Modifier.isPrivate(fieldDeclaration.getModifiers()) && !astOperationRecorder.isAdded(fieldDeclaration)) {
-					properties.add(MadeFieldPrivateRefactoringProperty.createInstance(returnedFieldName.getIdentifier()));
+					properties.add(MadeFieldPrivateRefactoringProperty.createInstance(returnedFieldName.getIdentifier(), returnedFieldNameNodeID));
 				}
 			}
 		}
@@ -239,7 +246,7 @@ public class RefactoringPropertiesFactory {
 			if (assignedFieldName != null) {
 				FieldDeclaration fieldDeclaration= getFieldDeclarationForName(assignedFieldName);
 				if (fieldDeclaration != null) {
-					properties.add(new AddedFieldAssignmentRefactoringProperty(assignedFieldName.getIdentifier(), methodID));
+					properties.add(new AddedFieldAssignmentRefactoringProperty(assignedFieldName.getIdentifier(), getNodeID(assignedFieldName), methodID));
 				}
 			}
 		}
@@ -248,14 +255,14 @@ public class RefactoringPropertiesFactory {
 	private static void handleAddedMovedNode(ASTNode addedNode, ASTOperation operation, long moveID) {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		if (!handleAddedMovedInitializationOrAssignment(addedNode, nodeDescriptor, moveID)) {
-			if (operation.getMethodID() != -1 && !isTooSimpleForExtractMethod(addedNode)) {
+			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(addedNode)) {
 				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), moveID));
 			}
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
 			if (addedNode instanceof SimpleName) {
-				String referencedEntityName= ((SimpleName)addedNode).getIdentifier();
-				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName, parentID));
+				SimpleName referencedEntityName= (SimpleName)addedNode;
+				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName.getIdentifier(), getNodeID(referencedEntityName), parentID));
 			}
 		}
 	}
@@ -269,18 +276,19 @@ public class RefactoringPropertiesFactory {
 	 * @return
 	 */
 	private static boolean handleAddedMovedInitializationOrAssignment(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
-		String declaredEntityName= getDeclaredEntityNameForInitializer(addedNode);
+		SimpleName declaredEntityName= getDeclaredEntityNameForInitializer(addedNode);
 		if (declaredEntityName != null) {
+			long declaredEntityNameNodeID= getNodeID(declaredEntityName);
 			if (isInLocalVariableDeclaration(addedNode)) {
-				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, declaredEntityName, moveID));
+				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID));
 			} else if (isInFieldDeclaration(addedNode)) {
-				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName, moveID));
+				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID));
 			}
 			return true;
 		} else {
-			String assignedEntityName= getAssignedEntityNameForAssignment(addedNode);
+			SimpleName assignedEntityName= getAssignedEntityNameForAssignment(addedNode);
 			if (assignedEntityName != null && isInExpressionStatement(addedNode)) {
-				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, assignedEntityName, moveID));
+				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, assignedEntityName.getIdentifier(), getNodeID(assignedEntityName), moveID));
 				return true;
 			}
 		}
@@ -288,8 +296,7 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleAddedReferenceNode(SimpleName referenceNode) {
-		String entityName= referenceNode.getIdentifier();
-		properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getParentID(referenceNode, false)));
+		properties.add(new AddedEntityReferenceRefactoringProperty(referenceNode.getIdentifier(), getNodeID(referenceNode), getParentID(referenceNode, false)));
 	}
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {
@@ -326,10 +333,10 @@ public class RefactoringPropertiesFactory {
 	 * @param node
 	 * @return
 	 */
-	private static String getDeclaredEntityNameForInitializer(ASTNode node) {
+	private static SimpleName getDeclaredEntityNameForInitializer(ASTNode node) {
 		VariableDeclarationFragment variableDeclaration= getEnclosingVariableDeclarationFragment(node);
 		if (variableDeclaration != null && node == variableDeclaration.getInitializer()) {
-			return getDeclaredEntityName(variableDeclaration);
+			return variableDeclaration.getName();
 		}
 		return null;
 	}
@@ -340,14 +347,14 @@ public class RefactoringPropertiesFactory {
 	 * @param node
 	 * @return
 	 */
-	private static String getAssignedEntityNameForAssignment(ASTNode node) {
+	private static SimpleName getAssignedEntityNameForAssignment(ASTNode node) {
 		ASTNode parent= ASTHelper.getParent(node, Assignment.class);
 		if (parent != null) {
 			Assignment assignment= (Assignment)parent;
 			if (node == assignment.getRightHandSide()) {
 				Expression leftHandSide= assignment.getLeftHandSide();
 				if (leftHandSide instanceof SimpleName) {
-					return ((SimpleName)leftHandSide).getIdentifier();
+					return (SimpleName)leftHandSide;
 				}
 			}
 		}
@@ -400,15 +407,11 @@ public class RefactoringPropertiesFactory {
 		return null;
 	}
 
-	private static String getDeclaredEntityName(VariableDeclarationFragment variableDeclaration) {
-		return variableDeclaration.getName().getIdentifier();
-	}
-
 	private static long getParentID(ASTNode node, boolean isOld) {
 		ASTNode parentNode= node.getParent();
 		if (isOld) {
 			if (astOperationRecorder.isDeleted(parentNode)) {
-				return -1;
+				return NO_NODE_ID;
 			} else {
 				ASTNode newParentNode= astOperationRecorder.getNewMatch(parentNode);
 				if (newParentNode != null) {

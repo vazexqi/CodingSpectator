@@ -14,9 +14,18 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class MovedToMethodRefactoringProperty extends RefactoringProperty {
 
 
+	private MovedToMethodRefactoringProperty() {
+
+	}
+
 	public MovedToMethodRefactoringProperty(long destinationMethodID, long moveID) {
 		addAttribute(RefactoringPropertyAttributes.DESTINATION_METHOD_ID, destinationMethodID);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
+	}
+
+	@Override
+	protected RefactoringProperty createFreshInstance() {
+		return new MovedToMethodRefactoringProperty();
 	}
 
 }

@@ -14,9 +14,18 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class AddedSetterMethodDeclarationRefactoringProperty extends RefactoringProperty {
 
 
+	private AddedSetterMethodDeclarationRefactoringProperty() {
+
+	}
+
 	public AddedSetterMethodDeclarationRefactoringProperty(String setterMethodName, long setterMethodID) {
 		addAttribute(RefactoringPropertyAttributes.SETTER_METHOD_NAME, setterMethodName);
 		addAttribute(RefactoringPropertyAttributes.SETTER_METHOD_ID, setterMethodID);
+	}
+
+	@Override
+	protected RefactoringProperty createFreshInstance() {
+		return new AddedSetterMethodDeclarationRefactoringProperty();
 	}
 
 }

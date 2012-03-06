@@ -14,9 +14,18 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class ChangedFieldNameInDeclarationRefactoringProperty extends RefactoringProperty {
 
 
+	private ChangedFieldNameInDeclarationRefactoringProperty() {
+
+	}
+
 	public ChangedFieldNameInDeclarationRefactoringProperty(String oldEntityName, String newEntityName) {
 		addAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME, oldEntityName);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
+	}
+
+	@Override
+	protected RefactoringProperty createFreshInstance() {
+		return new ChangedFieldNameInDeclarationRefactoringProperty();
 	}
 
 }

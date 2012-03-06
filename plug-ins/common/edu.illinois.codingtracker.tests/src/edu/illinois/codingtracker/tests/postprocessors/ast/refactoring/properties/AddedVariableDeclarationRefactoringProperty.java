@@ -14,8 +14,18 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class AddedVariableDeclarationRefactoringProperty extends RefactoringProperty {
 
 
-	public AddedVariableDeclarationRefactoringProperty(String entityName) {
+	private AddedVariableDeclarationRefactoringProperty() {
+
+	}
+
+	public AddedVariableDeclarationRefactoringProperty(String entityName, long entityNameNodeID) {
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
+	}
+
+	@Override
+	protected RefactoringProperty createFreshInstance() {
+		return new AddedVariableDeclarationRefactoringProperty();
 	}
 
 }

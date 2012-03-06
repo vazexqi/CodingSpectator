@@ -16,10 +16,19 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 public class MovedFromUsageRefactoringProperty extends RefactoringProperty {
 
 
+	private MovedFromUsageRefactoringProperty() {
+
+	}
+
 	public MovedFromUsageRefactoringProperty(NodeDescriptor movedNode, long moveID, long parentID) {
 		addAttribute(RefactoringPropertyAttributes.MOVED_NODE, movedNode);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
 		addAttribute(RefactoringPropertyAttributes.PARENT_ID, parentID);
+	}
+
+	@Override
+	protected RefactoringProperty createFreshInstance() {
+		return new MovedFromUsageRefactoringProperty();
 	}
 
 }

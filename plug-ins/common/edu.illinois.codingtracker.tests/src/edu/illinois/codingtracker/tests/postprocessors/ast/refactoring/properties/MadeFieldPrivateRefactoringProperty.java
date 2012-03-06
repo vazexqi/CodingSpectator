@@ -20,14 +20,26 @@ public class MadeFieldPrivateRefactoringProperty extends RefactoringProperty {
 	private static final Set<MadeFieldPrivateRefactoringProperty> currentProperties= new HashSet<MadeFieldPrivateRefactoringProperty>();
 
 
-	public static MadeFieldPrivateRefactoringProperty createInstance(String entityName) {
-		MadeFieldPrivateRefactoringProperty newInstance= new MadeFieldPrivateRefactoringProperty(entityName);
+	private MadeFieldPrivateRefactoringProperty() {
+
+	}
+
+	private MadeFieldPrivateRefactoringProperty(String entityName, long entityNameNodeID) {
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
+	}
+
+	public static MadeFieldPrivateRefactoringProperty createInstance(String entityName, long entityNameNodeID) {
+		MadeFieldPrivateRefactoringProperty newInstance= new MadeFieldPrivateRefactoringProperty(entityName, entityNameNodeID);
 		currentProperties.add(newInstance);
 		return newInstance;
 	}
 
-	private MadeFieldPrivateRefactoringProperty(String entityName) {
-		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
+	@Override
+	protected RefactoringProperty createFreshInstance() {
+		MadeFieldPrivateRefactoringProperty freshInstance= new MadeFieldPrivateRefactoringProperty();
+		currentProperties.add(freshInstance);
+		return freshInstance;
 	}
 
 	@Override

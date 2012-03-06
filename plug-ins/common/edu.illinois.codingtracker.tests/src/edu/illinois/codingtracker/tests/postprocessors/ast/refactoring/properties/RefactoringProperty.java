@@ -4,8 +4,10 @@
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 
 
@@ -15,6 +17,13 @@ import java.util.Map.Entry;
  * 
  */
 public abstract class RefactoringProperty {
+
+	//Attributes, whose values are ignored while matching regular (i.e., non-corrective) properties.
+	private static final Set<String> ignoredAttributes= new HashSet<String>();
+
+	static {
+		ignoredAttributes.add(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID);
+	}
 
 	//Attributes, whose values should be different to allow the properties to match.
 	private static final Map<String, String> disjointAttributes= new HashMap<String, String>();
@@ -29,8 +38,12 @@ public abstract class RefactoringProperty {
 
 	private final Map<String, Object> attributes= new HashMap<String, Object>();
 
+	private final Set<RefactoringProperty> linkedProperties= new HashSet<RefactoringProperty>();
+
 	private boolean isActive= true;
 
+
+	protected abstract RefactoringProperty createFreshInstance();
 
 	public String getClassName() {
 		return getClass().getSimpleName();
@@ -42,6 +55,11 @@ public abstract class RefactoringProperty {
 
 	public void disable() {
 		isActive= false;
+		for (RefactoringProperty linkedProperty : linkedProperties) {
+			if (linkedProperty.isActive()) {
+				linkedProperty.disable();
+			}
+		}
 	}
 
 	protected void addAttribute(String name, Object value) {
@@ -54,16 +72,31 @@ public abstract class RefactoringProperty {
 
 	public boolean doesMatch(RefactoringProperty anotherProperty) {
 		for (Entry<String, Object> entry : attributes.entrySet()) {
-			Object objectToMatch= anotherProperty.attributes.get(entry.getKey());
-			if (objectToMatch != null && !objectToMatch.equals(entry.getValue())) {
-				return false;
-			}
-			Object objectToDisjoin= anotherProperty.attributes.get(disjointAttributes.get(entry.getKey()));
-			if (objectToDisjoin != null && objectToDisjoin.equals(entry.getValue())) {
-				return false;
+			String attribute= entry.getKey();
+			if (!isIgnoredAttribute(attribute)) {
+				Object objectToMatch= anotherProperty.attributes.get(attribute);
+				if (objectToMatch != null && !objectToMatch.equals(entry.getValue())) {
+					return false;
+				}
+				Object objectToDisjoin= anotherProperty.attributes.get(disjointAttributes.get(attribute));
+				if (objectToDisjoin != null && objectToDisjoin.equals(entry.getValue())) {
+					return false;
+				}
 			}
 		}
 		return true;
+	}
+
+	protected boolean isIgnoredAttribute(String attribute) {
+		return ignoredAttributes.contains(attribute);
+	}
+
+	public RefactoringProperty createLinkedCopy() {
+		RefactoringProperty newInstance= createFreshInstance();
+		linkedProperties.add(newInstance);
+		newInstance.linkedProperties.add(this);
+		newInstance.attributes.putAll(attributes);
+		return newInstance;
 	}
 
 }

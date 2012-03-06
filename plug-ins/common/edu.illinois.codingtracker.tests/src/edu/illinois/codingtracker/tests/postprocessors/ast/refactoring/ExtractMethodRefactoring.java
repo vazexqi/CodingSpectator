@@ -69,7 +69,7 @@ public class ExtractMethodRefactoring extends InferredRefactoring {
 	public Map<String, String> getArguments() {
 		RefactoringProperty refactoringProperty= getProperty(RefactoringProperties.ADDED_METHOD_INVOCATION);
 		String sourceMethodName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.SOURCE_METHOD_NAME);
-		String destinationMethodName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.DESTINATION_METHOD_NAME);
+		String destinationMethodName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME);
 		Map<String, String> arguments= new HashMap<String, String>();
 		arguments.put("SourceMethodName", sourceMethodName);
 		arguments.put("DestinationMethodName", destinationMethodName);

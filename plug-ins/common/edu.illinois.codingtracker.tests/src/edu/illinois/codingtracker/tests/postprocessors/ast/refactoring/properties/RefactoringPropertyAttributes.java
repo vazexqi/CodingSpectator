@@ -14,6 +14,8 @@ public interface RefactoringPropertyAttributes {
 
 	public static final String ENTITY_NAME= "entityName";
 
+	public static final String ENTITY_NAME_NODE_ID= "entityNameNodeID";
+
 	public static final String OLD_ENTITY_NAME= "oldEntityName";
 
 	public static final String NEW_ENTITY_NAME= "newEntityName";
@@ -23,8 +25,6 @@ public interface RefactoringPropertyAttributes {
 	public static final String MOVE_ID= "moveID";
 
 	public static final String PARENT_ID= "parentID";
-
-	public static final String DESTINATION_METHOD_NAME= "destinationMethodName";
 
 	public static final String DESTINATION_METHOD_ID= "destinationMethodID";
 
