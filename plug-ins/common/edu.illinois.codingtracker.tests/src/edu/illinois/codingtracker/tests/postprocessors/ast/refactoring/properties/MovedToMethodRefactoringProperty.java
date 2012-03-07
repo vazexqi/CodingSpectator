@@ -14,9 +14,14 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class MovedToMethodRefactoringProperty extends RefactoringProperty {
 
 
-	public MovedToMethodRefactoringProperty(long destinationMethodID, long moveID, long activationTimestamp) {
+	public MovedToMethodRefactoringProperty(long destinationMethodID, String entityName, long entityNameNodeID, long moveID, long activationTimestamp) {
 		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.DESTINATION_METHOD_ID, destinationMethodID);
+		//Added ENTITY_NAME attribute to improve performance/scalability by avoiding some spurious matches.
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
+		//Added ENTITY_NAME_NODE_ID attribute since it should be added whenever there is an ENTITY_NAME attribute to
+		//avoid erroneous corrections.
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
 	}
 

@@ -264,7 +264,8 @@ public class RefactoringPropertiesFactory {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		if (!handleAddedMovedInitializationOrAssignment(addedNode, nodeDescriptor, moveID)) {
 			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(addedNode)) {
-				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), moveID, activationTimestamp));
+				SimpleName containingMethodName= ASTHelper.getContainingMethod(addedNode).getName();
+				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), containingMethodName.getIdentifier(), getNodeID(containingMethodName), moveID, activationTimestamp));
 			}
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
