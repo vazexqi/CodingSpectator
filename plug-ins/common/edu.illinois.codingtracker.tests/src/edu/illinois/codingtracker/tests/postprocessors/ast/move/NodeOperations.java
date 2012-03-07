@@ -19,7 +19,7 @@ public class NodeOperations {
 
 	private static long nextMoveID= 1;
 
-	private final long timeThreshold= 5 * 60 * 1000; // 5 minutes
+	private static final long timeThreshold= 5 * 60 * 1000; // 5 minutes
 
 	private final List<ASTOperation> operations= new LinkedList<ASTOperation>();
 

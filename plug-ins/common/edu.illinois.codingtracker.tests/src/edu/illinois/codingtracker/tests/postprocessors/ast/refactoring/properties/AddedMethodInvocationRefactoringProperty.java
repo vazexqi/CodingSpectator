@@ -14,20 +14,12 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class AddedMethodInvocationRefactoringProperty extends RefactoringProperty {
 
 
-	private AddedMethodInvocationRefactoringProperty() {
-
-	}
-
-	public AddedMethodInvocationRefactoringProperty(String entityName, long entityNameNodeID, String sourceMethodName, long sourceMethodID) {
+	public AddedMethodInvocationRefactoringProperty(String entityName, long entityNameNodeID, String sourceMethodName, long sourceMethodID, long activationTimestamp) {
+		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
 		addAttribute(RefactoringPropertyAttributes.SOURCE_METHOD_NAME, sourceMethodName);
 		addAttribute(RefactoringPropertyAttributes.SOURCE_METHOD_ID, sourceMethodID);
-	}
-
-	@Override
-	protected RefactoringProperty createFreshInstance() {
-		return new AddedMethodInvocationRefactoringProperty();
 	}
 
 }

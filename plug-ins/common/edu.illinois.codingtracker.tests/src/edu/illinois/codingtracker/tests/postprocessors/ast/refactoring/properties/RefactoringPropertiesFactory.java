@@ -46,6 +46,8 @@ public class RefactoringPropertiesFactory {
 
 	private static Set<RefactoringProperty> properties;
 
+	private static long activationTimestamp;
+
 
 	/**
 	 * Returns null if there is no refactoring property corresponding to the given operation.
@@ -54,6 +56,7 @@ public class RefactoringPropertiesFactory {
 	 * @return
 	 */
 	public static Set<RefactoringProperty> retrieveProperties(ASTOperation operation) {
+		activationTimestamp= operation.getTime();
 		properties= new HashSet<RefactoringProperty>();
 		ASTNode rootNode;
 		if (operation.isAdd()) {
@@ -88,11 +91,11 @@ public class RefactoringPropertiesFactory {
 	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
 		String oldEntityName= changedNode.getIdentifier();
 		String newEntityName= operation.getNodeNewText();
-		properties.add(new CorrectiveRefactoringProperty(oldEntityName, getNodeID(changedNode), newEntityName));
+		properties.add(new CorrectiveRefactoringProperty(oldEntityName, getNodeID(changedNode), newEntityName, activationTimestamp));
 		if (isDeclaredEntity(changedNode)) {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
 		} else {
-			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName));
+			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		}
 	}
 
@@ -102,7 +105,7 @@ public class RefactoringPropertiesFactory {
 		if (parent instanceof FieldDeclaration && !astOperationRecorder.isAdded(parent)) {
 			for (Object fragment : ((FieldDeclaration)parent).fragments()) {
 				SimpleName fieldName= ((VariableDeclarationFragment)fragment).getName();
-				properties.add(MadeFieldPrivateRefactoringProperty.createInstance(fieldName.getIdentifier(), getNodeID(fieldName)));
+				properties.add(MadeFieldPrivateRefactoringProperty.createInstance(fieldName.getIdentifier(), getNodeID(fieldName), activationTimestamp));
 			}
 		}
 	}
@@ -110,14 +113,14 @@ public class RefactoringPropertiesFactory {
 	private static void handleChangedDeclaredEntity(SimpleName changedNode, String oldEntityName, String newEntityName) {
 		if (isLocalVariableOrFieldDeclaredEntity(changedNode)) {
 			if (isInLocalVariableDeclaration(changedNode)) {
-				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 			} else if (isInFieldDeclaration(changedNode)) {
-				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 			}
 		} else if (isMethodDeclaredEntity(changedNode, true)) {
-			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		} else if (isTypeDeclaredEntity(changedNode)) {
-			properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName));
+			properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		}
 	}
 
@@ -138,7 +141,7 @@ public class RefactoringPropertiesFactory {
 	private static void handleDeletedVariableDeclarationFragment(VariableDeclarationFragment variableDeclaration) {
 		if (isInLocalVariableDeclaration(variableDeclaration)) {
 			String variableName= variableDeclaration.getName().getIdentifier();
-			properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName, NO_NODE_ID));
+			properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName, NO_NODE_ID, activationTimestamp));
 		}
 	}
 
@@ -146,14 +149,14 @@ public class RefactoringPropertiesFactory {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		SimpleName entityName= getDeclaredEntityNameForInitializer(deletedNode);
 		if (entityName != null && isInLocalVariableDeclaration(deletedNode)) {
-			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName.getIdentifier(), getNodeID(entityName), moveID));
+			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName.getIdentifier(), getNodeID(entityName), moveID, activationTimestamp));
 		} else {
 			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(deletedNode)) {
-				properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID));
+				properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID, activationTimestamp));
 			}
 			long parentID= getParentID(deletedNode, true);
 			if (parentID != NO_NODE_ID) {
-				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
+				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			}
 		}
 	}
@@ -162,7 +165,7 @@ public class RefactoringPropertiesFactory {
 		long parentID= getParentID(referenceNode, true);
 		if (parentID != NO_NODE_ID) {
 			String entityName= referenceNode.getIdentifier();
-			properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, NO_NODE_ID, parentID));
+			properties.add(new DeletedEntityReferenceRefactoringProperty(entityName, NO_NODE_ID, parentID, activationTimestamp));
 		}
 	}
 
@@ -193,9 +196,9 @@ public class RefactoringPropertiesFactory {
 		String entityName= variableDeclaration.getName().getIdentifier();
 		long entityNameNodeID= getNodeID(variableDeclaration.getName());
 		if (isInLocalVariableDeclaration(variableDeclaration)) {
-			properties.add(new AddedVariableDeclarationRefactoringProperty(entityName, entityNameNodeID));
+			properties.add(new AddedVariableDeclarationRefactoringProperty(entityName, entityNameNodeID, activationTimestamp));
 		} else if (isInFieldDeclaration(variableDeclaration)) {
-			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName, entityNameNodeID));
+			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName, entityNameNodeID, activationTimestamp));
 		}
 	}
 
@@ -203,11 +206,11 @@ public class RefactoringPropertiesFactory {
 		String methodName= methodDeclaration.getName().getIdentifier();
 		long methodNameNodeID= getNodeID(methodDeclaration.getName());
 		long methodID= operation.getNodeID();
-		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, methodNameNodeID, methodID));
+		properties.add(new AddedMethodDeclarationRefactoringProperty(methodName, methodNameNodeID, methodID, activationTimestamp));
 		//This is somewhat inefficient, but since at this point we do not know whether the added method is a getter,
 		//a setter, or none of the above, we just tentatively consider every possibility.
-		properties.add(new AddedGetterMethodDeclarationRefactoringProperty(methodName, methodID));
-		properties.add(new AddedSetterMethodDeclarationRefactoringProperty(methodName, methodID));
+		properties.add(new AddedGetterMethodDeclarationRefactoringProperty(methodName, methodID, activationTimestamp));
+		properties.add(new AddedSetterMethodDeclarationRefactoringProperty(methodName, methodID, activationTimestamp));
 	}
 
 	private static void handleAddedNodeToMethod(ASTNode addedNode, long methodID) {
@@ -226,7 +229,7 @@ public class RefactoringPropertiesFactory {
 		String destinationMethodName= methodInvocation.getName().getIdentifier();
 		long destinationMethodNameNodeID= getNodeID(methodInvocation.getName());
 		String sourceMethodName= ASTHelper.getContainingMethod(methodInvocation).getName().getIdentifier();
-		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, destinationMethodNameNodeID, sourceMethodName, sourceMethodID));
+		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, destinationMethodNameNodeID, sourceMethodName, sourceMethodID, activationTimestamp));
 	}
 
 	private static void handleAddedReturnStatement(ReturnStatement returnStatement, long methodID) {
@@ -235,10 +238,10 @@ public class RefactoringPropertiesFactory {
 			FieldDeclaration fieldDeclaration= getFieldDeclarationForName(returnedFieldName);
 			if (fieldDeclaration != null) {
 				long returnedFieldNameNodeID= getNodeID(returnedFieldName);
-				properties.add(new AddedFieldReturnRefactoringProperty(returnedFieldName.getIdentifier(), returnedFieldNameNodeID, methodID));
+				properties.add(new AddedFieldReturnRefactoringProperty(returnedFieldName.getIdentifier(), returnedFieldNameNodeID, methodID, activationTimestamp));
 				//The private visibility of a field should not be a result of adding the field itself.
 				if (Modifier.isPrivate(fieldDeclaration.getModifiers()) && !astOperationRecorder.isAdded(fieldDeclaration)) {
-					properties.add(MadeFieldPrivateRefactoringProperty.createInstance(returnedFieldName.getIdentifier(), returnedFieldNameNodeID));
+					properties.add(MadeFieldPrivateRefactoringProperty.createInstance(returnedFieldName.getIdentifier(), returnedFieldNameNodeID, activationTimestamp));
 				}
 			}
 		}
@@ -251,7 +254,7 @@ public class RefactoringPropertiesFactory {
 			if (assignedFieldName != null) {
 				FieldDeclaration fieldDeclaration= getFieldDeclarationForName(assignedFieldName);
 				if (fieldDeclaration != null) {
-					properties.add(new AddedFieldAssignmentRefactoringProperty(assignedFieldName.getIdentifier(), getNodeID(assignedFieldName), methodID));
+					properties.add(new AddedFieldAssignmentRefactoringProperty(assignedFieldName.getIdentifier(), getNodeID(assignedFieldName), methodID, activationTimestamp));
 				}
 			}
 		}
@@ -261,13 +264,13 @@ public class RefactoringPropertiesFactory {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		if (!handleAddedMovedInitializationOrAssignment(addedNode, nodeDescriptor, moveID)) {
 			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(addedNode)) {
-				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), moveID));
+				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), moveID, activationTimestamp));
 			}
 			long parentID= getParentID(addedNode, false);
-			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID));
+			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			if (addedNode instanceof SimpleName) {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
-				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName.getIdentifier(), getNodeID(referencedEntityName), parentID));
+				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName.getIdentifier(), getNodeID(referencedEntityName), parentID, activationTimestamp));
 			}
 		}
 	}
@@ -285,15 +288,17 @@ public class RefactoringPropertiesFactory {
 		if (declaredEntityName != null) {
 			long declaredEntityNameNodeID= getNodeID(declaredEntityName);
 			if (isInLocalVariableDeclaration(addedNode)) {
-				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID));
+				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID,
+						activationTimestamp));
 			} else if (isInFieldDeclaration(addedNode)) {
-				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID));
+				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID, activationTimestamp));
 			}
 			return true;
 		} else {
 			SimpleName assignedEntityName= getAssignedEntityNameForAssignment(addedNode);
 			if (assignedEntityName != null && isInExpressionStatement(addedNode)) {
-				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, assignedEntityName.getIdentifier(), getNodeID(assignedEntityName), moveID));
+				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, assignedEntityName.getIdentifier(), getNodeID(assignedEntityName), moveID,
+						activationTimestamp));
 				return true;
 			}
 		}
@@ -301,7 +306,7 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleAddedReferenceNode(SimpleName referenceNode) {
-		properties.add(new AddedEntityReferenceRefactoringProperty(referenceNode.getIdentifier(), getNodeID(referenceNode), getParentID(referenceNode, false)));
+		properties.add(new AddedEntityReferenceRefactoringProperty(referenceNode.getIdentifier(), getNodeID(referenceNode), getParentID(referenceNode, false), activationTimestamp));
 	}
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {

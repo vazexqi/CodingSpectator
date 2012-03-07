@@ -21,6 +21,8 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredR
  */
 public abstract class RefactoringProperty {
 
+	private static final long timeThreshold= 5 * 60 * 1000; // 5 minutes until a property becomes too old.
+
 	//Attributes, whose values are ignored while matching regular (i.e., non-corrective) properties.
 	private static final Set<String> ignoredAttributes= new HashSet<String>();
 
@@ -45,9 +47,26 @@ public abstract class RefactoringProperty {
 
 	private boolean isActive= true;
 
+	private long activationTimestamp;
 
-	//TODO: Currently, this method is not used.
-	protected abstract RefactoringProperty createFreshInstance();
+
+	public RefactoringProperty(long activationTimestamp) {
+		this.activationTimestamp= activationTimestamp;
+	}
+
+	protected long getActivationTimestamp() {
+		return activationTimestamp;
+	}
+
+	protected void updateActivationTimestamp(long newActivationTimestamp) {
+		activationTimestamp= newActivationTimestamp;
+	}
+
+	public void checkTimeout(long currentTimestamp) {
+		if (currentTimestamp - activationTimestamp >= timeThreshold) {
+			disable();
+		}
+	}
 
 	public String getClassName() {
 		return getClass().getSimpleName();

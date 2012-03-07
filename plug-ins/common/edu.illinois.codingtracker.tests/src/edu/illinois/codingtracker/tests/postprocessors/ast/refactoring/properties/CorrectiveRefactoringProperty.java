@@ -15,19 +15,11 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class CorrectiveRefactoringProperty extends RefactoringProperty {
 
 
-	private CorrectiveRefactoringProperty() {
-
-	}
-
-	public CorrectiveRefactoringProperty(String entityName, long entityNameNodeID, String newEntityName) {
+	public CorrectiveRefactoringProperty(String entityName, long entityNameNodeID, String newEntityName, long activationTimestamp) {
+		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
-	}
-
-	@Override
-	protected RefactoringProperty createFreshInstance() {
-		return new CorrectiveRefactoringProperty();
 	}
 
 	@Override
@@ -49,6 +41,7 @@ public class CorrectiveRefactoringProperty extends RefactoringProperty {
 			throw new RuntimeException("Can not correct a property with a non-matching entity name: " + correctedName);
 		}
 		correctedProperty.addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME));
+		correctedProperty.updateActivationTimestamp(getActivationTimestamp());
 	}
 
 }

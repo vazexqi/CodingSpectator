@@ -14,19 +14,11 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class AddedFieldAssignmentRefactoringProperty extends RefactoringProperty {
 
 
-	private AddedFieldAssignmentRefactoringProperty() {
-
-	}
-
-	public AddedFieldAssignmentRefactoringProperty(String entityName, long entityNameNodeID, long setterMethodID) {
+	public AddedFieldAssignmentRefactoringProperty(String entityName, long entityNameNodeID, long setterMethodID, long activationTimestamp) {
+		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
 		addAttribute(RefactoringPropertyAttributes.SETTER_METHOD_ID, setterMethodID);
-	}
-
-	@Override
-	protected RefactoringProperty createFreshInstance() {
-		return new AddedFieldAssignmentRefactoringProperty();
 	}
 
 }

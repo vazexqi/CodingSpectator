@@ -14,18 +14,10 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class AddedGetterMethodDeclarationRefactoringProperty extends RefactoringProperty {
 
 
-	private AddedGetterMethodDeclarationRefactoringProperty() {
-
-	}
-
-	public AddedGetterMethodDeclarationRefactoringProperty(String getterMethodName, long getterMethodID) {
+	public AddedGetterMethodDeclarationRefactoringProperty(String getterMethodName, long getterMethodID, long activationTimestamp) {
+		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.GETTER_METHOD_NAME, getterMethodName);
 		addAttribute(RefactoringPropertyAttributes.GETTER_METHOD_ID, getterMethodID);
-	}
-
-	@Override
-	protected RefactoringProperty createFreshInstance() {
-		return new AddedGetterMethodDeclarationRefactoringProperty();
 	}
 
 }

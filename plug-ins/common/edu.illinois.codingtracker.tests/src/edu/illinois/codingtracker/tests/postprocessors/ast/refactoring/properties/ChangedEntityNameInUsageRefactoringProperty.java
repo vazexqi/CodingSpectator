@@ -14,18 +14,10 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class ChangedEntityNameInUsageRefactoringProperty extends RefactoringProperty {
 
 
-	private ChangedEntityNameInUsageRefactoringProperty() {
-
-	}
-
-	public ChangedEntityNameInUsageRefactoringProperty(String oldEntityName, String newEntityName) {
+	public ChangedEntityNameInUsageRefactoringProperty(String oldEntityName, String newEntityName, long activationTimestamp) {
+		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME, oldEntityName);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
-	}
-
-	@Override
-	protected RefactoringProperty createFreshInstance() {
-		return new ChangedEntityNameInUsageRefactoringProperty();
 	}
 
 }

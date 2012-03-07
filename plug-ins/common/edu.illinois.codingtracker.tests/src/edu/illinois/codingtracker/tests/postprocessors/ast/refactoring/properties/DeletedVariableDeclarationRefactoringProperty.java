@@ -14,18 +14,10 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class DeletedVariableDeclarationRefactoringProperty extends RefactoringProperty {
 
 
-	private DeletedVariableDeclarationRefactoringProperty() {
-
-	}
-
-	public DeletedVariableDeclarationRefactoringProperty(String entityName, long entityNameNodeID) {
+	public DeletedVariableDeclarationRefactoringProperty(String entityName, long entityNameNodeID, long activationTimestamp) {
+		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
-	}
-
-	@Override
-	protected RefactoringProperty createFreshInstance() {
-		return new DeletedVariableDeclarationRefactoringProperty();
 	}
 
 }

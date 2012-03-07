@@ -42,9 +42,9 @@ public class InferredRefactoringFactory {
 	}
 
 	public static InferredRefactoringOperation handleASTOperation(ASTOperation operation) {
-		//TODO: Should remove refactorings after some time threshold (i.e., after a reasonable time for a manual refactoring).
 		refactoringOperation= null;
 		Set<RefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
+		removeOldCurrentProperties(newProperties, operation.getTime());
 		Set<RefactoringProperty> correctedProperties= collectCorrectedProperties(newProperties);
 
 		//First, handle the corrected properties.
@@ -58,6 +58,17 @@ public class InferredRefactoringFactory {
 			addNewProperty(newProperty);
 		}
 		return refactoringOperation;
+	}
+
+	private static void removeOldCurrentProperties(Set<RefactoringProperty> newProperties, long currentTimestamp) {
+		if (newProperties.size() > 0) { //It makes sense to remove the current properties only when there are new properties.
+			//Use a temporary collection, since the properties might be removed from the main collection.
+			Set<RefactoringProperty> properties= new HashSet<RefactoringProperty>();
+			properties.addAll(currentProperties);
+			for (RefactoringProperty property : properties) {
+				property.checkTimeout(currentTimestamp);
+			}
+		}
 	}
 
 	private static void addNewProperty(RefactoringProperty newProperty) {
