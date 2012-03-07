@@ -41,13 +41,14 @@ public class CorrectiveRefactoringProperty extends RefactoringProperty {
 	}
 
 	public void correct(RefactoringProperty correctedProperty) {
-		if (doesOverlap(correctedProperty)) {
-			String correctedName= (String)correctedProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME);
-			if (!correctedName.equals(getAttribute(RefactoringPropertyAttributes.ENTITY_NAME))) {
-				throw new RuntimeException("Can not correct a property with a non-matching entity name: " + correctedName);
-			}
-			correctedProperty.addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME));
+		if (!doesOverlap(correctedProperty)) {
+			throw new RuntimeException("Can not correct non-overlapping property: " + correctedProperty);
 		}
+		String correctedName= (String)correctedProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME);
+		if (!correctedName.equals(getAttribute(RefactoringPropertyAttributes.ENTITY_NAME))) {
+			throw new RuntimeException("Can not correct a property with a non-matching entity name: " + correctedName);
+		}
+		correctedProperty.addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME));
 	}
 
 }

@@ -32,7 +32,7 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
-		InferredRefactoringFactory.resetCurrentRefactorings();
+		InferredRefactoringFactory.resetCurrentState();
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
 			replayAndRecord(userOperation);

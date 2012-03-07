@@ -4,9 +4,8 @@
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
@@ -39,6 +38,7 @@ public abstract class InferredRefactoring {
 
 	protected static void addProperty(InferredRefactoring inferredRefactoring, RefactoringProperty refactoringProperty) {
 		inferredRefactoring.properties.put(refactoringProperty.getClassName(), refactoringProperty);
+		refactoringProperty.addRefactoring(inferredRefactoring);
 	}
 
 	protected RefactoringProperty getProperty(String propertyName) {
@@ -55,10 +55,8 @@ public abstract class InferredRefactoring {
 	}
 
 	public boolean canBePart(RefactoringProperty refactoringProperty) {
-		if (refactoringProperty instanceof CorrectiveRefactoringProperty) {
-			return canBeCorrectivePart((CorrectiveRefactoringProperty)refactoringProperty);
-		}
-		if (!getAcceptableProperties().contains(refactoringProperty.getClassName()) ||
+		if (refactoringProperty instanceof CorrectiveRefactoringProperty ||
+				!getAcceptableProperties().contains(refactoringProperty.getClassName()) ||
 				properties.get(refactoringProperty.getClassName()) != null) {
 			return false;
 		}
@@ -70,25 +68,9 @@ public abstract class InferredRefactoring {
 		return true;
 	}
 
-	private boolean canBeCorrectivePart(CorrectiveRefactoringProperty correctiveProperty) {
-		for (RefactoringProperty property : properties.values()) {
-			//It is important that 'doesMatch' is called on the corrective property!
-			if (!correctiveProperty.doesMatch(property)) {
-				return false;
-			}
-		}
-		for (RefactoringProperty property : properties.values()) {
-			if (correctiveProperty.doesOverlap(property)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	/**
 	 * Should not change this refactoring, but rather should return a new one, with this refactoring
-	 * property added to it. For corrective properties, the current refactoring is updated, and null
-	 * is returned (since there is no new refactoring to return).
+	 * property added to it.
 	 * 
 	 * @param refactoringProperty
 	 */
@@ -96,41 +78,65 @@ public abstract class InferredRefactoring {
 		if (!canBePart(refactoringProperty)) {
 			throw new RuntimeException("Can not add property: " + refactoringProperty);
 		}
-		if (refactoringProperty instanceof CorrectiveRefactoringProperty) {
-			applyCorrectiveProperty((CorrectiveRefactoringProperty)refactoringProperty);
-			return null;
-		}
 		InferredRefactoring resultRefactoring= createCopy();
 		addProperty(resultRefactoring, refactoringProperty);
 		return resultRefactoring;
 	}
 
-	private void applyCorrectiveProperty(CorrectiveRefactoringProperty correctiveProperty) {
-		for (Entry<String, RefactoringProperty> propertyEntry : properties.entrySet()) {
-			correctiveProperty.correct(propertyEntry.getValue());
-		}
-	}
-
 	private InferredRefactoring createCopy() {
 		InferredRefactoring copyRefactoring= createFreshInstance();
 		copyRefactoring.properties.putAll(properties);
+		for (RefactoringProperty property : properties.values()) {
+			property.addRefactoring(copyRefactoring);
+		}
 		return copyRefactoring;
 	}
 
 	public void disableProperties() {
-		for (RefactoringProperty property : properties.values()) {
+		//Use a temporary collection since disabling properties removes them from the main collection.
+		Set<RefactoringProperty> existingProperties= new HashSet<RefactoringProperty>();
+		existingProperties.addAll(properties.values());
+		for (RefactoringProperty property : existingProperties) {
 			property.disable();
 		}
 	}
 
-	public boolean checkDisabled() {
-		Iterator<RefactoringProperty> propertiesIterator= properties.values().iterator();
-		while (propertiesIterator.hasNext()) {
-			if (!propertiesIterator.next().isActive()) {
-				propertiesIterator.remove();
+	public void disabledProperty(RefactoringProperty disabledProperty) {
+		properties.remove(disabledProperty.getClassName());
+		if (properties.size() == 0) {
+			InferredRefactoringFactory.destroyedRefactoring(this);
+		}
+	}
+
+	public void correctedProperty(RefactoringProperty correctedProperty) {
+		for (RefactoringProperty existingProperty : properties.values()) {
+			if (!existingProperty.doesMatch(correctedProperty)) {
+				//Refactoring is destroyed due to the correction.
+				for (RefactoringProperty property : properties.values()) {
+					property.removeRefactoring(this);
+				}
+				properties.clear();
+				InferredRefactoringFactory.destroyedRefactoring(this);
+				return;
 			}
 		}
-		return properties.size() == 0;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InferredRefactoring other= (InferredRefactoring)obj;
+		if (properties == null) {
+			if (other.properties != null)
+				return false;
+		} else if (!properties.equals(other.properties))
+			return false;
+		return true;
 	}
 
 }

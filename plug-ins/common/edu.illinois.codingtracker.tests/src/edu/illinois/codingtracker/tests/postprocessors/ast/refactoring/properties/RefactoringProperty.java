@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoring;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoringFactory;
+
 
 
 /**
@@ -38,10 +41,12 @@ public abstract class RefactoringProperty {
 
 	private final Map<String, Object> attributes= new HashMap<String, Object>();
 
+	private final Set<InferredRefactoring> refactorings= new HashSet<InferredRefactoring>();
+
 	private boolean isActive= true;
 
 
-	//TODO: Currently it is not used.
+	//TODO: Currently, this method is not used.
 	protected abstract RefactoringProperty createFreshInstance();
 
 	public String getClassName() {
@@ -54,6 +59,28 @@ public abstract class RefactoringProperty {
 
 	public void disable() {
 		isActive= false;
+		InferredRefactoringFactory.disabledProperty(this);
+		for (InferredRefactoring refactoring : refactorings) {
+			refactoring.disabledProperty(this);
+		}
+		refactorings.clear();
+	}
+
+	public void addRefactoring(InferredRefactoring refactoring) {
+		refactorings.add(refactoring);
+	}
+
+	public void removeRefactoring(InferredRefactoring refactoring) {
+		refactorings.remove(refactoring);
+	}
+
+	public void fireCorrected() {
+		//Use a temporary collection since a corrected property might lead to a removed refactoring.
+		Set<InferredRefactoring> existingRefactorings= new HashSet<InferredRefactoring>();
+		existingRefactorings.addAll(refactorings);
+		for (InferredRefactoring refactoring : existingRefactorings) {
+			refactoring.correctedProperty(this);
+		}
 	}
 
 	protected void addAttribute(String name, Object value) {
