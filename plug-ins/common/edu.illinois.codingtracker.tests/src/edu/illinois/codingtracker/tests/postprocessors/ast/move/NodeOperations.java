@@ -33,28 +33,27 @@ public class NodeOperations {
 	}
 
 	public void addOperation(ASTOperation astOperation) {
+		if (willBecomeNtoN(astOperation)) { //Should not add an operation that will make the relation N-to-N.
+			//First heuristic - split by time, i.e., group those operations that are closer in time.
+			splitByTime(astOperation);
+		}
 		if (!shouldAddOperation(astOperation)) {
 			markMoveAndResetState();
 		}
 		operations.add(astOperation);
-		incrementCounters(astOperation);
+		updateCounters(astOperation, true);
 	}
 
 	private boolean shouldAddOperation(ASTOperation astOperation) {
 		if (operations.size() == 0) {
 			return true; //A single operation should always be added.
 		}
-		if (Math.abs(getLastOperation().getTime() - astOperation.getTime()) > timeThreshold) {
+		if (getTimeDelta(astOperation, getLastOperation()) > timeThreshold) {
 			return false;
 		}
-		//First heuristic - split by the method to which the operations' nodes belong.
-		//TODO: Consider other heuristics, e.g., time relation (what is closer in time).
-		if (shouldSplitByMethod(astOperation)) {
-			return false;
-		}
-		//Should not add more than one operation on the same node 
-		//and should not add an operation that will make the relation N-to-N.
-		if (isExistingNode(astOperation) || willBecomeNtoN(astOperation)) {
+		//Second heuristic - split by the method to which the operations' nodes belong.
+		//Also, should not add more than one operation on the same node.
+		if (shouldSplitByMethod(astOperation) || isExistingNode(astOperation)) {
 			return false;
 		}
 		return true;
@@ -113,6 +112,31 @@ public class NodeOperations {
 		resetState();
 	}
 
+	private void splitByTime(ASTOperation currentOperation) {
+		ASTOperation lastOperation= getLastOperation();
+		ASTOperation nextToLastOperation= getNextToLastOperation();
+		List<ASTOperation> spillOverOperations= new LinkedList<ASTOperation>();
+		while (getTimeDelta(currentOperation, lastOperation) < getTimeDelta(lastOperation, nextToLastOperation)) {
+			updateCounters(lastOperation, false);
+			if (isCompletedMove()) {
+				operations.remove(lastOperation);
+				spillOverOperations.add(0, lastOperation);
+			} else { //Do not split if the current move will be broken.
+				//Restore counters since lastOperation is not removed.
+				updateCounters(lastOperation, true);
+				break;
+			}
+			currentOperation= lastOperation;
+			lastOperation= nextToLastOperation;
+			nextToLastOperation= getNextToLastOperation();
+		}
+		markMoveAndResetState();
+		for (ASTOperation spillOverOperation : spillOverOperations) {
+			operations.add(spillOverOperation);
+			updateCounters(spillOverOperation, true);
+		}
+	}
+
 	private boolean isCompletedMove() {
 		return addOrChangeOperationsCount > 0 && deleteOperationsCount > 0;
 	}
@@ -123,23 +147,43 @@ public class NodeOperations {
 		deleteOperationsCount= 0;
 	}
 
-	private void incrementCounters(ASTOperation astOperation) {
+	private void updateCounters(ASTOperation astOperation, boolean isIncrement) {
 		if (astOperation.isAdd() || astOperation.isChange()) {
-			addOrChangeOperationsCount++;
+			if (isIncrement) {
+				addOrChangeOperationsCount++;
+			} else {
+				addOrChangeOperationsCount--;
+			}
 		} else if (astOperation.isDelete()) {
-			deleteOperationsCount++;
+			if (isIncrement) {
+				deleteOperationsCount++;
+			} else {
+				deleteOperationsCount--;
+			}
 		} else {
-			throw new RuntimeException("Can add only 'add', 'change', and 'delete' operations: " + astOperation);
+			throw new RuntimeException("Can handle only 'add', 'change', and 'delete' operations: " + astOperation);
 		}
 	}
 
 	private ASTOperation getLastOperation() {
+		return getOperationFromEnd(1);
+	}
+
+	private ASTOperation getNextToLastOperation() {
+		return getOperationFromEnd(2);
+	}
+
+	private ASTOperation getOperationFromEnd(int indexFromEnd) {
 		int operationsCount= operations.size();
-		if (operationsCount > 0) {
-			return operations.get(operationsCount - 1);
+		if (operationsCount >= indexFromEnd) {
+			return operations.get(operationsCount - indexFromEnd);
 		} else {
 			return null;
 		}
+	}
+
+	private static long getTimeDelta(ASTOperation operation1, ASTOperation operation2) {
+		return Math.abs(operation1.getTime() - operation2.getTime());
 	}
 
 }
