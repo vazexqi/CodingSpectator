@@ -3,7 +3,9 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -47,6 +49,9 @@ public class RefactoringPropertiesFactory {
 	private static Set<RefactoringProperty> properties;
 
 	private static long activationTimestamp;
+
+	//TODO: Maybe this map should be shrank according to the time threshold once it reaches certain size.
+	private static final Map<Long, ASTOperation> addedMovedNodes= new HashMap<Long, ASTOperation>();
 
 
 	/**
@@ -200,6 +205,23 @@ public class RefactoringPropertiesFactory {
 		} else if (isInFieldDeclaration(variableDeclaration)) {
 			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName, entityNameNodeID, activationTimestamp));
 		}
+		handleAddedVariableInitializer(variableDeclaration, entityName, entityNameNodeID);
+	}
+
+	private static void handleAddedVariableInitializer(VariableDeclarationFragment variableDeclaration, String entityName, long entityNameNodeID) {
+		Expression initializer= variableDeclaration.getInitializer();
+		if (initializer != null) {
+			ASTOperation addMoveOperation= addedMovedNodes.remove(getNodeID(initializer));
+			if (addMoveOperation != null) {
+				NodeDescriptor nodeDescriptor= new NodeDescriptor(addMoveOperation);
+				long moveID= addMoveOperation.getMoveID();
+				if (isInLocalVariableDeclaration(variableDeclaration)) {
+					properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp));
+				} else if (isInFieldDeclaration(variableDeclaration)) {
+					properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp));
+				}
+			}
+		}
 	}
 
 	private static void handleAddedMethodDeclaration(MethodDeclaration methodDeclaration, ASTOperation operation) {
@@ -262,7 +284,8 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedMovedNode(ASTNode addedNode, ASTOperation operation, long moveID) {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
-		if (!handleAddedMovedInitializationOrAssignment(addedNode, nodeDescriptor, moveID)) {
+		if (!handleAddedMovedInitialization(addedNode, nodeDescriptor, moveID)) {
+			addedMovedNodes.put(getNodeID(addedNode), operation);
 			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(addedNode)) {
 				SimpleName containingMethodName= ASTHelper.getContainingMethod(addedNode).getName();
 				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), containingMethodName.getIdentifier(), getNodeID(containingMethodName), moveID, activationTimestamp));
@@ -277,31 +300,24 @@ public class RefactoringPropertiesFactory {
 	}
 
 	/**
-	 * Returns true if the given addedNode is indeed a moved initialization or assignment.
+	 * Returns true if the given addedNode is indeed a moved initialization.
 	 * 
 	 * @param addedNode
 	 * @param nodeDescriptor
 	 * @param moveID
 	 * @return
 	 */
-	private static boolean handleAddedMovedInitializationOrAssignment(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
+	private static boolean handleAddedMovedInitialization(ASTNode addedNode, NodeDescriptor nodeDescriptor, long moveID) {
 		SimpleName declaredEntityName= getDeclaredEntityNameForInitializer(addedNode);
 		if (declaredEntityName != null) {
 			long declaredEntityNameNodeID= getNodeID(declaredEntityName);
 			if (isInLocalVariableDeclaration(addedNode)) {
-				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID,
+				properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID,
 						activationTimestamp));
 			} else if (isInFieldDeclaration(addedNode)) {
 				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID, activationTimestamp));
 			}
 			return true;
-		} else {
-			SimpleName assignedEntityName= getAssignedEntityNameForAssignment(addedNode);
-			if (assignedEntityName != null && isInExpressionStatement(addedNode)) {
-				properties.add(new MovedToVariableInitializationOrAssignmentRefactoringProperty(nodeDescriptor, assignedEntityName.getIdentifier(), getNodeID(assignedEntityName), moveID,
-						activationTimestamp));
-				return true;
-			}
 		}
 		return false;
 	}
@@ -352,26 +368,6 @@ public class RefactoringPropertiesFactory {
 		return null;
 	}
 
-	/**
-	 * Returns null if the given node is not an assigned expression in a variable assignment.
-	 * 
-	 * @param node
-	 * @return
-	 */
-	private static SimpleName getAssignedEntityNameForAssignment(ASTNode node) {
-		ASTNode parent= ASTHelper.getParent(node, Assignment.class);
-		if (parent != null) {
-			Assignment assignment= (Assignment)parent;
-			if (node == assignment.getRightHandSide()) {
-				Expression leftHandSide= assignment.getLeftHandSide();
-				if (leftHandSide instanceof SimpleName) {
-					return (SimpleName)leftHandSide;
-				}
-			}
-		}
-		return null;
-	}
-
 	private static boolean isDeclaredEntity(ASTNode node) {
 		return isLocalVariableOrFieldDeclaredEntity(node) || isMethodDeclaredEntity(node, false) || isTypeDeclaredEntity(node);
 	}
@@ -404,10 +400,6 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isInFieldDeclaration(ASTNode node) {
 		return ASTHelper.getParent(node, FieldDeclaration.class) != null;
-	}
-
-	private static boolean isInExpressionStatement(ASTNode node) {
-		return ASTHelper.getParent(node, ExpressionStatement.class) != null;
 	}
 
 	private static VariableDeclarationFragment getEnclosingVariableDeclarationFragment(ASTNode node) {

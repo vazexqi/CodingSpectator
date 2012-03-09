@@ -58,6 +58,6 @@ public interface RefactoringProperties {
 
 	public static final String MOVED_TO_USAGE= "MovedToUsageRefactoringProperty";
 
-	public static final String MOVED_TO_VARIABLE_INITIALIZATION_OR_ASSIGNMENT= "MovedToVariableInitializationOrAssignmentRefactoringProperty";
+	public static final String MOVED_TO_VARIABLE_INITIALIZATION= "MovedToVariableInitializationRefactoringProperty";
 
 }
