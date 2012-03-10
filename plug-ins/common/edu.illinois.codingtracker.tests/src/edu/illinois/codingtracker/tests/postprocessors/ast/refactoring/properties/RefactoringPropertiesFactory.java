@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -420,6 +421,10 @@ public class RefactoringPropertiesFactory {
 		ASTNode parentNode= node.getParent();
 		if (isOld) {
 			if (astOperationRecorder.isDeleted(parentNode)) {
+				if (parentNode instanceof FieldAccess) {
+					//Account for scenarios, in which FieldAccess is replaced with QulifiedName.
+					return findMatchingParentID((FieldAccess)parentNode);
+				}
 				return NO_NODE_ID;
 			} else {
 				ASTNode newParentNode= astOperationRecorder.getNewMatch(parentNode);
@@ -436,6 +441,35 @@ public class RefactoringPropertiesFactory {
 
 	private static long getNodeID(ASTNode node) {
 		return ASTNodesIdentifier.getPersistentNodeID(astOperationRecorder.getCurrentRecordedFilePath(), node);
+	}
+
+	/**
+	 * If a code change replaces something like 'getData().x' with 'myVar.x', e.g., as part of an
+	 * Extract Temp refactoring, then the parent's node type is changed from FieldAccess to
+	 * QualifiedName. As a result, the parent node is not matched and two AST node operations are
+	 * generated for this parent node: one deletes FieldAccess and another one adds QualifiedName.
+	 * Since it is important to match this parent to correctly infer an Extract Temp refactoring,
+	 * this method tries to find a matching QualifiedName for a deleted FieldAccess.
+	 * 
+	 * @param deletedFieldAccess
+	 * @return
+	 */
+	private static long findMatchingParentID(FieldAccess deletedFieldAccess) {
+		ASTNode parentNode= deletedFieldAccess.getParent();
+		if (parentNode != null && !astOperationRecorder.isDeleted(parentNode)) {
+			String positionalParentID= ASTNodesIdentifier.getPositionalNodeID(parentNode);
+			ASTNode newRootNode= astOperationRecorder.getLastNewRootNode();
+			ASTNode matchingParentNode= ASTNodesIdentifier.getASTNodeFromPositonalID(newRootNode, positionalParentID);
+			String fieldName= deletedFieldAccess.getName().getIdentifier();
+			for (ASTNode childNode : ASTHelper.getAllChildren(matchingParentNode)) {
+				if (childNode instanceof QualifiedName &&
+						((QualifiedName)childNode).getName().getIdentifier().equals(fieldName) &&
+						childNode.getParent() == matchingParentNode && astOperationRecorder.isAdded(childNode)) {
+					return getNodeID(childNode);
+				}
+			}
+		}
+		return NO_NODE_ID;
 	}
 
 }
