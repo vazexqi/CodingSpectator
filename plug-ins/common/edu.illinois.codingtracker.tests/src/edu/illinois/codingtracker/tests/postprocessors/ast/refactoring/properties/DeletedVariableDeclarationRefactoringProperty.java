@@ -20,4 +20,14 @@ public class DeletedVariableDeclarationRefactoringProperty extends RefactoringPr
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
 	}
 
+	@Override
+	public boolean doesMatch(RefactoringProperty anotherProperty) {
+		boolean doesMatch= super.doesMatch(anotherProperty);
+		//Account for the automated Eclipse Promote Temp that changes the name of the promoted local variable.
+		if (anotherProperty instanceof AddedFieldDeclarationRefactoringProperty && !doesMatch) {
+			return isVeryCloseButDistinct(this, anotherProperty);
+		}
+		return doesMatch;
+	}
+
 }

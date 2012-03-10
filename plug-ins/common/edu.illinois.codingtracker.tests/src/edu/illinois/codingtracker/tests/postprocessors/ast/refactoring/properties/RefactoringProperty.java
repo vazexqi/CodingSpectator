@@ -21,7 +21,9 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredR
  */
 public abstract class RefactoringProperty {
 
-	private static final long timeThreshold= 5 * 60 * 1000; // 5 minutes until a property becomes too old.
+	private static final long decayTimeThreshold= 5 * 60 * 1000; // 5 minutes until a property becomes too old.
+
+	private static final long closenessTimeThreshold= 100; // 100 milliseconds.
 
 	//Attributes, whose values are ignored while matching regular (i.e., non-corrective) properties.
 	private static final Set<String> ignoredAttributes= new HashSet<String>();
@@ -63,7 +65,7 @@ public abstract class RefactoringProperty {
 	}
 
 	public void checkTimeout(long currentTimestamp) {
-		if (currentTimestamp - activationTimestamp >= timeThreshold) {
+		if (currentTimestamp - activationTimestamp >= decayTimeThreshold) {
 			disable();
 		}
 	}
@@ -129,6 +131,11 @@ public abstract class RefactoringProperty {
 
 	protected boolean isIgnoredAttribute(String attribute) {
 		return ignoredAttributes.contains(attribute);
+	}
+
+	protected static boolean isVeryCloseButDistinct(RefactoringProperty property1, RefactoringProperty property2) {
+		return property1.activationTimestamp != property2.activationTimestamp &&
+				Math.abs(property1.activationTimestamp - property2.activationTimestamp) < closenessTimeThreshold;
 	}
 
 }
