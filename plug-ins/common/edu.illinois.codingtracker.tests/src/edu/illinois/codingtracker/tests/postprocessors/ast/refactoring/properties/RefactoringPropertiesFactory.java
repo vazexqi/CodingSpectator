@@ -421,9 +421,9 @@ public class RefactoringPropertiesFactory {
 		ASTNode parentNode= node.getParent();
 		if (isOld) {
 			if (astOperationRecorder.isDeleted(parentNode)) {
-				if (parentNode instanceof FieldAccess) {
-					//Account for scenarios, in which FieldAccess is replaced with QulifiedName.
-					return findMatchingParentID((FieldAccess)parentNode);
+				//Account for scenarios, in which FieldAccess is replaced with QulifiedName or vice-versa.
+				if (parentNode instanceof FieldAccess || parentNode instanceof QualifiedName) {
+					return findMatchingParentID((Expression)parentNode);
 				}
 				return NO_NODE_ID;
 			} else {
@@ -445,31 +445,45 @@ public class RefactoringPropertiesFactory {
 
 	/**
 	 * If a code change replaces something like 'getData().x' with 'myVar.x', e.g., as part of an
-	 * Extract Temp refactoring, then the parent's node type is changed from FieldAccess to
-	 * QualifiedName. As a result, the parent node is not matched and two AST node operations are
-	 * generated for this parent node: one deletes FieldAccess and another one adds QualifiedName.
-	 * Since it is important to match this parent to correctly infer an Extract Temp refactoring,
-	 * this method tries to find a matching QualifiedName for a deleted FieldAccess.
+	 * Extract Temp refactoring, or vice-versa as part of an Inline Temp refactoring, then the
+	 * parent's node type is changed from FieldAccess to QualifiedName, or vice-versa. As a result,
+	 * the parent node is not matched and two AST node operations are generated for this parent
+	 * node: one deletes/adds FieldAccess and another one adds/deletes QualifiedName. But it is
+	 * important to match this parent to correctly infer an Extract Temp or an Inline Temp
+	 * refactorings.
 	 * 
-	 * @param deletedFieldAccess
+	 * @param expression
 	 * @return
 	 */
-	private static long findMatchingParentID(FieldAccess deletedFieldAccess) {
-		ASTNode parentNode= deletedFieldAccess.getParent();
+	private static long findMatchingParentID(Expression expression) {
+		if (!(expression instanceof FieldAccess) && !(expression instanceof QualifiedName)) {
+			throw new RuntimeException("Matching parent ID could be found only for FieldAccess or QualifiedName");
+		}
+		ASTNode parentNode= expression.getParent();
 		if (parentNode != null && !astOperationRecorder.isDeleted(parentNode)) {
 			String positionalParentID= ASTNodesIdentifier.getPositionalNodeID(parentNode);
 			ASTNode newRootNode= astOperationRecorder.getLastNewRootNode();
 			ASTNode matchingParentNode= ASTNodesIdentifier.getASTNodeFromPositonalID(newRootNode, positionalParentID);
-			String fieldName= deletedFieldAccess.getName().getIdentifier();
 			for (ASTNode childNode : ASTHelper.getAllChildren(matchingParentNode)) {
-				if (childNode instanceof QualifiedName &&
-						((QualifiedName)childNode).getName().getIdentifier().equals(fieldName) &&
-						childNode.getParent() == matchingParentNode && astOperationRecorder.isAdded(childNode)) {
+				if (childNode.getParent() == matchingParentNode && astOperationRecorder.isAdded(childNode) &&
+						doesMatchField(childNode, expression)) {
 					return getNodeID(childNode);
 				}
 			}
 		}
 		return NO_NODE_ID;
+	}
+
+	private static boolean doesMatchField(ASTNode childNode, Expression fieldAccessOrQualifiedName) {
+		if (fieldAccessOrQualifiedName instanceof FieldAccess) {
+			String fieldName= ((FieldAccess)fieldAccessOrQualifiedName).getName().getIdentifier();
+			return childNode instanceof QualifiedName &&
+					((QualifiedName)childNode).getName().getIdentifier().equals(fieldName);
+		} else {
+			String fieldName= ((QualifiedName)fieldAccessOrQualifiedName).getName().getIdentifier();
+			return childNode instanceof FieldAccess &&
+					((FieldAccess)childNode).getName().getIdentifier().equals(fieldName);
+		}
 	}
 
 }
