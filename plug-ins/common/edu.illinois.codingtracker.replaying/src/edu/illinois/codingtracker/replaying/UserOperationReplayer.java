@@ -24,13 +24,15 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.ui.IEditorPart;
 
-import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.helpers.ViewerHelper;
 import edu.illinois.codingtracker.operations.JavaProjectsUpkeeper;
 import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingtracker.operations.files.SavedFileOperation;
@@ -405,14 +407,20 @@ public class UserOperationReplayer {
 
 	private void advanceCurrentUserOperation(ReplayPace replayPace) {
 		UserOperation oldUserOperation= currentUserOperation;
-		if (userOperationsIterator.hasNext()) {
-			currentUserOperation= userOperationsIterator.next();
-		} else {
-			currentUserOperation= null;
-		}
+		currentUserOperation= getNextReplayableUserOperation();
 		if (replayPace != ReplayPace.FAST) { //Do not display additional info during a fast replay.
 			updateSequenceView(oldUserOperation);
 		}
+	}
+
+	private UserOperation getNextReplayableUserOperation() {
+		while (userOperationsIterator.hasNext()) {
+			UserOperation nextUserOperation= userOperationsIterator.next();
+			if (!(nextUserOperation instanceof ASTOperation) && !(nextUserOperation instanceof ASTFileOperation)) {
+				return nextUserOperation;
+			}
+		}
+		return null;
 	}
 
 	private void updateSequenceView(UserOperation oldUserOperation) {
