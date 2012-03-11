@@ -7,7 +7,7 @@ import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.operations.resources.DeletedResourceOperation;
+import edu.illinois.codingtracker.operations.resources.UpdatedResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
@@ -21,7 +21,7 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  */
 public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 
-	private boolean isDeletedResource= false;
+	private boolean isUpdatedResource= false;
 
 
 	@Override
@@ -67,12 +67,12 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	protected boolean shouldProcess(UserOperation userOperation) {
-		if (userOperation instanceof DeletedResourceOperation) {
-			isDeletedResource= true;
+		if (userOperation instanceof UpdatedResourceOperation) {
+			isUpdatedResource= true;
 		} else if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof ASTFileOperation)) {
-			isDeletedResource= false;
+			isUpdatedResource= false;
 		}
-		return userOperation instanceof ASTOperation && !isDeletedResource; //Ignore AST operations for deleted resource.
+		return userOperation instanceof ASTOperation && !isUpdatedResource; //Ignore AST operations for updated resources.
 	}
 
 }
