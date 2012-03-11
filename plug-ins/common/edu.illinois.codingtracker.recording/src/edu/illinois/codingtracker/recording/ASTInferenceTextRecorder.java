@@ -49,7 +49,14 @@ public class ASTInferenceTextRecorder {
 	}
 
 	private static void performRecording(UserOperation userOperation) {
-		safeRecorder.record(userOperation.generateSerializationText());
+		if (!shouldSkipRecording(userOperation)) {
+			safeRecorder.record(userOperation.generateSerializationText());
+		}
+	}
+
+	private static boolean shouldSkipRecording(UserOperation userOperation) {
+		return Configuration.shouldExcludeASTOperationsFromOutput &&
+				(userOperation instanceof ASTOperation || userOperation instanceof ASTFileOperation);
 	}
 
 	private static long getASTOperationTimestamp() {

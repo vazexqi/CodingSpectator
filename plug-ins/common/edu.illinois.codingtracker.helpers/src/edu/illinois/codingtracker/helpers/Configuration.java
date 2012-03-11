@@ -27,6 +27,8 @@ public class Configuration {
 
 	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
+	public static final boolean shouldExcludeASTOperationsFromOutput= System.getenv("EXCLUDE_AST_OPERATIONS_FROM_OUTPUT") != null;
+
 	public static boolean isASTSequence= false; //This flag is set while a sequence is deserialized.
 
 }
