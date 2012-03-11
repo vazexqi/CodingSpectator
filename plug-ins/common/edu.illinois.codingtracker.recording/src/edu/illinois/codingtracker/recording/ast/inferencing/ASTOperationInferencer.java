@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
@@ -149,13 +151,28 @@ public class ASTOperationInferencer {
 
 	//TODO: Consider that the old AST could be problematic as well.
 	public boolean isProblematicInference() {
+		if (isNewCoveringNodeProblematic()) {
+			return true;
+		}
+		return hasProblematicAffectedNodes();
+	}
+
+	private boolean isNewCoveringNodeProblematic() {
 		//Note that covering nodes sometimes could be outliers (i.e. not affected), e.g. when text is added at the last offset
 		//in a file. Therefore, covering nodes correctness should be checked separately.
 		ASTNode newCoveringNode= affectedNodesFinder.getNewCoveringNode();
 		if (ASTHelper.isRecoveredOrMalformed(newCoveringNode) || ASTHelper.isRecoveredOrMalformed(newCommonCoveringNode)) {
 			return true;
 		}
-		return hasProblematicAffectedNodes();
+		//If the new common covering node is a block that represents a malformed method, then the block itself would not
+		//be marked as malformed. Therefore, check whether its containing method declaration is well formed.
+		//TODO: Note that a method might be malformed due to problems in the signature rather than the body, while the checks
+		//below would consider the body to be malformed in such a case.
+		if (newCommonCoveringNode instanceof Block && newCommonCoveringNode.getParent() instanceof MethodDeclaration &&
+				ASTHelper.isRecoveredOrMalformed(newCommonCoveringNode.getParent())) {
+			return true;
+		}
+		return false;
 	}
 
 	private boolean hasProblematicAffectedNodes() {
