@@ -54,6 +54,10 @@ public class InferredRefactoringOperation extends UserOperation {
 		return "Inferred refactoring";
 	}
 
+	public RefactoringKind getRefactoringKind() {
+		return refactoringKind;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(refactoringKind.ordinal());
