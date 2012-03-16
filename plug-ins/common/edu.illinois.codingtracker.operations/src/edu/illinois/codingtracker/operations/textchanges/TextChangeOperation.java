@@ -226,7 +226,8 @@ public abstract class TextChangeOperation extends UserOperation {
 
 	private boolean isAdjacent(TextChangeOperation operation) {
 		return offset + newText.length() - replacedText.length() == operation.offset ||
-				operation.offset + operation.newText.length() - operation.replacedText.length() == offset;
+				operation.offset + operation.newText.length() - operation.replacedText.length() == offset ||
+				newText.length() == 0 && operation.newText.length() == 0 && offset == operation.offset;
 	}
 
 	private boolean isPossiblyChangingCode() {
