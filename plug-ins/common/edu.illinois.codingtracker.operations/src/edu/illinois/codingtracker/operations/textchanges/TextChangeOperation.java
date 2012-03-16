@@ -221,7 +221,12 @@ public abstract class TextChangeOperation extends UserOperation {
 		final long maxTimeDelta= 150; // 150 ms.
 		return Math.abs(getTime() - operation.getTime()) < maxTimeDelta && !isCommentingOrUncommenting() &&
 				newText.equals(operation.newText) && replacedText.equals(operation.replacedText) &&
-				isPossiblyChangingCode() && !containsNewLine();
+				isPossiblyChangingCode() && !containsNewLine() && !isAdjacent(operation);
+	}
+
+	private boolean isAdjacent(TextChangeOperation operation) {
+		return offset + newText.length() - replacedText.length() == operation.offset ||
+				operation.offset + operation.newText.length() - operation.replacedText.length() == offset;
 	}
 
 	private boolean isPossiblyChangingCode() {
