@@ -34,5 +34,26 @@
             file="contexts.xml">
       </contexts>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+         name="Pause"
+         id="edu.illinois.codingtracker.replaying.pause" />
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key sequence="M3+P"
+		 commandId="edu.illinois.codingtracker.replaying.pause"
+		 schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+		 contextId="org.eclipse.ui.contexts.window" />
+      <key sequence="M3+P"
+		 commandId="edu.illinois.codingtracker.replaying.pause"
+		 schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+		 contextId="org.eclipse.jdt.ui.javaEditorScope" />
+      <key sequence="M3+P"
+		 commandId="edu.illinois.codingtracker.replaying.pause"
+		 schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+		 contextId="org.eclipse.ui.textEditorScope" />		 
+   </extension>
 
 </plugin>
