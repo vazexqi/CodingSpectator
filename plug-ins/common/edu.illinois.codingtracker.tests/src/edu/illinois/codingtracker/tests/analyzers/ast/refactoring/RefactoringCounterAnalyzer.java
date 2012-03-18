@@ -26,11 +26,17 @@ import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
  */
 public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 
+	private static final long renameAfterExtractThreshold= 10 * 1000; //10 seconds.
+
 	private final Map<RefactoringKind, RefactoringCounter> refactorings= new HashMap<RefactoringKind, RefactoringCounter>();
 
 	private boolean isInsideAutomatedRefactoring;
 
 	private RefactoringKind currentAutomatedRefactoringKind;
+
+	private String extractedEntityName;
+
+	private long finishedAutomatedRefactoringTimestamp;
 
 
 	@Override
@@ -57,23 +63,35 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 	protected void postprocess(List<UserOperation> userOperations) {
 		initialize();
 		for (UserOperation userOperation : userOperations) {
-			//TODO: Discard manual renames that follow automated extract refactorings (e.g., extract method, constant, etc.).
-			//Should follow within a reasonable time window, and the extracted entity name should be a default value.
 			if (userOperation instanceof NewStartedRefactoringOperation) {
 				handleStartedRefactoring((NewStartedRefactoringOperation)userOperation);
 			} else if (userOperation instanceof FinishedRefactoringOperation) {
 				handleFinishedRefactoring((FinishedRefactoringOperation)userOperation);
-			} else if (userOperation instanceof InferredRefactoringOperation && !isInsideAutomatedRefactoring) {
-				incrementManualCounter(((InferredRefactoringOperation)userOperation).getRefactoringKind());
+			} else if (userOperation instanceof InferredRefactoringOperation) {
+				handleInferredRefactoringOutsideAutomatedRefactoring((InferredRefactoringOperation)userOperation);
 			}
 		}
 		populateResults();
+	}
+
+	private void handleInferredRefactoringOutsideAutomatedRefactoring(InferredRefactoringOperation inferredRefactoring) {
+		if (!shouldIgnoreInferredRefactoring(inferredRefactoring)) {
+			incrementManualCounter(inferredRefactoring.getRefactoringKind());
+		}
+	}
+
+	private boolean shouldIgnoreInferredRefactoring(InferredRefactoringOperation inferredRefactoring) {
+		//TODO: Note that undoing a rename that follows an extract is still counted as a manual refactoring.
+		return isInsideAutomatedRefactoring || InferredRefactoringOperation.isRename(inferredRefactoring.getRefactoringKind()) &&
+				Math.abs(inferredRefactoring.getTime() - finishedAutomatedRefactoringTimestamp) < renameAfterExtractThreshold &&
+				inferredRefactoring.getArguments().get("OldName").equals(extractedEntityName);
 	}
 
 	private void handleFinishedRefactoring(FinishedRefactoringOperation finishedRefactoringOperation) {
 		if (currentAutomatedRefactoringKind != null && !finishedRefactoringOperation.isTooSimple()) {
 			incrementAutomatedCounter(currentAutomatedRefactoringKind);
 		}
+		finishedAutomatedRefactoringTimestamp= finishedRefactoringOperation.getTime();
 		resetRefactoringState();
 	}
 
@@ -81,7 +99,12 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 		isInsideAutomatedRefactoring= true;
 		//Consider only performed refactorins.
 		if (startedRefactoringOperation.getRefactoringMode() == RefactoringMode.PERFORM) {
-			currentAutomatedRefactoringKind= getRefactoringKindForID(startedRefactoringOperation.getID());
+			currentAutomatedRefactoringKind= getRefactoringKind(startedRefactoringOperation);
+			if (InferredRefactoringOperation.isExtract(currentAutomatedRefactoringKind)) {
+				extractedEntityName= startedRefactoringOperation.getArguments().get("name");
+			} else {
+				extractedEntityName= null;
+			}
 		}
 	}
 
@@ -105,6 +128,8 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 	private void initialize() {
 		result= new StringBuffer();
 		refactorings.clear();
+		extractedEntityName= null;
+		finishedAutomatedRefactoringTimestamp= -1;
 		resetRefactoringState();
 	}
 
@@ -134,8 +159,8 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 		return false;
 	}
 
-	private static RefactoringKind getRefactoringKindForID(String refactoringID) {
-		String refactoringName= refactoringID.substring("org.eclipse.jdt.ui.".length());
+	private static RefactoringKind getRefactoringKind(NewStartedRefactoringOperation startedRefactoringOperation) {
+		String refactoringName= startedRefactoringOperation.getID().substring("org.eclipse.jdt.ui.".length());
 		if (refactoringName.equals("extract.temp")) {
 			return RefactoringKind.EXTRACT_LOCAL_VARIABLE;
 		}

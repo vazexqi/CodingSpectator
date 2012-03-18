@@ -69,8 +69,8 @@ public class RenameMethodRefactoring extends InferredRefactoring {
 		String oldEntityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME);
 		String newEntityName= (String)refactoringProperty.getAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME);
 		Map<String, String> arguments= new HashMap<String, String>();
-		arguments.put("OldMethodName", oldEntityName);
-		arguments.put("NewMethodName", newEntityName);
+		arguments.put("OldName", oldEntityName);
+		arguments.put("NewName", newEntityName);
 		return arguments;
 	}
 

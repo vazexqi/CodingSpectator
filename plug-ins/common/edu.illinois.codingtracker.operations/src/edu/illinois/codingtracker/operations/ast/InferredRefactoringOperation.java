@@ -30,6 +30,16 @@ public class InferredRefactoringOperation extends UserOperation {
 	private final Map<String, String> arguments= new TreeMap<String, String>(); //TreeMap ensures a particular order.
 
 
+	public static boolean isExtract(RefactoringKind refactoringKind) {
+		return refactoringKind == RefactoringKind.EXTRACT_LOCAL_VARIABLE ||
+				refactoringKind == RefactoringKind.EXTRACT_CONSTANT || refactoringKind == RefactoringKind.EXTRACT_METHOD;
+	}
+
+	public static boolean isRename(RefactoringKind refactoringKind) {
+		return refactoringKind == RefactoringKind.RENAME_LOCAL_VARIABLE || refactoringKind == RefactoringKind.RENAME_FIELD ||
+				refactoringKind == RefactoringKind.RENAME_METHOD || refactoringKind == RefactoringKind.RENAME_CLASS;
+	}
+
 	public InferredRefactoringOperation() {
 		super();
 	}
@@ -56,6 +66,10 @@ public class InferredRefactoringOperation extends UserOperation {
 
 	public RefactoringKind getRefactoringKind() {
 		return refactoringKind;
+	}
+
+	public Map<String, String> getArguments() {
+		return arguments; //TODO: Returning a reference to a collection is not safe.
 	}
 
 	@Override
