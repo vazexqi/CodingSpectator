@@ -33,7 +33,7 @@ public class CSVToTransactions {
 
 	public void convertCSVToTransactions() throws IOException {
 		try {
-			CSVReader csvReader= new CSVReader(reader, new String[] { "userId", "what", "kind", "bundleId", "bundleVersion", "description", "time" });
+			CSVReader csvReader= new CSVReader(reader, new String[] { "userId", "description", "time" });
 			TransactionWriter transactionWriter= new TransactionWriter(writer);
 			Iterator<Map<String, String>> iterator= csvReader.iterator();
 			Transaction lastTransaction= new Transaction();
