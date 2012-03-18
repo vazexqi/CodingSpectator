@@ -43,30 +43,45 @@ public class OperationLexer {
 		return currentOperationSymbol;
 	}
 
-	private String getNextLexeme() {
+	private String getNextLexeme(boolean shouldAdvance) {
+		int delimeterIndex= getCurrentDelimiterIndex();
+		String lexeme= operationsRecord.substring(currentIndex, delimeterIndex);
+		if (shouldAdvance) {
+			currentIndex= delimeterIndex + 1;
+		}
+		return unescapeString(lexeme);
+	}
+
+	private int getCurrentDelimiterIndex() {
 		int delimeterIndex= operationsRecord.indexOf(DELIMETER_SYMBOL, currentIndex);
 		while (isEscapedDelimeter(delimeterIndex)) {
 			delimeterIndex= operationsRecord.indexOf(DELIMETER_SYMBOL, delimeterIndex + 1);
 		}
-		String lexeme= operationsRecord.substring(currentIndex, delimeterIndex);
-		currentIndex= delimeterIndex + 1;
-		return unescapeString(lexeme);
+		return delimeterIndex;
 	}
 
 	public String readString() {
-		return getNextLexeme();
+		return getNextLexeme(true);
 	}
 
 	public int readInt() {
-		return Integer.parseInt(getNextLexeme());
+		return Integer.parseInt(getNextLexeme(true));
 	}
 
 	public long readLong() {
-		return Long.parseLong(getNextLexeme());
+		return Long.parseLong(getNextLexeme(true));
 	}
 
 	public boolean readBoolean() {
 		return readInt() == 1 ? true : false;
+	}
+
+	public boolean readOptionalBoolean() {
+		String lexeme= getNextLexeme(false);
+		if (lexeme.equals("1") || lexeme.equals("0")) {
+			return readBoolean();
+		}
+		return false; //If there is no boolean to read, return false. 
 	}
 
 	private boolean isEscapedDelimeter(int delimeterIndex) {

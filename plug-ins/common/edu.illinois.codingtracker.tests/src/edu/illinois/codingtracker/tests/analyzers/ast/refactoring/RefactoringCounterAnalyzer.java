@@ -28,6 +28,10 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 
 	private final Map<RefactoringKind, RefactoringCounter> refactorings= new HashMap<RefactoringKind, RefactoringCounter>();
 
+	private boolean isInsideAutomatedRefactoring;
+
+	private RefactoringKind currentAutomatedRefactoringKind;
+
 
 	@Override
 	protected String getTableHeader() {
@@ -52,30 +56,33 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
 		initialize();
-		boolean isInsideAutomatedRefactoring= false;
 		for (UserOperation userOperation : userOperations) {
 			//TODO: Discard manual renames that follow automated extract refactorings (e.g., extract method, constant, etc.).
 			//Should follow within a reasonable time window, and the extracted entity name should be a default value.
-			//TODO: Also, discard automated renames of entities that do not have references. This is required to make
-			//comparison of manual vs. automated refactorings fair, since we do not infer such renames.
-			//For similar reasons, discard automated "Extract Local Variable" refactorings that are just assigning 
-			//a statement's result to a newly created variable.
 			if (userOperation instanceof NewStartedRefactoringOperation) {
-				isInsideAutomatedRefactoring= true;
-				NewStartedRefactoringOperation refactoringOperation= (NewStartedRefactoringOperation)userOperation;
-				if (refactoringOperation.getRefactoringMode() == RefactoringMode.PERFORM) { //Consider only performed refactorins.
-					RefactoringKind refactoringKind= getRefactoringKindForID(refactoringOperation.getID());
-					if (refactoringKind != null) {
-						incrementAutomatedCounter(refactoringKind);
-					}
-				}
+				handleStartedRefactoring((NewStartedRefactoringOperation)userOperation);
 			} else if (userOperation instanceof FinishedRefactoringOperation) {
-				isInsideAutomatedRefactoring= false;
+				handleFinishedRefactoring((FinishedRefactoringOperation)userOperation);
 			} else if (userOperation instanceof InferredRefactoringOperation && !isInsideAutomatedRefactoring) {
 				incrementManualCounter(((InferredRefactoringOperation)userOperation).getRefactoringKind());
 			}
 		}
 		populateResults();
+	}
+
+	private void handleFinishedRefactoring(FinishedRefactoringOperation finishedRefactoringOperation) {
+		if (currentAutomatedRefactoringKind != null && !finishedRefactoringOperation.isTooSimple()) {
+			incrementAutomatedCounter(currentAutomatedRefactoringKind);
+		}
+		resetRefactoringState();
+	}
+
+	private void handleStartedRefactoring(NewStartedRefactoringOperation startedRefactoringOperation) {
+		isInsideAutomatedRefactoring= true;
+		//Consider only performed refactorins.
+		if (startedRefactoringOperation.getRefactoringMode() == RefactoringMode.PERFORM) {
+			currentAutomatedRefactoringKind= getRefactoringKindForID(startedRefactoringOperation.getID());
+		}
 	}
 
 	private void incrementAutomatedCounter(RefactoringKind refactoringKind) {
@@ -98,6 +105,12 @@ public class RefactoringCounterAnalyzer extends CSVProducingAnalyzer {
 	private void initialize() {
 		result= new StringBuffer();
 		refactorings.clear();
+		resetRefactoringState();
+	}
+
+	private void resetRefactoringState() {
+		isInsideAutomatedRefactoring= false;
+		currentAutomatedRefactoringKind= null;
 	}
 
 	private void populateResults() {

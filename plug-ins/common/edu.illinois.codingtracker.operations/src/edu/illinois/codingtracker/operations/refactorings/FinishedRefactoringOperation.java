@@ -17,6 +17,9 @@ public class FinishedRefactoringOperation extends UserOperation {
 
 	private boolean success;
 
+	private boolean isTooSimple; //Optional field, assigned during refactoring inference.
+
+
 	public FinishedRefactoringOperation() {
 		super();
 	}
@@ -52,14 +55,24 @@ public class FinishedRefactoringOperation extends UserOperation {
 		return success;
 	}
 
+	public boolean isTooSimple() {
+		return isTooSimple;
+	}
+
+	public void setTooSimple(boolean isTooSimple) {
+		this.isTooSimple= isTooSimple;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(success);
+		textChunk.append(isTooSimple);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		success= operationLexer.readBoolean();
+		isTooSimple= operationLexer.readOptionalBoolean();
 	}
 
 	@Override
@@ -71,6 +84,7 @@ public class FinishedRefactoringOperation extends UserOperation {
 	public String toString() {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Success: " + success + "\n");
+		sb.append("Is too simple: " + isTooSimple + "\n");
 		sb.append(super.toString());
 		return sb.toString();
 	}
