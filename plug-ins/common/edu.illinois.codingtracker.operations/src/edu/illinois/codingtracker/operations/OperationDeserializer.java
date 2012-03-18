@@ -6,7 +6,6 @@ package edu.illinois.codingtracker.operations;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
@@ -62,7 +61,6 @@ import edu.illinois.codingtracker.operations.textchanges.UndoneTextChangeOperati
 public class OperationDeserializer {
 
 	public static List<UserOperation> getUserOperations(String operationsRecord) {
-		Configuration.isASTSequence= false;
 		List<UserOperation> userOperations= new LinkedList<UserOperation>();
 		OperationLexer operationLexer= new OperationLexer(operationsRecord);
 		while (operationLexer.hasNextOperation()) {
@@ -205,7 +203,6 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.AST_OPERATION_SYMBOL:
 				userOperation= new ASTOperation();
-				Configuration.isASTSequence= true;
 				break;
 			case OperationSymbols.AST_FILE_OPERATION_SYMBOL:
 				userOperation= new ASTFileOperation();

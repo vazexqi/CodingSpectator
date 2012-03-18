@@ -178,7 +178,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 	}
 
 	private void replaySnapshotsAsEdits(SnapshotedFileOperation snapshotedFileOperation, IFile editedFile, String[] snapshots, boolean shouldRestoreOriginalEditor) {
-		long timestamp= snapshotedFileOperation.getTime();
+		long timestamp= snapshotedFileOperation.getTime() - 1; //Subtracting 1ms we mark the added operations.
 		List<PerformedTextChangeOperation> snapshotDifference= new LinkedList<PerformedTextChangeOperation>();
 		for (int i= 0; i < snapshots.length - 1; i++) {
 			snapshotDifference.addAll(SnapshotDifferenceCalculator.getSnapshotDifference(snapshots[i], snapshots[i + 1], timestamp));

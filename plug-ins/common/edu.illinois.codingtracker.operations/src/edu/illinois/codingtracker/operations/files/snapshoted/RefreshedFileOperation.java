@@ -16,7 +16,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
-import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
@@ -28,6 +27,8 @@ import edu.illinois.codingtracker.operations.OperationTextChunk;
  * 
  */
 public class RefreshedFileOperation extends SnapshotedFileOperation {
+
+	public static boolean isReplaying= false;
 
 	private String replacedText;
 
@@ -73,9 +74,7 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		if (Configuration.isASTSequence) {
-			return;
-		}
+		isReplaying= true;
 		ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
 		if (fileEditor != null) { //File editor exists
 			IDocument editedDocument= EditorHelper.getEditedDocument(fileEditor);
@@ -99,6 +98,7 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 			}
 		}
 		refresh();
+		isReplaying= false;
 	}
 
 	private void refresh() throws CoreException {

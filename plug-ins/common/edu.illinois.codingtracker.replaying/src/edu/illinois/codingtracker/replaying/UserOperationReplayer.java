@@ -52,6 +52,8 @@ import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
  */
 public class UserOperationReplayer {
 
+	private long lastSnapshotTimestamp= -1;
+
 	private enum ReplayPace {
 		FAST, SIMULATE, CUSTOM
 	}
@@ -225,6 +227,7 @@ public class UserOperationReplayer {
 		UserOperation.isReplayedRefactoring= false;
 		currentEditor= null;
 		userOperationsIterator= userOperations.iterator();
+		lastSnapshotTimestamp= -1;
 	}
 
 	private IAction createReplayAction(IAction action, String actionText, String actionToolTipText, boolean isToggable) {
@@ -447,7 +450,11 @@ public class UserOperationReplayer {
 	private UserOperation getNextReplayableUserOperation() {
 		while (userOperationsIterator.hasNext()) {
 			UserOperation nextUserOperation= userOperationsIterator.next();
-			if (!(nextUserOperation instanceof ASTOperation) && !(nextUserOperation instanceof ASTFileOperation)) {
+			if (nextUserOperation instanceof SnapshotedFileOperation) {
+				lastSnapshotTimestamp= nextUserOperation.getTime();
+			}
+			if (!(nextUserOperation instanceof ASTOperation) && !(nextUserOperation instanceof ASTFileOperation) &&
+					nextUserOperation.getTime() != lastSnapshotTimestamp - 1) {
 				return nextUserOperation;
 			}
 		}

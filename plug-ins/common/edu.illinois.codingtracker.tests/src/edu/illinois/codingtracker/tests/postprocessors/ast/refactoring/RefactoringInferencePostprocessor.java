@@ -8,6 +8,7 @@ import java.util.List;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
+import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
 import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
 
 
@@ -19,6 +20,9 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
  * 
  */
 public class RefactoringInferencePostprocessor extends ASTPostprocessor {
+
+	private long lastSnapshotTimestamp= -1;
+
 
 	@Override
 	protected String getRecordFileName() {
@@ -35,14 +39,25 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 		InferredRefactoringFactory.resetCurrentState();
 		for (int i= 0; i < userOperations.size(); i++) {
 			UserOperation userOperation= userOperations.get(i);
-			replayAndRecord(userOperation);
-			if (shouldProcess(userOperation)) {
-				InferredRefactoringOperation refactoringOperation= InferredRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
-				if (refactoringOperation != null) {
-					record(refactoringOperation);
+			if (shouldReplayAndRecord(userOperation)) {
+				replayAndRecord(userOperation);
+				if (shouldProcess(userOperation)) {
+					InferredRefactoringOperation refactoringOperation= InferredRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
+					if (refactoringOperation != null) {
+						record(refactoringOperation);
+					}
 				}
+			} else {
+				record(userOperation);
 			}
 		}
+	}
+
+	private boolean shouldReplayAndRecord(UserOperation userOperation) {
+		if (userOperation instanceof SnapshotedFileOperation) {
+			lastSnapshotTimestamp= userOperation.getTime();
+		}
+		return userOperation.getTime() != lastSnapshotTimestamp - 1;
 	}
 
 }

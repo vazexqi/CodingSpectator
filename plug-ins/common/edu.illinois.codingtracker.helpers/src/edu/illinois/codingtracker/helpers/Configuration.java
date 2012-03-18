@@ -27,6 +27,4 @@ public class Configuration {
 
 	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
-	public static boolean isASTSequence= false; //This flag is set while a sequence is deserialized.
-
 }

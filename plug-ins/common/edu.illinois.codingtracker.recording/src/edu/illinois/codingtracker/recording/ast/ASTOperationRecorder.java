@@ -23,6 +23,7 @@ import edu.illinois.codingtracker.helpers.StringHelper;
 import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor;
 import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
+import edu.illinois.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
@@ -126,6 +127,10 @@ public class ASTOperationRecorder {
 	}
 
 	public void beforeDocumentChange(DocumentEvent event, String filePath) {
+		if (RefreshedFileOperation.isReplaying) {
+			//ignore
+			return;
+		}
 		//If we start to edit a different file, flush the accumulated changes.
 		if (currentEditedFilePath != null && !currentEditedFilePath.equals(filePath)) {
 			flushCurrentTextChanges(true);
