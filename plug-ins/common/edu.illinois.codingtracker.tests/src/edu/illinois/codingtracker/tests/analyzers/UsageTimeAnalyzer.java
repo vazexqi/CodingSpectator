@@ -25,7 +25,7 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
 	@Override
 	protected String getTableHeader() {
-		return "username,workspace ID,version,usage time (ms)\n";
+		return "USERNAME,WORKSPACE_ID,VERSION,USAGE_TIME_IN_MILLI_SECS\n";
 	}
 
 	@Override
