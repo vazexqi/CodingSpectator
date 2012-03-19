@@ -1,5 +1,16 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
+\p Deleting out-of-scope data from ALL_DATA
+
+* USAGE_TIME_START=1305435601000 --May 15, 2011
+
+* USAGE_TIME_STOP=1313384401000 --August 15, 2011
+
+DELETE FROM "PUBLIC"."ALL_DATA" "AD"
+
+WHERE NOT ("AD"."username" LIKE 'cs-___' AND *{USAGE_TIME_START} <
+"AD"."timestamp" AND "AD"."timestamp" < *{USAGE_TIME_STOP});
+
 \p Creating an index on ALL_DATA
 
 DROP INDEX "EVENT_LOCATOR_INDEX" IF EXISTS;
