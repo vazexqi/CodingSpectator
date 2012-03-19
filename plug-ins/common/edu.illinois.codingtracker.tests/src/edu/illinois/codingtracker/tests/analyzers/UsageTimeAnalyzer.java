@@ -7,6 +7,8 @@ import java.util.List;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
+import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation.RefactoringMode;
 
 
 /**
@@ -21,6 +23,14 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 	private static final String EARLIEST_VERSION_FOR_ANALYSIS= "1.0.0.201104162211";
 
 	private static final int threshold= 30 * 60 * 1000; // 30 minutes expressed in milliseconds
+
+	private StringBuffer auxiliaryResult;
+
+	private long accumulatedUsageTime= 0;
+
+	private long startIntervalTimestamp;
+
+	private long sequenceUsageTime;
 
 
 	@Override
@@ -39,23 +49,65 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 	}
 
 	@Override
+	protected boolean hasAuxiliaryResult() {
+		return true;
+	}
+
+	@Override
+	protected String getAuxiliaryResult() {
+		return auxiliaryResult.toString();
+	}
+
+	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
-		result= new StringBuffer();
-		long usageTime= 0;
+		initialize();
 		if (userOperations.size() > 0) {
 			long previousTimestamp= userOperations.get(0).getTime();
 			for (UserOperation userOperation : userOperations) {
-				long currentTimestamp= userOperation.getTime();
-				if (areWithinTimeBoundary(previousTimestamp, currentTimestamp)) {
-					long deltaTimestamp= currentTimestamp - previousTimestamp;
-					if (deltaTimestamp > 0 && deltaTimestamp < threshold) {
-						usageTime+= deltaTimestamp;
-					}
+				if (!shouldIgnore(userOperation)) {
+					long currentTimestamp= userOperation.getTime();
+					handleConsecutiveTimestamps(previousTimestamp, currentTimestamp);
+					previousTimestamp= currentTimestamp;
 				}
-				previousTimestamp= currentTimestamp;
+			}
+			//Record the final gap, which represents the boundary between sequences.
+			recordGap(previousTimestamp);
+		}
+		accumulatedUsageTime+= sequenceUsageTime;
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, sequenceUsageTime);
+	}
+
+	private void handleConsecutiveTimestamps(long previousTimestamp, long currentTimestamp) {
+		if (areWithinTimeBoundary(previousTimestamp, currentTimestamp)) {
+			long deltaTimestamp= currentTimestamp - previousTimestamp;
+			//Note that delta -1 does not mark a gap since it is used to handle snapshot effects.
+			if (deltaTimestamp >= threshold || deltaTimestamp < -1) {
+				recordGap(previousTimestamp);
+			} else if (deltaTimestamp > 0 && startIntervalTimestamp == -1) {
+				startIntervalTimestamp= previousTimestamp;
 			}
 		}
-		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, usageTime);
+	}
+
+	private void recordGap(long stopIntervalTimestamp) {
+		if (startIntervalTimestamp != -1) {
+			long usageInterval= stopIntervalTimestamp - startIntervalTimestamp;
+			if (usageInterval < 0) {
+				throw new RuntimeException("Usage interval should not be negative: " + usageInterval);
+			}
+			long startUsageTime= accumulatedUsageTime + sequenceUsageTime;
+			UsageTimeInterval usageTimeInterval= new UsageTimeInterval(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, startUsageTime, startUsageTime + usageInterval,
+					startIntervalTimestamp, stopIntervalTimestamp);
+			auxiliaryResult.append(usageTimeInterval.serialize());
+			sequenceUsageTime+= usageInterval;
+			startIntervalTimestamp= -1;
+		}
+	}
+
+	private boolean shouldIgnore(UserOperation userOperation) {
+		//Ignore UNDONE and REDONE refactorings due to old timestamps (borrowed from the earlier PERFORMED refactorings).
+		return userOperation instanceof NewStartedRefactoringOperation &&
+				((NewStartedRefactoringOperation)userOperation).getRefactoringMode() != RefactoringMode.PERFORM;
 	}
 
 	private boolean areWithinTimeBoundary(long previousTimestamp, long currentTimestamp) {
@@ -64,6 +116,13 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
 	private boolean isWithinTimeBoundary(long timestamp) {
 		return timestamp > Configuration.usageTimeStart && timestamp < Configuration.usageTimeStop;
+	}
+
+	private void initialize() {
+		result= new StringBuffer();
+		auxiliaryResult= new StringBuffer();
+		startIntervalTimestamp= -1;
+		sequenceUsageTime= 0;
 	}
 
 	@Override

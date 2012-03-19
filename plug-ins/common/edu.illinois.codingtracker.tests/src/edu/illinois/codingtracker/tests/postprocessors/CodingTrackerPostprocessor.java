@@ -34,6 +34,8 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	private File mergedOutputFile;
 
+	private File auxiliaryOutputFile;
+
 	protected String postprocessedVersion;
 
 	protected String postprocessedWorkspaceID;
@@ -46,6 +48,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	public void execute() {
 		checkPostprocessingPreconditions();
 		prepareMergedOutputFile();
+		prepareAuxiliaryOutputFile();
 		visitLocation(new File(Configuration.postprocessorRootFolderName));
 	}
 
@@ -54,6 +57,14 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			mergedOutputFile= new File(Configuration.postprocessorRootFolderName, COMBINED_FILE_PREFIX + getResultFilePostfix());
 			checkExistance(mergedOutputFile);
 			writeToFile(mergedOutputFile, getMergedFilePrefix(), false);
+		}
+	}
+
+	private void prepareAuxiliaryOutputFile() {
+		if (hasAuxiliaryResult()) {
+			auxiliaryOutputFile= new File(Configuration.postprocessorRootFolderName, COMBINED_FILE_PREFIX + getResultFilePostfix() + ".aux");
+			checkExistance(auxiliaryOutputFile);
+			auxiliaryOutputFile.delete();
 		}
 	}
 
@@ -103,6 +114,9 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			}
 			if (shouldMergeResults()) {
 				writeToFile(mergedOutputFile, getResultToMerge(), true);
+			}
+			if (hasAuxiliaryResult()) {
+				writeToFile(auxiliaryOutputFile, getAuxiliaryResult(), true);
 			}
 		}
 		System.out.println("DONE");
@@ -162,6 +176,14 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	}
 
 	protected String getMergedFilePrefix() {
+		return "";
+	}
+
+	protected boolean hasAuxiliaryResult() {
+		return false;
+	}
+
+	protected String getAuxiliaryResult() {
 		return "";
 	}
 
