@@ -20,5 +20,7 @@
 
 \i undone-refactorings-analysis.sql
 
+\i refactoring-size-configuration-analysis.sql
+
 \i frequency-summary-analysis.sql
 

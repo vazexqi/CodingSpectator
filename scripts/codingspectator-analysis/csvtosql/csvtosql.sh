@@ -13,5 +13,5 @@ tar -xOf "$LOGS_CSV_FOLDER/logs.csv.tar.gz" > "$LOGS_CSV_FOLDER/logs.csv"
 CS_CSV="$LOGS_CSV_FOLDER/logs.csv" java -XX:MaxPermSize=1G -Xms1G -Xmx60G -cp $HSQLDB_JARS:$CSVTOSQL_JAR -jar $CSVTOSQL_JAR
 rm "$LOGS_CSV_FOLDER/logs.csv"
 tar cfz "$LOGS_CSV_FOLDER/logs-hsqldb.tar.gz" db_file*
-rm db_file*
+rm db_file* -rf
 

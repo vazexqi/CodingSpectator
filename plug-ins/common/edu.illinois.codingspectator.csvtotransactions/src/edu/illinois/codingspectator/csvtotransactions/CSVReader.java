@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.supercsv.io.CsvMapReader;
@@ -23,24 +24,30 @@ public class CSVReader implements Iterable<Map<String, String>> {
 
 	private String[] csvHeader;
 
-	private String[] expectedCSVHeader;
+	private String[] requiredCSVColumns;
 
 	public CSVReader(Reader reader) {
 		csvMapReader= new CsvMapReader(reader, CsvPreference.EXCEL_PREFERENCE);
 	}
 
-	public CSVReader(Reader reader, String[] expectedCSVHeader) {
+	public CSVReader(Reader reader, String[] requiredCSVHeader) {
 		this(reader);
-		this.expectedCSVHeader= expectedCSVHeader;
+		this.requiredCSVColumns= requiredCSVHeader;
 	}
 
 	private void readHeader() throws IOException {
 		csvHeader= csvMapReader.getCSVHeader(true);
-		if (expectedCSVHeader != null) {
-			if (!Arrays.equals(expectedCSVHeader, csvHeader)) {
-				throw new RuntimeException("Expected CSV header:\n" + Arrays.toString(expectedCSVHeader) + "got:\n" + Arrays.toString(csvHeader));
+		if (requiredCSVColumns != null) {
+			if (!isCSVHeaderValid()) {
+				throw new RuntimeException("Expected CSV header:\n" + Arrays.toString(requiredCSVColumns) + "got:\n" + Arrays.toString(csvHeader));
 			}
 		}
+	}
+
+	private boolean isCSVHeaderValid() {
+		List<String> csvHeaderList= Arrays.asList(csvHeader);
+		List<String> expectedCSVHeaderList= Arrays.asList(requiredCSVColumns);
+		return csvHeaderList.containsAll(expectedCSVHeaderList);
 	}
 
 	private Map<String, String> getNextRow() throws IOException {
