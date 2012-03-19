@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.tests.analyzers;
 
 import java.util.List;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
 
 
@@ -17,8 +18,8 @@ import edu.illinois.codingtracker.operations.UserOperation;
  */
 public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
-	private static final String EARLIEST_VERSION_FOR_ANALYSIS = "1.0.0.201104162211";
-	
+	private static final String EARLIEST_VERSION_FOR_ANALYSIS= "1.0.0.201104162211";
+
 	private static final int threshold= 30 * 60 * 1000; // 30 minutes expressed in milliseconds
 
 
@@ -45,14 +46,24 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 			long previousTimestamp= userOperations.get(0).getTime();
 			for (UserOperation userOperation : userOperations) {
 				long currentTimestamp= userOperation.getTime();
-				long deltaTimestamp= currentTimestamp - previousTimestamp;
-				if (deltaTimestamp > 0 && deltaTimestamp < threshold) {
-					usageTime+= deltaTimestamp;
+				if (areWithinTimeBoundary(previousTimestamp, currentTimestamp)) {
+					long deltaTimestamp= currentTimestamp - previousTimestamp;
+					if (deltaTimestamp > 0 && deltaTimestamp < threshold) {
+						usageTime+= deltaTimestamp;
+					}
 				}
 				previousTimestamp= currentTimestamp;
 			}
 		}
 		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, usageTime);
+	}
+
+	private boolean areWithinTimeBoundary(long previousTimestamp, long currentTimestamp) {
+		return isWithinTimeBoundary(previousTimestamp) && isWithinTimeBoundary(currentTimestamp);
+	}
+
+	private boolean isWithinTimeBoundary(long timestamp) {
+		return timestamp > Configuration.usageTimeStart && timestamp < Configuration.usageTimeStop;
 	}
 
 	@Override
