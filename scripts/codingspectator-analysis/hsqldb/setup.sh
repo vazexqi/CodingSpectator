@@ -10,6 +10,7 @@ USAGE_TIME_CSV="$CODINGSPECTATOR_SVN_FOLDER/Experiment/Summer2011/InternalAndExt
 if [ -e "$UNSORTED_USAGE_TIME_CSV" ]; then
   echo 'USERNAME,WORKSPACE_ID,VERSION,USAGE_TIME_IN_MILLI_SECS' > "$USAGE_TIME_CSV"
   tail "$UNSORTED_USAGE_TIME_CSV" -n +2 | sort >> "$USAGE_TIME_CSV"
+  echo "Updated $USAGE_TIME_CSV." 
 fi
 
 tar xfz "$LOGS_CSV_FOLDER/logs-hsqldb.tar.gz" -C .
@@ -18,6 +19,7 @@ ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/UDCData/AggregatedUDCData/command
 ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/Summer2011/InternalAndExternal/ICSE2012/Data/refactoring_change_intensity.csv" .
 ln -sf "$USAGE_TIME_CSV" .
 ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/Summer2011/InternalAndExternal/ICSE2012/Data/refactoring_id_human_name_mapping.csv" .
+ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/Summer2011/InternalAndExternal/ICSE2012/Data/refactoring-complexity.csv" .
 ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/UDCData/refactoringmapping.csv" .
 
 echo "\c false" > "$MAIN_SQL"
