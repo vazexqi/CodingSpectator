@@ -24,7 +24,7 @@ ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/UDCData/refactoringmapping.csv" .
 
 echo "\c false" > "$MAIN_SQL"
 
-for sql_file in functions.sql import-data.sql undone-refactorings-analysis.sql per-refactoring-id-analysis.sql per-user-analysis.sql per-refactoring-id-kind-analysis.sql usage-time-analysis.sql quick-assist-analysis.sql undone-refactorings-analysis.sql refactoring-size-configuration-analysis.sql frequency-summary-analysis.sql refactoring-message-analysis.sql 
+for sql_file in functions.sql import-data.sql undone-refactorings-analysis.sql per-refactoring-id-analysis.sql per-user-analysis.sql per-refactoring-id-kind-analysis.sql usage-time-analysis.sql quick-assist-analysis.sql undone-refactorings-analysis.sql refactoring-size-configuration-analysis.sql frequency-complexity-analysis.sql frequency-summary-analysis.sql refactoring-message-analysis.sql 
 do
   find "$CODINGSPECTATOR_ANALYSIS_GIT_FOLDER" -iname $sql_file -print0 | xargs -0 -I {} echo "\i "{} >> "$MAIN_SQL"
 done
