@@ -206,7 +206,9 @@ ORDER BY "RCS"."REFACTORING_ID") "A"
 ON "R"."REFACTORING_ID" = "A"."REFACTORING_ID"
 
 WHERE "R"."REFACTORING_ID" <> 'org.eclipse.jdt.ui.rename.java.project' AND
-"R"."REFACTORING_ID" <> 'org.eclipse.jdt.ui.rename.source.folder';
+"R"."REFACTORING_ID" <> 'org.eclipse.jdt.ui.rename.source.folder'
+
+ORDER BY "REFACTORING_HUMAN_READABLE_NAME";
 
 * *DSV_COL_DELIM =,
 
