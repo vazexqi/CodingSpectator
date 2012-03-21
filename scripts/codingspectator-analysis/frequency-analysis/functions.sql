@@ -264,6 +264,68 @@ RETURN ID IN
 
 'org.eclipse.jdt.ui.use.supertype');
 
+DROP FUNCTION IS_REFACTORING_ID_IN_QUICK_ASSIST IF EXISTS;
+
+CREATE FUNCTION IS_REFACTORING_ID_IN_QUICK_ASSIST(ID VARCHAR(100))
+
+RETURNS BOOLEAN
+
+CONTAINS SQL
+
+RETURN ID IN
+
+('org.eclipse.jdt.ui.convert.anonymous',
+
+'org.eclipse.jdt.ui.promote.temp',
+
+'org.eclipse.jdt.ui.self.encapsulate',
+
+'org.eclipse.jdt.ui.extract.constant',
+
+'org.eclipse.jdt.ui.extract.temp',
+
+'org.eclipse.jdt.ui.extract.method',
+
+'org.eclipse.jdt.ui.inline.temp',
+
+'org.eclipse.jdt.ui.rename.compilationunit',
+
+'org.eclipse.jdt.ui.rename.type',
+
+'org.eclipse.jdt.ui.rename.class',
+
+'org.eclipse.jdt.ui.rename.enum.constant',
+
+'org.eclipse.jdt.ui.rename.field',
+
+'org.eclipse.jdt.ui.rename.local.variable',
+
+'org.eclipse.jdt.ui.rename.method');
+
+DROP FUNCTION IS_JAVA_RENAME_REFACTORING_ID IF EXISTS;
+
+CREATE FUNCTION IS_JAVA_RENAME_REFACTORING_ID(ID VARCHAR(100))
+
+RETURNS BOOLEAN
+
+CONTAINS SQL
+
+RETURN ID IN
+
+('org.eclipse.jdt.ui.rename.compilationunit',
+
+'org.eclipse.jdt.ui.rename.type',
+
+'org.eclipse.jdt.ui.rename.class',
+
+'org.eclipse.jdt.ui.rename.enum.constant',
+
+'org.eclipse.jdt.ui.rename.field',
+
+'org.eclipse.jdt.ui.rename.local.variable',
+
+'org.eclipse.jdt.ui.rename.method');
+
 DROP FUNCTION JAVA_REFACTORING_ID IF EXISTS;
 
 CREATE FUNCTION JAVA_REFACTORING_ID(ID VARCHAR(100))
