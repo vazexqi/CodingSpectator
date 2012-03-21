@@ -9,7 +9,8 @@
 DELETE FROM "PUBLIC"."ALL_DATA" "AD"
 
 WHERE NOT ("AD"."username" LIKE 'cs-___' AND *{USAGE_TIME_START} <
-"AD"."timestamp" AND "AD"."timestamp" < *{USAGE_TIME_STOP});
+"AD"."timestamp" AND "AD"."timestamp" < *{USAGE_TIME_STOP} AND
+IS_REFACTORING_ID_IN_ICSE2012_PAPER("AD"."id"));
 
 \p Creating an index on ALL_DATA
 
