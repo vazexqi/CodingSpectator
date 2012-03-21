@@ -196,7 +196,15 @@ CONTAINS SQL
 
 RETURN ID IN
 
-('org.eclipse.jdt.ui.promote.temp',
+('org.eclipse.jdt.ui.change.method.signature',
+
+'org.eclipse.jdt.ui.convert.anonymous',
+
+'org.eclipse.jdt.ui.promote.temp',
+
+'org.eclipse.jdt.ui.self.encapsulate',
+
+'org.eclipse.jdt.ui.extract.class',
 
 'org.eclipse.jdt.ui.extract.constant',
 
@@ -208,19 +216,29 @@ RETURN ID IN
 
 'org.eclipse.jdt.ui.extract.superclass',
 
+'org.eclipse.jdt.ui.infer.typearguments',
+
 'org.eclipse.jdt.ui.inline.constant',
 
 'org.eclipse.jdt.ui.inline.temp',
 
 'org.eclipse.jdt.ui.inline.method',
 
+'org.eclipse.jdt.ui.introduce.indirection',
+
 'org.eclipse.jdt.ui.introduce.factory',
+
+'org.eclipse.jdt.ui.introduce.parameter',
+
+'org.eclipse.jdt.ui.introduce.parameter.object',
 
 'org.eclipse.jdt.ui.move',
 
 'org.eclipse.jdt.ui.move.method',
 
 'org.eclipse.jdt.ui.move.static',
+
+'org.eclipse.jdt.ui.move.inner',
 
 'org.eclipse.jdt.ui.pull.up',
 

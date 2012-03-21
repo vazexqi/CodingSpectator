@@ -22,5 +22,7 @@
 
 \i refactoring-size-configuration-analysis.sql
 
+\i frequency-complexity-analysis.sql
+
 \i frequency-summary-analysis.sql
 

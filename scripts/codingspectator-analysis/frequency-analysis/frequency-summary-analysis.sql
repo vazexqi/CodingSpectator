@@ -1,3 +1,5 @@
+--This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
+
 /*
 -- It seems that "Infer Generic Type" was never used so we special case it here
 INSERT INTO "PUBLIC"."PER_REFACTORING_ID" 
