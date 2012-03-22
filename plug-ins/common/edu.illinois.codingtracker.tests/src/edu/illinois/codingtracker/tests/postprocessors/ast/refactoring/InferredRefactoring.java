@@ -61,6 +61,10 @@ public abstract class InferredRefactoring {
 		return propertiesList;
 	}
 
+	protected boolean isOptionalProperty(String propertyName) {
+		return false; //By default all properties are required.
+	}
+
 	/**
 	 * This method returns true iff the given propertyName is multi-property and this refactoring
 	 * already contains at least one property of this kind.
@@ -91,7 +95,7 @@ public abstract class InferredRefactoring {
 
 	public boolean isComplete() {
 		for (String acceptableProperty : getAcceptableProperties()) {
-			if (properties.get(acceptableProperty) == null) {
+			if (properties.get(acceptableProperty) == null && !isOptionalProperty(acceptableProperty)) {
 				return false;
 			}
 		}

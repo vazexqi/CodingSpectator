@@ -178,6 +178,12 @@ public class InferredRefactoringFactory {
 			if (ReplacedExpressionWithEntityRefactoringFragment.isAcceptableProperty(newProperty)) {
 				pendingFragments.add(ReplacedExpressionWithEntityRefactoringFragment.createRefactoring(newProperty));
 			}
+			if (ReplacedEntityWithGetterRefactoringFragment.isAcceptableProperty(newProperty)) {
+				pendingFragments.add(ReplacedEntityWithGetterRefactoringFragment.createRefactoring(newProperty));
+			}
+			if (ReplacedEntityWithSetterRefactoringFragment.isAcceptableProperty(newProperty)) {
+				pendingFragments.add(ReplacedEntityWithSetterRefactoringFragment.createRefactoring(newProperty));
+			}
 		}
 	}
 

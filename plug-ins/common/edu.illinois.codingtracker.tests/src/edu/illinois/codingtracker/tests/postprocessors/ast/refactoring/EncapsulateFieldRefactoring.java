@@ -31,6 +31,8 @@ public class EncapsulateFieldRefactoring extends InferredRefactoring {
 		acceptableProperties.add(RefactoringProperties.ADDED_FIELD_RETURN);
 		acceptableProperties.add(RefactoringProperties.ADDED_FIELD_ASSIGNMENT);
 		acceptableProperties.add(RefactoringProperties.MADE_FIELD_PRIVATE);
+		acceptableProperties.add(RefactoringFragments.REPLACED_ENTITY_WITH_GETTER);
+		acceptableProperties.add(RefactoringFragments.REPLACED_ENTITY_WITH_SETTER);
 	}
 
 
@@ -53,8 +55,14 @@ public class EncapsulateFieldRefactoring extends InferredRefactoring {
 
 	@Override
 	public boolean isMultiProperty(String propertyName) {
-		//TODO:Decide.
-		return false;
+		return propertyName.equals(RefactoringFragments.REPLACED_ENTITY_WITH_GETTER) ||
+				propertyName.equals(RefactoringFragments.REPLACED_ENTITY_WITH_SETTER);
+	}
+
+	@Override
+	protected boolean isOptionalProperty(String propertyName) {
+		return propertyName.equals(RefactoringFragments.REPLACED_ENTITY_WITH_GETTER) ||
+				propertyName.equals(RefactoringFragments.REPLACED_ENTITY_WITH_SETTER);
 	}
 
 	@Override

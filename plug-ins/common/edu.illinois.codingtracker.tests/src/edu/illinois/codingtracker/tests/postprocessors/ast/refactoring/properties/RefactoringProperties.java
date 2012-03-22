@@ -26,6 +26,10 @@ public interface RefactoringProperties {
 
 	public static final String ADDED_METHOD_INVOCATION= "AddedMethodInvocationRefactoringProperty";
 
+	public static final String ADDED_GETTER_METHOD_INVOCATION= "AddedGetterMethodInvocationRefactoringProperty";
+
+	public static final String ADDED_SETTER_METHOD_INVOCATION= "AddedSetterMethodInvocationRefactoringProperty";
+
 	public static final String ADDED_SETTER_METHOD_DECLARATION= "AddedSetterMethodDeclarationRefactoringProperty";
 
 	public static final String ADDED_VARIABLE_DECLARATION= "AddedVariableDeclarationRefactoringProperty";

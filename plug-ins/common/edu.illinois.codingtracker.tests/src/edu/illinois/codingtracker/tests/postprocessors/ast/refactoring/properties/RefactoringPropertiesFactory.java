@@ -258,8 +258,15 @@ public class RefactoringPropertiesFactory {
 	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, long sourceMethodID) {
 		String destinationMethodName= methodInvocation.getName().getIdentifier();
 		long destinationMethodNameNodeID= getNodeID(methodInvocation.getName());
+		long parentID= getParentID(methodInvocation, false);
 		String sourceMethodName= ASTHelper.getContainingMethod(methodInvocation).getName().getIdentifier();
+
 		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, destinationMethodNameNodeID, sourceMethodName, sourceMethodID, activationTimestamp));
+
+		//This is somewhat inefficient, but since at this point we do not know whether the added method is a getter,
+		//a setter, or none of the above, we just tentatively consider every possibility.
+		properties.add(new AddedGetterMethodInvocationRefactoringProperty(destinationMethodName, parentID, activationTimestamp));
+		properties.add(new AddedSetterMethodInvocationRefactoringProperty(destinationMethodName, parentID, activationTimestamp));
 	}
 
 	private static void handleAddedReturnStatement(ReturnStatement returnStatement, long methodID) {
@@ -429,6 +436,10 @@ public class RefactoringPropertiesFactory {
 				//Account for scenarios, in which FieldAccess is replaced with QulifiedName or vice-versa.
 				if (parentNode instanceof FieldAccess || parentNode instanceof QualifiedName) {
 					return findMatchingParentID((Expression)parentNode);
+				}
+				//Account for deletion of field assignments as part of the replacement with the setter method.
+				if (parentNode instanceof Assignment && ((Assignment)parentNode).getLeftHandSide() == node) {
+					return getParentID(parentNode, isOld);
 				}
 				return NO_NODE_ID;
 			} else {

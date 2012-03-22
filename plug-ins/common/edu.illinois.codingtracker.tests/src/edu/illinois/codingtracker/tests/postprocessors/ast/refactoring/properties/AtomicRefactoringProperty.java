@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.EncapsulateFieldRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractConstantRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractVariableRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoring;
@@ -148,7 +149,8 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 	protected boolean isIgnoredAttribute(String attribute, InferredRefactoring containingRefactoring) {
 		if ((containingRefactoring instanceof ExtractConstantRefactoring ||
 				containingRefactoring instanceof ExtractVariableRefactoring ||
-				containingRefactoring instanceof InlineVariableRefactoring) &&
+				containingRefactoring instanceof InlineVariableRefactoring ||
+				containingRefactoring instanceof EncapsulateFieldRefactoring) &&
 				attribute.equals(RefactoringPropertyAttributes.PARENT_ID)) {
 			return true;
 		}

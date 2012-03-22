@@ -16,4 +16,8 @@ public interface RefactoringFragments {
 
 	public static final String REPLACED_ENTITY_WITH_EXPRESSION= "ReplacedEntityWithExpressionRefactoringFragment";
 
+	public static final String REPLACED_ENTITY_WITH_GETTER= "ReplacedEntityWithGetterRefactoringFragment";
+
+	public static final String REPLACED_ENTITY_WITH_SETTER= "ReplacedEntityWithSetterRefactoringFragment";
+
 }
