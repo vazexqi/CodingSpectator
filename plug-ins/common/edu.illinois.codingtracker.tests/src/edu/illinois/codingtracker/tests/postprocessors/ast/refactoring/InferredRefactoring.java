@@ -5,9 +5,13 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.CorrectiveRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
@@ -20,14 +24,19 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  */
 public abstract class InferredRefactoring {
 
-	private final Map<String, RefactoringProperty> properties= new HashMap<String, RefactoringProperty>();
+	private static final long oldAgeTimeThreshold= 2 * 60 * 1000; // 2 minutes until a refactoring becomes too old.
 
+	private final Map<String, List<RefactoringProperty>> properties= new HashMap<String, List<RefactoringProperty>>();
+
+	private ASTOperation lastCausingASTOperation;
 
 	protected abstract Set<String> getAcceptableProperties();
 
 	public abstract RefactoringKind getKind();
 
 	protected abstract InferredRefactoring createFreshInstance();
+
+	protected abstract boolean isMultiProperty(String propertyName);
 
 	/**
 	 * Should be called only for complete refactorings.
@@ -37,12 +46,47 @@ public abstract class InferredRefactoring {
 	public abstract Map<String, String> getArguments();
 
 	protected static void addProperty(InferredRefactoring inferredRefactoring, RefactoringProperty refactoringProperty) {
-		inferredRefactoring.properties.put(refactoringProperty.getClassName(), refactoringProperty);
+		List<RefactoringProperty> propertiesList= getPropertiesList(inferredRefactoring, refactoringProperty.getClassName());
+		propertiesList.add(refactoringProperty);
 		refactoringProperty.addRefactoring(inferredRefactoring);
+		inferredRefactoring.lastCausingASTOperation= refactoringProperty.getCausingOperation();
+	}
+
+	private static List<RefactoringProperty> getPropertiesList(InferredRefactoring inferredRefactoring, String propertyName) {
+		List<RefactoringProperty> propertiesList= inferredRefactoring.properties.get(propertyName);
+		if (propertiesList == null) {
+			propertiesList= new LinkedList<RefactoringProperty>();
+			inferredRefactoring.properties.put(propertyName, propertiesList);
+		}
+		return propertiesList;
+	}
+
+	/**
+	 * This method returns true iff the given propertyName is multi-property and this refactoring
+	 * already contains at least one property of this kind.
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
+	public boolean hasMultiProperty(String propertyName) {
+		if (!isMultiProperty(propertyName)) {
+			return false;
+		}
+		List<RefactoringProperty> propertiesList= properties.get(propertyName);
+		return propertiesList != null && !propertiesList.isEmpty();
+	}
+
+	public int getPropertiesCount() {
+		return getAllProperties().size();
 	}
 
 	protected RefactoringProperty getProperty(String propertyName) {
-		return properties.get(propertyName);
+		//It does not matter which property is returned if there are several of them in the corresponding list.
+		return properties.get(propertyName).get(0);
+	}
+
+	public ASTOperation getLastCausingASTOperation() {
+		return lastCausingASTOperation;
 	}
 
 	public boolean isComplete() {
@@ -54,39 +98,69 @@ public abstract class InferredRefactoring {
 		return true;
 	}
 
+	public boolean isOld(long currentTimestamp) {
+		if (currentTimestamp - lastCausingASTOperation.getTime() >= oldAgeTimeThreshold) {
+			return true;
+		}
+		return false;
+	}
+
 	public boolean canBePart(RefactoringProperty refactoringProperty) {
+		String propertyName= refactoringProperty.getClassName();
 		if (refactoringProperty instanceof CorrectiveRefactoringProperty ||
-				!getAcceptableProperties().contains(refactoringProperty.getClassName()) ||
-				properties.get(refactoringProperty.getClassName()) != null) {
+				!getAcceptableProperties().contains(propertyName) ||
+				properties.get(propertyName) != null && !isMultiProperty(propertyName)) {
 			return false;
 		}
-		for (RefactoringProperty property : properties.values()) {
-			if (!property.doesMatch(refactoringProperty)) {
+		for (RefactoringProperty property : getAllProperties()) {
+			if (!property.doesMatch(this, refactoringProperty)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	protected Set<RefactoringProperty> getAllProperties() {
+		Set<RefactoringProperty> allProperties= new HashSet<RefactoringProperty>();
+		for (List<RefactoringProperty> propertiesList : properties.values()) {
+			for (RefactoringProperty property : propertiesList) {
+				allProperties.add(property);
+			}
+		}
+		return allProperties;
+	}
+
 	/**
-	 * Should not change this refactoring, but rather should return a new one, with this refactoring
-	 * property added to it.
+	 * The argument 'addToCopy' indicates whether the property should be added to a new refactoring
+	 * obtained by copying this refactoring (if true) or should be added directly to this
+	 * refactoring (if false), which is legal only if this refactoring is complete.
 	 * 
 	 * @param refactoringProperty
 	 */
-	public InferredRefactoring addProperty(RefactoringProperty refactoringProperty) {
+	public InferredRefactoring addProperty(RefactoringProperty refactoringProperty, boolean addToCopy) {
 		if (!canBePart(refactoringProperty)) {
 			throw new RuntimeException("Can not add property: " + refactoringProperty);
 		}
-		InferredRefactoring resultRefactoring= createCopy();
-		addProperty(resultRefactoring, refactoringProperty);
-		return resultRefactoring;
+		if (addToCopy) {
+			InferredRefactoring resultRefactoring= createCopy();
+			addProperty(resultRefactoring, refactoringProperty);
+			return resultRefactoring;
+		}
+		if (!isComplete() && !isMultiProperty(refactoringProperty.getClassName())) {
+			throw new RuntimeException("Can not add a non-multiproperty to a non-complete refactoring!");
+		}
+		addProperty(this, refactoringProperty);
+		return this;
 	}
 
 	private InferredRefactoring createCopy() {
 		InferredRefactoring copyRefactoring= createFreshInstance();
-		copyRefactoring.properties.putAll(properties);
-		for (RefactoringProperty property : properties.values()) {
+		for (Entry<String, List<RefactoringProperty>> entry : properties.entrySet()) {
+			List<RefactoringProperty> copyList= new LinkedList<RefactoringProperty>();
+			copyList.addAll(entry.getValue());
+			copyRefactoring.properties.put(entry.getKey(), copyList);
+		}
+		for (RefactoringProperty property : getAllProperties()) {
 			property.addRefactoring(copyRefactoring);
 		}
 		return copyRefactoring;
@@ -94,25 +168,32 @@ public abstract class InferredRefactoring {
 
 	public void disableProperties() {
 		//Use a temporary collection since disabling properties removes them from the main collection.
-		Set<RefactoringProperty> existingProperties= new HashSet<RefactoringProperty>();
-		existingProperties.addAll(properties.values());
+		Set<RefactoringProperty> existingProperties= getAllProperties();
 		for (RefactoringProperty property : existingProperties) {
 			property.disable();
 		}
 	}
 
 	public void disabledProperty(RefactoringProperty disabledProperty) {
-		properties.remove(disabledProperty.getClassName());
-		if (properties.size() == 0) {
-			InferredRefactoringFactory.destroyedRefactoring(this);
+		//Complete refactorings are unaffected by disabled properties.
+		if (!isComplete()) {
+			String disabledPropertyName= disabledProperty.getClassName();
+			List<RefactoringProperty> propertiesList= properties.get(disabledPropertyName);
+			propertiesList.remove(disabledProperty);
+			if (propertiesList.size() == 0) {
+				properties.remove(disabledPropertyName);
+			}
+			if (properties.size() == 0) {
+				InferredRefactoringFactory.destroyedRefactoring(this);
+			}
 		}
 	}
 
 	public void correctedProperty(RefactoringProperty correctedProperty) {
-		for (RefactoringProperty existingProperty : properties.values()) {
-			if (!existingProperty.doesMatch(correctedProperty)) {
+		for (RefactoringProperty existingProperty : getAllProperties()) {
+			if (!existingProperty.doesMatch(this, correctedProperty)) {
 				//Refactoring is destroyed due to the correction.
-				for (RefactoringProperty property : properties.values()) {
+				for (RefactoringProperty property : getAllProperties()) {
 					property.removeRefactoring(this);
 				}
 				properties.clear();

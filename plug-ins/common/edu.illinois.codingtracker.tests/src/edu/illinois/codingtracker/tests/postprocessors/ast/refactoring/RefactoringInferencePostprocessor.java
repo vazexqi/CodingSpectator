@@ -3,11 +3,11 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
 import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
@@ -47,8 +47,12 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
-		initialize();
-		for (UserOperation userOperation : userOperations) {
+		initialize(userOperations);
+		//Create a copy for iterating to avoid concurrent modification errors that appear when the refactoring factory
+		//adds inferred refactorings to the list.
+		List<UserOperation> copyUserOperations= new LinkedList<UserOperation>();
+		copyUserOperations.addAll(userOperations);
+		for (UserOperation userOperation : copyUserOperations) {
 			if (userOperation instanceof NewStartedRefactoringOperation) {
 				handleStartedRefactoring((NewStartedRefactoringOperation)userOperation);
 			} else if (userOperation instanceof FinishedRefactoringOperation) {
@@ -59,19 +63,21 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 			}
 			postprocessUserOperation(userOperation);
 		}
+		InferredRefactoringFactory.flushCompleteRefactorings();
+		//Inference is finished, record the resulting sequence.
+		for (UserOperation userOperation : userOperations) {
+			record(userOperation);
+		}
 	}
 
 	private void postprocessUserOperation(UserOperation userOperation) {
-		if (shouldReplayAndRecord(userOperation)) {
-			replayAndRecord(userOperation);
+		if (shouldReplay(userOperation)) {
+			replayAndRecord(userOperation, true);
 			if (shouldProcess(userOperation)) {
-				InferredRefactoringOperation refactoringOperation= InferredRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
-				if (refactoringOperation != null) {
-					record(refactoringOperation);
-				}
+				InferredRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
 			}
 		} else {
-			record(userOperation);
+			record(userOperation, true);
 		}
 	}
 
@@ -100,8 +106,9 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 		isInsideAutomatedRefactoring= true;
 	}
 
-	private void initialize() {
+	private void initialize(List<UserOperation> userOperations) {
 		InferredRefactoringFactory.resetCurrentState();
+		InferredRefactoringFactory.userOperations= userOperations;
 		resetRefactoringState();
 	}
 
@@ -112,7 +119,7 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 		isAutomatedRefactoringTooSimple= true;
 	}
 
-	private boolean shouldReplayAndRecord(UserOperation userOperation) {
+	private boolean shouldReplay(UserOperation userOperation) {
 		if (userOperation instanceof SnapshotedFileOperation) {
 			lastSnapshotTimestamp= userOperation.getTime();
 		}

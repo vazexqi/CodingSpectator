@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties;
 
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoring;
+
 
 
 /**
@@ -12,7 +14,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class CorrectiveRefactoringProperty extends RefactoringProperty {
+public class CorrectiveRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public CorrectiveRefactoringProperty(String entityName, long entityNameNodeID, String newEntityName, long activationTimestamp) {
@@ -23,16 +25,16 @@ public class CorrectiveRefactoringProperty extends RefactoringProperty {
 	}
 
 	@Override
-	protected boolean isIgnoredAttribute(String attribute) {
+	public boolean isIgnoredAttribute(String attribute, InferredRefactoring containingRefactoring) {
 		return attribute.equals(RefactoringPropertyAttributes.NEW_ENTITY_NAME);
 	}
 
-	public boolean doesOverlap(RefactoringProperty anotherProperty) {
+	public boolean doesOverlap(AtomicRefactoringProperty anotherProperty) {
 		return anotherProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME) != null &&
 				anotherProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID) != null;
 	}
 
-	public void correct(RefactoringProperty correctedProperty) {
+	public void correct(AtomicRefactoringProperty correctedProperty) {
 		if (!doesOverlap(correctedProperty)) {
 			throw new RuntimeException("Can not correct non-overlapping property: " + correctedProperty);
 		}

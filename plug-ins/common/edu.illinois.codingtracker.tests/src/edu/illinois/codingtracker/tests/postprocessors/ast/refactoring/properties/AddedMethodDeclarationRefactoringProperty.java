@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class AddedMethodDeclarationRefactoringProperty extends RefactoringProperty {
+public class AddedMethodDeclarationRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public AddedMethodDeclarationRefactoringProperty(String entityName, long entityNameNodeID, long destinationMethodID, long activationTimestamp) {

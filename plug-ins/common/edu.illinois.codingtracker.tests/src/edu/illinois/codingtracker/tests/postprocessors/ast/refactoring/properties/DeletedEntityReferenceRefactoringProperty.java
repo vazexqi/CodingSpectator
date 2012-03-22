@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class DeletedEntityReferenceRefactoringProperty extends RefactoringProperty {
+public class DeletedEntityReferenceRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public DeletedEntityReferenceRefactoringProperty(String entityName, long entityNameNodeID, long parentID, long activationTimestamp) {

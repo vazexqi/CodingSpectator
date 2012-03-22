@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class ChangedTypeNameInDeclarationRefactoringProperty extends RefactoringProperty {
+public class ChangedTypeNameInDeclarationRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public ChangedTypeNameInDeclarationRefactoringProperty(String oldEntityName, String newEntityName, long activationTimestamp) {

@@ -29,8 +29,7 @@ public class ExtractVariableRefactoring extends InferredRefactoring {
 	static {
 		acceptableProperties.add(RefactoringProperties.MOVED_TO_VARIABLE_INITIALIZATION);
 		acceptableProperties.add(RefactoringProperties.ADDED_VARIABLE_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.MOVED_FROM_USAGE);
-		acceptableProperties.add(RefactoringProperties.ADDED_ENTITY_REFERENCE);
+		acceptableProperties.add(RefactoringFragments.REPLACED_EXPRESSION_WITH_ENTITY);
 	}
 
 
@@ -49,6 +48,11 @@ public class ExtractVariableRefactoring extends InferredRefactoring {
 
 	public static boolean isAcceptableProperty(RefactoringProperty refactoringProperty) {
 		return acceptableProperties.contains(refactoringProperty.getClassName());
+	}
+
+	@Override
+	public boolean isMultiProperty(String propertyName) {
+		return propertyName.equals(RefactoringFragments.REPLACED_EXPRESSION_WITH_ENTITY);
 	}
 
 	@Override

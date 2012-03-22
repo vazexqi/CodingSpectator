@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties;
 
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoring;
+
 
 
 /**
@@ -11,7 +13,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class DeletedVariableDeclarationRefactoringProperty extends RefactoringProperty {
+public class DeletedVariableDeclarationRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public DeletedVariableDeclarationRefactoringProperty(String entityName, long entityNameNodeID, long activationTimestamp) {
@@ -21,11 +23,11 @@ public class DeletedVariableDeclarationRefactoringProperty extends RefactoringPr
 	}
 
 	@Override
-	public boolean doesMatch(RefactoringProperty anotherProperty) {
-		boolean doesMatch= super.doesMatch(anotherProperty);
+	public boolean doesMatch(InferredRefactoring containingRefactoring, RefactoringProperty anotherProperty) {
+		boolean doesMatch= super.doesMatch(containingRefactoring, anotherProperty);
 		//Account for the automated Eclipse Promote Temp that changes the name of the promoted local variable.
 		if (anotherProperty instanceof AddedFieldDeclarationRefactoringProperty && !doesMatch) {
-			return isVeryCloseButDistinct(this, anotherProperty);
+			return isVeryCloseButDistinct(this, (AddedFieldDeclarationRefactoringProperty)anotherProperty);
 		}
 		return doesMatch;
 	}

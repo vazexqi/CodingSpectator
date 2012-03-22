@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class AddedSetterMethodDeclarationRefactoringProperty extends RefactoringProperty {
+public class AddedSetterMethodDeclarationRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public AddedSetterMethodDeclarationRefactoringProperty(String setterMethodName, long setterMethodID, long activationTimestamp) {

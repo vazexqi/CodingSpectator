@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Stas Negara
  * 
  */
-public class MadeFieldPrivateRefactoringProperty extends RefactoringProperty {
+public class MadeFieldPrivateRefactoringProperty extends AtomicRefactoringProperty {
 
 	private static final Set<MadeFieldPrivateRefactoringProperty> currentProperties= new HashSet<MadeFieldPrivateRefactoringProperty>();
 
@@ -38,7 +38,7 @@ public class MadeFieldPrivateRefactoringProperty extends RefactoringProperty {
 		Iterator<MadeFieldPrivateRefactoringProperty> propertiesIterator= currentProperties.iterator();
 		while (propertiesIterator.hasNext()) {
 			MadeFieldPrivateRefactoringProperty property= propertiesIterator.next();
-			if (property.doesMatch(this)) {
+			if (property.doesMatch(null, this)) {
 				property.directDisable();
 				propertiesIterator.remove();
 			}

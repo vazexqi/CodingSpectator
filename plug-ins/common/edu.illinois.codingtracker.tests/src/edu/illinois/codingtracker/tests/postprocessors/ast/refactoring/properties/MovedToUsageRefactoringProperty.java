@@ -14,7 +14,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  * @author Stas Negara
  * 
  */
-public class MovedToUsageRefactoringProperty extends RefactoringProperty {
+public class MovedToUsageRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public MovedToUsageRefactoringProperty(NodeDescriptor movedNode, long moveID, long parentID, long activationTimestamp) {

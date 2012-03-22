@@ -49,6 +49,11 @@ public class PromoteTempRefactoring extends InferredRefactoring {
 	}
 
 	@Override
+	public boolean isMultiProperty(String propertyName) {
+		return false;
+	}
+
+	@Override
 	protected InferredRefactoring createFreshInstance() {
 		return new PromoteTempRefactoring();
 	}

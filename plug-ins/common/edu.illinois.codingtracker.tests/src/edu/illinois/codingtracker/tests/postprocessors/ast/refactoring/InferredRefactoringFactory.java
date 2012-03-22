@@ -5,10 +5,14 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
+import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AtomicRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.CorrectiveRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringPropertiesFactory;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
@@ -23,13 +27,18 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  */
 public class InferredRefactoringFactory {
 
+	public static List<UserOperation> userOperations;
+
 	private static long refactoringID= 1;
 
-	private static final Set<InferredRefactoring> currentRefactorings= new HashSet<InferredRefactoring>();
+	//List is chosen over Set to simplify checking of the results using the assigned refactoring IDs.
+	private static final List<InferredRefactoring> completeRefactorings= new LinkedList<InferredRefactoring>();
+
+	private static final Set<InferredRefactoring> pendingRefactorings= new HashSet<InferredRefactoring>();
+
+	private static final Set<InferredRefactoringFragment> pendingFragments= new HashSet<InferredRefactoringFragment>();
 
 	private static final Set<RefactoringProperty> currentProperties= new HashSet<RefactoringProperty>();
-
-	private static InferredRefactoringOperation refactoringOperation= null;
 
 
 	/**
@@ -37,30 +46,57 @@ public class InferredRefactoringFactory {
 	 */
 	public static void resetCurrentState() {
 		refactoringID= 1;
-		currentRefactorings.clear();
+		completeRefactorings.clear();
+		pendingRefactorings.clear();
+		pendingFragments.clear();
 		currentProperties.clear();
 	}
 
-	public static InferredRefactoringOperation handleASTOperation(ASTOperation operation) {
-		refactoringOperation= null;
-		Set<RefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
-		removeOldCurrentProperties(newProperties, operation.getTime());
-		Set<RefactoringProperty> correctedProperties= collectCorrectedProperties(newProperties);
+	public static void handleASTOperation(ASTOperation operation) {
+		long currentTimestamp= operation.getTime();
+		removeOldCompleteRefactorings(currentTimestamp);
+		Set<AtomicRefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
+		removeOldCurrentProperties(newProperties, currentTimestamp);
+		Set<AtomicRefactoringProperty> correctedProperties= collectCorrectedProperties(newProperties);
 
-		//First, handle the corrected properties.
-		for (RefactoringProperty correctedProperty : correctedProperties) {
-			//This might create duplicated refactorings, so check for them.
-			handleCompleteRefactoring(addPropertyToCurrentRefactorings(correctedProperty, false), operation);
-		}
-		//Next, handle new properties, which at this point do not include corrective properties.
-		for (RefactoringProperty newProperty : newProperties) {
-			handleCompleteRefactoring(addPropertyToCurrentRefactorings(newProperty, true), operation);
-			addNewProperty(newProperty);
-		}
-		return refactoringOperation;
+		Set<RefactoringProperty> propertiesToAdd= new HashSet<RefactoringProperty>();
+		propertiesToAdd.addAll(newProperties);
+		//First, process refactoring fragments, since doing so may lead to additional properties to be added to refactorings.
+		processPendingRefactoringFragments(propertiesToAdd, correctedProperties);
+		processPendingRefactorings(propertiesToAdd, correctedProperties);
 	}
 
-	private static void removeOldCurrentProperties(Set<RefactoringProperty> newProperties, long currentTimestamp) {
+	private static void processPendingRefactoringFragments(Set<RefactoringProperty> propertiesToAdd, Set<AtomicRefactoringProperty> correctedProperties) {
+		//First, handle the corrected properties.
+		for (AtomicRefactoringProperty correctedProperty : correctedProperties) {
+			propertiesToAdd.addAll(addPropertyToPendingRefactoringFragments(correctedProperty));
+		}
+		//Next, handle the properties to add.
+		Set<RefactoringProperty> newPropertiesToAdd= new HashSet<RefactoringProperty>();
+		for (RefactoringProperty propertyToAdd : propertiesToAdd) {
+			newPropertiesToAdd.addAll(addPropertyToPendingRefactoringFragments(propertyToAdd));
+			addNewFragmentProperty(propertyToAdd);
+		}
+		propertiesToAdd.addAll(newPropertiesToAdd);
+	}
+
+	private static void processPendingRefactorings(Set<RefactoringProperty> propertiesToAdd, Set<AtomicRefactoringProperty> correctedProperties) {
+		//First, handle the corrected properties.
+		for (AtomicRefactoringProperty correctedProperty : correctedProperties) {
+			//This might create duplicated refactorings, so check for them.
+			addPropertyToPendingRefactorings(correctedProperty, false);
+		}
+		//Next, handle the properties to add.
+		for (RefactoringProperty propertyToAdd : propertiesToAdd) {
+			if (!addPropertyToCompleteRefactorings(propertyToAdd)) {
+				//Add a new property to pending refactorings only if it was not added to a complete refactoring.
+				addPropertyToPendingRefactorings(propertyToAdd, true);
+				addNewRefactoringProperty(propertyToAdd);
+			}
+		}
+	}
+
+	private static void removeOldCurrentProperties(Set<AtomicRefactoringProperty> newProperties, long currentTimestamp) {
 		if (newProperties.size() > 0) { //It makes sense to remove the current properties only when there are new properties.
 			//Use a temporary collection, since the properties might be removed from the main collection.
 			Set<RefactoringProperty> properties= new HashSet<RefactoringProperty>();
@@ -71,53 +107,77 @@ public class InferredRefactoringFactory {
 		}
 	}
 
-	private static void addNewProperty(RefactoringProperty newProperty) {
-		if (newProperty.isActive()) {
-			currentProperties.add(newProperty);
-			if (ExtractVariableRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(ExtractVariableRefactoring.createRefactoring(newProperty));
-			}
-			if (InlineVariableRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(InlineVariableRefactoring.createRefactoring(newProperty));
-			}
-			if (RenameVariableRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(RenameVariableRefactoring.createRefactoring(newProperty));
-			}
-			if (RenameFieldRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(RenameFieldRefactoring.createRefactoring(newProperty));
-			}
-			if (RenameMethodRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(RenameMethodRefactoring.createRefactoring(newProperty));
-			}
-			if (RenameClassRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(RenameClassRefactoring.createRefactoring(newProperty));
-			}
-			if (PromoteTempRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(PromoteTempRefactoring.createRefactoring(newProperty));
-			}
-			if (ExtractConstantRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(ExtractConstantRefactoring.createRefactoring(newProperty));
-			}
-			if (ExtractMethodRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(ExtractMethodRefactoring.createRefactoring(newProperty));
-			}
-			if (EncapsulateFieldRefactoring.isAcceptableProperty(newProperty)) {
-				currentRefactorings.add(EncapsulateFieldRefactoring.createRefactoring(newProperty));
+	private static void removeOldCompleteRefactorings(long currentTimestamp) {
+		Iterator<InferredRefactoring> completeRefactoringsIterator= completeRefactorings.iterator();
+		while (completeRefactoringsIterator.hasNext()) {
+			InferredRefactoring completeRefactoring= completeRefactoringsIterator.next();
+			if (completeRefactoring.isOld(currentTimestamp)) {
+				insertInferredRefactoring(completeRefactoring);
+				completeRefactoringsIterator.remove();
 			}
 		}
 	}
 
-	private static void handleCompleteRefactoring(InferredRefactoring completeRefactoring, ASTOperation operation) {
-		if (completeRefactoring != null) {
-			if (refactoringOperation != null) {
-				throw new RuntimeException("Already have a handled complete refactoring!");
-			}
-			refactoringOperation= new InferredRefactoringOperation(completeRefactoring.getKind(), refactoringID++, completeRefactoring.getArguments(), operation.getTime());
+	//At the end of sequence processing, even if a complete refactoring is not old, it should be inserted.
+	public static void flushCompleteRefactorings() {
+		for (InferredRefactoring inferredRefactoring : completeRefactorings) {
+			insertInferredRefactoring(inferredRefactoring);
+		}
+		completeRefactorings.clear();
+	}
 
-			//TODO: After disabling some properties, there could remain duplicated refactorings in currentRefactorings, i.e.,
-			//refactorings with exactly the same set of properties, which potentially could lead to some performance overhead.
-			//At the same time, checking for such duplicates may be an even bigger overhead.
-			completeRefactoring.disableProperties();
+	private static void insertInferredRefactoring(InferredRefactoring inferredRefactoring) {
+		ASTOperation lastCausingASTOperation= inferredRefactoring.getLastCausingASTOperation();
+		InferredRefactoringOperation refactoringOperation= new InferredRefactoringOperation(inferredRefactoring.getKind(), refactoringID++, inferredRefactoring.getArguments(),
+				lastCausingASTOperation.getTime());
+		int insertIndex= userOperations.indexOf(lastCausingASTOperation) + 1;
+		userOperations.add(insertIndex, refactoringOperation);
+	}
+
+	private static void addNewRefactoringProperty(RefactoringProperty newProperty) {
+		if (newProperty.isActive()) {
+			currentProperties.add(newProperty);
+			if (ExtractVariableRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(ExtractVariableRefactoring.createRefactoring(newProperty));
+			}
+			if (InlineVariableRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(InlineVariableRefactoring.createRefactoring(newProperty));
+			}
+			if (RenameVariableRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(RenameVariableRefactoring.createRefactoring(newProperty));
+			}
+			if (RenameFieldRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(RenameFieldRefactoring.createRefactoring(newProperty));
+			}
+			if (RenameMethodRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(RenameMethodRefactoring.createRefactoring(newProperty));
+			}
+			if (RenameClassRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(RenameClassRefactoring.createRefactoring(newProperty));
+			}
+			if (PromoteTempRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(PromoteTempRefactoring.createRefactoring(newProperty));
+			}
+			if (ExtractConstantRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(ExtractConstantRefactoring.createRefactoring(newProperty));
+			}
+			if (ExtractMethodRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(ExtractMethodRefactoring.createRefactoring(newProperty));
+			}
+			if (EncapsulateFieldRefactoring.isAcceptableProperty(newProperty)) {
+				pendingRefactorings.add(EncapsulateFieldRefactoring.createRefactoring(newProperty));
+			}
+		}
+	}
+
+	private static void addNewFragmentProperty(RefactoringProperty newProperty) {
+		if (newProperty.isActive()) {
+			if (ReplacedEntityWithExpressionRefactoringFragment.isAcceptableProperty(newProperty)) {
+				pendingFragments.add(ReplacedEntityWithExpressionRefactoringFragment.createRefactoring(newProperty));
+			}
+			if (ReplacedExpressionWithEntityRefactoringFragment.isAcceptableProperty(newProperty)) {
+				pendingFragments.add(ReplacedExpressionWithEntityRefactoringFragment.createRefactoring(newProperty));
+			}
 		}
 	}
 
@@ -128,9 +188,9 @@ public class InferredRefactoringFactory {
 	 * @param newProperties
 	 * @return
 	 */
-	private static Set<RefactoringProperty> collectCorrectedProperties(Set<RefactoringProperty> newProperties) {
-		Set<RefactoringProperty> correctedProperties= new HashSet<RefactoringProperty>();
-		Iterator<RefactoringProperty> newPropertiesIterator= newProperties.iterator();
+	private static Set<AtomicRefactoringProperty> collectCorrectedProperties(Set<AtomicRefactoringProperty> newProperties) {
+		Set<AtomicRefactoringProperty> correctedProperties= new HashSet<AtomicRefactoringProperty>();
+		Iterator<AtomicRefactoringProperty> newPropertiesIterator= newProperties.iterator();
 		while (newPropertiesIterator.hasNext()) {
 			RefactoringProperty newProperty= newPropertiesIterator.next();
 			if (newProperty instanceof CorrectiveRefactoringProperty) {
@@ -140,40 +200,103 @@ public class InferredRefactoringFactory {
 		}
 		//Fire corrected properties only after all properties are corrected 
 		//to avoid destroying partially corrected refactorings.
-		for (RefactoringProperty correctedProperty : correctedProperties) {
+		for (AtomicRefactoringProperty correctedProperty : correctedProperties) {
 			correctedProperty.fireCorrected();
 		}
 		return correctedProperties;
 	}
 
-	private static void correctProperties(CorrectiveRefactoringProperty correctiveProperty, Set<RefactoringProperty> correctedProperties) {
+	private static void correctProperties(CorrectiveRefactoringProperty correctiveProperty, Set<AtomicRefactoringProperty> correctedProperties) {
 		for (RefactoringProperty currentProperty : currentProperties) {
-			if (correctiveProperty.doesMatch(currentProperty) && correctiveProperty.doesOverlap(currentProperty)) {
-				correctiveProperty.correct(currentProperty);
-				correctedProperties.add(currentProperty);
-			}
-		}
-	}
-
-	private static InferredRefactoring addPropertyToCurrentRefactorings(RefactoringProperty refactoringProperty, boolean noCheckForDuplicates) {
-		Set<InferredRefactoring> newRefactorings= new HashSet<InferredRefactoring>();
-		for (InferredRefactoring refactoring : currentRefactorings) {
-			if (refactoring.canBePart(refactoringProperty)) {
-				InferredRefactoring newRefactoring= refactoring.addProperty(refactoringProperty);
-				if (noCheckForDuplicates || !isExistingRefactoring(newRefactoring)) {
-					newRefactorings.add(newRefactoring);
-					if (newRefactoring.isComplete()) {
-						return newRefactoring;
-					}
+			if (currentProperty instanceof AtomicRefactoringProperty) { //Only atomic properties can be corrected.
+				AtomicRefactoringProperty atomicProperty= (AtomicRefactoringProperty)currentProperty;
+				if (correctiveProperty.doesMatch(null, atomicProperty) && correctiveProperty.doesOverlap(atomicProperty)) {
+					correctiveProperty.correct(atomicProperty);
+					correctedProperties.add(atomicProperty);
 				}
 			}
 		}
-		currentRefactorings.addAll(newRefactorings);
-		return null;
+	}
+
+	private static boolean addPropertyToCompleteRefactorings(RefactoringProperty refactoringProperty) {
+		for (InferredRefactoring completeRefactoring : completeRefactorings) {
+			if (completeRefactoring.canBePart(refactoringProperty)) {
+				completeRefactoring.addProperty(refactoringProperty, false);
+				refactoringProperty.disable();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static void addPropertyToPendingRefactorings(RefactoringProperty refactoringProperty, boolean noCheckForDuplicates) {
+		Set<InferredRefactoring> newRefactorings= new HashSet<InferredRefactoring>();
+		Set<InferredRefactoring> newCompleteRefactorings= new HashSet<InferredRefactoring>();
+		collectNewAndCompleteRefactorings(refactoringProperty, noCheckForDuplicates, newRefactorings, newCompleteRefactorings);
+		InferredRefactoring largestCompleteRefactoring= pickLargestRefactoring(newCompleteRefactorings);
+		if (largestCompleteRefactoring != null) {
+			completeRefactorings.add(largestCompleteRefactoring);
+			//TODO: After disabling some properties, there could remain duplicated refactorings in currentRefactorings, i.e.,
+			//refactorings with exactly the same set of properties, which potentially could lead to some performance overhead.
+			//At the same time, checking for such duplicates may be an even bigger overhead.
+			largestCompleteRefactoring.disableProperties();
+		} else {
+			pendingRefactorings.addAll(newRefactorings);
+		}
+	}
+
+	private static void collectNewAndCompleteRefactorings(RefactoringProperty refactoringProperty, boolean noCheckForDuplicates,
+															Set<InferredRefactoring> newRefactorings, Set<InferredRefactoring> newCompleteRefactorings) {
+		for (InferredRefactoring refactoring : pendingRefactorings) {
+			if (refactoring.canBePart(refactoringProperty)) {
+				InferredRefactoring newRefactoring;
+				if (refactoring.hasMultiProperty(refactoringProperty.getClassName())) {
+					newRefactoring= refactoring.addProperty(refactoringProperty, false);
+				} else {
+					newRefactoring= refactoring.addProperty(refactoringProperty, true);
+					if (noCheckForDuplicates || !isExistingRefactoring(newRefactoring)) {
+						newRefactorings.add(newRefactoring);
+					}
+				}
+				if (newRefactoring.isComplete()) {
+					newCompleteRefactorings.add(newRefactoring);
+				}
+			}
+		}
+	}
+
+	private static InferredRefactoring pickLargestRefactoring(Set<InferredRefactoring> refactorings) {
+		InferredRefactoring largestRefactoring= null;
+		int largestCount= 0;
+		for (InferredRefactoring refactoring : refactorings) {
+			int propertiesCount= refactoring.getPropertiesCount();
+			if (propertiesCount > largestCount) {
+				largestCount= propertiesCount;
+				largestRefactoring= refactoring;
+			}
+		}
+		return largestRefactoring;
+	}
+
+	private static Set<InferredRefactoringFragment> addPropertyToPendingRefactoringFragments(RefactoringProperty refactoringProperty) {
+		Set<InferredRefactoringFragment> newFragments= new HashSet<InferredRefactoringFragment>();
+		Set<InferredRefactoringFragment> newCompleteFragments= new HashSet<InferredRefactoringFragment>();
+		for (InferredRefactoringFragment refactoringFragment : pendingFragments) {
+			if (refactoringFragment.canBePart(refactoringProperty)) {
+				InferredRefactoringFragment newFragment= (InferredRefactoringFragment)refactoringFragment.addProperty(refactoringProperty, true);
+				if (newFragment.isComplete()) {
+					newCompleteFragments.add(newFragment);
+				} else {
+					newFragments.add(newFragment);
+				}
+			}
+		}
+		pendingFragments.addAll(newFragments);
+		return newCompleteFragments;
 	}
 
 	private static boolean isExistingRefactoring(InferredRefactoring refactoring) {
-		for (InferredRefactoring currentRefactoring : currentRefactorings) {
+		for (InferredRefactoring currentRefactoring : pendingRefactorings) {
 			if (currentRefactoring.equals(refactoring)) {
 				return true;
 			}
@@ -183,10 +306,15 @@ public class InferredRefactoringFactory {
 
 	public static void disabledProperty(RefactoringProperty property) {
 		currentProperties.remove(property);
+		pendingFragments.remove(property);
 	}
 
 	public static void destroyedRefactoring(InferredRefactoring refactoring) {
-		currentRefactorings.remove(refactoring);
+		if (refactoring instanceof RefactoringProperty) {
+			disabledProperty((RefactoringProperty)refactoring);
+		} else {
+			pendingRefactorings.remove(refactoring);
+		}
 	}
 
 }

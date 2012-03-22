@@ -49,6 +49,11 @@ public class RenameFieldRefactoring extends InferredRefactoring {
 	}
 
 	@Override
+	public boolean isMultiProperty(String propertyName) {
+		return propertyName.equals(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+	}
+
+	@Override
 	protected InferredRefactoring createFreshInstance() {
 		return new RenameFieldRefactoring();
 	}

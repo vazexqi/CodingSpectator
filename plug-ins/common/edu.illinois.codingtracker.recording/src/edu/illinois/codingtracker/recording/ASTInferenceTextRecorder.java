@@ -28,7 +28,14 @@ public class ASTInferenceTextRecorder {
 	private static long lastTimestamp;
 
 
-	public static void record(UserOperation userOperation) {
+	/**
+	 * When isSimulatedRecord is true, this method flushes the text changes, if necessary, and
+	 * updates the timestamp.
+	 * 
+	 * @param userOperation
+	 * @param isSimulatedRecord
+	 */
+	public static void record(UserOperation userOperation, boolean isSimulatedRecord) {
 		//Before any user operation, except text change operations, flush the accumulated AST changes.
 		if (!(userOperation instanceof TextChangeOperation)) {
 			//TODO: Some part of the below code are duplicated in TextRecorder.
@@ -36,7 +43,9 @@ public class ASTInferenceTextRecorder {
 			astRecorder.flushCurrentTextChanges(!(userOperation instanceof SavedFileOperation));
 		}
 		lastTimestamp= userOperation.getTime();
-		performRecording(userOperation);
+		if (!isSimulatedRecord) {
+			performRecording(userOperation);
+		}
 	}
 
 	public static void recordASTOperation(ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor) {

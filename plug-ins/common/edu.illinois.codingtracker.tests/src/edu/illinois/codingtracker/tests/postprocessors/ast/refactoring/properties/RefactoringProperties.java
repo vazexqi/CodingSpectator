@@ -5,7 +5,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 /**
- * This interface contains class names for all classes derived from RefactoringProperty.
+ * This interface contains class names for all classes derived from AtomicRefactoringProperty.
  * 
  * @author Stas Negara
  * 

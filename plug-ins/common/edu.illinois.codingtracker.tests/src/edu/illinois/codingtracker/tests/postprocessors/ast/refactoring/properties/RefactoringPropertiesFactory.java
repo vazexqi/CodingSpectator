@@ -49,7 +49,7 @@ public class RefactoringPropertiesFactory {
 
 	private static final ASTOperationRecorder astOperationRecorder= ASTOperationRecorder.getInstance();
 
-	private static Set<RefactoringProperty> properties;
+	private static Set<AtomicRefactoringProperty> properties;
 
 	private static long activationTimestamp;
 
@@ -63,9 +63,9 @@ public class RefactoringPropertiesFactory {
 	 * @param operation
 	 * @return
 	 */
-	public static Set<RefactoringProperty> retrieveProperties(ASTOperation operation) {
+	public static Set<AtomicRefactoringProperty> retrieveProperties(ASTOperation operation) {
 		activationTimestamp= operation.getTime();
-		properties= new HashSet<RefactoringProperty>();
+		properties= new HashSet<AtomicRefactoringProperty>();
 		ASTNode rootNode;
 		if (operation.isAdd()) {
 			rootNode= astOperationRecorder.getLastNewRootNode();
@@ -79,6 +79,9 @@ public class RefactoringPropertiesFactory {
 			handleDeletedNode(affectedNode, operation);
 		} else if (operation.isChange()) {
 			handleChangedNode(affectedNode, operation);
+		}
+		for (AtomicRefactoringProperty refactoringProperty : properties) {
+			refactoringProperty.setCausingOperation(operation);
 		}
 		return properties;
 	}
@@ -103,7 +106,8 @@ public class RefactoringPropertiesFactory {
 		if (isDeclaredEntity(changedNode)) {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
 		} else {
-			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
+			String methodName= getContainingMethodName(changedNode);
+			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, methodName, activationTimestamp));
 		}
 	}
 
@@ -121,7 +125,8 @@ public class RefactoringPropertiesFactory {
 	private static void handleChangedDeclaredEntity(SimpleName changedNode, String oldEntityName, String newEntityName) {
 		if (isLocalVariableOrFieldDeclaredEntity(changedNode)) {
 			if (isInVariableDeclarationStatement(changedNode) || isInSingleVariableDeclaration(changedNode)) {
-				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
+				String methodName= getContainingMethodName(changedNode);
+				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, methodName, activationTimestamp));
 			} else if (isInFieldDeclaration(changedNode)) {
 				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 			}
@@ -484,6 +489,15 @@ public class RefactoringPropertiesFactory {
 			return childNode instanceof FieldAccess &&
 					((FieldAccess)childNode).getName().getIdentifier().equals(fieldName);
 		}
+	}
+
+	private static String getContainingMethodName(ASTNode node) {
+		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(node);
+		String methodName= null;
+		if (containingMethod != null) {
+			methodName= containingMethod.getName().getIdentifier();
+		}
+		return methodName;
 	}
 
 }

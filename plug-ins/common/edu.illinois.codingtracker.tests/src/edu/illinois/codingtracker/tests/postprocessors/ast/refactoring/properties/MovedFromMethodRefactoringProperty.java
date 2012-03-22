@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class MovedFromMethodRefactoringProperty extends RefactoringProperty {
+public class MovedFromMethodRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public MovedFromMethodRefactoringProperty(long sourceMethodID, long moveID, long activationTimestamp) {

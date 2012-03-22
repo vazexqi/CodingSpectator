@@ -52,6 +52,12 @@ public class EncapsulateFieldRefactoring extends InferredRefactoring {
 	}
 
 	@Override
+	public boolean isMultiProperty(String propertyName) {
+		//TODO:Decide.
+		return false;
+	}
+
+	@Override
 	protected InferredRefactoring createFreshInstance() {
 		return new EncapsulateFieldRefactoring();
 	}

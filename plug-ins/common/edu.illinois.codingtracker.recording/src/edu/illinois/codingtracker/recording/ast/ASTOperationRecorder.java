@@ -431,8 +431,10 @@ public class ASTOperationRecorder {
 	}
 
 	private void recordCoherentTextChanges(List<CoherentTextChange> coherentTextChanges) {
-		for (CoherentTextChange coherentTextChange : coherentTextChanges) {
-			ASTInferenceTextRecorder.record(coherentTextChange.createTextChangeOperation());
+		if (!Configuration.isInRefactoringInferenceMode) {
+			for (CoherentTextChange coherentTextChange : coherentTextChanges) {
+				ASTInferenceTextRecorder.record(coherentTextChange.createTextChangeOperation(), false);
+			}
 		}
 	}
 

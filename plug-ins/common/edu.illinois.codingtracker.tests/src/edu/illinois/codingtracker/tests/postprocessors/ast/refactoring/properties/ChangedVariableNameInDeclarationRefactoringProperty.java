@@ -11,13 +11,14 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class ChangedVariableNameInDeclarationRefactoringProperty extends RefactoringProperty {
+public class ChangedVariableNameInDeclarationRefactoringProperty extends AtomicRefactoringProperty {
 
 
-	public ChangedVariableNameInDeclarationRefactoringProperty(String oldEntityName, String newEntityName, long activationTimestamp) {
+	public ChangedVariableNameInDeclarationRefactoringProperty(String oldEntityName, String newEntityName, String sourceMethodName, long activationTimestamp) {
 		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME, oldEntityName);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
+		addAttribute(RefactoringPropertyAttributes.SOURCE_METHOD_NAME, sourceMethodName);
 	}
 
 }

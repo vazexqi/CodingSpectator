@@ -13,7 +13,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  * @author Stas Negara
  * 
  */
-public class MovedFromVariableInitializationRefactoringProperty extends RefactoringProperty {
+public class MovedFromVariableInitializationRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public MovedFromVariableInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long entityNameNodeID, long moveID, long activationTimestamp) {

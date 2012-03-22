@@ -13,7 +13,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
  * @author Stas Negara
  * 
  */
-public class MovedToFieldInitializationRefactoringProperty extends RefactoringProperty {
+public class MovedToFieldInitializationRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public MovedToFieldInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long entityNameNodeID, long moveID, long activationTimestamp) {

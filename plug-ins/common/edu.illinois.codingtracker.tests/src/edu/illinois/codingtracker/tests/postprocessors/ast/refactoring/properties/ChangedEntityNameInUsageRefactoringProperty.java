@@ -6,18 +6,19 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 /**
- * This class represents changing a variable's name in its usage.
+ * This class represents changing a global (i.e., above method-level) etity's name in its usage.
  * 
  * @author Stas Negara
  * 
  */
-public class ChangedEntityNameInUsageRefactoringProperty extends RefactoringProperty {
+public class ChangedEntityNameInUsageRefactoringProperty extends AtomicRefactoringProperty {
 
 
-	public ChangedEntityNameInUsageRefactoringProperty(String oldEntityName, String newEntityName, long activationTimestamp) {
+	public ChangedEntityNameInUsageRefactoringProperty(String oldEntityName, String newEntityName, String sourceMethodName, long activationTimestamp) {
 		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME, oldEntityName);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
+		addAttribute(RefactoringPropertyAttributes.SOURCE_METHOD_NAME, sourceMethodName);
 	}
 
 }

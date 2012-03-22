@@ -40,7 +40,11 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	protected void record(UserOperation userOperation) {
-		ASTInferenceTextRecorder.record(userOperation);
+		record(userOperation, false);
+	}
+
+	protected void record(UserOperation userOperation, boolean isSimulatedRecord) {
+		ASTInferenceTextRecorder.record(userOperation, isSimulatedRecord);
 	}
 
 	protected void replay(UserOperation userOperation) {
@@ -53,15 +57,19 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	protected void replayAndRecord(UserOperation userOperation) {
+		replayAndRecord(userOperation, false);
+	}
+
+	protected void replayAndRecord(UserOperation userOperation, boolean isSimulatedRecord) {
 		//Do not record TextChangeOperations since instead of them we record the corresponding CoherentTextChanges.
 		//For all other operations, first record and then replay in order to preserve the right ordering 
 		//(i.e. ASTOperation follow operation(s) that caused it) and the right timestamp 
 		//(i.e. ASTOperation has the timestamp of the last operation that caused it).
 		if (userOperation instanceof TextChangeOperation) {
 			replay(userOperation);
-			//record(userOperation);
+			//record(userOperation, isSimulatedRecord);
 		} else {
-			record(userOperation);
+			record(userOperation, isSimulatedRecord);
 			replay(userOperation);
 		}
 	}

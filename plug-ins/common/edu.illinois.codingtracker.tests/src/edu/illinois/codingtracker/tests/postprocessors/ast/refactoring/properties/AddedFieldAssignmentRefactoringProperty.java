@@ -11,7 +11,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  * @author Stas Negara
  * 
  */
-public class AddedFieldAssignmentRefactoringProperty extends RefactoringProperty {
+public class AddedFieldAssignmentRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public AddedFieldAssignmentRefactoringProperty(String entityName, long entityNameNodeID, long setterMethodID, long activationTimestamp) {
