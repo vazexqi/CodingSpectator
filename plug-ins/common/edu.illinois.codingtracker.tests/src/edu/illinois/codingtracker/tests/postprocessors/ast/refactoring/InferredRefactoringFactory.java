@@ -184,6 +184,9 @@ public class InferredRefactoringFactory {
 			if (ReplacedEntityWithSetterRefactoringFragment.isAcceptableProperty(newProperty)) {
 				pendingFragments.add(ReplacedEntityWithSetterRefactoringFragment.createRefactoring(newProperty));
 			}
+			if (MovedAcrossMethodsRefactoringFragment.isAcceptableProperty(newProperty)) {
+				pendingFragments.add(MovedAcrossMethodsRefactoringFragment.createRefactoring(newProperty));
+			}
 		}
 	}
 

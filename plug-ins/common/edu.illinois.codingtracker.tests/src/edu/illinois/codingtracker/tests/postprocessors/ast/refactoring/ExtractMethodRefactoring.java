@@ -27,9 +27,8 @@ public class ExtractMethodRefactoring extends InferredRefactoring {
 
 	static {
 		acceptableProperties.add(RefactoringProperties.ADDED_METHOD_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.MOVED_TO_METHOD);
-		acceptableProperties.add(RefactoringProperties.MOVED_FROM_METHOD);
 		acceptableProperties.add(RefactoringProperties.ADDED_METHOD_INVOCATION);
+		acceptableProperties.add(RefactoringFragments.MOVED_ACROSS_METHODS);
 	}
 
 
@@ -52,8 +51,7 @@ public class ExtractMethodRefactoring extends InferredRefactoring {
 
 	@Override
 	public boolean isMultiProperty(String propertyName) {
-		//TODO:Decide.
-		return false;
+		return propertyName.equals(RefactoringFragments.MOVED_ACROSS_METHODS);
 	}
 
 	@Override

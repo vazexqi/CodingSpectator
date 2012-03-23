@@ -12,6 +12,7 @@ import java.util.Set;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.EncapsulateFieldRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractConstantRefactoring;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractMethodRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractVariableRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoringFactory;
@@ -158,6 +159,10 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 				containingRefactoring instanceof RenameFieldRefactoring ||
 				containingRefactoring instanceof RenameMethodRefactoring) &&
 				attribute.equals(RefactoringPropertyAttributes.SOURCE_METHOD_NAME)) {
+			return true;
+		}
+		if (containingRefactoring instanceof ExtractMethodRefactoring &&
+				attribute.equals(RefactoringPropertyAttributes.MOVE_ID)) {
 			return true;
 		}
 		return attribute.equals(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID);

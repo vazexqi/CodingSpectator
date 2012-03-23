@@ -20,4 +20,6 @@ public interface RefactoringFragments {
 
 	public static final String REPLACED_ENTITY_WITH_SETTER= "ReplacedEntityWithSetterRefactoringFragment";
 
+	public static final String MOVED_ACROSS_METHODS= "MovedAcrossMethodsRefactoringFragment";
+
 }
