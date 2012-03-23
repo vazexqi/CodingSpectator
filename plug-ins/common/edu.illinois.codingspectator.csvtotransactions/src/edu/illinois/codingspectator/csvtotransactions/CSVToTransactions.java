@@ -23,20 +23,24 @@ public class CSVToTransactions {
 
 	private InputStreamReader reader;
 
-	private OutputStreamWriter writer;
+	private TransactionWriters transactionWriters;
 
-	public CSVToTransactions(InputStreamReader reader, OutputStreamWriter writer, long timeWindow) {
+	OutputStreamWriter detailedTransactionsWriter;
+
+	OutputStreamWriter transactionPatternsWriter;
+
+	public CSVToTransactions(InputStreamReader reader, OutputStreamWriter transactionWriter, long timeWindow, OutputStreamWriter detailedTransactionsWriter,
+			OutputStreamWriter transactionPatternsWriter) {
 		this.reader= reader;
-		this.writer= writer;
-		this.timeWindowInMinutes= timeWindow;
+		this.transactionWriters= new TransactionWriters(transactionWriter, detailedTransactionsWriter, transactionPatternsWriter);
 	}
 
 	public void convertCSVToTransactions() throws IOException {
 		try {
+			TransactionPatterns transactionPatterns= new TransactionPatterns();
 			CSVReader csvReader= new CSVReader(reader, new String[] { "userId", "description", "time" });
-			TransactionWriter transactionWriter= new TransactionWriter(writer);
 			Iterator<Map<String, String>> iterator= csvReader.iterator();
-			Transaction lastTransaction= new Transaction();
+			Transaction lastTransaction= Transaction.createTransaction(transactionPatterns);
 			UDCRow lastRow= null;
 			if (iterator.hasNext()) {
 				lastRow= new UDCRow(iterator.next(), timeWindowInMinutes);
@@ -46,16 +50,16 @@ public class CSVToTransactions {
 				Map<String, String> currentCSVRow= iterator.next();
 				UDCRow currentRow= new UDCRow(currentCSVRow, timeWindowInMinutes);
 				if (!currentRow.shouldBelongToTheTransactionOf(lastRow)) {
-					transactionWriter.writeTransaction(lastTransaction);
-					lastTransaction= new Transaction();
+					transactionWriters.writeTransaction(lastTransaction);
+					lastTransaction= Transaction.createTransaction(transactionPatterns);
 				}
 				currentRow.setTransaction(lastTransaction);
 				lastRow= currentRow;
 			}
-			transactionWriter.writeTransaction(lastTransaction);
+			transactionWriters.writeTransaction(lastTransaction);
 		} finally {
 			reader.close();
-			writer.close();
+			transactionWriters.close();
 		}
 	}
 
@@ -66,7 +70,7 @@ public class CSVToTransactions {
 			if (params.help) {
 				commander.usage();
 			} else {
-				CSVToTransactions csvToTransactions= new CSVToTransactions(new InputStreamReader(System.in), new OutputStreamWriter(System.out), params.timeWindowInMinutes);
+				CSVToTransactions csvToTransactions= new CSVToTransactions(new InputStreamReader(System.in), new OutputStreamWriter(System.out), params.timeWindowInMinutes, null, null);
 				csvToTransactions.convertCSVToTransactions();
 			}
 		} catch (ParameterException e) {

@@ -8,10 +8,15 @@ package edu.illinois.codingspectator.csvtotransactions;
  * @author Mohsen Vakilian
  * 
  */
-public interface CSVRow {
+public abstract class CSVRow implements Comparable<CSVRow> {
 
-	String getItem();
+	abstract String getItem();
 
-	boolean shouldBelongToTheTransactionOf(CSVRow csvRow);
+	abstract boolean shouldBelongToTheTransactionOf(CSVRow csvRow);
+
+	@Override
+	public int compareTo(CSVRow o) {
+		return getItem().compareTo(o.getItem());
+	}
 
 }

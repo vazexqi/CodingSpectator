@@ -1,6 +1,6 @@
 org.eclipse.jdt.ui.edit.text.java.toggle.comment
 org.eclipse.jdt.ui.edit.text.java.toggle.comment
 org.eclipse.jdt.ui.edit.text.java.generate.constructor.using.fields
-org.eclipse.jdt.ui.edit.text.java.generate.constructor.using.fields,org.eclipse.jdt.ui.edit.text.java.create.getter.setter
+org.eclipse.jdt.ui.edit.text.java.create.getter.setter,org.eclipse.jdt.ui.edit.text.java.generate.constructor.using.fields
 org.eclipse.jdt.ui.edit.text.java.create.getter.setter
 org.eclipse.jdt.ui.edit.text.java.create.getter.setter

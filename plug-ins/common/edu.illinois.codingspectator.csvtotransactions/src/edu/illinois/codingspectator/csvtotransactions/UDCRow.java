@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Mohsen Vakilian
  * 
  */
-public class UDCRow implements CSVRow {
+public class UDCRow extends CSVRow {
 
 	private static final String USER_ID_KEY= "userId";
 
@@ -50,6 +50,38 @@ public class UDCRow implements CSVRow {
 	}
 
 	@Override
+	public int hashCode() {
+		return 31;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		UDCRow other= (UDCRow)obj;
+		if (getItem() == null) {
+			if (other.getItem() != null) {
+				return false;
+			}
+		} else if (!getItem().equals(other.getItem())) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return getItem();
+	}
+
+	@Override
 	public boolean shouldBelongToTheTransactionOf(CSVRow csvRow) {
 		if (!(csvRow instanceof UDCRow)) {
 			throw new IllegalArgumentException("Expected a UDCRow.");
@@ -64,7 +96,7 @@ public class UDCRow implements CSVRow {
 
 	public void setTransaction(Transaction transaction) {
 		this.transaction= transaction;
-		transaction.add(getItem());
+		transaction.add(this);
 	}
 
 }
