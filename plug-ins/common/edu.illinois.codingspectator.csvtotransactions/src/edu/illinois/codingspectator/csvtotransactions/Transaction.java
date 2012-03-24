@@ -22,21 +22,14 @@ public class Transaction {
 
 	private TransactionPatterns transactionPatterns;
 
-	private static int nextTransactionIdentifier= 0;
-	
 	private int transactionIdentifier;
 
 	private int transactionPatternIdentifier;
 
-	private Transaction(int transactionIdentifier, TransactionPatterns transactionPatterns) {
+	public Transaction(int transactionIdentifier, TransactionPatterns transactionPatterns) {
 		this.transactionIdentifier= transactionIdentifier;
 		this.rows= new ArrayList<CSVRow>();
 		this.transactionPatterns= transactionPatterns;
-	}
-
-	public static Transaction createTransaction(TransactionPatterns transactionPatterns) {
-		++nextTransactionIdentifier;
-		return new Transaction(nextTransactionIdentifier, transactionPatterns);
 	}
 
 	public void add(CSVRow item) {
@@ -59,7 +52,7 @@ public class Transaction {
 		return itemsSet;
 	}
 
-	private void setTransactionPatternIdentifier() {
+	public void setTransactionPatternIdentifier() {
 		Set<String> itemsSet= getItemsSet();
 		transactionPatternIdentifier= transactionPatterns.findTransactionPattern(itemsSet);
 		if (transactionPatternIdentifier == -1) {
@@ -67,15 +60,40 @@ public class Transaction {
 		}
 	}
 
+	public String getDetailedStringHeader() {
+		String header= String.format("%s,%s", "TRANSACTION_IDENTIFIER", "TRANSACTION_PATTERN_IDENTIFIER");
+		if (!rows.isEmpty()) {
+			header+= "," + rows.get(0).getDetailedStringHeader();
+		}
+		return header;
+	}
+
+	public String getDetailedString() {
+		StringBuilder sb= new StringBuilder();
+		Iterator<CSVRow> iterator= rows.iterator();
+		boolean isFirstRow= true;
+		while (iterator.hasNext()) {
+			String nextRowString= String.format("%s,%s,%s", transactionIdentifier, transactionPatternIdentifier, iterator.next().getDetailedString());
+			if (!isFirstRow) {
+				sb.append("\n");
+			}
+			sb.append(nextRowString);
+			isFirstRow= false;
+		}
+		return sb.toString();
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb= new StringBuilder();
 		Iterator<CSVRow> iterator= getNormalizedRows().iterator();
-		if (iterator.hasNext()) {
-			sb.append(iterator.next().toString());
-		}
+		boolean isFirstRow= true;
 		while (iterator.hasNext()) {
-			sb.append(",").append(iterator.next());
+			if (!isFirstRow) {
+				sb.append(",");
+			}
+			sb.append(iterator.next().toString());
+			isFirstRow= false;
 		}
 		return sb.toString();
 	}

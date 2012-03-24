@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +21,7 @@ public class TransactionPatterns {
 	private Map<Integer, TransactionPattern> identifierToTransactionPattern;
 
 	public TransactionPatterns() {
-		this.nextIdentifier= 0;
+		this.nextIdentifier= 1;
 		this.identifierToTransactionPattern= new HashMap<Integer, TransactionPattern>();
 	}
 
@@ -33,9 +35,24 @@ public class TransactionPatterns {
 	}
 
 	public int addTransactionPattern(Set<String> items) {
+		int identifier= nextIdentifier;
+		identifierToTransactionPattern.put(identifier, new TransactionPattern(identifier, items));
 		++nextIdentifier;
-		identifierToTransactionPattern.put(nextIdentifier, new TransactionPattern(nextIdentifier, items));
-		return nextIdentifier;
+		return identifier;
 	}
 
+	public void writeTo(Writer transactionPatternsWriter) {
+		try {
+			transactionPatternsWriter.write("TRANSACTION_PATTERN_IDENTIFIER,ITEM\n");
+			for (int i= 1; i <= identifierToTransactionPattern.size(); ++i) {
+				TransactionPattern transactionPattern= identifierToTransactionPattern.get(i);
+				for (String item : transactionPattern.getOrderedItems()) {
+					transactionPatternsWriter.write(String.format("%s,%s\n", transactionPattern.getIdentifier(), item));
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
 }

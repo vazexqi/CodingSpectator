@@ -12,6 +12,10 @@ public abstract class CSVRow implements Comparable<CSVRow> {
 
 	abstract String getItem();
 
+	abstract String getDetailedStringHeader();
+
+	abstract String getDetailedString();
+
 	abstract boolean shouldBelongToTheTransactionOf(CSVRow csvRow);
 
 	@Override

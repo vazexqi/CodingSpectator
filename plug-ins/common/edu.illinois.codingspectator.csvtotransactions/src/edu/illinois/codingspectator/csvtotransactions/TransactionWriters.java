@@ -15,25 +15,34 @@ public class TransactionWriters {
 
 	private Writer transactionWriter;
 
+	private boolean hasWrittenDetailedTransactionsHeader;
+
 	private Writer detailedTransactionsWriter;
 
-	private Writer transactionPatternsWriter;
-
-	public TransactionWriters(Writer transactionWriter, Writer detailedTransactionsWriter, Writer transactionPatternsWriter) {
+	public TransactionWriters(Writer transactionWriter, Writer detailedTransactionsWriter) {
+		this.hasWrittenDetailedTransactionsHeader= false;
 		this.transactionWriter= transactionWriter;
 		this.detailedTransactionsWriter= detailedTransactionsWriter;
-		this.transactionPatternsWriter= transactionPatternsWriter;
 	}
 
 	public void writeTransaction(Transaction transaction) throws IOException {
+		transaction.setTransactionPatternIdentifier();
 		transactionWriter.write(transaction.toString() + "\n");
+		if (detailedTransactionsWriter != null) {
+			if (!hasWrittenDetailedTransactionsHeader) {
+				detailedTransactionsWriter.write(transaction.getDetailedStringHeader() + "\n");
+				hasWrittenDetailedTransactionsHeader= true;
+			}
+			detailedTransactionsWriter.write(transaction.getDetailedString() + "\n");
+		}
 	}
 
 	public void close() {
 		try {
 			transactionWriter.close();
-			detailedTransactionsWriter.close();
-			transactionPatternsWriter.close();
+			if (detailedTransactionsWriter != null) {
+				detailedTransactionsWriter.close();
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

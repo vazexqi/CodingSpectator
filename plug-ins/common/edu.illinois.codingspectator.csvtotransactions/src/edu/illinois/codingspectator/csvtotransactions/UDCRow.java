@@ -50,6 +50,16 @@ public class UDCRow extends CSVRow {
 	}
 
 	@Override
+	String getDetailedStringHeader() {
+		return String.format("%s,%s,%s", USER_ID_KEY, TIME_KEY, DESCRIPTION_KEY);
+	}
+
+	@Override
+	public String getDetailedString() {
+		return String.format("%s,%s,%s", row.get(USER_ID_KEY), row.get(TIME_KEY), row.get(DESCRIPTION_KEY));
+	}
+
+	@Override
 	public int hashCode() {
 		return 31;
 	}

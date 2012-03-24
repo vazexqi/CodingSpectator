@@ -3,7 +3,9 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,10 +32,14 @@ public class TransactionPattern {
 		this.identifier= identifier;
 	}
 
-
-
 	public Set<String> getItems() {
 		return Collections.unmodifiableSet(items);
+	}
+
+	public List<String> getOrderedItems() {
+		List<String> sortedItems= Arrays.asList(items.toArray(new String[] {}));
+		Collections.sort(sortedItems);
+		return sortedItems;
 	}
 
 }
