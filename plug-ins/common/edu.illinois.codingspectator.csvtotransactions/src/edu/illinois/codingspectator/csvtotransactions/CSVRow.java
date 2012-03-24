@@ -3,12 +3,20 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
+import java.util.List;
+
 /**
  * 
  * @author Mohsen Vakilian
  * 
  */
 public abstract class CSVRow implements Comparable<CSVRow> {
+
+	abstract String getItemColumnName();
+
+	abstract String getTimestampColumnName();
+
+	abstract List<String> getConstantColumnNames();
 
 	abstract String getItem();
 

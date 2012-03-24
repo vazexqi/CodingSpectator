@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,51 +13,75 @@ import java.util.Map;
  */
 public class UDCRow extends CSVRow {
 
-	private static final String USER_ID_KEY= "userId";
-
-	private static final String TIME_KEY= "time";
-
-	private static final String DESCRIPTION_KEY= "description";
-
 	private Map<String, String> row;
 
 	private Transaction transaction;
 
+	private String itemColumnName;
+
+	private String timestampColumnName;
+
+	private List<String> constantColumnNames;
+
 	private long timeWindowInMinutes;
 
-	public UDCRow(Map<String, String> row, long timeWindowInMinutes) {
-		if (!UDCRow.isValid(row)) {
+	public UDCRow(Map<String, String> row, String itemColumnName, String timestampColumnName, List<String> constantColumnNames, long timeWindowInMinutes) {
+		if (!UDCRow.isValid(row, itemColumnName, timestampColumnName, constantColumnNames)) {
 			throw new IllegalArgumentException("Invalid row:\n" + row.toString());
 		}
 		this.row= row;
+		this.itemColumnName= itemColumnName;
+		this.timestampColumnName= timestampColumnName;
+		this.constantColumnNames= constantColumnNames;
 		this.timeWindowInMinutes= timeWindowInMinutes;
 	}
 
-	private static boolean isValid(Map<String, String> row) {
-		return row.containsKey(USER_ID_KEY) && row.containsKey(TIME_KEY) && row.containsKey(DESCRIPTION_KEY);
+	private static boolean isValid(Map<String, String> row, String itemColumnName, String timestampColumnName, List<String> constantColumnNames) {
+		return row.keySet().containsAll(constantColumnNames) && row.containsKey(timestampColumnName) && row.containsKey(itemColumnName);
 	}
 
-	private String getUser() {
-		return row.get(USER_ID_KEY);
+	public String getItemColumnName() {
+		return itemColumnName;
+	}
+
+	public String getTimestampColumnName() {
+		return timestampColumnName;
+	}
+
+	@Override
+	public List<String> getConstantColumnNames() {
+		return constantColumnNames;
 	}
 
 	private long getTimestamp() {
-		return Long.parseLong(row.get(TIME_KEY));
+		return Long.parseLong(row.get(getTimestampColumnName()));
 	}
 
 	@Override
 	public String getItem() {
-		return row.get(DESCRIPTION_KEY);
+		return row.get(getItemColumnName());
 	}
 
 	@Override
 	String getDetailedStringHeader() {
-		return String.format("%s,%s,%s", USER_ID_KEY, TIME_KEY, DESCRIPTION_KEY);
+		StringBuilder sb= new StringBuilder();
+		for (String columnName : getConstantColumnNames()) {
+			sb.append(columnName);
+			sb.append(",");
+		}
+		sb.append(String.format("%s,%s", getTimestampColumnName(), getItemColumnName()));
+		return sb.toString();
 	}
 
 	@Override
 	public String getDetailedString() {
-		return String.format("%s,%s,%s", row.get(USER_ID_KEY), row.get(TIME_KEY), row.get(DESCRIPTION_KEY));
+		StringBuilder sb= new StringBuilder();
+		for (String columnName : getConstantColumnNames()) {
+			sb.append(row.get(columnName));
+			sb.append(",");
+		}
+		sb.append(String.format("%s,%s", row.get(getTimestampColumnName()), row.get(getItemColumnName())));
+		return sb.toString();
 	}
 
 	@Override
@@ -97,7 +122,12 @@ public class UDCRow extends CSVRow {
 			throw new IllegalArgumentException("Expected a UDCRow.");
 		}
 		UDCRow udcRow= (UDCRow)csvRow;
-		return getUser().equals(udcRow.getUser()) && Math.abs(getTimestamp() - udcRow.getTimestamp()) <= timeWindowInMinutes * 60 * 1000;
+		for (String columnName : getConstantColumnNames()) {
+			if (!row.get(columnName).equals(udcRow.row.get(columnName))) {
+				return false;
+			}
+		}
+		return Math.abs(getTimestamp() - udcRow.getTimestamp()) <= timeWindowInMinutes * 60 * 1000;
 	}
 
 	public Transaction getTransaction() {

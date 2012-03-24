@@ -1,4 +1,4 @@
-TRANSACTION_PATTERN_IDENTIFIER,ITEM
+TRANSACTION_PATTERN_IDENTIFIER,description
 1,org.eclipse.jdt.ui.edit.text.java.toggle.comment
 2,org.eclipse.jdt.ui.edit.text.java.generate.constructor.using.fields
 3,org.eclipse.jdt.ui.edit.text.java.create.getter.setter

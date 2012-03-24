@@ -19,6 +19,8 @@ public class TransactionPattern {
 
 	private Set<String> items;
 
+	static final String TRANSACTION_PATTERN_IDENTIFIER_COLUMN_NAME= "TRANSACTION_PATTERN_IDENTIFIER";
+
 	public TransactionPattern(int identifier, Set<String> items) {
 		this.identifier= identifier;
 		this.items= items;

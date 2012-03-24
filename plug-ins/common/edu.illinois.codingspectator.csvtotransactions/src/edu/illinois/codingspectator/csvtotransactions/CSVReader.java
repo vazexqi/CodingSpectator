@@ -36,6 +36,9 @@ public class CSVReader implements Iterable<Map<String, String>> {
 	}
 
 	private void readHeader() throws IOException {
+		if (csvHeader != null) {
+			return;
+		}
 		csvHeader= csvMapReader.getCSVHeader(true);
 		if (requiredCSVColumns != null) {
 			if (!isCSVHeaderValid()) {
@@ -44,10 +47,15 @@ public class CSVReader implements Iterable<Map<String, String>> {
 		}
 	}
 
+	public List<String> getHeader() throws IOException {
+		readHeader();
+		return Arrays.asList(csvHeader);
+	}
+
 	private boolean isCSVHeaderValid() {
 		List<String> csvHeaderList= Arrays.asList(csvHeader);
-		List<String> expectedCSVHeaderList= Arrays.asList(requiredCSVColumns);
-		return csvHeaderList.containsAll(expectedCSVHeaderList);
+		List<String> requiredCSVHeaderList= Arrays.asList(requiredCSVColumns);
+		return csvHeaderList.containsAll(requiredCSVHeaderList);
 	}
 
 	private Map<String, String> getNextRow() throws IOException {

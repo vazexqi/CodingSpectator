@@ -20,7 +20,10 @@ public class TransactionPatterns {
 
 	private Map<Integer, TransactionPattern> identifierToTransactionPattern;
 
-	public TransactionPatterns() {
+	private String itemColumnName;
+
+	public TransactionPatterns(String itemColumnName) {
+		this.itemColumnName= itemColumnName;
 		this.nextIdentifier= 1;
 		this.identifierToTransactionPattern= new HashMap<Integer, TransactionPattern>();
 	}
@@ -43,7 +46,7 @@ public class TransactionPatterns {
 
 	public void writeTo(Writer transactionPatternsWriter) {
 		try {
-			transactionPatternsWriter.write("TRANSACTION_PATTERN_IDENTIFIER,ITEM\n");
+			transactionPatternsWriter.write(String.format("%s,%s\n", TransactionPattern.TRANSACTION_PATTERN_IDENTIFIER_COLUMN_NAME, itemColumnName));
 			for (int i= 1; i <= identifierToTransactionPattern.size(); ++i) {
 				TransactionPattern transactionPattern= identifierToTransactionPattern.get(i);
 				for (String item : transactionPattern.getOrderedItems()) {

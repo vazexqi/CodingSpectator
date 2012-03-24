@@ -11,8 +11,14 @@ import com.beust.jcommander.Parameters;
  * @author Mohsen Vakilian
  * 
  */
-@Parameters(commandDescription= "Generates transactions from UDC CSV file.")
+@Parameters(commandDescription= "Generates transactions from a CSV file of items.")
 public class CommandLineParameters {
+
+	@Parameter(names= { "-i", "--itemcolumn" }, description= "Name of the column of the CVS file that contains the items.", required= true)
+	public String itemColumnName;
+
+	@Parameter(names= { "-s", "--timestampcolumn" }, description= "Name of the column of the CVS file that contains the timestamps of items.")
+	public String timestampColumnName= "TIMESTAMP";
 
 	@Parameter(names= { "-t", "--timewindow" }, description= "This number is minimum number of minutes that splits two consecutive events in two different transactions.")
 	public long timeWindowInMinutes= 1;

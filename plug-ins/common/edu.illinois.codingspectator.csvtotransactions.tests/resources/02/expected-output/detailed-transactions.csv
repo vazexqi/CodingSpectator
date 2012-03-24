@@ -1,2 +1,2 @@
-TRANSACTION_IDENTIFIER,TRANSACTION_PATTERN_IDENTIFIER,userId,time,description
-1,1,369342,1232170216500,org.eclipse.jdt.ui.edit.text.java.toggle.comment
+TRANSACTION_IDENTIFIER,TRANSACTION_PATTERN_IDENTIFIER,userId,what,kind,bundleId,bundleVersion,time,description
+1,1,369342,executed,command,org.eclipse.jdt.ui,3.4.1.r341_v20080827-1100,1232170216500,org.eclipse.jdt.ui.edit.text.java.toggle.comment

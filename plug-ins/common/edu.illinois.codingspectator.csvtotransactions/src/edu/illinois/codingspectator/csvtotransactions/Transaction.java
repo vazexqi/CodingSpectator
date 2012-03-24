@@ -18,6 +18,8 @@ import java.util.Set;
  */
 public class Transaction {
 
+	private static final String TRANSACTION_IDENTIFIER_COLUMN_NAME= "TRANSACTION_IDENTIFIER";
+
 	private List<CSVRow> rows;
 
 	private TransactionPatterns transactionPatterns;
@@ -61,7 +63,7 @@ public class Transaction {
 	}
 
 	public String getDetailedStringHeader() {
-		String header= String.format("%s,%s", "TRANSACTION_IDENTIFIER", "TRANSACTION_PATTERN_IDENTIFIER");
+		String header= String.format("%s,%s", TRANSACTION_IDENTIFIER_COLUMN_NAME, TransactionPattern.TRANSACTION_PATTERN_IDENTIFIER_COLUMN_NAME);
 		if (!rows.isEmpty()) {
 			header+= "," + rows.get(0).getDetailedStringHeader();
 		}
