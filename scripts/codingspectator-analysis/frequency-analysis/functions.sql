@@ -198,6 +198,8 @@ RETURN ID IN
 
 ('org.eclipse.jdt.ui.change.method.signature',
 
+'org.eclipse.jdt.ui.change.type',
+
 'org.eclipse.jdt.ui.convert.anonymous',
 
 'org.eclipse.jdt.ui.promote.temp',
