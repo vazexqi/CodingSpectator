@@ -6,6 +6,8 @@ MAIN_SQL=main.sql
 
 tar xfz "$LOGS_CSV_FOLDER/logs-hsqldb.tar.gz" -C .
 
+ln -sf "$CODINGSPECTATOR_SVN_FOLDER/Experiment/Summer2011/InternalAndExternal/ICSE2012/Data/matched-performed-refactorings.csv" .
+
 echo "\c false" > "$MAIN_SQL"
 
 for sql_file in functions.sql export-refactorings.sql
