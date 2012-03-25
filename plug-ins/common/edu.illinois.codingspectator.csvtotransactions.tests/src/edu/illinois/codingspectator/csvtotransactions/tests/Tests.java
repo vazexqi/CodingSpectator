@@ -64,7 +64,7 @@ public class Tests {
 	private void generateReports() throws IOException {
 		System.setIn(new FileInputStream(inputFilePath.toOSString()));
 		System.setOut(new PrintStream(actualFile.getPath().toOSString()));
-		CSVToTransactions.main(new String[] { "-i", "description", "-s", "time", "-t", "5", "-d", actualDetailedTransactionsFile.getPath().toOSString(), "-p",
+		CSVToTransactions.main(new String[] { "-i", "description", "-s", "time", "-f", "userId", "-t", "5", "-d", actualDetailedTransactionsFile.getPath().toOSString(), "-p",
 				actualTransactionPatternsFile.getPath().toOSString() });
 	}
 

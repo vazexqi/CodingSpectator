@@ -16,7 +16,7 @@ public abstract class CSVRow implements Comparable<CSVRow> {
 
 	abstract String getTimestampColumnName();
 
-	abstract List<String> getConstantColumnNames();
+	abstract List<String> getFixedColumnNames();
 
 	abstract String getItem();
 

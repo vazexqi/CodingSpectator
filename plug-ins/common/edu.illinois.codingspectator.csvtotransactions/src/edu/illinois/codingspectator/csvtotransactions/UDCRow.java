@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,27 +18,30 @@ public class UDCRow extends CSVRow {
 
 	private Transaction transaction;
 
+	private List<String> allColumnNames;
+
 	private String itemColumnName;
 
 	private String timestampColumnName;
 
-	private List<String> constantColumnNames;
+	private List<String> fixedColumnNames;
 
 	private long timeWindowInMinutes;
 
-	public UDCRow(Map<String, String> row, String itemColumnName, String timestampColumnName, List<String> constantColumnNames, long timeWindowInMinutes) {
-		if (!UDCRow.isValid(row, itemColumnName, timestampColumnName, constantColumnNames)) {
+	public UDCRow(Map<String, String> row, List<String> allColumnNames, String itemColumnName, String timestampColumnName, List<String> fixedColumnNames, long timeWindowInMinutes) {
+		if (!UDCRow.isValid(row, allColumnNames, itemColumnName, timestampColumnName, fixedColumnNames)) {
 			throw new IllegalArgumentException("Invalid row:\n" + row.toString());
 		}
 		this.row= row;
+		this.allColumnNames= allColumnNames;
 		this.itemColumnName= itemColumnName;
 		this.timestampColumnName= timestampColumnName;
-		this.constantColumnNames= constantColumnNames;
+		this.fixedColumnNames= fixedColumnNames;
 		this.timeWindowInMinutes= timeWindowInMinutes;
 	}
 
-	private static boolean isValid(Map<String, String> row, String itemColumnName, String timestampColumnName, List<String> constantColumnNames) {
-		return row.keySet().containsAll(constantColumnNames) && row.containsKey(timestampColumnName) && row.containsKey(itemColumnName);
+	private static boolean isValid(Map<String, String> row, List<String> allColumnNames, String itemColumnName, String timestampColumnName, List<String> fixedColumnNames) {
+		return row.keySet().containsAll(allColumnNames) && allColumnNames.containsAll(fixedColumnNames) && allColumnNames.contains(timestampColumnName) && allColumnNames.contains(itemColumnName);
 	}
 
 	public String getItemColumnName() {
@@ -49,8 +53,8 @@ public class UDCRow extends CSVRow {
 	}
 
 	@Override
-	public List<String> getConstantColumnNames() {
-		return constantColumnNames;
+	public List<String> getFixedColumnNames() {
+		return fixedColumnNames;
 	}
 
 	private long getTimestamp() {
@@ -65,22 +69,26 @@ public class UDCRow extends CSVRow {
 	@Override
 	String getDetailedStringHeader() {
 		StringBuilder sb= new StringBuilder();
-		for (String columnName : getConstantColumnNames()) {
-			sb.append(columnName);
-			sb.append(",");
+		Iterator<String> iterator= allColumnNames.iterator();
+		while (iterator.hasNext()) {
+			sb.append(iterator.next());
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
 		}
-		sb.append(String.format("%s,%s", getTimestampColumnName(), getItemColumnName()));
 		return sb.toString();
 	}
 
 	@Override
 	public String getDetailedString() {
 		StringBuilder sb= new StringBuilder();
-		for (String columnName : getConstantColumnNames()) {
-			sb.append(row.get(columnName));
-			sb.append(",");
+		Iterator<String> iterator= allColumnNames.iterator();
+		while (iterator.hasNext()) {
+			sb.append(row.get(iterator.next()));
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
 		}
-		sb.append(String.format("%s,%s", row.get(getTimestampColumnName()), row.get(getItemColumnName())));
 		return sb.toString();
 	}
 
@@ -122,7 +130,7 @@ public class UDCRow extends CSVRow {
 			throw new IllegalArgumentException("Expected a UDCRow.");
 		}
 		UDCRow udcRow= (UDCRow)csvRow;
-		for (String columnName : getConstantColumnNames()) {
+		for (String columnName : getFixedColumnNames()) {
 			if (!row.get(columnName).equals(udcRow.row.get(columnName))) {
 				return false;
 			}

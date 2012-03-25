@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,22 +34,21 @@ public class CSVToTransactions {
 
 	private String timestampColumnName;
 
+	private List<String> fixedColumnNames;
+
 	public CSVToTransactions(InputStreamReader reader, OutputStreamWriter transactionWriter, long timeWindowInMinutes, Writer detailedTransactionsWriter, Writer transactionPatternsWriter,
-			String itemColumnName, String timestampColumnName) {
+			String itemColumnName, String timestampColumnName, List<String> fixedColumnNames) {
 		this.reader= reader;
 		this.timeWindowInMinutes= timeWindowInMinutes;
 		this.transactionWriters= new TransactionWriters(transactionWriter, detailedTransactionsWriter);
 		this.transactionPatternsWriter= transactionPatternsWriter;
 		this.itemColumnName= itemColumnName;
 		this.timestampColumnName= timestampColumnName;
+		this.fixedColumnNames= fixedColumnNames;
 	}
 
-	private List<String> getConstantColumnNames(List<String> allColumnNames) {
-		List<String> constantColumnNames= new ArrayList<String>();
-		constantColumnNames.addAll(allColumnNames);
-		constantColumnNames.remove(itemColumnName);
-		constantColumnNames.remove(timestampColumnName);
-		return constantColumnNames;
+	private List<String> getFixedColumnNames() {
+		return fixedColumnNames;
 	}
 
 	public void convertCSVToTransactions() throws IOException {
@@ -58,17 +56,17 @@ public class CSVToTransactions {
 			TransactionFactory transactionFactory= new TransactionFactory();
 			TransactionPatterns transactionPatterns= new TransactionPatterns(itemColumnName);
 			CSVReader csvReader= new CSVReader(reader, new String[] { itemColumnName, timestampColumnName });
-			List<String> constantColumnNames= getConstantColumnNames(csvReader.getHeader());
 			Iterator<Map<String, String>> iterator= csvReader.iterator();
+			List<String> allColumnNames= csvReader.getHeader();
 			Transaction lastTransaction= transactionFactory.createTransaction(transactionPatterns);
 			UDCRow lastRow= null;
 			if (iterator.hasNext()) {
-				lastRow= new UDCRow(iterator.next(), itemColumnName, timestampColumnName, constantColumnNames, timeWindowInMinutes);
+				lastRow= new UDCRow(iterator.next(), allColumnNames, itemColumnName, timestampColumnName, getFixedColumnNames(), timeWindowInMinutes);
 				lastRow.setTransaction(lastTransaction);
 			}
 			while (iterator.hasNext()) {
 				Map<String, String> currentCSVRow= iterator.next();
-				UDCRow currentRow= new UDCRow(currentCSVRow, itemColumnName, timestampColumnName, constantColumnNames, timeWindowInMinutes);
+				UDCRow currentRow= new UDCRow(currentCSVRow, allColumnNames, itemColumnName, timestampColumnName, getFixedColumnNames(), timeWindowInMinutes);
 				if (!currentRow.shouldBelongToTheTransactionOf(lastRow)) {
 					transactionWriters.writeTransaction(lastTransaction);
 					lastTransaction= transactionFactory.createTransaction(transactionPatterns);
@@ -95,7 +93,7 @@ public class CSVToTransactions {
 				commander.usage();
 			} else {
 				CSVToTransactions csvToTransactions= new CSVToTransactions(new InputStreamReader(System.in), new OutputStreamWriter(System.out), params.timeWindowInMinutes, new FileWriter(
-						params.detailedTransactionsFileName), new FileWriter(params.transactionPatternsFileName), params.itemColumnName, params.timestampColumnName);
+						params.detailedTransactionsFileName), new FileWriter(params.transactionPatternsFileName), params.itemColumnName, params.timestampColumnName, params.fixedColumnNames);
 				csvToTransactions.convertCSVToTransactions();
 			}
 		} catch (ParameterException e) {
