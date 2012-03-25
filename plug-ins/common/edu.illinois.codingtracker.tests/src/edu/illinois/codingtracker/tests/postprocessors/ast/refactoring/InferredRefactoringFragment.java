@@ -9,6 +9,7 @@ import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AtomicRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
 
 
@@ -43,8 +44,15 @@ public abstract class InferredRefactoringFragment extends InferredRefactoring im
 	}
 
 	@Override
-	public ASTOperation getCausingOperation() {
-		return getLastCausingASTOperation();
+	public ASTOperation getLastRelatedOperation() {
+		return getLastContributingOperation();
+	}
+
+	@Override
+	public void setLastContributingOperation(ASTOperation lastContributingOperation) {
+		for (InferredRefactoring refactoring : refactorings) {
+			refactoring.setLastContributingOperation(lastContributingOperation);
+		}
 	}
 
 	@Override
@@ -81,10 +89,7 @@ public abstract class InferredRefactoringFragment extends InferredRefactoring im
 		disableProperties(); //Disable component properties.
 		isActive= false;
 		InferredRefactoringFactory.disabledProperty(this);
-		for (InferredRefactoring refactoring : refactorings) {
-			refactoring.disabledProperty(this);
-		}
-		refactorings.clear();
+		AtomicRefactoringProperty.notifyRefactoringsAboutDisabledProperty(refactorings, this);
 	}
 
 	@Override

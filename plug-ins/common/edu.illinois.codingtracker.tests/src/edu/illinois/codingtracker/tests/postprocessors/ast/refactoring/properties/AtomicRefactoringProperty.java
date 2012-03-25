@@ -5,11 +5,26 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
+import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
+import edu.illinois.codingtracker.recording.ast.identification.IdentifiedNodeInfo;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.EncapsulateFieldRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractConstantRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractMethodRefactoring;
@@ -49,20 +64,159 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 
 	private long activationTimestamp;
 
-	private ASTOperation causingOperation;
+	private ASTNode mainRootNode;
+
+	private ASTNode mainNode;
+
+	private long mainNodeID;
+
+	private ASTOperation mainOperation;
+
+	private final List<ASTOperation> relatedOperations= new LinkedList<ASTOperation>();
 
 
 	public AtomicRefactoringProperty(long activationTimestamp) {
 		this.activationTimestamp= activationTimestamp;
 	}
 
-	public void setCausingOperation(ASTOperation causingOperation) {
-		this.causingOperation= causingOperation;
+	public void setMainOperation(ASTOperation mainOperation) {
+		this.mainOperation= mainOperation;
+		mainNode= RefactoringPropertiesFactory.getAffectedNode(mainOperation);
+		mainNodeID= RefactoringPropertiesFactory.getNodeID(mainNode);
+		mainRootNode= RefactoringPropertiesFactory.getRootNodeForOperation(mainOperation);
 	}
 
 	@Override
-	public ASTOperation getCausingOperation() {
-		return causingOperation;
+	public ASTOperation getLastRelatedOperation() {
+		return relatedOperations.get(relatedOperations.size() - 1);
+	}
+
+	public void addRelatedOperations(List<ASTOperation> additionalRelatedOperatons) {
+		relatedOperations.addAll(additionalRelatedOperatons);
+	}
+
+	@Override
+	public void addPossiblyRelatedOperation(ASTOperation operation) {
+		if (isRelatedOperation(operation)) {
+			relatedOperations.add(operation);
+			updateActivationTimestamp(operation.getTime());
+			for (InferredRefactoring refactoring : refactorings) {
+				refactoring.setLastContributingOperation(operation);
+			}
+		}
+	}
+
+	private boolean isRelatedOperation(ASTOperation operation) {
+		if (mainOperation.getOperationKind() == operation.getOperationKind()) {
+			ASTNode affectedNode= RefactoringPropertiesFactory.getAffectedNode(operation);
+			if (mainRootNode == RefactoringPropertiesFactory.getRootNodeForOperation(operation)) {
+				if (shouldLookFromParent()) {
+					return isRelatedToVariableDeclarationFragment(affectedNode);
+				}
+				return ASTHelper.getAllChildren(mainNode).contains(affectedNode);
+			}
+			if (affectedNode instanceof Modifier) {
+				return isRelatedModifier(affectedNode, operation);
+			}
+			if (affectedNode instanceof ReturnStatement) {
+				return isRelatedReturnStatement(affectedNode, operation);
+			}
+			return isRelatedType(affectedNode, operation);
+		}
+		return false;
+	}
+
+	private boolean isRelatedType(ASTNode affectedNode, ASTOperation operation) {
+		if (this instanceof AddedMethodDeclarationRefactoringProperty) {
+			//A return type could be added later, so find the matching node by its persistent ID.
+			ASTNode currentMainNode= getCurrentMainNodeDuringOperation(operation);
+			if (currentMainNode instanceof MethodDeclaration) { //Basically, this just checks that the node is not null.
+				Object property= ((MethodDeclaration)currentMainNode).getStructuralProperty(MethodDeclaration.RETURN_TYPE2_PROPERTY);
+				if (property instanceof Type) { //Checks that the property is not null.
+					return ASTHelper.getAllChildren((Type)property).contains(affectedNode);
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean isRelatedReturnStatement(ASTNode affectedNode, ASTOperation operation) {
+		if (this instanceof AddedMethodDeclarationRefactoringProperty) {
+			//A ReturnStatement could be added later, so find the matching node by its persistent ID.
+			ASTNode currentMainNode= getCurrentMainNodeDuringOperation(operation);
+			if (currentMainNode != null) {
+				return ASTHelper.getAllChildren(currentMainNode).contains(affectedNode);
+			}
+		}
+		return false;
+	}
+
+	private boolean isRelatedModifier(ASTNode affectedNode, ASTOperation operation) {
+		if (shouldLookFromParent() || this instanceof AddedMethodDeclarationRefactoringProperty) {
+			//A Modifier could be added later, so find the matching node by its persistent ID.
+			ASTNode currentMainNode= getCurrentMainNodeDuringOperation(operation);
+			if (currentMainNode != null) {
+				ASTNode lookupNode= shouldLookFromParent() ? currentMainNode.getParent() : currentMainNode;
+				return isAffectedModifier(affectedNode, lookupNode);
+			}
+		}
+		return false;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean isAffectedModifier(ASTNode affectedNode, ASTNode lookupNode) {
+		Object property;
+		if (lookupNode instanceof MethodDeclaration) {
+			property= ((MethodDeclaration)lookupNode).getStructuralProperty(MethodDeclaration.MODIFIERS2_PROPERTY);
+		} else if (lookupNode instanceof VariableDeclarationStatement) {
+			property= ((VariableDeclarationStatement)lookupNode).getStructuralProperty(VariableDeclarationStatement.MODIFIERS2_PROPERTY);
+		} else { //The only remaining possibility is FieldDeclaration. 
+			property= ((FieldDeclaration)lookupNode).getStructuralProperty(FieldDeclaration.MODIFIERS2_PROPERTY);
+		}
+		if (property instanceof List) { //Checks that the property is not null.
+			return ((List)property).contains(affectedNode);
+		}
+		return false;
+	}
+
+	private ASTNode getCurrentMainNodeDuringOperation(ASTOperation operation) {
+		IdentifiedNodeInfo mainNodeInfo= ASTNodesIdentifier.getIdentifiedNodeInfo(mainNodeID);
+		if (mainNodeInfo != null) {
+			String positionalMainNodeID= mainNodeInfo.getPositionalNodeID();
+			ASTNode rootNode= RefactoringPropertiesFactory.getRootNodeForOperation(operation);
+			return ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, positionalMainNodeID);
+		}
+		return null;
+	}
+
+	private boolean isRelatedToVariableDeclarationFragment(ASTNode affectedNode) {
+		ASTNode affectedFragment= ASTHelper.getParent(affectedNode, VariableDeclarationFragment.class);
+		if (mainNode == affectedFragment) {
+			return true;
+		}
+		if (affectedFragment == null) {
+			ASTNode mainParent= mainNode.getParent();
+			return mainParent == ASTHelper.getParent(affectedNode, VariableDeclarationStatement.class) ||
+					mainParent == ASTHelper.getParent(affectedNode, FieldDeclaration.class);
+		}
+		return false;
+	}
+
+	private boolean shouldLookFromParent() {
+		return this instanceof AddedVariableDeclarationRefactoringProperty ||
+				this instanceof AddedFieldDeclarationRefactoringProperty ||
+				this instanceof DeletedVariableDeclarationRefactoringProperty;
+	}
+
+	@Override
+	public void setRefactoringID(long refactoringID) {
+		for (ASTOperation relatedOperation : relatedOperations) {
+			//Set the refactoring ID only if it was not already set. This ensures that the first recorded inferred refactoring
+			//claims the overlapping related operations for itself.
+			if (relatedOperation.getRefactoringID() == -1) {
+				relatedOperation.setRefactoringID(refactoringID);
+			}
+		}
 	}
 
 	@Override
@@ -95,10 +249,18 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 	public void disable() {
 		isActive= false;
 		InferredRefactoringFactory.disabledProperty(this);
-		for (InferredRefactoring refactoring : refactorings) {
-			refactoring.disabledProperty(this);
+		notifyRefactoringsAboutDisabledProperty(refactorings, this);
+	}
+
+	public static void notifyRefactoringsAboutDisabledProperty(Set<InferredRefactoring> refactorings, RefactoringProperty disabledProperty) {
+		Iterator<InferredRefactoring> refactoringsInterator= refactorings.iterator();
+		while (refactoringsInterator.hasNext()) {
+			InferredRefactoring refactoring= refactoringsInterator.next();
+			refactoring.disabledProperty(disabledProperty);
+			if (!refactoring.isComplete()) {
+				refactoringsInterator.remove();
+			}
 		}
-		refactorings.clear();
 	}
 
 	@Override

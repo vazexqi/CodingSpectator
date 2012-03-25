@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 
+
 /**
  * This class represents an added declaration of a variable.
  * 

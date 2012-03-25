@@ -28,7 +28,7 @@ public abstract class InferredRefactoring {
 
 	private final Map<String, List<RefactoringProperty>> properties= new HashMap<String, List<RefactoringProperty>>();
 
-	private ASTOperation lastCausingASTOperation;
+	private ASTOperation lastContributingOperation;
 
 	protected abstract Set<String> getAcceptableProperties();
 
@@ -49,7 +49,7 @@ public abstract class InferredRefactoring {
 		List<RefactoringProperty> propertiesList= getPropertiesList(inferredRefactoring, refactoringProperty.getClassName());
 		propertiesList.add(refactoringProperty);
 		refactoringProperty.addRefactoring(inferredRefactoring);
-		inferredRefactoring.lastCausingASTOperation= refactoringProperty.getCausingOperation();
+		inferredRefactoring.lastContributingOperation= refactoringProperty.getLastRelatedOperation();
 	}
 
 	private static List<RefactoringProperty> getPropertiesList(InferredRefactoring inferredRefactoring, String propertyName) {
@@ -84,13 +84,33 @@ public abstract class InferredRefactoring {
 		return getAllProperties().size();
 	}
 
+	protected List<RefactoringProperty> getPropertiesList(String propertyName) {
+		return properties.get(propertyName);
+	}
+
 	protected RefactoringProperty getProperty(String propertyName) {
 		//It does not matter which property is returned if there are several of them in the corresponding list.
 		return properties.get(propertyName).get(0);
 	}
 
-	public ASTOperation getLastCausingASTOperation() {
-		return lastCausingASTOperation;
+	public ASTOperation getLastContributingOperation() {
+		return lastContributingOperation;
+	}
+
+	public void setLastContributingOperation(ASTOperation lastContributingOperation) {
+		this.lastContributingOperation= lastContributingOperation;
+	}
+
+	public void setRefactoringID(long refactoringID) {
+		for (RefactoringProperty refactoringProperty : getAllProperties()) {
+			refactoringProperty.setRefactoringID(refactoringID);
+		}
+	}
+
+	public void addPossiblyRelatedOperation(ASTOperation operation) {
+		for (RefactoringProperty refactoringProperty : getAllProperties()) {
+			refactoringProperty.addPossiblyRelatedOperation(operation);
+		}
 	}
 
 	public boolean isComplete() {
@@ -103,7 +123,7 @@ public abstract class InferredRefactoring {
 	}
 
 	public boolean isOld(long currentTimestamp) {
-		if (currentTimestamp - lastCausingASTOperation.getTime() >= oldAgeTimeThreshold) {
+		if (currentTimestamp - lastContributingOperation.getTime() >= oldAgeTimeThreshold) {
 			return true;
 		}
 		return false;

@@ -9,6 +9,7 @@ import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 
 /**
  * 
@@ -82,6 +83,10 @@ public class ASTOperation extends UserOperation {
 		return affectedNodeDescriptor.getClusterNodeIDs();
 	}
 
+	public OperationKind getOperationKind() {
+		return operationDescriptor.getOperationKind();
+	}
+
 	public boolean isCommentingOrUncommenting() {
 		return operationDescriptor.isCommentingOrUncommenting();
 	}
@@ -112,6 +117,14 @@ public class ASTOperation extends UserOperation {
 
 	public void setLastMoved(boolean isLastMoved) {
 		operationDescriptor.setLastMoved(isLastMoved);
+	}
+
+	public long getRefactoringID() {
+		return operationDescriptor.getRefactoringID();
+	}
+
+	public void setRefactoringID(long refactoringID) {
+		operationDescriptor.setRefactoringID(refactoringID);
 	}
 
 	public boolean isAdd() {

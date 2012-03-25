@@ -53,6 +53,7 @@ public class InferredRefactoringFactory {
 	}
 
 	public static void handleASTOperation(ASTOperation operation) {
+		addPossiblyRelatedOperationToCurrentPropertiesAndCompleteRefactorings(operation);
 		long currentTimestamp= operation.getTime();
 		removeOldCompleteRefactorings(currentTimestamp);
 		Set<AtomicRefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
@@ -64,6 +65,15 @@ public class InferredRefactoringFactory {
 		//First, process refactoring fragments, since doing so may lead to additional properties to be added to refactorings.
 		processPendingRefactoringFragments(propertiesToAdd, correctedProperties);
 		processPendingRefactorings(propertiesToAdd, correctedProperties);
+	}
+
+	private static void addPossiblyRelatedOperationToCurrentPropertiesAndCompleteRefactorings(ASTOperation operation) {
+		for (RefactoringProperty currentProperty : currentProperties) {
+			currentProperty.addPossiblyRelatedOperation(operation);
+		}
+		for (InferredRefactoring completeRefactoring : completeRefactorings) {
+			completeRefactoring.addPossiblyRelatedOperation(operation);
+		}
 	}
 
 	private static void processPendingRefactoringFragments(Set<RefactoringProperty> propertiesToAdd, Set<AtomicRefactoringProperty> correctedProperties) {
@@ -127,11 +137,13 @@ public class InferredRefactoringFactory {
 	}
 
 	private static void insertInferredRefactoring(InferredRefactoring inferredRefactoring) {
-		ASTOperation lastCausingASTOperation= inferredRefactoring.getLastCausingASTOperation();
-		InferredRefactoringOperation refactoringOperation= new InferredRefactoringOperation(inferredRefactoring.getKind(), refactoringID++, inferredRefactoring.getArguments(),
-				lastCausingASTOperation.getTime());
-		int insertIndex= userOperations.indexOf(lastCausingASTOperation) + 1;
+		inferredRefactoring.setRefactoringID(refactoringID);
+		ASTOperation lastContributingOperation= inferredRefactoring.getLastContributingOperation();
+		InferredRefactoringOperation refactoringOperation= new InferredRefactoringOperation(inferredRefactoring.getKind(), refactoringID, inferredRefactoring.getArguments(),
+				lastContributingOperation.getTime());
+		int insertIndex= userOperations.indexOf(lastContributingOperation) + 1;
 		userOperations.add(insertIndex, refactoringOperation);
+		refactoringID++;
 	}
 
 	private static void addNewRefactoringProperty(RefactoringProperty newProperty) {

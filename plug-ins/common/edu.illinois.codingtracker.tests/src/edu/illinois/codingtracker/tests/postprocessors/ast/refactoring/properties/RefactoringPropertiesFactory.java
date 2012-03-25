@@ -5,11 +5,14 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -49,12 +52,20 @@ public class RefactoringPropertiesFactory {
 
 	private static final ASTOperationRecorder astOperationRecorder= ASTOperationRecorder.getInstance();
 
-	private static Set<AtomicRefactoringProperty> properties;
+	private static final Set<AtomicRefactoringProperty> properties= new HashSet<AtomicRefactoringProperty>();;
 
 	private static long activationTimestamp;
 
 	//TODO: Maybe this map should be shrank according to the time threshold once it reaches certain size.
-	private static final Map<Long, ASTOperation> addedMovedNodes= new HashMap<Long, ASTOperation>();
+	private static final Map<Long, List<ASTOperation>> addedMovedNodes= new HashMap<Long, List<ASTOperation>>();
+
+	private static final Set<List<ASTOperation>> batchAddedMovedNodes= new HashSet<List<ASTOperation>>();
+
+	private static final List<ASTOperation> batchOperations= new LinkedList<ASTOperation>();
+
+	private static ASTNode batchNewRootNode;
+
+	private static ASTNode batchOldRootNode;
 
 
 	/**
@@ -64,15 +75,8 @@ public class RefactoringPropertiesFactory {
 	 * @return
 	 */
 	public static Set<AtomicRefactoringProperty> retrieveProperties(ASTOperation operation) {
-		activationTimestamp= operation.getTime();
-		properties= new HashSet<AtomicRefactoringProperty>();
-		ASTNode rootNode;
-		if (operation.isAdd()) {
-			rootNode= astOperationRecorder.getLastNewRootNode();
-		} else {
-			rootNode= astOperationRecorder.getLastOldRootNode();
-		}
-		ASTNode affectedNode= ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, operation.getPositionalID());
+		initializeRetrieval(operation);
+		ASTNode affectedNode= getAffectedNode(operation);
 		if (operation.isAdd()) {
 			handleAddedNode(affectedNode, operation);
 		} else if (operation.isDelete()) {
@@ -80,10 +84,57 @@ public class RefactoringPropertiesFactory {
 		} else if (operation.isChange()) {
 			handleChangedNode(affectedNode, operation);
 		}
-		for (AtomicRefactoringProperty refactoringProperty : properties) {
-			refactoringProperty.setCausingOperation(operation);
-		}
+		postProcessProperties(operation);
+		postprocessAddedMovedNodes(operation);
 		return properties;
+	}
+
+	private static void initializeRetrieval(ASTOperation operation) {
+		if (astOperationRecorder.getLastNewRootNode() != batchNewRootNode ||
+				astOperationRecorder.getLastOldRootNode() != batchOldRootNode) {
+			batchOperations.clear();
+			batchAddedMovedNodes.clear();
+			batchNewRootNode= astOperationRecorder.getLastNewRootNode();
+			batchOldRootNode= astOperationRecorder.getLastOldRootNode();
+		}
+		batchOperations.add(operation);
+		activationTimestamp= operation.getTime();
+		properties.clear();
+	}
+
+	public static ASTNode getAffectedNode(ASTOperation operation) {
+		ASTNode rootNode= getRootNodeForOperation(operation);
+		return ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, operation.getPositionalID());
+	}
+
+	public static ASTNode getRootNodeForOperation(ASTOperation operation) {
+		ASTNode rootNode;
+		if (operation.isAdd()) {
+			rootNode= astOperationRecorder.getLastNewRootNode();
+		} else {
+			rootNode= astOperationRecorder.getLastOldRootNode();
+		}
+		return rootNode;
+	}
+
+	private static void postProcessProperties(ASTOperation operation) {
+		for (AtomicRefactoringProperty refactoringProperty : properties) {
+			//Set the main operation before going through possibly related operations.
+			refactoringProperty.setMainOperation(operation);
+			for (ASTOperation batchOperation : batchOperations) {
+				refactoringProperty.addPossiblyRelatedOperation(batchOperation);
+			}
+		}
+	}
+
+	private static void postprocessAddedMovedNodes(ASTOperation operation) {
+		for (List<ASTOperation> addedMovedNodeOperations : batchAddedMovedNodes) {
+			ASTOperation mainOperation= addedMovedNodeOperations.get(0);
+			if (mainOperation != operation &&
+					ASTHelper.getAllChildren(getAffectedNode(mainOperation)).contains(getAffectedNode(operation))) {
+				addedMovedNodeOperations.add(operation);
+			}
+		}
 	}
 
 	private static void handleChangedNode(ASTNode changedNode, ASTOperation operation) {
@@ -132,6 +183,8 @@ public class RefactoringPropertiesFactory {
 			}
 		} else if (isMethodDeclaredEntity(changedNode, true)) {
 			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
+		} else if (isMethodDeclaredEntity(changedNode, false)) {
+			properties.add(new ChangedTypeNameInConstructorRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		} else if (isTypeDeclaredEntity(changedNode)) {
 			properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		}
@@ -219,14 +272,23 @@ public class RefactoringPropertiesFactory {
 	private static void handleAddedVariableInitializer(VariableDeclarationFragment variableDeclaration, String entityName, long entityNameNodeID) {
 		Expression initializer= variableDeclaration.getInitializer();
 		if (initializer != null) {
-			ASTOperation addMoveOperation= addedMovedNodes.remove(getNodeID(initializer));
-			if (addMoveOperation != null) {
-				NodeDescriptor nodeDescriptor= new NodeDescriptor(addMoveOperation);
-				long moveID= addMoveOperation.getMoveID();
+			List<ASTOperation> addMoveOperations= addedMovedNodes.remove(getNodeID(initializer));
+			if (addMoveOperations != null) {
+				//Move the main operation from the beginning to the end of the list.
+				ASTOperation mainAddMoveOperation= addMoveOperations.remove(0);
+				addMoveOperations.add(mainAddMoveOperation);
+
+				NodeDescriptor nodeDescriptor= new NodeDescriptor(mainAddMoveOperation);
+				long moveID= mainAddMoveOperation.getMoveID();
+				AtomicRefactoringProperty newRefactoringProperty= null;
 				if (isInVariableDeclarationStatement(variableDeclaration)) {
-					properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp));
+					newRefactoringProperty= new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp);
 				} else if (isInFieldDeclaration(variableDeclaration)) {
-					properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp));
+					newRefactoringProperty= new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp);
+				}
+				if (newRefactoringProperty != null) {
+					newRefactoringProperty.addRelatedOperations(addMoveOperations);
+					properties.add(newRefactoringProperty);
 				}
 			}
 		}
@@ -300,7 +362,7 @@ public class RefactoringPropertiesFactory {
 	private static void handleAddedMovedNode(ASTNode addedNode, ASTOperation operation, long moveID) {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation);
 		if (!handleAddedMovedInitialization(addedNode, nodeDescriptor, moveID)) {
-			addedMovedNodes.put(getNodeID(addedNode), operation);
+			addNewEntryToAddedMovedNodes(addedNode, operation);
 			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(addedNode)) {
 				SimpleName containingMethodName= ASTHelper.getContainingMethod(addedNode).getName();
 				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), containingMethodName.getIdentifier(), getNodeID(containingMethodName), moveID, activationTimestamp));
@@ -310,6 +372,19 @@ public class RefactoringPropertiesFactory {
 			if (addedNode instanceof SimpleName) {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
 				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName.getIdentifier(), getNodeID(referencedEntityName), parentID, activationTimestamp));
+			}
+		}
+	}
+
+	private static void addNewEntryToAddedMovedNodes(ASTNode addedNode, ASTOperation operation) {
+		List<ASTOperation> addedMovedNodeOperations= new LinkedList<ASTOperation>();
+		addedMovedNodeOperations.add(operation);
+		addedMovedNodes.put(getNodeID(addedNode), addedMovedNodeOperations);
+		batchAddedMovedNodes.add(addedMovedNodeOperations);
+		Set<ASTNode> allAddedChildren= ASTHelper.getAllChildren(addedNode);
+		for (ASTOperation batchOperation : batchOperations) {
+			if (operation != batchOperation && allAddedChildren.contains(getAffectedNode(batchOperation))) {
+				addedMovedNodeOperations.add(batchOperation);
 			}
 		}
 	}
@@ -342,7 +417,7 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {
-		return node instanceof SimpleName || node instanceof SimpleType;
+		return node instanceof SimpleName || node instanceof SimpleType || node instanceof CharacterLiteral;
 	}
 
 	private static SimpleName getFieldNameFromExpression(Expression expression) {
@@ -455,7 +530,7 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static long getNodeID(ASTNode node) {
+	public static long getNodeID(ASTNode node) {
 		return ASTNodesIdentifier.getPersistentNodeID(astOperationRecorder.getCurrentRecordedFilePath(), node);
 	}
 

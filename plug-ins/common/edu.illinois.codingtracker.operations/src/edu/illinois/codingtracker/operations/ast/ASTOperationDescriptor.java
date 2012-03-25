@@ -25,13 +25,15 @@ public class ASTOperationDescriptor {
 
 	private final boolean isUndoing;
 
-	//Not final since these fields are assigned while inferring "move", which is done in a separate subsequent pass.
+	//Not final since these fields are assigned while inferring "move" and refactorings, which is done in a separate pass.
 
 	private long moveID= -1;
 
 	private boolean isFirstMoved= false;
 
 	private boolean isLastMoved= false;
+
+	private long refactoringID= -1;
 
 
 	public ASTOperationDescriptor(OperationKind operationKind, boolean isCommentingOrUncommenting, boolean isUndoing) {
@@ -59,6 +61,14 @@ public class ASTOperationDescriptor {
 
 	public void setMoveID(long moveID) {
 		this.moveID= moveID;
+	}
+
+	public long getRefactoringID() {
+		return refactoringID;
+	}
+
+	public void setRefactoringID(long refactoringID) {
+		this.refactoringID= refactoringID;
 	}
 
 	public boolean isFirstMoved() {
@@ -96,6 +106,7 @@ public class ASTOperationDescriptor {
 		textChunk.append(moveID);
 		textChunk.append(isFirstMoved);
 		textChunk.append(isLastMoved);
+		textChunk.append(refactoringID);
 	}
 
 	public static ASTOperationDescriptor createFrom(OperationLexer operationLexer) {
@@ -104,6 +115,7 @@ public class ASTOperationDescriptor {
 		operationDescriptor.setMoveID(operationLexer.readLong());
 		operationDescriptor.setFirstMoved(operationLexer.readBoolean());
 		operationDescriptor.setLastMoved(operationLexer.readBoolean());
+		operationDescriptor.setRefactoringID(operationLexer.readLong());
 		return operationDescriptor;
 	}
 
@@ -114,6 +126,7 @@ public class ASTOperationDescriptor {
 		sb.append("Move ID: " + moveID + "\n");
 		sb.append("Is first moved: " + isFirstMoved + "\n");
 		sb.append("Is last moved: " + isLastMoved + "\n");
+		sb.append("Refactoring ID: " + refactoringID + "\n");
 	}
 
 }

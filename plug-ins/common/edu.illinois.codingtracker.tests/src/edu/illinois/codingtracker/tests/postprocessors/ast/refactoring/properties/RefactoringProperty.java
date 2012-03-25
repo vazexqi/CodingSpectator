@@ -21,7 +21,11 @@ public interface RefactoringProperty {
 
 	public Object getAttribute(String name);
 
-	public ASTOperation getCausingOperation();
+	public ASTOperation getLastRelatedOperation();
+
+	public void setRefactoringID(long refactoringID);
+
+	public void addPossiblyRelatedOperation(ASTOperation operation);
 
 	public long getActivationTimestamp();
 
