@@ -9,6 +9,6 @@ ant -f "$CSV_TO_TRANSACTIONS_FOLDER/ant/build.xml"
 
 for time_window in 10
 do
-  "${CSV_TO_TRANSACTIONS[@]}" -i REFACTORING_ID -s TIMESTAMP -t "$time_window" -d detailed-transactions.csv -p transaction-patterns.csv < refactorings-under-study.csv | sed '/^\s*$/d' > transactions.csv
+  "${CSV_TO_TRANSACTIONS[@]}" -i REFACTORING_ID -s CODINGTRACKER_TIMESTAMP -f USERNAME -f WORKSPACE_ID -f CODINGSPECTATOR_VERSION -t "$time_window" -d detailed-transactions.csv -p transaction-patterns.csv < refactorings-under-study.csv | sed '/^\s*$/d' > transactions.csv
 done
 
