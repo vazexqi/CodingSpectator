@@ -414,7 +414,7 @@ ORDER BY "AD"."USERNAME", "AD"."WORKSPACE_ID", "AD"."TIMESTAMP";
 
 * *DSV_COL_DELIM =\n
 
-* *DSV_ROW_DELIM =\n\n_____________________________________________________\n\n
+* *DSV_ROW_DELIM =\n_______________________________________________________\n\n
 
 * *DSV_TARGET_FILE =refactorings-under-study-context.csv
 
