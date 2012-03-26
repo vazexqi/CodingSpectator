@@ -68,6 +68,10 @@ public class InferredRefactoringOperation extends UserOperation {
 		return refactoringKind;
 	}
 
+	public long getRefactoringID() {
+		return refactoringID;
+	}
+
 	public Map<String, String> getArguments() {
 		return arguments; //TODO: Returning a reference to a collection is not safe.
 	}
