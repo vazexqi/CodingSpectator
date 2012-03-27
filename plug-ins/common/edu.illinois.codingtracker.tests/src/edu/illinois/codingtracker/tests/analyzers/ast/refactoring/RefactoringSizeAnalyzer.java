@@ -63,6 +63,7 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 			inferredRefactoringSizes.put(refactoringID, currentSize + 1);
 		}
 		if (isInsideAutomatedRefactoring()) {
+			//TODO: !!!Discount nodes that are both added and deleted as part of the same automated refactoring.
 			currentAutomatedRefactoringSize++;
 		}
 	}
