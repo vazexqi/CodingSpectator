@@ -37,6 +37,7 @@ public class MoveInferencePostprocessor extends ASTPostprocessor {
 
 	@Override
 	protected void postprocess(List<UserOperation> userOperations) {
+		nodeOperationsMap.clear();
 		for (UserOperation userOperation : userOperations) {
 			if (shouldProcess(userOperation)) {
 				processASTOperation((ASTOperation)userOperation);
