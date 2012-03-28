@@ -552,9 +552,10 @@ public class RefactoringPropertiesFactory {
 		}
 		ASTNode parentNode= expression.getParent();
 		if (parentNode != null && !astOperationRecorder.isDeleted(parentNode)) {
-			String positionalParentID= ASTNodesIdentifier.getPositionalNodeID(parentNode);
-			ASTNode newRootNode= astOperationRecorder.getLastNewRootNode();
-			ASTNode matchingParentNode= ASTNodesIdentifier.getASTNodeFromPositonalID(newRootNode, positionalParentID);
+			ASTNode matchingParentNode= astOperationRecorder.getNewMatch(parentNode);
+			if (matchingParentNode == null) {
+				throw new RuntimeException("A parent node of a deleted node is neither deleted nor matched");
+			}
 			for (ASTNode childNode : ASTHelper.getAllChildren(matchingParentNode)) {
 				if (childNode.getParent() == matchingParentNode && astOperationRecorder.isAdded(childNode) &&
 						doesMatchField(childNode, expression)) {
