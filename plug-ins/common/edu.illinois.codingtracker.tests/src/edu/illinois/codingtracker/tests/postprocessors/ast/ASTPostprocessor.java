@@ -7,6 +7,7 @@ import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.resources.ExternallyModifiedResourceOperation;
 import edu.illinois.codingtracker.operations.resources.UpdatedResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
@@ -75,7 +76,7 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 	}
 
 	protected boolean shouldProcess(UserOperation userOperation) {
-		if (userOperation instanceof UpdatedResourceOperation) {
+		if (userOperation instanceof UpdatedResourceOperation || userOperation instanceof ExternallyModifiedResourceOperation) {
 			isUpdatedResource= true;
 		} else if (!(userOperation instanceof ASTOperation) && !(userOperation instanceof ASTFileOperation)) {
 			isUpdatedResource= false;
