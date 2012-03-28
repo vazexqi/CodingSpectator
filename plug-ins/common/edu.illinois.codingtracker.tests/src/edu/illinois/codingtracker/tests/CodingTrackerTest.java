@@ -36,7 +36,7 @@ public abstract class CodingTrackerTest {
 		astMainRecordFile.delete();
 		resetKnownFiles();
 		ASTNodesIdentifier.resetIDs();
-		ASTOperationRecorder.getInstance().resetCurrentFilePaths();
+		ASTOperationRecorder.getInstance().resetState();
 	}
 
 	private static void resetKnownFiles() {

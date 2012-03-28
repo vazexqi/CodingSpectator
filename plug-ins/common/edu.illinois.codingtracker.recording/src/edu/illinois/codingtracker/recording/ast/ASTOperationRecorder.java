@@ -121,9 +121,13 @@ public class ASTOperationRecorder {
 	 * Very dangerous! Should be used ONLY for batch processing to reset the state of the previous
 	 * sequence!
 	 */
-	public void resetCurrentFilePaths() {
+	public void resetState() {
+		resetBatch();
 		currentEditedFilePath= null;
 		currentRecordedFilePath= null;
+		problematicTextChanges.clear();
+		currentIndexToGlueWith= 0;
+		isInProblemMode= false;
 	}
 
 	public boolean isInProblemMode() {
