@@ -9,6 +9,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.ast.ASTMethodDescriptor;
 import edu.illinois.codingtracker.operations.ast.ASTNodeDescriptor;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
@@ -82,7 +83,9 @@ public class IdentifiedNodeInfo {
 				return null;
 			}
 			ASTMethodDescriptor containingMethodDecriptor= containingMethodNodeInfo.getMethodDescriptor();
-			if (containingMethodDecriptor == null) {
+			//TODO: Although this is not a problem during refactoring inference, since the resulting descriptors would not be 
+			//recorded anyway, investigate the cause of this scenario, which does not happen during regular AST inference.
+			if (containingMethodDecriptor == null && !Configuration.isInRefactoringInferenceMode) {
 				throw new RuntimeException("Containing method's node info does not represent a method declaration!");
 			}
 			return containingMethodDecriptor;
