@@ -3,6 +3,9 @@
  */
 package edu.illinois.codingtracker.recording;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -27,6 +30,8 @@ public class ASTInferenceTextRecorder {
 
 	private static long lastTimestamp;
 
+	private final static List<SavedFileOperation> postponedSavedFileOperations= new LinkedList<SavedFileOperation>();
+
 
 	/**
 	 * When isSimulatedRecord is true, this method flushes the text changes, if necessary, and
@@ -36,29 +41,45 @@ public class ASTInferenceTextRecorder {
 	 * @param isSimulatedRecord
 	 */
 	public static void record(UserOperation userOperation, boolean isSimulatedRecord) {
+		long operationTime= userOperation.getTime();
 		//Before any user operation, except text change operations, flush the accumulated AST changes.
 		if (!(userOperation instanceof TextChangeOperation)) {
 			//TODO: Some part of the below code are duplicated in TextRecorder.
 			//Saving a file does not force flushing since the corresponding AST might be broken.
-			astRecorder.flushCurrentTextChanges(!(userOperation instanceof SavedFileOperation));
+			boolean isSavedFileOperation= userOperation instanceof SavedFileOperation;
+			astRecorder.flushCurrentTextChanges(!isSavedFileOperation);
+			if (isSavedFileOperation && astRecorder.isInProblemMode()) {
+				postponedSavedFileOperations.add((SavedFileOperation)userOperation);
+				lastTimestamp= operationTime;
+				return;
+			}
+			flushPostponedSavedFileOperations(isSimulatedRecord);
 		}
-		lastTimestamp= userOperation.getTime();
-		if (!isSimulatedRecord) {
-			performRecording(userOperation);
+		lastTimestamp= operationTime;
+		performRecording(userOperation, isSimulatedRecord);
+	}
+
+	private static void flushPostponedSavedFileOperations(boolean isSimulatedRecord) {
+		for (SavedFileOperation savedFileOperation : postponedSavedFileOperations) {
+			savedFileOperation.setTime(lastTimestamp);
+			performRecording(savedFileOperation, isSimulatedRecord);
 		}
+		postponedSavedFileOperations.clear();
 	}
 
 	public static void recordASTOperation(ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor) {
 		ASTOperation astOperation= new ASTOperation(operationDescriptor, affectedNodeDescriptor, getASTOperationTimestamp());
-		performRecording(astOperation);
+		performRecording(astOperation, false);
 	}
 
 	public static void recordASTFileOperation(String astFilePath) {
-		performRecording(new ASTFileOperation(astFilePath, getASTOperationTimestamp()));
+		performRecording(new ASTFileOperation(astFilePath, getASTOperationTimestamp()), false);
 	}
 
-	private static void performRecording(UserOperation userOperation) {
-		safeRecorder.record(userOperation.generateSerializationText());
+	private static void performRecording(UserOperation userOperation, boolean isSimulatedRecord) {
+		if (!isSimulatedRecord) {
+			safeRecorder.record(userOperation.generateSerializationText());
+		}
 	}
 
 	private static long getASTOperationTimestamp() {

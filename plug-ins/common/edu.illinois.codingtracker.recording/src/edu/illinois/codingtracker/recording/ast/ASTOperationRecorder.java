@@ -126,6 +126,10 @@ public class ASTOperationRecorder {
 		currentRecordedFilePath= null;
 	}
 
+	public boolean isInProblemMode() {
+		return isInProblemMode;
+	}
+
 	public void beforeDocumentChange(DocumentEvent event, String filePath) {
 		if (RefreshedFileOperation.isReplaying) {
 			//ignore
