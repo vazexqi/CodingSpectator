@@ -24,6 +24,7 @@ import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor;
 import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 import edu.illinois.codingtracker.operations.ast.CompositeNodeDescriptor;
 import edu.illinois.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
+import edu.illinois.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
 import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
@@ -51,7 +52,7 @@ public class ASTOperationRecorder {
 
 	//Contains original DocumentEvents from the last, incomplete batch iteration, so it should be used only
 	//when the batch contains at least one complete iteration.
-	private List<DocumentEvent> batchDocumentEventsLastIterationBackup= new LinkedList<DocumentEvent>();
+	private List<DocumentEventDescriptor> batchDocumentEventsLastIterationBackup= new LinkedList<DocumentEventDescriptor>();
 
 	private List<CoherentTextChange> problematicTextChanges= new LinkedList<CoherentTextChange>();
 
@@ -151,7 +152,7 @@ public class ASTOperationRecorder {
 
 	private void addNewBatchChange(DocumentEvent event, long timestamp) {
 		if (batchTextChanges.isEmpty()) {
-			batchTextChanges.add(new CoherentTextChange(event, timestamp));
+			batchTextChanges.add(new CoherentTextChange(event, ConflictEditorTextChangeOperation.isReplaying, timestamp));
 		} else {
 			addToCurrentTextChanges(event, timestamp);
 		}
@@ -160,7 +161,7 @@ public class ASTOperationRecorder {
 	private void addToCurrentTextChanges(DocumentEvent event, long timestamp) {
 		if (correlatedBatchSize == -1) { //Batch size is not established yet.
 			if (shouldExtendBatch(event, timestamp)) {
-				batchTextChanges.add(new CoherentTextChange(event, timestamp));
+				batchTextChanges.add(new CoherentTextChange(event, ConflictEditorTextChangeOperation.isReplaying, timestamp));
 				processNewlyAddedBatchChange(event);
 			} else {
 				correlatedBatchSize= batchTextChanges.size();
@@ -177,7 +178,7 @@ public class ASTOperationRecorder {
 		if (isReplayingSnapshotDifference) {
 			return false;
 		}
-		CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
+		CoherentTextChange newTextChange= new CoherentTextChange(event, ConflictEditorTextChangeOperation.isReplaying, timestamp);
 		for (CoherentTextChange existingBatchChange : batchTextChanges) {
 			if (!existingBatchChange.isPossiblyCorrelatedWith(newTextChange) ||
 					existingBatchChange.shouldGlueNewTextChange(event)) {
@@ -206,7 +207,8 @@ public class ASTOperationRecorder {
 			textChangeToGlueWith.glueNewTextChange(event);
 			applyTextChangeToBatch(event, currentIndexToGlueWith);
 			//Clone the original document event since its document is updated by Eclipse.
-			batchDocumentEventsLastIterationBackup.add(CoherentTextChange.cloneDocumentEvent(event));
+			DocumentEventDescriptor eventDescriptor= new DocumentEventDescriptor(CoherentTextChange.cloneDocumentEvent(event), ConflictEditorTextChangeOperation.isReplaying);
+			batchDocumentEventsLastIterationBackup.add(eventDescriptor);
 			incrementGluingIndex();
 		} else {
 			if (isAnythingToFlush() && isBatchIncomplete()) {
@@ -220,11 +222,11 @@ public class ASTOperationRecorder {
 
 	private boolean shouldContinueBatch(DocumentEvent event, long timestamp) {
 		if (correlatedBatchSize > 1 && !batchDocumentEventsLastIterationBackup.isEmpty()) {
-			CoherentTextChange newTextChange= new CoherentTextChange(event, timestamp);
+			CoherentTextChange newTextChange= new CoherentTextChange(event, ConflictEditorTextChangeOperation.isReplaying, timestamp);
 			//It is sufficient to check against a single existing change since all existing changes are correlated among
 			//themselves by construction.
-			CoherentTextChange existingTextChange=
-					new CoherentTextChange(batchDocumentEventsLastIterationBackup.get(0), timestamp);
+			DocumentEventDescriptor eventDescriptor= batchDocumentEventsLastIterationBackup.get(0);
+			CoherentTextChange existingTextChange= new CoherentTextChange(eventDescriptor.documentEvent, eventDescriptor.isConflictEditorChange, timestamp);
 			return newTextChange.isPossiblyCorrelatedWith(existingTextChange);
 		}
 		return true;
@@ -311,7 +313,7 @@ public class ASTOperationRecorder {
 	private void flushBatchBackup(boolean isForced, boolean isGluingFlush) {
 		//First, make a copy of the backed up document events since each flushing cleans the field 
 		//batchDocumentEventsLastIterationBackup.
-		List<DocumentEvent> documentEventsBackup= new LinkedList<DocumentEvent>();
+		List<DocumentEventDescriptor> documentEventsBackup= new LinkedList<DocumentEventDescriptor>();
 		documentEventsBackup.addAll(batchDocumentEventsLastIterationBackup);
 		//Next, flush the complete batch backup.
 		batchTextChanges.clear();
@@ -319,9 +321,12 @@ public class ASTOperationRecorder {
 		currentIndexToGlueWith= 0;
 		flushCurrentTextChanges(isForced);
 		//Finally, process anew the document events from the last, incomplete batch iteration.
-		for (DocumentEvent event : documentEventsBackup) {
-			beforeDocumentChange(event, currentEditedFilePath);
+		boolean currentIsReplaying= ConflictEditorTextChangeOperation.isReplaying;
+		for (DocumentEventDescriptor eventDescriptor : documentEventsBackup) {
+			ConflictEditorTextChangeOperation.isReplaying= eventDescriptor.isConflictEditorChange;
+			beforeDocumentChange(eventDescriptor.documentEvent, currentEditedFilePath);
 		}
+		ConflictEditorTextChangeOperation.isReplaying= currentIsReplaying;
 		if (!isGluingFlush) {
 			flushCurrentTextChanges(isForced);
 		}
@@ -351,7 +356,7 @@ public class ASTOperationRecorder {
 		int adjustedOffset= getAdjustedOffset(batchChanges, batchChangeIndex);
 		Document editedDocument= new Document(initialText);
 		DocumentEvent documentEvent= new DocumentEvent(editedDocument, adjustedOffset, removedTextLength, addedText);
-		return new CoherentTextChange(documentEvent, batchChange.getTimestamp());
+		return new CoherentTextChange(documentEvent, batchChange.isConflictEditorChange(), batchChange.getTimestamp());
 	}
 
 	private int getAdjustedOffset(List<CoherentTextChange> batchChanges, int adjustedChangeIndex) {
@@ -441,7 +446,9 @@ public class ASTOperationRecorder {
 	private void recordCoherentTextChanges(List<CoherentTextChange> coherentTextChanges) {
 		if (!Configuration.isInRefactoringInferenceMode) {
 			for (CoherentTextChange coherentTextChange : coherentTextChanges) {
-				ASTInferenceTextRecorder.record(coherentTextChange.createTextChangeOperation(), false);
+				if (!coherentTextChange.isConflictEditorChange()) {
+					ASTInferenceTextRecorder.record(coherentTextChange.createTextChangeOperation(), false);
+				}
 			}
 		}
 	}
@@ -563,4 +570,17 @@ public class ASTOperationRecorder {
 		recordAddASTOperations(filePath, allNodes, false, false);
 	}
 
+	private class DocumentEventDescriptor {
+
+		final DocumentEvent documentEvent;
+
+		final boolean isConflictEditorChange;
+
+
+		DocumentEventDescriptor(DocumentEvent documentEvent, boolean isCOnflictEditorChange) {
+			this.documentEvent= documentEvent;
+			this.isConflictEditorChange= isCOnflictEditorChange;
+		}
+
+	}
 }

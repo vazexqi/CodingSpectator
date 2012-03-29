@@ -52,10 +52,13 @@ public class CoherentTextChange implements Cloneable {
 
 	private boolean isBackspaceDeleting= false;
 
-	public boolean isUndoing= false;
+	private boolean isUndoing= false;
+
+	private final boolean isConflictEditorChange;
 
 
-	public CoherentTextChange(DocumentEvent documentEvent, long timestamp) {
+	public CoherentTextChange(DocumentEvent documentEvent, boolean isConflictEditorChange, long timestamp) {
+		this.isConflictEditorChange= isConflictEditorChange;
 		isUndoing= isCurrentEventUndoing();
 		batchOffsetShift= 0;
 		this.timestamp= timestamp;
@@ -163,6 +166,10 @@ public class CoherentTextChange implements Cloneable {
 
 	public boolean isUndoing() {
 		return isUndoing;
+	}
+
+	public boolean isConflictEditorChange() {
+		return isConflictEditorChange;
 	}
 
 	/**

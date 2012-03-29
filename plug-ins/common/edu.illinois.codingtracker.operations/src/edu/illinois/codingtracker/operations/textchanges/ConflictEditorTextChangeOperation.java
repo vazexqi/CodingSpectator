@@ -8,8 +8,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.ui.IEditorPart;
 
-import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
+import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 
@@ -19,6 +19,8 @@ import edu.illinois.codingtracker.operations.OperationTextChunk;
  * 
  */
 public abstract class ConflictEditorTextChangeOperation extends TextChangeOperation {
+
+	public static boolean isReplaying= false;
 
 	private String editorID;
 
@@ -53,7 +55,9 @@ public abstract class ConflictEditorTextChangeOperation extends TextChangeOperat
 			//So, for now just output a warning.
 			Debugger.debugWarning("Ignored text change in an inexisting conflict editor:\n" + this);
 		} else {
+			isReplaying= true;
 			super.replay();
+			isReplaying= false;
 		}
 		currentEditor= oldEditor;
 	}
