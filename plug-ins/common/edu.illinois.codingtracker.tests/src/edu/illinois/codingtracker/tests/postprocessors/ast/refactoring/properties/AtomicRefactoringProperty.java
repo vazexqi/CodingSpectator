@@ -165,12 +165,12 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 
 	@SuppressWarnings("rawtypes")
 	private boolean isAffectedModifier(ASTNode affectedNode, ASTNode lookupNode) {
-		Object property;
+		Object property= null;
 		if (lookupNode instanceof MethodDeclaration) {
 			property= ((MethodDeclaration)lookupNode).getStructuralProperty(MethodDeclaration.MODIFIERS2_PROPERTY);
 		} else if (lookupNode instanceof VariableDeclarationStatement) {
 			property= ((VariableDeclarationStatement)lookupNode).getStructuralProperty(VariableDeclarationStatement.MODIFIERS2_PROPERTY);
-		} else { //The only remaining possibility is FieldDeclaration. 
+		} else if (lookupNode instanceof FieldDeclaration) {
 			property= ((FieldDeclaration)lookupNode).getStructuralProperty(FieldDeclaration.MODIFIERS2_PROPERTY);
 		}
 		if (property instanceof List) { //Checks that the property is not null.
