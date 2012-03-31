@@ -96,8 +96,7 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 				throw new RuntimeException("Usage interval should not be negative: " + usageInterval);
 			}
 			long startUsageTime= accumulatedUsageTime + sequenceUsageTime;
-			UsageTimeInterval usageTimeInterval= new UsageTimeInterval(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, startUsageTime, startUsageTime + usageInterval,
-					startIntervalTimestamp, stopIntervalTimestamp);
+			UsageTimeInterval usageTimeInterval= new UsageTimeInterval(postprocessedFileRelativePath, startUsageTime, startUsageTime + usageInterval, startIntervalTimestamp, stopIntervalTimestamp);
 			auxiliaryResult.append(usageTimeInterval.serialize());
 			sequenceUsageTime+= usageInterval;
 			startIntervalTimestamp= -1;

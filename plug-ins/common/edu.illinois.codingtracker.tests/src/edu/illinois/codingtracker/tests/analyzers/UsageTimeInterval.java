@@ -16,11 +16,7 @@ public class UsageTimeInterval {
 
 	private static final String separator= ":";
 
-	private final String username;
-
-	private final String workspaceID;
-
-	private final String version;
+	private final String postProcessedFileRelativePath;
 
 	private final long startUsageTime;
 
@@ -30,26 +26,16 @@ public class UsageTimeInterval {
 
 	private final long stopTimestamp;
 
-	public UsageTimeInterval(String username, String workspaceID, String version, long startUsageTime, long stopUsageTime, long startTimestamp, long stopTimestamp) {
-		this.username= username;
-		this.workspaceID= workspaceID;
-		this.version= version;
+	public UsageTimeInterval(String postprocessedFileRelativePath, long startUsageTime, long stopUsageTime, long startTimestamp, long stopTimestamp) {
+		this.postProcessedFileRelativePath= postprocessedFileRelativePath;
 		this.startUsageTime= startUsageTime;
 		this.stopUsageTime= stopUsageTime;
 		this.startTimestamp= startTimestamp;
 		this.stopTimestamp= stopTimestamp;
 	}
 
-	public String getUsername() {
-		return username;
-	}
-
-	public String getWorkspaceID() {
-		return workspaceID;
-	}
-
-	public String getVersion() {
-		return version;
+	public String getPostProcessedFileRelativePath() {
+		return postProcessedFileRelativePath;
 	}
 
 	public long getStartUsageTime() {
@@ -69,13 +55,12 @@ public class UsageTimeInterval {
 	}
 
 	public String serialize() {
-		return username + separator + workspaceID + separator + version + separator + startUsageTime + separator + stopUsageTime + separator + startTimestamp + separator + stopTimestamp + "\n";
+		return postProcessedFileRelativePath + separator + startUsageTime + separator + stopUsageTime + separator + startTimestamp + separator + stopTimestamp + "\n";
 	}
 
 	public static UsageTimeInterval deserialize(String stringRepresentation) {
 		StringTokenizer st= new StringTokenizer(stringRepresentation, separator);
-		return new UsageTimeInterval(st.nextToken(), st.nextToken(), st.nextToken(), Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()),
-				Long.parseLong(st.nextToken()));
+		return new UsageTimeInterval(st.nextToken(), Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()));
 	}
 
 }

@@ -66,7 +66,7 @@ public class UsageTimeSamplingHelper {
 		for (UsageTimeInterval interval : usageTimeIntervals) {
 			if (interval.getStartUsageTime() <= timePoint && interval.getStopUsageTime() > timePoint) {
 				if (interval.getStopUsageTime() >= timePoint + sampleInterval) {
-					System.out.println("The desired sequence is located at: " + interval.getUsername() + "/" + interval.getWorkspaceID() + "/" + interval.getVersion());
+					System.out.println("The desired sequence is located at: " + interval.getPostProcessedFileRelativePath());
 					System.out.println("The desired timestamp is: " + (interval.getStartTimestamp() + timePoint - interval.getStartUsageTime()));
 				} else {
 					System.out.println("Found an interval, but there is not enough to replay for a sample interval.");

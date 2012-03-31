@@ -42,6 +42,8 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	protected String postprocessedUsername;
 
+	protected String postprocessedFileRelativePath;
+
 
 	//@Ignore
 	@Test
@@ -138,6 +140,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	}
 
 	private void initializeFileData(File file) {
+		initializePostprocessedFileRelativePath(file);
 		final String defaulValue= "undefined";
 		postprocessedVersion= defaulValue;
 		postprocessedWorkspaceID= defaulValue;
@@ -152,6 +155,16 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		} catch (Exception e) {
 			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
 			handleFileDataInitializationException(file, e);
+		}
+	}
+
+	private void initializePostprocessedFileRelativePath(File file) {
+		int rootPathLength= Configuration.postprocessorRootFolderName.length() + 1;
+		String contaningPath= file.getParent();
+		if (contaningPath.length() < rootPathLength) {
+			postprocessedFileRelativePath= "";
+		} else {
+			postprocessedFileRelativePath= contaningPath.substring(rootPathLength).replace("\\", "/");
 		}
 	}
 
