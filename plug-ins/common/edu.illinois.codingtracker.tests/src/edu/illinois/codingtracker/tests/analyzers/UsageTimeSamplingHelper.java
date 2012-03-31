@@ -67,7 +67,9 @@ public class UsageTimeSamplingHelper {
 			if (interval.getStartUsageTime() <= timePoint && interval.getStopUsageTime() > timePoint) {
 				if (interval.getStopUsageTime() >= timePoint + sampleInterval) {
 					System.out.println("The desired sequence is located at: " + interval.getPostProcessedFileRelativePath());
-					System.out.println("The desired timestamp is: " + (interval.getStartTimestamp() + timePoint - interval.getStartUsageTime()));
+					long startTimestamp= interval.getStartTimestamp() + timePoint - interval.getStartUsageTime();
+					long stopTimestamp= startTimestamp + sampleInterval;
+					System.out.println("The desired timestamp range is: [" + startTimestamp + ", " + stopTimestamp + "]");
 				} else {
 					System.out.println("Found an interval, but there is not enough to replay for a sample interval.");
 				}
@@ -76,5 +78,4 @@ public class UsageTimeSamplingHelper {
 		}
 		return false;
 	}
-
 }
