@@ -162,7 +162,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		int rootPathLength= Configuration.postprocessorRootFolderName.length() + 1;
 		String contaningPath= file.getParent();
 		if (contaningPath.length() < rootPathLength) {
-			postprocessedFileRelativePath= "";
+			postprocessedFileRelativePath= "root";
 		} else {
 			postprocessedFileRelativePath= contaningPath.substring(rootPathLength).replace("\\", "/");
 		}
