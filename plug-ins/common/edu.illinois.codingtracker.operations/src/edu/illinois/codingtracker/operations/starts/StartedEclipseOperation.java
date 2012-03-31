@@ -50,6 +50,7 @@ public class StartedEclipseOperation extends UserOperation {
 		isReplayedRefactoring= false;
 		//Close all editors (in case the previous Eclipse session ended abnormally, and thus close editor operations were not recorded).
 		EditorHelper.closeAllEditors();
+		currentEditor= null;
 		//disable auto build
 		IWorkspace workspace= ResourcesPlugin.getWorkspace();
 		IWorkspaceDescription workspaceDesription= workspace.getDescription();
