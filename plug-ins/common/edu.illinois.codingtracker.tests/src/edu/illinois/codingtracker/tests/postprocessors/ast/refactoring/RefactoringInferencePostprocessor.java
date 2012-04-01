@@ -6,6 +6,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.illinois.codingtracker.helpers.StringHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
@@ -33,6 +34,15 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 	private int affectedAutomatedRefactoringLineNumber;
 
 	private boolean isAutomatedRefactoringTooSimple;
+
+	private UserOperation lastProcessedUserOperation;
+
+	//TODO: This flag is used to improve scalability of the inference of Encapsulate Field refactoring. Probably, there
+	//is a more elegant way to achieve this goal.
+	public static boolean isIntroducingGetterInvocation= false;
+
+	//TODO: Ignore inference for these refactorings to make it scalable. In future, find a more elegant way for this.
+	public boolean isInsideEncapsulateFieldAutomatedRefactoring;
 
 
 	@Override
@@ -71,13 +81,30 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 	}
 
 	private void postprocessUserOperation(UserOperation userOperation) {
+		detectIntroducingGetterMethod(userOperation);
 		if (shouldReplay(userOperation)) {
 			replayAndRecord(userOperation, true);
-			if (shouldProcess(userOperation)) {
+			if (!isInsideEncapsulateFieldAutomatedRefactoring && shouldProcess(userOperation)) {
 				InferredRefactoringFactory.handleASTOperation((ASTOperation)userOperation);
 			}
 		} else {
 			record(userOperation, true);
+		}
+		lastProcessedUserOperation= userOperation;
+	}
+
+	private void detectIntroducingGetterMethod(UserOperation userOperation) {
+		if (userOperation instanceof TextChangeOperation && !(lastProcessedUserOperation instanceof TextChangeOperation)) {
+			TextChangeOperation textChangeOperation= (TextChangeOperation)userOperation;
+			String replacedText= textChangeOperation.getReplacedText();
+			String newText= textChangeOperation.getNewText();
+			if (newText.equals("get" + StringHelper.capitalizeFirstCharacter(replacedText) + "()")) {
+				isIntroducingGetterInvocation= true;
+				return;
+			}
+		}
+		if (!(userOperation instanceof ASTOperation)) {
+			isIntroducingGetterInvocation= false;
 		}
 	}
 
@@ -106,9 +133,13 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 
 	private void handleStartedRefactoring(NewStartedRefactoringOperation startedRefactoringOperation) {
 		isInsideAutomatedRefactoring= true;
+		if (startedRefactoringOperation.getID().endsWith(".self.encapsulate")) {
+			isInsideEncapsulateFieldAutomatedRefactoring= true;
+		}
 	}
 
 	private void initialize(List<UserOperation> userOperations) {
+		isIntroducingGetterInvocation= false;
 		InferredRefactoringFactory.resetCurrentState();
 		InferredRefactoringFactory.userOperations= userOperations;
 		resetRefactoringState();
@@ -116,6 +147,7 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 
 	private void resetRefactoringState() {
 		isInsideAutomatedRefactoring= false;
+		isInsideEncapsulateFieldAutomatedRefactoring= false;
 		affectedAutomatedRefactoringFile= null;
 		affectedAutomatedRefactoringLineNumber= -1;
 		isAutomatedRefactoringTooSimple= true;

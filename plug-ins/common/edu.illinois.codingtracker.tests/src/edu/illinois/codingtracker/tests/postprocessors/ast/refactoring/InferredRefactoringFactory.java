@@ -12,8 +12,10 @@ import java.util.Set;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AddedGetterMethodInvocationRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AtomicRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.CorrectiveRefactoringProperty;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.DeletedEntityReferenceRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringPropertiesFactory;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
 
@@ -57,6 +59,7 @@ public class InferredRefactoringFactory {
 		long currentTimestamp= operation.getTime();
 		removeOldCompleteRefactorings(currentTimestamp);
 		Set<AtomicRefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
+		applyFilteringHeuritics(newProperties);
 		removeOldCurrentProperties(newProperties, currentTimestamp);
 		Set<AtomicRefactoringProperty> correctedProperties= collectCorrectedProperties(newProperties);
 
@@ -65,6 +68,20 @@ public class InferredRefactoringFactory {
 		//First, process refactoring fragments, since doing so may lead to additional properties to be added to refactorings.
 		processPendingRefactoringFragments(propertiesToAdd, correctedProperties);
 		processPendingRefactorings(propertiesToAdd, correctedProperties);
+	}
+
+	private static void applyFilteringHeuritics(Set<AtomicRefactoringProperty> properties) {
+		if (!RefactoringInferencePostprocessor.isIntroducingGetterInvocation) {
+			return;
+		}
+		Iterator<AtomicRefactoringProperty> propertiesIterator= properties.iterator();
+		while (propertiesIterator.hasNext()) {
+			AtomicRefactoringProperty property= propertiesIterator.next();
+			if (!(property instanceof AddedGetterMethodInvocationRefactoringProperty) &&
+					!(property instanceof DeletedEntityReferenceRefactoringProperty)) {
+				propertiesIterator.remove();
+			}
+		}
 	}
 
 	private static void addPossiblyRelatedOperationToCurrentPropertiesAndCompleteRefactorings(ASTOperation operation) {

@@ -24,4 +24,11 @@ public class StringHelper {
 		return newPrefix + str.substring(oldPrefix.length());
 	}
 
+	public static String capitalizeFirstCharacter(String str) {
+		if (str.isEmpty()) {
+			return str;
+		}
+		return str.substring(0, 1).toUpperCase() + str.substring(1);
+	}
+
 }
