@@ -1,5 +1,7 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
+--FIXEME: Remove the following and just rely on import-transaction-date.sql
+
 \p Importing detailed-transactions.csv
 
 DROP TABLE "PUBLIC"."DETAILED_TRANSACTIONS" IF EXISTS;

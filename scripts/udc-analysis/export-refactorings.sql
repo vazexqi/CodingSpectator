@@ -85,6 +85,8 @@ CREATE INDEX "ALL_DATA_INDEX" ON "PUBLIC"."ALL_DATA" (
 
 );
 
+--FIXME: Can the following be moved to max-lengths.sql?
+
 * USERNAME_MAX_LENGTH =100
 
 * WORKSPACE_ID_MAX_LENGTH =100
