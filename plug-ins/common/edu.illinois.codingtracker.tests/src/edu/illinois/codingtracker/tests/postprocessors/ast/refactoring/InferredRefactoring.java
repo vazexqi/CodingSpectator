@@ -24,7 +24,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
  */
 public abstract class InferredRefactoring {
 
-	private static final long oldAgeTimeThreshold= 2 * 60 * 1000; // 2 minutes until a refactoring becomes too old.
+	public static final long oldAgeTimeThreshold= 2 * 60 * 1000; // 2 minutes until a refactoring becomes too old.
 
 	private final Map<String, List<RefactoringProperty>> properties= new HashMap<String, List<RefactoringProperty>>();
 

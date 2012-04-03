@@ -12,6 +12,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredRefactoring;
 
 
 /**
@@ -39,6 +40,7 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 	protected void postprocessOperation(UserOperation userOperation) {
 		if (userOperation instanceof ASTOperation) {
 			handleASTOperation((ASTOperation)userOperation);
+			//For delta intervals, consider only AST operations.
 			lastTimestamp= userOperation.getTime();
 		}
 		if (userOperation instanceof InferredRefactoringOperation) {
@@ -49,18 +51,18 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 	private void handleASTOperation(ASTOperation operation) {
 		long refactoringID= operation.getRefactoringID();
 		if (refactoringID != -1) {
-			long currentDuration= getDurationForRefactoring(refactoringID);
-			//TODO: !!!Either find a more objective way to measure duration or drop this research question.
-			refactoringDurations.put(refactoringID, currentDuration + operation.getTime() - lastTimestamp);
+			Long duration= refactoringDurations.get(refactoringID);
+			if (duration == null) {
+				//This is the first interval, so ignore it.
+				refactoringDurations.put(refactoringID, 0l);
+			} else {
+				long delta= operation.getTime() - lastTimestamp;
+				//Consider delta only if it fits within a single refactoring dynamic timespan.
+				if (delta < InferredRefactoring.oldAgeTimeThreshold) {
+					refactoringDurations.put(refactoringID, duration + delta);
+				}
+			}
 		}
-	}
-
-	private long getDurationForRefactoring(long refactoringID) {
-		Long duration= refactoringDurations.get(refactoringID);
-		if (duration == null) {
-			return 0;
-		}
-		return duration;
 	}
 
 	private void handleInferredRefactoring(InferredRefactoringOperation inferredRefactoring) {
@@ -100,7 +102,8 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 		RefactoringDescriptor(InferredRefactoringOperation inferredRefactoring) {
 			timestamp= inferredRefactoring.getTime();
 			refactoringKind= inferredRefactoring.getRefactoringKind();
-			duration= getDurationForRefactoring(inferredRefactoring.getRefactoringID());
+			Long currentDuration= refactoringDurations.get(inferredRefactoring.getRefactoringID());
+			duration= currentDuration == null ? 0 : currentDuration;
 		}
 
 	}
