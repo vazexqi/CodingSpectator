@@ -75,6 +75,11 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 	@Override
 	public void replay() throws CoreException {
 		isReplaying= true;
+		performReplaying();
+		isReplaying= false;
+	}
+
+	private void performReplaying() throws CoreException {
 		ITextEditor fileEditor= EditorHelper.getExistingEditor(resourcePath);
 		if (fileEditor != null) { //File editor exists
 			IDocument editedDocument= EditorHelper.getEditedDocument(fileEditor);
@@ -98,7 +103,6 @@ public class RefreshedFileOperation extends SnapshotedFileOperation {
 			}
 		}
 		refresh();
-		isReplaying= false;
 	}
 
 	private void refresh() throws CoreException {
