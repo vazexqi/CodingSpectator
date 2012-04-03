@@ -17,6 +17,9 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandDescription= "Generates transactions from a CSV file of items.")
 public class CommandLineParameters {
 
+	@Parameter(names= { "-n", "--events" }, description= "Path to the CSV file that contains all the events.", required= true)
+	public String eventsFileName= null;
+
 	@Parameter(names= { "-i", "--itemcolumn" }, description= "Name of the column of the CVS file that contains the items.", required= true)
 	public String itemColumnName;
 
@@ -29,11 +32,11 @@ public class CommandLineParameters {
 	@Parameter(names= { "-t", "--timewindow" }, description= "This number is minimum number of minutes that splits two consecutive events in two different transactions.")
 	public long timeWindowInMinutes= 1;
 
-	@Parameter(names= { "-d", "--detailedtransactions" }, description= "Path to the output CSV file that will contain detailed information about all transactions.")
-	public String detailedTransactionsFileName= null;
+	@Parameter(names= { "-d", "--detailedtransactions" }, description= "Path to the output CSV file that will contain detailed information about all transactions.", required= true)
+	public String detailedTransactionsFileName;
 
-	@Parameter(names= { "-p", "--transactionpatterns" }, description= "Path to the output CSV file that will contain the list of all transaction patterns.")
-	public String transactionPatternsFileName= null;
+	@Parameter(names= { "-p", "--transactionpatterns" }, description= "Path to the output CSV file that will contain the list of all transaction patterns.", required= true)
+	public String transactionPatternsFileName;
 
 	@Parameter(names= { "-h", "--help" }, description= "Print the usage help.")
 	public boolean help= false;

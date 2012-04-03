@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingspectator.csvtotransactions;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -92,7 +93,7 @@ public class CSVToTransactions {
 			if (params.help) {
 				commander.usage();
 			} else {
-				CSVToTransactions csvToTransactions= new CSVToTransactions(new InputStreamReader(System.in), new OutputStreamWriter(System.out), params.timeWindowInMinutes, new FileWriter(
+				CSVToTransactions csvToTransactions= new CSVToTransactions(new FileReader(params.eventsFileName), new OutputStreamWriter(System.out), params.timeWindowInMinutes, new FileWriter(
 						params.detailedTransactionsFileName), new FileWriter(params.transactionPatternsFileName), params.itemColumnName, params.timestampColumnName, params.fixedColumnNames);
 				csvToTransactions.convertCSVToTransactions();
 			}
