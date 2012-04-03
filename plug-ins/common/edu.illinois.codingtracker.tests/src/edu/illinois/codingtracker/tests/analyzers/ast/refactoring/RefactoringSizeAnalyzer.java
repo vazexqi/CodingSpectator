@@ -4,9 +4,11 @@
 package edu.illinois.codingtracker.tests.analyzers.ast.refactoring;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
@@ -33,6 +35,8 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 
 	private long currentAutomatedRefactoringTimestamp;
 
+	private Set<Long> currentAutomatedRefactoringAffectedNodeIDs= new HashSet<Long>();
+
 
 	@Override
 	protected String getTableHeader() {
@@ -48,12 +52,17 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 			handleInferredRefactoring((InferredRefactoringOperation)userOperation);
 		}
 		if (userOperation instanceof NewStartedRefactoringOperation) {
-			currentAutomatedRefactoringSize= 0;
-			currentAutomatedRefactoringTimestamp= userOperation.getTime();
+			handleStartedRefactoring((NewStartedRefactoringOperation)userOperation);
 		}
 		if (userOperation instanceof FinishedRefactoringOperation) {
 			handleFinishedRefactoring((FinishedRefactoringOperation)userOperation);
 		}
+	}
+
+	private void handleStartedRefactoring(NewStartedRefactoringOperation startedRefactoring) {
+		currentAutomatedRefactoringSize= 0;
+		currentAutomatedRefactoringTimestamp= startedRefactoring.getTime();
+		currentAutomatedRefactoringAffectedNodeIDs.clear();
 	}
 
 	private void handleASTOperation(ASTOperation operation) {
@@ -63,7 +72,13 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 			inferredRefactoringSizes.put(refactoringID, currentSize + 1);
 		}
 		if (isInsideAutomatedRefactoring()) {
-			//TODO: !!!Discount nodes that are both added and deleted as part of the same automated refactoring.
+			long nodeID= operation.getNodeID();
+			if (operation.isDelete() && currentAutomatedRefactoringAffectedNodeIDs.contains(nodeID)) {
+				//Instead of adding an additional operation, discount the previously counted operation.
+				currentAutomatedRefactoringSize--;
+				return;
+			}
+			currentAutomatedRefactoringAffectedNodeIDs.add(nodeID);
 			currentAutomatedRefactoringSize++;
 		}
 	}
