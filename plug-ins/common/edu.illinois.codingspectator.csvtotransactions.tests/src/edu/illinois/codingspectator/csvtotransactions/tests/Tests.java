@@ -6,7 +6,6 @@ package edu.illinois.codingspectator.csvtotransactions.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
@@ -62,10 +61,9 @@ public class Tests {
 	}
 
 	private void generateReports() throws IOException {
-		System.setIn(new FileInputStream(inputFilePath.toOSString()));
 		System.setOut(new PrintStream(actualFile.getPath().toOSString()));
-		CSVToTransactions.main(new String[] { "-i", "description", "-s", "time", "-f", "userId", "-t", "5", "-d", actualDetailedTransactionsFile.getPath().toOSString(), "-p",
-				actualTransactionPatternsFile.getPath().toOSString() });
+		CSVToTransactions.main(new String[] { "-n", inputFilePath.toOSString(), "-i", "description", "-s", "time", "-f", "userId", "-t", "5", "-d",
+				actualDetailedTransactionsFile.getPath().toOSString(), "-p", actualTransactionPatternsFile.getPath().toOSString() });
 	}
 
 	private void checkReports() throws IOException {
