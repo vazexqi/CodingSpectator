@@ -175,7 +175,7 @@ public class ASTOperationRecorder {
 	}
 
 	private boolean shouldExtendBatch(DocumentEvent event, long timestamp) {
-		if (isReplayingSnapshotDifference) {
+		if (Configuration.isInRefactoringInferenceMode || isReplayingSnapshotDifference) {
 			return false;
 		}
 		CoherentTextChange newTextChange= new CoherentTextChange(event, ConflictEditorTextChangeOperation.isReplaying, timestamp);
@@ -203,7 +203,7 @@ public class ASTOperationRecorder {
 
 	private void tryGluingInBatch(DocumentEvent event, long timestamp) {
 		CoherentTextChange textChangeToGlueWith= batchTextChanges.get(currentIndexToGlueWith);
-		if (shouldContinueBatch(event, timestamp) && textChangeToGlueWith.shouldGlueNewTextChange(event)) {
+		if (!Configuration.isInRefactoringInferenceMode && shouldContinueBatch(event, timestamp) && textChangeToGlueWith.shouldGlueNewTextChange(event)) {
 			textChangeToGlueWith.glueNewTextChange(event);
 			applyTextChangeToBatch(event, currentIndexToGlueWith);
 			//Clone the original document event since its document is updated by Eclipse.
@@ -301,13 +301,16 @@ public class ASTOperationRecorder {
 			flushProblematicTextChanges(isForced);
 		} else {
 			ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.get(0));
-			//Perform AST inference when forced or AST inference is not problematic.
-			if (isForced || !astOperationInferencer.isProblematicInference()) {
+			if (isForcedOrSafeFlushing(isForced, astOperationInferencer)) {
 				inferAndRecordASTOperations(astOperationInferencer);
 			} else {
 				enterInProblemMode();
 			}
 		}
+	}
+
+	private boolean isForcedOrSafeFlushing(boolean isForced, ASTOperationInferencer astOperationInferencer) {
+		return isForced || !astOperationInferencer.isProblematicInference();
 	}
 
 	private void flushBatchBackup(boolean isForced, boolean isGluingFlush) {
@@ -384,8 +387,7 @@ public class ASTOperationRecorder {
 		}
 		ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(problematicTextChanges);
 
-		//Perform AST inference when forced or AST inference is no longer problematic.
-		if (isForced || !astOperationInferencer.isProblematicInference()) {
+		if (isForcedOrSafeFlushing(isForced, astOperationInferencer)) {
 			inferAndRecordASTOperations(astOperationInferencer);
 			problematicTextChanges.clear();
 			isInProblemMode= false;
