@@ -5,12 +5,13 @@ package edu.illinois.codingtracker.operations.conflicteditors;
 
 import org.eclipse.compare.internal.CompareEditor;
 
+import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.Debugger;
-import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingtracker.operations.textchanges.ConflictEditorTextChangeOperation;
 
 /**
  * 
@@ -57,9 +58,17 @@ public class SavedConflictEditorOperation extends ConflictEditorOperation {
 		}
 	}
 
-	@SuppressWarnings("restriction")
 	@Override
 	public void replay() {
+		//Note that saving a conflict editor may result in a text change in a regular editor, which should be treated as if
+		//it is a conflict editor change for the purposes of AST node operations inference and coherent text changes recording.
+		ConflictEditorTextChangeOperation.isReplaying= true;
+		performReplaying();
+		ConflictEditorTextChangeOperation.isReplaying= false;
+	}
+
+	@SuppressWarnings("restriction")
+	private void performReplaying() {
 		if (success) {
 			CompareEditor compareEditor= EditorHelper.getCompareEditor(editorID);
 			if (compareEditor == null) {
