@@ -54,6 +54,9 @@ public class ASTOperationInferencer {
 
 
 	public ASTOperationInferencer(CoherentTextChange coherentTextChange) {
+		if (coherentTextChange == null) {
+			throw new RuntimeException("Initialized AST operation inferencer with a null text change!");
+		}
 		coherentTextChanges.add(coherentTextChange);
 		initializeInferencer();
 	}
@@ -61,10 +64,6 @@ public class ASTOperationInferencer {
 	public ASTOperationInferencer(List<CoherentTextChange> coherentTextChanges) {
 		this.coherentTextChanges.addAll(coherentTextChanges);
 		initializeInferencer();
-	}
-
-	public List<CoherentTextChange> getCoherentTextChanges() {
-		return coherentTextChanges;
 	}
 
 	public ASTNode getNewCommonCoveringNode() {
@@ -106,7 +105,7 @@ public class ASTOperationInferencer {
 	}
 
 	private void initializeInferencer() {
-		initializeOperationState(coherentTextChanges);
+		initializeOperationState();
 
 		affectedNodesFinder= new CoveringNodesFinder(coherentTextChanges);
 
@@ -125,7 +124,7 @@ public class ASTOperationInferencer {
 		}
 	}
 
-	private void initializeOperationState(List<CoherentTextChange> coherentTextChanges) {
+	private void initializeOperationState() {
 		isPossiblyCommentingOrUncommentingChange= false;
 		isUndoing= true;
 		for (CoherentTextChange textChange : coherentTextChanges) {

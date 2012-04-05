@@ -131,10 +131,6 @@ public class ASTOperationRecorder {
 		isInProblemMode= false;
 	}
 
-	public boolean isInProblemMode() {
-		return isInProblemMode;
-	}
-
 	public void beforeDocumentChange(DocumentEvent event, String filePath) {
 		if (RefreshedFileOperation.isReplaying) {
 			//ignore
@@ -297,10 +293,15 @@ public class ASTOperationRecorder {
 	 * @param isForced
 	 */
 	private void flushSingleBatchTextChange(boolean isForced) {
+		CoherentTextChange lastTextChange= batchTextChanges.size() == 1 ? batchTextChanges.get(0) : null;
+		if (!Configuration.isInRefactoringInferenceMode && lastTextChange != null &&
+				!lastTextChange.isConflictEditorChange()) {
+			ASTInferenceTextRecorder.record(lastTextChange.createTextChangeOperation(), false);
+		}
 		if (isInProblemMode) {
 			flushProblematicTextChanges(isForced);
 		} else {
-			ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(batchTextChanges.get(0));
+			ASTOperationInferencer astOperationInferencer= new ASTOperationInferencer(lastTextChange);
 			if (isForcedOrSafeFlushing(isForced, astOperationInferencer)) {
 				inferAndRecordASTOperations(astOperationInferencer);
 			} else {
@@ -424,8 +425,6 @@ public class ASTOperationRecorder {
 	}
 
 	private void inferAndRecordASTOperations(ASTOperationInferencer astOperationInferencer) {
-		recordCoherentTextChanges(astOperationInferencer.getCoherentTextChanges());
-
 		lastOldRootNode= astOperationInferencer.getOldRootNode();
 		lastNewRootNode= astOperationInferencer.getNewRootNode();
 
@@ -443,16 +442,6 @@ public class ASTOperationRecorder {
 
 		lastAddedNodes= astOperationInferencer.getAddedNodes();
 		recordAddASTOperations(currentEditedFilePath, lastAddedNodes, isCommentingOrUncommenting, isUndoing);
-	}
-
-	private void recordCoherentTextChanges(List<CoherentTextChange> coherentTextChanges) {
-		if (!Configuration.isInRefactoringInferenceMode) {
-			for (CoherentTextChange coherentTextChange : coherentTextChanges) {
-				if (!coherentTextChange.isConflictEditorChange()) {
-					ASTInferenceTextRecorder.record(coherentTextChange.createTextChangeOperation(), false);
-				}
-			}
-		}
 	}
 
 	private long getTextChangeTimestamp() {
