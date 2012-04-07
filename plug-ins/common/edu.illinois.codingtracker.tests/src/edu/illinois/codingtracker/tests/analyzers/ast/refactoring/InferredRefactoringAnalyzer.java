@@ -29,6 +29,8 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 
 	private RefactoringKind currentAutomatedRefactoringKind;
 
+	private String currentAutomatedRefactoringID;
+
 	private String extractedEntityName;
 
 	private long finishedAutomatedRefactoringTimestamp;
@@ -74,6 +76,7 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 
 	private void handleStartedRefactoring(NewStartedRefactoringOperation startedRefactoringOperation) {
 		isInsideAutomatedRefactoring= true;
+		currentAutomatedRefactoringID= startedRefactoringOperation.getID();
 		//Consider only performed refactorins.
 		if (startedRefactoringOperation.getRefactoringMode() == RefactoringMode.PERFORM) {
 			currentAutomatedRefactoringKind= getRefactoringKind(startedRefactoringOperation);
@@ -91,6 +94,10 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 
 	protected RefactoringKind getCurrentAutomatedRefactoringKind() {
 		return currentAutomatedRefactoringKind;
+	}
+
+	protected String getCurrentAutomatedRefactoringID() {
+		return currentAutomatedRefactoringID;
 	}
 
 	protected boolean shouldIgnoreInferredRefactoring(InferredRefactoringOperation inferredRefactoring) {
@@ -114,6 +121,7 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 	private void resetRefactoringState() {
 		isInsideAutomatedRefactoring= false;
 		currentAutomatedRefactoringKind= null;
+		currentAutomatedRefactoringID= "";
 	}
 
 	@Override
