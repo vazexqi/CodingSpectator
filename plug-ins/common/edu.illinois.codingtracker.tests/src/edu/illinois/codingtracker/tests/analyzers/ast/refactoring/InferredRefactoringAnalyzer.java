@@ -59,10 +59,11 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 	protected void postprocess(List<UserOperation> userOperations) {
 		initialize();
 		for (UserOperation userOperation : userOperations) {
-			postprocessOperation(userOperation);
 			if (userOperation instanceof NewStartedRefactoringOperation) {
 				handleStartedRefactoring((NewStartedRefactoringOperation)userOperation);
-			} else if (userOperation instanceof FinishedRefactoringOperation) {
+			}
+			postprocessOperation(userOperation);
+			if (userOperation instanceof FinishedRefactoringOperation) {
 				handleFinishedRefactoring((FinishedRefactoringOperation)userOperation);
 			}
 		}
