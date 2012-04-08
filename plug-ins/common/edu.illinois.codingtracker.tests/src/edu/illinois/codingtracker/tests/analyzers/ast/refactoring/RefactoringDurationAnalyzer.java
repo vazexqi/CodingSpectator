@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
@@ -27,6 +28,8 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 	private final List<RefactoringDescriptor> refactoringDescriptors= new LinkedList<RefactoringDescriptor>();
 
 	private final Map<Long, Long> refactoringDurations= new HashMap<Long, Long>();
+
+	private final Map<RefactoringKind, TotalDuration> totalRefactoringDurations= new HashMap<RefactoringKind, TotalDuration>();
 
 	private long lastTimestamp= -1;
 
@@ -81,8 +84,27 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 	@Override
 	protected void populateResults() {
 		for (RefactoringDescriptor refactoringDescriptor : refactoringDescriptors) {
+			updateTotalRefactoringDurations(refactoringDescriptor);
 			appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion,
 					refactoringDescriptor.timestamp, refactoringDescriptor.refactoringKind, refactoringDescriptor.duration);
+		}
+	}
+
+	private void updateTotalRefactoringDurations(RefactoringDescriptor refactoringDescriptor) {
+		TotalDuration totalDuration= totalRefactoringDurations.get(refactoringDescriptor.refactoringKind);
+		if (totalDuration == null) {
+			totalDuration= new TotalDuration();
+			totalRefactoringDurations.put(refactoringDescriptor.refactoringKind, totalDuration);
+		}
+		totalDuration.refactoringCount++;
+		totalDuration.totalDuration+= refactoringDescriptor.duration;
+	}
+
+	@Override
+	protected void finishedProcessingAllSequences() {
+		System.out.println("Total average durations:");
+		for (Entry<RefactoringKind, TotalDuration> entry : totalRefactoringDurations.entrySet()) {
+			System.out.println(entry.getKey() + "," + (entry.getValue().totalDuration / entry.getValue().refactoringCount));
 		}
 	}
 
@@ -105,6 +127,14 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 			Long currentDuration= refactoringDurations.get(inferredRefactoring.getRefactoringID());
 			duration= currentDuration == null ? 0 : currentDuration;
 		}
+
+	}
+
+	private class TotalDuration {
+
+		private int refactoringCount= 0;
+
+		private long totalDuration= 0;
 
 	}
 
