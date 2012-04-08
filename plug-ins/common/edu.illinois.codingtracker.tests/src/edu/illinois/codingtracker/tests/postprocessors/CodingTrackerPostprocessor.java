@@ -52,6 +52,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		prepareMergedOutputFile();
 		prepareAuxiliaryOutputFile();
 		visitLocation(new File(Configuration.postprocessorRootFolderName));
+		finishedProcessingAllSequences();
 	}
 
 	private void prepareMergedOutputFile() {
@@ -198,6 +199,10 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	protected String getAuxiliaryResult() {
 		return "";
+	}
+
+	protected void finishedProcessingAllSequences() {
+
 	}
 
 	protected abstract boolean shouldPostprocessVersionFolder(String folderName);

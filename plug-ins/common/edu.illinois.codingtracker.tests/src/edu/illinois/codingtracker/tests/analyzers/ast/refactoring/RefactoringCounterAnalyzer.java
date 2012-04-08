@@ -24,6 +24,8 @@ public class RefactoringCounterAnalyzer extends InferredRefactoringAnalyzer {
 
 	private final Map<RefactoringKind, RefactoringCounter> refactorings= new HashMap<RefactoringKind, RefactoringCounter>();
 
+	private final Map<RefactoringKind, RefactoringCounter> totalRefactorings= new HashMap<RefactoringKind, RefactoringCounter>();
+
 
 	@Override
 	protected String getTableHeader() {
@@ -77,8 +79,27 @@ public class RefactoringCounterAnalyzer extends InferredRefactoringAnalyzer {
 	@Override
 	protected void populateResults() {
 		for (Entry<RefactoringKind, RefactoringCounter> entry : refactorings.entrySet()) {
+			updateTotalRefactorings(entry);
 			appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, entry.getKey().name(),
 					entry.getValue().manualRefactoringCount, entry.getValue().automatedRefactoringCount);
+		}
+	}
+
+	private void updateTotalRefactorings(Entry<RefactoringKind, RefactoringCounter> entry) {
+		RefactoringCounter totalCounter= totalRefactorings.get(entry.getKey());
+		if (totalCounter == null) {
+			totalCounter= new RefactoringCounter();
+			totalRefactorings.put(entry.getKey(), totalCounter);
+		}
+		totalCounter.manualRefactoringCount+= entry.getValue().manualRefactoringCount;
+		totalCounter.automatedRefactoringCount+= entry.getValue().automatedRefactoringCount;
+	}
+
+	@Override
+	protected void finishedProcessingAllSequences() {
+		System.out.println("Total counts:");
+		for (Entry<RefactoringKind, RefactoringCounter> entry : totalRefactorings.entrySet()) {
+			System.out.println(entry.getKey() + "," + entry.getValue().manualRefactoringCount + "," + entry.getValue().automatedRefactoringCount);
 		}
 	}
 
