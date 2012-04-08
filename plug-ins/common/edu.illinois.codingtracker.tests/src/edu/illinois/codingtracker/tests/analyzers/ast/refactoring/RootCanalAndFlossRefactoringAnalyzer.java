@@ -33,11 +33,17 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 
 	private int[] currentRootCanalSize;
 
-	private int[] totalRootCanalRefactoringsCount;
+	private int[] rootCanalRefactoringsCount;
 
-	private int[] totalEditsInBetweenFlossRefactoringsCount;
+	private int[] editsInBetweenFlossRefactoringsCount;
 
-	private int totalRefactoringsCount;
+	private int refactoringsCount;
+
+	private int[] totalRootCanalRefactoringsCount= new int[rootCanalMaxThreshold];
+
+	private int[] totalEditsInBetweenFlossRefactoringsCount= new int[rootCanalMaxThreshold];
+
+	private int totalRefactoringsCount= 0;
 
 
 	@Override
@@ -98,7 +104,7 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 
 	private void dropFlossRefactoring(int index) {
 		RefactoringDescriptor removedCandidate= currentCandidates[index].remove(0);
-		totalEditsInBetweenFlossRefactoringsCount[index]+= removedCandidate.editedASTNodesSinceStart - currentCandidates[index].get(0).editedASTNodesSinceStart;
+		editsInBetweenFlossRefactoringsCount[index]+= removedCandidate.editedASTNodesSinceStart - currentCandidates[index].get(0).editedASTNodesSinceStart;
 		currentCompleteCandidatesCount[index]--;
 	}
 
@@ -109,8 +115,8 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 	}
 
 	private void reportFoundRootCanalRefactoring(int index) {
-		System.out.println("Found root canal, index= " + index + ", size= " + currentRootCanalSize[index]);
-		totalRootCanalRefactoringsCount[index]+= currentRootCanalSize[index];
+		//System.out.println("Found root canal, index= " + index + ", size= " + currentRootCanalSize[index]);
+		rootCanalRefactoringsCount[index]+= currentRootCanalSize[index];
 		//Remove the first currentRootCanalSize count of candidates.
 		for (int i= 0; i < currentRootCanalSize[index]; i++) {
 			currentCandidates[index].remove(0);
@@ -149,7 +155,7 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 	}
 
 	private void addNewRefactoring(long refactoringID) {
-		totalRefactoringsCount++;
+		refactoringsCount++;
 		for (int i= 0; i < rootCanalMaxThreshold; i++) {
 			currentCandidates[i].add(new RefactoringDescriptor(refactoringID));
 		}
@@ -194,9 +200,9 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 		}
 		currentCompleteCandidatesCount= new int[rootCanalMaxThreshold];
 		currentRootCanalSize= new int[rootCanalMaxThreshold];
-		totalRootCanalRefactoringsCount= new int[rootCanalMaxThreshold];
-		totalEditsInBetweenFlossRefactoringsCount= new int[rootCanalMaxThreshold];
-		totalRefactoringsCount= 0;
+		rootCanalRefactoringsCount= new int[rootCanalMaxThreshold];
+		editsInBetweenFlossRefactoringsCount= new int[rootCanalMaxThreshold];
+		refactoringsCount= 0;
 	}
 
 	private void flushRefactoringsData() {
@@ -213,12 +219,13 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 	@Override
 	protected void populateResults() {
 		flushRefactoringsData();
-		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, totalRefactoringsCount,
-						totalRootCanalRefactoringsCount[0], totalRootCanalRefactoringsCount[1],
-						totalRootCanalRefactoringsCount[2], totalRootCanalRefactoringsCount[3],
-						totalRootCanalRefactoringsCount[4], totalRootCanalRefactoringsCount[5],
-						totalRootCanalRefactoringsCount[6], totalRootCanalRefactoringsCount[7],
-						totalRootCanalRefactoringsCount[8], totalRootCanalRefactoringsCount[9],
+		updateTotalCounts();
+		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, refactoringsCount,
+						rootCanalRefactoringsCount[0], rootCanalRefactoringsCount[1],
+						rootCanalRefactoringsCount[2], rootCanalRefactoringsCount[3],
+						rootCanalRefactoringsCount[4], rootCanalRefactoringsCount[5],
+						rootCanalRefactoringsCount[6], rootCanalRefactoringsCount[7],
+						rootCanalRefactoringsCount[8], rootCanalRefactoringsCount[9],
 						getEditsPerFlossRefactoring(0), getEditsPerFlossRefactoring(1),
 						getEditsPerFlossRefactoring(2), getEditsPerFlossRefactoring(3),
 						getEditsPerFlossRefactoring(4), getEditsPerFlossRefactoring(5),
@@ -227,11 +234,39 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 	}
 
 	private int getEditsPerFlossRefactoring(int index) {
-		int flossRefactoringsCount= totalRefactoringsCount - totalRootCanalRefactoringsCount[index];
+		int flossRefactoringsCount= refactoringsCount - rootCanalRefactoringsCount[index];
 		if (flossRefactoringsCount == 0) {
 			return 0;
 		}
-		return totalEditsInBetweenFlossRefactoringsCount[index] / flossRefactoringsCount;
+		return editsInBetweenFlossRefactoringsCount[index] / flossRefactoringsCount;
+	}
+
+	private void updateTotalCounts() {
+		totalRefactoringsCount+= refactoringsCount;
+		for (int i= 0; i < rootCanalMaxThreshold; i++) {
+			totalRootCanalRefactoringsCount[i]+= rootCanalRefactoringsCount[i];
+			totalEditsInBetweenFlossRefactoringsCount[i]+= editsInBetweenFlossRefactoringsCount[i];
+		}
+	}
+
+	@Override
+	protected void finishedProcessingAllSequences() {
+		System.out.println("Total root canal and floss refactoring statistics:");
+		System.out.print(totalRefactoringsCount + ",");
+		for (int i= 0; i < rootCanalMaxThreshold; i++) {
+			System.out.print(totalRootCanalRefactoringsCount[i] + ",");
+		}
+		for (int i= 0; i < rootCanalMaxThreshold; i++) {
+			System.out.print(getTotalEditsPerFlossRefactoring(i) + ",");
+		}
+	}
+
+	private int getTotalEditsPerFlossRefactoring(int index) {
+		int totalFlossRefactoringsCount= totalRefactoringsCount - totalRootCanalRefactoringsCount[index];
+		if (totalFlossRefactoringsCount == 0) {
+			return 0;
+		}
+		return totalEditsInBetweenFlossRefactoringsCount[index] / totalFlossRefactoringsCount;
 	}
 
 	@Override
