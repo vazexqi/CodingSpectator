@@ -26,11 +26,13 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 
 	private StringBuffer auxiliaryResult;
 
-	private long accumulatedUsageTime= 0;
+	private long totalUsageTime= 0;
 
 	private long startIntervalTimestamp;
 
 	private long sequenceUsageTime;
+
+	private long participantUsageTime;
 
 
 	@Override
@@ -73,7 +75,8 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 			//Record the final gap, which represents the boundary between sequences.
 			recordGap(previousTimestamp);
 		}
-		accumulatedUsageTime+= sequenceUsageTime;
+		totalUsageTime+= sequenceUsageTime;
+		participantUsageTime+= sequenceUsageTime;
 		appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, sequenceUsageTime);
 	}
 
@@ -95,7 +98,7 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 			if (usageInterval < 0) {
 				throw new RuntimeException("Usage interval should not be negative: " + usageInterval);
 			}
-			long startUsageTime= accumulatedUsageTime + sequenceUsageTime;
+			long startUsageTime= totalUsageTime + sequenceUsageTime;
 			UsageTimeInterval usageTimeInterval= new UsageTimeInterval(postprocessedFileRelativePath, startUsageTime, startUsageTime + usageInterval, startIntervalTimestamp, stopIntervalTimestamp);
 			auxiliaryResult.append(usageTimeInterval.serialize());
 			sequenceUsageTime+= usageInterval;
@@ -122,6 +125,12 @@ public class UsageTimeAnalyzer extends CSVProducingAnalyzer {
 		auxiliaryResult= new StringBuffer();
 		startIntervalTimestamp= -1;
 		sequenceUsageTime= 0;
+	}
+
+	@Override
+	protected void finishedProcessingParticipant() {
+		System.out.println("Participant time: " + participantUsageTime);
+		participantUsageTime= 0;
 	}
 
 	@Override
