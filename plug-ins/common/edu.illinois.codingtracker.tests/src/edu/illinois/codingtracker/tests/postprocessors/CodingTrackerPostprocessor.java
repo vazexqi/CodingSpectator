@@ -40,7 +40,9 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 
 	protected String postprocessedWorkspaceID;
 
-	protected String postprocessedUsername;
+	protected String postprocessedUsername; //This one assumes a particular folder hierarchy.
+
+	protected String postprocessedParticipant= null; //This one is established dynamically regardless of the folder hierarchy.
 
 	protected String postprocessedFileRelativePath;
 
@@ -52,6 +54,7 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		prepareMergedOutputFile();
 		prepareAuxiliaryOutputFile();
 		visitLocation(new File(Configuration.postprocessorRootFolderName));
+		finishedProcessingParticipant();
 		finishedProcessingAllSequences();
 	}
 
@@ -153,10 +156,27 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 			postprocessedWorkspaceID= workspaceIDFolder.getName();
 			File usernameFolder= workspaceIDFolder.getParentFile();
 			postprocessedUsername= usernameFolder.getName();
+			String nextParticipant= getParticipantID(file);
+			if (postprocessedParticipant != null && !nextParticipant.equals(postprocessedParticipant)) {
+				finishedProcessingParticipant();
+			}
+			postprocessedParticipant= nextParticipant;
 		} catch (Exception e) {
 			//A NullPointerException could be thrown, for example, when there are no sufficient parent folders.
 			handleFileDataInitializationException(file, e);
 		}
+	}
+
+	private String getParticipantID(File sequenceFile) {
+		File parentFile= sequenceFile.getParentFile();
+		while (parentFile != null) {
+			if (parentFile.getName().startsWith("cs-")) {
+				return parentFile.getName();
+			}
+			parentFile= parentFile.getParentFile();
+		}
+		//Did not find the participant's name, return the name of the folder two levels up (simplifies testing).
+		return sequenceFile.getParentFile().getParentFile().getName();
 	}
 
 	private void initializePostprocessedFileRelativePath(File file) {
@@ -202,6 +222,10 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 	}
 
 	protected void finishedProcessingAllSequences() {
+
+	}
+
+	protected void finishedProcessingParticipant() {
 
 	}
 
