@@ -41,6 +41,10 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 
 	private RefactoringDescriptor currentAutomatedRefactoringDescriptor;
 
+	private final Map<RefactoringKind, Pair> totalCompletelyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
+
+	private final Map<RefactoringKind, Pair> totalPartiallyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
+
 
 	@Override
 	protected String getTableHeader() {
@@ -160,18 +164,43 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 		Map<RefactoringKind, Pair> partiallyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
 		populateStatisticalData(inferredRefactorings.values(), completelyShadowedRefactorigs, partiallyShadowedRefactorigs);
 		populateStatisticalData(automatedRefactorings, completelyShadowedRefactorigs, partiallyShadowedRefactorigs);
-		for (Entry<RefactoringKind, Pair> pairRefactoringCounter : completelyShadowedRefactorigs.entrySet()) {
+		updateTotalCounts(completelyShadowedRefactorigs, partiallyShadowedRefactorigs);
+		for (Entry<RefactoringKind, Pair> completelyShadowedRefactoringsEntry : completelyShadowedRefactorigs.entrySet()) {
 			//The key set of completely shadowed refactorings map contains all committed refactoring kinds.
-			RefactoringKind refactoringKind= pairRefactoringCounter.getKey();
+			RefactoringKind refactoringKind= completelyShadowedRefactoringsEntry.getKey();
 			Pair pairChangesCounter= partiallyShadowedRefactorigs.get(refactoringKind);
 			if (pairChangesCounter == null) {
 				//Just an empty pair for convenience.
 				pairChangesCounter= new Pair();
 			}
 			appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion, refactoringKind,
-					pairRefactoringCounter.getValue().num1, pairRefactoringCounter.getValue().num2, pairChangesCounter.num1,
+					completelyShadowedRefactoringsEntry.getValue().num1, completelyShadowedRefactoringsEntry.getValue().num2, pairChangesCounter.num1,
 					pairChangesCounter.num2);
 
+		}
+	}
+
+	private void updateTotalCounts(Map<RefactoringKind, Pair> completelyShadowedRefactorigs, Map<RefactoringKind, Pair> partiallyShadowedRefactorigs) {
+		for (Entry<RefactoringKind, Pair> completelyShadowedRefactoringsEntry : completelyShadowedRefactorigs.entrySet()) {
+			RefactoringKind refactoringKind= completelyShadowedRefactoringsEntry.getKey();
+			Pair totalCompletelyShadowedPair= totalCompletelyShadowedRefactorigs.get(refactoringKind);
+			if (totalCompletelyShadowedPair == null) {
+				totalCompletelyShadowedPair= new Pair();
+				totalCompletelyShadowedRefactorigs.put(refactoringKind, totalCompletelyShadowedPair);
+			}
+			totalCompletelyShadowedPair.num1+= completelyShadowedRefactoringsEntry.getValue().num1;
+			totalCompletelyShadowedPair.num2+= completelyShadowedRefactoringsEntry.getValue().num2;
+			Pair partiallyShadowedPair= partiallyShadowedRefactorigs.get(refactoringKind);
+			if (partiallyShadowedPair == null) {
+				partiallyShadowedPair= new Pair();
+			}
+			Pair totalPartiallyShadowedPair= totalPartiallyShadowedRefactorigs.get(refactoringKind);
+			if (totalPartiallyShadowedPair == null) {
+				totalPartiallyShadowedPair= new Pair();
+				totalPartiallyShadowedRefactorigs.put(refactoringKind, totalPartiallyShadowedPair);
+			}
+			totalPartiallyShadowedPair.num1+= partiallyShadowedPair.num1;
+			totalPartiallyShadowedPair.num2+= partiallyShadowedPair.num2;
 		}
 	}
 
@@ -197,6 +226,18 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 					pairChangesCounter.num2+= refactoringDescriptor.shadowedCommittedNodes;
 				}
 			}
+		}
+	}
+
+	@Override
+	protected void finishedProcessingAllSequences() {
+		System.out.println("Total shadowed refactorings statistics:");
+		for (Entry<RefactoringKind, Pair> totalCompletelyShadowedRefactoringsEntry : totalCompletelyShadowedRefactorigs.entrySet()) {
+			RefactoringKind refactoringKind= totalCompletelyShadowedRefactoringsEntry.getKey();
+			Pair totalPartiallyShadowedPair= totalPartiallyShadowedRefactorigs.get(refactoringKind);
+			System.out.println(refactoringKind + "," + totalCompletelyShadowedRefactoringsEntry.getValue().num1 + "," +
+					totalCompletelyShadowedRefactoringsEntry.getValue().num2 + "," + totalPartiallyShadowedPair.num1 + "," +
+					totalPartiallyShadowedPair.num2);
 		}
 	}
 
