@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -36,6 +37,8 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 	private long currentAutomatedRefactoringTimestamp;
 
 	private Set<Long> currentAutomatedRefactoringAffectedNodeIDs= new HashSet<Long>();
+
+	private final Map<RefactoringKind, TotalSize> totalRefactoringSizes= new HashMap<RefactoringKind, TotalSize>();
 
 
 	@Override
@@ -114,10 +117,50 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 	@Override
 	protected void populateResults() {
 		for (RefactoringDescriptor refactoringDescriptor : refactoringDescriptors) {
+			updateTotalRefactoringSizes(refactoringDescriptor);
 			appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, postprocessedVersion,
 					refactoringDescriptor.timestamp, refactoringDescriptor.isAutomated ? "AUTOMATED" : "MANUAL",
 							refactoringDescriptor.refactoringKind, refactoringDescriptor.size);
 		}
+	}
+
+	private void updateTotalRefactoringSizes(RefactoringDescriptor refactoringDescriptor) {
+		TotalSize totalSize= totalRefactoringSizes.get(refactoringDescriptor.refactoringKind);
+		if (totalSize == null) {
+			totalSize= new TotalSize();
+			totalRefactoringSizes.put(refactoringDescriptor.refactoringKind, totalSize);
+		}
+		if (refactoringDescriptor.isAutomated) {
+			totalSize.automatedRefactoringCount++;
+			totalSize.totalAutomatedSize+= refactoringDescriptor.size;
+		} else {
+			totalSize.manualRefactoringCount++;
+			totalSize.totalManualSize+= refactoringDescriptor.size;
+		}
+	}
+
+	@Override
+	protected void finishedProcessingAllSequences() {
+		System.out.println("Total average sizes:");
+		for (Entry<RefactoringKind, TotalSize> entry : totalRefactoringSizes.entrySet()) {
+			System.out.println(entry.getKey() + "," + getAverageAutomatedSize(entry.getValue()) + "," +
+								getAverageManualSize(entry.getValue()));
+		}
+	}
+
+	private String getAverageManualSize(TotalSize totalSize) {
+		return getAverageSize(totalSize.totalManualSize, totalSize.manualRefactoringCount);
+	}
+
+	private String getAverageAutomatedSize(TotalSize totalSize) {
+		return getAverageSize(totalSize.totalAutomatedSize, totalSize.automatedRefactoringCount);
+	}
+
+	private String getAverageSize(long size, int count) {
+		if (count == 0) {
+			return "N/A";
+		}
+		return String.valueOf(size / count);
 	}
 
 	@Override
@@ -141,6 +184,18 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 			this.refactoringKind= refactoringKind;
 			this.size= size;
 		}
+
+	}
+
+	private class TotalSize {
+
+		private int automatedRefactoringCount= 0;
+
+		private int manualRefactoringCount= 0;
+
+		private long totalAutomatedSize= 0;
+
+		private long totalManualSize= 0;
 
 	}
 
