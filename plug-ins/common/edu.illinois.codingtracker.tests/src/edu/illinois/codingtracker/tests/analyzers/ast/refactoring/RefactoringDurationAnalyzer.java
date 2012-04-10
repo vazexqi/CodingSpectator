@@ -33,6 +33,7 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 
 	private long lastTimestamp= -1;
 
+	private final boolean shouldIgnoreInitialInterval= false;
 
 	@Override
 	protected String getTableHeader() {
@@ -56,14 +57,17 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 		if (refactoringID != -1) {
 			Long duration= refactoringDurations.get(refactoringID);
 			if (duration == null) {
-				//This is the first interval, so ignore it.
-				refactoringDurations.put(refactoringID, 0l);
-			} else {
-				long delta= operation.getTime() - lastTimestamp;
-				//Consider delta only if it fits within a single refactoring dynamic timespan.
-				if (delta < InferredRefactoring.oldAgeTimeThreshold) {
-					refactoringDurations.put(refactoringID, duration + delta);
+				duration= 0l;
+				if (shouldIgnoreInitialInterval) {
+					//This is the first interval, so ignore it.
+					refactoringDurations.put(refactoringID, 0l);
+					return;
 				}
+			}
+			long delta= operation.getTime() - lastTimestamp;
+			//Consider delta only if it fits within a single refactoring dynamic timespan.
+			if (delta < InferredRefactoring.oldAgeTimeThreshold) {
+				refactoringDurations.put(refactoringID, duration + delta);
 			}
 		}
 	}
@@ -96,8 +100,10 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 			totalDuration= new TotalDuration();
 			totalRefactoringDurations.put(refactoringDescriptor.refactoringKind, totalDuration);
 		}
-		totalDuration.refactoringCount++;
-		totalDuration.totalDuration+= refactoringDescriptor.duration;
+		if (refactoringDescriptor.duration != 0) {
+			totalDuration.refactoringCount++;
+			totalDuration.totalDuration+= refactoringDescriptor.duration;
+		}
 	}
 
 	@Override
