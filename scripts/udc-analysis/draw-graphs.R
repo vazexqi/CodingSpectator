@@ -4,7 +4,7 @@
 library(ggplot2)
 
 codingspectator_svn_folder <- Sys.getenv("CODINGSPECTATOR_SVN_FOLDER")
-udc_distributions_folder <- paste(codingspectator_svn_folder, "Experiment", "UDCData", "TimestampedUDCData", "Distributions", sep = "/")
+udc_distributions_folder <- paste(codingspectator_svn_folder, "Experiment", "UDCData", "TimestampedUDCData", "AllUsers", "Distributions", sep = "/")
 
 csv_file_name <- paste(udc_distributions_folder, "users-distinct-refactorings.csv", sep = "/")
 table <- read.table(file = csv_file_name, header = TRUE, sep = ",")
@@ -32,7 +32,7 @@ geom_point() +
 scale_x_continuous(name = "Maximum Number of Distinct Refactorings", breaks = number_of_distinct_refactorings) +
 scale_y_continuous("Programmers (%)") +
 geom_path() +
-geom_text(aes(x = number_of_distinct_refactorings[1:5], y = cumulative_percentage_users[1:5], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", cumulative_percentage_users[1:5])), size = 3) +
+geom_text(data=data.frame(number_of_distinct_refactorings[1:5], cumulative_percentage_users[1:5]), aes(x = number_of_distinct_refactorings[1:5], y = cumulative_percentage_users[1:5], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", (cumulative_percentage_users[1:5]))), size = 3) +
 opts(title = "Cumulative Distribution of Distinct Refactorings")
 dev.off()
 
