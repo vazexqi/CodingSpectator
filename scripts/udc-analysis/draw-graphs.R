@@ -4,6 +4,7 @@
 library(scales)
 library(ggplot2)
 library(tikzDevice)
+library(Rsundials)
 
 codingspectator_svn_folder <- Sys.getenv("CODINGSPECTATOR_SVN_FOLDER")
 udc_distributions_folder <- paste(codingspectator_svn_folder, "Experiment", "UDCData", "TimestampedUDCData", "AllUsers", "Distributions", sep = "/")
@@ -92,5 +93,26 @@ stat_bin(aes(y = ..count..), breaks = breaks, geom = "point", position = "identi
 scale_x_continuous("Number of Refactorings", breaks = ticks) +
 scale_y_log10("Number of Users (log-scaled)") +
 opts(title = sprintf("Distribution of the Number of Users of Each Number of Refactorings\nBin Width = %d", binwidth))
+dev.off()
+
+csv_file_name <- paste(udc_distributions_folder, "users-all-refactorings.csv", sep = "/")
+table <- read.table(file = csv_file_name, header = TRUE, sep = ",")
+number_of_all_refactorings <- table$REFACTORINGS
+users <- table$USERS
+total_number_of_refactoring_users <- sum(table$USERS)
+cumulative_proportion_of_users_in_percent <- cumsum(table$USERS) / total_number_of_refactoring_users
+
+data <- data.frame(number_of_all_refactorings = number_of_all_refactorings[seq(from = 10, to = 200, by = 10)], cumulative_proportion_of_users_in_percent = cumulative_proportion_of_users_in_percent[seq(from = 10, to = 200, by = 10)])
+p <- ggplot(data, stat = "identity", aes(x = number_of_all_refactorings, y = cumulative_proportion_of_users_in_percent)) +
+geom_point() +
+scale_x_continuous(name = "Maximum Number of Refactoring Invocations") +
+geom_path() +
+scale_y_continuous(name="Proportion of Refactoring Users", labels = percent) +
+geom_text(data = data.frame(number_of_all_refactorings[seq(from = 10, to = 50, by = 10)], cumulative_proportion_of_users_in_percent[seq(from = 10, to = 50, by = 10)]), aes(x = number_of_all_refactorings[seq(from = 10, to = 50, by = 10)], y = cumulative_proportion_of_users_in_percent[seq(from = 10, to = 50, by = 10)], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", 100 * cumulative_proportion_of_users_in_percent[seq(from = 10, to = 50, by = 10)])), size = 3) +
+opts(title = "Cumulative Distribution of Refactorings", plot.title = theme_text(face = "bold", size = 13))
+
+tex_file_name <- paste(oopsla_2012_folder, paste("CumulativeDistributionOfAllRefactorings", "tex", sep = "."), sep = "/")
+tikz(file = tex_file_name, width = 3.5, height = 3.5, sanitize = TRUE, bareBones = TRUE, documentDeclaration = options(tikzDocumentDeclaration = "\\documentclass[10pt]{article}"), pointsize = 10)
+p 
 dev.off()
 
