@@ -1,10 +1,13 @@
 #!/usr/bin/env Rscript
 # This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
+library(scales)
 library(ggplot2)
+library(tikzDevice)
 
 codingspectator_svn_folder <- Sys.getenv("CODINGSPECTATOR_SVN_FOLDER")
 udc_distributions_folder <- paste(codingspectator_svn_folder, "Experiment", "UDCData", "TimestampedUDCData", "AllUsers", "Distributions", sep = "/")
+oopsla_2012_folder <- paste(codingspectator_svn_folder, "Papers", "2012-OOPSLA-VakilianETAL", "Paper", "Figures", sep = "/")
 
 csv_file_name <- paste(udc_distributions_folder, "users-distinct-refactorings.csv", sep = "/")
 table <- read.table(file = csv_file_name, header = TRUE, sep = ",")
@@ -23,17 +26,24 @@ geom_text(aes(vjust = -1, label = sprintf("%.4f%%", users / total_number_of_refa
 opts(title = "Distribution of Distinct Refactorings")
 dev.off()
 
-png_file_name <- paste(udc_distributions_folder, "cumulative-distribution-of-distinct-refactorings.png", sep = "/")
-png(filename = png_file_name, width = 600, height = 600, res = 100)
-cumulative_percentage_users <- cumsum(table$USERS) / total_number_of_refactoring_users * 100
+cumulative_percentage_users <- cumsum(table$USERS) / total_number_of_refactoring_users
 data <- data.frame(number_of_distinct_refactorings, cumulative_percentage_users)
-ggplot(data, stat = "identity", aes(x = number_of_distinct_refactorings, y = cumulative_percentage_users)) +
+p <- ggplot(data, stat = "identity", aes(x = number_of_distinct_refactorings, y = cumulative_percentage_users)) +
 geom_point() +
-scale_x_continuous(name = "Maximum Number of Distinct Refactorings", breaks = number_of_distinct_refactorings) +
-scale_y_continuous("Programmers (%)") +
+scale_x_continuous(name = "Maximum Number of Distinct Refactorings Used", breaks = number_of_distinct_refactorings) +
 geom_path() +
-geom_text(data=data.frame(number_of_distinct_refactorings[1:5], cumulative_percentage_users[1:5]), aes(x = number_of_distinct_refactorings[1:5], y = cumulative_percentage_users[1:5], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", (cumulative_percentage_users[1:5]))), size = 3) +
-opts(title = "Cumulative Distribution of Distinct Refactorings")
+scale_y_continuous(name="Proportion of Refactoring Users", labels = percent) +
+geom_text(data = data.frame(number_of_distinct_refactorings[1:5], cumulative_percentage_users[1:5]), aes(x = number_of_distinct_refactorings[1:5], y = cumulative_percentage_users[1:5], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", 100 * cumulative_percentage_users[1:5])), size = 3) +
+opts(title = "Cumulative Distribution of Distinct Refactorings", plot.title = theme_text(face = "bold", size = 13))
+
+png_file_name <- paste(udc_distributions_folder, paste("cumulative-distribution-of-distinct-refactorings", "png", sep = "."), sep = "/")
+png(filename = png_file_name, width = 600, height = 600, res = 100)
+p 
+dev.off()
+
+tex_file_name <- paste(oopsla_2012_folder, paste("CumulativeDistributionOfDistinctRefactorings", "tex", sep = "."), sep = "/")
+tikz(file = tex_file_name, width = 3.5, height = 3.5, sanitize = TRUE, bareBones = TRUE, documentDeclaration = options(tikzDocumentDeclaration = "\\documentclass[10pt]{article}"), pointsize = 10)
+p 
 dev.off()
 
 csv_file_name <- paste(udc_distributions_folder, "refactoring-frequencies.csv", sep = "/")
