@@ -1,8 +1,11 @@
 --This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
 
-* USAGE_TIME_START=1305435601000 --May 15, 2011
+* USAGE_TIME_START =1305435601000 --May 15, 2011
 
-* USAGE_TIME_STOP=1313384401000 --August 15, 2011
+--* USAGE_TIME_STOP=1313384401000 --August 15, 2011
+
+-- (near the end of the matched data)
+* USAGE_TIME_STOP =1332619371000 -- February 3, 2011
 
 \p Deleting out-of-scope data from ALL_DATA
 
