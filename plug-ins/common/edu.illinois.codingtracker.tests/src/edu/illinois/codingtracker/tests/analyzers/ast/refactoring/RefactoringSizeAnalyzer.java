@@ -131,11 +131,9 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 			totalRefactoringSizes.put(refactoringDescriptor.refactoringKind, totalSize);
 		}
 		if (refactoringDescriptor.isAutomated) {
-			totalSize.automatedRefactoringCount++;
-			totalSize.totalAutomatedSize+= refactoringDescriptor.size;
+			totalSize.addAutomatedSize(refactoringDescriptor.size);
 		} else {
-			totalSize.manualRefactoringCount++;
-			totalSize.totalManualSize+= refactoringDescriptor.size;
+			totalSize.addManualSize(refactoringDescriptor.size);
 		}
 	}
 
@@ -143,24 +141,11 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 	protected void finishedProcessingAllSequences() {
 		System.out.println("Total average sizes:");
 		for (Entry<RefactoringKind, TotalSize> entry : totalRefactoringSizes.entrySet()) {
-			System.out.println(entry.getKey() + "," + getAverageAutomatedSize(entry.getValue()) + "," +
-								getAverageManualSize(entry.getValue()));
+			TotalSize totalSize= entry.getValue();
+			System.out.println(entry.getKey() + "," + totalSize.getAutomatedCount() + "," + totalSize.getAutomatedMean() + ","
+					+ totalSize.getAutomatedStDev() + "," + totalSize.getManualCount() + "," + totalSize.getManualMean() + ","
+					+ totalSize.getManualStDev());
 		}
-	}
-
-	private String getAverageManualSize(TotalSize totalSize) {
-		return getAverageSize(totalSize.totalManualSize, totalSize.manualRefactoringCount);
-	}
-
-	private String getAverageAutomatedSize(TotalSize totalSize) {
-		return getAverageSize(totalSize.totalAutomatedSize, totalSize.automatedRefactoringCount);
-	}
-
-	private String getAverageSize(long size, int count) {
-		if (count == 0) {
-			return "N/A";
-		}
-		return String.valueOf(size / count);
 	}
 
 	@Override
@@ -189,13 +174,65 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 
 	private class TotalSize {
 
-		private int automatedRefactoringCount= 0;
+		private List<Integer> automatedSizes= new LinkedList<Integer>();
 
-		private int manualRefactoringCount= 0;
+		private List<Integer> manualSizes= new LinkedList<Integer>();
 
-		private long totalAutomatedSize= 0;
 
-		private long totalManualSize= 0;
+		void addAutomatedSize(int size) {
+			automatedSizes.add(size);
+		}
+
+		void addManualSize(int size) {
+			manualSizes.add(size);
+		}
+
+		int getAutomatedCount() {
+			return automatedSizes.size();
+		}
+
+		int getManualCount() {
+			return manualSizes.size();
+		}
+
+		double getAutomatedMean() {
+			return getMean(automatedSizes);
+		}
+
+		double getAutomatedStDev() {
+			return getStDev(automatedSizes);
+		}
+
+		double getManualStDev() {
+			return getStDev(manualSizes);
+		}
+
+		double getManualMean() {
+			return getMean(manualSizes);
+		}
+
+		private double getMean(List<Integer> sizes) {
+			if (sizes.size() == 0) {
+				return 0;
+			}
+			long totalSize= 0;
+			for (int size : sizes) {
+				totalSize+= size;
+			}
+			return (double)totalSize / sizes.size();
+		}
+
+		private double getStDev(List<Integer> sizes) {
+			if (sizes.size() == 0) {
+				return 0;
+			}
+			double mean= getMean(sizes);
+			double squares= 0;
+			for (int size : sizes) {
+				squares+= (mean - size) * (mean - size);
+			}
+			return Math.sqrt(squares / sizes.size());
+		}
 
 	}
 

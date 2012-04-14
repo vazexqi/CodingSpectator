@@ -101,8 +101,7 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 			totalRefactoringDurations.put(refactoringDescriptor.refactoringKind, totalDuration);
 		}
 		if (refactoringDescriptor.duration != 0) {
-			totalDuration.refactoringCount++;
-			totalDuration.totalDuration+= refactoringDescriptor.duration;
+			totalDuration.addDuration(refactoringDescriptor.duration);
 		}
 	}
 
@@ -110,7 +109,9 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 	protected void finishedProcessingAllSequences() {
 		System.out.println("Total average durations:");
 		for (Entry<RefactoringKind, TotalDuration> entry : totalRefactoringDurations.entrySet()) {
-			System.out.println(entry.getKey() + "," + (entry.getValue().totalDuration / entry.getValue().refactoringCount));
+			TotalDuration totalDuration= entry.getValue();
+			System.out.println(entry.getKey() + "," + totalDuration.getCount() + "," + totalDuration.getMean() + "," +
+								totalDuration.getStDev());
 		}
 	}
 
@@ -138,9 +139,39 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 
 	private class TotalDuration {
 
-		private int refactoringCount= 0;
+		private List<Long> durations= new LinkedList<Long>();
 
-		private long totalDuration= 0;
+
+		void addDuration(long duration) {
+			durations.add(duration);
+		}
+
+		int getCount() {
+			return durations.size();
+		}
+
+		double getMean() {
+			if (durations.size() == 0) {
+				return 0;
+			}
+			long totalDuration= 0;
+			for (long duration : durations) {
+				totalDuration+= duration;
+			}
+			return (double)totalDuration / durations.size();
+		}
+
+		double getStDev() {
+			if (durations.size() == 0) {
+				return 0;
+			}
+			double mean= getMean();
+			double squares= 0;
+			for (long duration : durations) {
+				squares+= (mean - duration) * (mean - duration);
+			}
+			return Math.sqrt(squares / durations.size());
+		}
 
 	}
 
