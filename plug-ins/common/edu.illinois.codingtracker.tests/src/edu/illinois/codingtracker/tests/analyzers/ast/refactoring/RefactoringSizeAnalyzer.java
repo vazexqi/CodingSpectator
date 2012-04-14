@@ -40,6 +40,10 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 
 	private final Map<RefactoringKind, TotalSize> totalRefactoringSizes= new HashMap<RefactoringKind, TotalSize>();
 
+	private int totalASTOperationsCount= 0;
+
+	private int totalRefactoringASTOperationsCount= 0;
+
 
 	@Override
 	protected String getTableHeader() {
@@ -69,10 +73,14 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 	}
 
 	private void handleASTOperation(ASTOperation operation) {
+		totalASTOperationsCount++;
 		long refactoringID= operation.getRefactoringID();
 		if (refactoringID != -1) {
 			int currentSize= getAccumulatedRefactoringSize(refactoringID);
 			inferredRefactoringSizes.put(refactoringID, currentSize + 1);
+		}
+		if (refactoringID != -1 || isInsideAutomatedRefactoring()) {
+			totalRefactoringASTOperationsCount++;
 		}
 		if (isInsideAutomatedRefactoring()) {
 			long nodeID= operation.getNodeID();
@@ -146,6 +154,8 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 					+ totalSize.getAutomatedStDev() + "," + totalSize.getManualCount() + "," + totalSize.getManualMean() + ","
 					+ totalSize.getManualStDev());
 		}
+		System.out.println("Total AST operations count: " + totalASTOperationsCount);
+		System.out.println("Total refactoring AST operations count: " + totalRefactoringASTOperationsCount);
 	}
 
 	@Override
