@@ -16,10 +16,12 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.InferredR
 public class DeletedVariableDeclarationRefactoringProperty extends AtomicRefactoringProperty {
 
 
-	public DeletedVariableDeclarationRefactoringProperty(String entityName, long entityNameNodeID, long activationTimestamp) {
+	public DeletedVariableDeclarationRefactoringProperty(String entityName, long entityNameNodeID, long enclosingClassNodeID,
+															long activationTimestamp) {
 		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
+		addAttribute(RefactoringPropertyAttributes.ENCLOSING_CLASS_NODE_ID, enclosingClassNodeID);
 	}
 
 	@Override

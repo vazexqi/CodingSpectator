@@ -26,6 +26,8 @@ public interface RefactoringPropertyAttributes {
 
 	public static final String PARENT_ID= "parentID";
 
+	public static final String ENCLOSING_CLASS_NODE_ID= "enclosingClassNodeID";
+
 	public static final String DESTINATION_METHOD_ID= "destinationMethodID";
 
 	public static final String SOURCE_METHOD_NAME= "sourceMethodName";

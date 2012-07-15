@@ -209,7 +209,7 @@ public class RefactoringPropertiesFactory {
 	private static void handleDeletedVariableDeclarationFragment(VariableDeclarationFragment variableDeclaration) {
 		if (isInVariableDeclarationStatement(variableDeclaration)) {
 			String variableName= variableDeclaration.getName().getIdentifier();
-			properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName, NO_NODE_ID, activationTimestamp));
+			properties.add(new DeletedVariableDeclarationRefactoringProperty(variableName, NO_NODE_ID, getEnclosingClassNodeID(variableDeclaration), activationTimestamp));
 		}
 	}
 
@@ -266,7 +266,7 @@ public class RefactoringPropertiesFactory {
 		if (isInVariableDeclarationStatement(variableDeclaration)) {
 			properties.add(new AddedVariableDeclarationRefactoringProperty(entityName, entityNameNodeID, activationTimestamp));
 		} else if (isInFieldDeclaration(variableDeclaration)) {
-			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName, entityNameNodeID, activationTimestamp));
+			properties.add(new AddedFieldDeclarationRefactoringProperty(entityName, entityNameNodeID, getEnclosingClassNodeID(variableDeclaration), activationTimestamp));
 		}
 		handleAddedVariableInitializer(variableDeclaration, entityName, entityNameNodeID);
 	}
@@ -512,6 +512,14 @@ public class RefactoringPropertiesFactory {
 			return (VariableDeclaration)parent;
 		}
 		return null;
+	}
+
+	private static long getEnclosingClassNodeID(ASTNode node) {
+		TypeDeclaration typeDeclaration= ASTHelper.getContainingType(node);
+		if (typeDeclaration != null) {
+			return getNodeID(typeDeclaration);
+		}
+		return -1;
 	}
 
 	private static long getParentID(ASTNode node, boolean isOld) {
