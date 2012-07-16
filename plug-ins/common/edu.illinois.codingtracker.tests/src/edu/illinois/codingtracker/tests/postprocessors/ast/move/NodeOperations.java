@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.move;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,8 +41,30 @@ public class NodeOperations {
 		if (!shouldAddOperation(astOperation)) {
 			markMoveAndResetState();
 		}
+		handleExistingNodes(astOperation);
 		operations.add(astOperation);
 		updateCounters(astOperation, true);
+	}
+
+	private void handleExistingNodes(ASTOperation astOperation) {
+		//Should not add more than one operation on the same node.
+		if (isExistingNode(astOperation)) {
+			if (isCompletedMove()) {
+				markMoveAndResetState();
+			} else {
+				//Drop all operations preceding the duplicated node as well as the duplicated node itself.
+				Iterator<ASTOperation> operationsIterator= operations.iterator();
+				while (operationsIterator.hasNext()) {
+					ASTOperation existingOperation= operationsIterator.next();
+					updateCounters(existingOperation, false);
+					operationsIterator.remove();
+					if (existingOperation.getNodeID() == astOperation.getNodeID()) {
+						//Reached the duplicated node, so stop.
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	private boolean shouldAddOperation(ASTOperation astOperation) {
@@ -52,8 +75,7 @@ public class NodeOperations {
 			return false;
 		}
 		//Second heuristic - split by the method to which the operations' nodes belong.
-		//Also, should not add more than one operation on the same node.
-		if (shouldSplitByMethod(astOperation) || isExistingNode(astOperation)) {
+		if (shouldSplitByMethod(astOperation)) {
 			return false;
 		}
 		return true;
