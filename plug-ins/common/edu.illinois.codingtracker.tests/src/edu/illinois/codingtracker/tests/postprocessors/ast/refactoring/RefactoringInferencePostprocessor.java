@@ -112,16 +112,18 @@ public class RefactoringInferencePostprocessor extends ASTPostprocessor {
 		if (shouldReplay(textChangeOperation)) { //Consider only those operations that do not represent effects of snapshots.
 			String editedFilePath= textChangeOperation.getEditedFilePath();
 			int[] affectedLineNumbers= textChangeOperation.getAffectedLineNumbers();
-			if (affectedAutomatedRefactoringFile == null) {
-				affectedAutomatedRefactoringFile= editedFilePath;
-			}
-			if (affectedAutomatedRefactoringLineNumber == -1) {
-				affectedAutomatedRefactoringLineNumber= affectedLineNumbers[0];
-			}
-			//The heuristic is that a refactoring affecting a single line of a single file is too simple.
-			if (!affectedAutomatedRefactoringFile.equals(editedFilePath) || affectedLineNumbers.length > 1 ||
-					affectedAutomatedRefactoringLineNumber != affectedLineNumbers[0]) {
-				isAutomatedRefactoringTooSimple= false;
+			if (affectedLineNumbers.length > 0) {
+				if (affectedAutomatedRefactoringFile == null) {
+					affectedAutomatedRefactoringFile= editedFilePath;
+				}
+				if (affectedAutomatedRefactoringLineNumber == -1) {
+					affectedAutomatedRefactoringLineNumber= affectedLineNumbers[0];
+				}
+				//The heuristic is that a refactoring affecting a single line of a single file is too simple.
+				if (!affectedAutomatedRefactoringFile.equals(editedFilePath) || affectedLineNumbers.length > 1 ||
+						affectedAutomatedRefactoringLineNumber != affectedLineNumbers[0]) {
+					isAutomatedRefactoringTooSimple= false;
+				}
 			}
 		}
 	}

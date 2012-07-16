@@ -189,7 +189,7 @@ public abstract class TextChangeOperation extends UserOperation {
 	}
 
 	/**
-	 * Valid only during replay.
+	 * Valid during replay only. Used to measure the impact of automated refactorings only.
 	 * 
 	 * @return
 	 */
@@ -206,6 +206,11 @@ public abstract class TextChangeOperation extends UserOperation {
 		}
 		for (int i= 0; i < affectedLineNumbers.length; i++) {
 			affectedLineNumbers[i]= startLineNumber + i;
+		}
+		if (replacedText.equals(newText) && affectedLineNumbers.length == 1 && affectedLineNumbers[0] == 0) {
+			//Return an empty array of affected line numbers for scenarios in which the package is updated with the same name,
+			//which happens as part of many automated Eclipse refactorings for no apparent reason.
+			return new int[] {};
 		}
 		return affectedLineNumbers;
 	}
