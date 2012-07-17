@@ -162,6 +162,24 @@ public class RefactoringPropertiesFactory {
 			String methodName= getContainingMethodName(changedNode);
 			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, methodName, activationTimestamp));
 		}
+		handleMethodInvocationChange(changedNode, operation);
+	}
+
+	private static void handleMethodInvocationChange(SimpleName changedNode, ASTOperation operation) {
+		//First, need to get the new node.
+		ASTNode matchingNode= astOperationRecorder.getNewMatch(changedNode);
+		if (!(matchingNode instanceof SimpleName)) {
+			throw new RuntimeException("Could not find a matching node for a changed simple name.");
+		}
+		SimpleName newChangedNode= (SimpleName)matchingNode;
+		MethodInvocation methodInvocation= getNamedMethodInvocation(newChangedNode);
+		if (methodInvocation != null) {
+			long methodID= operation.getMethodID();
+			if (methodID != NO_NODE_ID) {
+				//Changing the name of a method invocation is basically adding a new method invocation.
+				handleAddedMethodInvocation(methodInvocation, methodID, false);
+			}
+		}
 	}
 
 	private static void handlePrivateModifier(Modifier modifier) {
@@ -309,7 +327,7 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedNodeToMethod(ASTNode addedNode, long methodID) {
 		if (addedNode instanceof MethodInvocation) {
-			handleAddedMethodInvocation((MethodInvocation)addedNode, methodID);
+			handleAddedMethodInvocation((MethodInvocation)addedNode, methodID, true);
 		}
 		if (addedNode instanceof ReturnStatement) {
 			handleAddedReturnStatement((ReturnStatement)addedNode, methodID);
@@ -319,7 +337,7 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, long sourceMethodID) {
+	private static void handleAddedMethodInvocation(MethodInvocation methodInvocation, long sourceMethodID, boolean canBeGetterOrSetter) {
 		String destinationMethodName= methodInvocation.getName().getIdentifier();
 		long destinationMethodNameNodeID= getNodeID(methodInvocation.getName());
 		long parentID= getParentID(methodInvocation, false);
@@ -327,10 +345,12 @@ public class RefactoringPropertiesFactory {
 
 		properties.add(new AddedMethodInvocationRefactoringProperty(destinationMethodName, destinationMethodNameNodeID, sourceMethodName, sourceMethodID, activationTimestamp));
 
-		//This is somewhat inefficient, but since at this point we do not know whether the added method is a getter,
-		//a setter, or none of the above, we just tentatively consider every possibility.
-		properties.add(new AddedGetterMethodInvocationRefactoringProperty(destinationMethodName, parentID, activationTimestamp));
-		properties.add(new AddedSetterMethodInvocationRefactoringProperty(destinationMethodName, parentID, activationTimestamp));
+		if (canBeGetterOrSetter) {
+			//This is somewhat inefficient, but since at this point we do not know whether the added method is a getter,
+			//a setter, or none of the above, we just tentatively consider every possibility.
+			properties.add(new AddedGetterMethodInvocationRefactoringProperty(destinationMethodName, parentID, activationTimestamp));
+			properties.add(new AddedSetterMethodInvocationRefactoringProperty(destinationMethodName, parentID, activationTimestamp));
+		}
 	}
 
 	private static void handleAddedReturnStatement(ReturnStatement returnStatement, long methodID) {
@@ -504,6 +524,17 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isInFieldDeclaration(ASTNode node) {
 		return ASTHelper.getParent(node, FieldDeclaration.class) != null;
+	}
+
+	private static MethodInvocation getNamedMethodInvocation(SimpleName simpleName) {
+		ASTNode parentNode= ASTHelper.getParent(simpleName, MethodInvocation.class);
+		if (parentNode instanceof MethodInvocation) {
+			MethodInvocation methodInvocation= (MethodInvocation)parentNode;
+			if (methodInvocation.getName() == simpleName) {
+				return methodInvocation;
+			}
+		}
+		return null;
 	}
 
 	private static VariableDeclaration getEnclosingVariableDeclaration(ASTNode node) {
