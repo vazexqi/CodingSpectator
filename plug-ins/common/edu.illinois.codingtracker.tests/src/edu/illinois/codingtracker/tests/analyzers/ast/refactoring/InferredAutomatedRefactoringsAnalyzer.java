@@ -32,7 +32,8 @@ public class InferredAutomatedRefactoringsAnalyzer extends InferredRefactoringAn
 
 	@Override
 	protected void postprocessOperation(UserOperation userOperation) {
-		if (userOperation instanceof InferredRefactoringOperation) {
+		if (userOperation instanceof InferredRefactoringOperation &&
+				((InferredRefactoringOperation)userOperation).getRefactoringKind() == getCurrentAutomatedRefactoringKind()) {
 			isCurrentAutomatedRefactoringInferred= true;
 		}
 		if (userOperation instanceof NewStartedRefactoringOperation) {
