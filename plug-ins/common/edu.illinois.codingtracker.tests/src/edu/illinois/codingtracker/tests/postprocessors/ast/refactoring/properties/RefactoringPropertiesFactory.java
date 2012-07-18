@@ -407,6 +407,13 @@ public class RefactoringPropertiesFactory {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
 				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName.getIdentifier(), getNodeID(referencedEntityName), parentID, activationTimestamp));
 			}
+			//Inlining an expression might result in adding parentheses around it, and thus, 
+			//the variable reference is replaced with the parenthesized initialization expression in the usage.
+			ASTNode parent= addedNode.getParent();
+			if (parent instanceof ParenthesizedExpression && astOperationRecorder.isAdded(parent)) {
+				parentID= getParentID(parent, false);
+				properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
+			}
 		}
 	}
 
