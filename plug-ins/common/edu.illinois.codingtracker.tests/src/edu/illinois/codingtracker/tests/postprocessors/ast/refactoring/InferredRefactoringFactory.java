@@ -258,7 +258,7 @@ public class InferredRefactoringFactory {
 
 	private static boolean addPropertyToCompleteRefactorings(RefactoringProperty refactoringProperty) {
 		for (InferredRefactoring completeRefactoring : completeRefactorings) {
-			if (completeRefactoring.canBePart(refactoringProperty)) {
+			if (completeRefactoring.canBePart(refactoringProperty) && !completeRefactoring.doesAffectSameEntity(refactoringProperty)) {
 				completeRefactoring.addProperty(refactoringProperty, false);
 				refactoringProperty.disable();
 				return true;

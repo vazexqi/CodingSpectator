@@ -14,10 +14,16 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 public class ChangedTypeNameInConstructorRefactoringProperty extends AtomicRefactoringProperty {
 
 
-	public ChangedTypeNameInConstructorRefactoringProperty(String oldEntityName, String newEntityName, long activationTimestamp) {
+	public ChangedTypeNameInConstructorRefactoringProperty(String oldEntityName, String newEntityName, long activationTimestamp, long entityNameNodeID) {
 		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.OLD_ENTITY_NAME, oldEntityName);
 		addAttribute(RefactoringPropertyAttributes.NEW_ENTITY_NAME, newEntityName);
+		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
+	}
+
+	@Override
+	public boolean doesAffectSameEntity(RefactoringProperty refactoringProperty) {
+		return getAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID).equals(refactoringProperty.getAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID));
 	}
 
 }

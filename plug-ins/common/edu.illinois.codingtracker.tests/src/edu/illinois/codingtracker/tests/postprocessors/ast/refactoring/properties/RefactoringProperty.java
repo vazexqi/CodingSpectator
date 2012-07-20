@@ -51,4 +51,16 @@ public interface RefactoringProperty {
 	 */
 	public boolean doesMatch(InferredRefactoring containingRefactoring, RefactoringProperty anotherProperty);
 
+	/**
+	 * Checks whether two properties affect the same program entity, which is used to avoid
+	 * over-growing completed refactorings when a refactoring is undone and then performed again.
+	 * 
+	 * TODO: Currently it is implemented only for refactoring properties that contribute to Rename
+	 * refactorings.
+	 * 
+	 * @param refactoringProperty
+	 * @return
+	 */
+	public boolean doesAffectSameEntity(RefactoringProperty refactoringProperty);
+
 }

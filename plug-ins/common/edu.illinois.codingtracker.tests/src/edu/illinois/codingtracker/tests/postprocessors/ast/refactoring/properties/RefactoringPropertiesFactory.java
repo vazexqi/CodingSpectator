@@ -161,7 +161,7 @@ public class RefactoringPropertiesFactory {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
 		} else {
 			String methodName= getContainingMethodName(changedNode);
-			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, methodName, activationTimestamp));
+			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, getNodeID(changedNode), methodName, activationTimestamp));
 		}
 		handleMethodInvocationChange(changedNode, operation);
 	}
@@ -205,7 +205,7 @@ public class RefactoringPropertiesFactory {
 		} else if (isMethodDeclaredEntity(changedNode, true)) {
 			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		} else if (isMethodDeclaredEntity(changedNode, false)) {
-			properties.add(new ChangedTypeNameInConstructorRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
+			properties.add(new ChangedTypeNameInConstructorRefactoringProperty(oldEntityName, newEntityName, getNodeID(changedNode), activationTimestamp));
 		} else if (isTypeDeclaredEntity(changedNode)) {
 			properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 		}

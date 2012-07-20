@@ -309,6 +309,11 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 		return true;
 	}
 
+	@Override
+	public boolean doesAffectSameEntity(RefactoringProperty refactoringProperty) {
+		return false;
+	}
+
 	protected boolean isIgnoredAttribute(String attribute, InferredRefactoring containingRefactoring) {
 		if ((containingRefactoring instanceof ExtractConstantRefactoring ||
 				containingRefactoring instanceof ExtractVariableRefactoring ||

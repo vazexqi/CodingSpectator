@@ -144,6 +144,15 @@ public abstract class InferredRefactoring {
 		return true;
 	}
 
+	public boolean doesAffectSameEntity(RefactoringProperty refactoringProperty) {
+		for (RefactoringProperty property : getAllProperties()) {
+			if (property.doesAffectSameEntity(refactoringProperty)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected Set<RefactoringProperty> getAllProperties() {
 		Set<RefactoringProperty> allProperties= new HashSet<RefactoringProperty>();
 		for (List<RefactoringProperty> propertiesList : properties.values()) {
