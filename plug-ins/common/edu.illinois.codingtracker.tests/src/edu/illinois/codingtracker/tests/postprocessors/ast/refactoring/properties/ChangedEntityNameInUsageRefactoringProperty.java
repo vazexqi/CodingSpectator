@@ -6,12 +6,12 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 /**
- * This class represents changing a global (i.e., above method-level) etity's name in its usage.
+ * This class represents changing an etity's name in its usage.
  * 
  * @author Stas Negara
  * 
  */
-public class ChangedEntityNameInUsageRefactoringProperty extends AtomicRefactoringProperty {
+public abstract class ChangedEntityNameInUsageRefactoringProperty extends AtomicRefactoringProperty {
 
 
 	public ChangedEntityNameInUsageRefactoringProperty(String oldEntityName, String newEntityName, long entityNameNodeID, String sourceMethodName, long activationTimestamp) {

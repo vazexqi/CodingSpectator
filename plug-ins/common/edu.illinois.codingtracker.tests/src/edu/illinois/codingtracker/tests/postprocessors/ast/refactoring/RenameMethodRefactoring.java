@@ -27,7 +27,7 @@ public class RenameMethodRefactoring extends InferredRefactoring {
 
 	static {
 		acceptableProperties.add(RefactoringProperties.CHANGED_METHOD_NAME_IN_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+		acceptableProperties.add(RefactoringProperties.CHANGED_METHOD_NAME_IN_INVOCATION);
 	}
 
 
@@ -50,7 +50,7 @@ public class RenameMethodRefactoring extends InferredRefactoring {
 
 	@Override
 	public boolean isMultiProperty(String propertyName) {
-		return propertyName.equals(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+		return propertyName.equals(RefactoringProperties.CHANGED_METHOD_NAME_IN_INVOCATION);
 	}
 
 	@Override

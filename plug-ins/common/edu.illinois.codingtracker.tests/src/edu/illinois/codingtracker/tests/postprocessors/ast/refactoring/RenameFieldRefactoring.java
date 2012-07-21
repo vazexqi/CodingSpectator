@@ -27,7 +27,7 @@ public class RenameFieldRefactoring extends InferredRefactoring {
 
 	static {
 		acceptableProperties.add(RefactoringProperties.CHANGED_FIELD_NAME_IN_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+		acceptableProperties.add(RefactoringProperties.CHANGED_GLOBAL_ENTITY_NAME_IN_USAGE);
 	}
 
 
@@ -50,7 +50,7 @@ public class RenameFieldRefactoring extends InferredRefactoring {
 
 	@Override
 	public boolean isMultiProperty(String propertyName) {
-		return propertyName.equals(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+		return propertyName.equals(RefactoringProperties.CHANGED_GLOBAL_ENTITY_NAME_IN_USAGE);
 	}
 
 	@Override

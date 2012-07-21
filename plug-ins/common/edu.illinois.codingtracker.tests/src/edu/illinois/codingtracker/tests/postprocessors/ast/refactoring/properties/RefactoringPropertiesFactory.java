@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
@@ -160,8 +161,17 @@ public class RefactoringPropertiesFactory {
 		if (isDeclaredEntity(changedNode)) {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
 		} else {
+			long nodeID= getNodeID(changedNode);
 			String methodName= getContainingMethodName(changedNode);
-			properties.add(new ChangedEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, getNodeID(changedNode), methodName, activationTimestamp));
+			if (getNamedMethodInvocation(changedNode) != null) {
+				properties.add(new ChangedMethodNameInInvocationRefactoringProperty(oldEntityName, newEntityName, nodeID, methodName, activationTimestamp));
+			} else {
+				if (isGlobalEntity(changedNode, oldEntityName, newEntityName)) {
+					properties.add(new ChangedGlobalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodName, activationTimestamp));
+				} else {
+					properties.add(new ChangedLocalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodName, activationTimestamp));
+				}
+			}
 		}
 		handleMethodInvocationChange(changedNode, operation);
 	}
@@ -655,4 +665,59 @@ public class RefactoringPropertiesFactory {
 		return methodName;
 	}
 
+	private static boolean isGlobalEntity(SimpleName simpleName, String oldEntityName, String newEntityName) {
+		//First, consider field accesses like this.<field_name>
+		ASTNode parentNode= ASTHelper.getParent(simpleName, FieldAccess.class);
+		if (parentNode instanceof FieldAccess) {
+			if (((FieldAccess)parentNode).getName() == simpleName) {
+				return true;
+			}
+		}
+		//Next, consider static field accesses like <class_name>.<field_name>
+		parentNode= ASTHelper.getParent(simpleName, QualifiedName.class);
+		if (parentNode instanceof QualifiedName) {
+			if (((QualifiedName)parentNode).getName() == simpleName) {
+				return true;
+			}
+		}
+		//Finally, look for local variable declaration (either in the body or as a method parameter).
+		return !isDeclaredLocally(simpleName, oldEntityName, newEntityName);
+	}
+
+	private static boolean isDeclaredLocally(SimpleName simpleName, final String oldEntityName, final String newEntityName) {
+		final String foundMessage= "Found variable declaration";
+		ASTNode parent= ASTHelper.getParent(simpleName, MethodDeclaration.class);
+		if (parent instanceof MethodDeclaration) {
+			//TODO: Consider scoping rules in this search, i.e., a field might be accessed in one scope, while a local
+			//variable with the same name might be declared in another scope.
+			try {
+				parent.accept(new ASTVisitor() {
+					@Override
+					public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
+						String declaredName= singleVariableDeclaration.getName().getIdentifier();
+						if (declaredName.equals(oldEntityName) || declaredName.equals(newEntityName)) {
+							//Stop the visitor.
+							throw new RuntimeException(foundMessage);
+						}
+						return false;
+					}
+
+					@Override
+					public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
+						String declaredName= variableDeclarationFragment.getName().getIdentifier();
+						if (declaredName.equals(oldEntityName) || declaredName.equals(newEntityName)) {
+							//Stop the visitor.
+							throw new RuntimeException(foundMessage);
+						}
+						return false;
+					}
+				});
+			} catch (RuntimeException e) {
+				if (e.getMessage().equals(foundMessage)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

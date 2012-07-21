@@ -5,7 +5,8 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
 
 
 /**
- * This interface contains class names for all classes derived from AtomicRefactoringProperty.
+ * This interface contains class names for all non-abstract classes derived from
+ * AtomicRefactoringProperty.
  * 
  * @author Stas Negara
  * 
@@ -44,7 +45,11 @@ public interface RefactoringProperties {
 
 	public static final String CHANGED_VARIABLE_NAME_IN_DECLARATION= "ChangedVariableNameInDeclarationRefactoringProperty";
 
-	public static final String CHANGED_ENTITY_NAME_IN_USAGE= "ChangedEntityNameInUsageRefactoringProperty";
+	public static final String CHANGED_METHOD_NAME_IN_INVOCATION= "ChangedMethodNameInInvocationRefactoringProperty";
+
+	public static final String CHANGED_LOCAL_ENTITY_NAME_IN_USAGE= "ChangedLocalEntityNameInUsageRefactoringProperty";
+
+	public static final String CHANGED_GLOBAL_ENTITY_NAME_IN_USAGE= "ChangedGlobalEntityNameInUsageRefactoringProperty";
 
 	public static final String DELETED_VARIABLE_DECLARATION= "DeletedVariableDeclarationRefactoringProperty";
 

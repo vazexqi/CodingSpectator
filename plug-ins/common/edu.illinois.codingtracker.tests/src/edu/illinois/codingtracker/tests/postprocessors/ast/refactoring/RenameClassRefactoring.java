@@ -27,7 +27,7 @@ public class RenameClassRefactoring extends InferredRefactoring {
 
 	static {
 		acceptableProperties.add(RefactoringProperties.CHANGED_TYPE_NAME_IN_DECLARATION);
-		acceptableProperties.add(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE);
+		acceptableProperties.add(RefactoringProperties.CHANGED_GLOBAL_ENTITY_NAME_IN_USAGE);
 		acceptableProperties.add(RefactoringProperties.CHANGED_TYPE_NAME_IN_CONSTRUCTOR);
 	}
 
@@ -53,13 +53,13 @@ public class RenameClassRefactoring extends InferredRefactoring {
 	public boolean isComplete() {
 		//Changing a type's name in the declaration and either in a reference or in a constructor is sufficient.
 		return getPropertiesList(RefactoringProperties.CHANGED_TYPE_NAME_IN_DECLARATION) != null &&
-				(getPropertiesList(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE) != null ||
+				(getPropertiesList(RefactoringProperties.CHANGED_GLOBAL_ENTITY_NAME_IN_USAGE) != null ||
 				getPropertiesList(RefactoringProperties.CHANGED_TYPE_NAME_IN_CONSTRUCTOR) != null);
 	}
 
 	@Override
 	public boolean isMultiProperty(String propertyName) {
-		return propertyName.equals(RefactoringProperties.CHANGED_ENTITY_NAME_IN_USAGE) ||
+		return propertyName.equals(RefactoringProperties.CHANGED_GLOBAL_ENTITY_NAME_IN_USAGE) ||
 				propertyName.equals(RefactoringProperties.CHANGED_TYPE_NAME_IN_CONSTRUCTOR);
 	}
 
