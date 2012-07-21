@@ -325,7 +325,7 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 		if ((containingRefactoring instanceof RenameClassRefactoring ||
 				containingRefactoring instanceof RenameFieldRefactoring ||
 				containingRefactoring instanceof RenameMethodRefactoring) &&
-				attribute.equals(RefactoringPropertyAttributes.SOURCE_METHOD_NAME)) {
+				attribute.equals(RefactoringPropertyAttributes.SOURCE_METHOD_ID)) {
 			return true;
 		}
 		if (containingRefactoring instanceof ExtractMethodRefactoring &&

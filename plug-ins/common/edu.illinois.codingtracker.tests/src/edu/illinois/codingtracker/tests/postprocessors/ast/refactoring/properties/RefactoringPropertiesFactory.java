@@ -157,19 +157,19 @@ public class RefactoringPropertiesFactory {
 	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
 		String oldEntityName= changedNode.getIdentifier();
 		String newEntityName= operation.getNodeNewText();
+		long methodID= operation.getMethodID();
 		properties.add(new CorrectiveRefactoringProperty(oldEntityName, getNodeID(changedNode), newEntityName, activationTimestamp));
 		if (isDeclaredEntity(changedNode)) {
-			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName);
+			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName, methodID);
 		} else {
 			long nodeID= getNodeID(changedNode);
-			String methodName= getContainingMethodName(changedNode);
 			if (getNamedMethodInvocation(changedNode) != null) {
-				properties.add(new ChangedMethodNameInInvocationRefactoringProperty(oldEntityName, newEntityName, nodeID, methodName, activationTimestamp));
+				properties.add(new ChangedMethodNameInInvocationRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
 			} else {
 				if (isGlobalEntity(changedNode, oldEntityName, newEntityName)) {
-					properties.add(new ChangedGlobalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodName, activationTimestamp));
+					properties.add(new ChangedGlobalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
 				} else {
-					properties.add(new ChangedLocalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodName, activationTimestamp));
+					properties.add(new ChangedLocalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
 				}
 			}
 		}
@@ -204,11 +204,10 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleChangedDeclaredEntity(SimpleName changedNode, String oldEntityName, String newEntityName) {
+	private static void handleChangedDeclaredEntity(SimpleName changedNode, String oldEntityName, String newEntityName, long methodID) {
 		if (isLocalVariableOrFieldDeclaredEntity(changedNode)) {
 			if (isInVariableDeclarationStatement(changedNode) || isInSingleVariableDeclaration(changedNode)) {
-				String methodName= getContainingMethodName(changedNode);
-				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, methodName, activationTimestamp));
+				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, methodID, activationTimestamp));
 			} else if (isInFieldDeclaration(changedNode)) {
 				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 			}

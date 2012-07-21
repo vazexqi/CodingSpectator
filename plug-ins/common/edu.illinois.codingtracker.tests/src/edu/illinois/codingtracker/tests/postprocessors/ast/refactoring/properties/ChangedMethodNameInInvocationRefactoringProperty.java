@@ -11,8 +11,8 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properti
  */
 public class ChangedMethodNameInInvocationRefactoringProperty extends ChangedEntityNameInUsageRefactoringProperty {
 
-	public ChangedMethodNameInInvocationRefactoringProperty(String oldEntityName, String newEntityName, long entityNameNodeID, String sourceMethodName, long activationTimestamp) {
-		super(oldEntityName, newEntityName, entityNameNodeID, sourceMethodName, activationTimestamp);
+	public ChangedMethodNameInInvocationRefactoringProperty(String oldEntityName, String newEntityName, long entityNameNodeID, long sourceMethodID, long activationTimestamp) {
+		super(oldEntityName, newEntityName, entityNameNodeID, sourceMethodID, activationTimestamp);
 	}
 
 }
