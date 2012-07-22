@@ -3,9 +3,11 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.move;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 
@@ -24,16 +26,21 @@ public class NodeOperations {
 
 	private final List<ASTOperation> operations= new LinkedList<ASTOperation>();
 
-	private int addOrChangeOperationsCount= 0;
+	private final Set<ASTOperation> deletingChangeOperations= new HashSet<ASTOperation>();
 
-	private int deleteOperationsCount= 0;
+	private int addingOperationsCount= 0;
+
+	private int deletingOperationsCount= 0;
 
 
-	public NodeOperations(ASTOperation astOperation) {
-		addOperation(astOperation);
+	public NodeOperations(ASTOperation astOperation, boolean isDeletingChange) {
+		addOperation(astOperation, isDeletingChange);
 	}
 
-	public void addOperation(ASTOperation astOperation) {
+	public void addOperation(ASTOperation astOperation, boolean isDeletingChange) {
+		if (isDeletingChange) {
+			deletingChangeOperations.add(astOperation);
+		}
 		if (willBecomeNtoN(astOperation)) { //Should not add an operation that will make the relation N-to-N.
 			//First heuristic - split by time, i.e., group those operations that are closer in time.
 			splitByTime(astOperation);
@@ -58,6 +65,7 @@ public class NodeOperations {
 					ASTOperation existingOperation= operationsIterator.next();
 					updateCounters(existingOperation, false);
 					operationsIterator.remove();
+					deletingChangeOperations.remove(existingOperation);
 					if (existingOperation.getNodeID() == astOperation.getNodeID()) {
 						//Reached the duplicated node, so stop.
 						break;
@@ -82,12 +90,12 @@ public class NodeOperations {
 	}
 
 	private boolean willBecomeNtoN(ASTOperation astOperation) {
-		if (astOperation.isAdd() || astOperation.isChange()) {
-			if (addOrChangeOperationsCount > 0 && deleteOperationsCount > 1) {
+		if (astOperation.isAdd() || isAddingChange(astOperation)) {
+			if (addingOperationsCount > 0 && deletingOperationsCount > 1) {
 				return true;
 			}
-		} else if (astOperation.isDelete()) {
-			if (addOrChangeOperationsCount > 1 && deleteOperationsCount > 0) {
+		} else if (astOperation.isDelete() || isDeletingChange(astOperation)) {
+			if (addingOperationsCount > 1 && deletingOperationsCount > 0) {
 				return true;
 			}
 		}
@@ -127,7 +135,11 @@ public class NodeOperations {
 			operations.get(0).setFirstMoved(true);
 			getLastOperation().setLastMoved(true);
 			for (ASTOperation operation : operations) {
-				operation.setMoveID(nextMoveID);
+				if (isDeletingChange(operation)) {
+					operation.setDeletingChangeMoveID(nextMoveID);
+				} else {
+					operation.setMoveID(nextMoveID);
+				}
 			}
 			nextMoveID++;
 		}
@@ -159,28 +171,39 @@ public class NodeOperations {
 		}
 	}
 
+	private boolean isAddingChange(ASTOperation astOperation) {
+		return astOperation.isChange() && !deletingChangeOperations.contains(astOperation);
+	}
+
+	private boolean isDeletingChange(ASTOperation astOperation) {
+		return astOperation.isChange() && deletingChangeOperations.contains(astOperation);
+	}
+
 	private boolean isCompletedMove() {
-		return addOrChangeOperationsCount > 0 && deleteOperationsCount > 0;
+		return addingOperationsCount > 0 && deletingOperationsCount > 0;
 	}
 
 	private void resetState() {
+		for (ASTOperation operation : operations) {
+			deletingChangeOperations.remove(operation);
+		}
 		operations.clear();
-		addOrChangeOperationsCount= 0;
-		deleteOperationsCount= 0;
+		addingOperationsCount= 0;
+		deletingOperationsCount= 0;
 	}
 
 	private void updateCounters(ASTOperation astOperation, boolean isIncrement) {
-		if (astOperation.isAdd() || astOperation.isChange()) {
+		if (astOperation.isAdd() || isAddingChange(astOperation)) {
 			if (isIncrement) {
-				addOrChangeOperationsCount++;
+				addingOperationsCount++;
 			} else {
-				addOrChangeOperationsCount--;
+				addingOperationsCount--;
 			}
-		} else if (astOperation.isDelete()) {
+		} else if (astOperation.isDelete() || isDeletingChange(astOperation)) {
 			if (isIncrement) {
-				deleteOperationsCount++;
+				deletingOperationsCount++;
 			} else {
-				deleteOperationsCount--;
+				deletingOperationsCount--;
 			}
 		} else {
 			throw new RuntimeException("Can handle only 'add', 'change', and 'delete' operations: " + astOperation);

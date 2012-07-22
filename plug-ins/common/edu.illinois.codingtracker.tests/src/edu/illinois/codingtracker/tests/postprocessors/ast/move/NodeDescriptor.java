@@ -19,12 +19,12 @@ public class NodeDescriptor {
 	private final String nodeText;
 
 
-	public NodeDescriptor(ASTOperation astOperation) {
-		this.nodeType= astOperation.getNodeType();
-		if (astOperation.isChange()) {
-			this.nodeText= astOperation.getNodeNewText();
+	public NodeDescriptor(ASTOperation astOperation, boolean isDeletingChange) {
+		nodeType= astOperation.getNodeType();
+		if (astOperation.isChange() && !isDeletingChange) {
+			nodeText= astOperation.getNodeNewText();
 		} else {
-			this.nodeText= astOperation.getNodeText();
+			nodeText= astOperation.getNodeText();
 		}
 	}
 

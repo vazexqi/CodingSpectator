@@ -103,6 +103,14 @@ public class ASTOperation extends UserOperation {
 		operationDescriptor.setMoveID(moveID);
 	}
 
+	public long getDeletingChangeMoveID() {
+		return operationDescriptor.getDeletingChangeMoveID();
+	}
+
+	public void setDeletingChangeMoveID(long moveID) {
+		operationDescriptor.setDeletingChangeMoveID(moveID);
+	}
+
 	public boolean isFirstMoved() {
 		return operationDescriptor.isFirstMoved();
 	}

@@ -29,6 +29,8 @@ public class ASTOperationDescriptor {
 
 	private long moveID= -1;
 
+	private long deletingChangeMoveID= -1; //This move ID is used for deleting change operations only.
+
 	private boolean isFirstMoved= false;
 
 	private boolean isLastMoved= false;
@@ -61,6 +63,14 @@ public class ASTOperationDescriptor {
 
 	public void setMoveID(long moveID) {
 		this.moveID= moveID;
+	}
+
+	public long getDeletingChangeMoveID() {
+		return deletingChangeMoveID;
+	}
+
+	public void setDeletingChangeMoveID(long deletingChangeMoveID) {
+		this.deletingChangeMoveID= deletingChangeMoveID;
 	}
 
 	public long getRefactoringID() {
@@ -104,6 +114,7 @@ public class ASTOperationDescriptor {
 		textChunk.append(isCommentingOrUncommenting);
 		textChunk.append(isUndoing);
 		textChunk.append(moveID);
+		textChunk.append(deletingChangeMoveID);
 		textChunk.append(isFirstMoved);
 		textChunk.append(isLastMoved);
 		textChunk.append(refactoringID);
@@ -113,6 +124,7 @@ public class ASTOperationDescriptor {
 		ASTOperationDescriptor operationDescriptor= new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readBoolean(),
 																				operationLexer.readBoolean());
 		operationDescriptor.setMoveID(operationLexer.readLong());
+		operationDescriptor.setDeletingChangeMoveID(operationLexer.readLong());
 		operationDescriptor.setFirstMoved(operationLexer.readBoolean());
 		operationDescriptor.setLastMoved(operationLexer.readBoolean());
 		operationDescriptor.setRefactoringID(operationLexer.readLong());
@@ -124,6 +136,7 @@ public class ASTOperationDescriptor {
 		sb.append("Is commenting or uncommenting: " + isCommentingOrUncommenting + "\n");
 		sb.append("Is undoing: " + isUndoing + "\n");
 		sb.append("Move ID: " + moveID + "\n");
+		sb.append("Deleting change move ID: " + deletingChangeMoveID + "\n");
 		sb.append("Is first moved: " + isFirstMoved + "\n");
 		sb.append("Is last moved: " + isLastMoved + "\n");
 		sb.append("Refactoring ID: " + refactoringID + "\n");
