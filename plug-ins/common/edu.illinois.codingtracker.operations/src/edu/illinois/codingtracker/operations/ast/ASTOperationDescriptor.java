@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.operations.ast;
 
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 
@@ -124,7 +125,9 @@ public class ASTOperationDescriptor {
 		ASTOperationDescriptor operationDescriptor= new ASTOperationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readBoolean(),
 																				operationLexer.readBoolean());
 		operationDescriptor.setMoveID(operationLexer.readLong());
-		operationDescriptor.setDeletingChangeMoveID(operationLexer.readLong());
+		if (!Configuration.isOldASTFormat) {
+			operationDescriptor.setDeletingChangeMoveID(operationLexer.readLong());
+		}
 		operationDescriptor.setFirstMoved(operationLexer.readBoolean());
 		operationDescriptor.setLastMoved(operationLexer.readBoolean());
 		operationDescriptor.setRefactoringID(operationLexer.readLong());
