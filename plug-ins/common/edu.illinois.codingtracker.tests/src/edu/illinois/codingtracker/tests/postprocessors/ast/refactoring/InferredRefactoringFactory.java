@@ -273,6 +273,7 @@ public class InferredRefactoringFactory {
 		collectNewAndCompleteRefactorings(refactoringProperty, noCheckForDuplicates, newRefactorings, newCompleteRefactorings);
 		InferredRefactoring largestCompleteRefactoring= pickLargestRefactoring(newCompleteRefactorings);
 		if (largestCompleteRefactoring != null) {
+			insertInferredRefactoringsConflictingWith(largestCompleteRefactoring);
 			completeRefactorings.add(largestCompleteRefactoring);
 			//TODO: After disabling some properties, there could remain duplicated refactorings in currentRefactorings, i.e.,
 			//refactorings with exactly the same set of properties, which potentially could lead to some performance overhead.
@@ -280,6 +281,17 @@ public class InferredRefactoringFactory {
 			largestCompleteRefactoring.disableProperties();
 		} else {
 			pendingRefactorings.addAll(newRefactorings);
+		}
+	}
+
+	private static void insertInferredRefactoringsConflictingWith(InferredRefactoring newCompleteRefactoring) {
+		Iterator<InferredRefactoring> completeRefactoringsIterator= completeRefactorings.iterator();
+		while (completeRefactoringsIterator.hasNext()) {
+			InferredRefactoring completeRefactoring= completeRefactoringsIterator.next();
+			if (completeRefactoring.doesAffectSameEntity(newCompleteRefactoring)) {
+				insertInferredRefactoring(completeRefactoring);
+				completeRefactoringsIterator.remove();
+			}
 		}
 	}
 
