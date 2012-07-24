@@ -142,32 +142,30 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleChangedNode(ASTNode changedNode, ASTOperation operation) {
-		long parentID= getParentID(changedNode, false);
 		long moveID= operation.getMoveID();
 		if (moveID != NO_NODE_ID) {
-			properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp));
+			handleAddedMovedNode(changedNode, operation, moveID);
 		}
 		long deletingChangeMoveID= operation.getDeletingChangeMoveID();
 		if (deletingChangeMoveID != NO_NODE_ID) {
-			properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp));
+			handleDeletedMovedNode(changedNode, operation, deletingChangeMoveID, false);
 		}
 		if (changedNode instanceof SimpleName) {
-			handleChangedSimpleName((SimpleName)changedNode, operation, parentID);
+			handleChangedSimpleName((SimpleName)changedNode, operation);
 		} else if (changedNode instanceof Modifier && operation.getNodeNewText().equals(PRIVATE_MODIFIER)) {
 			handlePrivateModifier((Modifier)changedNode);
 		}
 	}
 
-	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation, long parentID) {
+	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
 		String oldEntityName= changedNode.getIdentifier();
 		String newEntityName= operation.getNodeNewText();
-		long nodeID= getNodeID(changedNode);
 		long methodID= operation.getMethodID();
-		properties.add(new AddedEntityReferenceRefactoringProperty(newEntityName, nodeID, parentID, activationTimestamp));
 		properties.add(new CorrectiveRefactoringProperty(oldEntityName, getNodeID(changedNode), newEntityName, activationTimestamp));
 		if (isDeclaredEntity(changedNode)) {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName, methodID);
 		} else {
+			long nodeID= getNodeID(changedNode);
 			if (getNamedMethodInvocation(changedNode) != null) {
 				properties.add(new ChangedMethodNameInInvocationRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
 			} else {
@@ -231,7 +229,7 @@ public class RefactoringPropertiesFactory {
 		} else {
 			long moveID= operation.getMoveID();
 			if (moveID != NO_NODE_ID) {
-				handleDeletedMovedNode(deletedNode, operation, moveID);
+				handleDeletedMovedNode(deletedNode, operation, moveID, true);
 			}
 			if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
 				handleDeletedReferenceNode((SimpleName)deletedNode);
@@ -246,8 +244,8 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleDeletedMovedNode(ASTNode deletedNode, ASTOperation operation, long moveID) {
-		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, false);
+	private static void handleDeletedMovedNode(ASTNode deletedNode, ASTOperation operation, long moveID, boolean isOld) {
+		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, true);
 		SimpleName entityName= getDeclaredEntityNameForInitializer(deletedNode);
 		if (entityName != null && isInVariableDeclarationStatement(deletedNode)) {
 			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName.getIdentifier(), getNodeID(entityName), moveID, activationTimestamp));
@@ -255,7 +253,7 @@ public class RefactoringPropertiesFactory {
 			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(deletedNode)) {
 				properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID, activationTimestamp));
 			}
-			long parentID= getParentID(deletedNode, true);
+			long parentID= getParentID(deletedNode, isOld);
 			if (parentID != NO_NODE_ID) {
 				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			} else {
@@ -264,7 +262,7 @@ public class RefactoringPropertiesFactory {
 				//of the extracted variable is stripped of the parentheses.
 				ASTNode parent= deletedNode.getParent();
 				if (parent instanceof ParenthesizedExpression) {
-					parentID= getParentID(parent, true);
+					parentID= getParentID(parent, isOld);
 					if (parentID != NO_NODE_ID) {
 						properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 					}
@@ -472,9 +470,9 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {
-		return node instanceof SimpleName || node instanceof SimpleType || node instanceof Modifier ||
-				node instanceof CharacterLiteral || node instanceof BooleanLiteral || node instanceof NullLiteral ||
-				isTooSimpleReturnForExtractMethod(node);
+		return node instanceof SimpleName && getNamedMethodInvocation((SimpleName)node) == null || node instanceof SimpleType ||
+				node instanceof Modifier || node instanceof CharacterLiteral || node instanceof BooleanLiteral ||
+				node instanceof NullLiteral || isTooSimpleReturnForExtractMethod(node);
 	}
 
 	private static boolean isTooSimpleReturnForExtractMethod(ASTNode node) {
