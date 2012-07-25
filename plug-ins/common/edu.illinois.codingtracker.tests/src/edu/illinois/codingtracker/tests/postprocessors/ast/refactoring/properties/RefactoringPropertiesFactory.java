@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -485,8 +486,8 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {
 		return node instanceof SimpleName && getNamedMethodInvocation((SimpleName)node) == null || node instanceof SimpleType ||
-				node instanceof Modifier || node instanceof CharacterLiteral || node instanceof BooleanLiteral ||
-				node instanceof NullLiteral || isTooSimpleReturnForExtractMethod(node);
+				node instanceof Modifier || node instanceof EmptyStatement || node instanceof CharacterLiteral ||
+				node instanceof BooleanLiteral || node instanceof NullLiteral || isTooSimpleReturnForExtractMethod(node);
 	}
 
 	private static boolean isTooSimpleReturnForExtractMethod(ASTNode node) {
