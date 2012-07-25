@@ -146,21 +146,34 @@ public class RefactoringPropertiesFactory {
 		long moveID= operation.getMoveID();
 		long parentID= getParentID(changedNode, false);
 		if (moveID != NO_NODE_ID) {
-			handleMovedToMethodNode(changedNode, operation, moveID);
-			properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp));
+			handleAddingMovedChangedNode(changedNode, operation, moveID, parentID);
 		}
 		long deletingChangeMoveID= operation.getDeletingChangeMoveID();
 		if (deletingChangeMoveID != NO_NODE_ID) {
-			handleMovedFromMethodNode(changedNode, operation, deletingChangeMoveID);
-			properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp));
-			if (changedNode instanceof SimpleName) {
-				properties.add(new AddedEntityReferenceRefactoringProperty(operation.getNodeNewText(), getNodeID(changedNode), parentID, activationTimestamp));
-			}
+			handleDeletingMovedChangedNode(changedNode, operation, parentID, deletingChangeMoveID);
 		}
 		if (changedNode instanceof SimpleName) {
 			handleChangedSimpleName((SimpleName)changedNode, operation);
 		} else if (changedNode instanceof Modifier && operation.getNodeNewText().equals(PRIVATE_MODIFIER)) {
 			handlePrivateModifier((Modifier)changedNode);
+		}
+	}
+
+	private static void handleAddingMovedChangedNode(ASTNode changedNode, ASTOperation operation, long moveID, long parentID) {
+		handleMovedToMethodNode(changedNode, operation, moveID);
+		properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp));
+		if (changedNode instanceof SimpleName) {
+			//This facilitates inference of Inline Temp refactoring.
+			properties.add(new DeletedEntityReferenceRefactoringProperty(operation.getNodeText(), NO_NODE_ID, parentID, activationTimestamp));
+		}
+	}
+
+	private static void handleDeletingMovedChangedNode(ASTNode changedNode, ASTOperation operation, long parentID, long deletingChangeMoveID) {
+		handleMovedFromMethodNode(changedNode, operation, deletingChangeMoveID);
+		properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp));
+		if (changedNode instanceof SimpleName) {
+			//This facilitates inference of Extract Temp refactoring.
+			properties.add(new AddedEntityReferenceRefactoringProperty(operation.getNodeNewText(), getNodeID(changedNode), parentID, activationTimestamp));
 		}
 	}
 
