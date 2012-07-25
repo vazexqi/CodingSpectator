@@ -143,12 +143,18 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleChangedNode(ASTNode changedNode, ASTOperation operation) {
 		long moveID= operation.getMoveID();
+		long parentID= getParentID(changedNode, false);
 		if (moveID != NO_NODE_ID) {
-			handleAddedMovedNode(changedNode, operation, moveID);
+			handleMovedToMethodNode(changedNode, operation, moveID);
+			properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp));
 		}
 		long deletingChangeMoveID= operation.getDeletingChangeMoveID();
 		if (deletingChangeMoveID != NO_NODE_ID) {
-			handleDeletedMovedNode(changedNode, operation, deletingChangeMoveID, false);
+			handleMovedFromMethodNode(changedNode, operation, deletingChangeMoveID);
+			properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp));
+			if (changedNode instanceof SimpleName) {
+				properties.add(new AddedEntityReferenceRefactoringProperty(operation.getNodeNewText(), getNodeID(changedNode), parentID, activationTimestamp));
+			}
 		}
 		if (changedNode instanceof SimpleName) {
 			handleChangedSimpleName((SimpleName)changedNode, operation);
@@ -229,7 +235,7 @@ public class RefactoringPropertiesFactory {
 		} else {
 			long moveID= operation.getMoveID();
 			if (moveID != NO_NODE_ID) {
-				handleDeletedMovedNode(deletedNode, operation, moveID, true);
+				handleDeletedMovedNode(deletedNode, operation, moveID);
 			}
 			if (deletedNode instanceof SimpleName && !isDeclaredEntity(deletedNode)) {
 				handleDeletedReferenceNode((SimpleName)deletedNode);
@@ -244,16 +250,14 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static void handleDeletedMovedNode(ASTNode deletedNode, ASTOperation operation, long moveID, boolean isOld) {
-		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, true);
+	private static void handleDeletedMovedNode(ASTNode deletedNode, ASTOperation operation, long moveID) {
+		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, false);
 		SimpleName entityName= getDeclaredEntityNameForInitializer(deletedNode);
 		if (entityName != null && isInVariableDeclarationStatement(deletedNode)) {
 			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName.getIdentifier(), getNodeID(entityName), moveID, activationTimestamp));
 		} else {
-			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(deletedNode)) {
-				properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID, activationTimestamp));
-			}
-			long parentID= getParentID(deletedNode, isOld);
+			handleMovedFromMethodNode(deletedNode, operation, moveID);
+			long parentID= getParentID(deletedNode, true);
 			if (parentID != NO_NODE_ID) {
 				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			} else {
@@ -262,12 +266,18 @@ public class RefactoringPropertiesFactory {
 				//of the extracted variable is stripped of the parentheses.
 				ASTNode parent= deletedNode.getParent();
 				if (parent instanceof ParenthesizedExpression) {
-					parentID= getParentID(parent, isOld);
+					parentID= getParentID(parent, true);
 					if (parentID != NO_NODE_ID) {
 						properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 					}
 				}
 			}
+		}
+	}
+
+	private static void handleMovedFromMethodNode(ASTNode movedNode, ASTOperation operation, long moveID) {
+		if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(movedNode)) {
+			properties.add(new MovedFromMethodRefactoringProperty(operation.getMethodID(), moveID, activationTimestamp));
 		}
 	}
 
@@ -409,10 +419,7 @@ public class RefactoringPropertiesFactory {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, false);
 		if (!handleAddedMovedInitialization(addedNode, nodeDescriptor, moveID)) {
 			addNewEntryToAddedMovedNodes(addedNode, operation);
-			if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(addedNode)) {
-				SimpleName containingMethodName= ASTHelper.getContainingMethod(addedNode).getName();
-				properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), containingMethodName.getIdentifier(), getNodeID(containingMethodName), moveID, activationTimestamp));
-			}
+			handleMovedToMethodNode(addedNode, operation, moveID);
 			long parentID= getParentID(addedNode, false);
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			if (addedNode instanceof SimpleName) {
@@ -426,6 +433,13 @@ public class RefactoringPropertiesFactory {
 				parentID= getParentID(parent, false);
 				properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			}
+		}
+	}
+
+	private static void handleMovedToMethodNode(ASTNode movedNode, ASTOperation operation, long moveID) {
+		if (operation.getMethodID() != NO_NODE_ID && !isTooSimpleForExtractMethod(movedNode)) {
+			SimpleName containingMethodName= ASTHelper.getContainingMethod(movedNode).getName();
+			properties.add(new MovedToMethodRefactoringProperty(operation.getMethodID(), containingMethodName.getIdentifier(), getNodeID(containingMethodName), moveID, activationTimestamp));
 		}
 	}
 
