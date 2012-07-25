@@ -186,8 +186,9 @@ public class RefactoringPropertiesFactory {
 			handleChangedDeclaredEntity(changedNode, oldEntityName, newEntityName, methodID);
 		} else {
 			long nodeID= getNodeID(changedNode);
-			if (getNamedMethodInvocation(changedNode) != null) {
-				properties.add(new ChangedMethodNameInInvocationRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
+			MethodInvocation methodInvocation= getNamedMethodInvocation(changedNode);
+			if (methodInvocation != null) {
+				handleChangedMethodNameInInvocation(oldEntityName, newEntityName, methodID, nodeID, methodInvocation);
 			} else {
 				if (isGlobalEntity(changedNode, oldEntityName, newEntityName)) {
 					properties.add(new ChangedGlobalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
@@ -197,6 +198,13 @@ public class RefactoringPropertiesFactory {
 			}
 		}
 		handleMethodInvocationChange(changedNode, operation);
+	}
+
+	private static void handleChangedMethodNameInInvocation(String oldEntityName, String newEntityName, long methodID, long nodeID, MethodInvocation methodInvocation) {
+		int argumentsCount= methodInvocation.arguments().size();
+		String oldMethodName= getPartialMethodSignature(oldEntityName, argumentsCount);
+		String newMethodName= getPartialMethodSignature(newEntityName, argumentsCount);
+		properties.add(new ChangedMethodNameInInvocationRefactoringProperty(oldMethodName, newMethodName, nodeID, methodID, activationTimestamp));
 	}
 
 	private static void handleMethodInvocationChange(SimpleName changedNode, ASTOperation operation) {
@@ -234,13 +242,24 @@ public class RefactoringPropertiesFactory {
 			} else if (isInFieldDeclaration(changedNode)) {
 				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 			}
-		} else if (isMethodDeclaredEntity(changedNode, true)) {
-			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
-		} else if (isMethodDeclaredEntity(changedNode, false)) {
-			properties.add(new ChangedTypeNameInConstructorRefactoringProperty(oldEntityName, newEntityName, getNodeID(changedNode), activationTimestamp));
-		} else if (isTypeDeclaredEntity(changedNode)) {
-			properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
+		} else {
+			MethodDeclaration methodDeclaration= getMethodDeclaredEntity(changedNode, true);
+			if (methodDeclaration != null) {
+				handleChangedMethodNameInDeclaration(oldEntityName, newEntityName, methodDeclaration);
+			} else if (getMethodDeclaredEntity(changedNode, false) != null) {
+				properties.add(new ChangedTypeNameInConstructorRefactoringProperty(oldEntityName, newEntityName, getNodeID(changedNode), activationTimestamp));
+			} else if (isTypeDeclaredEntity(changedNode)) {
+				properties.add(new ChangedTypeNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
+			}
 		}
+	}
+
+	private static void handleChangedMethodNameInDeclaration(String oldEntityName, String newEntityName, MethodDeclaration methodDeclaration) {
+		//TODO: Consider the signature of the method more fully than just the number of parameters, if needed.
+		int parametersCount= methodDeclaration.parameters().size();
+		String oldMethodName= getPartialMethodSignature(oldEntityName, parametersCount);
+		String newMethodName= getPartialMethodSignature(newEntityName, parametersCount);
+		properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldMethodName, newMethodName, activationTimestamp));
 	}
 
 	private static void handleDeletedNode(ASTNode deletedNode, ASTOperation operation) {
@@ -548,7 +567,7 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static boolean isDeclaredEntity(ASTNode node) {
-		return isLocalVariableOrFieldDeclaredEntity(node) || isMethodDeclaredEntity(node, false) || isTypeDeclaredEntity(node);
+		return isLocalVariableOrFieldDeclaredEntity(node) || getMethodDeclaredEntity(node, false) != null || isTypeDeclaredEntity(node);
 	}
 
 	private static boolean isLocalVariableOrFieldDeclaredEntity(ASTNode node) {
@@ -556,16 +575,18 @@ public class RefactoringPropertiesFactory {
 		return variableDeclaration != null && node == variableDeclaration.getName();
 	}
 
-	private static boolean isMethodDeclaredEntity(ASTNode node, boolean ignoreConstructors) {
+	private static MethodDeclaration getMethodDeclaredEntity(ASTNode node, boolean ignoreConstructors) {
 		ASTNode parent= ASTHelper.getParent(node, MethodDeclaration.class);
-		if (parent != null) {
+		if (parent instanceof MethodDeclaration) {
 			MethodDeclaration methodDeclaration= (MethodDeclaration)parent;
 			//Constructors are detected as methods without a return type. We can not
 			//use isConstructor, since it would not work if the class is being renamed (which makes
 			//original constructors to be considered as ordinary methods until they are renamed as well).
-			return node == methodDeclaration.getName() && (!ignoreConstructors || methodDeclaration.getReturnType2() != null);
+			if (node == methodDeclaration.getName() && (!ignoreConstructors || methodDeclaration.getReturnType2() != null)) {
+				return methodDeclaration;
+			}
 		}
-		return false;
+		return null;
 	}
 
 	private static boolean isTypeDeclaredEntity(ASTNode node) {
@@ -594,6 +615,10 @@ public class RefactoringPropertiesFactory {
 			}
 		}
 		return null;
+	}
+
+	private static String getPartialMethodSignature(String methodName, int argumentsCount) {
+		return methodName + "(" + argumentsCount + ")";
 	}
 
 	private static VariableDeclaration getEnclosingVariableDeclaration(ASTNode node) {
