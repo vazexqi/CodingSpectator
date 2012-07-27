@@ -711,15 +711,6 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static String getContainingMethodName(ASTNode node) {
-		MethodDeclaration containingMethod= ASTHelper.getContainingMethod(node);
-		String methodName= null;
-		if (containingMethod != null) {
-			methodName= containingMethod.getName().getIdentifier();
-		}
-		return methodName;
-	}
-
 	private static boolean isGlobalEntity(SimpleName simpleName, String oldEntityName, String newEntityName) {
 		//First, consider field accesses like this.<field_name>
 		ASTNode parentNode= ASTHelper.getParent(simpleName, FieldAccess.class);
@@ -735,11 +726,18 @@ public class RefactoringPropertiesFactory {
 				return true;
 			}
 		}
-		//Finally, look for local variable declaration (either in the body or as a method parameter).
-		return !isDeclaredLocally(simpleName, oldEntityName, newEntityName);
+		//Finally, look for local vs. field variable declarations.
+		if (isDeclaredLocally(simpleName, oldEntityName)) {
+			return false;
+		}
+		//TODO: Note that this heuristic will fail if the field declaration has been already updated with the new name.
+		if (getFieldDeclarationForName(simpleName) != null) {
+			return true;
+		}
+		return !isDeclaredLocally(simpleName, newEntityName);
 	}
 
-	private static boolean isDeclaredLocally(SimpleName simpleName, final String oldEntityName, final String newEntityName) {
+	private static boolean isDeclaredLocally(SimpleName simpleName, final String entityName) {
 		final String foundMessage= "Found variable declaration";
 		ASTNode parent= ASTHelper.getParent(simpleName, MethodDeclaration.class);
 		if (parent instanceof MethodDeclaration) {
@@ -750,7 +748,7 @@ public class RefactoringPropertiesFactory {
 					@Override
 					public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
 						String declaredName= singleVariableDeclaration.getName().getIdentifier();
-						if (declaredName.equals(oldEntityName) || declaredName.equals(newEntityName)) {
+						if (declaredName.equals(entityName)) {
 							//Stop the visitor.
 							throw new RuntimeException(foundMessage);
 						}
@@ -760,7 +758,7 @@ public class RefactoringPropertiesFactory {
 					@Override
 					public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
 						String declaredName= variableDeclarationFragment.getName().getIdentifier();
-						if (declaredName.equals(oldEntityName) || declaredName.equals(newEntityName)) {
+						if (declaredName.equals(entityName)) {
 							//Stop the visitor.
 							throw new RuntimeException(foundMessage);
 						}
