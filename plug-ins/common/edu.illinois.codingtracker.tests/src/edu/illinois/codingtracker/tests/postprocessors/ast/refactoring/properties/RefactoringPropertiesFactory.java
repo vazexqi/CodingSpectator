@@ -288,21 +288,20 @@ public class RefactoringPropertiesFactory {
 		SimpleName entityName= getDeclaredEntityNameForInitializer(deletedNode);
 		if (entityName != null && isInVariableDeclarationStatement(deletedNode)) {
 			properties.add(new MovedFromVariableInitializationRefactoringProperty(nodeDescriptor, entityName.getIdentifier(), getNodeID(entityName), moveID, activationTimestamp));
+		}
+		handleMovedFromMethodNode(deletedNode, operation, moveID);
+		long parentID= getParentID(deletedNode, true);
+		if (parentID != NO_NODE_ID) {
+			properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 		} else {
-			handleMovedFromMethodNode(deletedNode, operation, moveID);
-			long parentID= getParentID(deletedNode, true);
-			if (parentID != NO_NODE_ID) {
-				properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
-			} else {
-				//Extracting a parenthesized expression usually gets rid of the parentheses, and thus, 
-				//the parenthesized expression is replaced with the variable reference in the usage, while the initialization
-				//of the extracted variable is stripped of the parentheses.
-				ASTNode parent= deletedNode.getParent();
-				if (parent instanceof ParenthesizedExpression) {
-					parentID= getParentID(parent, true);
-					if (parentID != NO_NODE_ID) {
-						properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
-					}
+			//Extracting a parenthesized expression usually gets rid of the parentheses, and thus, 
+			//the parenthesized expression is replaced with the variable reference in the usage, while the initialization
+			//of the extracted variable is stripped of the parentheses.
+			ASTNode parent= deletedNode.getParent();
+			if (parent instanceof ParenthesizedExpression) {
+				parentID= getParentID(parent, true);
+				if (parentID != NO_NODE_ID) {
+					properties.add(new MovedFromUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 				}
 			}
 		}
