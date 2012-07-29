@@ -16,12 +16,14 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 public class MovedToFieldInitializationRefactoringProperty extends AtomicRefactoringProperty {
 
 
-	public MovedToFieldInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long entityNameNodeID, long moveID, long activationTimestamp) {
+	public MovedToFieldInitializationRefactoringProperty(NodeDescriptor movedNode, String entityName, long entityNameNodeID,
+															long moveID, long enclosingClassNodeID, long activationTimestamp) {
 		super(activationTimestamp);
 		addAttribute(RefactoringPropertyAttributes.MOVED_NODE, movedNode);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME, entityName);
 		addAttribute(RefactoringPropertyAttributes.ENTITY_NAME_NODE_ID, entityNameNodeID);
 		addAttribute(RefactoringPropertyAttributes.MOVE_ID, moveID);
+		addAttribute(RefactoringPropertyAttributes.ENCLOSING_CLASS_NODE_ID, enclosingClassNodeID);
 	}
 
 }

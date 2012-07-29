@@ -150,7 +150,8 @@ public class NodeOperations {
 		ASTOperation lastOperation= getLastOperation();
 		ASTOperation nextToLastOperation= getNextToLastOperation();
 		List<ASTOperation> spillOverOperations= new LinkedList<ASTOperation>();
-		while (getTimeDelta(currentOperation, lastOperation) < getTimeDelta(lastOperation, nextToLastOperation)) {
+		while (areVeryCloseOperations(currentOperation, lastOperation) ||
+				getTimeDelta(currentOperation, lastOperation) < getTimeDelta(lastOperation, nextToLastOperation)) {
 			updateCounters(lastOperation, false);
 			if (isCompletedMove()) {
 				operations.remove(lastOperation);
@@ -169,6 +170,18 @@ public class NodeOperations {
 			operations.add(spillOverOperation);
 			updateCounters(spillOverOperation, true);
 		}
+	}
+
+	/**
+	 * Is used to identify operations that are very close, which usually means that they are either
+	 * part of the same text change or represent the effects of the same automated refactoring.
+	 * 
+	 * @param operation1
+	 * @param operation2
+	 * @return
+	 */
+	private boolean areVeryCloseOperations(ASTOperation operation1, ASTOperation operation2) {
+		return getTimeDelta(operation1, operation2) <= 20;
 	}
 
 	private boolean isAddingChange(ASTOperation astOperation) {

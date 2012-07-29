@@ -107,10 +107,14 @@ public abstract class InferredRefactoring {
 		}
 	}
 
-	public void addPossiblyRelatedOperation(ASTOperation operation) {
+	public boolean addPossiblyRelatedOperation(ASTOperation operation) {
+		boolean wasAdded= false;
 		for (RefactoringProperty refactoringProperty : getAllProperties()) {
-			refactoringProperty.addPossiblyRelatedOperation(operation);
+			if (refactoringProperty.addPossiblyRelatedOperation(operation)) {
+				wasAdded= true;
+			}
 		}
+		return wasAdded;
 	}
 
 	public boolean isComplete() {

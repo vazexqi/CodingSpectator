@@ -25,7 +25,7 @@ public interface RefactoringProperty {
 
 	public void setRefactoringID(long refactoringID);
 
-	public void addPossiblyRelatedOperation(ASTOperation operation);
+	public boolean addPossiblyRelatedOperation(ASTOperation operation);
 
 	public long getActivationTimestamp();
 

@@ -173,8 +173,13 @@ public class RefactoringPropertiesFactory {
 		properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp));
 		if (changedNode instanceof SimpleName) {
 			//This facilitates inference of Extract Temp refactoring.
-			properties.add(new AddedEntityReferenceRefactoringProperty(operation.getNodeNewText(), getNodeID(changedNode), parentID, activationTimestamp));
+			addEntityReference(operation.getNodeNewText(), changedNode, parentID);
 		}
+	}
+
+	private static void addEntityReference(String entityName, ASTNode entityNode, long parentID) {
+		properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getNodeID(entityNode), parentID, getEnclosingClassNodeID(entityNode), activationTimestamp));
+
 	}
 
 	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
@@ -336,7 +341,7 @@ public class RefactoringPropertiesFactory {
 				handleAddedNodeToMethod(addedNode, methodID);
 			}
 			if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
-				handleAddedReferenceNode((SimpleName)addedNode);
+				addEntityReference(((SimpleName)addedNode).getIdentifier(), addedNode, getParentID(addedNode, false));
 			}
 			if (addedNode instanceof Modifier && operation.getNodeText().equals(PRIVATE_MODIFIER)) {
 				handlePrivateModifier((Modifier)addedNode);
@@ -370,7 +375,7 @@ public class RefactoringPropertiesFactory {
 				if (isInVariableDeclarationStatement(variableDeclaration)) {
 					newRefactoringProperty= new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp);
 				} else if (isInFieldDeclaration(variableDeclaration)) {
-					newRefactoringProperty= new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, activationTimestamp);
+					newRefactoringProperty= createMovedToFieldInitializationRefactoringProperty(variableDeclaration, nodeDescriptor, entityName, entityNameNodeID, moveID);
 				}
 				if (newRefactoringProperty != null) {
 					newRefactoringProperty.addRelatedOperations(addMoveOperations);
@@ -378,6 +383,11 @@ public class RefactoringPropertiesFactory {
 				}
 			}
 		}
+	}
+
+	private static MovedToFieldInitializationRefactoringProperty createMovedToFieldInitializationRefactoringProperty(ASTNode movedNode, NodeDescriptor nodeDescriptor, String entityName,
+																														long entityNameNodeID, long moveID) {
+		return new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, entityName, entityNameNodeID, moveID, getEnclosingClassNodeID(movedNode), activationTimestamp);
 	}
 
 	private static void handleAddedMethodDeclaration(MethodDeclaration methodDeclaration, ASTOperation operation) {
@@ -456,7 +466,7 @@ public class RefactoringPropertiesFactory {
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			if (addedNode instanceof SimpleName) {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
-				properties.add(new AddedEntityReferenceRefactoringProperty(referencedEntityName.getIdentifier(), getNodeID(referencedEntityName), parentID, activationTimestamp));
+				addEntityReference(referencedEntityName.getIdentifier(), referencedEntityName, parentID);
 			}
 			//Inlining an expression might result in adding parentheses around it, and thus, 
 			//the variable reference is replaced with the parenthesized initialization expression in the usage.
@@ -504,15 +514,11 @@ public class RefactoringPropertiesFactory {
 				properties.add(new MovedToVariableInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID,
 						activationTimestamp));
 			} else if (isInFieldDeclaration(addedNode)) {
-				properties.add(new MovedToFieldInitializationRefactoringProperty(nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID, activationTimestamp));
+				properties.add(createMovedToFieldInitializationRefactoringProperty(declaredEntityName, nodeDescriptor, declaredEntityName.getIdentifier(), declaredEntityNameNodeID, moveID));
 			}
 			return true;
 		}
 		return false;
-	}
-
-	private static void handleAddedReferenceNode(SimpleName referenceNode) {
-		properties.add(new AddedEntityReferenceRefactoringProperty(referenceNode.getIdentifier(), getNodeID(referenceNode), getParentID(referenceNode, false), activationTimestamp));
 	}
 
 	private static boolean isTooSimpleForExtractMethod(ASTNode node) {

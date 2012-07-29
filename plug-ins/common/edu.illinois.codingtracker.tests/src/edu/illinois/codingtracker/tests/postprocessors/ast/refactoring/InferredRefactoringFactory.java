@@ -88,8 +88,11 @@ public class InferredRefactoringFactory {
 		for (RefactoringProperty currentProperty : currentProperties) {
 			currentProperty.addPossiblyRelatedOperation(operation);
 		}
-		for (InferredRefactoring completeRefactoring : completeRefactorings) {
-			completeRefactoring.addPossiblyRelatedOperation(operation);
+		for (int i= completeRefactorings.size() - 1; i >= 0; i--) { //Start with the most recent completed refactoring.
+			if (completeRefactorings.get(i).addPossiblyRelatedOperation(operation)) {
+				//Can add to a single completed refactoring only.
+				break;
+			}
 		}
 	}
 

@@ -96,14 +96,16 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 	}
 
 	@Override
-	public void addPossiblyRelatedOperation(ASTOperation operation) {
+	public boolean addPossiblyRelatedOperation(ASTOperation operation) {
 		if (isRelatedOperation(operation)) {
 			relatedOperations.add(operation);
 			updateActivationTimestamp(operation.getTime());
 			for (InferredRefactoring refactoring : refactorings) {
 				refactoring.setLastContributingOperation(operation);
 			}
+			return true;
 		}
+		return false;
 	}
 
 	private boolean isRelatedOperation(ASTOperation operation) {
