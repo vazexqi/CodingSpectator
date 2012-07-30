@@ -16,6 +16,7 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.propertie
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.AtomicRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.CorrectiveRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.DeletedEntityReferenceRefactoringProperty;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.MovedToUsageRefactoringProperty;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringPropertiesFactory;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.properties.RefactoringProperty;
 
@@ -78,7 +79,8 @@ public class InferredRefactoringFactory {
 		while (propertiesIterator.hasNext()) {
 			AtomicRefactoringProperty property= propertiesIterator.next();
 			if (!(property instanceof AddedGetterMethodInvocationRefactoringProperty) &&
-					!(property instanceof DeletedEntityReferenceRefactoringProperty)) {
+					!(property instanceof DeletedEntityReferenceRefactoringProperty) &&
+					!(property instanceof MovedToUsageRefactoringProperty)) {
 				propertiesIterator.remove();
 			}
 		}

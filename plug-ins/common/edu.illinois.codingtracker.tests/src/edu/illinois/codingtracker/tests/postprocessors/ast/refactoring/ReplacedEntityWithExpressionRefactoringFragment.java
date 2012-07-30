@@ -40,8 +40,7 @@ public class ReplacedEntityWithExpressionRefactoringFragment extends InferredRef
 	}
 
 	public static boolean isAcceptableProperty(RefactoringProperty refactoringProperty) {
-		return !RefactoringInferencePostprocessor.isIntroducingGetterInvocation &&
-				acceptableProperties.contains(refactoringProperty.getClassName());
+		return acceptableProperties.contains(refactoringProperty.getClassName());
 	}
 
 	@Override
