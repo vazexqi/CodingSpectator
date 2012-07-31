@@ -59,10 +59,10 @@ public class InferredRefactoringFactory {
 		addPossiblyRelatedOperationToCurrentPropertiesAndCompleteRefactorings(operation);
 		long currentTimestamp= operation.getTime();
 		removeOldCompleteRefactorings(currentTimestamp);
-		Set<AtomicRefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
+		Set<RefactoringProperty> newProperties= RefactoringPropertiesFactory.retrieveProperties(operation);
 		applyFilteringHeuritics(newProperties);
 		removeOldCurrentProperties(newProperties, currentTimestamp);
-		Set<AtomicRefactoringProperty> correctedProperties= collectCorrectedProperties(newProperties);
+		Set<RefactoringProperty> correctedProperties= collectCorrectedProperties(newProperties);
 
 		Set<RefactoringProperty> propertiesToAdd= new HashSet<RefactoringProperty>();
 		propertiesToAdd.addAll(newProperties);
@@ -71,13 +71,13 @@ public class InferredRefactoringFactory {
 		processPendingRefactorings(propertiesToAdd, correctedProperties);
 	}
 
-	private static void applyFilteringHeuritics(Set<AtomicRefactoringProperty> properties) {
+	private static void applyFilteringHeuritics(Set<RefactoringProperty> properties) {
 		if (!RefactoringInferencePostprocessor.isIntroducingGetterInvocation) {
 			return;
 		}
-		Iterator<AtomicRefactoringProperty> propertiesIterator= properties.iterator();
+		Iterator<RefactoringProperty> propertiesIterator= properties.iterator();
 		while (propertiesIterator.hasNext()) {
-			AtomicRefactoringProperty property= propertiesIterator.next();
+			RefactoringProperty property= propertiesIterator.next();
 			if (!(property instanceof AddedGetterMethodInvocationRefactoringProperty) &&
 					!(property instanceof DeletedEntityReferenceRefactoringProperty) &&
 					!(property instanceof MovedToUsageRefactoringProperty)) {
@@ -98,9 +98,9 @@ public class InferredRefactoringFactory {
 		}
 	}
 
-	private static void processPendingRefactoringFragments(Set<RefactoringProperty> propertiesToAdd, Set<AtomicRefactoringProperty> correctedProperties) {
+	private static void processPendingRefactoringFragments(Set<RefactoringProperty> propertiesToAdd, Set<RefactoringProperty> correctedProperties) {
 		//First, handle the corrected properties.
-		for (AtomicRefactoringProperty correctedProperty : correctedProperties) {
+		for (RefactoringProperty correctedProperty : correctedProperties) {
 			propertiesToAdd.addAll(addPropertyToPendingRefactoringFragments(correctedProperty));
 		}
 		//Next, handle the properties to add.
@@ -112,9 +112,9 @@ public class InferredRefactoringFactory {
 		propertiesToAdd.addAll(newPropertiesToAdd);
 	}
 
-	private static void processPendingRefactorings(Set<RefactoringProperty> propertiesToAdd, Set<AtomicRefactoringProperty> correctedProperties) {
+	private static void processPendingRefactorings(Set<RefactoringProperty> propertiesToAdd, Set<RefactoringProperty> correctedProperties) {
 		//First, handle the corrected properties.
-		for (AtomicRefactoringProperty correctedProperty : correctedProperties) {
+		for (RefactoringProperty correctedProperty : correctedProperties) {
 			//This might create duplicated refactorings, so check for them.
 			addPropertyToPendingRefactorings(correctedProperty, false);
 		}
@@ -128,7 +128,7 @@ public class InferredRefactoringFactory {
 		}
 	}
 
-	private static void removeOldCurrentProperties(Set<AtomicRefactoringProperty> newProperties, long currentTimestamp) {
+	private static void removeOldCurrentProperties(Set<RefactoringProperty> newProperties, long currentTimestamp) {
 		if (newProperties.size() > 0) { //It makes sense to remove the current properties only when there are new properties.
 			//Use a temporary collection, since the properties might be removed from the main collection.
 			Set<RefactoringProperty> properties= new HashSet<RefactoringProperty>();
@@ -231,9 +231,9 @@ public class InferredRefactoringFactory {
 	 * @param newProperties
 	 * @return
 	 */
-	private static Set<AtomicRefactoringProperty> collectCorrectedProperties(Set<AtomicRefactoringProperty> newProperties) {
-		Set<AtomicRefactoringProperty> correctedProperties= new HashSet<AtomicRefactoringProperty>();
-		Iterator<AtomicRefactoringProperty> newPropertiesIterator= newProperties.iterator();
+	private static Set<RefactoringProperty> collectCorrectedProperties(Set<RefactoringProperty> newProperties) {
+		Set<RefactoringProperty> correctedProperties= new HashSet<RefactoringProperty>();
+		Iterator<RefactoringProperty> newPropertiesIterator= newProperties.iterator();
 		while (newPropertiesIterator.hasNext()) {
 			RefactoringProperty newProperty= newPropertiesIterator.next();
 			if (newProperty instanceof CorrectiveRefactoringProperty) {
@@ -243,13 +243,13 @@ public class InferredRefactoringFactory {
 		}
 		//Fire corrected properties only after all properties are corrected 
 		//to avoid destroying partially corrected refactorings.
-		for (AtomicRefactoringProperty correctedProperty : correctedProperties) {
+		for (RefactoringProperty correctedProperty : correctedProperties) {
 			correctedProperty.fireCorrected();
 		}
 		return correctedProperties;
 	}
 
-	private static void correctProperties(CorrectiveRefactoringProperty correctiveProperty, Set<AtomicRefactoringProperty> correctedProperties) {
+	private static void correctProperties(CorrectiveRefactoringProperty correctiveProperty, Set<RefactoringProperty> correctedProperties) {
 		for (RefactoringProperty currentProperty : currentProperties) {
 			if (currentProperty instanceof AtomicRefactoringProperty) { //Only atomic properties can be corrected.
 				AtomicRefactoringProperty atomicProperty= (AtomicRefactoringProperty)currentProperty;

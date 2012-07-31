@@ -39,6 +39,15 @@ public class ReplacedExpressionWithEntityRefactoringFragment extends InferredRef
 		return newRefactoring;
 	}
 
+	public static ReplacedExpressionWithEntityRefactoringFragment createRefactoring(RefactoringProperty refactoringProperty1, RefactoringProperty refactoringProperty2) {
+		ReplacedExpressionWithEntityRefactoringFragment newRefactoring= createRefactoring(refactoringProperty1);
+		if (!newRefactoring.canBePart(refactoringProperty2)) {
+			throw new RuntimeException("Can not create a fragment from two unrelated properties!");
+		}
+		addProperty(newRefactoring, refactoringProperty2);
+		return newRefactoring;
+	}
+
 	public static boolean isAcceptableProperty(RefactoringProperty refactoringProperty) {
 		return acceptableProperties.contains(refactoringProperty.getClassName());
 	}

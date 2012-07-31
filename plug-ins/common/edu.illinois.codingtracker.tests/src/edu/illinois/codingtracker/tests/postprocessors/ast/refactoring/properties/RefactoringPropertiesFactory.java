@@ -40,6 +40,8 @@ import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
 import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ReplacedEntityWithExpressionRefactoringFragment;
+import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ReplacedExpressionWithEntityRefactoringFragment;
 
 
 
@@ -57,7 +59,7 @@ public class RefactoringPropertiesFactory {
 
 	private static final ASTOperationRecorder astOperationRecorder= ASTOperationRecorder.getInstance();
 
-	private static final Set<AtomicRefactoringProperty> properties= new HashSet<AtomicRefactoringProperty>();;
+	private static final Set<RefactoringProperty> properties= new HashSet<RefactoringProperty>();;
 
 	private static long activationTimestamp;
 
@@ -79,7 +81,7 @@ public class RefactoringPropertiesFactory {
 	 * @param operation
 	 * @return
 	 */
-	public static Set<AtomicRefactoringProperty> retrieveProperties(ASTOperation operation) {
+	public static Set<RefactoringProperty> retrieveProperties(ASTOperation operation) {
 		initializeRetrieval(operation);
 		ASTNode affectedNode= getAffectedNode(operation);
 		if (operation.isAdd()) {
@@ -123,7 +125,7 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void postProcessProperties(ASTOperation operation) {
-		for (AtomicRefactoringProperty refactoringProperty : properties) {
+		for (RefactoringProperty refactoringProperty : properties) {
 			//Set the main operation before going through possibly related operations.
 			refactoringProperty.setMainOperation(operation);
 			for (ASTOperation batchOperation : batchOperations) {
@@ -161,25 +163,24 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddingMovedChangedNode(ASTNode changedNode, ASTOperation operation, long moveID, long parentID) {
 		handleMovedToMethodNode(changedNode, operation, moveID);
-		properties.add(new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp));
 		if (changedNode instanceof SimpleName) {
-			//This facilitates inference of Inline Temp refactoring.
-			properties.add(new DeletedEntityReferenceRefactoringProperty(operation.getNodeText(), NO_NODE_ID, parentID, activationTimestamp));
+			properties.add(ReplacedEntityWithExpressionRefactoringFragment.createRefactoring(
+					new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp),
+					new DeletedEntityReferenceRefactoringProperty(operation.getNodeText(), NO_NODE_ID, parentID, activationTimestamp)));
 		}
 	}
 
 	private static void handleDeletingMovedChangedNode(ASTNode changedNode, ASTOperation operation, long parentID, long deletingChangeMoveID) {
 		handleMovedFromMethodNode(changedNode, operation, deletingChangeMoveID);
-		properties.add(new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp));
 		if (changedNode instanceof SimpleName) {
-			//This facilitates inference of Extract Temp refactoring.
-			addEntityReference(operation.getNodeNewText(), changedNode, parentID);
+			properties.add(ReplacedExpressionWithEntityRefactoringFragment.createRefactoring(
+					new MovedFromUsageRefactoringProperty(new NodeDescriptor(operation, true), deletingChangeMoveID, parentID, activationTimestamp),
+					createEntityReference(operation.getNodeNewText(), changedNode, parentID)));
 		}
 	}
 
-	private static void addEntityReference(String entityName, ASTNode entityNode, long parentID) {
-		properties.add(new AddedEntityReferenceRefactoringProperty(entityName, getNodeID(entityNode), parentID, getEnclosingClassNodeID(entityNode), activationTimestamp));
-
+	private static RefactoringProperty createEntityReference(String entityName, ASTNode entityNode, long parentID) {
+		return new AddedEntityReferenceRefactoringProperty(entityName, getNodeID(entityNode), parentID, getEnclosingClassNodeID(entityNode), activationTimestamp);
 	}
 
 	private static void handleChangedSimpleName(SimpleName changedNode, ASTOperation operation) {
@@ -341,7 +342,7 @@ public class RefactoringPropertiesFactory {
 				handleAddedNodeToMethod(addedNode, methodID);
 			}
 			if (addedNode instanceof SimpleName && !isDeclaredEntity(addedNode)) {
-				addEntityReference(((SimpleName)addedNode).getIdentifier(), addedNode, getParentID(addedNode, false));
+				properties.add(createEntityReference(((SimpleName)addedNode).getIdentifier(), addedNode, getParentID(addedNode, false)));
 			}
 			if (addedNode instanceof Modifier && operation.getNodeText().equals(PRIVATE_MODIFIER)) {
 				handlePrivateModifier((Modifier)addedNode);
@@ -466,7 +467,7 @@ public class RefactoringPropertiesFactory {
 			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			if (addedNode instanceof SimpleName) {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
-				addEntityReference(referencedEntityName.getIdentifier(), referencedEntityName, parentID);
+				properties.add(createEntityReference(referencedEntityName.getIdentifier(), referencedEntityName, parentID));
 			}
 			//Inlining an expression might result in adding parentheses around it, and thus, 
 			//the variable reference is replaced with the parenthesized initialization expression in the usage.

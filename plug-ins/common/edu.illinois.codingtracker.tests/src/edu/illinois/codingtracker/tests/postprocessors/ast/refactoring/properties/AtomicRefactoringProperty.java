@@ -79,6 +79,7 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 		this.activationTimestamp= activationTimestamp;
 	}
 
+	@Override
 	public void setMainOperation(ASTOperation mainOperation) {
 		this.mainOperation= mainOperation;
 		mainNode= RefactoringPropertiesFactory.getAffectedNode(mainOperation);
@@ -88,7 +89,11 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 
 	@Override
 	public ASTOperation getLastRelatedOperation() {
-		return relatedOperations.get(relatedOperations.size() - 1);
+		int relatedOperationsCount= relatedOperations.size();
+		if (relatedOperationsCount == 0) {
+			return null;
+		}
+		return relatedOperations.get(relatedOperationsCount - 1);
 	}
 
 	public void addRelatedOperations(List<ASTOperation> additionalRelatedOperatons) {
@@ -275,6 +280,7 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 		refactorings.remove(refactoring);
 	}
 
+	@Override
 	public void fireCorrected() {
 		//Use a temporary collection since a corrected property might lead to a removed refactoring.
 		Set<InferredRefactoring> existingRefactorings= new HashSet<InferredRefactoring>();

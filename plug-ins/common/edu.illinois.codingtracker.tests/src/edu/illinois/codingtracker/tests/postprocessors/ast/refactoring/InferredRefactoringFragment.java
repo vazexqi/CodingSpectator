@@ -50,6 +50,7 @@ public abstract class InferredRefactoringFragment extends InferredRefactoring im
 
 	@Override
 	public void setLastContributingOperation(ASTOperation lastContributingOperation) {
+		super.setLastContributingOperation(lastContributingOperation);
 		for (InferredRefactoring refactoring : refactorings) {
 			refactoring.setLastContributingOperation(lastContributingOperation);
 		}
@@ -121,6 +122,18 @@ public abstract class InferredRefactoringFragment extends InferredRefactoring im
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public void setMainOperation(ASTOperation mainOperation) {
+		for (RefactoringProperty refactoringProperty : getAllProperties()) {
+			refactoringProperty.setMainOperation(mainOperation);
+		}
+	}
+
+	@Override
+	public void fireCorrected() {
+		throw new RuntimeException("A refactoring fragment should never be corrected!");
 	}
 
 }

@@ -41,6 +41,10 @@ public interface RefactoringProperty {
 
 	public void removeRefactoring(InferredRefactoring refactoring);
 
+	public void setMainOperation(ASTOperation mainOperation);
+
+	public void fireCorrected();
+
 	/**
 	 * containingRefactoring is the refactoring that contains this property. If the containing
 	 * refactoring does not matter, containingRefactoring is null.
