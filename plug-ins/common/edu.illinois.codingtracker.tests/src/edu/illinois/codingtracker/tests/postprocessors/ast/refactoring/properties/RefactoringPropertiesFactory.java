@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.EmptyStatement;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -597,7 +598,12 @@ public class RefactoringPropertiesFactory {
 
 	private static boolean isTypeDeclaredEntity(ASTNode node) {
 		ASTNode typeDeclaration= ASTHelper.getParent(node, TypeDeclaration.class);
-		return typeDeclaration != null && node == ((TypeDeclaration)typeDeclaration).getName();
+		if (typeDeclaration != null && node == ((TypeDeclaration)typeDeclaration).getName()) {
+			return true;
+		}
+		//enum is a kind of type.
+		ASTNode enumDeclaration= ASTHelper.getParent(node, EnumDeclaration.class);
+		return enumDeclaration != null && node == ((EnumDeclaration)enumDeclaration).getName();
 	}
 
 	private static boolean isInVariableDeclarationStatement(ASTNode node) {
