@@ -225,9 +225,12 @@ public abstract class InferredRefactoring {
 		if (!isComplete()) {
 			String disabledPropertyName= disabledProperty.getClassName();
 			List<RefactoringProperty> propertiesList= properties.get(disabledPropertyName);
-			propertiesList.remove(disabledProperty);
-			if (propertiesList.size() == 0) {
-				properties.remove(disabledPropertyName);
+			//TODO: Why it could be null (i.e., why properties could be empty at this point like in cs-509 sequence)?
+			if (propertiesList != null) {
+				propertiesList.remove(disabledProperty);
+				if (propertiesList.size() == 0) {
+					properties.remove(disabledPropertyName);
+				}
 			}
 			if (properties.size() == 0) {
 				InferredRefactoringFactory.destroyedRefactoring(this);
