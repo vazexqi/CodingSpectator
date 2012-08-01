@@ -263,10 +263,18 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleChangedMethodNameInDeclaration(String oldEntityName, String newEntityName, MethodDeclaration methodDeclaration) {
 		//TODO: Consider the signature of the method more fully than just the number of parameters, if needed.
-		int parametersCount= methodDeclaration.parameters().size();
-		String oldMethodName= getPartialMethodSignature(oldEntityName, parametersCount);
-		String newMethodName= getPartialMethodSignature(newEntityName, parametersCount);
-		properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldMethodName, newMethodName, activationTimestamp));
+		int formalParametersCount= methodDeclaration.parameters().size();
+		//TODO: Find a more general way to handle VARARG. Note that currently, if a VARARG method is invoked with different
+		//number of parameters, then renaming this method will produce a separate Rename Method refactoring for each number of parameters used.
+		//Simulate VARARG as up to 5 additional parameters. 
+		int maxParametersCount= methodDeclaration.isVarargs() ? formalParametersCount + 5 : formalParametersCount;
+		//VARARG also means that there might be no parameter whatsoever.
+		int startParametersCount= methodDeclaration.isVarargs() ? formalParametersCount - 1 : formalParametersCount;
+		for (int parametersCount= startParametersCount; parametersCount <= maxParametersCount; parametersCount++) {
+			String oldMethodName= getPartialMethodSignature(oldEntityName, parametersCount);
+			String newMethodName= getPartialMethodSignature(newEntityName, parametersCount);
+			properties.add(new ChangedMethodNameInDeclarationRefactoringProperty(oldMethodName, newMethodName, activationTimestamp));
+		}
 	}
 
 	private static void handleDeletedNode(ASTNode deletedNode, ASTOperation operation) {
