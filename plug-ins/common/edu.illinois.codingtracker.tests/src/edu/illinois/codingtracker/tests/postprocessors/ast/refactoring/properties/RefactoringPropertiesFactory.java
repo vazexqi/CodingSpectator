@@ -197,10 +197,11 @@ public class RefactoringPropertiesFactory {
 			if (methodInvocation != null) {
 				handleChangedMethodNameInInvocation(oldEntityName, newEntityName, methodID, nodeID, methodInvocation);
 			} else {
-				if (isGlobalEntity(changedNode, oldEntityName, newEntityName)) {
+				long declaringMethodID= getDeclaringMethodID(changedNode, oldEntityName, newEntityName);
+				if (declaringMethodID == -1) {
 					properties.add(new ChangedGlobalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
 				} else {
-					properties.add(new ChangedLocalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, methodID, activationTimestamp));
+					properties.add(new ChangedLocalEntityNameInUsageRefactoringProperty(oldEntityName, newEntityName, nodeID, declaringMethodID, activationTimestamp));
 				}
 			}
 		}
@@ -245,7 +246,11 @@ public class RefactoringPropertiesFactory {
 	private static void handleChangedDeclaredEntity(SimpleName changedNode, String oldEntityName, String newEntityName, long methodID) {
 		if (isLocalVariableOrFieldDeclaredEntity(changedNode)) {
 			if (isInVariableDeclarationStatement(changedNode) || isInSingleVariableDeclaration(changedNode)) {
-				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, methodID, activationTimestamp));
+				long enclosingMethodNodeID= getEnclosingMethodNodeID(changedNode);
+				if (enclosingMethodNodeID == -1) {
+					enclosingMethodNodeID= methodID;
+				}
+				properties.add(new ChangedVariableNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, enclosingMethodNodeID, activationTimestamp));
 			} else if (isInFieldDeclaration(changedNode)) {
 				properties.add(new ChangedFieldNameInDeclarationRefactoringProperty(oldEntityName, newEntityName, activationTimestamp));
 			}
@@ -657,6 +662,14 @@ public class RefactoringPropertiesFactory {
 		return -1;
 	}
 
+	private static long getEnclosingMethodNodeID(ASTNode node) {
+		ASTNode methodDeclaration= ASTHelper.getParent(node, MethodDeclaration.class);
+		if (methodDeclaration != null) {
+			return getNodeID(methodDeclaration);
+		}
+		return -1;
+	}
+
 	private static long getParentID(ASTNode node, boolean isOld) {
 		ASTNode parentNode= node.getParent();
 		if (isOld) {
@@ -731,66 +744,88 @@ public class RefactoringPropertiesFactory {
 		}
 	}
 
-	private static boolean isGlobalEntity(SimpleName simpleName, String oldEntityName, String newEntityName) {
+	/**
+	 * Returns -1 if simpleName is a global entity.
+	 * 
+	 * @param simpleName
+	 * @param oldEntityName
+	 * @param newEntityName
+	 * @return
+	 */
+	private static long getDeclaringMethodID(SimpleName simpleName, String oldEntityName, String newEntityName) {
 		//First, consider field accesses like this.<field_name>
 		ASTNode parentNode= ASTHelper.getParent(simpleName, FieldAccess.class);
 		if (parentNode instanceof FieldAccess) {
 			if (((FieldAccess)parentNode).getName() == simpleName) {
-				return true;
+				return -1;
 			}
 		}
 		//Next, consider static field accesses like <class_name>.<field_name>
 		parentNode= ASTHelper.getParent(simpleName, QualifiedName.class);
 		if (parentNode instanceof QualifiedName) {
 			if (((QualifiedName)parentNode).getName() == simpleName) {
-				return true;
+				return -1;
 			}
 		}
 		//Finally, look for local vs. field variable declarations.
-		if (isDeclaredLocally(simpleName, oldEntityName)) {
-			return false;
+		long declaringMethodID= getDeclaringMethodID(simpleName, oldEntityName);
+		if (declaringMethodID != -1) {
+			return declaringMethodID;
 		}
 		//TODO: Note that this heuristic will fail if the field declaration has been already updated with the new name.
 		if (getFieldDeclarationForName(simpleName) != null) {
-			return true;
+			return -1;
 		}
-		return !isDeclaredLocally(simpleName, newEntityName);
+		return getDeclaringMethodID(simpleName, newEntityName);
 	}
 
-	private static boolean isDeclaredLocally(SimpleName simpleName, final String entityName) {
-		final String foundMessage= "Found variable declaration";
+	private static long getDeclaringMethodID(SimpleName simpleName, final String entityName) {
 		ASTNode parent= ASTHelper.getParent(simpleName, MethodDeclaration.class);
 		if (parent instanceof MethodDeclaration) {
-			//TODO: Consider scoping rules in this search, i.e., a field might be accessed in one scope, while a local
-			//variable with the same name might be declared in another scope.
-			try {
-				parent.accept(new ASTVisitor() {
-					@Override
-					public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
-						String declaredName= singleVariableDeclaration.getName().getIdentifier();
-						if (declaredName.equals(entityName)) {
-							//Stop the visitor.
-							throw new RuntimeException(foundMessage);
-						}
-						return false;
-					}
+			if (isDeclaredInMethod((MethodDeclaration)parent, entityName)) {
+				return getNodeID(parent);
+			}
+			//Look one level up to account for scenarios with anonymous inner classes declared in methods.
+			parent= ASTHelper.getParent(parent.getParent(), MethodDeclaration.class);
+			if (parent instanceof MethodDeclaration && isDeclaredInMethod((MethodDeclaration)parent, entityName)) {
+				return getNodeID(parent);
+			}
+		}
+		return -1;
+	}
 
-					@Override
-					public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
-						String declaredName= variableDeclarationFragment.getName().getIdentifier();
-						if (declaredName.equals(entityName)) {
-							//Stop the visitor.
-							throw new RuntimeException(foundMessage);
-						}
-						return false;
+	private static boolean isDeclaredInMethod(MethodDeclaration methodDeclaration, final String entityName) {
+		final String foundMessage= "Found variable declaration";
+		//TODO: Consider scoping rules in this search, i.e., a field might be accessed in one scope, while a local
+		//variable with the same name might be declared in another scope.
+		try {
+			methodDeclaration.accept(new ASTVisitor() {
+				@Override
+				public boolean visit(SingleVariableDeclaration singleVariableDeclaration) {
+					String declaredName= singleVariableDeclaration.getName().getIdentifier();
+					if (declaredName.equals(entityName)) {
+						//Stop the visitor.
+						throw new RuntimeException(foundMessage);
 					}
-				});
-			} catch (RuntimeException e) {
-				if (e.getMessage().equals(foundMessage)) {
-					return true;
+					return false;
 				}
+
+				@Override
+				public boolean visit(VariableDeclarationFragment variableDeclarationFragment) {
+					String declaredName= variableDeclarationFragment.getName().getIdentifier();
+					if (declaredName.equals(entityName)) {
+						//Stop the visitor.
+						throw new RuntimeException(foundMessage);
+					}
+					return false;
+				}
+			});
+		} catch (RuntimeException e) {
+			if (e.getMessage().equals(foundMessage)) {
+				return true;
 			}
 		}
 		return false;
 	}
+
 }
