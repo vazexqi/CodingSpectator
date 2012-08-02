@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
@@ -486,9 +487,14 @@ public class RefactoringPropertiesFactory {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
 				properties.add(createEntityReference(referencedEntityName.getIdentifier(), referencedEntityName, parentID));
 			}
+			//Inlining an expression might add a cast to it, which goes together with parentheses around the expression.
+			ASTNode parent= addedNode.getParent();
+			if (parent instanceof CastExpression && astOperationRecorder.isAdded(parent)) {
+				addedNode= parent;
+			}
 			//Inlining an expression might result in adding parentheses around it, and thus, 
 			//the variable reference is replaced with the parenthesized initialization expression in the usage.
-			ASTNode parent= addedNode.getParent();
+			parent= addedNode.getParent();
 			if (parent instanceof ParenthesizedExpression && astOperationRecorder.isAdded(parent)) {
 				parentID= getParentID(parent, false);
 				properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
