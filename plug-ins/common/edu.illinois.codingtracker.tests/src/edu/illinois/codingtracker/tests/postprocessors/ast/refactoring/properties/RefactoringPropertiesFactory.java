@@ -474,11 +474,13 @@ public class RefactoringPropertiesFactory {
 
 	private static void handleAddedMovedNode(ASTNode addedNode, ASTOperation operation, long moveID) {
 		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, false);
+		long parentID= getParentID(addedNode, false);
+		//Moved to usage property should be added even if the node is moved to a variable initialization
+		//to support the scenario, in which a variable is inlined into the initialization of another variable.
+		properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 		if (!handleAddedMovedInitialization(addedNode, nodeDescriptor, moveID)) {
 			addNewEntryToAddedMovedNodes(addedNode, operation);
 			handleMovedToMethodNode(addedNode, operation, moveID);
-			long parentID= getParentID(addedNode, false);
-			properties.add(new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp));
 			if (addedNode instanceof SimpleName) {
 				SimpleName referencedEntityName= (SimpleName)addedNode;
 				properties.add(createEntityReference(referencedEntityName.getIdentifier(), referencedEntityName, parentID));
