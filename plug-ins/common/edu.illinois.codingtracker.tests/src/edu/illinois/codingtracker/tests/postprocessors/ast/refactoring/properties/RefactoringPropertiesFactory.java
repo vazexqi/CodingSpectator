@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -676,6 +677,18 @@ public class RefactoringPropertiesFactory {
 		ASTNode parentNode= node.getParent();
 		if (isOld) {
 			if (astOperationRecorder.isDeleted(parentNode)) {
+				//Account for scenarios, in which InfixExpression is removed inside other InfixExpression without removing all
+				//its children.
+				if (!(node instanceof SimpleName) && parentNode instanceof InfixExpression) {
+					InfixExpression infixExpression= (InfixExpression)parentNode;
+					if (infixExpression.getLeftOperand() == node &&
+							!astOperationRecorder.isDeleted(infixExpression.getRightOperand())) {
+						parentNode= infixExpression.getParent();
+						if (parentNode instanceof InfixExpression && !astOperationRecorder.isDeleted(parentNode)) {
+							return getNodeID(parentNode);
+						}
+					}
+				}
 				//Account for scenarios, in which FieldAccess is replaced with QulifiedName or vice-versa.
 				if (parentNode instanceof FieldAccess || parentNode instanceof QualifiedName) {
 					return findMatchingParentID((Expression)parentNode);
