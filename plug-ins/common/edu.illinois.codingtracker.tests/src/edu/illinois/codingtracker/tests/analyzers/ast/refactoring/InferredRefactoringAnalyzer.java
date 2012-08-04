@@ -135,7 +135,7 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 		return false;
 	}
 
-	private static RefactoringKind getRefactoringKind(NewStartedRefactoringOperation startedRefactoringOperation) {
+	public static RefactoringKind getRefactoringKind(NewStartedRefactoringOperation startedRefactoringOperation) {
 		String refactoringName= startedRefactoringOperation.getID().substring("org.eclipse.jdt.ui.".length());
 		if (refactoringName.equals("extract.temp")) {
 			return RefactoringKind.EXTRACT_LOCAL_VARIABLE;
