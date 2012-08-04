@@ -165,10 +165,12 @@ public class RefactoringPropertiesFactory {
 	}
 
 	private static void handleAddingMovedChangedNode(ASTNode changedNode, ASTOperation operation, long moveID, long parentID) {
+		NodeDescriptor nodeDescriptor= new NodeDescriptor(operation, false);
+		handleAddedMovedInitialization(changedNode, nodeDescriptor, moveID);
 		handleMovedToMethodNode(changedNode, operation, moveID);
 		if (changedNode instanceof SimpleName) {
 			properties.add(ReplacedEntityWithExpressionRefactoringFragment.createRefactoring(
-					new MovedToUsageRefactoringProperty(new NodeDescriptor(operation, false), moveID, parentID, activationTimestamp),
+					new MovedToUsageRefactoringProperty(nodeDescriptor, moveID, parentID, activationTimestamp),
 					new DeletedEntityReferenceRefactoringProperty(operation.getNodeText(), NO_NODE_ID, parentID, activationTimestamp)));
 		}
 	}
