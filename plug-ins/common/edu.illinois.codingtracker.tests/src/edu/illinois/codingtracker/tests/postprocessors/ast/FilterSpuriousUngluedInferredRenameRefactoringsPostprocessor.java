@@ -15,6 +15,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation.RefactoringKind;
+import edu.illinois.codingtracker.operations.refactorings.FinishedRefactoringOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingtracker.recording.TextRecorder;
 import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
@@ -99,7 +100,8 @@ public class FilterSpuriousUngluedInferredRenameRefactoringsPostprocessor extend
 				postprocessASTOperation((ASTOperation)userOperation);
 			} else if (userOperation instanceof InferredRefactoringOperation) {
 				postprocessInferredRefactoring((InferredRefactoringOperation)userOperation);
-			} else if (userOperation instanceof NewStartedRefactoringOperation) {
+			} else if (userOperation instanceof NewStartedRefactoringOperation ||
+						userOperation instanceof FinishedRefactoringOperation) {
 				currentInferredRefactoringOperation= null;
 			}
 		}
