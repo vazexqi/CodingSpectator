@@ -128,10 +128,24 @@ public class FilterSpuriousPrecedingInferredRenameRefactoringsPostprocessor exte
 
 	private boolean areCorrelated(NewStartedRefactoringOperation automatedRefactoringOperation, InferredRefactoringOperation inferredRefactoringOperation, boolean isUndo) {
 		String automatedName= automatedRefactoringOperation.getArguments().get("name");
-		String inferredName= inferredRefactoringOperation.getArguments().get(isUndo ? "OldName" : "NewName");
+		String inferredName= removeParentheses(inferredRefactoringOperation.getArguments().get(isUndo ? "OldName" : "NewName"));
 		return inferredRefactoringOperation.getRefactoringKind() == InferredRefactoringAnalyzer.getRefactoringKind(automatedRefactoringOperation) &&
 				Math.abs(inferredRefactoringOperation.getTime() - automatedRefactoringOperation.getTime()) < renameBeforeAutomatedRenameThreshold &&
 				inferredName.equals(automatedName);
+	}
+
+	/**
+	 * It is used to remove the parentheses that follow a method name.
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private String removeParentheses(String str) {
+		int openParenthesisIndex= str.indexOf("(");
+		if (openParenthesisIndex != -1) {
+			return str.substring(0, openParenthesisIndex);
+		}
+		return str;
 	}
 
 	private void postprocessInferredRefactoring(InferredRefactoringOperation inferredRefactoringOperation) {
