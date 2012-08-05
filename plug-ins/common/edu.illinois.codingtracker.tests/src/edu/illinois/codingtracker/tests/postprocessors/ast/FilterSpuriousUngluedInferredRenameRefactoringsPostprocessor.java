@@ -26,7 +26,7 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  * inferred refactorings and updates the remaining refactoring such that it reflects the full
  * change, i.e., it glues all spurious refactorings into a single one.
  * 
- * !!!Note that this postprocessor updates the original files. Also, it has to be applied before
+ * !!!Note that this postprocessor updates the original files. Also, it should be applied after the
  * other post-refactoring-inference postprocessors.
  * 
  * @author Stas Negara
@@ -136,7 +136,9 @@ public class FilterSpuriousUngluedInferredRenameRefactoringsPostprocessor extend
 		return Math.abs(inferredRefactoringOperation.getTime() - currentInferredRefactoringOperation.getTime()) < ungluedRenameThreshold &&
 				currentInferredRefactoringOperation.getRefactoringKind() == inferredRefactoringOperation.getRefactoringKind() &&
 				refactoredNodeIDsMap.get(currentInferredRefactoringOperation.getRefactoringID()).equals(refactoredNodeIDsMap.get(inferredRefactoringOperation.getRefactoringID())) &&
-				currentInferredRefactoringOperation.getArguments().get("NewName").equals(inferredRefactoringOperation.getArguments().get("OldName"));
+				currentInferredRefactoringOperation.getArguments().get("NewName").equals(inferredRefactoringOperation.getArguments().get("OldName")) &&
+				//Should not be undoing since undoing should be counted as a separate refactoring.
+				!currentInferredRefactoringOperation.getArguments().get("OldName").equals(inferredRefactoringOperation.getArguments().get("NewName"));
 	}
 
 	private boolean isRename(RefactoringKind refactoringKind) {
