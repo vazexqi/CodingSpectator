@@ -109,7 +109,7 @@ public abstract class InferredRefactoringAnalyzer extends CSVProducingAnalyzer {
 	}
 
 	protected boolean shouldIgnoreAutomatedRefactoring(FinishedRefactoringOperation finishedRefactoring) {
-		return currentAutomatedRefactoringKind == null || finishedRefactoring.isTooSimple();
+		return currentAutomatedRefactoringKind == null || finishedRefactoring.isTooSimple() || !finishedRefactoring.getSuccess();
 	}
 
 	protected void initialize() {
