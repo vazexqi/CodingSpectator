@@ -42,17 +42,14 @@ public class InferredAutomatedRefactoringsAnalyzer extends InferredRefactoringAn
 				totalAutomatedRefactoringsCount++;
 			}
 		}
-		if (userOperation instanceof FinishedRefactoringOperation) {
-			if (getCurrentAutomatedRefactoringKind() != null) {
-				FinishedRefactoringOperation finishedRefactoringOperation= (FinishedRefactoringOperation)userOperation;
-				if (!finishedRefactoringOperation.getSuccess()) {
-					//Discard unsuccessful automated refactorings (though some of them might be properly inferred).
-					totalAutomatedRefactoringsCount--;
-				} else if (!isCurrentAutomatedRefactoringInferred && !finishedRefactoringOperation.isTooSimple() &&
-						getCurrentAutomatedRefactoringKind() != RefactoringKind.ENCAPSULATE_FIELD) {
-					totalUninferredAutomatedRefactoringsCount++;
-					System.out.println("Timestamp: " + userOperation.getTime());
-				}
+		if (userOperation instanceof FinishedRefactoringOperation && getCurrentAutomatedRefactoringKind() != null) {
+			FinishedRefactoringOperation finishedRefactoringOperation= (FinishedRefactoringOperation)userOperation;
+			if (!finishedRefactoringOperation.getSuccess() || finishedRefactoringOperation.isTooSimple() ||
+						getCurrentAutomatedRefactoringKind() == RefactoringKind.ENCAPSULATE_FIELD) {
+				totalAutomatedRefactoringsCount--;
+			} else if (!isCurrentAutomatedRefactoringInferred) {
+				totalUninferredAutomatedRefactoringsCount++;
+				System.out.println("Timestamp: " + userOperation.getTime());
 			}
 		}
 	}
