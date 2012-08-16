@@ -41,7 +41,9 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 
 	private RefactoringDescriptor currentAutomatedRefactoringDescriptor;
 
-	private final Map<RefactoringKind, Pair> totalCompletelyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
+	private final Map<RefactoringKind, Pair> totalCompletelyShadowedManualRefactorigs= new HashMap<RefactoringKind, Pair>();
+
+	private final Map<RefactoringKind, Pair> totalCompletelyShadowedAutomatedRefactorigs= new HashMap<RefactoringKind, Pair>();
 
 	private final Map<RefactoringKind, Pair> totalPartiallyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
 
@@ -160,11 +162,16 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 
 	@Override
 	protected void populateResults() {
-		Map<RefactoringKind, Pair> completelyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
-		Map<RefactoringKind, Pair> partiallyShadowedRefactorigs= new HashMap<RefactoringKind, Pair>();
-		populateStatisticalData(inferredRefactorings.values(), completelyShadowedRefactorigs, partiallyShadowedRefactorigs);
-		populateStatisticalData(automatedRefactorings, completelyShadowedRefactorigs, partiallyShadowedRefactorigs);
-		updateTotalCounts(completelyShadowedRefactorigs, partiallyShadowedRefactorigs);
+		Map<RefactoringKind, Pair> completelyShadowedManualRefactorigs= new HashMap<RefactoringKind, Pair>();
+		Map<RefactoringKind, Pair> completelyShadowedAutomatedRefactorigs= new HashMap<RefactoringKind, Pair>();
+		Map<RefactoringKind, Pair> partiallyShadowedManualRefactorigs= new HashMap<RefactoringKind, Pair>();
+		Map<RefactoringKind, Pair> partiallyShadowedAutomatedRefactorigs= new HashMap<RefactoringKind, Pair>();
+		populateStatisticalData(inferredRefactorings.values(), completelyShadowedManualRefactorigs, partiallyShadowedManualRefactorigs);
+		populateStatisticalData(automatedRefactorings, completelyShadowedAutomatedRefactorigs, partiallyShadowedAutomatedRefactorigs);
+		updateTotalCounts(totalCompletelyShadowedManualRefactorigs, completelyShadowedManualRefactorigs, partiallyShadowedManualRefactorigs);
+		updateTotalCounts(totalCompletelyShadowedAutomatedRefactorigs, completelyShadowedAutomatedRefactorigs, partiallyShadowedAutomatedRefactorigs);
+		Map<RefactoringKind, Pair> completelyShadowedRefactorigs= combineManualAndAutomatedStatistics(completelyShadowedManualRefactorigs, completelyShadowedAutomatedRefactorigs);
+		Map<RefactoringKind, Pair> partiallyShadowedRefactorigs= combineManualAndAutomatedStatistics(partiallyShadowedManualRefactorigs, partiallyShadowedAutomatedRefactorigs);
 		for (Entry<RefactoringKind, Pair> completelyShadowedRefactoringsEntry : completelyShadowedRefactorigs.entrySet()) {
 			//The key set of completely shadowed refactorings map contains all committed refactoring kinds.
 			RefactoringKind refactoringKind= completelyShadowedRefactoringsEntry.getKey();
@@ -180,16 +187,46 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 		}
 	}
 
-	private void updateTotalCounts(Map<RefactoringKind, Pair> completelyShadowedRefactorigs, Map<RefactoringKind, Pair> partiallyShadowedRefactorigs) {
-		for (Entry<RefactoringKind, Pair> completelyShadowedRefactoringsEntry : completelyShadowedRefactorigs.entrySet()) {
-			RefactoringKind refactoringKind= completelyShadowedRefactoringsEntry.getKey();
+	private Map<RefactoringKind, Pair> combineManualAndAutomatedStatistics(Map<RefactoringKind, Pair> manualMap, Map<RefactoringKind, Pair> automatedMap) {
+		Map<RefactoringKind, Pair> combinedMap= new HashMap<RefactoringKind, Pair>();
+		Set<RefactoringKind> keySet= new HashSet<RefactoringKind>();
+		keySet.addAll(manualMap.keySet());
+		keySet.addAll(automatedMap.keySet());
+		for (RefactoringKind refactoringKind : keySet) {
+			Pair combinedPair= new Pair();
+			combinedMap.put(refactoringKind, combinedPair);
+			Pair manualPair= manualMap.get(refactoringKind);
+			if (manualPair != null) {
+				combinedPair.num1+= manualPair.num1;
+				combinedPair.num2+= manualPair.num2;
+			}
+			Pair automatedPair= automatedMap.get(refactoringKind);
+			if (automatedPair != null) {
+				combinedPair.num1+= automatedPair.num1;
+				combinedPair.num2+= automatedPair.num2;
+			}
+		}
+		return combinedMap;
+	}
+
+	private void updateTotalCounts(Map<RefactoringKind, Pair> totalCompletelyShadowedRefactorigs, Map<RefactoringKind, Pair> completelyShadowedRefactorigs,
+			Map<RefactoringKind, Pair> partiallyShadowedRefactorigs) {
+		Set<RefactoringKind> keySet= new HashSet<RefactoringKind>();
+		keySet.addAll(completelyShadowedRefactorigs.keySet());
+		keySet.addAll(partiallyShadowedRefactorigs.keySet());
+		for (RefactoringKind refactoringKind : keySet) {
+			Pair completelyShadowedPair= completelyShadowedRefactorigs.get(refactoringKind);
+			if (completelyShadowedPair == null) {
+				completelyShadowedPair= new Pair();
+			}
 			Pair totalCompletelyShadowedPair= totalCompletelyShadowedRefactorigs.get(refactoringKind);
 			if (totalCompletelyShadowedPair == null) {
 				totalCompletelyShadowedPair= new Pair();
 				totalCompletelyShadowedRefactorigs.put(refactoringKind, totalCompletelyShadowedPair);
 			}
-			totalCompletelyShadowedPair.num1+= completelyShadowedRefactoringsEntry.getValue().num1;
-			totalCompletelyShadowedPair.num2+= completelyShadowedRefactoringsEntry.getValue().num2;
+			totalCompletelyShadowedPair.num1+= completelyShadowedPair.num1;
+			totalCompletelyShadowedPair.num2+= completelyShadowedPair.num2;
+
 			Pair partiallyShadowedPair= partiallyShadowedRefactorigs.get(refactoringKind);
 			if (partiallyShadowedPair == null) {
 				partiallyShadowedPair= new Pair();
@@ -231,8 +268,26 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 
 	@Override
 	protected void finishedProcessingAllSequences() {
-		System.out.println("Total shadowed refactorings statistics:");
-		for (Entry<RefactoringKind, Pair> totalCompletelyShadowedRefactoringsEntry : totalCompletelyShadowedRefactorigs.entrySet()) {
+		System.out.println("Total shadowed manual refactorings statistics:");
+		for (Entry<RefactoringKind, Pair> totalCompletelyShadowedRefactoringsEntry : totalCompletelyShadowedManualRefactorigs.entrySet()) {
+			RefactoringKind refactoringKind= totalCompletelyShadowedRefactoringsEntry.getKey();
+			Pair totalPartiallyShadowedPair= totalPartiallyShadowedRefactorigs.get(refactoringKind);
+			System.out.println(refactoringKind + "," + totalCompletelyShadowedRefactoringsEntry.getValue().num1 + "," +
+					totalCompletelyShadowedRefactoringsEntry.getValue().num2 + "," + totalPartiallyShadowedPair.num1 + "," +
+					totalPartiallyShadowedPair.num2);
+		}
+		System.out.println("Total shadowed automated refactorings statistics:");
+		for (Entry<RefactoringKind, Pair> totalCompletelyShadowedRefactoringsEntry : totalCompletelyShadowedAutomatedRefactorigs.entrySet()) {
+			RefactoringKind refactoringKind= totalCompletelyShadowedRefactoringsEntry.getKey();
+			Pair totalPartiallyShadowedPair= totalPartiallyShadowedRefactorigs.get(refactoringKind);
+			System.out.println(refactoringKind + "," + totalCompletelyShadowedRefactoringsEntry.getValue().num1 + "," +
+					totalCompletelyShadowedRefactoringsEntry.getValue().num2 + "," + totalPartiallyShadowedPair.num1 + "," +
+					totalPartiallyShadowedPair.num2);
+		}
+		Map<RefactoringKind, Pair> totalCombineShadowedRefactorings= combineManualAndAutomatedStatistics(totalCompletelyShadowedManualRefactorigs, totalCompletelyShadowedAutomatedRefactorigs);
+		System.out.println("Total shadowed combined refactorings statistics:");
+		totalCompletelyShadowedAutomatedRefactorigs.putAll(totalCompletelyShadowedManualRefactorigs);
+		for (Entry<RefactoringKind, Pair> totalCompletelyShadowedRefactoringsEntry : totalCombineShadowedRefactorings.entrySet()) {
 			RefactoringKind refactoringKind= totalCompletelyShadowedRefactoringsEntry.getKey();
 			Pair totalPartiallyShadowedPair= totalPartiallyShadowedRefactorigs.get(refactoringKind);
 			System.out.println(refactoringKind + "," + totalCompletelyShadowedRefactoringsEntry.getValue().num1 + "," +
