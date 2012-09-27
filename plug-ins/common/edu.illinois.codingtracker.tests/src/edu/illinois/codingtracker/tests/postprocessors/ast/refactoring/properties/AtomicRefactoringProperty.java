@@ -25,6 +25,7 @@ import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
 import edu.illinois.codingtracker.recording.ast.identification.IdentifiedNodeInfo;
+import edu.illinois.codingtracker.tests.postprocessors.ast.helpers.InferenceHelper;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.EncapsulateFieldRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractConstantRefactoring;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ExtractMethodRefactoring;
@@ -82,9 +83,9 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 	@Override
 	public void setMainOperation(ASTOperation mainOperation) {
 		this.mainOperation= mainOperation;
-		mainNode= RefactoringPropertiesFactory.getAffectedNode(mainOperation);
+		mainNode= InferenceHelper.getAffectedNode(mainOperation);
 		mainNodeID= RefactoringPropertiesFactory.getNodeID(mainNode);
-		mainRootNode= RefactoringPropertiesFactory.getRootNodeForOperation(mainOperation);
+		mainRootNode= InferenceHelper.getRootNodeForOperation(mainOperation);
 	}
 
 	@Override
@@ -115,8 +116,8 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 
 	private boolean isRelatedOperation(ASTOperation operation) {
 		if (mainOperation.getOperationKind() == operation.getOperationKind()) {
-			ASTNode affectedNode= RefactoringPropertiesFactory.getAffectedNode(operation);
-			if (mainRootNode == RefactoringPropertiesFactory.getRootNodeForOperation(operation)) {
+			ASTNode affectedNode= InferenceHelper.getAffectedNode(operation);
+			if (mainRootNode == InferenceHelper.getRootNodeForOperation(operation)) {
 				if (shouldLookFromParent()) {
 					return isRelatedToVariableDeclarationFragment(affectedNode);
 				}
@@ -190,7 +191,7 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 		IdentifiedNodeInfo mainNodeInfo= ASTNodesIdentifier.getIdentifiedNodeInfo(mainNodeID);
 		if (mainNodeInfo != null) {
 			String positionalMainNodeID= mainNodeInfo.getPositionalNodeID();
-			ASTNode rootNode= RefactoringPropertiesFactory.getRootNodeForOperation(operation);
+			ASTNode rootNode= InferenceHelper.getRootNodeForOperation(operation);
 			return ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, positionalMainNodeID);
 		}
 		return null;
@@ -220,8 +221,8 @@ public abstract class AtomicRefactoringProperty implements RefactoringProperty {
 		for (ASTOperation relatedOperation : relatedOperations) {
 			//Set the refactoring ID only if it was not already set. This ensures that the first recorded inferred refactoring
 			//claims the overlapping related operations for itself.
-			if (relatedOperation.getRefactoringID() == -1) {
-				relatedOperation.setRefactoringID(refactoringID);
+			if (relatedOperation.getTransformationID() == -1) {
+				relatedOperation.setTransformationID(refactoringID);
 			}
 		}
 	}

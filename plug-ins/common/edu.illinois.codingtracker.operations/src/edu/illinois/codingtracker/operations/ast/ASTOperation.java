@@ -127,12 +127,12 @@ public class ASTOperation extends UserOperation {
 		operationDescriptor.setLastMoved(isLastMoved);
 	}
 
-	public long getRefactoringID() {
-		return operationDescriptor.getRefactoringID();
+	public long getTransformationID() {
+		return operationDescriptor.getTransformationID();
 	}
 
-	public void setRefactoringID(long refactoringID) {
-		operationDescriptor.setRefactoringID(refactoringID);
+	public void setTransformationID(long transformationID) {
+		operationDescriptor.setTransformationID(transformationID);
 	}
 
 	public boolean isAdd() {

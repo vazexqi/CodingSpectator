@@ -74,7 +74,7 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 
 	private void handleASTOperation(ASTOperation operation) {
 		totalASTOperationsCount++;
-		long refactoringID= operation.getRefactoringID();
+		long refactoringID= operation.getTransformationID();
 		if (refactoringID != -1) {
 			int currentSize= getAccumulatedRefactoringSize(refactoringID);
 			inferredRefactoringSizes.put(refactoringID, currentSize + 1);

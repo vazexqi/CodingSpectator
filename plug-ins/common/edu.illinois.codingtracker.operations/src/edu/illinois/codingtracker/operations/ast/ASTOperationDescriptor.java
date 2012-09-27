@@ -36,7 +36,7 @@ public class ASTOperationDescriptor {
 
 	private boolean isLastMoved= false;
 
-	private long refactoringID= -1;
+	private long transformationID= -1;
 
 
 	public ASTOperationDescriptor(OperationKind operationKind, boolean isCommentingOrUncommenting, boolean isUndoing) {
@@ -74,12 +74,12 @@ public class ASTOperationDescriptor {
 		this.deletingChangeMoveID= deletingChangeMoveID;
 	}
 
-	public long getRefactoringID() {
-		return refactoringID;
+	public long getTransformationID() {
+		return transformationID;
 	}
 
-	public void setRefactoringID(long refactoringID) {
-		this.refactoringID= refactoringID;
+	public void setTransformationID(long transformationID) {
+		this.transformationID= transformationID;
 	}
 
 	public boolean isFirstMoved() {
@@ -118,7 +118,7 @@ public class ASTOperationDescriptor {
 		textChunk.append(deletingChangeMoveID);
 		textChunk.append(isFirstMoved);
 		textChunk.append(isLastMoved);
-		textChunk.append(refactoringID);
+		textChunk.append(transformationID);
 	}
 
 	public static ASTOperationDescriptor createFrom(OperationLexer operationLexer) {
@@ -130,7 +130,7 @@ public class ASTOperationDescriptor {
 		}
 		operationDescriptor.setFirstMoved(operationLexer.readBoolean());
 		operationDescriptor.setLastMoved(operationLexer.readBoolean());
-		operationDescriptor.setRefactoringID(operationLexer.readLong());
+		operationDescriptor.setTransformationID(operationLexer.readLong());
 		return operationDescriptor;
 	}
 
@@ -142,7 +142,7 @@ public class ASTOperationDescriptor {
 		sb.append("Deleting change move ID: " + deletingChangeMoveID + "\n");
 		sb.append("Is first moved: " + isFirstMoved + "\n");
 		sb.append("Is last moved: " + isLastMoved + "\n");
-		sb.append("Refactoring ID: " + refactoringID + "\n");
+		sb.append("Transformation ID: " + transformationID + "\n");
 	}
 
 }

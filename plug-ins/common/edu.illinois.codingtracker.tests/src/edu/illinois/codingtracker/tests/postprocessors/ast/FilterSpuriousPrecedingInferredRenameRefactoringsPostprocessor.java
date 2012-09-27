@@ -75,8 +75,8 @@ public class FilterSpuriousPrecedingInferredRenameRefactoringsPostprocessor exte
 			UserOperation userOperation= userOperationsIterator.next();
 			if (userOperation instanceof ASTOperation) {
 				ASTOperation astOperation= (ASTOperation)userOperation;
-				if (refactoringIDsToDelete.contains(astOperation.getRefactoringID())) {
-					astOperation.setRefactoringID(-1);
+				if (refactoringIDsToDelete.contains(astOperation.getTransformationID())) {
+					astOperation.setTransformationID(-1);
 				}
 			} else if (userOperation instanceof InferredRefactoringOperation) {
 				InferredRefactoringOperation inferredRefactoringOperation= (InferredRefactoringOperation)userOperation;

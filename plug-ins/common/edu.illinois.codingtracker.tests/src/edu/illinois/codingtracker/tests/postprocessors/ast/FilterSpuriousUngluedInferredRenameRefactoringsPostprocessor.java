@@ -80,7 +80,7 @@ public class FilterSpuriousUngluedInferredRenameRefactoringsPostprocessor extend
 			UserOperation userOperation= userOperationsIterator.next();
 			if (userOperation instanceof ASTOperation) {
 				ASTOperation astOperation= (ASTOperation)userOperation;
-				if (refactoringIDsToDelete.contains(astOperation.getRefactoringID())) {
+				if (refactoringIDsToDelete.contains(astOperation.getTransformationID())) {
 					userOperationsIterator.remove();
 				}
 			} else if (userOperation instanceof InferredRefactoringOperation) {
@@ -108,7 +108,7 @@ public class FilterSpuriousUngluedInferredRenameRefactoringsPostprocessor extend
 	}
 
 	private void postprocessASTOperation(ASTOperation operation) {
-		long refactoringID= operation.getRefactoringID();
+		long refactoringID= operation.getTransformationID();
 		if (refactoringID != -1) {
 			Set<Long> refactoredNodeIDs= refactoredNodeIDsMap.get(refactoringID);
 			if (refactoredNodeIDs == null) {

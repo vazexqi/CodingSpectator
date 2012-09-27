@@ -123,7 +123,7 @@ public class ShadowedRefactoringAnalyzer extends InferredRefactoringAnalyzer {
 			currentAutomatedRefactoringDescriptor.addRefactoredNode(affectedNodeID);
 		} else {
 			//If not inside an automated refactoring, look for manual refactorings.
-			long refactoringID= astOperation.getRefactoringID();
+			long refactoringID= astOperation.getTransformationID();
 			if (refactoringID != -1) {
 				RefactoringDescriptor refactoringDescriptor= getInferredRefactoringDescriptor(refactoringID);
 				refactoringDescriptor.addRefactoredNode(affectedNodeID);

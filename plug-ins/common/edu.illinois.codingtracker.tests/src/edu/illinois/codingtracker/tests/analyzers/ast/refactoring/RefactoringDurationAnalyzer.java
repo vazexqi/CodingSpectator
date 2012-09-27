@@ -53,7 +53,7 @@ public class RefactoringDurationAnalyzer extends InferredRefactoringAnalyzer {
 	}
 
 	private void handleASTOperation(ASTOperation operation) {
-		long refactoringID= operation.getRefactoringID();
+		long refactoringID= operation.getTransformationID();
 		if (refactoringID != -1) {
 			Long duration= refactoringDurations.get(refactoringID);
 			if (duration == null) {

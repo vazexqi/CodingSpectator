@@ -42,6 +42,7 @@ import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 import edu.illinois.codingtracker.recording.ast.identification.ASTNodesIdentifier;
+import edu.illinois.codingtracker.tests.postprocessors.ast.helpers.InferenceHelper;
 import edu.illinois.codingtracker.tests.postprocessors.ast.move.NodeDescriptor;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ReplacedEntityWithExpressionRefactoringFragment;
 import edu.illinois.codingtracker.tests.postprocessors.ast.refactoring.ReplacedExpressionWithEntityRefactoringFragment;
@@ -86,7 +87,7 @@ public class RefactoringPropertiesFactory {
 	 */
 	public static Set<RefactoringProperty> retrieveProperties(ASTOperation operation) {
 		initializeRetrieval(operation);
-		ASTNode affectedNode= getAffectedNode(operation);
+		ASTNode affectedNode= InferenceHelper.getAffectedNode(operation);
 		if (operation.isAdd()) {
 			handleAddedNode(affectedNode, operation);
 		} else if (operation.isDelete()) {
@@ -112,21 +113,6 @@ public class RefactoringPropertiesFactory {
 		properties.clear();
 	}
 
-	public static ASTNode getAffectedNode(ASTOperation operation) {
-		ASTNode rootNode= getRootNodeForOperation(operation);
-		return ASTNodesIdentifier.getASTNodeFromPositonalID(rootNode, operation.getPositionalID());
-	}
-
-	public static ASTNode getRootNodeForOperation(ASTOperation operation) {
-		ASTNode rootNode;
-		if (operation.isAdd()) {
-			rootNode= astOperationRecorder.getLastNewRootNode();
-		} else {
-			rootNode= astOperationRecorder.getLastOldRootNode();
-		}
-		return rootNode;
-	}
-
 	private static void postProcessProperties(ASTOperation operation) {
 		for (RefactoringProperty refactoringProperty : properties) {
 			//Set the main operation before going through possibly related operations.
@@ -141,7 +127,7 @@ public class RefactoringPropertiesFactory {
 		for (List<ASTOperation> addedMovedNodeOperations : batchAddedMovedNodes) {
 			ASTOperation mainOperation= addedMovedNodeOperations.get(0);
 			if (mainOperation != operation &&
-					ASTHelper.getAllChildren(getAffectedNode(mainOperation)).contains(getAffectedNode(operation))) {
+					ASTHelper.getAllChildren(InferenceHelper.getAffectedNode(mainOperation)).contains(InferenceHelper.getAffectedNode(operation))) {
 				addedMovedNodeOperations.add(operation);
 			}
 		}
@@ -518,7 +504,7 @@ public class RefactoringPropertiesFactory {
 		batchAddedMovedNodes.add(addedMovedNodeOperations);
 		Set<ASTNode> allAddedChildren= ASTHelper.getAllChildren(addedNode);
 		for (ASTOperation batchOperation : batchOperations) {
-			if (operation != batchOperation && allAddedChildren.contains(getAffectedNode(batchOperation))) {
+			if (operation != batchOperation && allAddedChildren.contains(InferenceHelper.getAffectedNode(batchOperation))) {
 				addedMovedNodeOperations.add(batchOperation);
 			}
 		}

@@ -142,7 +142,7 @@ public class RootCanalAndFlossRefactoringAnalyzer extends InferredRefactoringAna
 				incrementCurrentRefactoredNodes();
 			}
 		} else {
-			long refactoringID= operation.getRefactoringID();
+			long refactoringID= operation.getTransformationID();
 			if (refactoringID != -1) {
 				if (!isCurrentCandidateID(refactoringID)) {
 					addNewRefactoring(refactoringID);
