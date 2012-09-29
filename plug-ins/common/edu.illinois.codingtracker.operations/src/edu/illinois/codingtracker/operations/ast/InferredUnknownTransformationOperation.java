@@ -19,15 +19,18 @@ public class InferredUnknownTransformationOperation extends UserOperation {
 
 	private long transformationID;
 
+	private UnknownTransformationDescriptor transformationDescriptor;
+
 
 	public InferredUnknownTransformationOperation() {
 		super();
 	}
 
-	public InferredUnknownTransformationOperation(long transformationKindID, long transformationID, long timestamp) {
+	public InferredUnknownTransformationOperation(long transformationKindID, long transformationID, UnknownTransformationDescriptor transformationDescriptor, long timestamp) {
 		super(timestamp);
 		this.transformationKindID= transformationKindID;
 		this.transformationID= transformationID;
+		this.transformationDescriptor= transformationDescriptor;
 	}
 
 
@@ -53,12 +56,14 @@ public class InferredUnknownTransformationOperation extends UserOperation {
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(transformationKindID);
 		textChunk.append(transformationID);
+		transformationDescriptor.populateTextChunk(textChunk);
 	}
 
 	@Override
 	protected void initializeFrom(OperationLexer operationLexer) {
 		transformationKindID= operationLexer.readLong();
 		transformationID= operationLexer.readLong();
+		transformationDescriptor= UnknownTransformationDescriptor.createFrom(operationLexer);
 	}
 
 	@Override
@@ -71,6 +76,7 @@ public class InferredUnknownTransformationOperation extends UserOperation {
 		StringBuffer sb= new StringBuffer();
 		sb.append("Transformation kind ID: " + transformationKindID + "\n");
 		sb.append("Transformation ID: " + transformationID + "\n");
+		transformationDescriptor.appendContent(sb);
 		sb.append(super.toString());
 		return sb.toString();
 	}

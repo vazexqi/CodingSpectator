@@ -6,7 +6,6 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.transformation;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
-import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 import edu.illinois.codingtracker.tests.postprocessors.ast.helpers.InferenceHelper;
 
@@ -19,9 +18,6 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.helpers.InferenceHelp
  * 
  */
 public class UnknownTransformationPatternsFactory {
-
-	private static final ASTOperationRecorder astOperationRecorder= ASTOperationRecorder.getInstance();
-
 
 	/**
 	 * Returns null if there is no pattern corresponding to the given operation.
@@ -37,11 +33,7 @@ public class UnknownTransformationPatternsFactory {
 		if (ASTHelper.getAllChildren(affectedNode).size() < 2) { //Note that children include the affected node as well.
 			return null; //So far, only structurally non-trivial nodes contribute to patterns.
 		}
-		return constructTransformationPatternForNode(affectedNode);
-	}
-
-	private static UnknownTransformationPattern constructTransformationPatternForNode(ASTNode node) {
-		return new UnknownTransformationPattern();
+		return new UnknownTransformationPattern(operation.getOperationKind(), affectedNode);
 	}
 
 }

@@ -3,6 +3,10 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.transformation;
 
+import org.eclipse.jdt.core.dom.ASTNode;
+
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
+import edu.illinois.codingtracker.operations.ast.UnknownTransformationDescriptor;
 
 
 
@@ -13,5 +17,23 @@ package edu.illinois.codingtracker.tests.postprocessors.ast.transformation;
  * 
  */
 public class UnknownTransformationPattern {
+
+	private final UnknownTransformationDescriptor transformationDescriptor;
+
+
+	public UnknownTransformationPattern(OperationKind operationKind, ASTNode affectedNode) {
+		transformationDescriptor= new UnknownTransformationDescriptor(operationKind, getNodeType(affectedNode), affectedNode.toString(), getNodeType(affectedNode.getParent()));
+	}
+
+	public UnknownTransformationDescriptor getTransformationDescriptor() {
+		return transformationDescriptor;
+	}
+
+	private String getNodeType(ASTNode node) {
+		if (node == null) {
+			return "";
+		}
+		return node.getClass().getSimpleName();
+	}
 
 }

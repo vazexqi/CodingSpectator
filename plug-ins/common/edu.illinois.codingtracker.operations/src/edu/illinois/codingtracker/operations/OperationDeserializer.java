@@ -9,6 +9,7 @@ import java.util.List;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredRefactoringOperation;
+import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.ClosedConflictEditorOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.OpenedConflictEditorOperation;
 import edu.illinois.codingtracker.operations.conflicteditors.SavedConflictEditorOperation;
@@ -209,6 +210,9 @@ public class OperationDeserializer {
 				break;
 			case OperationSymbols.INFERRED_REFACTORING_OPERATION_SYMBOL:
 				userOperation= new InferredRefactoringOperation();
+				break;
+			case OperationSymbols.INFERRED_UNKNOWN_TRANSFORMATION_OPERATION_SYMBOL:
+				userOperation= new InferredUnknownTransformationOperation();
 				break;
 			default:
 				throw new RuntimeException("Unsupported operation symbol: " + operationSymbol);

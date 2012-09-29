@@ -7,6 +7,7 @@ import java.util.List;
 
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 
 
 
@@ -19,6 +20,8 @@ import edu.illinois.codingtracker.operations.ast.ASTOperation;
 public class InferredUnknownTransformationFactory {
 
 	private static List<UserOperation> userOperations;
+
+	private static long transformationKindID= 1;
 
 	private static long transformationID= 1;
 
@@ -42,7 +45,13 @@ public class InferredUnknownTransformationFactory {
 	public static void handleASTOperation(ASTOperation operation) {
 		UnknownTransformationPattern transformationPattern= UnknownTransformationPatternsFactory.retrieveTransformationPattern(operation);
 		if (transformationPattern != null) {
-
+			InferredUnknownTransformationOperation transformationOperation= new InferredUnknownTransformationOperation(transformationKindID, transformationID,
+					transformationPattern.getTransformationDescriptor(), operation.getTime());
+			operation.setTransformationID(transformationID);
+			int insertIndex= userOperations.indexOf(operation) + 1;
+			userOperations.add(insertIndex, transformationOperation);
+			transformationKindID++;
+			transformationID++;
 		}
 	}
 
