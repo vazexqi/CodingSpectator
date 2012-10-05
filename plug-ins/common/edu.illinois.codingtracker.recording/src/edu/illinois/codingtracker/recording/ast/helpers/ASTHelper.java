@@ -206,6 +206,16 @@ public class ASTHelper {
 		return childrenNodes;
 	}
 
+	public static boolean isChild(ASTNode checkedChild, ASTNode checkedParent) {
+		while (checkedChild != null) {
+			if (checkedChild == checkedParent) {
+				return true;
+			}
+			checkedChild= checkedChild.getParent();
+		}
+		return false;
+	}
+
 	public static ASTNode getRootNode(String source) {
 		ASTParser parser= createParser();
 		parser.setSource(source.toCharArray());

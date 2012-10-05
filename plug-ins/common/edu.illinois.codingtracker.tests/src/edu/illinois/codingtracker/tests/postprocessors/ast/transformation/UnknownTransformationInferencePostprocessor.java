@@ -27,6 +27,8 @@ public class UnknownTransformationInferencePostprocessor extends ASTPostprocesso
 
 	private boolean isInsideAutomatedRefactoring;
 
+	private static long lastProcessedTimestamp;
+
 
 	@Override
 	protected String getRecordFileName() {
@@ -53,13 +55,18 @@ public class UnknownTransformationInferencePostprocessor extends ASTPostprocesso
 			}
 			postprocessUserOperation(userOperation);
 		}
-		//Inference is finished, record the resulting sequence.
+		//Process the remaining cache and record the resulting sequence.
+		InferredUnknownTransformationFactory.processCachedOperations();
 		for (UserOperation userOperation : userOperations) {
 			record(userOperation);
 		}
 	}
 
 	private void postprocessUserOperation(UserOperation userOperation) {
+		if (userOperation.getTime() != lastProcessedTimestamp) {
+			InferredUnknownTransformationFactory.processCachedOperations();
+			lastProcessedTimestamp= userOperation.getTime();
+		}
 		if (shouldReplay(userOperation)) {
 			replayAndRecord(userOperation, true);
 			if (!isInsideAutomatedRefactoring && shouldProcess(userOperation)) {
@@ -73,6 +80,7 @@ public class UnknownTransformationInferencePostprocessor extends ASTPostprocesso
 	private void initialize(List<UserOperation> userOperations) {
 		InferredUnknownTransformationFactory.resetCurrentState(userOperations);
 		isInsideAutomatedRefactoring= false;
+		lastProcessedTimestamp= -1;
 	}
 
 	private boolean shouldReplay(UserOperation userOperation) {
