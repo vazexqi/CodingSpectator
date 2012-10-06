@@ -45,6 +45,10 @@ public class UnknownTransformationPattern {
 		return transformationDescriptor;
 	}
 
+	public String getAbstractedNodeContent() {
+		return abstractedNodeContent;
+	}
+
 	private String getAbstractedNodeContent(ASTNode node) {
 		resetMappings();
 		ASTNode copyNode= ASTNode.copySubtree(AST.newAST(AST.JLS3), node);

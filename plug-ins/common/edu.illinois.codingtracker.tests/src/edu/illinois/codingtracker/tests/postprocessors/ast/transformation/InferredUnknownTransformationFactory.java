@@ -3,9 +3,11 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.transformation;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
@@ -34,6 +36,8 @@ public class InferredUnknownTransformationFactory {
 	private static long transformationID= 1;
 
 	private static final List<ASTOperation> operationsCache= new LinkedList<ASTOperation>();
+
+	private static final Map<String, Long> abstractedContents= new HashMap<String, Long>();
 
 
 	/**
@@ -80,16 +84,27 @@ public class InferredUnknownTransformationFactory {
 			if (ASTHelper.getAllChildren(affectedNode).size() > 1) { //Note that children include the affected node as well.
 				//So far, only structurally non-trivial nodes contribute to patterns.
 				UnknownTransformationPattern transformationPattern= new UnknownTransformationPattern(operation.getOperationKind(), affectedNode);
+				long transformationKindID= getTransformationKindID(transformationPattern);
 				InferredUnknownTransformationOperation transformationOperation= new InferredUnknownTransformationOperation(transformationKindID, transformationID,
 							transformationPattern.getTransformationDescriptor(), operation.getTime());
 				operation.setTransformationID(transformationID);
 				int insertIndex= userOperations.indexOf(operation) + 1;
 				userOperations.add(insertIndex, transformationOperation);
-				transformationKindID++;
 				transformationID++;
 			}
 		}
 		operationsCache.clear();
+	}
+
+	private static long getTransformationKindID(UnknownTransformationPattern transformationPattern) {
+		String abstractedContent= transformationPattern.getAbstractedNodeContent();
+		Long transformationKindID= abstractedContents.get(abstractedContent);
+		if (transformationKindID == null) {
+			transformationKindID= InferredUnknownTransformationFactory.transformationKindID;
+			abstractedContents.put(abstractedContent, transformationKindID);
+			InferredUnknownTransformationFactory.transformationKindID++;
+		}
+		return transformationKindID;
 	}
 
 }
