@@ -19,15 +19,18 @@ public class UnknownTransformationDescriptor {
 
 	private final String affectedNodeType;
 
-	private final String affectedNodeContent;
+	private final String affectedNodeContent; //This field is not considered in methods hashCode and equals. 
+
+	private final String abstractedNodeContent;
 
 	private final String containerNodeType;
 
 
-	public UnknownTransformationDescriptor(OperationKind operationKind, String affectedNodeType, String affectedNodeContent, String containerNodeType) {
+	public UnknownTransformationDescriptor(OperationKind operationKind, String affectedNodeType, String affectedNodeContent, String abstractedNodeContent, String containerNodeType) {
 		this.operationKind= operationKind;
 		this.affectedNodeType= affectedNodeType;
 		this.affectedNodeContent= affectedNodeContent;
+		this.abstractedNodeContent= abstractedNodeContent;
 		this.containerNodeType= containerNodeType;
 	}
 
@@ -35,18 +38,61 @@ public class UnknownTransformationDescriptor {
 		textChunk.append(operationKind.ordinal());
 		textChunk.append(affectedNodeType);
 		textChunk.append(affectedNodeContent);
+		textChunk.append(abstractedNodeContent);
 		textChunk.append(containerNodeType);
 	}
 
 	public static UnknownTransformationDescriptor createFrom(OperationLexer operationLexer) {
-		return new UnknownTransformationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readString(), operationLexer.readString(), operationLexer.readString());
+		return new UnknownTransformationDescriptor(OperationKind.values()[operationLexer.readInt()], operationLexer.readString(), operationLexer.readString(),
+													operationLexer.readString(), operationLexer.readString());
 	}
 
 	public void appendContent(StringBuffer sb) {
 		sb.append("Operation kind: " + operationKind + "\n");
 		sb.append("Affected node type: " + affectedNodeType + "\n");
 		sb.append("Affected node content: " + affectedNodeContent + "\n");
+		sb.append("Abstracted node content: " + abstractedNodeContent + "\n");
 		sb.append("Container node type: " + containerNodeType + "\n");
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime= 11;
+		int result= 1;
+		result= prime * result + ((abstractedNodeContent == null) ? 0 : abstractedNodeContent.hashCode());
+		result= prime * result + ((affectedNodeType == null) ? 0 : affectedNodeType.hashCode());
+		result= prime * result + ((containerNodeType == null) ? 0 : containerNodeType.hashCode());
+		result= prime * result + ((operationKind == null) ? 0 : operationKind.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UnknownTransformationDescriptor other= (UnknownTransformationDescriptor)obj;
+		if (abstractedNodeContent == null) {
+			if (other.abstractedNodeContent != null)
+				return false;
+		} else if (!abstractedNodeContent.equals(other.abstractedNodeContent))
+			return false;
+		if (affectedNodeType == null) {
+			if (other.affectedNodeType != null)
+				return false;
+		} else if (!affectedNodeType.equals(other.affectedNodeType))
+			return false;
+		if (containerNodeType == null) {
+			if (other.containerNodeType != null)
+				return false;
+		} else if (!containerNodeType.equals(other.containerNodeType))
+			return false;
+		if (operationKind != other.operationKind)
+			return false;
+		return true;
 	}
 
 }

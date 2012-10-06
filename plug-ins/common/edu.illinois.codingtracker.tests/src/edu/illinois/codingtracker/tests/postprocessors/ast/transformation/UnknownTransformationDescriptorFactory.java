@@ -20,36 +20,24 @@ import edu.illinois.codingtracker.operations.ast.UnknownTransformationDescriptor
 
 
 /**
- * This class represents a particular pattern of an unknown transformation.
+ * This class constructs UnknownTransformationDescriptors.
  * 
  * @author Stas Negara
  * 
  */
-public class UnknownTransformationPattern {
+public class UnknownTransformationDescriptorFactory {
 
-	private final UnknownTransformationDescriptor transformationDescriptor;
+	private static int count;
 
-	private final String abstractedNodeContent;
-
-	private int count;
-
-	private final Map<String, String> nameMapping= new HashMap<String, String>();
+	private static final Map<String, String> nameMapping= new HashMap<String, String>();
 
 
-	public UnknownTransformationPattern(OperationKind operationKind, ASTNode affectedNode) {
-		transformationDescriptor= new UnknownTransformationDescriptor(operationKind, getNodeType(affectedNode), affectedNode.toString(), getNodeType(affectedNode.getParent()));
-		abstractedNodeContent= getAbstractedNodeContent(affectedNode);
+	public static UnknownTransformationDescriptor createDescriptor(OperationKind operationKind, ASTNode affectedNode) {
+		return new UnknownTransformationDescriptor(operationKind, getNodeType(affectedNode), affectedNode.toString(),
+												getAbstractedNodeContent(affectedNode), getNodeType(affectedNode.getParent()));
 	}
 
-	public UnknownTransformationDescriptor getTransformationDescriptor() {
-		return transformationDescriptor;
-	}
-
-	public String getAbstractedNodeContent() {
-		return abstractedNodeContent;
-	}
-
-	private String getAbstractedNodeContent(ASTNode node) {
+	private static String getAbstractedNodeContent(ASTNode node) {
 		resetMappings();
 		ASTNode copyNode= ASTNode.copySubtree(AST.newAST(AST.JLS3), node);
 		copyNode.accept(new ASTVisitor() {
@@ -82,12 +70,12 @@ public class UnknownTransformationPattern {
 		return copyNode.toString();
 	}
 
-	private void resetMappings() {
+	private static void resetMappings() {
 		count= 1;
 		nameMapping.clear();
 	}
 
-	private String getAbstractName(String concreteName) {
+	private static String getAbstractName(String concreteName) {
 		String abstractName= nameMapping.get(concreteName);
 		if (abstractName == null) {
 			abstractName= "id" + count++;
@@ -96,7 +84,7 @@ public class UnknownTransformationPattern {
 		return abstractName;
 	}
 
-	private String getNodeType(ASTNode node) {
+	private static String getNodeType(ASTNode node) {
 		if (node == null) {
 			return "";
 		}

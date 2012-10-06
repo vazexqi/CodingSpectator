@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
+import edu.illinois.codingtracker.operations.ast.UnknownTransformationDescriptor;
 import edu.illinois.codingtracker.recording.ast.helpers.ASTHelper;
 import edu.illinois.codingtracker.tests.postprocessors.ast.helpers.InferenceHelper;
 
@@ -37,7 +38,7 @@ public class InferredUnknownTransformationFactory {
 
 	private static final List<ASTOperation> operationsCache= new LinkedList<ASTOperation>();
 
-	private static final Map<String, Long> abstractedContents= new HashMap<String, Long>();
+	private static final Map<UnknownTransformationDescriptor, Long> transformationDescriptorIDs= new HashMap<UnknownTransformationDescriptor, Long>();
 
 
 	/**
@@ -83,10 +84,11 @@ public class InferredUnknownTransformationFactory {
 			ASTNode affectedNode= InferenceHelper.getAffectedNode(operation);
 			if (ASTHelper.getAllChildren(affectedNode).size() > 1) { //Note that children include the affected node as well.
 				//So far, only structurally non-trivial nodes contribute to patterns.
-				UnknownTransformationPattern transformationPattern= new UnknownTransformationPattern(operation.getOperationKind(), affectedNode);
-				long transformationKindID= getTransformationKindID(transformationPattern);
-				InferredUnknownTransformationOperation transformationOperation= new InferredUnknownTransformationOperation(transformationKindID, transformationID,
-							transformationPattern.getTransformationDescriptor(), operation.getTime());
+				UnknownTransformationDescriptor transformationDescriptor=
+						UnknownTransformationDescriptorFactory.createDescriptor(operation.getOperationKind(), affectedNode);
+				long transformationKindID= getTransformationKindID(transformationDescriptor);
+				InferredUnknownTransformationOperation transformationOperation=
+						new InferredUnknownTransformationOperation(transformationKindID, transformationID, transformationDescriptor, operation.getTime());
 				operation.setTransformationID(transformationID);
 				int insertIndex= userOperations.indexOf(operation) + 1;
 				userOperations.add(insertIndex, transformationOperation);
@@ -96,12 +98,11 @@ public class InferredUnknownTransformationFactory {
 		operationsCache.clear();
 	}
 
-	private static long getTransformationKindID(UnknownTransformationPattern transformationPattern) {
-		String abstractedContent= transformationPattern.getAbstractedNodeContent();
-		Long transformationKindID= abstractedContents.get(abstractedContent);
+	private static long getTransformationKindID(UnknownTransformationDescriptor transformationDescriptor) {
+		Long transformationKindID= transformationDescriptorIDs.get(transformationDescriptor);
 		if (transformationKindID == null) {
 			transformationKindID= InferredUnknownTransformationFactory.transformationKindID;
-			abstractedContents.put(abstractedContent, transformationKindID);
+			transformationDescriptorIDs.put(transformationDescriptor, transformationKindID);
 			InferredUnknownTransformationFactory.transformationKindID++;
 		}
 		return transformationKindID;
