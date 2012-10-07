@@ -52,6 +52,10 @@ public class InferredUnknownTransformationOperation extends UserOperation {
 		return transformationID;
 	}
 
+	public UnknownTransformationDescriptor getDescriptor() {
+		return transformationDescriptor;
+	}
+
 	@Override
 	protected void populateTextChunk(OperationTextChunk textChunk) {
 		textChunk.append(transformationKindID);
