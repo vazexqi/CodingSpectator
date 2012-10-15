@@ -64,10 +64,10 @@ public class UnknownTransformationKindsAnalyzer extends CSVProducingAnalyzer {
 				transformationInstances.addInstance(transformationOperation.getTime());
 			}
 		}
-		outputResults();
 	}
 
-	private void outputResults() {
+	@Override
+	protected void finishedProcessingAllSequences() {
 		//First, sort the results according to the transformations popularity.
 		TransformationInstancesComparator comparator= new TransformationInstancesComparator(unknownTransformations);
 		Map<Long, TransformationInstances> sortedUnknownTransformations= new TreeMap<Long, TransformationInstances>(comparator);
@@ -82,14 +82,11 @@ public class UnknownTransformationKindsAnalyzer extends CSVProducingAnalyzer {
 			System.out.print(transformationInstances.getDescriptorAsText());
 			String instanceTimestamps= transformationInstances.getTimestamps();
 			System.out.println("Transformation instances: " + instanceTimestamps);
-			appendCSVEntry(postprocessedUsername, postprocessedWorkspaceID, transformationKindID, instancesCount, instanceTimestamps);
 		}
 	}
 
 	private void initialize() {
 		result= new StringBuffer();
-		//TODO: Should be accumulated across all sequences. => should keep sequence IDs besides timestamps.
-		unknownTransformations.clear();
 	}
 
 	@Override
@@ -111,7 +108,7 @@ public class UnknownTransformationKindsAnalyzer extends CSVProducingAnalyzer {
 
 		private final UnknownTransformationDescriptor descriptor;
 
-		private final List<Long> instanceTimestamps= new LinkedList<Long>();
+		private final List<String> instanceTimestamps= new LinkedList<String>();
 
 
 		public TransformationInstances(UnknownTransformationDescriptor descriptor) {
@@ -119,7 +116,7 @@ public class UnknownTransformationKindsAnalyzer extends CSVProducingAnalyzer {
 		}
 
 		public void addInstance(long timestamp) {
-			instanceTimestamps.add(timestamp);
+			instanceTimestamps.add(postprocessedFileRelativePath + ":" + timestamp);
 		}
 
 		public String getDescriptorAsText() {
@@ -133,15 +130,15 @@ public class UnknownTransformationKindsAnalyzer extends CSVProducingAnalyzer {
 		}
 
 		public String getTimestamps() {
-			String timestamps= "";
-			for (Long timestamp : instanceTimestamps) {
-				timestamps+= timestamp + ", ";
+			StringBuffer sb= new StringBuffer();
+			for (String timestamp : instanceTimestamps) {
+				sb.append(timestamp).append(", ");
 			}
-			if (timestamps.length() > 0) {
+			if (sb.length() > 0) {
 				//Remove trailing comma.
-				timestamps= timestamps.substring(0, timestamps.length() - 2);
+				return sb.substring(0, sb.length() - 2);
 			}
-			return timestamps;
+			return sb.toString();
 		}
 
 	}

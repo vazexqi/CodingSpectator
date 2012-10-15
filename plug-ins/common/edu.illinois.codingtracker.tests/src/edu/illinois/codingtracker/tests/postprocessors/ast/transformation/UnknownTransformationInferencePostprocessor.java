@@ -3,9 +3,14 @@
  */
 package edu.illinois.codingtracker.tests.postprocessors.ast.transformation;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import edu.illinois.codingtracker.helpers.Configuration;
+import edu.illinois.codingtracker.helpers.ResourceHelper;
+import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
@@ -22,6 +27,12 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.ASTPostprocessor;
  * 
  */
 public class UnknownTransformationInferencePostprocessor extends ASTPostprocessor {
+
+	private static final String UNKNOWN_PATTERNS_FILE_NAME= "unknownPatterns.txt";
+
+	private File unknownPatternsFile= new File(Configuration.postprocessorRootFolderName, UNKNOWN_PATTERNS_FILE_NAME);
+
+	private boolean isFirstSequence= true;
 
 	private long lastSnapshotTimestamp= -1;
 
@@ -58,6 +69,27 @@ public class UnknownTransformationInferencePostprocessor extends ASTPostprocesso
 		for (UserOperation userOperation : userOperations) {
 			record(userOperation);
 		}
+		persistUnknownTransformationDescriptors();
+	}
+
+	private void persistUnknownTransformationDescriptors() {
+		List<UserOperation> operations= InferredUnknownTransformationFactory.getInferredUnknownTransformationRepresentatives();
+		if (!operations.isEmpty()) {
+			try {
+				ResourceHelper.ensureFileExists(unknownPatternsFile);
+			} catch (IOException e) {
+				throw new RuntimeException("Could not create a file for the unknown transformation representatives!", e);
+			}
+			StringBuffer sb= new StringBuffer();
+			for (UserOperation operation : operations) {
+				sb.append(operation.generateSerializationText());
+			}
+			try {
+				ResourceHelper.writeFileContent(unknownPatternsFile, sb, false);
+			} catch (IOException e) {
+				throw new RuntimeException("Could not write the unknown transformation representatives", e);
+			}
+		}
 	}
 
 	private void postprocessUserOperation(UserOperation userOperation) {
@@ -75,8 +107,16 @@ public class UnknownTransformationInferencePostprocessor extends ASTPostprocesso
 	}
 
 	private void initialize(List<UserOperation> userOperations) {
-		InferredUnknownTransformationFactory.resetCurrentState(userOperations);
+		InferredUnknownTransformationFactory.setUserOperations(userOperations);
 		isInsideAutomatedRefactoring= false;
+		if (isFirstSequence) {
+			if (unknownPatternsFile.exists()) {
+				String inputSequence= ResourceHelper.readFileContent(unknownPatternsFile);
+				List<UserOperation> inferredUnknownTransformations= OperationDeserializer.getUserOperations(inputSequence);
+				InferredUnknownTransformationFactory.setTransformationDescriptors(inferredUnknownTransformations);
+			}
+			isFirstSequence= false;
+		}
 	}
 
 	private boolean shouldReplay(UserOperation userOperation) {

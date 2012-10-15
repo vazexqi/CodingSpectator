@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
@@ -34,7 +35,9 @@ public class InferredUnknownTransformationFactory {
 
 	private static long transformationKindID= 1;
 
-	private static long transformationID= 1;
+	//Should exceed the largest known transformation ID in *all* processed sequences, therefore it is faster just to start
+	//with some really big number.
+	private static long transformationID= 1000000; //1 million
 
 	private static final List<ASTOperation> operationsCache= new LinkedList<ASTOperation>();
 
@@ -44,17 +47,31 @@ public class InferredUnknownTransformationFactory {
 	/**
 	 * Should be called before processing a sequence.
 	 */
-	public static void resetCurrentState(List<UserOperation> userOperations) {
+	public static void setUserOperations(List<UserOperation> userOperations) {
 		InferredUnknownTransformationFactory.userOperations= userOperations;
-		transformationID= 1;
-		for (UserOperation userOperation : userOperations) {
-			if (userOperation instanceof ASTOperation) {
-				long operationTransformationID= ((ASTOperation)userOperation).getTransformationID();
-				if (operationTransformationID >= transformationID) {
-					transformationID= operationTransformationID + 1;
-				}
-			}
+	}
+
+	/**
+	 * Serialization and deserialization of transformation descriptors is done through (fake)
+	 * InferredUnknownTransformationOperations.
+	 * 
+	 * @param inferredUnknownTransformations
+	 */
+	public static void setTransformationDescriptors(List<UserOperation> inferredUnknownTransformations) {
+		transformationDescriptorIDs.clear();
+		for (UserOperation userOperation : inferredUnknownTransformations) {
+			InferredUnknownTransformationOperation transformation= (InferredUnknownTransformationOperation)userOperation;
+			transformationDescriptorIDs.put(transformation.getDescriptor(), transformation.getTransformationKindID());
+			transformationID= transformation.getTransformationID();
 		}
+	}
+
+	public static List<UserOperation> getInferredUnknownTransformationRepresentatives() {
+		List<UserOperation> transformations= new LinkedList<UserOperation>();
+		for (Entry<UnknownTransformationDescriptor, Long> entry : transformationDescriptorIDs.entrySet()) {
+			transformations.add(new InferredUnknownTransformationOperation(entry.getValue(), transformationID, entry.getKey(), 1l));
+		}
+		return transformations;
 	}
 
 	public static void handleASTOperation(ASTOperation newOperation) {
