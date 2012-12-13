@@ -6,28 +6,36 @@
 
 suppressPackageStartupMessages(library("coin"))
 
-wizard <- c(17, 8, 18, 19, 37, 19, 9, 12, 16, 13)
-compositional <- c(9, 5, 8, 19, 11, 18, 8, 11, 18, 10)
+run_wilcoxon <- function(a, b) {
+  cat("a = ", a, "\n")
+  cat("length(a) = ", length(a), "\n")
+  cat("median(a) = ", median(a), "\n")
+  cat("\n")
+  cat("b = ", b, "\n")
+  cat("length(b) = ", length(b), "\n")
+  cat("median(b) = ", median(b), "\n")
+  cat("\n")
 
-cat("wizard = ", wizard, "\n")
-cat("length(wizard) = ", length(wizard), "\n")
-cat("median(wizard) = ", median(wizard), "\n")
-cat("\n")
-cat("compositional = ", compositional, "\n")
-cat("length(compositional) = ", length(compositional), "\n")
-cat("median(compositional) = ", median(compositional), "\n")
+  wilcox_result <- wilcox.test(a, b, paired = TRUE, alternative = "two.sided")
+  wilcox_result
+  W <- wilcox_result$statistic
+ 
+  wilcoxsign_result <- wilcoxsign_test(a ~ b, distribution = "exact", alternative = "two.sided")
+  wilcoxsign_result
+  Z <- wilcoxsign_result@statistic@teststatistic
+  p <- pvalue(wilcoxsign_result)
+  r <- abs(Z) / sqrt(length(a) + length(b))
 
-wilcox_result <- wilcox.test(wizard, compositional, paired = TRUE, alternative = "two.sided")
-wilcox_result
-W <- wilcox_result$statistic
+  cat("W = ", W, "\n")
+  cat("Z = ", Z, "\n")
+  cat("p-value = ", p, "\n")
+  cat("Effect size (r) = ", r, "\n")
+  cat("\n")
+  cat(sprintf("(W = %.2f, Z = %.2f, p = %.2f < 0.05, r = %.2f)", W, Z, p, r), "\n")
+}
 
-wilcoxsign_result <- wilcoxsign_test(wizard ~ compositional, distribution = "exact", alternative = "two.sided")
-wilcoxsign_result
-Z <- wilcoxsign_result@statistic@teststatistic
-p <- pvalue(wilcoxsign_result)
-r <- abs(Z) / sqrt(length(wizard) + length(compositional))
-cat("W = ", W, "\n")
-cat("Z = ", Z, "\n")
-cat("p-value = ", p, "\n")
-cat("Effect size (r) = ", r, "\n")
-cat(sprintf("(W = %.2f, Z = %.2f, p = %.2f < 0.05, r = %.2f)", W, Z, p, r), "\n")
+
+cat("Comparison of task completion times:\n")
+wizard_task_completion_times <- c(17, 8, 18, 19, 37, 19, 9, 12, 16, 13)
+compositional_task_completion_times <- c(9, 5, 8, 19, 11, 18, 8, 11, 18, 10)
+run_wilcoxon(wizard_task_completion_times, compositional_task_completion_times)
