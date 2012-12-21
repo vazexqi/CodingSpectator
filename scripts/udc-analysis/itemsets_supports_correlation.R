@@ -38,10 +38,13 @@ p <- p + geom_point()
 # Compute the Pearson correlation of the support levels of the common itemsets of the two data frames.
 cor_test_result <- cor.test(x = common_itemsets_supports$all_support, y = common_itemsets_supports$expert_support, alternative = "two.sided", type = "pearson")
 
-cat("Number of itemsets of the first table =", length(itemsets_supports1$itemset), "\n")
-cat("Number of itemsets of the second table =", length(itemsets_supports2$itemset), "\n")
+cat("Number of itemsets of the first table (S1) =", length(itemsets_supports1$itemset), "\n")
+cat("Number of itemsets of the second table (S2) =", length(itemsets_supports2$itemset), "\n")
 cat("Number of common itemsets =", length(common_itemsets), "\n")
-cat(sprintf("Ratio of the number of itemsets of the second table to the first one = %.0f\n", length(itemsets_supports2$itemset) / length(itemsets_supports1$itemset)))
+cat(sprintf("|S2 - S1| = %d\n", length(setdiff(itemsets_supports2$itemset, itemsets_supports1$itemset))))
+cat(sprintf("|S1 - S2| = %d\n", length(setdiff(itemsets_supports1$itemset, itemsets_supports2$itemset))))
+cat(sprintf("|S1 ^ S2| = %d\n", length(intersect(itemsets_supports1$itemset, itemsets_supports2$itemset))))
+cat(sprintf("|S2| / |S1| = %.0f\n", length(itemsets_supports2$itemset) / length(itemsets_supports1$itemset)))
  
 show(cor_test_result)
 
