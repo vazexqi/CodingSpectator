@@ -7,13 +7,15 @@
 suppressPackageStartupMessages(library("coin"))
 
 run_wilcoxon <- function(a, b) {
-  cat("a = ", a, "\n")
-  cat("length(a) = ", length(a), "\n")
-  cat("median(a) = ", median(a), "\n")
+  cat("a =", a, "\n")
+  cat("length(a) =", length(a), "\n")
+  cat("median(a) =", median(a), "\n")
+  cat("IQR(a) =", IQR(a), "\n")
   cat("\n")
-  cat("b = ", b, "\n")
-  cat("length(b) = ", length(b), "\n")
-  cat("median(b) = ", median(b), "\n")
+  cat("b =", b, "\n")
+  cat("length(b) =", length(b), "\n")
+  cat("median(b) =", median(b), "\n")
+  cat("IQR(b) =", IQR(b), "\n")
   cat("\n")
 
   wilcox_result <- wilcox.test(a, b, paired = TRUE, alternative = "two.sided")
@@ -26,16 +28,18 @@ run_wilcoxon <- function(a, b) {
   p <- pvalue(wilcoxsign_result)
   r <- abs(Z) / sqrt(length(a) + length(b))
 
-  cat("W = ", W, "\n")
-  cat("Z = ", Z, "\n")
-  cat("p-value = ", p, "\n")
-  cat("Effect size (r) = ", r, "\n")
+  cat("W =", W, "\n")
+  cat("Z =", Z, "\n")
+  cat("p-value =", p, "\n")
+  cat("Effect size (r) =", r, "\n")
   cat("\n")
   cat(sprintf("(W = %.2f, Z = %.2f, p = %.2f < 0.05, r = %.2f)", W, Z, p, r), "\n")
 }
 
-
-cat("Comparison of task completion times:\n")
 wizard_task_completion_times <- c(17, 8, 18, 19, 37, 19, 9, 12, 16, 13)
 compositional_task_completion_times <- c(9, 5, 8, 19, 11, 18, 8, 11, 18, 10)
+
+cat("a = wizard_task_completion_times\n")
+cat("b = compositional_task_completion_times\n")
+cat("Wilcoxon test of task completion times:\n")
 run_wilcoxon(wizard_task_completion_times, compositional_task_completion_times)
