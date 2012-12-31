@@ -150,9 +150,9 @@ public class RefactoringSizeAnalyzer extends InferredRefactoringAnalyzer {
 		System.out.println("Total average sizes:");
 		for (Entry<RefactoringKind, TotalSize> entry : totalRefactoringSizes.entrySet()) {
 			TotalSize totalSize= entry.getValue();
-			System.out.println(entry.getKey() + "," + totalSize.getAutomatedCount() + "," + totalSize.getAutomatedMean() + ","
-					+ totalSize.getAutomatedStDev() + "," + totalSize.getManualCount() + "," + totalSize.getManualMean() + ","
-					+ totalSize.getManualStDev());
+			System.out.println(entry.getKey() + "," + totalSize.getManualCount() + "," + totalSize.getManualMean() + ","
+					+ totalSize.getManualStDev() + "," + totalSize.getAutomatedCount() + "," + totalSize.getAutomatedMean() + ","
+					+ totalSize.getAutomatedStDev());
 		}
 		System.out.println("Total AST operations count: " + totalASTOperationsCount);
 		System.out.println("Total refactoring AST operations count: " + totalRefactoringASTOperationsCount);
