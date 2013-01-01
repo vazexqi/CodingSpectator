@@ -25,8 +25,8 @@ public class SetHelper {
 	 * @param treeSet2
 	 * @return
 	 */
-	public static TreeSet<Integer> intersectTreeSets(Set<Integer> treeSet1, Set<Integer> treeSet2) {
-		TreeSet<Integer> result= new TreeSet<Integer>();
+	public static Set<Integer> intersectTreeSets(Set<Integer> treeSet1, Set<Integer> treeSet2) {
+		Set<Integer> result= new TreeSet<Integer>();
 		result.addAll(treeSet1);
 		result.retainAll(treeSet2);
 		return result;
@@ -54,7 +54,7 @@ public class SetHelper {
 		List<Set<Long>> subtractionResult= new LinkedList<Set<Long>>();
 		Iterator<Set<Long>> subtractedItemSetInstancesIterator= subtractedItemSetInstances.iterator();
 		for (Set<Long> instances : itemSetInstances) {
-			Set<Long> subtractionSet= new HashSet<Long>();
+			Set<Long> subtractionSet= new TreeSet<Long>();
 			subtractionSet.addAll(instances);
 			subtractionSet.removeAll(subtractedItemSetInstancesIterator.next());
 			subtractionResult.add(subtractionSet);

@@ -5,11 +5,13 @@ package edu.illinois.codingtracker.tests.analyzers.ast.transformation;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 /**
@@ -33,7 +35,7 @@ public class Transaction {
 	public void addItemInstance(String item, long instanceID) {
 		Set<Long> instanceIDs= transactionItemInstances.get(item);
 		if (instanceIDs == null) {
-			instanceIDs= new HashSet<Long>();
+			instanceIDs= new TreeSet<Long>();
 			transactionItemInstances.put(item, instanceIDs);
 		}
 		instanceIDs.add(instanceID);
@@ -71,7 +73,7 @@ public class Transaction {
 		Set<Long> removedInstanceIDs= removedDuplicatedItemInstances.get(itemSet);
 		List<Set<Long>> validItemSetInstances= new LinkedList<Set<Long>>();
 		for (char item : itemSet.toCharArray()) {
-			Set<Long> validInstanceIDs= new HashSet<Long>();
+			Set<Long> validInstanceIDs= new TreeSet<Long>();
 			for (long itemInstanceID : getInstancesForItem(item)) {
 				if (removedInstanceIDs == null || !removedInstanceIDs.contains(itemInstanceID)) {
 					validInstanceIDs.add(itemInstanceID);
@@ -93,61 +95,37 @@ public class Transaction {
 		if (subsequentTransaction.transactionID - transactionID > 1) {
 			return; //Duplicates can occur only in adjacent transactions.
 		}
-		List<Set<Long>> thisItemSetInstances= getValidItemSetInstances(itemSet);
-		List<Set<Long>> subsequentItemSetInstances= subsequentTransaction.getValidItemSetInstances(itemSet);
-		if (shouldPrioritizeFirst(thisItemSetInstances, subsequentItemSetInstances)) {
-			subsequentTransaction.addRemovedDuplicatedItemInstances(itemSet, SetHelper.getAllInstancesAsSet(thisItemSetInstances));
+
+		Set<Long> toRemoveFromThis= new HashSet<Long>();
+		Set<Long> toRemoveFromSubsequent= new HashSet<Long>();
+		collectInstancesToRemove(getValidItemSetInstances(itemSet), subsequentTransaction.getValidItemSetInstances(itemSet), toRemoveFromThis, toRemoveFromSubsequent);
+
+		subsequentTransaction.addRemovedDuplicatedItemInstances(itemSet, toRemoveFromSubsequent);
+		if (SetHelper.getMinimumSetSize(subsequentTransaction.getValidItemSetInstances(itemSet)) == 0) {
+			//If the subsequent transaction is destroyed, remove all duplicates from it.
+			subsequentTransaction.addRemovedDuplicatedItemInstances(itemSet, toRemoveFromThis);
 		} else {
-			addRemovedDuplicatedItemInstances(itemSet, SetHelper.getAllInstancesAsSet(subsequentItemSetInstances));
+			addRemovedDuplicatedItemInstances(itemSet, toRemoveFromThis);
 		}
 	}
 
-	private boolean shouldPrioritizeFirst(List<Set<Long>> firstItemSetInstances, List<Set<Long>> secondItemSetInstances) {
-		List<Set<Long>> firstFromSecond= SetHelper.subtractItemSetInstances(secondItemSetInstances, firstItemSetInstances);
-		List<Set<Long>> secondFromFirst= SetHelper.subtractItemSetInstances(firstItemSetInstances, secondItemSetInstances);
-
-		//First, check if one itemset completely subsumes the other one, and prioritize the subsuming itemset.
-		if (SetHelper.getAllInstancesAsSet(firstFromSecond).size() == 0) {
-			return true;
+	private void collectInstancesToRemove(List<Set<Long>> thisItemSetInstances, List<Set<Long>> subsequentItemSetInstances, Set<Long> toRemoveFromThis, Set<Long> toRemoveFromSubsequent) {
+		int thisMinimumSetSize= SetHelper.getMinimumSetSize(thisItemSetInstances);
+		Iterator<Set<Long>> subsequentItemSetInstancesIterator= subsequentItemSetInstances.iterator();
+		for (Set<Long> thisInstances : thisItemSetInstances) {
+			Set<Long> subsequentInstances= subsequentItemSetInstancesIterator.next();
+			int count= 0;
+			for (long instanceID : thisInstances) {
+				count++;
+				if (subsequentInstances.contains(instanceID)) { //Is a duplicated instance.
+					if (count <= thisMinimumSetSize) { //Part of the minimum core, remove from the subsequent.
+						toRemoveFromSubsequent.add(instanceID);
+					} else { //Is not part of the minimum core, remove from this.
+						toRemoveFromThis.add(instanceID);
+					}
+				}
+			}
 		}
-		if (SetHelper.getAllInstancesAsSet(secondFromFirst).size() == 0) {
-			return false;
-		}
-
-		//If neither itemset is subsuming, prioritize the itemset with the highest minimum set size, which means
-		//the highest number of itemset repetitions.
-		int firstMinimumSetSize= SetHelper.getMinimumSetSize(firstItemSetInstances);
-		int secondMinimumSetSize= SetHelper.getMinimumSetSize(secondItemSetInstances);
-		if (firstMinimumSetSize > secondMinimumSetSize) {
-			return true;
-		}
-		if (firstMinimumSetSize < secondMinimumSetSize) {
-			return false;
-		}
-
-		//If both itemsets have the same minimum size, prioritize the one with the best difference, i.e., 
-		//the difference with the highest minimum set size.
-		int minimumSizeFirstFromSecond= SetHelper.getMinimumSetSize(firstFromSecond);
-		int minimumSizeSecondFromFirst= SetHelper.getMinimumSetSize(secondFromFirst);
-		if (minimumSizeFirstFromSecond > minimumSizeSecondFromFirst) {
-			return true;
-		}
-		if (minimumSizeFirstFromSecond < minimumSizeSecondFromFirst) {
-			return false;
-		}
-
-		//If differences have the same minimum set sizes, prioritize the set with more instances.
-		int firstAllInstancesSize= SetHelper.getAllInstancesAsSet(firstItemSetInstances).size();
-		int secondAllInstancesSize= SetHelper.getAllInstancesAsSet(secondItemSetInstances).size();
-		if (firstAllInstancesSize > secondAllInstancesSize) {
-			return true;
-		}
-		if (firstAllInstancesSize < secondAllInstancesSize) {
-			return false;
-		}
-
-		//No more heuristics to apply, just prioritize the earlier (first) transaction.
-		return true;
 	}
 
 }
