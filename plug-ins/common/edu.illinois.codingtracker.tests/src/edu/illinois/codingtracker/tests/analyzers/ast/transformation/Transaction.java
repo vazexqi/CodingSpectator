@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 
@@ -23,29 +22,25 @@ public class Transaction {
 
 	private final int transactionID;
 
-	private Map<String, Set<Long>> transactionItemInstances= new TreeMap<String, Set<Long>>();
+	private Map<Item, Set<Long>> itemInstances= new HashMap<Item, Set<Long>>();
 
-	private Map<String, Set<Long>> removedDuplicatedItemInstances= new HashMap<String, Set<Long>>();
+	private Map<Set<Item>, Set<Long>> removedDuplicatedItemInstances= new HashMap<Set<Item>, Set<Long>>();
 
 
 	public Transaction(int transactionID) {
 		this.transactionID= transactionID;
 	}
 
-	public void addItemInstance(String item, long instanceID) {
-		Set<Long> instanceIDs= transactionItemInstances.get(item);
+	public void addItemInstance(Item item, long instanceID) {
+		Set<Long> instanceIDs= itemInstances.get(item);
 		if (instanceIDs == null) {
 			instanceIDs= new TreeSet<Long>();
-			transactionItemInstances.put(item, instanceIDs);
+			itemInstances.put(item, instanceIDs);
 		}
 		instanceIDs.add(instanceID);
 	}
 
-	public Set<Long> getInstancesForItem(char item) {
-		return transactionItemInstances.get(String.valueOf(item));
-	}
-
-	public void addRemovedDuplicatedItemInstances(String itemSet, Set<Long> newRemovedDuplicatedItemInstances) {
+	public void addRemovedDuplicatedItemInstances(TreeSet<Item> itemSet, Set<Long> newRemovedDuplicatedItemInstances) {
 		Set<Long> currentRemovedItemInstances= removedDuplicatedItemInstances.get(itemSet);
 		if (currentRemovedItemInstances == null) {
 			currentRemovedItemInstances= new HashSet<Long>();
@@ -54,10 +49,10 @@ public class Transaction {
 		currentRemovedItemInstances.addAll(newRemovedDuplicatedItemInstances);
 	}
 
-	public void printItemSetInstances(String itemSet) {
+	public void printItemSetInstances(TreeSet<Item> itemSet) {
 		Set<Long> removedInstanceIDs= removedDuplicatedItemInstances.get(itemSet);
-		for (char item : itemSet.toCharArray()) {
-			for (long itemInstanceID : getInstancesForItem(item)) {
+		for (Item item : itemSet) {
+			for (long itemInstanceID : itemInstances.get(item)) {
 				String marker= "";
 				if (removedInstanceIDs != null && removedInstanceIDs.contains(itemInstanceID)) {
 					marker= "~";
@@ -69,12 +64,12 @@ public class Transaction {
 		System.out.println();
 	}
 
-	private List<Set<Long>> getValidItemSetInstances(String itemSet) {
+	private List<Set<Long>> getValidItemSetInstances(TreeSet<Item> itemSet) {
 		Set<Long> removedInstanceIDs= removedDuplicatedItemInstances.get(itemSet);
 		List<Set<Long>> validItemSetInstances= new LinkedList<Set<Long>>();
-		for (char item : itemSet.toCharArray()) {
+		for (Item item : itemSet) {
 			Set<Long> validInstanceIDs= new TreeSet<Long>();
-			for (long itemInstanceID : getInstancesForItem(item)) {
+			for (long itemInstanceID : itemInstances.get(item)) {
 				if (removedInstanceIDs == null || !removedInstanceIDs.contains(itemInstanceID)) {
 					validInstanceIDs.add(itemInstanceID);
 				}
@@ -84,11 +79,11 @@ public class Transaction {
 		return validItemSetInstances;
 	}
 
-	public int getFrequency(String itemSet) {
+	public int getFrequency(TreeSet<Item> itemSet) {
 		return SetHelper.getMinimumSetSize(getValidItemSetInstances(itemSet));
 	}
 
-	public void removeDuplicatedInstances(Transaction subsequentTransaction, String itemSet) {
+	public void removeDuplicatedInstances(Transaction subsequentTransaction, TreeSet<Item> itemSet) {
 		if (transactionID >= subsequentTransaction.transactionID) {
 			throw new RuntimeException("Should remove duplicates oly versus the subsequent transaction!");
 		}

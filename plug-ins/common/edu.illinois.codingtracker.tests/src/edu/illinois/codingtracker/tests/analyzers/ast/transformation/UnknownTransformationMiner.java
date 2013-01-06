@@ -22,77 +22,74 @@ public class UnknownTransformationMiner {
 
 	private static Map<Integer, Transaction> transactions= new HashMap<Integer, Transaction>();
 
-	private static TreeMap<String, Set<Integer>> inputTransactionItemsets= new TreeMap<String, Set<Integer>>();
+	//It is TreeMap to be able to call tailMap on it.
+	private static TreeMap<Item, Set<Integer>> inputItemTransactions= new TreeMap<Item, Set<Integer>>();
 
-	private static Map<String, Set<Integer>> resultTransactionItemsets= new TreeMap<String, Set<Integer>>();
+	private static Map<TreeSet<Item>, Set<Integer>> resultItemsetTransactions= new HashMap<TreeSet<Item>, Set<Integer>>();
 
-	private static long elementID;
+	private static long itemID;
 
 
-	public static void mine(String sequence, int maxTransformationSize) {
-		resetState();
-		char[] charSequence= sequence.toCharArray();
-		int lastBlockNumber= (int)Math.ceil((double)charSequence.length / maxTransformationSize) - 1;
-		for (int i= 0; i < charSequence.length; i++) {
-			int blockNumber= i / maxTransformationSize;
-			addElementToTransactions(charSequence[i], blockNumber, blockNumber < lastBlockNumber);
-		}
-		solve();
-	}
-
-	private static void solve() {
-		resultTransactionItemsets.putAll(inputTransactionItemsets);
-		for (String element : inputTransactionItemsets.keySet()) {
-			solve(element, inputTransactionItemsets.tailMap(element, false));
+	public static void mine() {
+		addInputTransactionsToResult();
+		for (Item item : inputItemTransactions.keySet()) {
+			solve(SetHelper.createItemSetForItem(item), inputItemTransactions.tailMap(item, false));
 		}
 	}
 
-	private static void solve(String itemSet, NavigableMap<String, Set<Integer>> tailMap) {
-		Set<Integer> itemSetTransactions= resultTransactionItemsets.get(itemSet);
-		for (Entry<String, Set<Integer>> entry : tailMap.entrySet()) {
+	private static void addInputTransactionsToResult() {
+		for (Entry<Item, Set<Integer>> inputEntry : inputItemTransactions.entrySet()) {
+			resultItemsetTransactions.put(SetHelper.createItemSetForItem(inputEntry.getKey()), inputEntry.getValue());
+		}
+	}
+
+	private static void solve(TreeSet<Item> itemSet, NavigableMap<Item, Set<Integer>> tailMap) {
+		Set<Integer> itemSetTransactions= resultItemsetTransactions.get(itemSet);
+		for (Entry<Item, Set<Integer>> entry : tailMap.entrySet()) {
 			Set<Integer> commonTransactions= SetHelper.intersectTreeSets(itemSetTransactions, entry.getValue());
 			if (commonTransactions.size() > 0) {
-				String newItemSet= itemSet + entry.getKey();
-				resultTransactionItemsets.put(newItemSet, commonTransactions);
-				solve(newItemSet, inputTransactionItemsets.tailMap(entry.getKey(), false));
+				Item item= entry.getKey();
+				TreeSet<Item> newItemSet= new TreeSet<Item>(itemSet);
+				newItemSet.add(item);
+				resultItemsetTransactions.put(newItemSet, commonTransactions);
+				solve(newItemSet, inputItemTransactions.tailMap(item, false));
 			}
 		}
 	}
 
-	private static void addElementToTransactions(char element, int blockNumber, boolean addToConsequentTransaction) {
-		String stringElement= String.valueOf(element);
-		Set<Integer> elementTransactions= inputTransactionItemsets.get(stringElement);
-		if (elementTransactions == null) {
-			elementTransactions= new TreeSet<Integer>();
-			inputTransactionItemsets.put(stringElement, elementTransactions);
+	public static void addItemToTransactions(Item item, int blockNumber, boolean addToConsequentTransaction) {
+		Set<Integer> itemTransactions= inputItemTransactions.get(item);
+		if (itemTransactions == null) {
+			itemTransactions= new TreeSet<Integer>();
+			inputItemTransactions.put(item, itemTransactions);
 		}
 		if (blockNumber == 0) {
 			//First block goes to the first transaction only
-			elementTransactions.add(1);
-			addElementInstanceToTransation(1, stringElement);
+			itemTransactions.add(1);
+			addItemInstanceToTransation(1, item);
 		} else {
-			elementTransactions.add(blockNumber);
-			addElementInstanceToTransation(blockNumber, stringElement);
+			itemTransactions.add(blockNumber);
+			addItemInstanceToTransation(blockNumber, item);
 			if (addToConsequentTransaction) {
-				elementTransactions.add(blockNumber + 1);
-				addElementInstanceToTransation(blockNumber + 1, stringElement);
+				itemTransactions.add(blockNumber + 1);
+				addItemInstanceToTransation(blockNumber + 1, item);
 			}
 		}
-		elementID++;
+		itemID++;
 	}
 
-	private static void addElementInstanceToTransation(int transactionID, String element) {
+	private static void addItemInstanceToTransation(int transactionID, Item item) {
 		Transaction transaction= transactions.get(transactionID);
 		if (transaction == null) {
 			transaction= new Transaction(transactionID);
 			transactions.put(transactionID, transaction);
 		}
-		transaction.addItemInstance(element, elementID);
+		transaction.addItemInstance(item, itemID);
 	}
 
-	public static int getFrequency(String itemSet) {
+	public static int getFrequency(TreeSet<Item> itemSet) {
 		int frequency= 0;
-		Set<Integer> transactionIDs= resultTransactionItemsets.get(itemSet);
+		Set<Integer> transactionIDs= resultItemsetTransactions.get(itemSet);
 		if (transactionIDs != null && transactionIDs.size() > 0) {
 			Iterator<Integer> transactionIDIterator= transactionIDs.iterator();
 			Transaction precedingTransaction= transactions.get(transactionIDIterator.next());
@@ -107,17 +104,17 @@ public class UnknownTransformationMiner {
 		return frequency;
 	}
 
-	private static void resetState() {
+	public static void resetState() {
 		transactions.clear();
-		inputTransactionItemsets.clear();
-		resultTransactionItemsets.clear();
-		elementID= 1;
+		inputItemTransactions.clear();
+		resultItemsetTransactions.clear();
+		itemID= 1;
 	}
 
 	public static void printState() {
-		for (Entry<String, Set<Integer>> entry : resultTransactionItemsets.entrySet()) {
-			String itemSet= entry.getKey();
-			System.out.println("Frequency of item set \"" + itemSet + "\" is " + getFrequency(itemSet) + ":");
+		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemsetTransactions.entrySet()) {
+			TreeSet<Item> itemSet= entry.getKey();
+			System.out.println("Frequency of item set " + itemSet + " is " + getFrequency(itemSet) + ":");
 			for (int transactionNumber : entry.getValue()) {
 				System.out.print("Instances for transaction " + transactionNumber + ": ");
 				transactions.get(transactionNumber).printItemSetInstances(itemSet);

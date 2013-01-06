@@ -18,6 +18,13 @@ import java.util.TreeSet;
  */
 public class SetHelper {
 
+
+	public static TreeSet<Item> createItemSetForItem(Item item) {
+		TreeSet<Item> itemSet= new TreeSet<Item>();
+		itemSet.add(item);
+		return itemSet;
+	}
+
 	/**
 	 * The input parameters are supposed to be TreeSets!
 	 * 
