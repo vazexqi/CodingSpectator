@@ -29,6 +29,10 @@ import edu.illinois.codingtracker.tests.postprocessors.ast.helpers.InferenceHelp
  */
 public class InferredUnknownTransformationFactory {
 
+	private static final boolean shouldConsiderChangeOperations= true;
+
+	private static final boolean shouldConsiderStructurallyTrivialNodes= true;
+
 	private static final boolean shouldSubsumeOperationsOnChildren= false;
 
 	private static List<UserOperation> userOperations;
@@ -74,8 +78,9 @@ public class InferredUnknownTransformationFactory {
 		return transformations;
 	}
 
+	@SuppressWarnings("unused")
 	public static void handleASTOperation(ASTOperation newOperation) {
-		if (!newOperation.isChange()) { //So far, only add and delete operations can contribute to patterns.
+		if (shouldConsiderChangeOperations || !newOperation.isChange()) {
 			if (shouldSubsumeOperationsOnChildren) {
 				ASTNode newAffectedNode= InferenceHelper.getAffectedNode(newOperation);
 				Iterator<ASTOperation> operationsCacheIterator= operationsCache.iterator();
@@ -96,11 +101,11 @@ public class InferredUnknownTransformationFactory {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public static void processCachedOperations() {
 		for (ASTOperation operation : operationsCache) {
 			ASTNode affectedNode= InferenceHelper.getAffectedNode(operation);
-			if (ASTHelper.getAllChildren(affectedNode).size() > 1) { //Note that children include the affected node as well.
-				//So far, only structurally non-trivial nodes contribute to patterns.
+			if (shouldConsiderStructurallyTrivialNodes || !isStructurallyTrivialNode(affectedNode)) {
 				UnknownTransformationDescriptor transformationDescriptor=
 						UnknownTransformationDescriptorFactory.createDescriptor(operation.getOperationKind(), affectedNode);
 				long transformationKindID= getTransformationKindID(transformationDescriptor);
@@ -113,6 +118,11 @@ public class InferredUnknownTransformationFactory {
 			}
 		}
 		operationsCache.clear();
+	}
+
+	private static boolean isStructurallyTrivialNode(ASTNode node) {
+		//Note that children include the affected node as well.
+		return ASTHelper.getAllChildren(node).size() < 2;
 	}
 
 	private static long getTransformationKindID(UnknownTransformationDescriptor transformationDescriptor) {

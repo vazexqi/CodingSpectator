@@ -34,7 +34,7 @@ public class UnknownTransformationDescriptorFactory {
 
 	public static UnknownTransformationDescriptor createDescriptor(OperationKind operationKind, ASTNode affectedNode) {
 		return new UnknownTransformationDescriptor(operationKind, getNodeType(affectedNode), affectedNode.toString(),
-												getAbstractedNodeContent(affectedNode), getNodeType(affectedNode.getParent()));
+													getAbstractedNodeContent(affectedNode));
 	}
 
 	private static String getAbstractedNodeContent(ASTNode node) {
