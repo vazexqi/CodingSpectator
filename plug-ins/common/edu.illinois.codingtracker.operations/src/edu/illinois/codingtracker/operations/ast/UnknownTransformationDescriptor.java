@@ -52,6 +52,22 @@ public class UnknownTransformationDescriptor {
 		sb.append("Abstracted node content: " + abstractedNodeContent + "\n");
 	}
 
+	public OperationKind getOperationKind() {
+		return operationKind;
+	}
+
+	public String getAffectedNodeType() {
+		return affectedNodeType;
+	}
+
+	public String getAffectedNodeContent() {
+		return affectedNodeContent;
+	}
+
+	public String getAbstractedNodeContent() {
+		return abstractedNodeContent;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime= 11;

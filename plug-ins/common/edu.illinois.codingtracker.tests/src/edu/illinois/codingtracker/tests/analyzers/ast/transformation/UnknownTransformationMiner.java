@@ -27,7 +27,7 @@ public class UnknownTransformationMiner {
 
 	private static Map<TreeSet<Item>, Set<Integer>> resultItemsetTransactions= new HashMap<TreeSet<Item>, Set<Integer>>();
 
-	private static long itemID;
+	private static int blockNumber= 1;
 
 
 	public static void mine() {
@@ -57,28 +57,33 @@ public class UnknownTransformationMiner {
 		}
 	}
 
-	public static void addItemToTransactions(Item item, int blockNumber, boolean addToConsequentTransaction) {
-		Set<Integer> itemTransactions= inputItemTransactions.get(item);
-		if (itemTransactions == null) {
-			itemTransactions= new TreeSet<Integer>();
-			inputItemTransactions.put(item, itemTransactions);
+	public static void addItemToTransactions(TreeMap<Long, Item> items, boolean isFirstBlock, boolean isLastBlock) {
+		if (items.isEmpty()) {
+			throw new RuntimeException("A block should contain at least one item.");
 		}
-		if (blockNumber == 0) {
-			//First block goes to the first transaction only
-			itemTransactions.add(1);
-			addItemInstanceToTransation(1, item);
-		} else {
-			itemTransactions.add(blockNumber);
-			addItemInstanceToTransation(blockNumber, item);
-			if (addToConsequentTransaction) {
-				itemTransactions.add(blockNumber + 1);
-				addItemInstanceToTransation(blockNumber + 1, item);
+		for (Entry<Long, Item> entry : items.entrySet()) {
+			long itemID= entry.getKey();
+			Item item= entry.getValue();
+			Set<Integer> itemTransactions= inputItemTransactions.get(item);
+			if (itemTransactions == null) {
+				itemTransactions= new TreeSet<Integer>();
+				inputItemTransactions.put(item, itemTransactions);
+			}
+			if (isFirstBlock || !isLastBlock) {
+				itemTransactions.add(blockNumber);
+				addItemInstanceToTransation(blockNumber, itemID, item);
+			}
+			if (!isFirstBlock) { //If not the first block, add to the preceding transaction as well.
+				itemTransactions.add(blockNumber - 1);
+				addItemInstanceToTransation(blockNumber - 1, itemID, item);
 			}
 		}
-		itemID++;
+		if (isFirstBlock || !isLastBlock) {
+			blockNumber++;
+		}
 	}
 
-	private static void addItemInstanceToTransation(int transactionID, Item item) {
+	private static void addItemInstanceToTransation(int transactionID, long itemID, Item item) {
 		Transaction transaction= transactions.get(transactionID);
 		if (transaction == null) {
 			transaction= new Transaction(transactionID);
@@ -108,7 +113,7 @@ public class UnknownTransformationMiner {
 		transactions.clear();
 		inputItemTransactions.clear();
 		resultItemsetTransactions.clear();
-		itemID= 1;
+		blockNumber= 1;
 	}
 
 	public static void printState() {

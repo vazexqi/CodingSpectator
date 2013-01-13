@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.tests.analyzers.ast.transformation.tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.junit.Test;
@@ -23,14 +24,31 @@ public class UnknownTransformationMinerTest {
 
 
 	public void mine(String sequence, int maxTransformationSize) {
+		checkMiningPreconditions(sequence, maxTransformationSize);
 		UnknownTransformationMiner.resetState();
-		char[] charSequence= sequence.toCharArray();
-		int lastBlockNumber= (int)Math.ceil((double)charSequence.length / maxTransformationSize) - 1;
-		for (int i= 0; i < charSequence.length; i++) {
-			int blockNumber= i / maxTransformationSize;
-			UnknownTransformationMiner.addItemToTransactions(new CharItem(charSequence[i]), blockNumber, blockNumber < lastBlockNumber);
+		long itemID= 1;
+		boolean isFirstBlock= true;
+		TreeMap<Long, Item> currentBlockItems= new TreeMap<Long, Item>();
+		for (char c : sequence.toCharArray()) {
+			if (currentBlockItems.size() == maxTransformationSize) {
+				UnknownTransformationMiner.addItemToTransactions(currentBlockItems, isFirstBlock, false);
+				isFirstBlock= false;
+				currentBlockItems.clear();
+			}
+			currentBlockItems.put(itemID, new CharItem(c));
+			itemID++;
 		}
+		UnknownTransformationMiner.addItemToTransactions(currentBlockItems, isFirstBlock, true);
 		UnknownTransformationMiner.mine();
+	}
+
+	private void checkMiningPreconditions(String sequence, int maxTransformationSize) {
+		if (sequence.isEmpty()) {
+			throw new RuntimeException("Can not mine an empty sequence!");
+		}
+		if (maxTransformationSize < 1) {
+			throw new RuntimeException("Maximum transformation size should be 1 or greater!");
+		}
 	}
 
 	public int getFrequency(String sequence) {

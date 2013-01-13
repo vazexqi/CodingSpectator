@@ -14,7 +14,6 @@ import edu.illinois.codingtracker.tests.analyzers.ast.transformation.Item;
  */
 public class CharItem implements Item {
 
-
 	private String charString;
 
 
