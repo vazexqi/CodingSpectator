@@ -25,7 +25,7 @@ geom_point() +
 scale_x_continuous(name = "Number of Distinct Refactorings", breaks = number_of_distinct_refactorings) +
 scale_y_log10("Number of Programmers (log-scaled)") +
 geom_text(aes(vjust = -1, label = sprintf("%.4f%%", users / total_number_of_refactoring_users * 100)), size = 3) +
-opts(title = "Distribution of Distinct Refactorings")
+ggtitle("Distribution of Distinct Refactorings")
 dev.off()
 
 cumulative_percentage_users <- cumsum(table$USERS) / total_number_of_refactoring_users
@@ -36,7 +36,8 @@ scale_x_continuous(name = "Maximum Number of Distinct Refactorings Used", breaks
 geom_path() +
 scale_y_continuous(name="Proportion of Refactoring Users", labels = percent) +
 geom_text(data = data.frame(number_of_distinct_refactorings[1:5], cumulative_percentage_users[1:5]), aes(x = number_of_distinct_refactorings[1:5], y = cumulative_percentage_users[1:5], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", 100 * cumulative_percentage_users[1:5])), size = 3) +
-opts(title = "Cumulative Distribution of Distinct Refactorings", plot.title = theme_text(face = "bold", size = 13))
+ggtitle("Cumulative Distribution of Distinct Refactorings") +
+theme(plot.title = element_text(face = "bold", size = 13))
 
 png_file_name <- paste(udc_distributions_folder, paste("cumulative-distribution-of-distinct-refactorings", "png", sep = "."), sep = "/")
 png(filename = png_file_name, width = 600, height = 600, res = 100)
@@ -65,7 +66,7 @@ coord_flip() +
 scale_x_discrete("Refactoring") +
 scale_y_log10("Frequency (log-scaled)") +
 geom_text(aes(y = 1.5 * frequency, label = sprintf("%.2f%%", frequency / sum_frequency * 100)), size = 3) +
-opts(title = "Frequencies of Refactorings")
+ggtitle("Frequencies of Refactorings")
 dev.off()
 
 png_file_name <- paste(udc_distributions_folder, "cumulative-distribution-of-the-frequencies-of-refactorings.png", sep = "/")
@@ -77,7 +78,7 @@ coord_flip() +
 scale_x_discrete("Refactoring") +
 scale_y_continuous("Frequency (%)") +
 geom_text(aes(label = sprintf("%.2f%%", cumulative_percentage_frequency), vjust = -1), size = 3) +
-opts(title = "Cumulative Distribution of the Frequencies of Refactorings")
+ggtitle("Cumulative Distribution of the Frequencies of Refactorings")
 dev.off()
 
 csv_file_name <- paste(udc_distributions_folder, "user-refactoring-frequencies.csv", sep = "/")
@@ -95,7 +96,7 @@ ggplot(data, stat = "identity", aes(x = refactorings)) +
 stat_bin(aes(y = ..count..), breaks = breaks, geom = "point", position = "identity") +
 scale_x_continuous("Number of Refactorings", breaks = ticks) +
 scale_y_log10("Number of Users (log-scaled)") +
-opts(title = sprintf("Distribution of the Number of Users of Each Number of Refactorings\nBin Width = %d", binwidth))
+ggtitle(sprintf("Distribution of the Number of Users of Each Number of Refactorings\nBin Width = %d", binwidth))
 dev.off()
 
 csv_file_name <- paste(udc_distributions_folder, "users-all-refactorings.csv", sep = "/")
@@ -113,7 +114,8 @@ scale_x_continuous(name = "Maximum Number of Refactoring Invocations") +
 geom_path() +
 scale_y_continuous(name="Proportion of Refactoring Users", labels = percent) +
 geom_text(data = data.frame(number_of_all_refactorings[seq(from = 10, to = 50, by = 10)], cumulative_proportion_of_users_in_percent[seq(from = 10, to = 50, by = 10)]), aes(x = number_of_all_refactorings[seq(from = 10, to = 50, by = 10)], y = cumulative_proportion_of_users_in_percent[seq(from = 10, to = 50, by = 10)], hjust = -0.2, vjust = 1, label = sprintf("%.1f%%", 100 * cumulative_proportion_of_users_in_percent[seq(from = 10, to = 50, by = 10)])), size = 3) +
-opts(title = "Cumulative Distribution of Refactorings", plot.title = theme_text(face = "bold", size = 13))
+ggtitle("Cumulative Distribution of Refactorings") +
+theme(plot.title = element_text(face = "bold", size = 13))
 
 png_file_name <- paste(udc_distributions_folder, paste("cumulative-distribution-of-all-refactorings", "png", sep = "."), sep = "/")
 png(filename = png_file_name, width = 600, height = 600, res = 100)
