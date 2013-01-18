@@ -4,6 +4,7 @@
 package edu.illinois.codingtracker.tests.analyzers.ast.transformation;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,6 +12,8 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.RemainingItemsComparator.ItemPairStatus;
 
 
 /**
@@ -20,41 +23,109 @@ import java.util.TreeSet;
  */
 public class UnknownTransformationMiner {
 
-	private static Map<Integer, Transaction> transactions= new HashMap<Integer, Transaction>();
+	private static final Map<Integer, Transaction> transactions= new HashMap<Integer, Transaction>();
 
 	//It is TreeMap to be able to call tailMap on it.
-	private static TreeMap<Item, Set<Integer>> inputItemTransactions= new TreeMap<Item, Set<Integer>>();
+	private static final TreeMap<Item, Set<Integer>> inputItemTransactions= new TreeMap<Item, Set<Integer>>();
 
-	private static Map<TreeSet<Item>, Set<Integer>> resultItemsetTransactions= new HashMap<TreeSet<Item>, Set<Integer>>();
+	private static final Map<TreeSet<Item>, Set<Integer>> resultItemSetTransactions= new HashMap<TreeSet<Item>, Set<Integer>>();
+
+	private static final Map<Long, Set<TreeSet<Item>>> hashedResultItemSets= new HashMap<Long, Set<TreeSet<Item>>>();
+
+	//TODO: This is used to cache itemset frequencies to avoid recomputation. 
+	//Make sure that this does cause too much memory overhead for mining big data.
+	private static final Map<TreeSet<Item>, Integer> itemSetFrequencies= new HashMap<TreeSet<Item>, Integer>();
 
 	private static int blockNumber= 1;
 
 
+	public static Set<Integer> getResultItemSetTransactions(TreeSet<Item> itemSet) {
+		return resultItemSetTransactions.get(itemSet);
+	}
+
+	public static Set<Integer> getInputItemTransactions(Item item) {
+		return inputItemTransactions.get(item);
+	}
+
 	public static void mine() {
-		addInputTransactionsToResult();
-		for (Item item : inputItemTransactions.keySet()) {
-			solve(SetHelper.createItemSetForItem(item), inputItemTransactions.tailMap(item, false));
-		}
+		long startTime= System.currentTimeMillis();
+
+		solve(new TreeSet<Item>(), inputItemTransactions);
+
+		System.out.println("Mining time: " + (System.currentTimeMillis() - startTime));
 	}
 
-	private static void addInputTransactionsToResult() {
-		for (Entry<Item, Set<Integer>> inputEntry : inputItemTransactions.entrySet()) {
-			resultItemsetTransactions.put(SetHelper.createItemSetForItem(inputEntry.getKey()), inputEntry.getValue());
-		}
-	}
-
-	private static void solve(TreeSet<Item> itemSet, NavigableMap<Item, Set<Integer>> tailMap) {
-		Set<Integer> itemSetTransactions= resultItemsetTransactions.get(itemSet);
-		for (Entry<Item, Set<Integer>> entry : tailMap.entrySet()) {
-			Set<Integer> commonTransactions= SetHelper.intersectTreeSets(itemSetTransactions, entry.getValue());
-			if (commonTransactions.size() > 0) {
-				Item item= entry.getKey();
-				TreeSet<Item> newItemSet= new TreeSet<Item>(itemSet);
-				newItemSet.add(item);
-				resultItemsetTransactions.put(newItemSet, commonTransactions);
-				solve(newItemSet, inputItemTransactions.tailMap(item, false));
+	private static void solve(TreeSet<Item> itemSet, NavigableMap<Item, Set<Integer>> remainingItems) {
+		RemainingItemsComparator remainingItemsComparator= new RemainingItemsComparator(itemSet);
+		TreeMap<Item, Set<Integer>> localRemainingItems= new TreeMap<Item, Set<Integer>>(remainingItemsComparator);
+		localRemainingItems.putAll(remainingItems);
+		while (!localRemainingItems.isEmpty()) {
+			Item currentItem= localRemainingItems.pollFirstEntry().getKey();
+			if (remainingItemsComparator.isFrequent(currentItem)) {
+				TreeMap<Item, Set<Integer>> newRemainingItems= new TreeMap<Item, Set<Integer>>(localRemainingItems);
+				TreeSet<Item> newItemSet= fuseWithSiblings(currentItem, remainingItemsComparator, localRemainingItems, newRemainingItems);
+				Set<Integer> commonTransactionIDs= remainingItemsComparator.getCommonTransactionIDs(currentItem);
+				if (!isSubsumed(newItemSet, commonTransactionIDs)) {
+					resultItemSetTransactions.put(newItemSet, commonTransactionIDs);
+					addToHashedResultItemSets(newItemSet, commonTransactionIDs);
+					solve(newItemSet, newRemainingItems);
+				}
 			}
 		}
+	}
+
+	private static TreeSet<Item> fuseWithSiblings(Item currentItem, RemainingItemsComparator remainingItemsComparator, TreeMap<Item, Set<Integer>> localRemainingItems,
+														TreeMap<Item, Set<Integer>> newRemainingItems) {
+		TreeSet<Item> newItemSet= new TreeSet<Item>(remainingItemsComparator.getBaseItemSet());
+		newItemSet.add(currentItem);
+		Iterator<Entry<Item, Set<Integer>>> siblingsIterator= localRemainingItems.entrySet().iterator();
+		while (siblingsIterator.hasNext()) {
+			Item siblingItem= siblingsIterator.next().getKey();
+			ItemPairStatus itemPairStatus= remainingItemsComparator.compareItems(currentItem, siblingItem);
+			if (itemPairStatus == ItemPairStatus.SECOND_PREVAILS || itemPairStatus == ItemPairStatus.EQUIVALENT) {
+				newItemSet.add(siblingItem);
+				newRemainingItems.remove(siblingItem);
+				if (itemPairStatus == ItemPairStatus.EQUIVALENT) {
+					siblingsIterator.remove();
+				}
+			}
+		}
+		return newItemSet;
+	}
+
+	private static boolean isSubsumed(TreeSet<Item> checkedItemSet, Set<Integer> transactionIDs) {
+		Set<TreeSet<Item>> itemSets= hashedResultItemSets.get(getHashForTransactions(transactionIDs));
+		if (itemSets == null) {
+			return false;
+		}
+		for (TreeSet<Item> itemSet : itemSets) {
+			if (itemSet.containsAll(checkedItemSet)) {
+				Set<Integer> itemSetTransactionIDs= resultItemSetTransactions.get(itemSet);
+				if (itemSetTransactionIDs.equals(transactionIDs) &&
+						getFrequency(itemSet, itemSetTransactionIDs) == getFrequency(checkedItemSet, transactionIDs)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static void addToHashedResultItemSets(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+		Long hash= getHashForTransactions(transactionIDs);
+		Set<TreeSet<Item>> itemSets= hashedResultItemSets.get(hash);
+		if (itemSets == null) {
+			itemSets= new HashSet<TreeSet<Item>>();
+			hashedResultItemSets.put(hash, itemSets);
+		}
+		itemSets.add(itemSet);
+	}
+
+	private static Long getHashForTransactions(Set<Integer> transactionIDs) {
+		long hash= 0;
+		for (Integer transactionID : transactionIDs) {
+			hash+= transactionID;
+		}
+		return hash;
 	}
 
 	public static void addItemToTransactions(TreeMap<Long, Item> items, boolean isFirstBlock, boolean isLastBlock) {
@@ -92,10 +163,27 @@ public class UnknownTransformationMiner {
 		transaction.addItemInstance(item, itemID);
 	}
 
+	/**
+	 * Should be called only after all results are computed.
+	 * 
+	 * @param itemSet
+	 * @return
+	 */
 	public static int getFrequency(TreeSet<Item> itemSet) {
-		int frequency= 0;
-		Set<Integer> transactionIDs= resultItemsetTransactions.get(itemSet);
-		if (transactionIDs != null && transactionIDs.size() > 0) {
+		Set<Integer> transactionIDs= resultItemSetTransactions.get(itemSet);
+		if (transactionIDs == null) {
+			return 0;
+		}
+		return getFrequency(itemSet, transactionIDs);
+	}
+
+	static int getFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+		if (transactionIDs.isEmpty()) {
+			return 0;
+		}
+		Integer cachedFrequency= itemSetFrequencies.get(itemSet);
+		if (cachedFrequency == null) {
+			int frequency= 0;
 			Iterator<Integer> transactionIDIterator= transactionIDs.iterator();
 			Transaction precedingTransaction= transactions.get(transactionIDIterator.next());
 			while (transactionIDIterator.hasNext()) {
@@ -105,19 +193,25 @@ public class UnknownTransformationMiner {
 				precedingTransaction= subsequentTransaction;
 			}
 			frequency+= precedingTransaction.getFrequency(itemSet);
+			cachedFrequency= frequency;
+			//Create a copy since the itemset might get modified externally.
+			TreeSet<Item> copyItemSet= new TreeSet<Item>(itemSet);
+			itemSetFrequencies.put(copyItemSet, cachedFrequency);
 		}
-		return frequency;
+		return cachedFrequency;
 	}
 
 	public static void resetState() {
 		transactions.clear();
 		inputItemTransactions.clear();
-		resultItemsetTransactions.clear();
+		resultItemSetTransactions.clear();
+		hashedResultItemSets.clear();
+		itemSetFrequencies.clear();
 		blockNumber= 1;
 	}
 
 	public static void printState() {
-		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemsetTransactions.entrySet()) {
+		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemSetTransactions.entrySet()) {
 			TreeSet<Item> itemSet= entry.getKey();
 			System.out.println("Frequency of item set " + itemSet + " is " + getFrequency(itemSet) + ":");
 			for (int transactionNumber : entry.getValue()) {

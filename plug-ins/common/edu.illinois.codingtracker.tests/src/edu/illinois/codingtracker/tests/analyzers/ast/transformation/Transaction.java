@@ -85,7 +85,7 @@ public class Transaction {
 
 	public void removeDuplicatedInstances(Transaction subsequentTransaction, TreeSet<Item> itemSet) {
 		if (transactionID >= subsequentTransaction.transactionID) {
-			throw new RuntimeException("Should remove duplicates oly versus the subsequent transaction!");
+			throw new RuntimeException("Should remove duplicates only versus the subsequent transaction!");
 		}
 		if (subsequentTransaction.transactionID - transactionID > 1) {
 			return; //Duplicates can occur only in adjacent transactions.
