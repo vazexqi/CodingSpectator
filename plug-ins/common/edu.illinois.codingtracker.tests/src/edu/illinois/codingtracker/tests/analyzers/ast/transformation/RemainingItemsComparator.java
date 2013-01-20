@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import edu.illinois.codingtracker.helpers.Configuration;
+
 
 /**
  * 
@@ -20,8 +22,6 @@ public class RemainingItemsComparator implements Comparator<Item> {
 	public enum ItemPairStatus {
 		ORTHOGONAL, EQUIVALENT, SECOND_PREVAILS
 	};
-
-	private final static int FREQUENCY_THRESHOLD= 1;
 
 	private final TreeSet<Item> baseItemSet;
 
@@ -82,7 +82,7 @@ public class RemainingItemsComparator implements Comparator<Item> {
 	}
 
 	public boolean isFrequent(Item item) {
-		return getCommonTransactionIDs(item).size() >= FREQUENCY_THRESHOLD;
+		return getItemFrequency(item) >= Configuration.miningFrequencyThreshold;
 	}
 
 	public ItemPairStatus compareItems(Item item1, Item item2) {

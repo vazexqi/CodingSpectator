@@ -33,6 +33,9 @@ public class Configuration {
 
 	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
+	public static final int miningFrequencyThreshold;
+
+
 	static {
 		String envUsageTimeStart= System.getenv("USAGE_TIME_START");
 		if (envUsageTimeStart != null) {
@@ -40,11 +43,19 @@ public class Configuration {
 		} else {
 			usageTimeStart= Long.MIN_VALUE;
 		}
+
 		String envUsageTimeStop= System.getenv("USAGE_TIME_STOP");
 		if (envUsageTimeStop != null) {
 			usageTimeStop= Long.parseLong(envUsageTimeStop);
 		} else {
 			usageTimeStop= Long.MAX_VALUE;
+		}
+
+		String envFrequencyThreshold= System.getenv("MINING_FREQUENCY_THRESHOLD");
+		if (envFrequencyThreshold != null) {
+			miningFrequencyThreshold= Integer.parseInt(envFrequencyThreshold);
+		} else {
+			miningFrequencyThreshold= 1;
 		}
 	}
 
