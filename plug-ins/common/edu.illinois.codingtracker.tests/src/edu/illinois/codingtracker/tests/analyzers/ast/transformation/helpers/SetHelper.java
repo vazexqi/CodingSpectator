@@ -1,7 +1,7 @@
 /**
  * This file is licensed under the University of Illinois/NCSA Open Source License. See LICENSE.TXT for details.
  */
-package edu.illinois.codingtracker.tests.analyzers.ast.transformation;
+package edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.Item;
 
 
 /**

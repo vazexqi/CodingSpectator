@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import edu.illinois.codingtracker.helpers.Configuration;
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.SetHelper;
 
 
 /**

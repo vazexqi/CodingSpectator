@@ -16,6 +16,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 import edu.illinois.codingtracker.operations.ast.UnknownTransformationDescriptor;
 import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.OperationFilePair;
 
 
 /**
@@ -146,55 +147,6 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 	@Override
 	protected boolean shouldOutputIndividualResults() {
 		return false;
-	}
-
-	class ItemBlock {
-
-		private static final long MAX_BLOCK_SIZE= 5 * 60 * 1000; //5 mins in milliseconds.
-
-		private final long startTimestamp;
-
-		private final boolean isFirst;
-
-		private final TreeMap<Long, Item> items= new TreeMap<Long, Item>();
-
-
-		public ItemBlock(long startTimestamp, boolean isFirst) {
-			this.startTimestamp= startTimestamp;
-			this.isFirst= isFirst;
-		}
-
-		public boolean isFirst() {
-			return isFirst;
-		}
-
-		public TreeMap<Long, Item> getItems() {
-			return items;
-		}
-
-		public boolean canBePartOfBlock(InferredUnknownTransformationOperation operation) {
-			return Math.abs(operation.getTime() - startTimestamp) <= MAX_BLOCK_SIZE;
-		}
-
-		public void addToBlock(InferredUnknownTransformationOperation operation) {
-			if (!canBePartOfBlock(operation)) {
-				throw new RuntimeException("Tried to add operation that can not be part of the block!");
-			}
-			items.put(operation.getTransformationID(), new LongItem(operation.getTransformationKindID()));
-		}
-
-	}
-
-	class OperationFilePair {
-
-		public final InferredUnknownTransformationOperation operation;
-
-		public final String filePath;
-
-		public OperationFilePair(InferredUnknownTransformationOperation operation, String filePath) {
-			this.operation= operation;
-			this.filePath= filePath;
-		}
 	}
 
 }

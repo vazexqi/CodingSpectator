@@ -35,6 +35,8 @@ public class Configuration {
 
 	public static final int miningFrequencyThreshold;
 
+	public static final long miningMaxBlockSize;
+
 
 	static {
 		String envUsageTimeStart= System.getenv("USAGE_TIME_START");
@@ -56,6 +58,13 @@ public class Configuration {
 			miningFrequencyThreshold= Integer.parseInt(envFrequencyThreshold);
 		} else {
 			miningFrequencyThreshold= 1;
+		}
+
+		String envMiningMaxBlockSize= System.getenv("MINING_MAX_BLOCK_SIZE"); //Is defined in minutes.
+		if (envMiningMaxBlockSize != null) {
+			miningMaxBlockSize= Integer.parseInt(envMiningMaxBlockSize) * 60 * 1000;
+		} else {
+			miningMaxBlockSize= 5 * 60 * 1000; //5 minutes in milliseconds.
 		}
 	}
 

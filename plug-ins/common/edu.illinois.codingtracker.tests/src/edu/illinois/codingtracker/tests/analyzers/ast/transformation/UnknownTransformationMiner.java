@@ -32,8 +32,7 @@ public class UnknownTransformationMiner {
 
 	private static final Map<Long, Set<TreeSet<Item>>> hashedResultItemSets= new HashMap<Long, Set<TreeSet<Item>>>();
 
-	//TODO: This is used to cache itemset frequencies to avoid recomputation. 
-	//Make sure that this does cause too much memory overhead for mining big data.
+	//This is used to cache itemset frequencies to avoid recomputation. 
 	private static final Map<TreeSet<Item>, Integer> itemSetFrequencies= new HashMap<TreeSet<Item>, Integer>();
 
 	private static int blockNumber= 1;
