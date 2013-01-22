@@ -4,14 +4,12 @@
 package edu.illinois.codingtracker.tests.analyzers.ast.transformation;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import edu.illinois.codingtracker.helpers.Configuration;
-import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 import edu.illinois.codingtracker.operations.ast.UnknownTransformationDescriptor;
@@ -31,6 +29,8 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 	private File transformationKindsFile= new File(Configuration.postprocessorRootFolderName, "transformationKinds.txt");
 
 	private File atomicTransformationsFile= new File(Configuration.postprocessorRootFolderName, "atomicTransformations.txt");
+
+	private File miningResultsFolder= new File(Configuration.postprocessorRootFolderName, "MiningResults");
 
 	private final Map<Long, UnknownTransformationDescriptor> transformationKinds= new TreeMap<Long, UnknownTransformationDescriptor>();
 
@@ -88,23 +88,10 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 
 	@Override
 	protected void finishedProcessingAllSequences() {
-		writeFile(transformationKindsFile, getTransformationKindsAsText());
-		writeFile(atomicTransformationsFile, getAtomicTransformationsAsText());
+		writeToFile(transformationKindsFile, getTransformationKindsAsText(), false);
+		writeToFile(atomicTransformationsFile, getAtomicTransformationsAsText(), false);
 		UnknownTransformationMiner.mine();
-		UnknownTransformationMiner.printState();
-	}
-
-	private void writeFile(File file, StringBuffer content) {
-		try {
-			ResourceHelper.ensureFileExists(file);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not create a file for writing!", e);
-		}
-		try {
-			ResourceHelper.writeFileContent(file, content, false);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not write to the file!", e);
-		}
+		UnknownTransformationMiner.writeResultsToFolder(miningResultsFolder);
 	}
 
 	private StringBuffer getTransformationKindsAsText() {

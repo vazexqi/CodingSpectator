@@ -37,6 +37,8 @@ public class Configuration {
 
 	public static final long miningMaxBlockSize;
 
+	public static final long miningMaxOutputItemSetsCount;
+
 
 	static {
 		String envUsageTimeStart= System.getenv("USAGE_TIME_START");
@@ -65,6 +67,13 @@ public class Configuration {
 			miningMaxBlockSize= Integer.parseInt(envMiningMaxBlockSize) * 60 * 1000;
 		} else {
 			miningMaxBlockSize= 5 * 60 * 1000; //5 minutes in milliseconds.
+		}
+
+		String envMiningMaxOutputItemSetsCount= System.getenv("MINING_MAX_OUTPUT_ITEM_SETS_COUNT");
+		if (envMiningMaxOutputItemSetsCount != null) {
+			miningMaxOutputItemSetsCount= Integer.parseInt(envMiningMaxOutputItemSetsCount);
+		} else {
+			miningMaxOutputItemSetsCount= Integer.MAX_VALUE;
 		}
 	}
 

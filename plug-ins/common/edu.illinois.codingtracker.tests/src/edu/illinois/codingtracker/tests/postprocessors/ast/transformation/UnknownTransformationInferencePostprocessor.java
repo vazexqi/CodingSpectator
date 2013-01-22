@@ -84,11 +84,7 @@ public class UnknownTransformationInferencePostprocessor extends ASTPostprocesso
 			for (UserOperation operation : operations) {
 				sb.append(operation.generateSerializationText());
 			}
-			try {
-				ResourceHelper.writeFileContent(unknownPatternsFile, sb, false);
-			} catch (IOException e) {
-				throw new RuntimeException("Could not write the unknown transformation representatives", e);
-			}
+			writeToFile(unknownPatternsFile, sb, false, "Could not write the unknown transformation representatives");
 		}
 	}
 

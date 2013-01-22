@@ -129,11 +129,15 @@ public abstract class CodingTrackerPostprocessor extends CodingTrackerTest {
 		before(); //After a file is postprocessed, reset the main record files.
 	}
 
-	private void writeToFile(File file, String text, boolean append) {
+	public static void writeToFile(File file, CharSequence text, boolean append) {
+		writeToFile(file, text, append, "Error writing to a file!");
+	}
+
+	public static void writeToFile(File file, CharSequence text, boolean append, String errorMessage) {
 		try {
 			ResourceHelper.writeFileContent(file, text, append);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(errorMessage, e);
 		}
 	}
 

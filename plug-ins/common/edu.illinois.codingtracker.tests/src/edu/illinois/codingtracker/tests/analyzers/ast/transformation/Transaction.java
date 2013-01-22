@@ -51,7 +51,8 @@ public class Transaction {
 		currentRemovedItemInstances.addAll(newRemovedDuplicatedItemInstances);
 	}
 
-	public void printItemSetInstances(TreeSet<Item> itemSet) {
+	public StringBuffer getItemSetInstancesAsText(TreeSet<Item> itemSet) {
+		StringBuffer result= new StringBuffer();
 		Set<Long> removedInstanceIDs= removedDuplicatedItemInstances.get(itemSet);
 		for (Item item : itemSet) {
 			for (long itemInstanceID : itemInstances.get(item)) {
@@ -59,11 +60,12 @@ public class Transaction {
 				if (removedInstanceIDs != null && removedInstanceIDs.contains(itemInstanceID)) {
 					marker= "~";
 				}
-				System.out.print(marker + itemInstanceID + marker + ", ");
+				result.append(marker).append(itemInstanceID).append(marker).append(", ");
 			}
-			System.out.print("||");
+			result.append("||");
 		}
-		System.out.println();
+		result.append("\n");
+		return result;
 	}
 
 	private List<Set<Long>> getValidItemSetInstances(TreeSet<Item> itemSet) {
