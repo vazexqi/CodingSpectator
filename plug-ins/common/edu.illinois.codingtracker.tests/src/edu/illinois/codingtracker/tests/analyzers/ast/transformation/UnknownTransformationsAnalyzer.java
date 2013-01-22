@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperationDescriptor.OperationKind;
 import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 import edu.illinois.codingtracker.operations.ast.UnknownTransformationDescriptor;
 import edu.illinois.codingtracker.tests.analyzers.CSVProducingAnalyzer;
@@ -62,7 +63,7 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 		initialize();
 		ItemBlock currentBlock= null;
 		for (UserOperation userOperation : userOperations) {
-			if (userOperation instanceof InferredUnknownTransformationOperation) {
+			if (shouldProcess(userOperation)) {
 				InferredUnknownTransformationOperation transformationOperation= (InferredUnknownTransformationOperation)userOperation;
 				OperationFilePair pair= new OperationFilePair(transformationOperation, postprocessedFileRelativePath);
 				atomicTransformations.put(transformationOperation.getTransformationID(), pair);
@@ -84,6 +85,17 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 		if (currentBlock != null) {
 			UnknownTransformationMiner.addItemToTransactions(currentBlock.getItems(), currentBlock.isFirst(), true);
 		}
+	}
+
+	private boolean shouldProcess(UserOperation operation) {
+		if (!(operation instanceof InferredUnknownTransformationOperation)) {
+			return false;
+		}
+		UnknownTransformationDescriptor descriptor= ((InferredUnknownTransformationOperation)operation).getDescriptor();
+		if (descriptor.getAffectedNodeType().equals("SimpleName") && descriptor.getOperationKind() != OperationKind.CHANGE) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
