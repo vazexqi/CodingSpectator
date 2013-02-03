@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import edu.illinois.codingtracker.tests.analyzers.ast.transformation.Item;
@@ -18,8 +19,23 @@ import edu.illinois.codingtracker.tests.analyzers.ast.transformation.Item;
  * @author Stas Negara
  * 
  */
-public class SetHelper {
+public class SetMapHelper {
 
+
+	public static TreeMap<Item, Set<Integer>> createCopy(TreeMap<Item, Set<Integer>> itemsMap) {
+		//Do not create a tree map out of another tree map by passing it to the constructor, since there is a bug,
+		//which manifests from time to time, when an element of the original map can not be found in the new map.
+		TreeMap<Item, Set<Integer>> copyItemsMap= new TreeMap<Item, Set<Integer>>();
+		copyItemsMap.putAll(itemsMap);
+		return copyItemsMap;
+	}
+
+	public static TreeSet<Item> createCopy(TreeSet<Item> itemSet) {
+		//Just in case the bug for TreeMap manifests for TreeSet as well, do not copy through constructor.
+		TreeSet<Item> copyItemSet= new TreeSet<Item>();
+		copyItemSet.addAll(itemSet);
+		return copyItemSet;
+	}
 
 	public static TreeSet<Item> createItemSetForItem(Item item) {
 		TreeSet<Item> itemSet= new TreeSet<Item>();
@@ -36,6 +52,9 @@ public class SetHelper {
 	 */
 	public static Set<Integer> intersectTreeSets(Set<Integer> treeSet1, Set<Integer> treeSet2) {
 		Set<Integer> result= new TreeSet<Integer>();
+		if (treeSet1 == null) {
+			System.out.println("STOP");
+		}
 		result.addAll(treeSet1);
 		result.retainAll(treeSet2);
 		return result;

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.SetHelper;
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.SetMapHelper;
 
 
 /**
@@ -83,8 +83,20 @@ public class Transaction {
 		return validItemSetInstances;
 	}
 
-	public int getFrequency(TreeSet<Item> itemSet) {
-		return SetHelper.getMinimumSetSize(getValidItemSetInstances(itemSet));
+	private List<Set<Long>> getAllItemSetInstances(TreeSet<Item> itemSet) {
+		List<Set<Long>> allItemSetInstances= new LinkedList<Set<Long>>();
+		for (Item item : itemSet) {
+			allItemSetInstances.add(itemInstances.get(item));
+		}
+		return allItemSetInstances;
+	}
+
+	public int getMinimalFrequency(TreeSet<Item> itemSet) {
+		return SetMapHelper.getMinimumSetSize(getValidItemSetInstances(itemSet));
+	}
+
+	public int getMaximalFrequency(TreeSet<Item> itemSet) {
+		return SetMapHelper.getMinimumSetSize(getAllItemSetInstances(itemSet));
 	}
 
 	public void removeDuplicatedInstances(Transaction subsequentTransaction, TreeSet<Item> itemSet) {
@@ -100,7 +112,7 @@ public class Transaction {
 		collectInstancesToRemove(getValidItemSetInstances(itemSet), subsequentTransaction.getValidItemSetInstances(itemSet), toRemoveFromThis, toRemoveFromSubsequent);
 
 		subsequentTransaction.addRemovedDuplicatedItemInstances(itemSet, toRemoveFromSubsequent);
-		if (SetHelper.getMinimumSetSize(subsequentTransaction.getValidItemSetInstances(itemSet)) == 0) {
+		if (SetMapHelper.getMinimumSetSize(subsequentTransaction.getValidItemSetInstances(itemSet)) == 0) {
 			//If the subsequent transaction is destroyed, remove all duplicates from it.
 			subsequentTransaction.addRemovedDuplicatedItemInstances(itemSet, toRemoveFromThis);
 		} else {
@@ -109,7 +121,7 @@ public class Transaction {
 	}
 
 	private void collectInstancesToRemove(List<Set<Long>> thisItemSetInstances, List<Set<Long>> subsequentItemSetInstances, Set<Long> toRemoveFromThis, Set<Long> toRemoveFromSubsequent) {
-		int thisMinimumSetSize= SetHelper.getMinimumSetSize(thisItemSetInstances);
+		int thisMinimumSetSize= SetMapHelper.getMinimumSetSize(thisItemSetInstances);
 		Iterator<Set<Long>> subsequentItemSetInstancesIterator= subsequentItemSetInstances.iterator();
 		for (Set<Long> thisInstances : thisItemSetInstances) {
 			Set<Long> subsequentInstances= subsequentItemSetInstancesIterator.next();

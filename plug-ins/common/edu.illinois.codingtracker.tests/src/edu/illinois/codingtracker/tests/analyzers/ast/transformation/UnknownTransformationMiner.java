@@ -7,6 +7,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -16,6 +18,7 @@ import java.util.TreeSet;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.tests.analyzers.ast.transformation.RemainingItemsComparator.ItemPairStatus;
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.SetMapHelper;
 import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
 
 
@@ -26,10 +29,14 @@ import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocesso
  */
 public class UnknownTransformationMiner {
 
+	public enum SubsumptionStatus {
+		NOT_SUBSUMED, SUBSUMED_FROM_RESULTS, FULLY_SUBSUMED
+	};
+
 	private static final Map<Integer, Transaction> transactions= new HashMap<Integer, Transaction>();
 
 	//This is used to cache itemset frequencies to avoid recomputation as well as for ordering the result. 
-	private static final Map<TreeSet<Item>, Integer> itemSetFrequencies= new HashMap<TreeSet<Item>, Integer>();
+	private static final Map<TreeSet<Item>, Frequency> itemSetFrequencies= new HashMap<TreeSet<Item>, Frequency>();
 
 	//It is TreeMap to be able to call tailMap on it.
 	private static final TreeMap<Item, Set<Integer>> inputItemTransactions= new TreeMap<Item, Set<Integer>>();
@@ -52,26 +59,33 @@ public class UnknownTransformationMiner {
 	public static void mine() {
 		long startTime= System.currentTimeMillis();
 
-		solve(new TreeSet<Item>(), inputItemTransactions);
+		solve(new TreeSet<Item>(), new TreeSet<Integer>(), inputItemTransactions);
 
 		System.out.println("Mining time: " + (System.currentTimeMillis() - startTime));
 	}
 
-	private static void solve(TreeSet<Item> itemSet, NavigableMap<Item, Set<Integer>> remainingItems) {
-		RemainingItemsComparator remainingItemsComparator= new RemainingItemsComparator(itemSet);
+	private static void solve(TreeSet<Item> itemSet, Set<Integer> transactionIDs, NavigableMap<Item, Set<Integer>> remainingItems) {
+		RemainingItemsComparator remainingItemsComparator= new RemainingItemsComparator(itemSet, transactionIDs);
 		TreeMap<Item, Set<Integer>> localRemainingItems= new TreeMap<Item, Set<Integer>>(remainingItemsComparator);
 		localRemainingItems.putAll(remainingItems);
 		while (!localRemainingItems.isEmpty()) {
 			Item currentItem= localRemainingItems.pollFirstEntry().getKey();
 			if (remainingItemsComparator.isFrequent(currentItem)) {
-				TreeMap<Item, Set<Integer>> newRemainingItems= new TreeMap<Item, Set<Integer>>(localRemainingItems);
+				Frequency currentItemFrequency= remainingItemsComparator.getItemFrequency(currentItem);
+				TreeMap<Item, Set<Integer>> newRemainingItems= SetMapHelper.createCopy(localRemainingItems);
 				TreeSet<Item> newItemSet= fuseWithSiblings(currentItem, remainingItemsComparator, localRemainingItems, newRemainingItems);
 				Set<Integer> commonTransactionIDs= remainingItemsComparator.getCommonTransactionIDs(currentItem);
-				if (!isSubsumed(newItemSet, commonTransactionIDs)) {
-					getFrequency(newItemSet, commonTransactionIDs); //To ensure itemset's frequency is computed before adding to results.
-					resultItemSetTransactions.put(newItemSet, commonTransactionIDs);
-					addToHashedResultItemSets(newItemSet, commonTransactionIDs);
-					solve(newItemSet, newRemainingItems);
+				SubsumptionStatus subsumptionStatus= getSubsumptionStatus(newItemSet, commonTransactionIDs);
+				if (subsumptionStatus != SubsumptionStatus.FULLY_SUBSUMED) {
+					Frequency frequency= getFrequency(newItemSet, commonTransactionIDs); //To ensure itemset's frequency is computed before adding to results.
+					if (!frequency.isEqualTo(currentItemFrequency)) {
+						throw new RuntimeException("Frequency got skewed!");
+					}
+					if (subsumptionStatus != SubsumptionStatus.SUBSUMED_FROM_RESULTS) {
+						resultItemSetTransactions.put(newItemSet, commonTransactionIDs);
+						addToHashedResultItemSets(newItemSet, commonTransactionIDs);
+					}
+					solve(newItemSet, commonTransactionIDs, newRemainingItems);
 				}
 			}
 		}
@@ -96,21 +110,44 @@ public class UnknownTransformationMiner {
 		return newItemSet;
 	}
 
-	private static boolean isSubsumed(TreeSet<Item> checkedItemSet, Set<Integer> transactionIDs) {
+	/**
+	 * Also, removes the previously added elements if they are subsumed by the new one.
+	 * 
+	 * @param checkedItemSet
+	 * @param transactionIDs
+	 * @return
+	 */
+	private static SubsumptionStatus getSubsumptionStatus(TreeSet<Item> checkedItemSet, Set<Integer> transactionIDs) {
+		SubsumptionStatus subsumptionStatus= SubsumptionStatus.NOT_SUBSUMED;
 		Set<TreeSet<Item>> itemSets= hashedResultItemSets.get(getHashForTransactions(transactionIDs));
 		if (itemSets == null) {
-			return false;
+			return subsumptionStatus;
 		}
-		for (TreeSet<Item> itemSet : itemSets) {
+		Frequency chekedItemSetFrequency= getFrequency(checkedItemSet, transactionIDs);
+		Iterator<TreeSet<Item>> itemSetsIterator= itemSets.iterator();
+		while (itemSetsIterator.hasNext()) {
+			TreeSet<Item> itemSet= itemSetsIterator.next();
 			if (itemSet.containsAll(checkedItemSet)) {
 				Set<Integer> itemSetTransactionIDs= resultItemSetTransactions.get(itemSet);
+				if (itemSetTransactionIDs.equals(transactionIDs)) {
+					Frequency itemSetFrequency= getFrequency(itemSet, itemSetTransactionIDs);
+					if (itemSetFrequency.isNotLessPowerfulThan(chekedItemSetFrequency)) {
+						return SubsumptionStatus.FULLY_SUBSUMED;
+					}
+					if (itemSetFrequency.getOverallFrequency() == chekedItemSetFrequency.getOverallFrequency()) {
+						subsumptionStatus= SubsumptionStatus.SUBSUMED_FROM_RESULTS;
+					}
+				}
+			} else if (checkedItemSet.containsAll(itemSet)) {
+				Set<Integer> itemSetTransactionIDs= resultItemSetTransactions.get(itemSet);
 				if (itemSetTransactionIDs.equals(transactionIDs) &&
-						getFrequency(itemSet, itemSetTransactionIDs) == getFrequency(checkedItemSet, transactionIDs)) {
-					return true;
+						getFrequency(itemSet, itemSetTransactionIDs).getOverallFrequency() == chekedItemSetFrequency.getOverallFrequency()) {
+					itemSetsIterator.remove();
+					resultItemSetTransactions.remove(itemSet);
 				}
 			}
 		}
-		return false;
+		return subsumptionStatus;
 	}
 
 	private static void addToHashedResultItemSets(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
@@ -173,38 +210,58 @@ public class UnknownTransformationMiner {
 	 * @return
 	 */
 	public static int getFrequency(TreeSet<Item> itemSet) {
-		Integer frequency= itemSetFrequencies.get(itemSet);
+		Frequency frequency= itemSetFrequencies.get(itemSet);
 		if (frequency == null) {
 			return 0;
 		}
 		if (resultItemSetTransactions.get(itemSet) == null) {
 			return 0;
 		}
+		return frequency.getOverallFrequency();
+	}
+
+	static Frequency getSubsetFrequency(TreeSet<Item> itemSet, Set<Integer> allTransactionIDs, Set<Integer> subsetTransactionIDs) {
+		Frequency frequency= itemSetFrequencies.get(itemSet);
+		if (frequency == null) {
+			computeAndCacheFrequency(itemSet, allTransactionIDs);
+		}
+		return addFrequencyForTransactions(itemSet, subsetTransactionIDs);
+	}
+
+	static Frequency getFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+		if (transactionIDs.isEmpty()) {
+			return new Frequency(new LinkedList<Integer>(), new LinkedList<Integer>());
+		}
+		Frequency frequency= itemSetFrequencies.get(itemSet);
+		if (frequency == null) {
+			frequency= computeAndCacheFrequency(itemSet, transactionIDs);
+		}
 		return frequency;
 	}
 
-	static int getFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
-		if (transactionIDs.isEmpty()) {
-			return 0;
+	private static Frequency computeAndCacheFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+		Iterator<Integer> transactionIDIterator= transactionIDs.iterator();
+		Transaction precedingTransaction= transactions.get(transactionIDIterator.next());
+		while (transactionIDIterator.hasNext()) {
+			Transaction subsequentTransaction= transactions.get(transactionIDIterator.next());
+			precedingTransaction.removeDuplicatedInstances(subsequentTransaction, itemSet);
+			precedingTransaction= subsequentTransaction;
 		}
-		Integer cachedFrequency= itemSetFrequencies.get(itemSet);
-		if (cachedFrequency == null) {
-			int frequency= 0;
-			Iterator<Integer> transactionIDIterator= transactionIDs.iterator();
-			Transaction precedingTransaction= transactions.get(transactionIDIterator.next());
-			while (transactionIDIterator.hasNext()) {
-				Transaction subsequentTransaction= transactions.get(transactionIDIterator.next());
-				precedingTransaction.removeDuplicatedInstances(subsequentTransaction, itemSet);
-				frequency+= precedingTransaction.getFrequency(itemSet);
-				precedingTransaction= subsequentTransaction;
-			}
-			frequency+= precedingTransaction.getFrequency(itemSet);
-			cachedFrequency= frequency;
-			//Create a copy since the itemset might get modified externally.
-			TreeSet<Item> copyItemSet= new TreeSet<Item>(itemSet);
-			itemSetFrequencies.put(copyItemSet, cachedFrequency);
+		Frequency frequency= addFrequencyForTransactions(itemSet, transactionIDs);
+		//Create a copy since the itemset might get modified externally.
+		itemSetFrequencies.put(SetMapHelper.createCopy(itemSet), frequency);
+		return frequency;
+	}
+
+	private static Frequency addFrequencyForTransactions(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+		List<Integer> minimalFrequencies= new LinkedList<Integer>();
+		List<Integer> maximalFrequencies= new LinkedList<Integer>();
+		for (int transactionID : transactionIDs) {
+			Transaction transaction= transactions.get(transactionID);
+			minimalFrequencies.add(transaction.getMinimalFrequency(itemSet));
+			maximalFrequencies.add(transaction.getMaximalFrequency(itemSet));
 		}
-		return cachedFrequency;
+		return new Frequency(minimalFrequencies, maximalFrequencies);
 	}
 
 	public static void resetState() {

@@ -17,10 +17,10 @@ import java.util.TreeSet;
 public class ResultItemSetsComparator implements Comparator<TreeSet<Item>> {
 
 	//This collection is shared with the miner.
-	private final Map<TreeSet<Item>, Integer> itemSetFrequencies;
+	private final Map<TreeSet<Item>, Frequency> itemSetFrequencies;
 
 
-	public ResultItemSetsComparator(Map<TreeSet<Item>, Integer> itemSetFrequencies) {
+	public ResultItemSetsComparator(Map<TreeSet<Item>, Frequency> itemSetFrequencies) {
 		this.itemSetFrequencies= itemSetFrequencies;
 	}
 
@@ -59,11 +59,11 @@ public class ResultItemSetsComparator implements Comparator<TreeSet<Item>> {
 	}
 
 	private int getItemSetFrequency(TreeSet<Item> itemSet) {
-		Integer frequency= itemSetFrequencies.get(itemSet);
+		Frequency frequency= itemSetFrequencies.get(itemSet);
 		if (frequency == null) {
 			throw new RuntimeException("Could not get frequency of an itemset!");
 		}
-		return frequency;
+		return frequency.getOverallFrequency();
 	}
 
 }
