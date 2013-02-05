@@ -4,9 +4,11 @@
 package edu.illinois.codingtracker.tests.analyzers.ast.transformation;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import edu.illinois.codingtracker.helpers.Configuration;
@@ -37,6 +39,38 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 
 	private final Map<Long, OperationFilePair> atomicTransformations= new TreeMap<Long, OperationFilePair>();
 
+	private final static Set<UnknownTransformationDescriptor> ignoredAtomicTransformations= new HashSet<UnknownTransformationDescriptor>();
+
+	static {
+		populateIgnoredAtomicTransformations();
+	}
+
+	private static void populateIgnoredAtomicTransformations() {
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "SimpleName", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "SimpleName", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "SimpleType", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "SimpleType", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "PrimitiveType", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "PrimitiveType", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "QualifiedName", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "QualifiedName", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "CharacterLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "CharacterLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.CHANGE, "CharacterLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "StringLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "StringLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.CHANGE, "StringLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "NumberLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "NumberLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.CHANGE, "NumberLiteral", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "ImportDeclaration", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "ImportDeclaration", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.CHANGE, "ImportDeclaration", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "EmptyStatement", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "EmptyStatement", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.ADD, "PackageDeclaration", "", ""));
+		ignoredAtomicTransformations.add(new UnknownTransformationDescriptor(OperationKind.DELETE, "PackageDeclaration", "", ""));
+	}
 
 	@Override
 	protected String getTableHeader() {
@@ -91,11 +125,7 @@ public class UnknownTransformationsAnalyzer extends CSVProducingAnalyzer {
 		if (!(operation instanceof InferredUnknownTransformationOperation)) {
 			return false;
 		}
-		UnknownTransformationDescriptor descriptor= ((InferredUnknownTransformationOperation)operation).getDescriptor();
-		if (descriptor.getAffectedNodeType().equals("SimpleName") && descriptor.getOperationKind() != OperationKind.CHANGE) {
-			return false;
-		}
-		return true;
+		return !ignoredAtomicTransformations.contains(((InferredUnknownTransformationOperation)operation).getDescriptor());
 	}
 
 	@Override
