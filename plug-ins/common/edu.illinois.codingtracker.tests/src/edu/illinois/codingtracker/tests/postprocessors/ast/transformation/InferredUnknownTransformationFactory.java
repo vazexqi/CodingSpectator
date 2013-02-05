@@ -105,19 +105,27 @@ public class InferredUnknownTransformationFactory {
 	public static void processCachedOperations() {
 		for (ASTOperation operation : operationsCache) {
 			ASTNode affectedNode= InferenceHelper.getAffectedNode(operation);
+			if (affectedNode == null) {
+				throw new RuntimeException("Could not retrieve the affected node!");
+			}
 			if (shouldConsiderStructurallyTrivialNodes || !isStructurallyTrivialNode(affectedNode)) {
-				UnknownTransformationDescriptor transformationDescriptor=
-						UnknownTransformationDescriptorFactory.createDescriptor(operation.getOperationKind(), affectedNode);
-				long transformationKindID= getTransformationKindID(transformationDescriptor);
-				InferredUnknownTransformationOperation transformationOperation=
-						new InferredUnknownTransformationOperation(transformationKindID, transformationID, transformationDescriptor, operation.getTime());
-				operation.setTransformationID(transformationID);
-				int insertIndex= userOperations.indexOf(operation) + 1;
-				userOperations.add(insertIndex, transformationOperation);
-				transformationID++;
+				processOperation(operation, affectedNode);
 			}
 		}
 		operationsCache.clear();
+	}
+
+	public static void processOperation(ASTOperation operation, ASTNode affectedNode) {
+		UnknownTransformationDescriptor transformationDescriptor= affectedNode == null
+				? UnknownTransformationDescriptorFactory.createDescriptor(operation.getOperationKind(), operation.getNodeType())
+				: UnknownTransformationDescriptorFactory.createDescriptor(operation.getOperationKind(), affectedNode);
+		long transformationKindID= getTransformationKindID(transformationDescriptor);
+		InferredUnknownTransformationOperation transformationOperation=
+				new InferredUnknownTransformationOperation(transformationKindID, transformationID, transformationDescriptor, operation.getTime());
+		operation.setTransformationID(transformationID);
+		int insertIndex= userOperations.indexOf(operation) + 1;
+		userOperations.add(insertIndex, transformationOperation);
+		transformationID++;
 	}
 
 	private static boolean isStructurallyTrivialNode(ASTNode node) {

@@ -37,6 +37,10 @@ public class UnknownTransformationDescriptorFactory {
 													getAbstractedNodeContent(affectedNode));
 	}
 
+	public static UnknownTransformationDescriptor createDescriptor(OperationKind operationKind, String affectedNodeType) {
+		return new UnknownTransformationDescriptor(operationKind, affectedNodeType, "", "");
+	}
+
 	private static String getAbstractedNodeContent(ASTNode node) {
 		resetMappings();
 		ASTNode copyNode= ASTNode.copySubtree(AST.newAST(AST.JLS3), node);
