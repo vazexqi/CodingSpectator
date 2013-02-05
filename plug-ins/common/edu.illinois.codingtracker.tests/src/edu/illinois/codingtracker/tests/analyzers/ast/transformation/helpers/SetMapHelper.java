@@ -52,9 +52,6 @@ public class SetMapHelper {
 	 */
 	public static Set<Integer> intersectTreeSets(Set<Integer> treeSet1, Set<Integer> treeSet2) {
 		Set<Integer> result= new TreeSet<Integer>();
-		if (treeSet1 == null) {
-			System.out.println("STOP");
-		}
 		result.addAll(treeSet1);
 		result.retainAll(treeSet2);
 		return result;
