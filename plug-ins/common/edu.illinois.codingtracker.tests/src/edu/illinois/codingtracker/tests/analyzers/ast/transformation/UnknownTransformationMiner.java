@@ -56,6 +56,36 @@ public class UnknownTransformationMiner {
 		return inputItemTransactions.get(item);
 	}
 
+	public static int getTransactionsMemorySize() {
+		int memorySize= 0;
+		for (Entry<Integer, Transaction> entry : transactions.entrySet()) {
+			memorySize+= 4 + entry.getValue().getMemorySize();
+		}
+		return memorySize;
+	}
+
+	public static int getItemSetFrequenciesMemorySize() {
+		int memorySize= 0;
+		for (Entry<TreeSet<Item>, Frequency> entry : itemSetFrequencies.entrySet()) {
+			memorySize+= entry.getKey().size() * 8 + entry.getValue().getMemorySize();
+		}
+		return memorySize;
+	}
+
+	public static int getResultItemSetTransactionsMemorySize() {
+		int memorySize= 0;
+		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemSetTransactions.entrySet()) {
+			memorySize+= entry.getKey().size() * 8 + entry.getValue().size() * 4;
+		}
+		return memorySize;
+	}
+
+	public static void computeMemoryFootPrint() {
+		System.out.println("Transactions: " + getTransactionsMemorySize());
+		System.out.println("Cached frequencies: " + getItemSetFrequenciesMemorySize());
+		System.out.println("Results: " + getResultItemSetTransactionsMemorySize());
+	}
+
 	public static void mine() {
 		long startTime= System.currentTimeMillis();
 
@@ -220,12 +250,8 @@ public class UnknownTransformationMiner {
 		return frequency.getOverallFrequency();
 	}
 
-	static Frequency getSubsetFrequency(TreeSet<Item> itemSet, Set<Integer> allTransactionIDs, Set<Integer> subsetTransactionIDs) {
-		Frequency frequency= itemSetFrequencies.get(itemSet);
-		if (frequency == null) {
-			computeAndCacheFrequency(itemSet, allTransactionIDs);
-		}
-		return addFrequencyForTransactions(itemSet, subsetTransactionIDs);
+	static Frequency getSubsetFrequency(TreeSet<Item> itemSet, Set<Integer> subsetTransactionIDs) {
+		return computeFrequency(itemSet, subsetTransactionIDs);
 	}
 
 	static Frequency getFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
@@ -234,12 +260,21 @@ public class UnknownTransformationMiner {
 		}
 		Frequency frequency= itemSetFrequencies.get(itemSet);
 		if (frequency == null) {
-			frequency= computeAndCacheFrequency(itemSet, transactionIDs);
+			frequency= computeFrequency(itemSet, transactionIDs);
+			//Create a copy since the itemset might get modified externally.
+			itemSetFrequencies.put(SetMapHelper.createCopy(itemSet), frequency);
 		}
 		return frequency;
 	}
 
-	private static Frequency computeAndCacheFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+	private static Frequency computeFrequency(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+		removeDuplicatedInstances(itemSet, transactionIDs);
+		Frequency frequency= addFrequencyForTransactions(itemSet, transactionIDs);
+		clearRemovedDuplicatedInstances(transactionIDs);
+		return frequency;
+	}
+
+	private static void removeDuplicatedInstances(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
 		Iterator<Integer> transactionIDIterator= transactionIDs.iterator();
 		Transaction precedingTransaction= transactions.get(transactionIDIterator.next());
 		while (transactionIDIterator.hasNext()) {
@@ -247,10 +282,6 @@ public class UnknownTransformationMiner {
 			precedingTransaction.removeDuplicatedInstances(subsequentTransaction, itemSet);
 			precedingTransaction= subsequentTransaction;
 		}
-		Frequency frequency= addFrequencyForTransactions(itemSet, transactionIDs);
-		//Create a copy since the itemset might get modified externally.
-		itemSetFrequencies.put(SetMapHelper.createCopy(itemSet), frequency);
-		return frequency;
 	}
 
 	private static Frequency addFrequencyForTransactions(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
@@ -262,6 +293,12 @@ public class UnknownTransformationMiner {
 			maximalFrequencies.add(transaction.getMaximalFrequency(itemSet));
 		}
 		return new Frequency(minimalFrequencies, maximalFrequencies);
+	}
+
+	private static void clearRemovedDuplicatedInstances(Set<Integer> transactionIDs) {
+		for (int transactionID : transactionIDs) {
+			transactions.get(transactionID).clearRemovedDuplicatedItemInstances();
+		}
 	}
 
 	public static void resetState() {
@@ -282,10 +319,12 @@ public class UnknownTransformationMiner {
 	private static StringBuffer getItemSetResultAsText(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
 		StringBuffer result= new StringBuffer();
 		result.append("Frequency of item set ").append(itemSet).append(" is ").append(getFrequency(itemSet)).append(":\n");
+		removeDuplicatedInstances(itemSet, transactionIDs);
 		for (int transactionID : transactionIDs) {
 			result.append("Instances for transaction ").append(transactionID).append(": ");
 			result.append(transactions.get(transactionID).getItemSetInstancesAsText(itemSet));
 		}
+		clearRemovedDuplicatedInstances(transactionIDs);
 		return result;
 	}
 

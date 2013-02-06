@@ -75,7 +75,7 @@ public class RemainingItemsComparator implements Comparator<Item> {
 		baseItemSet.add(item);
 		Frequency frequency;
 		if (subsetTransactionIDs != null) {
-			frequency= UnknownTransformationMiner.getSubsetFrequency(baseItemSet, getCommonTransactionIDs(item), subsetTransactionIDs);
+			frequency= UnknownTransformationMiner.getSubsetFrequency(baseItemSet, subsetTransactionIDs);
 		} else {
 			frequency= UnknownTransformationMiner.getFrequency(baseItemSet, getCommonTransactionIDs(item));
 		}

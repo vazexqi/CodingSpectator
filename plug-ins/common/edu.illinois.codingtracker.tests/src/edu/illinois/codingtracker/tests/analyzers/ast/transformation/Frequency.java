@@ -26,10 +26,9 @@ public class Frequency implements Comparable<Frequency> {
 		this.minimalFrequencies= minimalFrequencies;
 		this.maximalFrequencies= maximalFrequencies;
 
-		//Ensure the first element is always maximal since there are no preceding transactions. This is an important step
-		//when the frequency is computed for a subset of transactions!
-		if (!minimalFrequencies.isEmpty()) {
-			minimalFrequencies.set(0, maximalFrequencies.get(0));
+		//TODO: Disable this check when not testing to speed up a little bit.
+		if (!minimalFrequencies.isEmpty() && !minimalFrequencies.get(0).equals(maximalFrequencies.get(0))) {
+			throw new RuntimeException("The first minimal and maximal frequencies differ!");
 		}
 
 		int accOverallFrequency= 0;
@@ -37,6 +36,10 @@ public class Frequency implements Comparable<Frequency> {
 			accOverallFrequency+= frequency;
 		}
 		overallFrequency= accOverallFrequency;
+	}
+
+	public int getMemorySize() {
+		return (overallFrequency + minimalFrequencies.size() * 2) * 4;
 	}
 
 	public int getOverallFrequency() {

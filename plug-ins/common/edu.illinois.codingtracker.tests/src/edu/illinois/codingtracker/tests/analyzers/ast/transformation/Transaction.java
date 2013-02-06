@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -26,11 +27,25 @@ public class Transaction {
 
 	private Map<Item, Set<Long>> itemInstances= new HashMap<Item, Set<Long>>();
 
-	private Map<Set<Item>, Set<Long>> removedDuplicatedItemInstances= new HashMap<Set<Item>, Set<Long>>();
+	//A temporary collection, which is used when a frequency of a particular itemset is computed.
+	private Set<Long> removedDuplicatedInstanceIDs= new HashSet<Long>();
 
 
 	public Transaction(int transactionID) {
 		this.transactionID= transactionID;
+	}
+
+	public int getMemorySize() {
+		int memorySize= transactionID * 4;
+		for (Entry<Item, Set<Long>> entry : itemInstances.entrySet()) {
+			memorySize+= (1 + entry.getValue().size()) * 8;
+		}
+		memorySize+= removedDuplicatedInstanceIDs.size() * 8;
+		return memorySize;
+	}
+
+	public void clearRemovedDuplicatedItemInstances() {
+		removedDuplicatedInstanceIDs.clear();
 	}
 
 	public void addItemInstance(Item item, long instanceID) {
@@ -43,21 +58,15 @@ public class Transaction {
 	}
 
 	public void addRemovedDuplicatedItemInstances(TreeSet<Item> itemSet, Set<Long> newRemovedDuplicatedItemInstances) {
-		Set<Long> currentRemovedItemInstances= removedDuplicatedItemInstances.get(itemSet);
-		if (currentRemovedItemInstances == null) {
-			currentRemovedItemInstances= new HashSet<Long>();
-			removedDuplicatedItemInstances.put(itemSet, currentRemovedItemInstances);
-		}
-		currentRemovedItemInstances.addAll(newRemovedDuplicatedItemInstances);
+		removedDuplicatedInstanceIDs.addAll(newRemovedDuplicatedItemInstances);
 	}
 
 	public StringBuffer getItemSetInstancesAsText(TreeSet<Item> itemSet) {
 		StringBuffer result= new StringBuffer();
-		Set<Long> removedInstanceIDs= removedDuplicatedItemInstances.get(itemSet);
 		for (Item item : itemSet) {
 			for (long itemInstanceID : itemInstances.get(item)) {
 				String marker= "";
-				if (removedInstanceIDs != null && removedInstanceIDs.contains(itemInstanceID)) {
+				if (removedDuplicatedInstanceIDs.contains(itemInstanceID)) {
 					marker= "~";
 				}
 				result.append(marker).append(itemInstanceID).append(marker).append(", ");
@@ -69,12 +78,11 @@ public class Transaction {
 	}
 
 	private List<Set<Long>> getValidItemSetInstances(TreeSet<Item> itemSet) {
-		Set<Long> removedInstanceIDs= removedDuplicatedItemInstances.get(itemSet);
 		List<Set<Long>> validItemSetInstances= new LinkedList<Set<Long>>();
 		for (Item item : itemSet) {
 			Set<Long> validInstanceIDs= new TreeSet<Long>();
 			for (long itemInstanceID : itemInstances.get(item)) {
-				if (removedInstanceIDs == null || !removedInstanceIDs.contains(itemInstanceID)) {
+				if (!removedDuplicatedInstanceIDs.contains(itemInstanceID)) {
 					validInstanceIDs.add(itemInstanceID);
 				}
 			}
