@@ -4,6 +4,8 @@
 package edu.illinois.codingtracker.tests.analyzers.ast.transformation;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,7 +20,9 @@ import java.util.TreeSet;
 
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.tests.analyzers.ast.transformation.RemainingItemsComparator.ItemPairStatus;
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.ResultsComparator.ComparisonStrategy;
 import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.SetMapHelper;
+import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.TransactionsFrequencyPair;
 import edu.illinois.codingtracker.tests.postprocessors.CodingTrackerPostprocessor;
 
 
@@ -41,16 +45,12 @@ public class UnknownTransformationMiner {
 	//It is TreeMap to be able to call tailMap on it.
 	private static final TreeMap<Item, Set<Integer>> inputItemTransactions= new TreeMap<Item, Set<Integer>>();
 
-	private static final Map<TreeSet<Item>, Set<Integer>> resultItemSetTransactions= new TreeMap<TreeSet<Item>, Set<Integer>>(new ResultItemSetsComparator(itemSetFrequencies));
+	private static final Map<TreeSet<Item>, TransactionsFrequencyPair> resultItemSetTransactions= new HashMap<TreeSet<Item>, TransactionsFrequencyPair>();
 
 	private static final Map<Long, Set<TreeSet<Item>>> hashedResultItemSets= new HashMap<Long, Set<TreeSet<Item>>>();
 
 	private static int blockNumber= 1;
 
-
-	public static Set<Integer> getResultItemSetTransactions(TreeSet<Item> itemSet) {
-		return resultItemSetTransactions.get(itemSet);
-	}
 
 	public static Set<Integer> getInputItemTransactions(Item item) {
 		return inputItemTransactions.get(item);
@@ -74,8 +74,8 @@ public class UnknownTransformationMiner {
 
 	public static int getResultItemSetTransactionsMemorySize() {
 		int memorySize= 0;
-		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemSetTransactions.entrySet()) {
-			memorySize+= entry.getKey().size() * 8 + entry.getValue().size() * 4;
+		for (Entry<TreeSet<Item>, TransactionsFrequencyPair> entry : resultItemSetTransactions.entrySet()) {
+			memorySize+= entry.getKey().size() * 8 + entry.getValue().getMemorySize();
 		}
 		return memorySize;
 	}
@@ -107,12 +107,12 @@ public class UnknownTransformationMiner {
 				Set<Integer> commonTransactionIDs= remainingItemsComparator.getCommonTransactionIDs(currentItem);
 				SubsumptionStatus subsumptionStatus= getSubsumptionStatus(newItemSet, commonTransactionIDs);
 				if (subsumptionStatus != SubsumptionStatus.FULLY_SUBSUMED) {
-					Frequency frequency= getFrequency(newItemSet, commonTransactionIDs); //To ensure itemset's frequency is computed before adding to results.
+					Frequency frequency= getFrequency(newItemSet, commonTransactionIDs);
 					if (!frequency.isEqualTo(currentItemFrequency)) {
 						throw new RuntimeException("Frequency got skewed!");
 					}
 					if (subsumptionStatus != SubsumptionStatus.SUBSUMED_FROM_RESULTS) {
-						resultItemSetTransactions.put(newItemSet, commonTransactionIDs);
+						resultItemSetTransactions.put(newItemSet, new TransactionsFrequencyPair(commonTransactionIDs, frequency.getOverallFrequency()));
 						addToHashedResultItemSets(newItemSet, commonTransactionIDs);
 					}
 					solve(newItemSet, commonTransactionIDs, newRemainingItems);
@@ -158,7 +158,7 @@ public class UnknownTransformationMiner {
 		while (itemSetsIterator.hasNext()) {
 			TreeSet<Item> itemSet= itemSetsIterator.next();
 			if (itemSet.containsAll(checkedItemSet)) {
-				Set<Integer> itemSetTransactionIDs= resultItemSetTransactions.get(itemSet);
+				Set<Integer> itemSetTransactionIDs= resultItemSetTransactions.get(itemSet).getTransactions();
 				if (itemSetTransactionIDs.equals(transactionIDs)) {
 					Frequency itemSetFrequency= getFrequency(itemSet, itemSetTransactionIDs);
 					if (itemSetFrequency.isNotLessPowerfulThan(chekedItemSetFrequency)) {
@@ -169,9 +169,9 @@ public class UnknownTransformationMiner {
 					}
 				}
 			} else if (checkedItemSet.containsAll(itemSet)) {
-				Set<Integer> itemSetTransactionIDs= resultItemSetTransactions.get(itemSet);
-				if (itemSetTransactionIDs.equals(transactionIDs) &&
-						getFrequency(itemSet, itemSetTransactionIDs).getOverallFrequency() == chekedItemSetFrequency.getOverallFrequency()) {
+				TransactionsFrequencyPair transactionsFrequencyPair= resultItemSetTransactions.get(itemSet);
+				if (transactionsFrequencyPair.getTransactions().equals(transactionIDs) &&
+						transactionsFrequencyPair.getFrequency() == chekedItemSetFrequency.getOverallFrequency()) {
 					itemSetsIterator.remove();
 					resultItemSetTransactions.remove(itemSet);
 				}
@@ -233,21 +233,12 @@ public class UnknownTransformationMiner {
 		transaction.addItemInstance(item, itemID);
 	}
 
-	/**
-	 * Should be called only after all results are computed.
-	 * 
-	 * @param itemSet
-	 * @return
-	 */
 	public static int getFrequency(TreeSet<Item> itemSet) {
-		Frequency frequency= itemSetFrequencies.get(itemSet);
-		if (frequency == null) {
+		TransactionsFrequencyPair transactionsFrequencyPair= resultItemSetTransactions.get(itemSet);
+		if (transactionsFrequencyPair == null) {
 			return 0;
 		}
-		if (resultItemSetTransactions.get(itemSet) == null) {
-			return 0;
-		}
-		return frequency.getOverallFrequency();
+		return transactionsFrequencyPair.getFrequency();
 	}
 
 	static Frequency getSubsetFrequency(TreeSet<Item> itemSet, Set<Integer> subsetTransactionIDs) {
@@ -311,14 +302,17 @@ public class UnknownTransformationMiner {
 	}
 
 	public static void printState() {
-		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemSetTransactions.entrySet()) {
+		for (Entry<TreeSet<Item>, TransactionsFrequencyPair> entry : resultItemSetTransactions.entrySet()) {
 			System.out.print(getItemSetResultAsText(entry.getKey(), entry.getValue()));
 		}
 	}
 
-	private static StringBuffer getItemSetResultAsText(TreeSet<Item> itemSet, Set<Integer> transactionIDs) {
+	private static StringBuffer getItemSetResultAsText(TreeSet<Item> itemSet, TransactionsFrequencyPair transactionsFrequencyPair) {
 		StringBuffer result= new StringBuffer();
-		result.append("Frequency of item set ").append(itemSet).append(" is ").append(getFrequency(itemSet)).append(":\n");
+		Set<Integer> transactionIDs= transactionsFrequencyPair.getTransactions();
+		result.append("Item set: ").append(itemSet).append("\n");
+		result.append("Size: ").append(itemSet.size()).append("\n");
+		result.append("Frequency: ").append(transactionsFrequencyPair.getFrequency()).append("\n");
 		removeDuplicatedInstances(itemSet, transactionIDs);
 		for (int transactionID : transactionIDs) {
 			result.append("Instances for transaction ").append(transactionID).append(": ");
@@ -330,17 +324,36 @@ public class UnknownTransformationMiner {
 
 	public static void writeResultsToFolder(File miningResultsFolder) {
 		miningResultsFolder.mkdir();
-		for (File file : miningResultsFolder.listFiles()) {
+		deleteFilesRecursively(miningResultsFolder);
+		List<Entry<TreeSet<Item>, TransactionsFrequencyPair>> resultsList=
+				new ArrayList<Entry<TreeSet<Item>, TransactionsFrequencyPair>>(resultItemSetTransactions.entrySet());
+		Collections.sort(resultsList, new ResultsComparator(ComparisonStrategy.FREQUENCY));
+		writeOrderedResultsToFolder(new File(miningResultsFolder, "Frequency"), resultsList);
+		Collections.sort(resultsList, new ResultsComparator(ComparisonStrategy.SIZE));
+		writeOrderedResultsToFolder(new File(miningResultsFolder, "Size"), resultsList);
+		Collections.sort(resultsList, new ResultsComparator(ComparisonStrategy.FREQUENCY_AND_SIZE));
+		writeOrderedResultsToFolder(new File(miningResultsFolder, "FrequencyAndSize"), resultsList);
+	}
+
+	private static void deleteFilesRecursively(File folder) {
+		for (File file : folder.listFiles()) {
+			if (file.isDirectory()) {
+				deleteFilesRecursively(file);
+			}
 			if (!file.delete()) {
 				throw new RuntimeException("Could not delete the old file with the mining result!");
 			}
 		}
+	}
+
+	private static void writeOrderedResultsToFolder(File orderedResultsFolder, List<Entry<TreeSet<Item>, TransactionsFrequencyPair>> orderedResults) {
+		orderedResultsFolder.mkdir();
 		int counter= 1;
-		for (Entry<TreeSet<Item>, Set<Integer>> entry : resultItemSetTransactions.entrySet()) {
+		for (Entry<TreeSet<Item>, TransactionsFrequencyPair> entry : orderedResults) {
 			if (counter > Configuration.miningMaxOutputItemSetsCount) {
 				return;
 			}
-			File itemSetFile= new File(miningResultsFolder, "itemSet" + counter++);
+			File itemSetFile= new File(orderedResultsFolder, "itemSet" + counter++);
 			CodingTrackerPostprocessor.writeToFile(itemSetFile, getItemSetResultAsText(entry.getKey(), entry.getValue()), false);
 		}
 	}
