@@ -37,6 +37,8 @@ public class UnknownTransformationMiner {
 		NOT_SUBSUMED, SUBSUMED_FROM_RESULTS, FULLY_SUBSUMED
 	};
 
+	private static final int RESET_FREQUENCY_CACHE_SIZE= 100000; //100K
+
 	private static final Map<Integer, Transaction> transactions= new HashMap<Integer, Transaction>();
 
 	//This is used to cache itemset frequencies to avoid recomputation as well as for ordering the result. 
@@ -251,6 +253,9 @@ public class UnknownTransformationMiner {
 		}
 		Frequency frequency= itemSetFrequencies.get(itemSet);
 		if (frequency == null) {
+			if (itemSetFrequencies.size() > RESET_FREQUENCY_CACHE_SIZE) {
+				itemSetFrequencies.clear();
+			}
 			frequency= computeFrequency(itemSet, transactionIDs);
 			//Create a copy since the itemset might get modified externally.
 			itemSetFrequencies.put(SetMapHelper.createCopy(itemSet), frequency);
@@ -323,6 +328,11 @@ public class UnknownTransformationMiner {
 	}
 
 	public static void writeResultsToFolder(File miningResultsFolder) {
+		//First, ensure some additional free memory.
+		inputItemTransactions.clear();
+		hashedResultItemSets.clear();
+		itemSetFrequencies.clear();
+
 		miningResultsFolder.mkdir();
 		deleteFilesRecursively(miningResultsFolder);
 		List<Entry<TreeSet<Item>, TransactionsFrequencyPair>> resultsList=
