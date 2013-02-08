@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.tests.analyzers.ast.transformation.helpers.SetMapHelper;
 
 
@@ -91,10 +90,6 @@ public class RemainingItemsComparator implements Comparator<Item> {
 			cachedCommonTransactionIDs.put(item, commonTransactionIDs);
 		}
 		return commonTransactionIDs;
-	}
-
-	public boolean isFrequent(Item item) {
-		return getItemFrequency(item).getOverallFrequency() >= Configuration.miningFrequencyThreshold;
 	}
 
 	public ItemPairStatus compareItems(Item item1, Item item2) {

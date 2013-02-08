@@ -102,22 +102,24 @@ public class UnknownTransformationMiner {
 		localRemainingItems.putAll(remainingItems);
 		while (!localRemainingItems.isEmpty()) {
 			Item currentItem= localRemainingItems.pollFirstEntry().getKey();
-			if (remainingItemsComparator.isFrequent(currentItem)) {
+			if (remainingItemsComparator.getItemFrequency(currentItem).getOverallFrequency() >= Configuration.miningMinimumItemsetFrequency) {
 				Frequency currentItemFrequency= remainingItemsComparator.getItemFrequency(currentItem);
 				TreeMap<Item, Set<Integer>> newRemainingItems= SetMapHelper.createCopy(localRemainingItems);
 				TreeSet<Item> newItemSet= fuseWithSiblings(currentItem, remainingItemsComparator, localRemainingItems, newRemainingItems);
 				Set<Integer> commonTransactionIDs= remainingItemsComparator.getCommonTransactionIDs(currentItem);
-				SubsumptionStatus subsumptionStatus= getSubsumptionStatus(newItemSet, commonTransactionIDs);
-				if (subsumptionStatus != SubsumptionStatus.FULLY_SUBSUMED) {
-					Frequency frequency= getFrequency(newItemSet, commonTransactionIDs);
-					if (!frequency.isEqualTo(currentItemFrequency)) {
-						throw new RuntimeException("Frequency got skewed!");
+				Frequency frequency= getFrequency(newItemSet, commonTransactionIDs);
+				if (!frequency.isEqualTo(currentItemFrequency)) {
+					throw new RuntimeException("Frequency got skewed!");
+				}
+				if (frequency.getOverallFrequency() * newItemSet.size() >= Configuration.miningFrequencyTimesSizeThreshold) {
+					SubsumptionStatus subsumptionStatus= getSubsumptionStatus(newItemSet, commonTransactionIDs);
+					if (subsumptionStatus != SubsumptionStatus.FULLY_SUBSUMED) {
+						if (subsumptionStatus != SubsumptionStatus.SUBSUMED_FROM_RESULTS) {
+							resultItemSetTransactions.put(newItemSet, new TransactionsFrequencyPair(commonTransactionIDs, frequency.getOverallFrequency()));
+							addToHashedResultItemSets(newItemSet, commonTransactionIDs);
+						}
+						solve(newItemSet, commonTransactionIDs, newRemainingItems);
 					}
-					if (subsumptionStatus != SubsumptionStatus.SUBSUMED_FROM_RESULTS) {
-						resultItemSetTransactions.put(newItemSet, new TransactionsFrequencyPair(commonTransactionIDs, frequency.getOverallFrequency()));
-						addToHashedResultItemSets(newItemSet, commonTransactionIDs);
-					}
-					solve(newItemSet, commonTransactionIDs, newRemainingItems);
 				}
 			}
 		}

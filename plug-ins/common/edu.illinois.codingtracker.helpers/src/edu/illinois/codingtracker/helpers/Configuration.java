@@ -33,7 +33,9 @@ public class Configuration {
 
 	public static final boolean isInReplayMode= System.getenv("REPLAY_MODE") != null;
 
-	public static final int miningFrequencyThreshold;
+	public static final int miningFrequencyTimesSizeThreshold;
+
+	public static final int miningMinimumItemsetFrequency;
 
 	public static final long miningMaxBlockSize;
 
@@ -55,11 +57,18 @@ public class Configuration {
 			usageTimeStop= Long.MAX_VALUE;
 		}
 
-		String envFrequencyThreshold= System.getenv("MINING_FREQUENCY_THRESHOLD");
+		String envFrequencyThreshold= System.getenv("MINING_FREQUENCY_TIMES_SIZE_THRESHOLD");
 		if (envFrequencyThreshold != null) {
-			miningFrequencyThreshold= Integer.parseInt(envFrequencyThreshold);
+			miningFrequencyTimesSizeThreshold= Integer.parseInt(envFrequencyThreshold);
 		} else {
-			miningFrequencyThreshold= 1;
+			miningFrequencyTimesSizeThreshold= 1;
+		}
+
+		String envMinimumFrequency= System.getenv("MINING_MINIMUM_ITEMSET_FREQUENCY");
+		if (envMinimumFrequency != null) {
+			miningMinimumItemsetFrequency= Integer.parseInt(envMinimumFrequency);
+		} else {
+			miningMinimumItemsetFrequency= 1;
 		}
 
 		String envMiningMaxBlockSize= System.getenv("MINING_MAX_BLOCK_SIZE"); //Is defined in minutes.
