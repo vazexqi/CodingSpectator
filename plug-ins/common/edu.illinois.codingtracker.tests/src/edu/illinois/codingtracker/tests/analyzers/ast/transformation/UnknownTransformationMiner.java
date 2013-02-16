@@ -53,6 +53,10 @@ public class UnknownTransformationMiner {
 
 	private static int blockNumber= 1;
 
+	private static long timestamp= 0;
+
+	private static int resultsCount= 0;
+
 
 	public static Set<Integer> getInputItemTransactions(Item item) {
 		return inputItemTransactions.get(item);
@@ -112,6 +116,7 @@ public class UnknownTransformationMiner {
 					throw new RuntimeException("Frequency got skewed!");
 				}
 				if (frequency.getOverallFrequency() * newItemSet.size() >= Configuration.miningFrequencyTimesSizeThreshold) {
+					outputProgress(itemSet, localRemainingItems); //Output the progress only when the item is contributing.
 					SubsumptionStatus subsumptionStatus= getSubsumptionStatus(newItemSet, commonTransactionIDs);
 					if (subsumptionStatus != SubsumptionStatus.FULLY_SUBSUMED) {
 						if (subsumptionStatus != SubsumptionStatus.SUBSUMED_FROM_RESULTS) {
@@ -121,6 +126,22 @@ public class UnknownTransformationMiner {
 						solve(newItemSet, commonTransactionIDs, newRemainingItems);
 					}
 				}
+			}
+		}
+	}
+
+	private static void outputProgress(TreeSet<Item> itemSet, TreeMap<Item, Set<Integer>> localRemainingItems) {
+		if (itemSet.isEmpty()) { //Progress is tracked at the top level, i.e., for an empty prefix.
+			System.out.print("Remaining items: " + localRemainingItems.size());
+			if (timestamp == 0) {
+				timestamp= System.currentTimeMillis();
+				System.out.println(", start time: " + timestamp);
+			} else {
+				int newResultsCount= resultItemSetTransactions.size();
+				long newTimeStamp= System.currentTimeMillis();
+				System.out.println(", delta results: " + (newResultsCount - resultsCount) + ", delta time: " + (newTimeStamp - timestamp));
+				resultsCount= newResultsCount;
+				timestamp= newTimeStamp;
 			}
 		}
 	}
@@ -306,6 +327,8 @@ public class UnknownTransformationMiner {
 		hashedResultItemSets.clear();
 		itemSetFrequencies.clear();
 		blockNumber= 1;
+		timestamp= 0;
+		resultsCount= 0;
 	}
 
 	public static void printState() {
