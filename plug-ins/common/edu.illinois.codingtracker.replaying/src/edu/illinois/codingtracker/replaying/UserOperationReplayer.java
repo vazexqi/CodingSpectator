@@ -36,6 +36,7 @@ import edu.illinois.codingtracker.operations.OperationDeserializer;
 import edu.illinois.codingtracker.operations.UserOperation;
 import edu.illinois.codingtracker.operations.ast.ASTFileOperation;
 import edu.illinois.codingtracker.operations.ast.ASTOperation;
+import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 import edu.illinois.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingtracker.operations.files.EditedUnsychronizedFileOperation;
 import edu.illinois.codingtracker.operations.files.SavedFileOperation;
@@ -454,7 +455,7 @@ public class UserOperationReplayer {
 				lastSnapshotTimestamp= nextUserOperation.getTime();
 			}
 			if (!(nextUserOperation instanceof ASTOperation) && !(nextUserOperation instanceof ASTFileOperation) &&
-					nextUserOperation.getTime() != lastSnapshotTimestamp - 1) {
+					!(nextUserOperation instanceof InferredUnknownTransformationOperation) && nextUserOperation.getTime() != lastSnapshotTimestamp - 1) {
 				return nextUserOperation;
 			}
 		}
