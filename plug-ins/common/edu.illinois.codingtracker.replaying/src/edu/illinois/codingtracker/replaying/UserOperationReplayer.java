@@ -77,6 +77,8 @@ public class UserOperationReplayer {
 
 	private UserOperation currentUserOperation;
 
+	private boolean isCurrentOperationSplit;
+
 	private Collection<UserOperation> breakpoints;
 
 	private UserOperationExecutionThread userOperationExecutionThread;
@@ -87,6 +89,7 @@ public class UserOperationReplayer {
 
 	private IEditorPart currentEditor= null;
 
+
 	public UserOperationReplayer(OperationSequenceView operationSequenceView) {
 		this.operationSequenceView= operationSequenceView;
 	}
@@ -96,7 +99,8 @@ public class UserOperationReplayer {
 		toolBarManager.add(createLoadOperationSequenceAction());
 		toolBarManager.add(createResetOperationSequenceAction());
 		toolBarManager.add(new Separator());
-		toolBarManager.add(createReplayAction(newReplaySingleOperationAction(), "Step", "Replay the current user operation", false));
+		toolBarManager.add(createReplayAction(newReplaySingleOperationAction(false), "Step", "Replay the current user operation", false));
+		toolBarManager.add(createReplayAction(newReplaySingleOperationAction(true), "SplitStep", "Replay the current user operation in two steps", false));
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.CUSTOM), "Custom", "Replay the remaining user operations at a custom pace", true));
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.SIMULATE), "Simulate", "Simulate the remaining user operations at the user pace", true));
 		toolBarManager.add(createReplayAction(newReplayOperationSequenceAction(ReplayPace.FAST), "Fast", "Fast replay of the remaining user operations", true));
@@ -229,6 +233,7 @@ public class UserOperationReplayer {
 		currentEditor= null;
 		userOperationsIterator= userOperations.iterator();
 		lastSnapshotTimestamp= -1;
+		isCurrentOperationSplit= false;
 	}
 
 	private IAction createReplayAction(IAction action, String actionText, String actionToolTipText, boolean isToggable) {
@@ -237,12 +242,12 @@ public class UserOperationReplayer {
 		return action;
 	}
 
-	private IAction newReplaySingleOperationAction() {
+	private IAction newReplaySingleOperationAction(final boolean isSplitReplay) {
 		return new Action() {
 			@Override
 			public void run() {
 				try {
-					replayAndAdvanceCurrentUserOperation(null);
+					replayAndAdvanceCurrentUserOperation(null, isSplitReplay);
 				} catch (RuntimeException e) {
 					showReplayExceptionMessage();
 					throw e;
@@ -422,7 +427,7 @@ public class UserOperationReplayer {
 		userOperationExecutionThread.start();
 	}
 
-	private void replayAndAdvanceCurrentUserOperation(ReplayPace replayPace) {
+	private void replayAndAdvanceCurrentUserOperation(ReplayPace replayPace, boolean isSplitReplay) {
 		try {
 			if (!Configuration.isInTestMode && currentEditor != null && currentEditor != EditorHelper.getActiveEditor()) {
 				if (userOperationExecutionThread != null && userOperationExecutionThread.isAlive()) {
@@ -432,12 +437,20 @@ public class UserOperationReplayer {
 				showMessage("The current editor is wrong. Should be: \"" + currentEditor.getTitle() + "\"");
 				return;
 			}
-			currentUserOperation.replay();
+			if (isSplitReplay && currentUserOperation instanceof TextChangeOperation && !isCurrentOperationSplit) {
+				isCurrentOperationSplit= true;
+				((TextChangeOperation)currentUserOperation).splitReplay();
+			} else {
+				isCurrentOperationSplit= false;
+				currentUserOperation.replay();
+			}
 			currentEditor= EditorHelper.getActiveEditor();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		advanceCurrentUserOperation(replayPace);
+		if (!isCurrentOperationSplit) {
+			advanceCurrentUserOperation(replayPace);
+		}
 	}
 
 	private void advanceCurrentUserOperation(ReplayPace replayPace) {
@@ -583,7 +596,7 @@ public class UserOperationReplayer {
 				@Override
 				public void run() {
 					try {
-						replayAndAdvanceCurrentUserOperation(replayPace);
+						replayAndAdvanceCurrentUserOperation(replayPace, false);
 					} catch (RuntimeException e) {
 						stoppedDueToException= true;
 						throw e;

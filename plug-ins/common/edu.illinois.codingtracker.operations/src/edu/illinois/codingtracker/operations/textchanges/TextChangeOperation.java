@@ -120,6 +120,16 @@ public abstract class TextChangeOperation extends UserOperation {
 		}
 	}
 
+	/**
+	 * This replay is used to emphasize the cursor location.
+	 * 
+	 * @throws BadLocationException
+	 */
+	public void splitReplay() throws BadLocationException {
+		updateCurrentState();
+		preReplay();
+	}
+
 	private void preReplay() throws BadLocationException {
 		if (!Configuration.isInPostprocessMode) {
 			//This is not executed while postprocessing to improve performance.
