@@ -3,7 +3,7 @@
 --This script generates a report of all refactoring events that reported a
 --problem related to a name conflict.
 
---\i refactoring-message-analysis.sql
+--This script depends on refactoring-message-analysis.sql
 
 \c false
 
