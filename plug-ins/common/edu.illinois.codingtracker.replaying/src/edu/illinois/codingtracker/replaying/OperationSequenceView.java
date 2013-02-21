@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.replaying;
 
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.InferredUnknownTransformationOperation;
 
 
 /**
@@ -51,6 +53,10 @@ public class OperationSequenceView extends ViewPart {
 
 	private static final Color redColor= Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 
+	private static final Color greenColor= Display.getCurrent().getSystemColor(SWT.COLOR_GREEN);
+
+	private static final Color darkGreenColor= Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GREEN);
+
 	private final OperationSequenceFilter operationSequenceFilter;
 
 	private final UserOperationReplayer userOperationReplayer;
@@ -59,7 +65,8 @@ public class OperationSequenceView extends ViewPart {
 
 	private Text operationTextPane;
 
-	private boolean isDoubleClickRefresh= false;
+	private boolean shouldScrollToCurrentOperation= true;
+
 
 	public OperationSequenceView() {
 		operationSequenceFilter= new OperationSequenceFilter(this);
@@ -129,17 +136,25 @@ public class OperationSequenceView extends ViewPart {
 
 	private void updateCellAppearance(ViewerCell cell) {
 		Object cellElement= cell.getElement();
+		cell.setBackground(whiteColor);
+		if (userOperationReplayer.isPattern(cellElement)) {
+			if (userOperationReplayer.isLastPatternElement(cellElement)) {
+				cell.setBackground(darkGreenColor);
+			} else {
+				cell.setBackground(greenColor);
+			}
+			if (userOperationReplayer.isFirstPatternElement(cellElement)) {
+				cell.scrollIntoView();
+			}
+		}
 		if (userOperationReplayer.isBreakpoint(cellElement)) {
 			cell.setBackground(redColor);
 		}
 		if (userOperationReplayer.isCurrentUserOperation(cellElement)) {
 			cell.setBackground(yellowColor);
-			if (!isDoubleClickRefresh) {
+			if (shouldScrollToCurrentOperation) {
 				cell.scrollIntoView();
 			}
-		}
-		if (!userOperationReplayer.isBreakpoint(cellElement) && !userOperationReplayer.isCurrentUserOperation(cellElement)) {
-			cell.setBackground(whiteColor);
 		}
 	}
 
@@ -184,9 +199,9 @@ public class OperationSequenceView extends ViewPart {
 				UserOperation userOperation= (UserOperation)((IStructuredSelection)event.getSelection()).getFirstElement();
 				userOperationReplayer.toggleBreakpoint(userOperation);
 				removeSelection();
-				isDoubleClickRefresh= true;
+				shouldScrollToCurrentOperation= false;
 				updateTableViewerElement(userOperation);
-				isDoubleClickRefresh= false;
+				shouldScrollToCurrentOperation= true;
 			}
 		});
 	}
@@ -210,6 +225,12 @@ public class OperationSequenceView extends ViewPart {
 	void updateTableViewerElement(UserOperation userOperation) {
 		if (userOperation != null) {
 			tableViewer.update(userOperation, null);
+		}
+	}
+
+	public void updateTableViewerElements(List<InferredUnknownTransformationOperation> patternOperations) {
+		for (InferredUnknownTransformationOperation operation : patternOperations) {
+			updateTableViewerElement(operation);
 		}
 	}
 

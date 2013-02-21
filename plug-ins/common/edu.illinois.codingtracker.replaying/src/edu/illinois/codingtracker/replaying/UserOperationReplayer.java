@@ -69,6 +69,8 @@ public class UserOperationReplayer {
 
 	private IAction findAction;
 
+	private IAction markPatternAction;
+
 	private final Collection<IAction> replayActions= new LinkedList<IAction>();
 
 	private List<UserOperation> userOperations;
@@ -80,6 +82,8 @@ public class UserOperationReplayer {
 	private boolean isCurrentOperationSplit;
 
 	private Collection<UserOperation> breakpoints;
+
+	private List<InferredUnknownTransformationOperation> patternOperations= new LinkedList<InferredUnknownTransformationOperation>();
 
 	private UserOperationExecutionThread userOperationExecutionThread;
 
@@ -109,6 +113,8 @@ public class UserOperationReplayer {
 		toolBarManager.add(createPauseAction());
 		toolBarManager.add(new Separator());
 		toolBarManager.add(createFindOperationAction());
+		toolBarManager.add(new Separator());
+		toolBarManager.add(createMarkPatternAction());
 		toolBarManager.add(new Separator());
 	}
 
@@ -158,6 +164,41 @@ public class UserOperationReplayer {
 		return findAction;
 	}
 
+	private IAction createMarkPatternAction() {
+		markPatternAction= new Action() {
+			@Override
+			public void run() {
+				TransformationIDsDialog dialog= new TransformationIDsDialog(operationSequenceView.getShell(), "Mark pattern transformations");
+				if (dialog.open() == Window.OK) {
+					List<InferredUnknownTransformationOperation> oldPatternOperations= new LinkedList<InferredUnknownTransformationOperation>(patternOperations);
+					patternOperations.clear();
+					Set<Long> transformationIDs= dialog.getTransformationIDs();
+					for (UserOperation userOperation : userOperations) {
+						if (transformationIDs.isEmpty()) {
+							break;
+						}
+						if (userOperation instanceof InferredUnknownTransformationOperation) {
+							InferredUnknownTransformationOperation transformation= (InferredUnknownTransformationOperation)userOperation;
+							boolean isPatternTransformation= transformationIDs.remove(transformation.getTransformationID());
+							if (isPatternTransformation) {
+								patternOperations.add(transformation);
+							}
+						}
+					}
+					if (!transformationIDs.isEmpty()) {
+						showMessage("Could not find some pattern transformations: " + transformationIDs.toString());
+						patternOperations= oldPatternOperations;
+					} else {
+						oldPatternOperations.addAll(patternOperations);
+						operationSequenceView.updateTableViewerElements(oldPatternOperations);
+					}
+				}
+			}
+		};
+		ViewerHelper.initAction(markPatternAction, "MarkPattern", "Mark operations of a pattern", false, false, false);
+		return markPatternAction;
+	}
+
 	private IAction createLoadOperationSequenceAction() {
 		loadAction= new Action() {
 			@Override
@@ -175,6 +216,7 @@ public class UserOperationReplayer {
 					if (userOperations.size() > 0) {
 						resetAction.setEnabled(true);
 						findAction.setEnabled(true);
+						markPatternAction.setEnabled(true);
 					}
 					breakpoints= new HashSet<UserOperation>();
 					prepareForReplay();
@@ -234,6 +276,7 @@ public class UserOperationReplayer {
 		userOperationsIterator= userOperations.iterator();
 		lastSnapshotTimestamp= -1;
 		isCurrentOperationSplit= false;
+		patternOperations.clear();
 	}
 
 	private IAction createReplayAction(IAction action, String actionText, String actionToolTipText, boolean isToggable) {
@@ -422,6 +465,7 @@ public class UserOperationReplayer {
 		resetAction.setEnabled(false);
 		pauseAction.setEnabled(true);
 		findAction.setEnabled(false);
+		markPatternAction.setEnabled(false);
 		toggleReplayActions(false);
 		userOperationExecutionThread= new UserOperationExecutionThread(executionAction, replayPace, CustomDelayDialog.getDelay());
 		userOperationExecutionThread.start();
@@ -496,6 +540,18 @@ public class UserOperationReplayer {
 
 	boolean isBreakpoint(Object object) {
 		return breakpoints.contains(object);
+	}
+
+	boolean isPattern(Object object) {
+		return patternOperations.contains(object);
+	}
+
+	boolean isFirstPatternElement(Object object) {
+		return patternOperations.get(0).equals(object);
+	}
+
+	boolean isLastPatternElement(Object object) {
+		return patternOperations.get(patternOperations.size() - 1).equals(object);
 	}
 
 	boolean isCurrentUserOperation(Object object) {
