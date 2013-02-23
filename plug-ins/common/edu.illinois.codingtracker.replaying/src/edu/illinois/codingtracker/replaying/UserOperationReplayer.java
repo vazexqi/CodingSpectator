@@ -683,6 +683,7 @@ public class UserOperationReplayer {
 			resetAction.setEnabled(true);
 			pauseAction.setEnabled(false);
 			findAction.setEnabled(true);
+			markPatternAction.setEnabled(true);
 			updateReplayActionsStateForCurrentUserOperation();
 			if (replayPace == ReplayPace.FAST) { //Update the view after the fast replay is over.
 				operationSequenceView.getDisplay().syncExec(new Runnable() {
