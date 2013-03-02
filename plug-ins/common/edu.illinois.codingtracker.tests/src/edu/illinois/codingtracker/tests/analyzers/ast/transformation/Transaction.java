@@ -44,6 +44,12 @@ public class Transaction {
 		return memorySize;
 	}
 
+	public Set<Long> getAllItemInstances(Item item) {
+		Set<Long> copySet= new HashSet<Long>();
+		copySet.addAll(itemInstances.get(item));
+		return copySet;
+	}
+
 	public void clearRemovedDuplicatedItemInstances() {
 		removedDuplicatedInstanceIDs.clear();
 	}

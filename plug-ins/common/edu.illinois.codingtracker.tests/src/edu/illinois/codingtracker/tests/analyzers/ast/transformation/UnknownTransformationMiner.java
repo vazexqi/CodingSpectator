@@ -93,6 +93,8 @@ public class UnknownTransformationMiner {
 	}
 
 	public static void mine() {
+		printGeneralStatistics();
+
 		long startTime= System.currentTimeMillis();
 
 		solve(new TreeSet<Item>(), new TreeSet<Integer>(), inputItemTransactions);
@@ -100,10 +102,30 @@ public class UnknownTransformationMiner {
 		System.out.println("Mining time: " + (System.currentTimeMillis() - startTime));
 	}
 
+	private static void printGeneralStatistics() {
+		Set<Long> allOccurrences= new HashSet<Long>();
+		int transactionItemsCount= 0;
+		for (Entry<Item, Set<Integer>> entry : inputItemTransactions.entrySet()) {
+			Item item= entry.getKey();
+			TreeSet<Item> itemSet= new TreeSet<Item>();
+			itemSet.add(item);
+			for (int transactionID : entry.getValue()) {
+				Transaction transaction= transactions.get(transactionID);
+				allOccurrences.addAll(transaction.getAllItemInstances(item));
+				transactionItemsCount+= transaction.getMaximalFrequency(itemSet);
+			}
+		}
+		System.out.println("Number of transactions: " + transactions.size());
+		System.out.println("Number of item kinds: " + inputItemTransactions.size());
+		System.out.println("Number of transaction items (double counting overlap): " + transactionItemsCount);
+		System.out.println("Number of item occurrences: " + allOccurrences.size());
+	}
+
 	private static void solve(TreeSet<Item> itemSet, Set<Integer> transactionIDs, NavigableMap<Item, Set<Integer>> remainingItems) {
 		RemainingItemsComparator remainingItemsComparator= new RemainingItemsComparator(itemSet, transactionIDs);
 		TreeMap<Item, Set<Integer>> localRemainingItems= new TreeMap<Item, Set<Integer>>(remainingItemsComparator);
 		localRemainingItems.putAll(remainingItems);
+		//cutTail(itemSet, localRemainingItems);
 		while (!localRemainingItems.isEmpty()) {
 			Item currentItem= localRemainingItems.pollFirstEntry().getKey();
 			if (remainingItemsComparator.getItemFrequency(currentItem).getOverallFrequency() >= Configuration.miningMinimumItemsetFrequency) {
@@ -126,6 +148,18 @@ public class UnknownTransformationMiner {
 						solve(newItemSet, commonTransactionIDs, newRemainingItems);
 					}
 				}
+			}
+		}
+	}
+
+	private static void cutTail(TreeSet<Item> itemSet, TreeMap<Item, Set<Integer>> localRemainingItems) {
+		if (itemSet.isEmpty()) { //The tail is cut at the top level, i.e., for an empty prefix.
+			final int tailSize= 104; //23 + 81
+			int counter= 0;
+			//This is not very efficient, but it's OK since it happens only once.
+			while (counter < tailSize && !localRemainingItems.isEmpty()) {
+				localRemainingItems.pollLastEntry();
+				counter++;
 			}
 		}
 	}
