@@ -52,8 +52,23 @@ run_t_test <- function(a, b) {
   show(t_test_result)
 }
 
+# See http://yatani.jp/HCIstats/KruskalWallis
+run_kruskal_wallis_test <- function(a, b) {
+  cat("a =", a, "\n")
+  cat("length(a) =", length(a), "\n")
+  cat("\n")
+  cat("b =", b, "\n")
+  cat("length(b) =", length(b), "\n")
+  cat("\n")
+
+  kruskal_wallis_test_result <- kruskal.test(b ~ a, data = data.frame(a, b))
+  show(kruskal_wallis_test_result)
+}
+
 wizard_task_completion_times <- c(17, 8, 18, 19, 37, 19, 9, 12, 16, 13)
 compositional_task_completion_times <- c(9, 5, 8, 19, 11, 18, 8, 11, 18, 10)
+# 1 for wizard then compositional, 0 for compositional then wizard
+task_order <- c(1, 0, 1, 1, 1, 0, 0, 0, 0, 0)
 
 cat("a = wizard_task_completion_times\n")
 cat("b = compositional_task_completion_times\n")
@@ -61,4 +76,6 @@ cat("Wilcoxon test of task completion times:\n")
 run_wilcoxon(wizard_task_completion_times, compositional_task_completion_times)
 cat("t-test of task completion times:\n")
 run_t_test(wizard_task_completion_times, compositional_task_completion_times)
+cat("Kruskal-Wallis test of task completion times:\n")
+run_kruskal_wallis_test(factor(task_order), wizard_task_completion_times - compositional_task_completion_times)
 
