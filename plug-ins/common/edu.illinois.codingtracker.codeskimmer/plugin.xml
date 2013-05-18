@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Operation Sequence Replaying"
+            id="edu.illinois.codingtracker.codeskimmer">
+      </category>
+      <view
+            name="CodeSkimmer View"
+            icon="icons/sample.gif"
+            category="edu.illinois.codingtracker.codeskimmer"
+            class="edu.illinois.codingtracker.codeskimmer.CodeSkimmerView"
+            id="edu.illinois.codingtracker.codeskimmer.views.CodeSkimmerView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               relative="org.eclipse.ui.views.Console"
+               relationship="stack"
+               id="edu.illinois.codingtracker.codeskimmer.views.CodeSkimmerView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+</plugin>

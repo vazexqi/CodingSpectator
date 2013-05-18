@@ -25,6 +25,7 @@ public abstract class UserOperation {
 
 	private long timestamp;
 
+	private String username;
 
 	public UserOperation() {
 		timestamp= System.currentTimeMillis();
@@ -51,6 +52,14 @@ public abstract class UserOperation {
 		if (timestamp < 0 && !Configuration.isInPostprocessMode) {
 			throw new RuntimeException("Operation has a negative timestamp:\n" + this);
 		}
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	@Override

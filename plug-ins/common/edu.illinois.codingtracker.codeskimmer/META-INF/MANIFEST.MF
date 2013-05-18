@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edu.illinois.codingtracker.codeskimmer
+Bundle-SymbolicName: edu.illinois.codingtracker.codeskimmer;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: edu.illinois.codingtracker.codeskimmer.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ edu.illinois.codingtracker.operations,
+ org.eclipse.jdt.core,
+ edu.illinois.codingtracker.jdt.project.manipulation,
+ org.eclipse.jdt.ui
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: University of Illinois
