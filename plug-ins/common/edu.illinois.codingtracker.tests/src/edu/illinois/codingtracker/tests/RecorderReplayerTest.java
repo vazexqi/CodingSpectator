@@ -24,7 +24,7 @@ import edu.illinois.codingtracker.operations.UserOperation;
  */
 public abstract class RecorderReplayerTest extends CodingTrackerTest {
 
-	private static final String TEST_FILES_FOLDER= "test-files";
+	public static final String TEST_FILES_FOLDER= "test-files";
 
 	private static final String CODECHANGES_FILE_NAME= "codechanges.txt";
 

@@ -3,6 +3,7 @@
  */
 package edu.illinois.codingtracker.recording;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
@@ -29,7 +30,7 @@ public class ASTInferenceTextRecorder {
 
 	private static long lastTimestamp;
 
-	public static Set<ASTOperation> astOperationAccumulator;
+	public static Set<ASTOperation> astOperationAccumulator= new HashSet<ASTOperation>();
 
 
 	/**
