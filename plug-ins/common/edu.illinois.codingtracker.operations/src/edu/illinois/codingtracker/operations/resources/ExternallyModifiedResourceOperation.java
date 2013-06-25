@@ -11,6 +11,7 @@ import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * 
@@ -59,7 +60,7 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		IResource resource= findResource();
+		IResource resource= ResourceOperationHelper.findResource(resourcePath);
 		if (resource != null) {
 			if (isDeleted) {
 				//To avoid confusing the replayer that tracks the currently active editor, close the editor (if any) 
@@ -67,7 +68,7 @@ public class ExternallyModifiedResourceOperation extends ResourceOperation {
 				EditorHelper.closeAllEditorsForResource(resourcePath);
 				resource.delete(IResource.FORCE, null);
 			} else {
-				addExternallyModifiedResource(resourcePath);
+				ResourceOperationHelper.addExternallyModifiedResource(resourcePath);
 			}
 		}
 	}

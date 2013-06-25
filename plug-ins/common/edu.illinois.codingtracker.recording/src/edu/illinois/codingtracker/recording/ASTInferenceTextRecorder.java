@@ -3,6 +3,8 @@
  */
 package edu.illinois.codingtracker.recording;
 
+import java.util.Set;
+
 import edu.illinois.codingspectator.saferecorder.SafeRecorder;
 import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.UserOperation;
@@ -27,6 +29,8 @@ public class ASTInferenceTextRecorder {
 
 	private static long lastTimestamp;
 
+	public static Set<ASTOperation> astOperationAccumulator;
+
 
 	/**
 	 * When isSimulatedRecord is true, this method flushes the text changes, if necessary, and
@@ -49,6 +53,7 @@ public class ASTInferenceTextRecorder {
 
 	public static void recordASTOperation(ASTOperationDescriptor operationDescriptor, CompositeNodeDescriptor affectedNodeDescriptor) {
 		ASTOperation astOperation= new ASTOperation(operationDescriptor, affectedNodeDescriptor, getASTOperationTimestamp());
+		astOperationAccumulator.add(astOperation);
 		performRecording(astOperation, false);
 	}
 

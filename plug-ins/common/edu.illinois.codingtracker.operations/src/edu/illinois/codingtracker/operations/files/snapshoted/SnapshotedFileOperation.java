@@ -10,6 +10,7 @@ import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
 import edu.illinois.codingtracker.operations.files.FileOperation;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * 
@@ -53,7 +54,7 @@ public abstract class SnapshotedFileOperation extends FileOperation {
 	@Override
 	public void replay() throws CoreException {
 		createCompilationUnit(fileContent);
-		removeExternallyModifiedResource(resourcePath);
+		ResourceOperationHelper.removeExternallyModifiedResource(resourcePath);
 	}
 
 	@Override

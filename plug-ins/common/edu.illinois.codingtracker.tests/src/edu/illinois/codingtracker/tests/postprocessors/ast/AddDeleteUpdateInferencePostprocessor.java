@@ -5,6 +5,7 @@ package edu.illinois.codingtracker.tests.postprocessors.ast;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -20,18 +21,20 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.UserOperation;
+import edu.illinois.codingtracker.operations.ast.ASTOperation;
 import edu.illinois.codingtracker.operations.files.EditedFileOperation;
 import edu.illinois.codingtracker.operations.files.SavedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.CommittedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.NewFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.RefreshedFileOperation;
 import edu.illinois.codingtracker.operations.files.snapshoted.SnapshotedFileOperation;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 import edu.illinois.codingtracker.operations.options.OptionsChangedOperation;
 import edu.illinois.codingtracker.operations.refactorings.NewStartedRefactoringOperation;
 import edu.illinois.codingtracker.operations.references.ReferencingProjectsChangedOperation;
-import edu.illinois.codingtracker.operations.resources.ResourceOperation;
 import edu.illinois.codingtracker.operations.textchanges.PerformedTextChangeOperation;
 import edu.illinois.codingtracker.operations.textchanges.TextChangeOperation;
+import edu.illinois.codingtracker.recording.ASTInferenceTextRecorder;
 import edu.illinois.codingtracker.recording.ast.ASTOperationRecorder;
 import edu.illinois.codingtracker.recording.ast.helpers.SnapshotDifferenceCalculator;
 
@@ -148,7 +151,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 	}
 
 	private void handleCommittedFileOperation(CommittedFileOperation committedFileOperation) {
-		boolean willReplaceFile= ResourceOperation.isExternallyModifiedResource(committedFileOperation.getResourcePath());
+		boolean willReplaceFile= ResourceOperationHelper.isExternallyModifiedResource(committedFileOperation.getResourcePath());
 		handleOneStepSnapshotedFileOperation(committedFileOperation, willReplaceFile, true);
 	}
 
@@ -177,8 +180,21 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 		replaySnapshotsAsEdits(refreshedFileOperation, refreshedFile, new String[] { currentContent, replacedText, newContent }, true);
 	}
 
-	private void replaySnapshotsAsEdits(SnapshotedFileOperation snapshotedFileOperation, IFile editedFile, String[] snapshots, boolean shouldRestoreOriginalEditor) {
+	public static Set<ASTOperation> getDiffAsASTNodeOperations(String oldFileContent, String newFileContent) throws CoreException {
+		String resourcePath= "/Test/src/Dummy.java";
+		ResourceOperationHelper.createCompilationUnit(oldFileContent, resourcePath);
+		IFile editedFile= (IFile)ResourceHelper.findWorkspaceMember(resourcePath);
+		ASTInferenceTextRecorder.astOperationAccumulator.clear();
+		replaySnapshotsAsEdits(0, editedFile, new String[] { oldFileContent, newFileContent }, false);
+		return ASTInferenceTextRecorder.astOperationAccumulator;
+	}
+
+	private static void replaySnapshotsAsEdits(SnapshotedFileOperation snapshotedFileOperation, IFile editedFile, String[] snapshots, boolean shouldRestoreOriginalEditor) {
 		long timestamp= snapshotedFileOperation.getTime() - 1; //Subtracting 1ms we mark the added operations.
+		replaySnapshotsAsEdits(timestamp, editedFile, snapshots, shouldRestoreOriginalEditor);
+	}
+
+	private static void replaySnapshotsAsEdits(long timestamp, IFile editedFile, String[] snapshots, boolean shouldRestoreOriginalEditor) {
 		List<PerformedTextChangeOperation> snapshotDifference= new LinkedList<PerformedTextChangeOperation>();
 		for (int i= 0; i < snapshots.length - 1; i++) {
 			snapshotDifference.addAll(SnapshotDifferenceCalculator.getSnapshotDifference(snapshots[i], snapshots[i + 1], timestamp));
@@ -186,7 +202,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 		replaySnapshotDifference(snapshotDifference, editedFile, timestamp, shouldRestoreOriginalEditor);
 	}
 
-	private void replaySnapshotDifference(List<PerformedTextChangeOperation> snapshotDifference, IFile editedFile, long timestamp, boolean shouldRestoreOriginalEditor) {
+	private static void replaySnapshotDifference(List<PerformedTextChangeOperation> snapshotDifference, IFile editedFile, long timestamp, boolean shouldRestoreOriginalEditor) {
 		if (snapshotDifference.size() > 0) {
 			ASTOperationRecorder.isReplayingSnapshotDifference= true;
 			IEditorPart originalEditor= null;
@@ -238,7 +254,7 @@ public class AddDeleteUpdateInferencePostprocessor extends ASTPostprocessor {
 		return currentContent;
 	}
 
-	private void restoreOriginalEditor(IEditorPart originalEditor, long timestamp) {
+	private static void restoreOriginalEditor(IEditorPart originalEditor, long timestamp) {
 		if (originalEditor != null) {
 			IFile originalFile= null;
 			if (originalEditor instanceof AbstractDecoratedTextEditor) {

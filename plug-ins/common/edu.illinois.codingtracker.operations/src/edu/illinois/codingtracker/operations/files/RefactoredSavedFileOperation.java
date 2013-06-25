@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
 import edu.illinois.codingtracker.operations.OperationSymbols;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * This operation is no longer recorded.
@@ -36,7 +37,7 @@ public class RefactoredSavedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() throws CoreException {
-		saveResourceInEditor();
+		ResourceOperationHelper.saveResourceInEditor(resourcePath);
 	}
 
 }

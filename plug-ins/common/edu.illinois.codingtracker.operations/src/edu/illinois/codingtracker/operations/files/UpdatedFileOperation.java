@@ -9,6 +9,7 @@ import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * Note that code related to fields revision and committedRevision is duplicated from
@@ -74,7 +75,7 @@ public class UpdatedFileOperation extends FileOperation {
 
 	@Override
 	public void replay() {
-		addExternallyModifiedResource(resourcePath);
+		ResourceOperationHelper.addExternallyModifiedResource(resourcePath);
 	}
 
 	@Override

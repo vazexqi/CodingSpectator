@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IPath;
 
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * 
@@ -47,9 +48,9 @@ public abstract class ReorganizedResourceOperation extends UpdatedResourceOperat
 
 	@Override
 	public void replayBreakableResourceOperation() throws CoreException {
-		IResource resource= findResource();
+		IResource resource= ResourceOperationHelper.findResource(resourcePath);
 		if (resource != null) {
-			findOrCreateParent(destinationPath);
+			ResourceOperationHelper.findOrCreateParent(destinationPath);
 			replayReorganizedResourceOperation(resource);
 		}
 	}

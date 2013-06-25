@@ -9,6 +9,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import edu.illinois.codingtracker.helpers.Debugger;
 import edu.illinois.codingtracker.operations.OperationSymbols;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 import edu.illinois.codingtracker.operations.resources.BreakableResourceOperation;
 
 /**
@@ -45,7 +46,7 @@ public class SavedFileOperation extends BreakableResourceOperation {
 
 	@Override
 	public void replayBreakableResourceOperation() throws CoreException {
-		ITextEditor editor= saveResourceInEditor();
+		ITextEditor editor= ResourceOperationHelper.saveResourceInEditor(resourcePath);
 		if (editor == null) {
 			Debugger.debugWarning("Ignored save of the non existent editor:\n" + this);
 		}

@@ -11,6 +11,7 @@ import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * 
@@ -64,7 +65,7 @@ public abstract class CommittedFileOperation extends SnapshotedFileOperation {
 	@Override
 	public void replay() throws CoreException {
 		IResource workspaceResource= ResourceHelper.findWorkspaceMember(resourcePath);
-		if (workspaceResource != null && !isExternallyModifiedResource(resourcePath)) {
+		if (workspaceResource != null && !ResourceOperationHelper.isExternallyModifiedResource(resourcePath)) {
 			//Match against the existing file.
 			if (!fileContent.equals(ResourceHelper.readFileContent((IFile)workspaceResource))) {
 				throw new RuntimeException("The snapshot file does not match the existing file: " + resourcePath);

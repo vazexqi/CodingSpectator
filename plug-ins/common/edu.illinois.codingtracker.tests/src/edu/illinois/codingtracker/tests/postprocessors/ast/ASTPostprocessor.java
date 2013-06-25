@@ -45,11 +45,11 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 		record(userOperation, false);
 	}
 
-	protected void record(UserOperation userOperation, boolean isSimulatedRecord) {
+	protected static void record(UserOperation userOperation, boolean isSimulatedRecord) {
 		ASTInferenceTextRecorder.record(userOperation, isSimulatedRecord);
 	}
 
-	protected void replay(UserOperation userOperation) {
+	protected static void replay(UserOperation userOperation) {
 		System.out.println("Replaying operation: " + userOperation.generateSerializationText());
 		try {
 			userOperation.replay();
@@ -58,11 +58,11 @@ public abstract class ASTPostprocessor extends CodingTrackerPostprocessor {
 		}
 	}
 
-	protected void replayAndRecord(UserOperation userOperation) {
+	protected static void replayAndRecord(UserOperation userOperation) {
 		replayAndRecord(userOperation, false);
 	}
 
-	protected void replayAndRecord(UserOperation userOperation, boolean isSimulatedRecord) {
+	protected static void replayAndRecord(UserOperation userOperation, boolean isSimulatedRecord) {
 		//Do not record TextChangeOperations (except those that happen in conflict editors)	since instead of them 
 		//we record the corresponding CoherentTextChanges.
 		//For all other operations, first record and then replay in order to preserve the right ordering 

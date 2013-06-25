@@ -11,6 +11,7 @@ import edu.illinois.codingtracker.helpers.ResourceHelper;
 import edu.illinois.codingtracker.operations.OperationLexer;
 import edu.illinois.codingtracker.operations.OperationSymbols;
 import edu.illinois.codingtracker.operations.OperationTextChunk;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * 
@@ -66,7 +67,7 @@ public class CreatedResourceOperation extends UpdatedResourceOperation {
 		if (isFile) {
 			createCompilationUnit(fileContent);
 		} else {
-			createContainer();
+			ResourceOperationHelper.createContainer(resourcePath);
 		}
 	}
 

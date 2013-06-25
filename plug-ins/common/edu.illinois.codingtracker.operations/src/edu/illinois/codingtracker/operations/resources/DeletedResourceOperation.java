@@ -6,9 +6,10 @@ package edu.illinois.codingtracker.operations.resources;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
-import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.compare.helpers.EditorHelper;
+import edu.illinois.codingtracker.helpers.Configuration;
 import edu.illinois.codingtracker.operations.OperationSymbols;
+import edu.illinois.codingtracker.operations.helpers.ResourceOperationHelper;
 
 /**
  * 
@@ -37,7 +38,7 @@ public class DeletedResourceOperation extends UpdatedResourceOperation {
 
 	@Override
 	public void replayBreakableResourceOperation() throws CoreException {
-		IResource resource= findResource();
+		IResource resource= ResourceOperationHelper.findResource(resourcePath);
 		if (resource != null) {
 			//If not in test mode, explicitly close the editors of the files that are contained in the deleted resource such that the replayer 
 			//does not complain about the wrong editor, and do it before the resource is deleted such that the affected files still exist.
