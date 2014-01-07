@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# This script is deprecated in favor of the build.xml file.
 
 zip_file="org.tmatesoft.svn_1.3.4.standalone.zip"
 zip_top_dir="svnkit-1.3.4.6888"
