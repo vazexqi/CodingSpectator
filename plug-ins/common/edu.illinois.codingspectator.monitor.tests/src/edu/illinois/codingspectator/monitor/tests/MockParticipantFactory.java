@@ -10,10 +10,12 @@ package edu.illinois.codingspectator.monitor.tests;
  */
 public class MockParticipantFactory {
 
-	private static MockParticipant[] participants= new MockParticipant[] { new MockParticipant("test.codingspectator", "test.codingspectator"),
-			new MockParticipant("test.codingspectator2", "test.codingspectator2") };
+	private static MockParticipant[] participants= new MockParticipant[] {
+			new MockParticipant(Messages.MockParticipantFactory_MockParticipantOneUsername, Messages.MockParticipantFactory_MockParticipantOnePassword),
+			new MockParticipant(Messages.MockParticipantFactory_MockParticipantTwoUsername, Messages.MockParticipantFactory_MockParticipantTwoPassword) };
 
 	public static MockParticipant getMockParticipant(int id) {
 		return participants[id];
 	}
+
 }
