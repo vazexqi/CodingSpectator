@@ -27,11 +27,6 @@ import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
  */
 public class AuthenticationPrompter implements AuthenticationProvider {
 
-//	private final static String PRODUCTION_REPOSITORY_URL= "https://subversion.cs.illinois.edu/svn/CodingSpectatorData/";
-	private final static String PRODUCTION_REPOSITORY_URL= "https://subversion.cs.illinois.edu/basic/CodingSpectatorData/";
-
-	private final static String TEST_REPOSITORY_URL= "https://subversion.assembla.com/svn/ganje/";
-
 	DialogState dialogState= new DialogState();
 
 	SecureStorageFacade secureStorageFacade= new SecureStorageFacade();
@@ -113,9 +108,9 @@ public class AuthenticationPrompter implements AuthenticationProvider {
 	@Override
 	public String getRepositoryURL() {
 		if (RunningModes.isInProductionMode()) {
-			return PRODUCTION_REPOSITORY_URL;
+			return Messages.AuthenticationPrompter_ProductionRepositoryURL;
 		} else {
-			return TEST_REPOSITORY_URL;
+			return Messages.AuthenticationPrompter_TestRepositoryURL;
 		}
 	}
 }
