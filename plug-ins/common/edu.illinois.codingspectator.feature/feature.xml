@@ -6,54 +6,23 @@
       provider-name="University of Illinois">
 
    <description>
-     %description
+      %description
    </description>
 
    <copyright>
-     %copyright
+      %copyright
    </copyright>
 
    <license>
-     %license
+      %license
    </license>
 
-   <plugin
-         id="org.tmatesoft.svn.eclipse"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.saferecorder"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="edu.illinois.codingspectator.submitter"
+         version="0.0.0"/>
 
    <plugin
          id="edu.illinois.codingspectator.errorlog"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.monitor.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.monitor.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.data"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -73,18 +42,4 @@
          version="0.0.0"
          unpack="false"/>
 
-   <plugin
-         id="edu.illinois.bundleupdater"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.illinois.codingspectator.efs"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-         
 </feature>

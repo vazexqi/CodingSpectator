@@ -42,11 +42,8 @@
          id="org.eclipse.epp.usagedata.feature"
          version="0.0.0"/>
 
-   <plugin
-         id="edu.illinois.codingspectator.branding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="edu.illinois.codingspectator.submitter"
+         version="0.0.0"/>
 
 </feature>
