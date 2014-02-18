@@ -11,7 +11,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.PreferenceConstants;
-import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;

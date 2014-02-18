@@ -10,7 +10,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.jface.window.Window;
-import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 

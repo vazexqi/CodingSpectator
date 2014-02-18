@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 import org.eclipse.ltk.internal.core.refactoring.RefactoringCorePlugin;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.junit.BeforeClass;
@@ -20,6 +19,7 @@ import org.junit.Test;
 
 import edu.illinois.codingspectator.data.CodingSpectatorDataPlugin;
 import edu.illinois.codingspectator.efs.EFSFile;
+import edu.illinois.codingspectator.monitor.ui.RunningModes;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 import edu.illinois.codingspectator.refactoringproblems.logger.ProblemChanges;
 import edu.illinois.codingspectator.refactorings.parser.RefactoringLog;

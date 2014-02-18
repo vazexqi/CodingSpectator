@@ -8,11 +8,11 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ltk.core.refactoring.codingspectator.RunningModes;
 
 import edu.illinois.codingspectator.monitor.core.submission.LocalSVNManager;
 import edu.illinois.codingspectator.monitor.ui.Activator;
 import edu.illinois.codingspectator.monitor.ui.Messages;
+import edu.illinois.codingspectator.monitor.ui.RunningModes;
 import edu.illinois.codingspectator.monitor.ui.submission.Submitter;
 
 /**
