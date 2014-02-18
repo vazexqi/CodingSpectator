@@ -32,5 +32,5 @@ end
 
 parse_options
 system("#{$THIS_FOLDER_PATH}/patch/widen-patch-ranges.rb #{$PARENT_OF_THIS_FOLDER_PATH} #{$THIS_FOLDER_PATH}/patch/widen-patch-ranges-#{$options[:release]}.xsl")
-system("#{$THIS_FOLDER_PATH}/sign/sign.rb #{$THIS_FOLDER_PATH}/sign/CodingSpectatorKeyStore")
+#system("#{$THIS_FOLDER_PATH}/sign/sign.rb #{$THIS_FOLDER_PATH}/sign/CodingSpectatorKeyStore")
 
