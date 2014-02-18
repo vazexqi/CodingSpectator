@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/edu.illinois.codingspectator_1.0.0.201402180948.jar" id="edu.illinois.codingspectator" version="1.0.0.201402180948">
+   <feature url="features/edu.illinois.codingspectator_1.0.0.201402181100.jar" id="edu.illinois.codingspectator" version="1.0.0.201402181100">
       <category name="CodingSpectator"/>
    </feature>
-   <feature url="features/edu.illinois.codingspectator.submitter_1.0.0.201402180948.jar" id="edu.illinois.codingspectator.submitter" version="1.0.0.201402180948">
+   <feature url="features/edu.illinois.codingspectator.submitter_1.0.0.201402181100.jar" id="edu.illinois.codingspectator.submitter" version="1.0.0.201402181100">
       <category name="CodingSpectator"/>
    </feature>
    <category-def name="CodingSpectator" label="CodingSpectator">
