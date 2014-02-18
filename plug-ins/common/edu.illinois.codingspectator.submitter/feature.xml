@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="edu.illinois.codingspectator.submitter"
-      label="CodingSpectator"
+      label="CodingSpectator Data Submitter"
       version="1.0.0.qualifier"
       provider-name="University of Illinois"
       plugin="edu.illinois.codingspectator.branding">
